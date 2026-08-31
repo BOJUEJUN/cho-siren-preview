@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d2b" />
+  <title>CHO-SIREN · 幻域魅声</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="generated-assets.css" />
+  <link rel="stylesheet" href="secondary-polish.css" />
+  <link rel="stylesheet" href="topbar-row.css" />
+  <link rel="stylesheet" href="motion.css" />
+  <link rel="stylesheet" href="layout-fixes.css" />
+</head>
+<body>
+  <main class="phone" aria-label="CHO-SIREN 游戏主界面">
+    <div class="backdrop"></div>
+    <div class="scanlines"></div>
+    <header class="topbar">
+      <button class="profile glass" data-toast="制作人档案已打开" aria-label="打开制作人档案">
+        <span class="avatar">♪</span>
+        <span><b>音律少女</b><small>Lv.68 · 新星制作人</small></span>
+      </button>
+      <div class="economy">
+        <button class="pill glass" data-toast="声晶：10,695"><i class="gem">◇</i><b>10,695</b><span>＋</span></button>
+        <button class="pill glass" data-toast="星币：17,267 K"><i class="coin">B</i><b>17,267 K</b></button>
+      </div>
+      <div class="utilities">
+        <button data-toast="暂无新邮件" aria-label="邮件">✉</button>
+        <button data-toast="公告已更新" aria-label="公告">♬</button>
+        <button data-toast="设置" aria-label="设置">⚙<em></em></button>
+      </div>
+      <button class="stamina glass" data-toast="体力将在 04:18 后恢复"><span>♥</span><b>120/120</b><i></i><strong>＋</strong></button>
+    </header>
+
+    <section id="lobby" class="screen active" aria-labelledby="lobby-title">
+      <h1 id="lobby-title" class="sr-only">大厅</h1>
+      <div class="record" aria-hidden="true"><span>STARWAY TO THE STAGE</span></div>
+      <img class="hero" src="assets/character.webp" alt="幻域魅声主唱角色" fetchpriority="high" />
+      <span class="hero-shimmer" aria-hidden="true"></span>
+      <button class="live-card glass" data-toast="直播间正在连接…">
+        <small>LIVE NOW</small><b>直播间</b><span class="heartline">♡⌁♡</span><em>20w 人在线</em><strong>进入直播 ▶</strong>
+      </button>
+      <button class="event-card glass" data-toast="闪耀舞台计划 · 活动详情">
+        <small>NEW EVENT</small><b>闪耀舞台计划</b><span>Star Stage Plan</span><em>限时解锁舞台计划</em>
+      </button>
+      <button class="mission-card glass" data-toast="挑战已加入追踪">
+        <span class="card-title">冒险剧本 <small>Act.</small></span>
+        <b>第07章 · 踏梦迷踪</b><i><u></u></i><em>7-3　秘闻 79%</em><strong>挑战</strong>
+      </button>
+      <button class="daily-card glass" data-toast="每日任务：2 / 3">
+        <span>每日任务 <b>✓</b></span><em>完成 3 次演出</em><i><u></u></i><small>2 / 3</small>
+      </button>
+      <button class="signin-card glass" data-toast="今日签到奖励：声晶 ×100">
+        <span>新人签到</span><b>第 3 天</b><em>◇ ×100</em>
+      </button>
+      <button class="shop-card glass" data-toast="心动扭蛋机 · 限定套装 UP">
+        <small>Shop</small><b>商城抽卡</b><span>♡</span><em>限定套装 UP!</em>
+      </button>
+      <button class="stage-button" data-toast="LIVE ON STAGE"><small>♪　♬</small><b>LIVE</b><span>ON STAGE</span></button>
+    </section>
+
+    <section id="team" class="screen panel-screen" aria-labelledby="team-title">
+      <div class="section-head"><span>TEAM 01</span><h2 id="team-title">团队成员</h2><button data-toast="已自动编队">自动编队</button></div>
+      <div class="power glass"><small>共鸣战力</small><b>108,610</b><i><u></u></i></div>
+      <div class="member-grid" id="memberGrid"></div>
+    </section>
+
+    <section id="all" class="screen panel-screen" aria-labelledby="all-title">
+      <div class="section-head"><span>RESONATORS</span><h2 id="all-title">全部成员</h2><button id="sortBtn">战力 ↓</button></div>
+      <div class="filter-row"><button class="active">全部</button><button>主唱</button><button>舞者</button><button>支援</button></div>
+      <div class="roster-grid" id="rosterGrid"></div>
+    </section>
+
+    <section id="accessory" class="screen panel-screen" aria-labelledby="accessory-title">
+      <div class="section-head"><span>STORAGE</span><h2 id="accessory-title">饰品库存</h2><button data-toast="按稀有度排序">级别 ↓</button></div>
+      <div class="filter-row"><button class="active">全部</button><button>音核</button><button>衣装</button><button>收藏品</button></div>
+      <div class="inventory-grid" id="inventoryGrid"></div>
+    </section>
+
+    <section id="recruit" class="screen panel-screen" aria-labelledby="recruit-title">
+      <div class="section-head"><span>AUDITION</span><h2 id="recruit-title">队员招募</h2><button data-toast="招募记录已打开">记录</button></div>
+      <div class="recruit-hero glass"><small>限时共鸣招募</small><b>绮光夜航</b><p>五星魅声者概率提升</p><span>剩余 08 天 16:42:09</span></div>
+      <div class="recruit-actions"><button data-toast="已进行 1 次招募">招募 1 次<small>◇ 150</small></button><button data-toast="已进行 10 次招募">招募 10 次<small>◇ 1,500</small></button></div>
+    </section>
+
+    <nav class="bottom-nav glass" aria-label="主导航">
+      <button data-screen="team"><i>♟</i><span>团队成员</span><small>MEMBERS</small></button>
+      <button data-screen="all"><i>♛</i><span>全部成员</span><small>ALL MEMBERS</small></button>
+      <button class="active" data-screen="lobby"><i>♬</i><span>大厅</span><small>LOBBY</small></button>
+      <button data-screen="accessory"><i>♡</i><span>饰品</span><small>ACCESSORY</small></button>
+      <button data-screen="recruit"><i>♩</i><span>队员招募</span><small>RECRUIT</small></button>
+    </nav>
+    <div class="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

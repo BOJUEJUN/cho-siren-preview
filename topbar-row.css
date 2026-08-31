@@ -1,0 +1,93 @@
+/* Compact single-row HUD. This sheet intentionally loads last. */
+.topbar {
+  height: 68px;
+  background: linear-gradient(180deg, rgba(7, 9, 35, .86), rgba(7, 9, 35, .28), transparent);
+}
+
+.profile {
+  top: 10px;
+  left: 6px;
+  width: 90px;
+  height: 42px;
+  padding: 4px;
+  border-radius: 22px 12px 12px 22px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+}
+
+.profile b { font-size: 10px; line-height: 1.1; }
+.profile small { font-size: 6px; line-height: 1.25; }
+
+.economy {
+  top: 10px;
+  left: 100px;
+  gap: 3px;
+}
+
+.pill {
+  height: 42px;
+  padding: 0 7px;
+  gap: 4px;
+  border-radius: 22px;
+  font-size: 12px;
+}
+
+.pill i { width: 19px; height: 19px; }
+
+.stamina {
+  top: 10px;
+  left: 290px;
+  width: 100px;
+  height: 42px;
+  padding: 0 7px;
+  gap: 4px;
+  border-radius: 22px;
+}
+
+.stamina b { font: 700 12px Rajdhani, sans-serif; white-space: nowrap; }
+.stamina i { min-width: 12px; }
+.stamina strong { font-size: 16px; }
+
+.utilities {
+  top: 20px;
+  right: 6px;
+  gap: 0;
+}
+
+.utilities button {
+  width: 20px;
+  min-width: 20px;
+  flex: 0 0 20px;
+  height: 22px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.utilities em { right: -1px; top: -3px; }
+
+.panel-screen { padding-top: 92px; }
+
+@media (max-width: 420px) {
+  .topbar {
+    width: 117.647%;
+    transform: scale(.85);
+    transform-origin: left top;
+  }
+
+  .profile { left: 6px; width: 90px; }
+  .economy { left: 100px; gap: 3px; }
+  .pill { height: 42px; padding: 0 7px; font-size: 12px; }
+  .utilities { top: 20px; right: 6px; }
+  .utilities button { display: block; width: 20px; min-width: 20px; flex-basis: 20px; padding: 0; font-size: 16px; }
+  .stamina { left: 290px; width: 100px; }
+  .panel-screen { padding-top: 82px; }
+}
+
+@media (max-height: 820px) {
+  .panel-screen { padding-top: 76px; }
+}

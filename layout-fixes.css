@@ -1,0 +1,37 @@
+/* Final collision and text-overflow fixes. Loaded after motion.css. */
+.live-card strong {
+  margin-top: 4px;
+  padding: 7px 3px;
+  min-height: 30px;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.event-card {
+  height: 88px;
+}
+
+.event-card em {
+  margin-top: 3px;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 8px;
+  line-height: 10px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.utilities em {
+  top: 0;
+  right: 0;
+}
+
+#lobby .stage-button {
+  bottom: 16px;
+}
+
+@media (max-width: 420px) {
+  .event-card { height: 86px; }
+  #lobby .stage-button { bottom: 12px; }
+}

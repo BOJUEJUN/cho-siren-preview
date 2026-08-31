@@ -1,0 +1,213 @@
+/* Generated artwork integration. Keep this sheet after styles.css. */
+
+/* A restrained, edge-only VFX pass: visible behind the UI, never over text. */
+.phone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background: url("assets/vfx-overlay.png") center / 100% 100% no-repeat;
+  opacity: .2;
+  filter: saturate(.85) brightness(.94);
+  mix-blend-mode: screen;
+}
+
+/* Replace font glyphs with the generated five-cell navigation sprite. */
+.bottom-nav i {
+  display: block;
+  width: 42px;
+  height: 38px;
+  flex: 0 0 38px;
+  overflow: hidden;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
+  text-indent: -999px;
+  background-image: url("assets/nav-icons.png");
+  background-repeat: no-repeat;
+  background-size: 500% auto;
+  background-position-y: center;
+  filter: grayscale(.25) saturate(.9) brightness(.96);
+  opacity: .9;
+  transform: translateY(1px) scale(.9);
+  transition: filter .18s ease, opacity .18s ease, transform .18s ease;
+}
+
+.bottom-nav button:nth-child(1) i { background-position-x: 0%; }
+.bottom-nav button:nth-child(2) i { background-position-x: 25%; }
+.bottom-nav button:nth-child(3) i { background-position-x: 50%; }
+.bottom-nav button:nth-child(4) i { background-position-x: 75%; }
+.bottom-nav button:nth-child(5) i { background-position-x: 100%; }
+
+.bottom-nav button.active i {
+  opacity: 1;
+  transform: translateY(-1px) scale(1.05);
+  filter: saturate(1.2) brightness(1.12)
+    drop-shadow(0 0 4px rgba(255, 190, 242, .92))
+    drop-shadow(0 0 9px rgba(112, 117, 255, .72));
+}
+
+.bottom-nav button:active i { transform: translateY(1px) scale(.96); }
+
+/* Generated 3 x 2 emblem sprite on the functional cards. */
+.live-card,
+.event-card,
+.mission-card,
+.daily-card,
+.signin-card,
+.shop-card {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.live-card::before,
+.event-card::before,
+.mission-card::before,
+.daily-card::before,
+.signin-card::before,
+.shop-card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  aspect-ratio: 1;
+  background-image: url("assets/ui-emblems.png");
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+  filter: drop-shadow(0 0 8px rgba(255, 123, 220, .5));
+}
+
+.live-card > *,
+.event-card > *,
+.mission-card > *,
+.daily-card > *,
+.signin-card > *,
+.shop-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Preserve the two existing absolutely-positioned labels. */
+.live-card > small { position: absolute; }
+.mission-card > strong { position: absolute; }
+
+/* Heart / live-room emblem. */
+.live-card::before {
+  left: 15px;
+  top: 34px;
+  width: 84px;
+  background-position: 0 0;
+  opacity: .74;
+}
+
+.live-card .heartline {
+  height: 54px;
+  color: transparent;
+  text-shadow: none;
+}
+
+/* Ticket / event emblem. */
+.event-card::before {
+  right: -10px;
+  top: -17px;
+  width: 88px;
+  background-position: 50% 0;
+  opacity: .34;
+  transform: rotate(8deg);
+}
+
+/* Compass / adventure emblem. */
+.mission-card::before {
+  right: -15px;
+  top: -16px;
+  width: 92px;
+  background-position: 100% 0;
+  opacity: .22;
+}
+
+/* Calendar / task emblem. */
+.daily-card::before {
+  right: -14px;
+  bottom: -20px;
+  width: 84px;
+  background-position: 0 100%;
+  opacity: .25;
+}
+
+/* Musical frame / sign-in reward emblem. */
+.signin-card::before {
+  right: -18px;
+  top: -19px;
+  width: 86px;
+  background-position: 100% 100%;
+  opacity: .26;
+}
+
+/* Record player / gacha emblem. */
+.shop-card::before {
+  left: 22px;
+  top: 35px;
+  width: 82px;
+  background-position: 50% 100%;
+  opacity: .78;
+}
+
+.shop-card > span {
+  min-height: 59px;
+  color: transparent;
+  text-shadow: none;
+}
+
+/* Replace the procedural LIVE blob with the generated concert-badge frame. */
+.stage-button {
+  isolation: isolate;
+  border: 0;
+  background: radial-gradient(circle at 50% 46%, rgba(255, 54, 183, .94), rgba(148, 34, 169, .82) 58%, rgba(70, 31, 118, .36) 78%, transparent 79%);
+  box-shadow: 0 0 22px rgba(255, 91, 211, .48);
+}
+
+.stage-button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -27px;
+  background-image: url("assets/ui-emblems.png");
+  background-repeat: no-repeat;
+  background-size: 300% 200%;
+  background-position: 100% 100%;
+  filter: drop-shadow(0 0 9px rgba(255, 170, 239, .75));
+  transform: rotate(6deg);
+}
+
+.stage-button > * { position: relative; z-index: 1; }
+
+/* Fine glass highlights keep the generated art visually embedded in each card. */
+.live-card::after,
+.event-card::after,
+.mission-card::after,
+.daily-card::after,
+.signin-card::after,
+.shop-card::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(118deg, rgba(255,255,255,.2), transparent 24% 76%, rgba(131,224,255,.12)),
+    radial-gradient(circle at 82% 14%, rgba(255,178,236,.3), transparent 22%);
+  box-shadow: inset 0 1px rgba(255,255,255,.2);
+  opacity: .72;
+}
+
+@media (max-height: 820px) {
+  .bottom-nav i { width: 39px; height: 35px; flex-basis: 35px; }
+  .live-card::before { top: 32px; width: 78px; }
+  .shop-card::before { width: 75px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav i { transition: none; }
+}
