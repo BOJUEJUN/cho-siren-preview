@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="secondary-polish.css" />
   <link rel="stylesheet" href="topbar-row.css" />
   <link rel="stylesheet" href="motion.css" />
+  <link rel="stylesheet" href="video-motion.css" />
   <link rel="stylesheet" href="layout-fixes.css" />
 </head>
 <body>
@@ -41,6 +42,9 @@
       <div class="record" aria-hidden="true"><span>STARWAY TO THE STAGE</span></div>
       <img class="hero" src="assets/character.webp" alt="幻域魅声主唱角色" fetchpriority="high" />
       <span class="hero-shimmer" aria-hidden="true"></span>
+      <video class="hero-video" autoplay muted loop playsinline preload="auto" aria-label="幻域魅声主唱角色待机动画">
+        <source src="assets/character-idle-alpha-v2.webm" type="video/webm" />
+      </video>
       <button class="live-card glass" data-toast="直播间正在连接…">
         <small>LIVE NOW</small><b>直播间</b><span class="heartline">♡⌁♡</span><em>20w 人在线</em><strong>进入直播 ▶</strong>
       </button>
@@ -97,5 +101,6 @@
     <div class="toast" role="status" aria-live="polite"></div>
   </main>
   <script src="app.js"></script>
+  <script src="video-motion.js"></script>
 </body>
 </html>

@@ -22,6 +22,26 @@
   text-overflow: ellipsis;
 }
 
+/* Reserve a dedicated action lane so the challenge CTA never covers progress. */
+.mission-card {
+  --mission-action-width: 62px;
+}
+
+.mission-card i,
+.mission-card em {
+  width: calc(100% - var(--mission-action-width));
+  max-width: calc(100% - var(--mission-action-width));
+}
+
+.mission-card strong {
+  right: 9px;
+  bottom: 9px;
+  min-width: 54px;
+  box-sizing: border-box;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .utilities em {
   top: 0;
   right: 0;
