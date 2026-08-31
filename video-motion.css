@@ -1,5 +1,6 @@
 /* AI-generated lobby idle video. The still image remains as a loading fallback. */
-.hero-video {
+.hero-video,
+.hero-animation {
   position: absolute;
   z-index: 3;
   left: 50%;
@@ -14,22 +15,25 @@
   transition: opacity .4s ease;
 }
 
-#lobby.video-ready .hero-video { opacity: 1; }
+#lobby.desktop-motion.motion-ready .hero-video,
+#lobby.mobile-motion.motion-ready .hero-animation { opacity: 1; }
 
-#lobby.video-ready .hero,
-#lobby.video-ready .hero-shimmer {
+#lobby.motion-ready .hero,
+#lobby.motion-ready .hero-shimmer {
   opacity: 0;
   animation: none;
 }
 
 @media (max-height: 820px) {
-  .hero-video {
+  .hero-video,
+  .hero-animation {
     top: 68px;
     width: min(148%, 600px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-video { display: none; }
-  #lobby.video-ready .hero { opacity: 1; }
+  .hero-video,
+  .hero-animation { display: none; }
+  #lobby.motion-ready .hero { opacity: 1; }
 }

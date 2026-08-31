@@ -63,11 +63,11 @@
   border-radius: 52% 52% 18% 18% / 100% 100% 28% 28%;
   background: radial-gradient(
     ellipse at 50% 110%,
-    rgba(213, 39, 172, .96) 0 48%,
-    rgba(167, 37, 157, .92) 72%,
-    rgba(94, 30, 128, .78) 100%
+    rgba(180, 60, 181, .98) 0 48%,
+    rgba(154, 49, 166, .94) 72%,
+    rgba(86, 31, 121, .82) 100%
   );
-  box-shadow: 0 -3px 10px rgba(255, 84, 205, .18);
+  box-shadow: none;
   pointer-events: none;
 }
 
