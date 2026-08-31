@@ -32,6 +32,14 @@
   }
 }
 
+/* The mobile WebP has a wider transparent canvas than the desktop WebM. */
+@media (max-width: 480px), (pointer: coarse) {
+  .hero-animation {
+    top: clamp(108px, 14vh, 128px);
+    width: min(175%, 680px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero-video,
   .hero-animation { display: none; }
