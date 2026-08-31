@@ -16,7 +16,7 @@
 }
 
 #lobby.desktop-motion.motion-ready .hero-video,
-#lobby.mobile-motion.motion-ready .hero-animation { opacity: 1; }
+#lobby.mobile-motion .hero-animation { opacity: 1; }
 
 #lobby.motion-ready .hero,
 #lobby.motion-ready .hero-shimmer {

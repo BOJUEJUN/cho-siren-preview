@@ -8,7 +8,8 @@ if (lobbyScreen && heroVideo && heroAnimation && heroVideoSource) {
     /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
     matchMedia('(pointer: coarse)').matches;
   const motionClass = useMobileFallback ? 'mobile-motion' : 'desktop-motion';
-  const revealMotion = () => lobbyScreen.classList.add(motionClass, 'motion-ready');
+  lobbyScreen.classList.add(motionClass);
+  const revealMotion = () => lobbyScreen.classList.add('motion-ready');
   const restoreStill = () => lobbyScreen.classList.remove('motion-ready');
   const syncPlayback = () => {
     if (useMobileFallback) return;
@@ -19,10 +20,11 @@ if (lobbyScreen && heroVideo && heroAnimation && heroVideoSource) {
 
   const loadMotion = () => {
     if (useMobileFallback) {
-      if (!heroAnimation.src) heroAnimation.src = heroAnimation.dataset.src;
+      heroAnimation.fetchPriority = 'high';
+      if (!heroAnimation.getAttribute('src')) heroAnimation.src = heroAnimation.dataset.src;
       return;
     }
-    if (!heroVideoSource.src) heroVideoSource.src = heroVideoSource.dataset.src;
+    if (!heroVideoSource.getAttribute('src')) heroVideoSource.src = heroVideoSource.dataset.src;
     heroVideo.preload = 'auto';
     heroVideo.load();
     syncPlayback();
@@ -46,6 +48,7 @@ if (lobbyScreen && heroVideo && heroAnimation && heroVideoSource) {
     if ('requestIdleCallback' in window) requestIdleCallback(loadMotion, { timeout: 1400 });
     else setTimeout(loadMotion, 450);
   };
-  if (document.readyState === 'complete') scheduleMotion();
+  if (useMobileFallback) loadMotion();
+  else if (document.readyState === 'complete') scheduleMotion();
   else window.addEventListener('load', scheduleMotion, { once: true });
 }
