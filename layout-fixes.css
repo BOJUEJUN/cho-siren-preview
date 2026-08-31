@@ -50,6 +50,7 @@
 #lobby .stage-button {
   bottom: 16px;
   overflow: visible;
+  background: transparent;
 }
 
 #lobby .stage-button::after {
@@ -57,17 +58,17 @@
   position: absolute;
   z-index: -2;
   top: -10px;
-  right: 9px;
-  left: 10px;
-  height: 24px;
-  border-radius: 52% 52% 18% 18% / 100% 100% 28% 28%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 48% 42% 51% 38%;
   background: radial-gradient(
-    ellipse at 50% 110%,
-    rgba(180, 60, 181, .98) 0 48%,
-    rgba(154, 49, 166, .94) 72%,
-    rgba(86, 31, 121, .82) 100%
+    circle at 50% 50%,
+    rgba(255, 54, 183, .94),
+    rgba(148, 34, 169, .82) 58%,
+    rgba(70, 31, 118, .36) 78%,
+    transparent 79%
   );
-  box-shadow: none;
   pointer-events: none;
 }
 
