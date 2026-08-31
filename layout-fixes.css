@@ -49,6 +49,34 @@
 
 #lobby .stage-button {
   bottom: 16px;
+  background: radial-gradient(
+    ellipse at 50% 43%,
+    rgba(255, 68, 190, .98) 0%,
+    rgba(205, 38, 166, .96) 58%,
+    rgba(116, 29, 139, .94) 100%
+  );
+  box-shadow:
+    0 0 22px rgba(255, 91, 211, .52),
+    inset 0 12px 22px rgba(255, 156, 225, .18),
+    inset 0 -18px 28px rgba(71, 17, 106, .28);
+}
+
+#lobby .stage-button::after {
+  content: "";
+  position: absolute;
+  z-index: -2;
+  top: -8px;
+  right: 4px;
+  bottom: 2px;
+  left: 4px;
+  border-radius: 50% 48% 47% 46%;
+  background: radial-gradient(
+    ellipse at 50% 42%,
+    rgba(255, 75, 198, .98) 0 52%,
+    rgba(211, 38, 168, .94) 72%,
+    rgba(104, 35, 137, .86) 100%
+  );
+  pointer-events: none;
 }
 
 @media (max-width: 420px) {
