@@ -36,7 +36,7 @@
 @media (max-width: 480px), (pointer: coarse) {
   .hero-animation {
     top: clamp(108px, 14vh, 128px);
-    width: min(175%, 680px);
+    width: min(195%, 760px);
   }
 }
 
