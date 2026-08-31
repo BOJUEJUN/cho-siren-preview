@@ -230,9 +230,9 @@
 .avatar {
   color: transparent;
   font-size: 0;
-  background-image: linear-gradient(rgba(34, 20, 65, .06), rgba(34, 20, 65, .06)), url("assets/layout-reference.png");
-  background-size: cover, 700% auto;
-  background-position: center, 53% 21.5%;
+  background-image: linear-gradient(rgba(34, 20, 65, .06), rgba(34, 20, 65, .06)), url("assets/character-display.webp");
+  background-size: cover, 260% auto;
+  background-position: center, 50% 12%;
   background-repeat: no-repeat;
 }
 
@@ -413,7 +413,7 @@
   background:
     linear-gradient(180deg, rgba(32, 20, 81, .18), rgba(20, 11, 54, .28) 43%, rgba(12, 10, 42, .94) 100%) padding-box,
     linear-gradient(130deg, rgba(255, 237, 252, .92), rgba(255, 142, 218, .68) 28%, rgba(153, 119, 255, .48) 72%, rgba(122, 214, 255, .35)) border-box,
-    url("assets/background-square.webp") center / cover;
+    url("assets/background-square-display.webp") center / cover;
   box-shadow: 0 20px 42px rgba(4, 3, 28, .5), 0 0 25px rgba(224, 83, 239, .23), inset 0 0 30px rgba(225, 164, 255, .12);
 }
 

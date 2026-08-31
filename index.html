@@ -5,16 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#090d2b" />
   <title>CHO-SIREN · 幻域魅声</title>
+  <link rel="preload" as="image" href="assets/background-portrait-display.webp" fetchpriority="high" />
+  <link rel="preload" as="image" href="assets/character-display.webp" fetchpriority="high" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="generated-assets.css" />
   <link rel="stylesheet" href="secondary-polish.css" />
   <link rel="stylesheet" href="topbar-row.css" />
   <link rel="stylesheet" href="motion.css" />
-  <link rel="stylesheet" href="video-motion.css?v=20260831-mobile-alpha" />
-  <link rel="stylesheet" href="layout-fixes.css?v=20260831-live-expanded" />
+  <link rel="stylesheet" href="video-motion.css?v=20260831-perf1" />
+  <link rel="stylesheet" href="layout-fixes.css?v=20260831-perf1" />
 </head>
 <body>
   <main class="phone" aria-label="CHO-SIREN 游戏主界面">
@@ -40,11 +43,11 @@
     <section id="lobby" class="screen active" aria-labelledby="lobby-title">
       <h1 id="lobby-title" class="sr-only">大厅</h1>
       <div class="record" aria-hidden="true"><span>STARWAY TO THE STAGE</span></div>
-      <img class="hero" src="assets/character.webp" alt="幻域魅声主唱角色" fetchpriority="high" />
+      <img class="hero" src="assets/character-display.webp" alt="幻域魅声主唱角色" fetchpriority="high" decoding="async" />
       <span class="hero-shimmer" aria-hidden="true"></span>
-      <img class="hero-animation" src="assets/character-idle-mobile.webp" alt="" aria-hidden="true" decoding="async" />
+      <img class="hero-animation" data-src="assets/character-idle-mobile-lite.webp" alt="" aria-hidden="true" decoding="async" width="420" height="420" />
       <video class="hero-video" autoplay muted loop playsinline preload="none" aria-label="幻域魅声主唱角色待机动画">
-        <source src="assets/character-idle-seamless.webm" type="video/webm" />
+        <source data-src="assets/character-idle-seamless.webm" type="video/webm" />
       </video>
       <button class="live-card glass" data-toast="直播间正在连接…">
         <small>LIVE NOW</small><b>直播间</b><span class="heartline">♡⌁♡</span><em>20w 人在线</em><strong>进入直播 ▶</strong>
@@ -102,6 +105,6 @@
     <div class="toast" role="status" aria-live="polite"></div>
   </main>
   <script src="app.js"></script>
-  <script src="video-motion.js?v=20260831-mobile-alpha"></script>
+  <script src="video-motion.js?v=20260831-perf1"></script>
 </body>
 </html>

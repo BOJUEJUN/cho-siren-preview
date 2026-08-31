@@ -7,7 +7,7 @@
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background: url("assets/vfx-overlay.png") center / 100% 100% no-repeat;
+  background: url("assets/vfx-overlay-display.webp") center / 100% 100% no-repeat;
   opacity: .2;
   filter: saturate(.85) brightness(.94);
   mix-blend-mode: screen;
@@ -24,7 +24,7 @@
   font-size: 0;
   line-height: 0;
   text-indent: -999px;
-  background-image: url("assets/nav-icons.png");
+  background-image: url("assets/nav-icons-display.webp");
   background-repeat: no-repeat;
   background-size: 500% auto;
   background-position-y: center;
@@ -72,7 +72,7 @@
   z-index: 0;
   pointer-events: none;
   aspect-ratio: 1;
-  background-image: url("assets/ui-emblems.png");
+  background-image: url("assets/ui-emblems-display.webp");
   background-repeat: no-repeat;
   background-size: 300% 200%;
   filter: drop-shadow(0 0 8px rgba(255, 123, 220, .5));
@@ -172,7 +172,7 @@
   position: absolute;
   z-index: -1;
   inset: -27px;
-  background-image: url("assets/ui-emblems.png");
+  background-image: url("assets/ui-emblems-display.webp");
   background-repeat: no-repeat;
   background-size: 300% 200%;
   background-position: 100% 100%;

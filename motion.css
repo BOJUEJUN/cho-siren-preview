@@ -20,8 +20,8 @@
       transparent 66%);
   background-size: 250% 100%;
   background-position: 115% 0;
-  -webkit-mask: url("assets/character.webp") center / cover no-repeat;
-  mask: url("assets/character.webp") center / cover no-repeat;
+  -webkit-mask: url("assets/character-display.webp") center / cover no-repeat;
+  mask: url("assets/character-display.webp") center / cover no-repeat;
   will-change: transform, opacity, background-position;
   animation:
     siren-idle 6.4s cubic-bezier(.45, 0, .55, 1) infinite,

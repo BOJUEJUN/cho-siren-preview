@@ -1,8 +1,9 @@
 const lobbyScreen = document.querySelector('#lobby');
 const heroVideo = document.querySelector('.hero-video');
 const heroAnimation = document.querySelector('.hero-animation');
+const heroVideoSource = heroVideo?.querySelector('source');
 
-if (lobbyScreen && heroVideo && heroAnimation) {
+if (lobbyScreen && heroVideo && heroAnimation && heroVideoSource) {
   const useMobileFallback =
     /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
     matchMedia('(pointer: coarse)').matches;
@@ -16,12 +17,21 @@ if (lobbyScreen && heroVideo && heroAnimation) {
     else heroVideo.pause();
   };
 
+  const loadMotion = () => {
+    if (useMobileFallback) {
+      if (!heroAnimation.src) heroAnimation.src = heroAnimation.dataset.src;
+      return;
+    }
+    if (!heroVideoSource.src) heroVideoSource.src = heroVideoSource.dataset.src;
+    heroVideo.preload = 'auto';
+    heroVideo.load();
+    syncPlayback();
+  };
+
   if (useMobileFallback) {
     heroAnimation.addEventListener('load', revealMotion, { once: true });
     heroAnimation.addEventListener('error', restoreStill, { once: true });
-    if (heroAnimation.complete && heroAnimation.naturalWidth) revealMotion();
   } else {
-    heroVideo.preload = 'auto';
     heroVideo.addEventListener('canplay', revealMotion, { once: true });
     heroVideo.addEventListener('error', restoreStill);
     document.addEventListener('visibilitychange', syncPlayback);
@@ -29,8 +39,13 @@ if (lobbyScreen && heroVideo && heroAnimation) {
       attributes: true,
       attributeFilter: ['class']
     });
-    heroVideo.load();
     if (heroVideo.readyState >= 3) revealMotion();
-    syncPlayback();
   }
+
+  const scheduleMotion = () => {
+    if ('requestIdleCallback' in window) requestIdleCallback(loadMotion, { timeout: 1400 });
+    else setTimeout(loadMotion, 450);
+  };
+  if (document.readyState === 'complete') scheduleMotion();
+  else window.addEventListener('load', scheduleMotion, { once: true });
 }

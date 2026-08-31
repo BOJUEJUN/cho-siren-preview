@@ -53,6 +53,28 @@
   background: transparent;
 }
 
+/* The lettering is an HTML layer: lift the full lockup into the visual center of the jeweled frame. */
+#lobby .stage-button > small,
+#lobby .stage-button > b,
+#lobby .stage-button > span {
+  transform: translateY(-9px);
+}
+
+/* Keep hidden screens out of the first paint and ease GPU load on touch devices. */
+.screen:not(.active) {
+  content-visibility: hidden;
+}
+
+@media (max-width: 480px), (pointer: coarse) {
+  .glass {
+    backdrop-filter: blur(6px) saturate(1.08);
+    -webkit-backdrop-filter: blur(6px) saturate(1.08);
+  }
+
+  .scanlines { opacity: .1; }
+  .phone::before { opacity: .15; }
+}
+
 #lobby .stage-button::after {
   content: "";
   position: absolute;
@@ -75,4 +97,7 @@
 @media (max-width: 420px) {
   .event-card { height: 86px; }
   #lobby .stage-button { bottom: 12px; }
+  #lobby .stage-button > small,
+  #lobby .stage-button > b,
+  #lobby .stage-button > span { transform: translateY(-7px); }
 }
