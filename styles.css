@@ -92,17 +92,13 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .member-grid{grid-template-columns:repeat(2,1fr)}
 .roster-grid{grid-template-columns:repeat(3,1fr);overflow:auto;max-height:630px}
 .member-card{position:relative;overflow:hidden;min-height:224px;border:1px solid #ffaee5aa;background:#15173d;border-radius:15px;box-shadow:0 7px 18px #0006}
-.member-card .art{position:absolute;inset:0;background-size:200% 200%;opacity:.88}
-.member-card:nth-child(2) .art{background-position:100% 0}
-.member-card:nth-child(3) .art{background-position:0 100%}
-.member-card:nth-child(4) .art{background-position:100% 100%}
+.member-card .art{position:absolute;inset:0;opacity:.96}
 .member-card .meta{position:absolute;inset:auto 0 0;padding:48px 10px 10px;background:linear-gradient(transparent,#14142fea)}
 .member-card small{color:#ffaadf}
 .member-card b{display:block}
 .member-card em{font:700 22px Rajdhani;font-style:normal}
 .roster-grid .member-card{min-height:172px;border-radius:10px}
 .roster-grid .member-card .meta{padding:35px 7px 7px}
-.roster-grid .member-card:nth-child(n+5) .art{filter:hue-rotate(calc(var(--n)*36deg))}
 .filter-row{display:flex;gap:7px;margin-bottom:12px}
 .filter-row button{padding:7px 11px;border-radius:12px;background:#282a57;color:#c6b8db;font-size:11px}
 .filter-row button.active{background:#ee71c2;color:white;box-shadow:0 0 10px #f879cd}
@@ -137,9 +133,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 
 /* Render corrections based on the native 1440 × 3104 source composition. */
 .hero{inset:0;width:100%;height:100%;transform:translate(-6%,12%) scale(.84);transform-origin:center top;object-fit:cover;object-position:center;filter:drop-shadow(0 0 12px #c886ff88)}
-.member-card .art{background-image:linear-gradient(180deg,#8150bd22,#161438aa),url("assets/character-display.webp");background-repeat:no-repeat;background-size:cover,auto 148%;background-position:center,center 8%;filter:hue-rotate(calc(var(--n)*24deg)) saturate(.9)}
-.member-card:nth-child(2n) .art{background-position:center,46% 14%;filter:hue-rotate(calc(var(--n)*31deg)) saturate(.82)}
-.member-card:nth-child(3n) .art{background-position:center,54% 5%;filter:hue-rotate(calc(var(--n)*38deg)) saturate(1.05)}
+.member-card .art{background-image:linear-gradient(180deg,#8150bd18 15%,#161438d9 100%),var(--member-art);background-repeat:no-repeat;background-size:cover,contain;background-position:center,center bottom;filter:none}
 
 @media(max-width:420px){
   .profile{left:7px;width:113px}

@@ -1,0 +1,14 @@
+{
+  "name": "cho-siren-preview",
+  "version": "0.2.0",
+  "private": true,
+  "description": "CHO-SIREN mobile-first web game preview",
+  "scripts": {
+    "check": "node scripts/verify-project.js && node --check game-core.js && node --check app.js && node --check video-motion.js && node --check service-worker.js",
+    "test": "node --test game-core.test.js",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

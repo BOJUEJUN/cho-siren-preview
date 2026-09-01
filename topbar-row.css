@@ -1,93 +1,294 @@
-/* Compact single-row HUD. This sheet intentionally loads last. */
+/* Minimal continuous HUD approved from the visual mockup. */
 .topbar {
-  height: 68px;
-  background: linear-gradient(180deg, rgba(7, 9, 35, .86), rgba(7, 9, 35, .28), transparent);
+  --hud-line: rgba(185, 201, 236, .18);
+  --hud-muted: rgba(221, 211, 239, .7);
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  right: 6px;
+  left: 6px;
+  display: grid;
+  grid-template-columns: 100px minmax(133px, 1fr) 105px 96px;
+  grid-template-areas: "profile economy stamina utilities";
+  align-items: stretch;
+  width: auto;
+  height: 52px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
+.topbar > * { min-width: 0; }
+
+.topbar .profile,
+.topbar .economy,
+.topbar .stamina,
+.topbar .utilities {
+  position: static;
+  top: auto;
+  right: auto;
+  left: auto;
+  width: 100%;
+  height: 100%;
+}
+
+/* The shell owns the glass treatment; inner controls stay flat and quiet. */
+.topbar .glass,
+.topbar .glass:not(:where(.mission-card, .daily-card, .signin-card, .shop-card, .recruit-hero)) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.topbar .glass::after { display: none; }
+
 .profile {
-  top: 10px;
-  left: 6px;
-  width: 90px;
-  height: 42px;
-  padding: 4px;
-  border-radius: 22px 12px 12px 22px;
+  grid-area: profile;
+  gap: 6px;
+  padding: 6px 7px 6px 2px;
+  text-align: left;
 }
 
 .avatar {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 1px solid rgba(222, 195, 255, .72);
+  box-shadow: 0 0 8px rgba(183, 128, 255, .28);
 }
 
-.profile b { font-size: 10px; line-height: 1.1; }
-.profile small { font-size: 6px; line-height: 1.25; }
+.profile > span:last-child { min-width: 0; }
+
+.profile b,
+.profile small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile b {
+  color: #faf8ff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.profile small {
+  margin-top: 3px;
+  color: #ba9ddd;
+  font: 600 7px/1 Rajdhani, sans-serif;
+}
 
 .economy {
-  top: 10px;
-  left: 100px;
-  gap: 3px;
+  grid-area: economy;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border-left: 0;
 }
 
 .pill {
-  height: 42px;
-  padding: 0 7px;
+  position: relative;
+  display: flex;
+  justify-content: center;
   gap: 4px;
-  border-radius: 22px;
-  font-size: 12px;
+  min-width: 0;
+  min-height: 100%;
+  padding: 0 5px;
+  color: #f7f6ff;
+  font: 700 11px/1 Rajdhani, sans-serif;
 }
 
-.pill i { width: 19px; height: 19px; }
+.pill + .pill { border-left: 0; }
+
+.pill i {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  place-items: center;
+  font-size: 10px;
+  font-style: normal;
+}
+
+.gem {
+  border: 1.5px solid #69d8ff;
+  background: transparent;
+  color: transparent;
+  transform: rotate(45deg) scale(.68);
+}
+
+.coin {
+  border: 1px solid rgba(255, 198, 69, .74);
+  border-radius: 50%;
+  background: rgba(189, 119, 12, .68);
+  color: #fff1af;
+}
+
+.pill b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
 
 .stamina {
-  top: 10px;
-  left: 290px;
-  width: 100px;
-  height: 42px;
+  grid-area: stamina;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  min-height: 100%;
   padding: 0 7px;
-  gap: 4px;
-  border-radius: 22px;
+  border-left: 0 !important;
 }
 
-.stamina b { font: 700 12px Rajdhani, sans-serif; white-space: nowrap; }
-.stamina i { min-width: 12px; }
-.stamina strong { font-size: 16px; }
+.stamina > span {
+  flex: 0 0 auto;
+  color: #ff6dc8;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.stamina b {
+  flex: 0 0 auto;
+  color: #f9f6ff;
+  font: 700 11px/1 Rajdhani, sans-serif;
+  white-space: nowrap;
+}
+
+.stamina i {
+  position: relative;
+  min-width: 18px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(205, 210, 232, .2);
+  box-shadow: none;
+}
+
+.stamina i u {
+  background: #ff70c8;
+  box-shadow: none;
+}
 
 .utilities {
-  top: 20px;
-  right: 6px;
+  grid-area: utilities;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
   gap: 0;
+  padding: 5px 1px;
+  border-left: 0 !important;
 }
 
 .utilities button {
-  width: 20px;
-  min-width: 20px;
-  flex: 0 0 20px;
-  height: 22px;
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  place-items: center;
   padding: 0;
-  font-size: 16px;
-  line-height: 22px;
+  border-radius: 9px;
+  background: transparent;
+  color: rgba(247, 244, 255, .9);
+  line-height: 1;
+  transition: color .15s ease, background-color .15s ease;
 }
 
-.utilities em { right: -1px; top: -3px; }
+.utilities button:hover,
+.utilities button:focus-visible {
+  background: rgba(187, 153, 235, .11);
+  color: #fff;
+}
 
-.panel-screen { padding-top: 92px; }
+.utilities button:active { background: rgba(255, 112, 200, .14); }
 
-@media (max-width: 420px) {
+.utilities svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.topbar .utilities em {
+  top: 4px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  background: #ff4f9d;
+  box-shadow: 0 0 6px rgba(255, 79, 157, .65);
+}
+
+.panel-screen { padding-top: 82px; }
+
+/* Common phones keep the same one-line hierarchy with tighter proportions. */
+@media (max-width: 459px) {
   .topbar {
-    width: 117.647%;
-    transform: scale(.85);
-    transform-origin: left top;
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    grid-template-columns: 84px minmax(104px, 1fr) 82px 90px;
+    height: 50px;
+    padding-inline: 4px;
+    border-radius: 0;
   }
 
-  .profile { left: 6px; width: 90px; }
-  .economy { left: 100px; gap: 3px; }
-  .pill { height: 42px; padding: 0 7px; font-size: 12px; }
-  .utilities { top: 20px; right: 6px; }
-  .utilities button { display: block; width: 20px; min-width: 20px; flex-basis: 20px; padding: 0; font-size: 16px; }
-  .stamina { left: 290px; width: 100px; }
-  .panel-screen { padding-top: 82px; }
+  .profile { gap: 5px; padding-inline: 2px 5px; }
+  .avatar { width: 34px; height: 34px; flex-basis: 34px; }
+  .profile b { font-size: 9px; }
+  .profile small { font-size: 7px; }
+  .pill { gap: 3px; padding-inline: 3px; font-size: 10px; }
+  .pill i { width: 17px; height: 17px; flex-basis: 17px; }
+  .stamina { gap: 3px; padding-inline: 4px; }
+  .stamina > span { font-size: 13px; }
+  .stamina b { font-size: 10px; }
+  .stamina i { min-width: 13px; }
+  .utilities { padding-inline: 0; }
+  .utilities svg { width: 15px; height: 15px; }
+  .panel-screen { padding-top: 74px; }
 }
 
-@media (max-height: 820px) {
-  .panel-screen { padding-top: 76px; }
+/* Very narrow screens use one continuous two-row panel so targets stay usable. */
+@media (max-width: 400px) {
+  .topbar {
+    right: 5px;
+    left: 5px;
+    grid-template-columns: minmax(0, 1fr) 132px;
+    grid-template-areas:
+      "profile utilities"
+      "economy stamina";
+    height: 94px;
+    padding: 0 4px;
+  }
+
+  .profile,
+  .economy,
+  .stamina,
+  .utilities { height: 46px; }
+
+  .profile { padding-left: 3px; }
+  .economy,
+  .utilities { border-left: 0 !important; }
+  .economy,
+  .stamina { border-top: 1px solid var(--hud-line); }
+  .stamina { border-left: 0 !important; }
+  .utilities button { height: 44px; min-height: 44px; }
+  .panel-screen { padding-top: 116px; }
+}
+
+@media (max-height: 820px) and (min-width: 460px) {
+  .panel-screen { padding-top: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .utilities button { transition: none; }
 }

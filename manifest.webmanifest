@@ -1,0 +1,20 @@
+{
+  "name": "CHO-SIREN · 幻域魅声",
+  "short_name": "CHO-SIREN",
+  "description": "招募魅声者、组建舞台团队并开启星途演出。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06081d",
+  "theme_color": "#090d2b",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
