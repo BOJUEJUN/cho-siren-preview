@@ -3,8 +3,10 @@
 .hero-animation {
   position: absolute;
   left: 50%;
-  top: clamp(62px, 8vh, 78px);
-  width: min(225%, 1040px);
+  top: 78px;
+  width: 225%;
+  max-width: 1040px;
+  height: auto;
   aspect-ratio: 1;
   object-fit: contain;
   transform: translateX(-50%);
@@ -23,7 +25,8 @@
   .hero,
   .hero-animation {
     top: 52px;
-    width: min(215%, 930px);
+    width: 215%;
+    max-width: 930px;
   }
 }
 
