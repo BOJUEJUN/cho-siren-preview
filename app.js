@@ -1139,6 +1139,12 @@ installAppButton.addEventListener('click', async () => {
 renderAll();
 
 if ('serviceWorker' in navigator) {
+  let refreshingForWorker = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshingForWorker) return;
+    refreshingForWorker = true;
+    window.location.reload();
+  });
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('./service-worker.js?v=20', { updateViaCache: 'none' })
