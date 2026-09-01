@@ -30,7 +30,6 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .record{position:absolute;top:160px;left:50%;width:310px;height:310px;border-radius:50%;transform:translateX(-50%);border:2px solid #ffb4f0aa;box-shadow:inset 0 0 45px #f4b3ff55,0 0 30px #bd68ff88;display:grid;place-items:start center}
 .record:after{content:"";position:absolute;inset:20px;border:1px solid #ffc9f050;border-radius:50%}
 .record span{font:10px Rajdhani,sans-serif;letter-spacing:2px;margin-top:16px;color:#fbd9ff}
-.hero{position:absolute;z-index:2;inset:125px auto auto 50%;height:690px;width:auto;transform:translateX(-50%);object-fit:contain;filter:drop-shadow(0 0 12px #c886ff88);pointer-events:none}
 .live-card,.event-card,.mission-card,.daily-card,.signin-card,.shop-card{position:absolute;z-index:4;text-align:left;border-radius:18px}
 .live-card{left:15px;top:325px;width:112px;height:158px;padding:12px;color:#fff}
 .live-card small{position:absolute;right:8px;top:8px;color:#ffb4de;font:700 9px Rajdhani}
@@ -131,8 +130,7 @@ button{font:inherit;color:inherit;border:0;cursor:pointer}
 .roster-grid{max-height:500px}
 }
 
-/* Render corrections based on the native 1440 × 3104 source composition. */
-.hero{inset:0;width:100%;height:100%;transform:translate(-6%,12%) scale(.84);transform-origin:center top;object-fit:cover;object-position:center;filter:drop-shadow(0 0 12px #c886ff88)}
+/* Render corrections based on the native member artwork composition. */
 .member-card .art{background-image:linear-gradient(180deg,#8150bd18 15%,#161438d9 100%),var(--member-art);background-repeat:no-repeat;background-size:cover,contain;background-position:center,center bottom;filter:none}
 
 @media(max-width:420px){
