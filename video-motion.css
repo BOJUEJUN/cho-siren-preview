@@ -4,8 +4,8 @@
   position: absolute;
   left: 50%;
   top: 78px;
-  width: 225%;
-  max-width: 1040px;
+  width: 150%;
+  max-width: 660px;
   height: auto;
   aspect-ratio: 1;
   object-fit: contain;
@@ -24,9 +24,9 @@
 @media (max-height: 820px) {
   .hero,
   .hero-animation {
-    top: 52px;
-    width: 215%;
-    max-width: 930px;
+    top: 68px;
+    width: 148%;
+    max-width: 600px;
   }
 }
 

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cho-siren-v18';
+const CACHE_VERSION = 'cho-siren-v19';
 const APP_SHELL = [
   './',
   './index.html',
