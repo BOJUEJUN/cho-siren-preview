@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cho-siren-v19';
+const CACHE_VERSION = 'cho-siren-v20';
 const APP_SHELL = [
   './',
   './index.html',
@@ -54,6 +54,12 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  /* Cache Storage cannot store 206 range responses. Let media stream directly. */
+  if (request.destination === 'video' || request.headers.has('range')) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   if (request.mode === 'navigate') {
     event.respondWith(

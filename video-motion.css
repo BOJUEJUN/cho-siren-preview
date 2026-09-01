@@ -1,5 +1,6 @@
-/* Correct lobby character: static fallback underneath the animated WebP. */
+/* Adaptive character stack: still placeholder, animated WebP fallback, HD video. */
 .hero,
+.hero-video,
 .hero-animation {
   position: absolute;
   left: 50%;
@@ -11,18 +12,26 @@
   object-fit: contain;
   transform: translateX(-50%);
   pointer-events: none;
-  filter: drop-shadow(0 0 15px rgba(206, 148, 255, .6));
-  transition: opacity .4s ease;
+  filter: drop-shadow(0 0 9px rgba(206, 148, 255, .5));
+  transition: opacity .28s ease, visibility 0s linear .28s;
 }
 
-.hero { z-index: 2; opacity: 1; }
+.hero { z-index: 2; opacity: 1; visibility: visible; }
 
-.hero-animation { z-index: 3; opacity: 0; }
+.hero-video,
+.hero-animation { z-index: 3; opacity: 0; visibility: hidden; }
 
-#lobby.motion-ready .hero-animation { opacity: 1; }
+#lobby.motion-ready .hero { opacity: 0; visibility: hidden; }
+#lobby.image-motion.motion-ready .hero-animation,
+#lobby.video-motion.motion-ready .hero-video {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
 
 @media (max-height: 820px) {
   .hero,
+  .hero-video,
   .hero-animation {
     top: 68px;
     width: 148%;
@@ -31,5 +40,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-video,
   .hero-animation { display: none; }
 }

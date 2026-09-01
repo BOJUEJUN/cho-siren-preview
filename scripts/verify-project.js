@@ -90,7 +90,8 @@ if (fs.existsSync(path.join(root, 'assets/character-display.webp'))) {
 }
 
 const motionBudgets = {
-  'assets/character-idle-mobile-lite.webp': 3.5 * 1024 * 1024
+  'assets/character-idle-mobile-lite.webp': 3.5 * 1024 * 1024,
+  'assets/character-idle-seamless.webm': 5.5 * 1024 * 1024
 };
 for (const [file, budget] of Object.entries(motionBudgets)) {
   const size = fs.statSync(path.join(root, file)).size;

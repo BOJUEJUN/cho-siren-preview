@@ -1,5 +1,11 @@
 /* Lightweight lobby motion. */
 
+.backdrop {
+  transform: translate3d(-.35%, 0, 0) scale(1.025);
+  transform-origin: center;
+  animation: backdrop-drift 18s ease-in-out infinite alternate;
+}
+
 #lobby .record {
   will-change: box-shadow, opacity;
   animation: resonance-ring 4.8s ease-in-out infinite;
@@ -64,7 +70,12 @@
   90% { transform: rotate(-6deg) scale(1.015); filter: brightness(1.08); }
 }
 
+@keyframes backdrop-drift {
+  to { transform: translate3d(.55%, -.35%, 0) scale(1.045); }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .backdrop,
   #lobby .record,
   #lobby .record::after,
   #lobby .stage-button {

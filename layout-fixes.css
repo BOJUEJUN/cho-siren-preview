@@ -1018,6 +1018,7 @@ html.motion-disabled *::after {
   transition-duration: .001ms !important;
 }
 
+html.motion-disabled .hero-video,
 html.motion-disabled .hero-animation { display: none !important; }
 
 html.reduced-effects .glass,
