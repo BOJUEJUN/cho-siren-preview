@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'cho-siren-v15';
+const CACHE_VERSION = 'cho-siren-v17';
 const APP_SHELL = [
   './',
   './index.html',
@@ -13,7 +13,7 @@ const APP_SHELL = [
   './layout-fixes.css',
   './game-core.js',
   './app.js',
-  './video-motion.js',
+  './character-motion.js',
   './assets/background-portrait-display.webp',
   './assets/background-square-display.webp',
   './assets/character-correct-display.webp',
