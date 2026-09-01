@@ -1,0 +1,52 @@
+/* Correct lobby character: lightweight still first, motion when ready. */
+.hero,
+.hero-video,
+.hero-animation {
+  position: absolute;
+  left: 50%;
+  top: clamp(78px, 10.5vh, 112px);
+  width: min(150%, 660px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 0 15px rgba(206, 148, 255, .6));
+  transition: opacity .4s ease;
+}
+
+.hero { z-index: 2; opacity: 1; }
+
+.hero-video,
+.hero-animation { z-index: 3; opacity: 0; }
+
+#lobby.desktop-motion.motion-ready .hero-video,
+#lobby.mobile-motion.motion-ready .hero-animation { opacity: 1; }
+
+#lobby.motion-ready .hero {
+  opacity: 0;
+  animation: none;
+}
+
+@media (max-height: 820px) {
+  .hero,
+  .hero-video,
+  .hero-animation {
+    top: 68px;
+    width: min(148%, 600px);
+  }
+}
+
+/* The mobile WebP has a wider transparent canvas than the desktop WebM. */
+@media (max-width: 480px), (pointer: coarse) {
+  .hero,
+  .hero-animation {
+    top: clamp(108px, 14vh, 128px);
+    width: min(195%, 760px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-video,
+  .hero-animation { display: none; }
+  #lobby.motion-ready .hero { opacity: 1; }
+}

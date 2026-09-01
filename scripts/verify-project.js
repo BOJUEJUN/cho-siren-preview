@@ -55,7 +55,7 @@ if (!manifest.start_url || !manifest.scope || !Array.isArray(manifest.icons) || 
 for (const icon of manifest.icons || []) ensureFile(icon.src, 'manifest.webmanifest');
 
 const shellRefs = new Set([...serviceWorker.matchAll(/['"]\.\/([^'"]+)['"]/g)].map(match => cleanRef(match[1])));
-for (const required of ['index.html', 'manifest.webmanifest', 'game-core.js', 'app.js']) {
+for (const required of ['index.html', 'manifest.webmanifest', 'game-core.js', 'app.js', 'video-motion.js']) {
   if (!shellRefs.has(required)) failures.push(`离线应用壳缺少：${required}`);
 }
 const memberAssetRefs = [...core.matchAll(/\bimage:\s*['"]([^'"]+)['"]/g)].map(match => cleanRef(match[1]));
@@ -84,6 +84,19 @@ const staticBytes = [...staticAssetRefs]
 const staticBudget = 1.5 * 1024 * 1024;
 if (staticBytes > staticBudget) failures.push(`首屏静态资源 ${Math.round(staticBytes / 1024)}KB 超过 1536KB 预算`);
 else notes.push(`首屏静态资源约 ${Math.round(staticBytes / 1024)}KB / 1536KB`);
+
+if (fs.existsSync(path.join(root, 'assets/character-display.webp'))) {
+  failures.push('错误的首页角色版本 character-display.webp 不应重新加入项目');
+}
+
+const motionBudgets = {
+  'assets/character-idle-mobile-lite.webp': 3.5 * 1024 * 1024,
+  'assets/character-idle-seamless.webm': 5.5 * 1024 * 1024
+};
+for (const [file, budget] of Object.entries(motionBudgets)) {
+  const size = fs.statSync(path.join(root, file)).size;
+  if (size > budget) failures.push(`${file} 超过性能预算：${Math.round(size / 1024)}KB`);
+}
 
 if (failures.length) {
   console.error('发布检查失败：');

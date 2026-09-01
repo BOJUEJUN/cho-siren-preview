@@ -1018,6 +1018,10 @@ html.motion-disabled *::after {
   transition-duration: .001ms !important;
 }
 
+html.motion-disabled .hero-video,
+html.motion-disabled .hero-animation { display: none !important; }
+html.motion-disabled #lobby.motion-ready .hero { opacity: 1; }
+
 html.reduced-effects .glass,
 html.reduced-effects .recruit-dialog::backdrop {
   backdrop-filter: none !important;
