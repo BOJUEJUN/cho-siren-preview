@@ -1,231 +1,232 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#090d2b" />
-  <meta name="description" content="进入 CHO-SIREN 幻域魅声，招募魅声者、组建舞台团队并开启星途演出。" />
-  <meta name="application-name" content="CHO-SIREN" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CHO-SIREN" />
-  <title>CHO-SIREN · 幻域魅声</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="preload" as="image" href="assets/background-portrait-display.webp" fetchpriority="high" />
-  <link rel="preload" as="image" href="assets/character-correct-display.webp" fetchpriority="high" />
-  <link rel="preload" as="image" href="assets/profile-avatar.webp" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-  <noscript><link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
-  <link rel="stylesheet" href="styles.css?v=20260901-hd-media" />
-  <link rel="stylesheet" href="generated-assets.css" />
-  <link rel="stylesheet" href="secondary-polish.css?v=20260901-roster-clean" />
-  <link rel="stylesheet" href="topbar-row.css?v=20260901-no-dividers" />
-  <link rel="stylesheet" href="motion.css?v=20260901-hd-media" />
-  <link rel="stylesheet" href="video-motion.css?v=20260901-adaptive-hd-2" />
-  <link rel="stylesheet" href="layout-fixes.css?v=20260901-agency-loop" />
-</head>
-<body>
-  <main class="phone" aria-label="CHO-SIREN 游戏主界面">
-    <div class="backdrop"></div>
-    <div class="scanlines"></div>
-    <header class="topbar">
-      <button class="profile glass" id="profileButton" aria-label="打开制作人档案">
-        <span class="avatar">♪</span>
-        <span><b>音律少女</b><small>Lv.68</small></span>
-      </button>
-      <div class="economy">
-        <button class="pill glass" id="gemButton" aria-label="查看声晶用途"><i class="gem">◇</i><b id="gemBalance">10,695</b></button>
-        <button class="pill glass" id="coinButton" aria-label="查看星币用途"><i class="coin">B</i><b id="coinBalance">17,267 K</b></button>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#08061f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>CHO-SIREN 幻域魅声</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --portrait-ratio: 720 / 1552;
+        --page-bg: #08061f;
+        --accent: #ff69bf;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        width: 100%;
+        min-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 10%, rgba(113, 74, 184, 0.34), transparent 36%),
+          linear-gradient(180deg, #17113d 0%, var(--page-bg) 72%);
+        font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+
+      #game-shell {
+        position: relative;
+        width: min(100%, calc(100vh * 720 / 1552));
+        height: min(100%, calc(100vw * 1552 / 720));
+        max-width: 720px;
+        max-height: 1552px;
+        aspect-ratio: var(--portrait-ratio);
+        overflow: hidden;
+        background: #090625;
+        box-shadow: 0 22px 70px rgba(0, 0, 0, 0.48);
+      }
+
+      @supports (height: 100dvh) {
+        #game-shell {
+          width: min(100%, calc(100dvh * 720 / 1552));
+          height: min(100%, calc(100dvw * 1552 / 720));
+        }
+      }
+
+      #unity-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        outline: none;
+        background: #090625;
+      }
+
+      #loading {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        gap: 16px;
+        text-align: center;
+        background: linear-gradient(180deg, rgba(13, 9, 44, 0.96), rgba(7, 5, 29, 0.98));
+        transition: opacity 240ms ease;
+      }
+
+      #loading.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .brand {
+        color: #fff;
+        font-size: clamp(18px, 3.2vw, 28px);
+        font-weight: 750;
+        letter-spacing: 0.12em;
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+      }
+
+      .track {
+        width: min(52vw, 260px);
+        height: 5px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      #progress {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #9c6cff, var(--accent));
+        box-shadow: 0 0 18px rgba(255, 105, 191, 0.75);
+        transition: width 120ms linear;
+      }
+
+      #warning {
+        position: absolute;
+        z-index: 5;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        display: none;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        color: #fff;
+        background: rgba(38, 19, 66, 0.94);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #fullscreen {
+        position: absolute;
+        z-index: 4;
+        right: 12px;
+        bottom: 12px;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 12px;
+        color: #fff;
+        background: rgba(17, 10, 51, 0.68);
+        font-size: 18px;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+      }
+
+      @media (max-width: 760px) {
+        #game-shell {
+          max-width: none;
+          max-height: none;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="game-shell">
+      <canvas id="unity-canvas" width="720" height="1552" tabindex="-1"></canvas>
+      <div id="warning" role="status"></div>
+      <div id="loading">
+        <div class="brand">CHO-SIREN</div>
+        <div class="subtitle">幻域魅声 · 正在进入舞台</div>
+        <div class="track"><div id="progress"></div></div>
       </div>
-      <div class="utilities glass" role="group" aria-label="快捷功能">
-        <button id="mailButton" aria-label="打开邮件">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16v11H4z"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>
-        </button>
-        <button id="noticeButton" aria-label="打开公告与音效">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><path d="m9 10 10-2"/><path d="M9 18c0 1.1-1.1 2-2.5 2S4 19.1 4 18s1.1-2 2.5-2S9 16.9 9 18Zm10-2c0 1.1-1.1 2-2.5 2s-2.5-.9-2.5-2 1.1-2 2.5-2 2.5.9 2.5 2Z"/></svg>
-        </button>
-        <button id="settingsButton" aria-label="打开游戏设置">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
-          <em aria-hidden="true"></em>
-        </button>
-      </div>
-      <button class="stamina glass" id="staminaButton" aria-label="查看体力与演出"><span>♥</span><b id="staminaBalance">120/120</b><i><u id="staminaBar"></u></i></button>
-    </header>
+      <button id="fullscreen" type="button" aria-label="全屏">⛶</button>
+    </main>
 
-    <section id="lobby" class="screen active" aria-labelledby="lobby-title">
-      <h1 id="lobby-title" class="sr-only">大厅</h1>
-      <div class="record" aria-hidden="true"><span>STARWAY TO THE STAGE</span></div>
-      <img class="hero" src="assets/character-correct-display.webp" alt="" aria-hidden="true" decoding="async" width="420" height="420" />
-      <img class="hero-animation" data-src="assets/character-idle-mobile-lite.webp" alt="" aria-hidden="true" decoding="async" width="420" height="420" />
-      <video class="hero-video" muted loop playsinline preload="none" aria-label="幻域魅声主唱高清待机动画">
-        <source data-src="assets/character-idle-seamless.webm" type="video/webm; codecs=vp9" />
-      </video>
-      <button class="live-card glass" id="liveButton" aria-label="进入直播间并参加今日应援">
-        <small>LIVE NOW</small><b>直播间</b><span class="heartline">♡⌁♡</span><em>20w 人在线</em><strong>进入直播 ▶</strong>
-      </button>
-      <button class="event-card glass" id="eventButton" aria-label="查看闪耀舞台计划活动详情">
-        <small>NEW EVENT</small><b>闪耀舞台计划</b><span>Star Stage Plan</span><em>限时解锁舞台计划</em>
-      </button>
-      <button class="mission-card glass" id="missionButton" aria-label="开始冒险剧本第 07 章演出挑战">
-        <span class="card-title">冒险剧本 <small>Act.</small></span>
-        <b>第07章 · 踏梦迷踪</b><i><u></u></i><em>7-3　秘闻 79%</em><strong>挑战</strong>
-      </button>
-      <button class="daily-card glass" id="dailyTaskButton" aria-label="查看每日演出任务">
-        <span>每日任务 <b id="dailyTaskBadge">○</b></span><em id="dailyTaskCopy">完成 3 次演出</em><i><u id="dailyTaskBar"></u></i><small id="dailyTaskProgress">0 / 3</small>
-      </button>
-      <button class="signin-card glass" id="signInButton" aria-label="领取今日签到奖励">
-        <span id="signInLabel">每日签到</span><b id="signInStreak">第 1 天</b><em id="signInReward">◇ ×100</em>
-      </button>
-      <button class="shop-card glass" id="shopButton" aria-label="前往限定共鸣招募">
-        <small>Shop</small><b>商城抽卡</b><span>♡</span><em>限定套装 UP!</em>
-      </button>
-      <button class="stage-button" id="stageButton" aria-label="进入星途演出"><small>♪　♬</small><b>LIVE</b><span>ON STAGE</span></button>
-    </section>
+    <script>
+      // Retire the service worker used by the earlier HTML prototype.  Its root
+      // scope would otherwise be able to keep serving stale pre-Unity assets to
+      // returning players after this site is upgraded to the WebGL build.
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+          .catch(() => {});
+      }
+      if ("caches" in window) {
+        caches.keys()
+          .then(keys => Promise.all(keys.filter(key => key.startsWith("cho-siren-")).map(key => caches.delete(key))))
+          .catch(() => {});
+      }
 
-    <section id="team" class="screen panel-screen" aria-labelledby="team-title">
-      <div class="section-head"><span>TEAM 01</span><h2 id="team-title">团队成员</h2><button id="autoTeamBtn">自动编队</button></div>
-      <div class="power glass"><small>共鸣战力</small><b id="teamPower">0</b><i><u id="teamPowerBar"></u></i></div>
-      <div class="member-grid" id="memberGrid"></div>
-    </section>
+      const shell = document.querySelector("#game-shell");
+      const canvas = document.querySelector("#unity-canvas");
+      const loading = document.querySelector("#loading");
+      const progress = document.querySelector("#progress");
+      const warning = document.querySelector("#warning");
 
-    <section id="all" class="screen panel-screen" aria-labelledby="all-title">
-      <div class="section-head"><span>RESONATORS</span><h2 id="all-title">全部成员</h2><button id="sortBtn">战力 ↓</button></div>
-      <div class="filter-row" data-filter-group="roster"><button class="active" data-filter="全部">全部</button><button data-filter="主唱">主唱</button><button data-filter="舞者">舞者</button><button data-filter="支援">支援</button></div>
-      <small class="collection-progress" id="collectionProgress"></small>
-      <div class="roster-grid" id="rosterGrid"></div>
-    </section>
+      function showBanner(message, type) {
+        warning.textContent = message;
+        warning.style.display = "block";
+        warning.style.borderColor = type === "error" ? "#ff5f7f" : "rgba(255,255,255,.18)";
+        if (type !== "error") {
+          window.setTimeout(() => { warning.style.display = "none"; }, 5000);
+        }
+      }
 
-    <section id="accessory" class="screen panel-screen" aria-labelledby="accessory-title">
-      <div class="section-head"><span>STORAGE</span><h2 id="accessory-title">饰品库存</h2><button id="inventorySortBtn">级别 ↓</button></div>
-      <div class="filter-row" data-filter-group="inventory"><button class="active" data-filter="全部">全部</button><button data-filter="音核">音核</button><button data-filter="衣装">衣装</button><button data-filter="收藏品">收藏品</button></div>
-      <div class="inventory-grid" id="inventoryGrid"></div>
-    </section>
+      // All URLs stay relative to the document so GitHub Pages project paths work.
+      const pageUrl = new URL("./", document.baseURI);
+      const buildUrl = new URL("Build/", pageUrl);
+      const buildAssetUrl = filename => new URL(filename, buildUrl).href;
+      const config = {
+        arguments: [],
+        dataUrl: buildAssetUrl("1662d9c4e3a82f9b8bbeb34d53f59b91.data.unityweb"),
+        frameworkUrl: buildAssetUrl("d25ba467e7a56ff6ad92506c6c01d2e2.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("935810f0ffff426aa0a73f5fac953df4.wasm.unityweb"),
+        streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
+        companyName: "CHO-SIREN Studio",
+        productName: "CHO-SIREN 幻域魅声",
+        productVersion: "0.1.0",
+        showBanner,
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        matchWebGLToCanvasSize: true
+      };
 
-    <section id="recruit" class="screen panel-screen" aria-labelledby="recruit-title">
-      <div class="section-head"><span>MOONLIGHT AUDITION</span><h2 id="recruit-title">女团选秀</h2><button id="recruitHistoryBtn">签约记录</button></div>
-      <div class="audition-hero glass"><small>都市星探计划</small><b>月曜新人选拔</b><p>查看候选人的能力、性格与风险，再决定是否签约。</p><span>本期 3 位候选</span></div>
-      <div class="audition-candidates" id="auditionCandidates" aria-label="本期选秀候选人"></div>
-      <div class="candidate-insight glass" id="candidateInsight">
-        <small>SCOUT REPORT</small><b id="candidateInsightTitle">请选择一位候选人</b><p id="candidateInsightCopy">点击角色卡后进行面试，可查看完整能力与个性。</p>
-        <div class="candidate-bars" id="candidateBars"></div>
-      </div>
-      <div class="audition-actions">
-        <button id="refreshCandidatesBtn">更换候选<small>免费</small></button>
-        <button id="interviewCandidateBtn" disabled>进行面试<small>查看完整档案</small></button>
-        <button id="signCandidateBtn" disabled>正式签约<small>◇ 150</small></button>
-      </div>
-    </section>
-
-    <dialog class="recruit-dialog" id="recruitDialog" aria-labelledby="recruitDialogTitle">
-      <button class="dialog-close" id="closeRecruitDialog" aria-label="关闭招募结果">×</button>
-      <small>AUDITION RESULT</small>
-      <h3 id="recruitDialogTitle">共鸣招募结果</h3>
-      <div class="recruit-result-grid" id="recruitResults"></div>
-      <button class="dialog-confirm" id="confirmRecruit">收下成员</button>
-    </dialog>
-
-    <dialog class="recruit-dialog member-dialog" id="memberDialog" aria-labelledby="memberDialogTitle">
-      <button class="dialog-close" id="closeMemberDialog" aria-label="关闭成员详情">×</button>
-      <small>RESONATOR PROFILE</small>
-      <h3 id="memberDialogTitle">成员详情</h3>
-      <div class="member-detail-art" id="memberDetailArt"></div>
-      <div class="member-detail-copy">
-        <strong id="memberDetailRole"></strong>
-        <p id="memberDetailSummary"></p>
-        <p class="member-personality" id="memberDetailPersonality"></p>
-        <div class="member-talent-grid" id="memberTalentGrid"></div>
-        <dl class="member-stats">
-          <div><dt>等级</dt><dd id="memberDetailLevel"></dd></div>
-          <div><dt>战力</dt><dd id="memberDetailPower"></dd></div>
-          <div><dt>共鸣</dt><dd id="memberDetailCopies"></dd></div>
-        </dl>
-      </div>
-      <div class="member-dialog-actions">
-        <button class="dialog-confirm" id="trainMemberBtn">专项培养 · 星币 600K</button>
-        <button class="dialog-confirm" id="setLeaderBtn">设为队长</button>
-      </div>
-    </dialog>
-
-    <dialog class="recruit-dialog performance-dialog" id="performanceDialog" aria-labelledby="performanceDialogTitle" aria-describedby="performanceInstructions">
-      <button class="dialog-close" id="closePerformanceDialog" aria-label="关闭星途演出">×</button>
-      <small>LIVE STAGE</small>
-      <h3 id="performanceDialogTitle">星途演出</h3>
-      <div class="performance-summary">
-        <span>最高分 <b id="bestScore">0</b></span>
-        <span>累计演出 <b id="performanceCount">0</b></span>
-      </div>
-      <p id="performanceInstructions">光环收缩到中心时点击节拍。共 10 拍，越接近中心评分越高。</p>
-      <div class="performance-playfield" id="performancePlayfield">
-        <div class="beat-orbit" aria-hidden="true"><i></i><span>♪</span></div>
-        <button class="beat-button" id="beatButton" disabled><b>点击节拍</b><small>等待演出开始</small></button>
-      </div>
-      <div class="performance-stats" aria-label="本场演出数据">
-        <span>拍数 <b id="beatProgress">0 / 10</b></span>
-        <span>命中 <b id="hitCount">0</b></span>
-        <span>评价 <b id="liveJudgement">READY</b></span>
-      </div>
-      <p class="performance-status" id="performanceStatus" role="status" aria-live="polite">准备好后开始演出，消耗 10 点体力。</p>
-      <button class="dialog-confirm" id="startPerformanceBtn">开始演出 · 体力 -10</button>
-    </dialog>
-
-    <dialog class="recruit-dialog settings-dialog" id="settingsDialog" aria-labelledby="settingsDialogTitle" aria-describedby="settingsDescription">
-      <button class="dialog-close" id="closeSettingsDialog" aria-label="关闭游戏设置">×</button>
-      <small>SYSTEM</small>
-      <h3 id="settingsDialogTitle">游戏设置</h3>
-      <p id="settingsDescription">设置会自动保存。导出存档后，可在另一台电脑的这里导入。</p>
-      <section class="settings-group" aria-labelledby="visualSettingsTitle">
-        <h4 id="visualSettingsTitle">显示与性能</h4>
-        <label class="setting-toggle" for="motionToggle">
-          <span><b>角色动态效果</b><small>关闭后使用静态角色，减少流量与耗电</small></span>
-          <input type="checkbox" id="motionToggle" />
-          <i aria-hidden="true"></i>
-        </label>
-        <label class="setting-toggle" for="effectsToggle">
-          <span><b>降低透明特效</b><small>减少模糊、扫描线和玻璃效果</small></span>
-          <input type="checkbox" id="effectsToggle" />
-          <i aria-hidden="true"></i>
-        </label>
-      </section>
-      <section class="settings-group" aria-labelledby="saveSettingsTitle">
-        <h4 id="saveSettingsTitle">存档与设备</h4>
-        <div class="save-summary">
-          <span>最高分 <b id="settingsBestScore">0</b></span>
-          <span>成员 <b id="settingsOwnedCount">0 / 9</b></span>
-        </div>
-        <div class="settings-actions">
-          <button id="exportSaveBtn">导出存档</button>
-          <label class="settings-file-button" for="importSaveInput">导入存档</label>
-          <input class="sr-only" type="file" id="importSaveInput" accept="application/json,.json" />
-          <button id="installAppBtn">安装到设备</button>
-        </div>
-        <p class="settings-hint">导出的 JSON 文件只包含游戏进度和显示设置，不包含账号或密码。</p>
-      </section>
-      <button class="settings-danger" id="resetSaveBtn">重置游戏进度</button>
-      <p class="settings-status" id="settingsStatus" role="status" aria-live="polite">设置已就绪。</p>
-    </dialog>
-
-    <dialog class="recruit-dialog feature-dialog" id="featureDialog" aria-labelledby="featureDialogTitle">
-      <button class="dialog-close" id="closeFeatureDialog" aria-label="关闭功能面板">×</button>
-      <small id="featureDialogEyebrow">CHO-SIREN</small>
-      <h3 id="featureDialogTitle">功能面板</h3>
-      <div class="feature-dialog-content" id="featureDialogContent"></div>
-      <div class="feature-dialog-actions" id="featureDialogActions"></div>
-    </dialog>
-
-    <nav class="bottom-nav glass" aria-label="主导航">
-      <button data-screen="team"><i>♟</i><span>团队成员</span><small>MEMBERS</small></button>
-      <button data-screen="all"><i>♛</i><span>全部成员</span><small>ALL MEMBERS</small></button>
-      <button class="active" data-screen="lobby"><i>♬</i><span>大厅</span><small>LOBBY</small></button>
-      <button data-screen="accessory"><i>♡</i><span>饰品</span><small>ACCESSORY</small></button>
-      <button data-screen="recruit"><i>♩</i><span>女团选秀</span><small>AUDITION</small></button>
-    </nav>
-    <div class="toast" role="status" aria-live="polite"></div>
-  </main>
-  <script src="game-core.js?v=20260901-agency-loop"></script>
-  <script src="app.js?v=20260901-cache-sync-3"></script>
-  <script src="character-motion.js?v=20260901-adaptive-hd-3"></script>
-</body>
+      const loader = document.createElement("script");
+      loader.src = buildAssetUrl("7bd25d0c2f9c6d1b460ff5e91c604a2b.loader.js");
+      loader.onload = () => {
+        createUnityInstance(canvas, config, value => {
+          progress.style.width = `${Math.round(value * 100)}%`;
+        }).then(instance => {
+          loading.classList.add("is-hidden");
+          document.querySelector("#fullscreen").onclick = () => instance.SetFullscreen(1);
+        }).catch(error => showBanner(String(error), "error"));
+      };
+      loader.onerror = () => showBanner("游戏资源加载失败，请通过 HTTPS 网页链接访问并刷新重试。", "error");
+      document.body.appendChild(loader);
+    </script>
+  </body>
 </html>

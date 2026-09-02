@@ -1,12 +1,12 @@
 {
   "name": "cho-siren-preview",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
-  "description": "CHO-SIREN mobile-first web game preview",
+  "description": "CHO-SIREN Unity WebGL portrait game preview",
   "scripts": {
-    "check": "node scripts/verify-project.js && node --check game-core.js && node --check app.js && node --check character-motion.js && node --check service-worker.js",
-    "test": "node --test game-core.test.js",
-    "verify": "npm run check && npm test"
+    "check": "node scripts/verify-webgl.mjs && node --check service-worker.js",
+    "test": "node scripts/verify-webgl.mjs",
+    "verify": "npm run check"
   },
   "engines": {
     "node": ">=20"
