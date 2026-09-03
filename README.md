@@ -27,17 +27,17 @@ Unity 原生竖屏游戏项目，基于 CHO-SIREN 网页原型重构。当前包
 
 源码与网页预览共用同一个 GitHub 仓库，但使用彼此独立的分支：
 
-- Unity 源码：`unity-source`
+- Unity 源码：`master`
 - GitHub Pages 网页预览：`main`
 
 新电脑只克隆源码分支：
 
 ```powershell
-git clone --branch unity-source --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
+git clone --branch master --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
 Set-Location .\cho-siren-unity
 ```
 
-若远端尚无 `unity-source`，可从交付的完整 Git bundle 离线恢复：
+若 GitHub 暂时不可访问，可从交付的完整 Git bundle 离线恢复：
 
 ```powershell
 git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
@@ -173,7 +173,7 @@ git push
 
 注意事项：
 
-- 日常源码提交只能进入 `unity-source`；不要把 `Assets/`、`Packages/` 或 `ProjectSettings/` 推到 Pages 的 `main`。
+- 日常源码提交只能进入 `master`；不要把 `Assets/`、`Packages/` 或 `ProjectSettings/` 推到 Pages 的 `main`。
 
 - 不要使用 iCloud、OneDrive 或其他网盘直接同步整个 Unity 工作目录；以 Git 远端为唯一源码真相。
 - 不要在两台电脑上同时修改同一个场景、Prefab 或 ScriptableObject。并行工作时使用不同分支，完成后通过 PR 合并。

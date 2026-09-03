@@ -10,15 +10,15 @@ Unity：`6000.6.0f1 (f7f8ed4d1e24)`
 新电脑取得源码的权威命令：
 
 ```powershell
-git clone --branch unity-source --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
+git clone --branch master --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
 ```
 
 克隆后可双击根目录 `打开CHO-SIREN编辑器.cmd`；它只接受 Unity `6000.6.0f1`。`Builds/Windows/开始游戏.cmd` 只运行成品。Windows 构建生成的 `Builds/Windows/打开Unity编辑器.cmd` 仅用于从本机构建目录返回完整源码工作区，单独分发时不具备编辑能力。
 
 ## 1. 当前事实，不要沿用旧状态
 
-- 本目录现在是 Git 仓库，当前分支 `master`；2026-09-03 审计时 HEAD 为 `c20e9c1`。
-- 当前实际没有配置 `origin`，所以此刻新电脑还不能从 GitHub 取得这份 dirty 工作树。目标源码远端是 `https://github.com/BOJUEJUN/cho-siren-preview.git` 的 `unity-source` 分支；同仓库 `main` 只存 GitHub Pages 网页预览。最终维护者必须 push 同一 checkpoint 并建立 upstream，不能把 Unity 源码推到 `main`。
+- 本目录现在是 Git 仓库，本地工作分支 `unity-source` 跟踪远端源码分支 `origin/master`；2026-09-03 最终构建稳定性检查点从 `ec719a4` 开始。
+- `origin` 已配置为 `https://github.com/BOJUEJUN/cho-siren-preview.git`。同仓库 `master` 保存完整 Unity 源码，`main` 只存 GitHub Pages 网页预览；不能把 Unity 源码推到 `main`。
 - 当前工作树包含多人并行中的界面、音频、AI 美术、测试和文档改动；接手者先运行 `git status --short`，不得覆盖不属于自己的修改。
 - `Builds/`、`Releases/`、`Library/`、`Logs/`、`TestResults/` 是本机产物且被忽略，不是“源码已交接”的证据。
 - 历史文档里的 `126/126`、`5/5` 等数字只代表当时构建；当前 dirty worktree 必须重新跑全量测试，不能复制旧数字作为新验收结果。
@@ -153,7 +153,7 @@ AI 生成资产及 `.meta` 在最终 checkpoint 前必须被 Git 跟踪。`Tools
 - `Tools/Check-DevelopmentEnvironment.ps1` 没有 `FAIL`。
 - `git diff --check` 通过。
 - 所有运行时素材与 `.meta` 已跟踪，关键路径不被 `.gitignore` 命中。
-- `git remote -v` 指向约定 GitHub 仓库，当前源码分支跟踪 `origin/unity-source`，而非 Pages 的 `origin/main`。
+- `git remote -v` 指向约定 GitHub 仓库，当前源码分支跟踪 `origin/master`，而非 Pages 的 `origin/main`。
 - 当前测试证据来自同一源码 SHA。
 - commit push 成功，并在另一目录做一次 fresh clone + `git lfs pull` + 环境检查。
 - 重要版本创建并 push annotated checkpoint tag。

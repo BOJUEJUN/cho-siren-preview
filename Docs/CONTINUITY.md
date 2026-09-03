@@ -6,9 +6,9 @@
 
 审计时间：2026-09-03（Asia/Shanghai）。
 
-- Git 仓库：存在，当前分支 `unity-source`；用 `git rev-parse HEAD` 取得当前精确 checkpoint。
-- 当前实际状态：源码已经完整本地提交并生成可验证的 `CHO-SIREN-Unity-Source-0.3.0.bundle`；GitHub 的 `unity-source` 是否已经发布必须以远端仓库页面为准。
-- 目标源码远端方案：`https://github.com/BOJUEJUN/cho-siren-preview.git` 的 `unity-source` 分支。发布完整私有源码/美术资产前必须由仓库所有者确认目标与授权；不得用 Pages 的 `main` 代替。
+- Git 仓库：存在，本地工作分支 `unity-source` 跟踪远端源码分支 `origin/master`；用 `git rev-parse HEAD` 取得当前精确 checkpoint。
+- 当前实际状态：源码已完整推送到 `https://github.com/BOJUEJUN/cho-siren-preview.git` 的 `master`，并生成可验证的 `CHO-SIREN-Unity-Source-0.3.0.bundle` 作为离线备份。
+- 分支约定：远端 `master` 保存 Unity 源码，`main` 仅保存 GitHub Pages 网页预览；二者不得混用。
 - 已跟踪文件：约 1,036 个，工作树内合计约 192.64 MiB。
 - 已跟踪最大单文件：`SourceAssets/Fonts/NotoSansSC-Regular.otf`，15.68 MiB；它保留为字体子集源文件，但不进入 Unity 构建。
 - 当前工作树与全部 Git 历史：没有 ≥50 MiB blob，也没有 ≥100 MiB blob。
@@ -18,7 +18,7 @@
 
 这份快照只描述审计时刻；以 `git status`、`git remote -v`、`git lfs ls-files` 和 `Tools/Check-DevelopmentEnvironment.ps1` 的即时结果为准。
 
-同一 GitHub 仓库的 `main` 只用于 GitHub Pages 网页预览，不是 Unity 源码分支。源码工作目录不得切换到 `main`，Pages 发布应使用另一份独立 clone。
+同一 GitHub 仓库的 `main` 只用于 GitHub Pages 网页预览，不是 Unity 源码分支。源码工作目录使用 `master`，Pages 发布应使用另一份独立 clone。
 
 审计时工作目录中存在下列 ≥50 MiB 文件，但它们全部位于已忽略的缓存、构建、发布暂存或 vendored 依赖目录，不应进入 Git/LFS：
 
@@ -61,7 +61,7 @@
 4. 运行全量 EditMode、PlayMode；高风险视觉修改还要做 Windows Player 和 WebGL 烟雾测试。
 5. 用 `git diff --check` 检查空白错误，用 `git diff --stat` 检查改动范围。
 6. 提交源码；不要把被忽略的构建目录强行 `git add -f`。
-7. 首次发布执行 `git push -u origin HEAD:unity-source`；之后可用普通 `git push`。在 GitHub 网页确认 `unity-source` 上的 commit 与大文件均可访问，绝不能把 Unity 源码推入 `main`。
+7. 首次发布执行 `git push -u origin HEAD:master`；之后可用普通 `git push`。在 GitHub 网页确认 `master` 上的 commit 与素材均可访问，绝不能把 Unity 源码推入 `main`。
 8. 重要可交付点创建 annotated tag，例如：
 
 ```powershell
@@ -77,12 +77,12 @@ checkpoint tag 必须指向已通过门禁且已 push 的 commit，不能指向�
 2. 用下列命令只克隆源码分支，再执行 `git lfs pull`：
 
 ```powershell
-git clone --branch unity-source --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
+git clone --branch master --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
 Set-Location .\cho-siren-unity
 git lfs pull
 ```
 
-如果远端尚无 `unity-source`，把交付的 bundle 复制到新电脑并恢复：
+如果 GitHub 暂时不可访问，把交付的 bundle 复制到新电脑并恢复：
 
 ```powershell
 git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
@@ -103,7 +103,7 @@ git switch unity-source
 - 合并前至少交代：改动文件、行为变化、测试证据、未验证项、资产来源与授权风险。
 - 构建、截图和部署任务不能悄悄修改产品代码。
 - 只有维护者统一提交、tag、push；自动代理不得擅自改历史或 force-push。
-- `unity-source` 承载源码，`main` 承载 Pages；即使它们共享一个远端 URL，也必须视作两套独立工作树和发布流程。
+- `master` 承载源码，`main` 承载 Pages；即使它们共享一个远端 URL，也必须视作两套独立工作树和发布流程。
 
 ## 大文件与 Git LFS 策略
 

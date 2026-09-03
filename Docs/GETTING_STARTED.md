@@ -24,18 +24,18 @@
 
 项目使用现有仓库 `https://github.com/BOJUEJUN/cho-siren-preview.git` 的两个独立分支保存不同交付物：
 
-- `unity-source`：Unity 可编辑源码，是开发工作的唯一真相。
+- `master`：Unity 可编辑源码，是开发工作的唯一真相。
 - `main`：GitHub Pages 的 WebGL 网页预览，只是可再生成的发布物。
 
-2026-09-03 的本地审计副本已整理到 `unity-source`，并配置了上述 `origin`。使用 GitHub 换机前，必须先在仓库网页确认远端确实存在 `unity-source`；若远端尚未发布该分支，不得改为克隆 `main` 冒充源码，应使用本次交付的完整 Git bundle 恢复。
+2026-09-03 的完整 Unity 源码已发布到远端 `master`，最终构建稳定性检查点从 `ec719a4` 开始。`main` 仍只用于网页预览，不能用它冒充源码。
 
-新电脑必须只克隆 `unity-source`，不要在源码工作目录切换到 `main`：
+新电脑必须只克隆 `master`，不要在源码工作目录切换到 `main`：
 
 安装 Git 和 Git LFS 后，在新电脑执行：
 
 ```powershell
 git lfs install
-git clone --branch unity-source --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
+git clone --branch master --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
 Set-Location .\cho-siren-unity
 git lfs pull
 git status --short
@@ -88,7 +88,7 @@ Windows 上也可使用安全启动器：
 
 也可以在 PowerShell 中执行 `& .\Tools\Open-UnityEditorSafe.ps1`。根目录的 `打开CHO-SIREN编辑器.cmd` 会调用同一套安全定位逻辑，按项目声明版本检查 `UNITY_EDITOR`、当前用户的 Unity Hub 路径和 Program Files。非标准安装目录可直接从 Hub 打开，或调用 `Run-UnitySafe.ps1 -UnityExe <路径>`。不要并行启动两个 Editor 指向同一工作目录。
 
-`Builds/Windows/开始游戏.cmd` 和 `CHO-SIREN.exe` 是运行成品，不会打开 Unity 编辑器。每次 Windows 构建还会在该目录生成 `打开Unity编辑器.cmd`；它只是返回上两级的源码根目录并启动 Editor，因此仅在当前完整源码工作区内有效。将 `Builds/Windows` 单独复制到其他电脑后，必须重新 clone `unity-source` 才能编辑。
+`Builds/Windows/开始游戏.cmd` 和 `CHO-SIREN.exe` 是运行成品，不会打开 Unity 编辑器。每次 Windows 构建还会在该目录生成 `打开Unity编辑器.cmd`；它只是返回上两级的源码根目录并启动 Editor，因此仅在当前完整源码工作区内有效。将 `Builds/Windows` 单独复制到其他电脑后，必须重新 clone `master` 才能编辑。
 
 ## 4. 运行测试
 
@@ -173,7 +173,7 @@ Pop-Location
 
 脚本会在写入前再次运行 `Test-WebGLDeliverable.ps1`，拒绝缺文件、非哈希文件、单文件达到 GitHub 100 MiB 限制或包含额外构建文件的 WebGL 产物。`index.html` 最后写入；即使中途复制失败，也不会先删除旧页面仍在引用的构建文件。
 
-线上稳定预览位于 `https://bojuejun.github.io/cho-siren-preview/`。GitHub 仓库的 `main` 是 Pages 分支，`unity-source` 是源码分支；两者应使用两个独立工作目录，绝不能在 dirty Unity 工作树中来回切换。发布顺序必须是：
+线上稳定预览位于 `https://bojuejun.github.io/cho-siren-preview/`。GitHub 仓库的 `main` 是 Pages 分支，`master` 是源码分支；两者应使用两个独立工作目录，绝不能在 dirty Unity 工作树中来回切换。发布顺序必须是：
 
 1. 源码测试通过并 push，记录源 commit SHA 或 checkpoint tag。
 2. WebGL 构建通过 `Test-WebGLDeliverable.ps1`，本地 HTTP 烟雾测试通过。
@@ -192,7 +192,7 @@ Pop-Location
 - **WebGL 本地打不开**：必须通过 HTTP 服务访问；同时确认 `StreamingAssets/Lobby/lobby-loop.mp4` 已跟踪且实际存在。
 - **画面比例错误**：权威基准是 `720 × 1536`，不是旧文档里的 `720 × 1552`。
 - **新电脑没有存档**：玩家进度存于本机 `PlayerPrefs`，Git 只同步源码，不同步游戏存档。
-- **双击 Windows 构建里的编辑器入口无反应**：`打开Unity编辑器.cmd` 依赖同一个源码工作区中的 `Tools/`、`Packages/` 和 `ProjectSettings/`；它不是随身编辑器。请按第 2 节重新 clone `unity-source`，再双击根目录的 `打开CHO-SIREN编辑器.cmd`。
+- **双击 Windows 构建里的编辑器入口无反应**：`打开Unity编辑器.cmd` 依赖同一个源码工作区中的 `Tools/`、`Packages/` 和 `ProjectSettings/`；它不是随身编辑器。请按第 2 节重新 clone `master`，再双击根目录的 `打开CHO-SIREN编辑器.cmd`。
 - **中文脚本乱码**：Windows PowerShell 5.1 对无 BOM 中文脚本不稳定；新增 `.ps1` 尽量只用 ASCII 字面量。
 
 ## 8. 安全回到 checkpoint
