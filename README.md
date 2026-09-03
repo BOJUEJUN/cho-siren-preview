@@ -42,7 +42,7 @@ Set-Location .\cho-siren-unity
 ```powershell
 git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
 Set-Location .\cho-siren-unity
-git switch unity-source
+git switch master
 ```
 
 不要在 Unity 源码工作目录切换到 `main`；`main` 只存放可再生成的 WebGL 网页预览。

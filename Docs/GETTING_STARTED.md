@@ -48,7 +48,7 @@ git status --short
 ```powershell
 git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
 Set-Location .\cho-siren-unity
-git switch unity-source
+git switch master
 git status --short
 ```
 

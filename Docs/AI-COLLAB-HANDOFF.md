@@ -17,7 +17,7 @@ git clone --branch master --single-branch https://github.com/BOJUEJUN/cho-siren-
 
 ## 1. 当前事实，不要沿用旧状态
 
-- 本目录现在是 Git 仓库，本地工作分支 `unity-source` 跟踪远端源码分支 `origin/master`；2026-09-03 最终构建稳定性检查点从 `ec719a4` 开始。
+- 本目录现在是 Git 仓库，本地源码分支 `master` 跟踪远端源码分支 `origin/master`；2026-09-03 最终构建稳定性检查点从 `ec719a4` 开始。
 - `origin` 已配置为 `https://github.com/BOJUEJUN/cho-siren-preview.git`。同仓库 `master` 保存完整 Unity 源码，`main` 只存 GitHub Pages 网页预览；不能把 Unity 源码推到 `main`。
 - 当前工作树包含多人并行中的界面、音频、AI 美术、测试和文档改动；接手者先运行 `git status --short`，不得覆盖不属于自己的修改。
 - `Builds/`、`Releases/`、`Library/`、`Logs/`、`TestResults/` 是本机产物且被忽略，不是“源码已交接”的证据。

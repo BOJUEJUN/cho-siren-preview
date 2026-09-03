@@ -6,7 +6,7 @@
 
 审计时间：2026-09-03（Asia/Shanghai）。
 
-- Git 仓库：存在，本地工作分支 `unity-source` 跟踪远端源码分支 `origin/master`；用 `git rev-parse HEAD` 取得当前精确 checkpoint。
+- Git 仓库：存在，本地源码分支 `master` 跟踪远端源码分支 `origin/master`；用 `git rev-parse HEAD` 取得当前精确 checkpoint。
 - 当前实际状态：源码已完整推送到 `https://github.com/BOJUEJUN/cho-siren-preview.git` 的 `master`，并生成可验证的 `CHO-SIREN-Unity-Source-0.3.0.bundle` 作为离线备份。
 - 分支约定：远端 `master` 保存 Unity 源码，`main` 仅保存 GitHub Pages 网页预览；二者不得混用。
 - 已跟踪文件：约 1,036 个，工作树内合计约 192.64 MiB。
@@ -87,7 +87,7 @@ git lfs pull
 ```powershell
 git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
 Set-Location .\cho-siren-unity
-git switch unity-source
+git switch master
 ```
 
 3. 运行只读环境检查，确认 `origin`、关键素材、构建入口和包 JSON。
