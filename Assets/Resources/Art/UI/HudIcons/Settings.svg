@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>设置</title>
+  <g transform="translate(32 33) scale(.84) translate(-32 -33)">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#35ddff" stroke-width="5.5" opacity="0.42" transform="translate(-1.25 1.25)">
+      <path d="M26 7h12l1.8 6.8a20 20 0 0 1 5 2.9l6.7-1.9 6 10.4-4.9 4.9a20 20 0 0 1 0 5.8l4.9 4.9-6 10.4-6.7-1.9a20 20 0 0 1-5 2.9L38 59H26l-1.8-6.8a20 20 0 0 1-5-2.9l-6.7 1.9-6-10.4 4.9-4.9a20 20 0 0 1 0-5.8l-4.9-4.9 6-10.4 6.7 1.9a20 20 0 0 1 5-2.9Z"/>
+      <circle cx="32" cy="33" r="11"/>
+    </g>
+    <g stroke="#ff5acb" stroke-width="5.5" opacity="0.38" transform="translate(1.25 -1.25)">
+      <path d="M26 7h12l1.8 6.8a20 20 0 0 1 5 2.9l6.7-1.9 6 10.4-4.9 4.9a20 20 0 0 1 0 5.8l4.9 4.9-6 10.4-6.7-1.9a20 20 0 0 1-5 2.9L38 59H26l-1.8-6.8a20 20 0 0 1-5-2.9l-6.7 1.9-6-10.4 4.9-4.9a20 20 0 0 1 0-5.8l-4.9-4.9 6-10.4 6.7 1.9a20 20 0 0 1 5-2.9Z"/>
+      <circle cx="32" cy="33" r="11"/>
+    </g>
+    <g stroke="#ffffff" stroke-width="3.35">
+      <path d="M26 7h12l1.8 6.8a20 20 0 0 1 5 2.9l6.7-1.9 6 10.4-4.9 4.9a20 20 0 0 1 0 5.8l4.9 4.9-6 10.4-6.7-1.9a20 20 0 0 1-5 2.9L38 59H26l-1.8-6.8a20 20 0 0 1-5-2.9l-6.7 1.9-6-10.4 4.9-4.9a20 20 0 0 1 0-5.8l-4.9-4.9 6-10.4 6.7 1.9a20 20 0 0 1 5-2.9Z"/>
+      <circle cx="32" cy="33" r="11"/>
+    </g>
+    <path d="M23.5 33a8.5 8.5 0 0 1 8.5-8.5" stroke="#73eaff" stroke-width="1.7" opacity="0.95"/>
+    <path d="M40.5 33a8.5 8.5 0 0 1-8.5 8.5" stroke="#ff73d3" stroke-width="1.7" opacity="0.95"/>
+  </g>
+  </g>
+</svg>

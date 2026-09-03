@@ -1,0 +1,82 @@
+# Unity generated folders. These are rebuilt by the Editor on each machine.
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+/[Tt]est[Rr]esults/
+
+# Packaged previews, smoke screenshots and Android/WebGL intermediates that Unity or
+# the packaging scripts drop into the project root.
+/[Rr]eleases/
+/tmp/
+/.utmp/
+/Data/
+
+# Vendored Python packages (imageio_ffmpeg ships an 87 MB ffmpeg.exe). Install with
+# pip on each machine instead of committing the binaries.
+/Tools/python-packages/
+__pycache__/
+
+# Asset Store Tools may contain machine-local packages.
+/[Aa]ssets/AssetStoreTools*
+
+# IDE and editor caches.
+/.vs/
+/.idea/
+/.vscode/
+/.gradle/
+/ExportedObj/
+/.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity-generated metadata and crash reports.
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+sysinfo.txt
+crashlytics-build.properties
+
+# Generated player packages and exports.
+*.apk
+*.aab
+*.app
+*.unitypackage
+
+# Packed Addressables and temporary Android Addressables data.
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/
+
+# Operating-system files.
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Local secrets and signing material must never enter source control.
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.mobileprovision

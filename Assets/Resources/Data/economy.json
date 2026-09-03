@@ -1,0 +1,31 @@
+{
+  "SchemaVersion": 1,
+  "StaminaMax": 120,
+  "StaminaRegenSeconds": 360,
+  "StaminaPerTick": 1,
+  "IdleGoldPerHour": 900,
+  "IdleDiamondPerHour": 6,
+  "IdleCapHours": 12,
+  "Tasks": [
+    { "Id": "daily-login", "Title": "登录游戏", "Cadence": "daily", "Trigger": "login", "Target": 1,
+      "Reward": { "Currency": "diamond", "Amount": 50 } },
+    { "Id": "daily-perform-3", "Title": "完成 3 次舞台演出", "Cadence": "daily", "Trigger": "perform", "Target": 3,
+      "Reward": { "Currency": "diamond", "Amount": 100 } },
+    { "Id": "daily-battle-2", "Title": "赢得 2 场剧情战斗", "Cadence": "daily", "Trigger": "battle-win", "Target": 2,
+      "Reward": { "Currency": "diamond", "Amount": 60 } },
+    { "Id": "daily-train-1", "Title": "训练任意成员 1 次", "Cadence": "daily", "Trigger": "train", "Target": 1,
+      "Reward": { "Currency": "gold", "Amount": 600 } },
+    { "Id": "daily-idle-claim", "Title": "领取一次舞台收益", "Cadence": "daily", "Trigger": "claim-idle", "Target": 1,
+      "Reward": { "Currency": "gold", "Amount": 400 } },
+    { "Id": "daily-stamina-40", "Title": "消耗 40 点体力", "Cadence": "daily", "Trigger": "spend-stamina", "Target": 40,
+      "Reward": { "Currency": "diamond", "Amount": 40 } },
+    { "Id": "weekly-battle-10", "Title": "本周赢得 10 场剧情战斗", "Cadence": "weekly", "Trigger": "battle-win", "Target": 10,
+      "Reward": { "Currency": "recruit-ticket", "Amount": 1 } },
+    { "Id": "weekly-perform-15", "Title": "本周完成 15 次舞台演出", "Cadence": "weekly", "Trigger": "perform", "Target": 15,
+      "Reward": { "Currency": "diamond", "Amount": 300 } },
+    { "Id": "weekly-checkin-5", "Title": "本周签到 5 天", "Cadence": "weekly", "Trigger": "check-in", "Target": 5,
+      "Reward": { "Currency": "recruit-ticket", "Amount": 1 } },
+    { "Id": "weekly-gacha-10", "Title": "本周进行 10 次签约", "Cadence": "weekly", "Trigger": "gacha-pull", "Target": 10,
+      "Reward": { "Currency": "costume-ticket", "Amount": 1 } }
+  ]
+}

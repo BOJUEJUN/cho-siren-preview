@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#08061f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>{{{ PRODUCT_NAME }}}</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --portrait-ratio: 720 / 1536;
+        --page-bg: #08061f;
+        --accent: #ff69bf;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        width: 100%;
+        min-width: 100%;
+        height: 100%;
+        min-height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 10%, rgba(113, 74, 184, 0.34), transparent 36%),
+          linear-gradient(180deg, #17113d 0%, var(--page-bg) 72%);
+        font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+
+      #game-shell {
+        position: relative;
+        width: min(100%, calc(100vh * 720 / 1536));
+        height: min(100%, calc(100vw * 1536 / 720));
+        max-width: 720px;
+        max-height: 1536px;
+        aspect-ratio: var(--portrait-ratio);
+        overflow: hidden;
+        background: #090625;
+        box-shadow: 0 22px 70px rgba(0, 0, 0, 0.48);
+      }
+
+      @supports (height: 100dvh) {
+        #game-shell {
+          width: min(100%, calc(100dvh * 720 / 1536));
+          height: min(100%, calc(100dvw * 1536 / 720));
+        }
+      }
+
+      #unity-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        outline: none;
+        background: #090625;
+      }
+
+      #loading {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        gap: 16px;
+        text-align: center;
+        background: linear-gradient(180deg, rgba(13, 9, 44, 0.96), rgba(7, 5, 29, 0.98));
+        transition: opacity 240ms ease;
+      }
+
+      #loading.is-hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .brand {
+        color: #fff;
+        font-size: clamp(18px, 3.2vw, 28px);
+        font-weight: 750;
+        letter-spacing: 0.12em;
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+      }
+
+      .track {
+        width: min(52vw, 260px);
+        height: 5px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      #progress {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #9c6cff, var(--accent));
+        box-shadow: 0 0 18px rgba(255, 105, 191, 0.75);
+        transition: width 120ms linear;
+      }
+
+      #warning {
+        position: absolute;
+        z-index: 5;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        display: none;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        color: #fff;
+        background: rgba(38, 19, 66, 0.94);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #fullscreen {
+        position: absolute;
+        z-index: 4;
+        right: 12px;
+        bottom: 12px;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 12px;
+        color: #fff;
+        background: rgba(17, 10, 51, 0.68);
+        font-size: 18px;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+      }
+
+      @media (max-width: 760px) {
+        #game-shell {
+          max-width: none;
+          max-height: none;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="game-shell">
+      <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="-1"></canvas>
+      <div id="warning" role="status"></div>
+      <div id="loading">
+        <div class="brand">CHO-SIREN</div>
+        <div class="subtitle">幻域魅声 · 正在进入舞台</div>
+        <div class="track"><div id="progress"></div></div>
+      </div>
+      <button id="fullscreen" type="button" aria-label="全屏">⛶</button>
+    </main>
+
+    <script>
+      // Retire the service worker used by the earlier HTML prototype.  Its root
+      // scope would otherwise be able to keep serving stale pre-Unity assets to
+      // returning players after this site is upgraded to the WebGL build.
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+          .catch(() => {});
+      }
+      if ("caches" in window) {
+        caches.keys()
+          .then(keys => Promise.all(keys.filter(key => key.startsWith("cho-siren-")).map(key => caches.delete(key))))
+          .catch(() => {});
+      }
+
+      const shell = document.querySelector("#game-shell");
+      const canvas = document.querySelector("#unity-canvas");
+      const loading = document.querySelector("#loading");
+      const progress = document.querySelector("#progress");
+      const warning = document.querySelector("#warning");
+
+      function showBanner(message, type) {
+        warning.textContent = message;
+        warning.style.display = "block";
+        warning.style.borderColor = type === "error" ? "#ff5f7f" : "rgba(255,255,255,.18)";
+        if (type !== "error") {
+          window.setTimeout(() => { warning.style.display = "none"; }, 5000);
+        }
+      }
+
+      // All URLs stay relative to the document so GitHub Pages project paths work.
+      const pageUrl = new URL("./", document.baseURI);
+      const buildUrl = new URL("Build/", pageUrl);
+      const buildAssetUrl = filename => new URL(filename, buildUrl).href;
+      const config = {
+        arguments: [],
+#if PROGRESSIVE_ASSET_LOADING
+        primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
+        secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
+#else
+        dataUrl: buildAssetUrl("{{{ DATA_FILENAME }}}"),
+#endif
+        frameworkUrl: buildAssetUrl("{{{ FRAMEWORK_FILENAME }}}"),
+#if USE_WASM
+        codeUrl: buildAssetUrl("{{{ CODE_FILENAME }}}"),
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: buildAssetUrl("{{{ SYMBOLS_FILENAME }}}"),
+#endif
+        streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
+        companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+        productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+        productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+        showBanner,
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        matchWebGLToCanvasSize: true
+      };
+
+      const loader = document.createElement("script");
+      loader.src = buildAssetUrl("{{{ LOADER_FILENAME }}}");
+      loader.onload = () => {
+        createUnityInstance(canvas, config, value => {
+          progress.style.width = `${Math.round(value * 100)}%`;
+        }).then(instance => {
+          loading.classList.add("is-hidden");
+          document.querySelector("#fullscreen").onclick = () => instance.SetFullscreen(1);
+        }).catch(error => showBanner(String(error), "error"));
+      };
+      loader.onerror = () => showBanner("游戏资源加载失败，请通过 HTTPS 网页链接访问并刷新重试。", "error");
+      document.body.appendChild(loader);
+    </script>
+  </body>
+</html>

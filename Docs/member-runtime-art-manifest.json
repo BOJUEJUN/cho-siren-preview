@@ -1,0 +1,6119 @@
+{
+  "schemaVersion": 1,
+  "pipelineVersion": "1.0.0",
+  "generatedAtUtc": "2026-09-03T02:35:52.630710+00:00",
+  "inventory": "Docs/hero-asset-inventory-50.md",
+  "outputRoot": "Assets/Resources/Art/Members",
+  "safetyBorderRatio": 0.05,
+  "fitMode": "contain-no-visible-pixel-crop",
+  "alignment": "bottom-center",
+  "selectedHeroCount": 55,
+  "expectedFullHeroCount": 55,
+  "records": [
+    {
+      "heroId": "0002",
+      "stableId": "hero-0002",
+      "filename": "char000202.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2844,
+        3177
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000202.png",
+      "sourceSha256": "34b849182045c690bf442965ad41252d2187d230f6b1b1b749edf4f241dba8c3",
+      "sourceBytes": 4246946,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0002/thumb.png",
+          "resourcePath": "Art/Members/hero-0002/thumb",
+          "sourceVisibleBounds": [
+            3,
+            3,
+            2842,
+            3173
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08101444,
+          "placement": [
+            13,
+            77,
+            230,
+            257
+          ],
+          "renderedVisibleBounds": [
+            13,
+            77,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            77,
+            243,
+            334
+          ],
+          "sha256": "eb354c4fe901df5fef976427333f279c3bd13f8ffdc13769c6f7ca2d90cd5e24",
+          "bytes": 69772
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0002/portrait.png",
+          "resourcePath": "Art/Members/hero-0002/portrait",
+          "sourceVisibleBounds": [
+            3,
+            3,
+            2842,
+            3173
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.16202888,
+          "placement": [
+            26,
+            155,
+            460,
+            514
+          ],
+          "renderedVisibleBounds": [
+            26,
+            155,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            155,
+            486,
+            669
+          ],
+          "sha256": "df8e5a0a1c854b9be1eb4f14dce4487ca29efc6e178e8cdeddeb16d738f50493",
+          "bytes": 225853
+        }
+      }
+    },
+    {
+      "heroId": "0003",
+      "stableId": "hero-0003",
+      "filename": "char000303.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2472,
+        4551
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000303.png",
+      "sourceSha256": "3b9a18d8a38c49ef6d3d365fafc2fbc25757b135ad4b71be0caf982f8e973880",
+      "sourceBytes": 5780944,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0003/thumb.png",
+          "resourcePath": "Art/Members/hero-0003/thumb",
+          "sourceVisibleBounds": [
+            2,
+            4,
+            2470,
+            4549
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.06952695,
+          "placement": [
+            42,
+            18,
+            172,
+            316
+          ],
+          "renderedVisibleBounds": [
+            42,
+            18,
+            214,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            42,
+            18,
+            214,
+            334
+          ],
+          "sha256": "a2afa2ac9d8feac91467546976a55b9d32bd41f62bdfea8222072fcddd929cf5",
+          "bytes": 73719
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0003/portrait.png",
+          "resourcePath": "Art/Members/hero-0003/portrait",
+          "sourceVisibleBounds": [
+            2,
+            4,
+            2470,
+            4549
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.13949395,
+          "placement": [
+            84,
+            35,
+            344,
+            634
+          ],
+          "renderedVisibleBounds": [
+            84,
+            35,
+            428,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            84,
+            35,
+            428,
+            669
+          ],
+          "sha256": "ba267cffd111c4f672c247bf9783e3b571fa97bf14342bda726ceb77ab20dfaa",
+          "bytes": 235644
+        }
+      }
+    },
+    {
+      "heroId": "0005",
+      "stableId": "hero-0005",
+      "filename": "char000506.png",
+      "risk": "W",
+      "inventoryDimensions": [
+        3114,
+        2991
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000506.png",
+      "sourceSha256": "c9479dcb2649f62e9ae3b28ee75d39de57d2237b830cf5084b202dcd1e5773c3",
+      "sourceBytes": 4920605,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0005/thumb.png",
+          "resourcePath": "Art/Members/hero-0005/thumb",
+          "sourceVisibleBounds": [
+            3,
+            2,
+            3114,
+            2989
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.07393121,
+          "placement": [
+            13,
+            113,
+            230,
+            221
+          ],
+          "renderedVisibleBounds": [
+            13,
+            113,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            113,
+            243,
+            334
+          ],
+          "sha256": "4b5571c5afb4ffe1659ccdf76d381bca8f4170e1c568957aee99459157550866",
+          "bytes": 70733
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0005/portrait.png",
+          "resourcePath": "Art/Members/hero-0005/portrait",
+          "sourceVisibleBounds": [
+            3,
+            2,
+            3114,
+            2989
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.14786242,
+          "placement": [
+            26,
+            227,
+            460,
+            442
+          ],
+          "renderedVisibleBounds": [
+            26,
+            227,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            227,
+            486,
+            669
+          ],
+          "sha256": "527833d635a8e1e9833d26c9b1ea425325163dec5d0925899ecab6218cdd7648",
+          "bytes": 232695
+        }
+      }
+    },
+    {
+      "heroId": "0007",
+      "stableId": "hero-0007",
+      "filename": "Char000701.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2562,
+        3624
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\Char000701.png",
+      "sourceSha256": "8f25cc8b733f85bd73e12b9d21bd56b8ca9518e17e9a9bb0b5f225b2fd210283",
+      "sourceBytes": 4780696,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0007/thumb.png",
+          "resourcePath": "Art/Members/hero-0007/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2560,
+            3622
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08729282,
+          "placement": [
+            16,
+            18,
+            223,
+            316
+          ],
+          "renderedVisibleBounds": [
+            16,
+            18,
+            239,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            16,
+            18,
+            239,
+            334
+          ],
+          "sha256": "a960334814c616b5dd404a7a10895a1721b1d960a761915da705f888d29d76d4",
+          "bytes": 95248
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0007/portrait.png",
+          "resourcePath": "Art/Members/hero-0007/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2560,
+            3622
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.17513812,
+          "placement": [
+            32,
+            35,
+            448,
+            634
+          ],
+          "renderedVisibleBounds": [
+            32,
+            35,
+            480,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            32,
+            35,
+            480,
+            669
+          ],
+          "sha256": "75dcf1858b20cb8efc2821eccb190166577bcf24fe62ed6d1bf2623bbac233ab",
+          "bytes": 299818
+        }
+      }
+    },
+    {
+      "heroId": "0008",
+      "stableId": "hero-0008",
+      "filename": "char000801.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2577,
+        3738
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000801.png",
+      "sourceSha256": "4885448f6f44f75a2def00db121f41193cd8e3cfeac13d188c4c3904fddc4aa0",
+      "sourceBytes": 4836229,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0008/thumb.png",
+          "resourcePath": "Art/Members/hero-0008/thumb",
+          "sourceVisibleBounds": [
+            2,
+            4,
+            2572,
+            3736
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.0846731,
+          "placement": [
+            19,
+            18,
+            218,
+            316
+          ],
+          "renderedVisibleBounds": [
+            19,
+            18,
+            237,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            19,
+            18,
+            237,
+            334
+          ],
+          "sha256": "c495ca4ad02c6c04872813d63548a8d1c0b5010d9accdb03b12c92fc3d9de9ad",
+          "bytes": 85972
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0008/portrait.png",
+          "resourcePath": "Art/Members/hero-0008/portrait",
+          "sourceVisibleBounds": [
+            2,
+            4,
+            2572,
+            3736
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.1698821,
+          "placement": [
+            37,
+            35,
+            437,
+            634
+          ],
+          "renderedVisibleBounds": [
+            37,
+            35,
+            474,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            37,
+            35,
+            474,
+            669
+          ],
+          "sha256": "c92f2fea078686fe2dbbd828c492f292c28b3d3f0a6e1404fc5eb3983c354a17",
+          "bytes": 273588
+        }
+      }
+    },
+    {
+      "heroId": "0010",
+      "stableId": "hero-0010",
+      "filename": "char001001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2976,
+        4197
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char001001.png",
+      "sourceSha256": "1f28ff0910eca828accca8096de0c5370542a5c57311d4491f883ade98a57fe2",
+      "sourceBytes": 7954704,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0010/thumb.png",
+          "resourcePath": "Art/Members/hero-0010/thumb",
+          "sourceVisibleBounds": [
+            3,
+            0,
+            2975,
+            4193
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.0753637,
+          "placement": [
+            16,
+            18,
+            224,
+            316
+          ],
+          "renderedVisibleBounds": [
+            16,
+            18,
+            240,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            16,
+            18,
+            240,
+            334
+          ],
+          "sha256": "7ab8144906b122e212445928ec8dcb8942b64fedf847dd48ddab8dd25013e17a",
+          "bytes": 100214
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0010/portrait.png",
+          "resourcePath": "Art/Members/hero-0010/portrait",
+          "sourceVisibleBounds": [
+            3,
+            0,
+            2975,
+            4193
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.15120439,
+          "placement": [
+            31,
+            35,
+            449,
+            634
+          ],
+          "renderedVisibleBounds": [
+            31,
+            35,
+            480,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            31,
+            35,
+            480,
+            669
+          ],
+          "sha256": "be11a7ad1642848327ef65e49f748575784ea0df79197cead64b01b52a8e8fa9",
+          "bytes": 339503
+        }
+      }
+    },
+    {
+      "heroId": "0011",
+      "stableId": "hero-0011",
+      "filename": "char001101.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2625,
+        3186
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char001101.png",
+      "sourceSha256": "a54b0f497fde7ee4c4702c03a3f03b053d37fcb2477cc59747d277492845b6a7",
+      "sourceBytes": 3813836,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0011/thumb.png",
+          "resourcePath": "Art/Members/hero-0011/thumb",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            2623,
+            3181
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08775277,
+          "placement": [
+            13,
+            55,
+            230,
+            279
+          ],
+          "renderedVisibleBounds": [
+            13,
+            55,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            55,
+            243,
+            334
+          ],
+          "sha256": "34f04da8db8405c6fa69dc8650e7a0705287b357a3fde462ba23ab63537ccb52",
+          "bytes": 74721
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0011/portrait.png",
+          "resourcePath": "Art/Members/hero-0011/portrait",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            2623,
+            3181
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.17550553,
+          "placement": [
+            26,
+            111,
+            460,
+            558
+          ],
+          "renderedVisibleBounds": [
+            26,
+            111,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            111,
+            486,
+            669
+          ],
+          "sha256": "207c857353c82fa2f129a0d09c7307a741662e95dbcee69394c095a23c06e770",
+          "bytes": 241446
+        }
+      }
+    },
+    {
+      "heroId": "0012",
+      "stableId": "hero-0012",
+      "filename": "char001201.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2199,
+        3528
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char001201.png",
+      "sourceSha256": "0b1321eec7349639ff0e2413a7f2b927b246e620698007fecabf83f16ed43be7",
+      "sourceBytes": 3266311,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0012/thumb.png",
+          "resourcePath": "Art/Members/hero-0012/thumb",
+          "sourceVisibleBounds": [
+            4,
+            1,
+            2199,
+            3525
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08967083,
+          "placement": [
+            29,
+            18,
+            197,
+            316
+          ],
+          "renderedVisibleBounds": [
+            29,
+            18,
+            226,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            29,
+            18,
+            226,
+            334
+          ],
+          "sha256": "2997ba2049e66cad42727e757f0957e6146b65becc34bb92a39bcf99837a9964",
+          "bytes": 66627
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0012/portrait.png",
+          "resourcePath": "Art/Members/hero-0012/portrait",
+          "sourceVisibleBounds": [
+            4,
+            1,
+            2199,
+            3525
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.17990919,
+          "placement": [
+            58,
+            35,
+            395,
+            634
+          ],
+          "renderedVisibleBounds": [
+            58,
+            35,
+            453,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            58,
+            35,
+            453,
+            669
+          ],
+          "sha256": "cbf3e253cc57c21ea09211b05aa24dba6e241d84c9fa844d7981dff97c45c660",
+          "bytes": 209709
+        }
+      }
+    },
+    {
+      "heroId": "0024",
+      "stableId": "hero-0024",
+      "filename": "char002406.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1887,
+        3123
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char002406.png",
+      "sourceSha256": "fb3d5f854d75e2628318f7971381f23026808bc94a98025effed853f0b6551b4",
+      "sourceBytes": 3422460,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0024/thumb.png",
+          "resourcePath": "Art/Members/hero-0024/thumb",
+          "sourceVisibleBounds": [
+            4,
+            0,
+            1885,
+            3119
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.10131452,
+          "placement": [
+            32,
+            18,
+            191,
+            316
+          ],
+          "renderedVisibleBounds": [
+            32,
+            18,
+            223,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            32,
+            18,
+            223,
+            334
+          ],
+          "sha256": "3d98f6976e6e0e22a3d69547321219889a36562d92b72eb28864183b36a6d248",
+          "bytes": 101221
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0024/portrait.png",
+          "resourcePath": "Art/Members/hero-0024/portrait",
+          "sourceVisibleBounds": [
+            4,
+            0,
+            1885,
+            3119
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.20327028,
+          "placement": [
+            65,
+            35,
+            382,
+            634
+          ],
+          "renderedVisibleBounds": [
+            65,
+            35,
+            447,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            65,
+            35,
+            447,
+            669
+          ],
+          "sha256": "9a58c4f31f72fd6b6c17c8c64087b2aac90ff0534bcd0bc3a2f5032dd253dbdd",
+          "bytes": 321772
+        }
+      }
+    },
+    {
+      "heroId": "0031",
+      "stableId": "hero-0031",
+      "filename": "char003101.png",
+      "risk": "ND",
+      "inventoryDimensions": [
+        2375,
+        5455
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003101.png",
+      "sourceSha256": "a791c987b7f9e9f462f3e641345980064ef2a4e1edc2fe7d4c9e47c75e7f0b68",
+      "sourceBytes": 6373003,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0031/thumb.png",
+          "resourcePath": "Art/Members/hero-0031/thumb",
+          "sourceVisibleBounds": [
+            5,
+            0,
+            2372,
+            5447
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.05801359,
+          "placement": [
+            59,
+            18,
+            137,
+            316
+          ],
+          "renderedVisibleBounds": [
+            59,
+            18,
+            196,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            59,
+            18,
+            196,
+            334
+          ],
+          "sha256": "1e581bf1667ff4063362494848eabc5febdb6500d91b9b5566691784bbb37385",
+          "bytes": 58651
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0031/portrait.png",
+          "resourcePath": "Art/Members/hero-0031/portrait",
+          "sourceVisibleBounds": [
+            5,
+            0,
+            2372,
+            5447
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.11639435,
+          "placement": [
+            118,
+            35,
+            276,
+            634
+          ],
+          "renderedVisibleBounds": [
+            118,
+            35,
+            394,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            118,
+            35,
+            394,
+            669
+          ],
+          "sha256": "912acd5ebee7d392f85583471c153b597eca98798594a3acd7d8ba6b4c0f35b2",
+          "bytes": 187728
+        }
+      }
+    },
+    {
+      "heroId": "0032",
+      "stableId": "hero-0032",
+      "filename": "char003203.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5438,
+        12530
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003203.png",
+      "sourceSha256": "1ad5269261483ba14132c113016f24327fc16cf9d79fae6e786ce8e1408712fc",
+      "sourceBytes": 19932632,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0032/thumb.png",
+          "resourcePath": "Art/Members/hero-0032/thumb",
+          "sourceVisibleBounds": [
+            10,
+            0,
+            5426,
+            12514
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.02525172,
+          "placement": [
+            59,
+            18,
+            137,
+            316
+          ],
+          "renderedVisibleBounds": [
+            59,
+            18,
+            196,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            59,
+            18,
+            196,
+            334
+          ],
+          "sha256": "97d4c5b397bf873bcfb5f3f84a44da8655e732d2f0d0f5db72af6b0365db423c",
+          "bytes": 62104
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0032/portrait.png",
+          "resourcePath": "Art/Members/hero-0032/portrait",
+          "sourceVisibleBounds": [
+            10,
+            0,
+            5426,
+            12514
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.05066326,
+          "placement": [
+            119,
+            35,
+            274,
+            634
+          ],
+          "renderedVisibleBounds": [
+            119,
+            35,
+            393,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            119,
+            35,
+            393,
+            669
+          ],
+          "sha256": "04f2e1adfbaf2db7ec3cfefa2e12133354988851cdaf6d36990ae961e7a29eaa",
+          "bytes": 194912
+        }
+      }
+    },
+    {
+      "heroId": "0033",
+      "stableId": "hero-0033",
+      "filename": "char003303.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5383,
+        11872
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003303.png",
+      "sourceSha256": "d6aeba2f04dffc0de0d6057e1bccde5618e0e8c84301c38296dad54a1e6c5766",
+      "sourceBytes": 16007976,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0033/thumb.png",
+          "resourcePath": "Art/Members/hero-0033/thumb",
+          "sourceVisibleBounds": [
+            9,
+            8,
+            5377,
+            11871
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.02663744,
+          "placement": [
+            56,
+            18,
+            143,
+            316
+          ],
+          "renderedVisibleBounds": [
+            56,
+            18,
+            199,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            56,
+            18,
+            199,
+            334
+          ],
+          "sha256": "e608b50d0dff8b49e1fe49edff001e0f624652a7018f9e400af840b4c1dedbda",
+          "bytes": 52007
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0033/portrait.png",
+          "resourcePath": "Art/Members/hero-0033/portrait",
+          "sourceVisibleBounds": [
+            9,
+            8,
+            5377,
+            11871
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.05344348,
+          "placement": [
+            112,
+            35,
+            287,
+            634
+          ],
+          "renderedVisibleBounds": [
+            112,
+            35,
+            399,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            112,
+            35,
+            399,
+            669
+          ],
+          "sha256": "b777fdcd3545f528474ece5a77ddf12d4cf3e9896abf5b0d780b416f8e8ef077",
+          "bytes": 164579
+        }
+      }
+    },
+    {
+      "heroId": "0034",
+      "stableId": "hero-0034",
+      "filename": "char003402.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7696,
+        13111
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003402.png",
+      "sourceSha256": "904b61379230016acd7242461db2b7b83f8d83eb4236f20c031ccd47d2008ce4",
+      "sourceBytes": 28294047,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0034/thumb.png",
+          "resourcePath": "Art/Members/hero-0034/thumb",
+          "sourceVisibleBounds": [
+            5,
+            6,
+            7690,
+            13106
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.02412214,
+          "placement": [
+            35,
+            18,
+            185,
+            316
+          ],
+          "renderedVisibleBounds": [
+            35,
+            18,
+            220,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            35,
+            18,
+            220,
+            334
+          ],
+          "sha256": "9be56507163a7fef755ebef971bfdd41f4b9a0b9392e7f12c4bc6e078011c091",
+          "bytes": 77867
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0034/portrait.png",
+          "resourcePath": "Art/Members/hero-0034/portrait",
+          "sourceVisibleBounds": [
+            5,
+            6,
+            7690,
+            13106
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.04839695,
+          "placement": [
+            70,
+            35,
+            372,
+            634
+          ],
+          "renderedVisibleBounds": [
+            70,
+            35,
+            442,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            70,
+            35,
+            442,
+            669
+          ],
+          "sha256": "b5f6fe483cd9e9f86a4d05b76914568b7a675a1c2d8a2e98dbba10d7c94d50e6",
+          "bytes": 248571
+        }
+      }
+    },
+    {
+      "heroId": "0035",
+      "stableId": "hero-0035",
+      "filename": "char003501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2244,
+        4644
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003501.png",
+      "sourceSha256": "59736af0ed1146168941f3cc4835275c3b76d76f62c32757f44878726fa718b4",
+      "sourceBytes": 4313786,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0035/thumb.png",
+          "resourcePath": "Art/Members/hero-0035/thumb",
+          "sourceVisibleBounds": [
+            12,
+            0,
+            2235,
+            4639
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.06811813,
+          "placement": [
+            52,
+            18,
+            151,
+            316
+          ],
+          "renderedVisibleBounds": [
+            52,
+            18,
+            203,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            52,
+            18,
+            203,
+            334
+          ],
+          "sha256": "d164cc17fb983e207d144efe9cc2b95b17b2f6d0c6022c59a5d12088a4e3562a",
+          "bytes": 62698
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0035/portrait.png",
+          "resourcePath": "Art/Members/hero-0035/portrait",
+          "sourceVisibleBounds": [
+            12,
+            0,
+            2235,
+            4639
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.13666739,
+          "placement": [
+            104,
+            35,
+            304,
+            634
+          ],
+          "renderedVisibleBounds": [
+            104,
+            35,
+            408,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            104,
+            35,
+            408,
+            669
+          ],
+          "sha256": "630e62c374fad4b142cba36e7dee714cac577236205f3e0ad9381cba742ba0fb",
+          "bytes": 206294
+        }
+      }
+    },
+    {
+      "heroId": "0037",
+      "stableId": "hero-0037",
+      "filename": "char003702.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        4589,
+        7134
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003702.png",
+      "sourceSha256": "669733f253985e749461a091b494dae4c62663bfbfc7184904a34647efc5ff4f",
+      "sourceBytes": 13454306,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0037/thumb.png",
+          "resourcePath": "Art/Members/hero-0037/thumb",
+          "sourceVisibleBounds": [
+            15,
+            9,
+            4586,
+            7125
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.04440697,
+          "placement": [
+            26,
+            18,
+            203,
+            316
+          ],
+          "renderedVisibleBounds": [
+            26,
+            18,
+            229,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            18,
+            229,
+            334
+          ],
+          "sha256": "e952adaf238202691415d1817260efe551b53d07f00e0c9d954f57352b9768d3",
+          "bytes": 74129
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0037/portrait.png",
+          "resourcePath": "Art/Members/hero-0037/portrait",
+          "sourceVisibleBounds": [
+            15,
+            9,
+            4586,
+            7125
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.089095,
+          "placement": [
+            52,
+            35,
+            407,
+            634
+          ],
+          "renderedVisibleBounds": [
+            52,
+            35,
+            459,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            52,
+            35,
+            459,
+            669
+          ],
+          "sha256": "30b71de2007e8dac0216986b3b9c60d6d129148113d515debdf6dde69e5ed97d",
+          "bytes": 240569
+        }
+      }
+    },
+    {
+      "heroId": "0038",
+      "stableId": "hero-0038",
+      "filename": "char003802.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2370,
+        6579
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003802.png",
+      "sourceSha256": "e41abea866a9a31e899269b486e77b80434f670ba170946095950f69fa2b2c14",
+      "sourceBytes": 9977483,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0038/thumb.png",
+          "resourcePath": "Art/Members/hero-0038/thumb",
+          "sourceVisibleBounds": [
+            6,
+            3,
+            2370,
+            6573
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.04809741,
+          "placement": [
+            71,
+            18,
+            114,
+            316
+          ],
+          "renderedVisibleBounds": [
+            71,
+            18,
+            185,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            71,
+            18,
+            185,
+            334
+          ],
+          "sha256": "c96456cdf9ef1484482f00c4be4b233574538c4da30d00f652587aff0805dc9a",
+          "bytes": 63533
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0038/portrait.png",
+          "resourcePath": "Art/Members/hero-0038/portrait",
+          "sourceVisibleBounds": [
+            6,
+            3,
+            2370,
+            6573
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.09649924,
+          "placement": [
+            142,
+            35,
+            228,
+            634
+          ],
+          "renderedVisibleBounds": [
+            142,
+            35,
+            370,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            142,
+            35,
+            370,
+            669
+          ],
+          "sha256": "09e3e7e090da30e1d6c1b1cd76ab1df8243657ae3d249978ae644d8a67c4ad76",
+          "bytes": 209850
+        }
+      }
+    },
+    {
+      "heroId": "0200",
+      "stableId": "hero-0200",
+      "filename": "char020001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1572,
+        2946
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020001.png",
+      "sourceSha256": "d9a038f5173f2e1b72995f3f058ab8fdaccf37434e3ee484af5847277d6c215a",
+      "sourceBytes": 2263715,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0200/thumb.png",
+          "resourcePath": "Art/Members/hero-0200/thumb",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1570,
+            2941
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.10744645,
+          "placement": [
+            44,
+            18,
+            168,
+            316
+          ],
+          "renderedVisibleBounds": [
+            44,
+            18,
+            212,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            44,
+            18,
+            212,
+            334
+          ],
+          "sha256": "1517bacbef65ec96b882816cda5f6ed71fd89f12bbe3495c9863f0db6e87ff70",
+          "bytes": 79210
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0200/portrait.png",
+          "resourcePath": "Art/Members/hero-0200/portrait",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1570,
+            2941
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.21557293,
+          "placement": [
+            87,
+            35,
+            338,
+            634
+          ],
+          "renderedVisibleBounds": [
+            87,
+            35,
+            425,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            87,
+            35,
+            425,
+            669
+          ],
+          "sha256": "d78bc8871952ef325345a7bd9ce79842d693c51e97c38b4b2cb8f2cc2d01a155",
+          "bytes": 254296
+        }
+      }
+    },
+    {
+      "heroId": "0201",
+      "stableId": "hero-0201",
+      "filename": "char020101.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1752,
+        3399
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020101.png",
+      "sourceSha256": "7e7b08dfd2564090540b7b1894ef547363067b037511aa2fa220ab3d0d4dd784",
+      "sourceBytes": 3258523,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0201/thumb.png",
+          "resourcePath": "Art/Members/hero-0201/thumb",
+          "sourceVisibleBounds": [
+            3,
+            2,
+            1752,
+            3397
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09307806,
+          "placement": [
+            46,
+            18,
+            163,
+            316
+          ],
+          "renderedVisibleBounds": [
+            46,
+            18,
+            209,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            46,
+            18,
+            209,
+            334
+          ],
+          "sha256": "2060d35dd0bf0e455dcb9145ab55cbfe3a4529e0947542af960edd0b7089c438",
+          "bytes": 80697
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0201/portrait.png",
+          "resourcePath": "Art/Members/hero-0201/portrait",
+          "sourceVisibleBounds": [
+            3,
+            2,
+            1752,
+            3397
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18674521,
+          "placement": [
+            92,
+            35,
+            327,
+            634
+          ],
+          "renderedVisibleBounds": [
+            92,
+            35,
+            419,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            92,
+            35,
+            419,
+            669
+          ],
+          "sha256": "c477d4cab0af2b41610e84025bce4d9d0fc663a106a11679d94238af994ad9ec",
+          "bytes": 253076
+        }
+      }
+    },
+    {
+      "heroId": "0202",
+      "stableId": "hero-0202",
+      "filename": "char020201.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2328,
+        3111
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020201.png",
+      "sourceSha256": "bf641866bb93d5c233e32e9e4449111b133de3d6730c274176b14a7f44c77e8d",
+      "sourceBytes": 3281094,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0202/thumb.png",
+          "resourcePath": "Art/Members/hero-0202/thumb",
+          "sourceVisibleBounds": [
+            4,
+            0,
+            2328,
+            3109
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.0989673,
+          "placement": [
+            13,
+            26,
+            230,
+            308
+          ],
+          "renderedVisibleBounds": [
+            13,
+            26,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            26,
+            243,
+            334
+          ],
+          "sha256": "af2959f52712ba44b46d1c4a9664f97ea8474cd2c3f7fadf06ba8b0129afcbd9",
+          "bytes": 85657
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0202/portrait.png",
+          "resourcePath": "Art/Members/hero-0202/portrait",
+          "sourceVisibleBounds": [
+            4,
+            0,
+            2328,
+            3109
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.1979346,
+          "placement": [
+            26,
+            54,
+            460,
+            615
+          ],
+          "renderedVisibleBounds": [
+            26,
+            54,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            54,
+            486,
+            669
+          ],
+          "sha256": "07cf05a1454929a87644a557d4ff8d28573809218c97438dc6010f4133f02654",
+          "bytes": 273066
+        }
+      }
+    },
+    {
+      "heroId": "0203",
+      "stableId": "hero-0203",
+      "filename": "char020301.png",
+      "risk": "W",
+      "inventoryDimensions": [
+        2763,
+        2937
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020301.png",
+      "sourceSha256": "9c348f8310d21fc77156669d427fdb910bf7d3ab312cd6e27c5151e102426554",
+      "sourceBytes": 4643552,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0203/thumb.png",
+          "resourcePath": "Art/Members/hero-0203/thumb",
+          "sourceVisibleBounds": [
+            5,
+            0,
+            2762,
+            2933
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08342401,
+          "placement": [
+            13,
+            89,
+            230,
+            245
+          ],
+          "renderedVisibleBounds": [
+            13,
+            89,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            89,
+            243,
+            334
+          ],
+          "sha256": "46dbc398cde1dcbea66ca703ff2faeb877ef768b79016f2233d6535ac9190e42",
+          "bytes": 88098
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0203/portrait.png",
+          "resourcePath": "Art/Members/hero-0203/portrait",
+          "sourceVisibleBounds": [
+            5,
+            0,
+            2762,
+            2933
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.16684802,
+          "placement": [
+            26,
+            180,
+            460,
+            489
+          ],
+          "renderedVisibleBounds": [
+            26,
+            180,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            180,
+            486,
+            669
+          ],
+          "sha256": "b7d69af77781276f4ca35e0c0c8d0e5f171f5bfa1ce39546a10bf7f9492e7a70",
+          "bytes": 289329
+        }
+      }
+    },
+    {
+      "heroId": "0205",
+      "stableId": "hero-0205",
+      "filename": "char020501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1218,
+        3240
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020501.png",
+      "sourceSha256": "2765b9b792aab1c30ca779dfdae2291683c0f73a4a6d98ed4f88f7d3b7da1c2d",
+      "sourceBytes": 2069881,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0205/thumb.png",
+          "resourcePath": "Art/Members/hero-0205/thumb",
+          "sourceVisibleBounds": [
+            1,
+            1,
+            1169,
+            3238
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09762125,
+          "placement": [
+            71,
+            18,
+            114,
+            316
+          ],
+          "renderedVisibleBounds": [
+            71,
+            18,
+            185,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            71,
+            18,
+            185,
+            334
+          ],
+          "sha256": "b174bf133aa2437d12ad6857a40bf6e28ed17251f70eda8c9283219cdf0d06a0",
+          "bytes": 51101
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0205/portrait.png",
+          "resourcePath": "Art/Members/hero-0205/portrait",
+          "sourceVisibleBounds": [
+            1,
+            1,
+            1169,
+            3238
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.19586036,
+          "placement": [
+            141,
+            35,
+            229,
+            634
+          ],
+          "renderedVisibleBounds": [
+            141,
+            35,
+            370,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            141,
+            35,
+            370,
+            669
+          ],
+          "sha256": "8182d5dc72f3166907d1c169dbb1bf370142d1b003bff96112049f3b4d11f7af",
+          "bytes": 165975
+        }
+      }
+    },
+    {
+      "heroId": "0207",
+      "stableId": "hero-0207",
+      "filename": "char020701.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        4640,
+        9024
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020701.png",
+      "sourceSha256": "06ef33494eed56f5424c8e0ca7b7d2636dbaf8152c4762e7482b2457198914f5",
+      "sourceBytes": 21582447,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0207/thumb.png",
+          "resourcePath": "Art/Members/hero-0207/thumb",
+          "sourceVisibleBounds": [
+            10,
+            482,
+            4640,
+            8980
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.03718522,
+          "placement": [
+            42,
+            18,
+            172,
+            316
+          ],
+          "renderedVisibleBounds": [
+            42,
+            18,
+            214,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            42,
+            18,
+            214,
+            334
+          ],
+          "sha256": "0750647cee76bf6cfc588f1e53fc2764e6684e44a511d64bb787b313e4b49803",
+          "bytes": 89591
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0207/portrait.png",
+          "resourcePath": "Art/Members/hero-0207/portrait",
+          "sourceVisibleBounds": [
+            10,
+            482,
+            4640,
+            8980
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.07460579,
+          "placement": [
+            83,
+            35,
+            345,
+            634
+          ],
+          "renderedVisibleBounds": [
+            83,
+            35,
+            428,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            83,
+            35,
+            428,
+            669
+          ],
+          "sha256": "933756162bc426dc0b42173d8673f3617afce21e04e4c9915d95647cd118fd80",
+          "bytes": 290313
+        }
+      }
+    },
+    {
+      "heroId": "0208",
+      "stableId": "hero-0208",
+      "filename": "char020801.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5016,
+        8352
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020801.png",
+      "sourceSha256": "859f01407f82b028ca96483f4283b1cb43c23af19e41b10d8f5a3184bb29a526",
+      "sourceBytes": 16667672,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0208/thumb.png",
+          "resourcePath": "Art/Members/hero-0208/thumb",
+          "sourceVisibleBounds": [
+            9,
+            0,
+            5011,
+            8345
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.03786699,
+          "placement": [
+            33,
+            18,
+            189,
+            316
+          ],
+          "renderedVisibleBounds": [
+            33,
+            18,
+            222,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            33,
+            18,
+            222,
+            334
+          ],
+          "sha256": "5125015913c6853ff349fd84966fc67aefa461660f725fc41f92596e2f293cb9",
+          "bytes": 71519
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0208/portrait.png",
+          "resourcePath": "Art/Members/hero-0208/portrait",
+          "sourceVisibleBounds": [
+            9,
+            0,
+            5011,
+            8345
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.07597364,
+          "placement": [
+            66,
+            35,
+            380,
+            634
+          ],
+          "renderedVisibleBounds": [
+            66,
+            35,
+            446,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            66,
+            35,
+            446,
+            669
+          ],
+          "sha256": "1116fef1c4ad69d9bce22f1a5e7a3c715eba95ca119ad5ade1b04113e87fca6d",
+          "bytes": 226864
+        }
+      }
+    },
+    {
+      "heroId": "0209",
+      "stableId": "hero-0209",
+      "filename": "char020901.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7544,
+        9569
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020901.png",
+      "sourceSha256": "2a68f4f1387807165a9a7ceae70a623f4881e078c622cdb87722811994552af2",
+      "sourceBytes": 22950899,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0209/thumb.png",
+          "resourcePath": "Art/Members/hero-0209/thumb",
+          "sourceVisibleBounds": [
+            18,
+            8,
+            7544,
+            9560
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.03056072,
+          "placement": [
+            13,
+            42,
+            230,
+            292
+          ],
+          "renderedVisibleBounds": [
+            13,
+            42,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            42,
+            243,
+            334
+          ],
+          "sha256": "cd84c89dd90cb43d103f98138707e60ae3a014ec0a5ba274f97c9016c7591c95",
+          "bytes": 91346
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0209/portrait.png",
+          "resourcePath": "Art/Members/hero-0209/portrait",
+          "sourceVisibleBounds": [
+            18,
+            8,
+            7544,
+            9560
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.06112145,
+          "placement": [
+            26,
+            85,
+            460,
+            584
+          ],
+          "renderedVisibleBounds": [
+            26,
+            85,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            85,
+            486,
+            669
+          ],
+          "sha256": "12987d55ad2df37a46c5e69cf5374267dc9a469bc8065f2284cfd98d55c4f606",
+          "bytes": 295546
+        }
+      }
+    },
+    {
+      "heroId": "0604",
+      "stableId": "hero-0604",
+      "filename": "char060403.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2004,
+        3993
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060403.png",
+      "sourceSha256": "ebfd40a4d475d875d5d718c5515e79e313ff113832151a4dc05f0f3199342fdc",
+      "sourceBytes": 4355918,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0604/thumb.png",
+          "resourcePath": "Art/Members/hero-0604/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2002,
+            3991
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.07921785,
+          "placement": [
+            49,
+            18,
+            158,
+            316
+          ],
+          "renderedVisibleBounds": [
+            49,
+            18,
+            207,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            49,
+            18,
+            207,
+            334
+          ],
+          "sha256": "555c18a7e3fb18bc133824edb2aa6acb890ec159ed0977867f56d9840c74dbe5",
+          "bytes": 70671
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0604/portrait.png",
+          "resourcePath": "Art/Members/hero-0604/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2002,
+            3991
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.15893708,
+          "placement": [
+            97,
+            35,
+            318,
+            634
+          ],
+          "renderedVisibleBounds": [
+            97,
+            35,
+            415,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            97,
+            35,
+            415,
+            669
+          ],
+          "sha256": "ffd300144dc60101a1a6c6b9d38dbe453c2c331529550ba8f46013a4dfbb1693",
+          "bytes": 233886
+        }
+      }
+    },
+    {
+      "heroId": "0605",
+      "stableId": "hero-0605",
+      "filename": "char060501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2088,
+        3258
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060501.png",
+      "sourceSha256": "9d6e4076c5f3a57572734c93d143d0d0adebb369a0b82c50ab377da79b31a258",
+      "sourceBytes": 5446710,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0605/thumb.png",
+          "resourcePath": "Art/Members/hero-0605/thumb",
+          "sourceVisibleBounds": [
+            2,
+            3,
+            2086,
+            3256
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.0971411,
+          "placement": [
+            27,
+            18,
+            202,
+            316
+          ],
+          "renderedVisibleBounds": [
+            27,
+            18,
+            229,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            27,
+            18,
+            229,
+            334
+          ],
+          "sha256": "1699d98cd231abc6a5ab70c35926a3f6c2b73ef0834596ed2a608985460967dd",
+          "bytes": 117636
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0605/portrait.png",
+          "resourcePath": "Art/Members/hero-0605/portrait",
+          "sourceVisibleBounds": [
+            2,
+            3,
+            2086,
+            3256
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.19489702,
+          "placement": [
+            53,
+            35,
+            406,
+            634
+          ],
+          "renderedVisibleBounds": [
+            53,
+            35,
+            459,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            53,
+            35,
+            459,
+            669
+          ],
+          "sha256": "58254ad64c2bd1efebf4e5ba95fbaa14e86b9ac15c1206172c62f530af49dccc",
+          "bytes": 398377
+        }
+      }
+    },
+    {
+      "heroId": "0607",
+      "stableId": "hero-0607",
+      "filename": "char060701.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2391,
+        3417
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060701.png",
+      "sourceSha256": "fd5b1c8564f706345eab756d7816ca1508d871bacc07c0e22f66b52cb895e0e5",
+      "sourceBytes": 6310005,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0607/thumb.png",
+          "resourcePath": "Art/Members/hero-0607/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2389,
+            3416
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09256005,
+          "placement": [
+            17,
+            18,
+            221,
+            316
+          ],
+          "renderedVisibleBounds": [
+            17,
+            18,
+            238,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            17,
+            18,
+            238,
+            334
+          ],
+          "sha256": "2c6d89d64494a1c9cfd5557de21796bcbccde70766b7ba41154f91d27ceb8459",
+          "bytes": 120508
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0607/portrait.png",
+          "resourcePath": "Art/Members/hero-0607/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2389,
+            3416
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18570592,
+          "placement": [
+            34,
+            35,
+            443,
+            634
+          ],
+          "renderedVisibleBounds": [
+            34,
+            35,
+            477,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            34,
+            35,
+            477,
+            669
+          ],
+          "sha256": "c2f0cbcb10823928c8d42d6dbeca7f599a21a2c3e96de5fe0e880a791ae59529",
+          "bytes": 416545
+        }
+      }
+    },
+    {
+      "heroId": "0608",
+      "stableId": "hero-0608",
+      "filename": "char060802.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2115,
+        3258
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060802.png",
+      "sourceSha256": "ad31099efb3223151d5a84e567937b0c6f1a490f269d53de200c1c0c8ce911aa",
+      "sourceBytes": 3933922,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0608/thumb.png",
+          "resourcePath": "Art/Members/hero-0608/thumb",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            2113,
+            3253
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09720086,
+          "placement": [
+            25,
+            18,
+            205,
+            316
+          ],
+          "renderedVisibleBounds": [
+            25,
+            18,
+            230,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            25,
+            18,
+            230,
+            334
+          ],
+          "sha256": "c8ac239c8e2542bc6d08e320761d165da81b9c606dc228121d49f155d9af49c3",
+          "bytes": 87908
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0608/portrait.png",
+          "resourcePath": "Art/Members/hero-0608/portrait",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            2113,
+            3253
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.19501692,
+          "placement": [
+            50,
+            35,
+            411,
+            634
+          ],
+          "renderedVisibleBounds": [
+            50,
+            35,
+            461,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            50,
+            35,
+            461,
+            669
+          ],
+          "sha256": "728d320cfd7642faf63d591e29dc6df8448e719a1fe7902d0751a4b86b8a54cb",
+          "bytes": 281323
+        }
+      }
+    },
+    {
+      "heroId": "0610",
+      "stableId": "hero-0610",
+      "filename": "char061001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1986,
+        3183
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061001.png",
+      "sourceSha256": "653a2d0adaf054b81675f459d2a85b10f5cdfa47d156d32b948557b8f0e76e67",
+      "sourceBytes": 3759314,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0610/thumb.png",
+          "resourcePath": "Art/Members/hero-0610/thumb",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1984,
+            3178
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09943361,
+          "placement": [
+            29,
+            18,
+            197,
+            316
+          ],
+          "renderedVisibleBounds": [
+            29,
+            18,
+            226,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            29,
+            18,
+            226,
+            334
+          ],
+          "sha256": "05b1f8ba2c6edb8cff82f644cbf6c71f484f977c7c776437e85178f4608caf0d",
+          "bytes": 84890
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0610/portrait.png",
+          "resourcePath": "Art/Members/hero-0610/portrait",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1984,
+            3178
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.19949654,
+          "placement": [
+            58,
+            35,
+            395,
+            634
+          ],
+          "renderedVisibleBounds": [
+            58,
+            35,
+            453,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            58,
+            35,
+            453,
+            669
+          ],
+          "sha256": "1a754c1aa6df8c4394a1a5c4927c70af5a0e72218161c287965b13909dae4ccc",
+          "bytes": 280784
+        }
+      }
+    },
+    {
+      "heroId": "0611",
+      "stableId": "hero-0611",
+      "filename": "char061101.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2523,
+        4134
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061101.png",
+      "sourceSha256": "32a126499e714929ccde3eb02a84942dcfe95e04f7200a1c9864f3ed5ebdf6c9",
+      "sourceBytes": 5384404,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0611/thumb.png",
+          "resourcePath": "Art/Members/hero-0611/thumb",
+          "sourceVisibleBounds": [
+            4,
+            0,
+            2523,
+            4130
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.07651332,
+          "placement": [
+            31,
+            18,
+            193,
+            316
+          ],
+          "renderedVisibleBounds": [
+            31,
+            18,
+            224,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            31,
+            18,
+            224,
+            334
+          ],
+          "sha256": "bb282694d86bb20b4ca100d51343ad1dfd29ef62671828b27898603ec099ecc4",
+          "bytes": 83427
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0611/portrait.png",
+          "resourcePath": "Art/Members/hero-0611/portrait",
+          "sourceVisibleBounds": [
+            4,
+            0,
+            2523,
+            4130
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.1535109,
+          "placement": [
+            62,
+            35,
+            387,
+            634
+          ],
+          "renderedVisibleBounds": [
+            62,
+            35,
+            449,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            62,
+            35,
+            449,
+            669
+          ],
+          "sha256": "12e9c10d929c3a19e835bb3e98a811cdded0c0a6cd913f273e2bd13cbbc2d70e",
+          "bytes": 262382
+        }
+      }
+    },
+    {
+      "heroId": "0613",
+      "stableId": "hero-0613",
+      "filename": "char061302.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        3054,
+        3774
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061302.png",
+      "sourceSha256": "c36c3191658d3f699cd8863b61214598a1ef0723f3116eb3f30d22f196af814f",
+      "sourceBytes": 7536308,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0613/thumb.png",
+          "resourcePath": "Art/Members/hero-0613/thumb",
+          "sourceVisibleBounds": [
+            0,
+            2,
+            3053,
+            3774
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.07533574,
+          "placement": [
+            13,
+            50,
+            230,
+            284
+          ],
+          "renderedVisibleBounds": [
+            13,
+            50,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            50,
+            243,
+            334
+          ],
+          "sha256": "12721f298ab77b3260c729c4bade0a4fe2faa1c0e51a621b8d8657a2e399e414",
+          "bytes": 120543
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0613/portrait.png",
+          "resourcePath": "Art/Members/hero-0613/portrait",
+          "sourceVisibleBounds": [
+            0,
+            2,
+            3053,
+            3774
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.15067147,
+          "placement": [
+            26,
+            101,
+            460,
+            568
+          ],
+          "renderedVisibleBounds": [
+            26,
+            101,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            101,
+            486,
+            669
+          ],
+          "sha256": "01eeb0dbc0fd4804fdfeb9ad5748b058c5b70acf6bc3b1e6e8f37c8167a8647a",
+          "bytes": 396480
+        }
+      }
+    },
+    {
+      "heroId": "0614",
+      "stableId": "hero-0614",
+      "filename": "char061402.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2703,
+        3891
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061402.png",
+      "sourceSha256": "a3763ee4a07a0dd517dcba75951ff8dda8eb755df6b77e42dc4a42553f40f5e8",
+      "sourceBytes": 4023248,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0614/thumb.png",
+          "resourcePath": "Art/Members/hero-0614/thumb",
+          "sourceVisibleBounds": [
+            5,
+            1,
+            2700,
+            3888
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08129663,
+          "placement": [
+            18,
+            18,
+            219,
+            316
+          ],
+          "renderedVisibleBounds": [
+            18,
+            18,
+            237,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            18,
+            18,
+            237,
+            334
+          ],
+          "sha256": "983b8bfc66b3a3a3bbef1e2f656ad8208beefb277b9bf5f3338876dc4ec055d0",
+          "bytes": 82629
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0614/portrait.png",
+          "resourcePath": "Art/Members/hero-0614/portrait",
+          "sourceVisibleBounds": [
+            5,
+            1,
+            2700,
+            3888
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.1631078,
+          "placement": [
+            36,
+            35,
+            440,
+            634
+          ],
+          "renderedVisibleBounds": [
+            36,
+            35,
+            476,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            36,
+            35,
+            476,
+            669
+          ],
+          "sha256": "6d214fd5aeac5f4a19cae3984564ecfaef6b8c4bc16dd30f4fb4b1dd78ea73ea",
+          "bytes": 257755
+        }
+      }
+    },
+    {
+      "heroId": "0630",
+      "stableId": "hero-0630",
+      "filename": "char063001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1395,
+        3405
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char063001.png",
+      "sourceSha256": "51ebd016c6a82084fec9515b6ab879126d5ebd400f1d9fe908dc2c959b2ea51c",
+      "sourceBytes": 2494449,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0630/thumb.png",
+          "resourcePath": "Art/Members/hero-0630/thumb",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1393,
+            3400
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09294118,
+          "placement": [
+            63,
+            18,
+            129,
+            316
+          ],
+          "renderedVisibleBounds": [
+            63,
+            18,
+            192,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            63,
+            18,
+            192,
+            334
+          ],
+          "sha256": "3beb5a6238b8196295a1b2be53c6f23504f287e5b48403a8c7cc80f299603c79",
+          "bytes": 53498
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0630/portrait.png",
+          "resourcePath": "Art/Members/hero-0630/portrait",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1393,
+            3400
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18647059,
+          "placement": [
+            126,
+            35,
+            259,
+            634
+          ],
+          "renderedVisibleBounds": [
+            126,
+            35,
+            385,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            126,
+            35,
+            385,
+            669
+          ],
+          "sha256": "e0a6ef8f47313604d0dc2b0a5351097025528e53d67f36a4e11f2fdedb9779d6",
+          "bytes": 175574
+        }
+      }
+    },
+    {
+      "heroId": "0633",
+      "stableId": "hero-0633",
+      "filename": "char063301.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2331,
+        3159
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char063301.png",
+      "sourceSha256": "1cd3d3e23a6c29472f6b5a3aef73ef146b52bdcaece59f03a880205e2bdd2e34",
+      "sourceBytes": 4000199,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0633/thumb.png",
+          "resourcePath": "Art/Members/hero-0633/thumb",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            2331,
+            3154
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.0988822,
+          "placement": [
+            13,
+            22,
+            230,
+            312
+          ],
+          "renderedVisibleBounds": [
+            13,
+            22,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            22,
+            243,
+            334
+          ],
+          "sha256": "7ecdf3d8c579a8f0356427fe1a1032728490525f9f66c315622737c119158a01",
+          "bytes": 86380
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0633/portrait.png",
+          "resourcePath": "Art/Members/hero-0633/portrait",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            2331,
+            3154
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.1977644,
+          "placement": [
+            26,
+            46,
+            460,
+            623
+          ],
+          "renderedVisibleBounds": [
+            26,
+            46,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            46,
+            486,
+            669
+          ],
+          "sha256": "37b4d10458d88966d738d40d41a222668c890a47118b21b5c439cd4580098c51",
+          "bytes": 292396
+        }
+      }
+    },
+    {
+      "heroId": "0634",
+      "stableId": "hero-0634",
+      "filename": "char063401.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2034,
+        3111
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char063401.png",
+      "sourceSha256": "ec64c496497f677b0174b29a12e879dbf2677efd1129930a70c9553ee568ba1c",
+      "sourceBytes": 3428071,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0634/thumb.png",
+          "resourcePath": "Art/Members/hero-0634/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2031,
+            3108
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.10173857,
+          "placement": [
+            25,
+            18,
+            206,
+            316
+          ],
+          "renderedVisibleBounds": [
+            25,
+            18,
+            231,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            25,
+            18,
+            231,
+            334
+          ],
+          "sha256": "df4ef3c9de8749f57208b069cd92dfd56deee7065d4feabe4a8f536b24ff084a",
+          "bytes": 88330
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0634/portrait.png",
+          "resourcePath": "Art/Members/hero-0634/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            2031,
+            3108
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.20412106,
+          "placement": [
+            49,
+            35,
+            414,
+            634
+          ],
+          "renderedVisibleBounds": [
+            49,
+            35,
+            463,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            49,
+            35,
+            463,
+            669
+          ],
+          "sha256": "0805099c70b59cf3faf1739bd50dda4d7b4c6a22a21664b327bc26c33da41943",
+          "bytes": 277427
+        }
+      }
+    },
+    {
+      "heroId": "0651",
+      "stableId": "hero-0651",
+      "filename": "char065102.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1893,
+        3288
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char065102.png",
+      "sourceSha256": "287ebb57119fefacbc05a940c406ddaa376a195989d38528f4a918cbe543dc06",
+      "sourceBytes": 3060090,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0651/thumb.png",
+          "resourcePath": "Art/Members/hero-0651/thumb",
+          "sourceVisibleBounds": [
+            3,
+            3,
+            1890,
+            3286
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09625343,
+          "placement": [
+            37,
+            18,
+            182,
+            316
+          ],
+          "renderedVisibleBounds": [
+            37,
+            18,
+            219,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            37,
+            18,
+            219,
+            334
+          ],
+          "sha256": "164d6638d1db114cecb59b3d84fa4e7621fc785501154563353f89e324119f9d",
+          "bytes": 77302
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0651/portrait.png",
+          "resourcePath": "Art/Members/hero-0651/portrait",
+          "sourceVisibleBounds": [
+            3,
+            3,
+            1890,
+            3286
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.19311605,
+          "placement": [
+            74,
+            35,
+            364,
+            634
+          ],
+          "renderedVisibleBounds": [
+            74,
+            35,
+            438,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            74,
+            35,
+            438,
+            669
+          ],
+          "sha256": "a08792933a638d3f362c5f9c3266ce8e919e1addfe06ff04debd743e675f8e24",
+          "bytes": 248270
+        }
+      }
+    },
+    {
+      "heroId": "0664",
+      "stableId": "hero-0664",
+      "filename": "char066402.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2553,
+        3753
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char066402.png",
+      "sourceSha256": "05420a81c70f83c38fbc9403a9a30dd3e508f23efdbd88b02ce48f5a9bef2afc",
+      "sourceBytes": 5967352,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0664/thumb.png",
+          "resourcePath": "Art/Members/hero-0664/thumb",
+          "sourceVisibleBounds": [
+            3,
+            2,
+            2552,
+            3751
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08428914,
+          "placement": [
+            20,
+            18,
+            215,
+            316
+          ],
+          "renderedVisibleBounds": [
+            20,
+            18,
+            235,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            20,
+            18,
+            235,
+            334
+          ],
+          "sha256": "33c11697d01da014590f4429fe7df68804b191e5e2da90961cb3ecb78600f1ad",
+          "bytes": 104241
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0664/portrait.png",
+          "resourcePath": "Art/Members/hero-0664/portrait",
+          "sourceVisibleBounds": [
+            3,
+            2,
+            2552,
+            3751
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.16911176,
+          "placement": [
+            40,
+            35,
+            431,
+            634
+          ],
+          "renderedVisibleBounds": [
+            40,
+            35,
+            471,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            40,
+            35,
+            471,
+            669
+          ],
+          "sha256": "2e52710e6e6f8da0a1470ab20953d5f2c587fc4f8eff876146afa3adf9faba84",
+          "bytes": 353578
+        }
+      }
+    },
+    {
+      "heroId": "0668",
+      "stableId": "hero-0668",
+      "filename": "char066802.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2229,
+        2694
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char066802.png",
+      "sourceSha256": "25d316c94316a470cb7c12ba42ba04754b7a878fa5e970720c91246d989c8f90",
+      "sourceBytes": 4120334,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0668/thumb.png",
+          "resourcePath": "Art/Members/hero-0668/thumb",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            2224,
+            2689
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.10365029,
+          "placement": [
+            13,
+            55,
+            230,
+            279
+          ],
+          "renderedVisibleBounds": [
+            13,
+            55,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            55,
+            243,
+            334
+          ],
+          "sha256": "f57f9b57cf28cb769f212a0d2befdda49a963d75e729880acaff299687dd77ad",
+          "bytes": 120520
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0668/portrait.png",
+          "resourcePath": "Art/Members/hero-0668/portrait",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            2224,
+            2689
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.20730059,
+          "placement": [
+            26,
+            112,
+            460,
+            557
+          ],
+          "renderedVisibleBounds": [
+            26,
+            112,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            112,
+            486,
+            669
+          ],
+          "sha256": "c155cc0a979f60a9d6052724e1a9b5bdf03d91bf07807ad94079fd896f9e8d76",
+          "bytes": 392915
+        }
+      }
+    },
+    {
+      "heroId": "0670",
+      "stableId": "hero-0670",
+      "filename": "char067004.png",
+      "risk": "ND",
+      "inventoryDimensions": [
+        2798,
+        6839
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067004.png",
+      "sourceSha256": "c06827d08cf52d0b65bc0172356068eeb3fa5b28c9a8c4dfb68f89c1bb1eca96",
+      "sourceBytes": 11615582,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0670/thumb.png",
+          "resourcePath": "Art/Members/hero-0670/thumb",
+          "sourceVisibleBounds": [
+            4,
+            5,
+            2798,
+            6838
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.04624616,
+          "placement": [
+            63,
+            18,
+            129,
+            316
+          ],
+          "renderedVisibleBounds": [
+            63,
+            18,
+            192,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            63,
+            18,
+            192,
+            334
+          ],
+          "sha256": "1588559a80f8ec1de9ca27ab82c57045b8fb731b0adae6fcdda803569f86ea8e",
+          "bytes": 64682
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0670/portrait.png",
+          "resourcePath": "Art/Members/hero-0670/portrait",
+          "sourceVisibleBounds": [
+            4,
+            5,
+            2798,
+            6838
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.09278501,
+          "placement": [
+            126,
+            35,
+            259,
+            634
+          ],
+          "renderedVisibleBounds": [
+            126,
+            35,
+            385,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            126,
+            35,
+            385,
+            669
+          ],
+          "sha256": "ade3fb78927360c99fad51f9792587259b35f727f9fb1e2d174b32113b924ba4",
+          "bytes": 218447
+        }
+      }
+    },
+    {
+      "heroId": "0671",
+      "stableId": "hero-0671",
+      "filename": "char067101.png",
+      "risk": "W",
+      "inventoryDimensions": [
+        5091,
+        5436
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067101.png",
+      "sourceSha256": "26cda8be15899ee5f484136058292f55e5a2f63ac27781695cde5ee6bc590e2f",
+      "sourceBytes": 16315308,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0671/thumb.png",
+          "resourcePath": "Art/Members/hero-0671/thumb",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            5089,
+            5434
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.04523997,
+          "placement": [
+            13,
+            88,
+            230,
+            246
+          ],
+          "renderedVisibleBounds": [
+            13,
+            88,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            88,
+            243,
+            334
+          ],
+          "sha256": "bc641bfb0ad0f9a5913a14667fd4cf02757b42550c770d51c2fde1f50b711843",
+          "bytes": 110545
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0671/portrait.png",
+          "resourcePath": "Art/Members/hero-0671/portrait",
+          "sourceVisibleBounds": [
+            5,
+            2,
+            5089,
+            5434
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.09047994,
+          "placement": [
+            26,
+            178,
+            460,
+            491
+          ],
+          "renderedVisibleBounds": [
+            26,
+            178,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            178,
+            486,
+            669
+          ],
+          "sha256": "5dce730fa6f76d6fb62e248e42a7cecb9421376c29f161b3cb94fcfbe54c3b06",
+          "bytes": 383557
+        }
+      }
+    },
+    {
+      "heroId": "0672",
+      "stableId": "hero-0672",
+      "filename": "char067202.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7674,
+        13933
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067202.png",
+      "sourceSha256": "10167180258c7cc64dfbfc2b9be43d0a489c1d84928533d363f1512a1f963b3c",
+      "sourceBytes": 40458323,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0672/thumb.png",
+          "resourcePath": "Art/Members/hero-0672/thumb",
+          "sourceVisibleBounds": [
+            6,
+            0,
+            7668,
+            13916
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.02270767,
+          "placement": [
+            41,
+            18,
+            174,
+            316
+          ],
+          "renderedVisibleBounds": [
+            41,
+            18,
+            215,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            41,
+            18,
+            215,
+            334
+          ],
+          "sha256": "83e5b38991bc799a599c39a59e7c5c2d72017653879d8ab64cd54574e096c97a",
+          "bytes": 93224
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0672/portrait.png",
+          "resourcePath": "Art/Members/hero-0672/portrait",
+          "sourceVisibleBounds": [
+            6,
+            0,
+            7668,
+            13916
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.04555907,
+          "placement": [
+            81,
+            35,
+            349,
+            634
+          ],
+          "renderedVisibleBounds": [
+            81,
+            35,
+            430,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            81,
+            35,
+            430,
+            669
+          ],
+          "sha256": "a8f3f00b7603c8086b3054f59c038ea49f3a7d3fa7a9488145986f98a483f8b7",
+          "bytes": 306627
+        }
+      }
+    },
+    {
+      "heroId": "0673",
+      "stableId": "hero-0673",
+      "filename": "char067303.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5503,
+        13648
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067303.png",
+      "sourceSha256": "5d94f74e5cfa5889c65954aca40683c19b7645f752e83970108c82ba6d3d4de7",
+      "sourceBytes": 23108344,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0673/thumb.png",
+          "resourcePath": "Art/Members/hero-0673/thumb",
+          "sourceVisibleBounds": [
+            0,
+            0,
+            5494,
+            13645
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.02315867,
+          "placement": [
+            64,
+            18,
+            127,
+            316
+          ],
+          "renderedVisibleBounds": [
+            64,
+            18,
+            191,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            64,
+            18,
+            191,
+            334
+          ],
+          "sha256": "28abb4d4aa88482128b0b3442b2ba50c25924cd3d8645761d020d65abe3d5a64",
+          "bytes": 57588
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0673/portrait.png",
+          "resourcePath": "Art/Members/hero-0673/portrait",
+          "sourceVisibleBounds": [
+            0,
+            0,
+            5494,
+            13645
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.04646391,
+          "placement": [
+            128,
+            35,
+            255,
+            634
+          ],
+          "renderedVisibleBounds": [
+            128,
+            35,
+            383,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            128,
+            35,
+            383,
+            669
+          ],
+          "sha256": "1c3202b19c4ab1a502ae11bd34c5d395019c1a5f7e5eca85a0f523582f602365",
+          "bytes": 189763
+        }
+      }
+    },
+    {
+      "heroId": "0674",
+      "stableId": "hero-0674",
+      "filename": "char067403.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        4137,
+        7074
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067403.png",
+      "sourceSha256": "9bc4deb5fd52608c488663336a72c9bfc23ff345d0951f59c46fc9d812dde992",
+      "sourceBytes": 15796760,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0674/thumb.png",
+          "resourcePath": "Art/Members/hero-0674/thumb",
+          "sourceVisibleBounds": [
+            0,
+            3,
+            4134,
+            7071
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.04470855,
+          "placement": [
+            35,
+            18,
+            185,
+            316
+          ],
+          "renderedVisibleBounds": [
+            35,
+            18,
+            220,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            35,
+            18,
+            220,
+            334
+          ],
+          "sha256": "9b05477eb1166913f5d23f18fcdccd6ed9c18856a339c81b6882b6e9feea671a",
+          "bytes": 86321
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0674/portrait.png",
+          "resourcePath": "Art/Members/hero-0674/portrait",
+          "sourceVisibleBounds": [
+            0,
+            3,
+            4134,
+            7071
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.08970006,
+          "placement": [
+            70,
+            35,
+            371,
+            634
+          ],
+          "renderedVisibleBounds": [
+            70,
+            35,
+            441,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            70,
+            35,
+            441,
+            669
+          ],
+          "sha256": "8b65de345e1a9cd3c9b31372aabd813d0fd1d4f7d767755e003a68df25ac9b29",
+          "bytes": 285850
+        }
+      }
+    },
+    {
+      "heroId": "0675",
+      "stableId": "hero-0675",
+      "filename": "char067502.png",
+      "risk": "H+W",
+      "inventoryDimensions": [
+        11993,
+        12092
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067502.png",
+      "sourceSha256": "1fd0aebed2b1385760f8f9a4e47d0666e9e894cfc3b2b6c1749b3b3b571876bd",
+      "sourceBytes": 41380162,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0675/thumb.png",
+          "resourcePath": "Art/Members/hero-0675/thumb",
+          "sourceVisibleBounds": [
+            16,
+            14,
+            11989,
+            12086
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.01920989,
+          "placement": [
+            13,
+            102,
+            230,
+            232
+          ],
+          "renderedVisibleBounds": [
+            13,
+            102,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            102,
+            243,
+            334
+          ],
+          "sha256": "a9bc005c63f330bfc82391045984b4aec20d7aec1a5824d6373244c11bfa9370",
+          "bytes": 83645
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0675/portrait.png",
+          "resourcePath": "Art/Members/hero-0675/portrait",
+          "sourceVisibleBounds": [
+            16,
+            14,
+            11989,
+            12086
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.03841978,
+          "placement": [
+            26,
+            205,
+            460,
+            464
+          ],
+          "renderedVisibleBounds": [
+            26,
+            205,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            205,
+            486,
+            669
+          ],
+          "sha256": "94a9de5062a9a792d93d29faa7fe032aba0470011d526d19e1e19c7377bfcf77",
+          "bytes": 275250
+        }
+      }
+    },
+    {
+      "heroId": "0676",
+      "stableId": "hero-0676",
+      "filename": "char067601.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        3088,
+        6724
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067601.png",
+      "sourceSha256": "d134126010942e14cf12f75ff3ee80559d76fc69ef6ae6ec8ba53fa6b5df7963",
+      "sourceBytes": 8894726,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-0676/thumb.png",
+          "resourcePath": "Art/Members/hero-0676/thumb",
+          "sourceVisibleBounds": [
+            1,
+            2,
+            3081,
+            6720
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.04703781,
+          "placement": [
+            55,
+            18,
+            145,
+            316
+          ],
+          "renderedVisibleBounds": [
+            55,
+            18,
+            200,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            55,
+            18,
+            200,
+            334
+          ],
+          "sha256": "963bb0f8a5df9f69a260b843479cc0e5b1b6a70597431743193c3fa60d97b044",
+          "bytes": 56984
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-0676/portrait.png",
+          "resourcePath": "Art/Members/hero-0676/portrait",
+          "sourceVisibleBounds": [
+            1,
+            2,
+            3081,
+            6720
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.09437333,
+          "placement": [
+            110,
+            35,
+            291,
+            634
+          ],
+          "renderedVisibleBounds": [
+            110,
+            35,
+            401,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            110,
+            35,
+            401,
+            669
+          ],
+          "sha256": "e74f467ee788eddbd414a0424701a586360d9d512d159975a56397fcba355035",
+          "bytes": 183583
+        }
+      }
+    },
+    {
+      "heroId": "1006",
+      "stableId": "hero-1006",
+      "filename": "char100601.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1878,
+        3525
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char100601.png",
+      "sourceSha256": "99efb7d777deef9e0724bf09295da2b6b39e7b91d19212fccac7a4595d3a39de",
+      "sourceBytes": 3742642,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1006/thumb.png",
+          "resourcePath": "Art/Members/hero-1006/thumb",
+          "sourceVisibleBounds": [
+            4,
+            3,
+            1878,
+            3523
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.08977273,
+          "placement": [
+            44,
+            18,
+            168,
+            316
+          ],
+          "renderedVisibleBounds": [
+            44,
+            18,
+            212,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            44,
+            18,
+            212,
+            334
+          ],
+          "sha256": "5841cbc5ff6001612604de3692eb46bc8b30c972b625d8135cda73351560a58c",
+          "bytes": 73172
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1006/portrait.png",
+          "resourcePath": "Art/Members/hero-1006/portrait",
+          "sourceVisibleBounds": [
+            4,
+            3,
+            1878,
+            3523
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18011364,
+          "placement": [
+            87,
+            35,
+            338,
+            634
+          ],
+          "renderedVisibleBounds": [
+            87,
+            35,
+            425,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            87,
+            35,
+            425,
+            669
+          ],
+          "sha256": "28d79cb343d75ea11f02d0d01b6ffb2e5dda4866a4e861e96a0b9d7b87f400ac",
+          "bytes": 247423
+        }
+      }
+    },
+    {
+      "heroId": "1008",
+      "stableId": "hero-1008",
+      "filename": "char100801.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1170,
+        2931
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char100801.png",
+      "sourceSha256": "a3a63dde30281bbce53258c29106b2098c42f9e7dcbae70e39009d89121b819e",
+      "sourceBytes": 1817616,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1008/thumb.png",
+          "resourcePath": "Art/Members/hero-1008/thumb",
+          "sourceVisibleBounds": [
+            4,
+            4,
+            1170,
+            2928
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.10807114,
+          "placement": [
+            65,
+            18,
+            126,
+            316
+          ],
+          "renderedVisibleBounds": [
+            65,
+            18,
+            191,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            65,
+            18,
+            191,
+            334
+          ],
+          "sha256": "06eb2d7a191a2795fbfdc338e4bc2261bc8b91525a0b3f14de39972e30c18fb3",
+          "bytes": 52249
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1008/portrait.png",
+          "resourcePath": "Art/Members/hero-1008/portrait",
+          "sourceVisibleBounds": [
+            4,
+            4,
+            1170,
+            2928
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.21682627,
+          "placement": [
+            129,
+            35,
+            253,
+            634
+          ],
+          "renderedVisibleBounds": [
+            129,
+            35,
+            382,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            129,
+            35,
+            382,
+            669
+          ],
+          "sha256": "caf3d5eba4c0889380f8d4d2dd3ea115136d70f3d68bbd62207331440014a66d",
+          "bytes": 162953
+        }
+      }
+    },
+    {
+      "heroId": "1011",
+      "stableId": "hero-1011",
+      "filename": "char101103.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7531,
+        11324
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101103.png",
+      "sourceSha256": "58b694504111462aa21da4b24d140ac08d946a09e688622f1e7c68867e03eec2",
+      "sourceBytes": 19314652,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1011/thumb.png",
+          "resourcePath": "Art/Members/hero-1011/thumb",
+          "sourceVisibleBounds": [
+            6,
+            0,
+            7525,
+            11307
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.02794729,
+          "placement": [
+            23,
+            18,
+            210,
+            316
+          ],
+          "renderedVisibleBounds": [
+            23,
+            18,
+            233,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            23,
+            18,
+            233,
+            334
+          ],
+          "sha256": "61f844e1ec6917da8ff163842ee489558efbc9105ba502b7c95fba871ed047e1",
+          "bytes": 67414
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1011/portrait.png",
+          "resourcePath": "Art/Members/hero-1011/portrait",
+          "sourceVisibleBounds": [
+            6,
+            0,
+            7525,
+            11307
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.05607146,
+          "placement": [
+            45,
+            35,
+            422,
+            634
+          ],
+          "renderedVisibleBounds": [
+            45,
+            35,
+            467,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            45,
+            35,
+            467,
+            669
+          ],
+          "sha256": "64bd1ad67212d2aaf03c2bcb50f1c3233bd747568f89f9553c5bf68ab0b85418",
+          "bytes": 209284
+        }
+      }
+    },
+    {
+      "heroId": "1013",
+      "stableId": "hero-1013",
+      "filename": "char101301.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1794,
+        3249
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101301.png",
+      "sourceSha256": "981e4c7ed69f82c0d9309e27fd35fdc9ba16bca9703697fc4523a85432ac0631",
+      "sourceBytes": 3028594,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1013/thumb.png",
+          "resourcePath": "Art/Members/hero-1013/thumb",
+          "sourceVisibleBounds": [
+            3,
+            1,
+            1792,
+            3246
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09738059,
+          "placement": [
+            41,
+            18,
+            174,
+            316
+          ],
+          "renderedVisibleBounds": [
+            41,
+            18,
+            215,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            41,
+            18,
+            215,
+            334
+          ],
+          "sha256": "5409dfc0bb0a0836abed7c82d68317b2191401d89a6197ff41e518b9a70fa1f0",
+          "bytes": 68168
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1013/portrait.png",
+          "resourcePath": "Art/Members/hero-1013/portrait",
+          "sourceVisibleBounds": [
+            3,
+            1,
+            1792,
+            3246
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.1953775,
+          "placement": [
+            81,
+            35,
+            350,
+            634
+          ],
+          "renderedVisibleBounds": [
+            81,
+            35,
+            431,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            81,
+            35,
+            431,
+            669
+          ],
+          "sha256": "e039389a1a7679ded5c58472a76c5ec7363e6455f3c05ebb71b3f841018f229f",
+          "bytes": 223093
+        }
+      }
+    },
+    {
+      "heroId": "1014",
+      "stableId": "hero-1014",
+      "filename": "char101401.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2463,
+        3330
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101401.png",
+      "sourceSha256": "a7a029ea49a25f2b219e8b8d3a1ae305a490fee5afbb8b28b148b18971f25569",
+      "sourceBytes": 4412996,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1014/thumb.png",
+          "resourcePath": "Art/Members/hero-1014/thumb",
+          "sourceVisibleBounds": [
+            5,
+            0,
+            2463,
+            3328
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09357201,
+          "placement": [
+            13,
+            23,
+            230,
+            311
+          ],
+          "renderedVisibleBounds": [
+            13,
+            23,
+            243,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            13,
+            23,
+            243,
+            334
+          ],
+          "sha256": "c1aedfb6123b35af3b3a2ac2cd516092d33372d7889f1f869ae91d28cacbd9cb",
+          "bytes": 92523
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1014/portrait.png",
+          "resourcePath": "Art/Members/hero-1014/portrait",
+          "sourceVisibleBounds": [
+            5,
+            0,
+            2463,
+            3328
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18714402,
+          "placement": [
+            26,
+            46,
+            460,
+            623
+          ],
+          "renderedVisibleBounds": [
+            26,
+            46,
+            486,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            26,
+            46,
+            486,
+            669
+          ],
+          "sha256": "53bcfd7734f0a56fca7537e6d58da51385a613d882c4da93ddc6487269873a7d",
+          "bytes": 300098
+        }
+      }
+    },
+    {
+      "heroId": "1016",
+      "stableId": "hero-1016",
+      "filename": "char101601.png",
+      "risk": "ND",
+      "inventoryDimensions": [
+        1746,
+        3450
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101601.png",
+      "sourceSha256": "fd2c4675e1935697ea518c3afadbd7acc17c840cf21eebf683953d8fb2d94c9a",
+      "sourceBytes": 3680833,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1016/thumb.png",
+          "resourcePath": "Art/Members/hero-1016/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            1744,
+            3447
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09172714,
+          "placement": [
+            48,
+            18,
+            160,
+            316
+          ],
+          "renderedVisibleBounds": [
+            48,
+            18,
+            208,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            48,
+            18,
+            208,
+            334
+          ],
+          "sha256": "d685c07fe0f6e272fc4486518d59105f6f9200ebe55c6735dc5e9d9a384ce320",
+          "bytes": 71827
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1016/portrait.png",
+          "resourcePath": "Art/Members/hero-1016/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            1744,
+            3447
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18403483,
+          "placement": [
+            95,
+            35,
+            321,
+            634
+          ],
+          "renderedVisibleBounds": [
+            95,
+            35,
+            416,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            95,
+            35,
+            416,
+            669
+          ],
+          "sha256": "c9d111e49ab768309d7689ff6b1ccbdd8465af570fa80216dbe6693463a92413",
+          "bytes": 245029
+        }
+      }
+    },
+    {
+      "heroId": "1034",
+      "stableId": "hero-1034",
+      "filename": "char103401.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1524,
+        2931
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103401.png",
+      "sourceSha256": "1e6d54baaab68624665e7c69ea99a1036b9cb98638360093c76cacc758942f1f",
+      "sourceBytes": 2287057,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1034/thumb.png",
+          "resourcePath": "Art/Members/hero-1034/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            1522,
+            2929
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.10796037,
+          "placement": [
+            46,
+            18,
+            164,
+            316
+          ],
+          "renderedVisibleBounds": [
+            46,
+            18,
+            210,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            46,
+            18,
+            210,
+            334
+          ],
+          "sha256": "36b246dd206edd607dabebc06eb315c4d19e00f59b20d298203bfd7e8d298f29",
+          "bytes": 61817
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1034/portrait.png",
+          "resourcePath": "Art/Members/hero-1034/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            1522,
+            2929
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.21660403,
+          "placement": [
+            91,
+            35,
+            329,
+            634
+          ],
+          "renderedVisibleBounds": [
+            91,
+            35,
+            420,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            91,
+            35,
+            420,
+            669
+          ],
+          "sha256": "968481dc3eabc6779944809e6a2eec22b1cfce179d38e382d27ca38bb82df90c",
+          "bytes": 197795
+        }
+      }
+    },
+    {
+      "heroId": "1035",
+      "stableId": "hero-1035",
+      "filename": "char103501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1632,
+        3495
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103501.png",
+      "sourceSha256": "6ee2cdf56654c3fd53eeac23776a4ef648e95fd80acb1d39936efdc0d57ea288",
+      "sourceBytes": 3208100,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1035/thumb.png",
+          "resourcePath": "Art/Members/hero-1035/thumb",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            1630,
+            3491
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09057036,
+          "placement": [
+            54,
+            18,
+            147,
+            316
+          ],
+          "renderedVisibleBounds": [
+            54,
+            18,
+            201,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            54,
+            18,
+            201,
+            334
+          ],
+          "sha256": "73469466520775c530f7637a8b30ed2df203112d5945c2b995ff1d92aab81793",
+          "bytes": 64801
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1035/portrait.png",
+          "resourcePath": "Art/Members/hero-1035/portrait",
+          "sourceVisibleBounds": [
+            2,
+            2,
+            1630,
+            3491
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18171396,
+          "placement": [
+            108,
+            35,
+            296,
+            634
+          ],
+          "renderedVisibleBounds": [
+            108,
+            35,
+            404,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            108,
+            35,
+            404,
+            669
+          ],
+          "sha256": "7d5139df15b2404e480a4478f318672806114063c113cf23bbe455804f5778a4",
+          "bytes": 209150
+        }
+      }
+    },
+    {
+      "heroId": "1036",
+      "stableId": "hero-1036",
+      "filename": "char103601.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1257,
+        3330
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103601.png",
+      "sourceSha256": "9b3feaa8e23650e97d732c27b8cc586e579a20b641d6a6f9ec315d04bb25ea1c",
+      "sourceBytes": 2913415,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1036/thumb.png",
+          "resourcePath": "Art/Members/hero-1036/thumb",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1255,
+            3325
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09503759,
+          "placement": [
+            68,
+            18,
+            119,
+            316
+          ],
+          "renderedVisibleBounds": [
+            68,
+            18,
+            187,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            68,
+            18,
+            187,
+            334
+          ],
+          "sha256": "9e9d65b786150f724fa1421831574853a45996b69a99912696c044e26661f9e2",
+          "bytes": 62113
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1036/portrait.png",
+          "resourcePath": "Art/Members/hero-1036/portrait",
+          "sourceVisibleBounds": [
+            2,
+            0,
+            1255,
+            3325
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.19067669,
+          "placement": [
+            136,
+            35,
+            239,
+            634
+          ],
+          "renderedVisibleBounds": [
+            136,
+            35,
+            375,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            136,
+            35,
+            375,
+            669
+          ],
+          "sha256": "8d9bbafa66e074ac170a946ff6f120abf7a1613d7be22c5dbac28ba349f7f6e4",
+          "bytes": 206065
+        }
+      }
+    },
+    {
+      "heroId": "1037",
+      "stableId": "hero-1037",
+      "filename": "char103701.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1404,
+        3363
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103701.png",
+      "sourceSha256": "c97d8ad7947ea9eb9fc2f85f68f1da396c7164ef975f0c1f7ed7cbe702bffea7",
+      "sourceBytes": 2523073,
+      "outputs": {
+        "thumb": {
+          "path": "Assets/Resources/Art/Members/hero-1037/thumb.png",
+          "resourcePath": "Art/Members/hero-1037/thumb",
+          "sourceVisibleBounds": [
+            4,
+            2,
+            1402,
+            3361
+          ],
+          "canvasDimensions": [
+            256,
+            352
+          ],
+          "safetyBorderPixels": [
+            13,
+            18
+          ],
+          "scale": 0.09407562,
+          "placement": [
+            62,
+            18,
+            132,
+            316
+          ],
+          "renderedVisibleBounds": [
+            62,
+            18,
+            194,
+            334
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            256,
+            352
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            62,
+            18,
+            194,
+            334
+          ],
+          "sha256": "134d0899ad314dba3253a39524c3930058436a863b55cf9be40cf3e7803a738c",
+          "bytes": 54586
+        },
+        "portrait": {
+          "path": "Assets/Resources/Art/Members/hero-1037/portrait.png",
+          "resourcePath": "Art/Members/hero-1037/portrait",
+          "sourceVisibleBounds": [
+            4,
+            2,
+            1402,
+            3361
+          ],
+          "canvasDimensions": [
+            512,
+            704
+          ],
+          "safetyBorderPixels": [
+            26,
+            35
+          ],
+          "scale": 0.18874665,
+          "placement": [
+            124,
+            35,
+            264,
+            634
+          ],
+          "renderedVisibleBounds": [
+            124,
+            35,
+            388,
+            669
+          ],
+          "mode": "RGBA",
+          "dimensions": [
+            512,
+            704
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "visibleBounds": [
+            124,
+            35,
+            388,
+            669
+          ],
+          "sha256": "f5cd3f09b49580b6167250f686eee6e0536420232279f1bc567dbdd44e31ee84",
+          "bytes": 176810
+        }
+      }
+    }
+  ]
+}

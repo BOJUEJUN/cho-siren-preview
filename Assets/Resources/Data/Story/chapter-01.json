@@ -1,0 +1,43 @@
+{
+  "SchemaVersion": 1,
+  "Id": "chapter-01",
+  "Title": "第 01 章 · 星途初醒",
+  "Chapter": "01",
+  "Lines": [
+    { "Label": "start", "Command": "bg", "Subject": "bg-rehearsal-room-night" },
+    { "Command": "bgm", "Subject": "bgm-rehearsal-quiet" },
+    { "Command": "show", "Subject": "xingli", "Expression": "neutral", "Position": "center" },
+    { "Command": "say", "Subject": "xingli", "Expression": "neutral", "Text": "……排练室的灯还亮着。制作人，你也没回去吗？" },
+    { "Command": "say", "Subject": "producer", "Text": "想再听一遍你今天的高音。最后那个转音，和上周不一样。" },
+    { "Command": "say", "Subject": "xingli", "Expression": "surprised", "Text": "你听出来了？我以为……没有人会注意那种细节。" },
+    { "Command": "choice", "Choices": [
+      { "Text": "当然，那是你自己加进去的东西。", "Jump": "trust", "SetFlag": "ch1-noticed-xingli" },
+      { "Text": "只是碰巧听到了。", "Jump": "casual" }
+    ] },
+
+    { "Label": "trust", "Command": "say", "Subject": "xingli", "Expression": "smile", "Text": "……嗯。那就别告诉别人，这是我们两个人的秘密。" },
+    { "Command": "set", "Subject": "ch1-xingli-bond", "Value": true },
+    { "Command": "jump", "Jump": "arrival" },
+
+    { "Label": "casual", "Command": "say", "Subject": "xingli", "Expression": "neutral", "Text": "是吗。那也好，我还没准备好让别人听见。" },
+    { "Command": "jump", "Jump": "arrival" },
+
+    { "Label": "arrival", "Command": "sfx", "Subject": "sfx-door-slide" },
+    { "Command": "show", "Subject": "feiyin", "Expression": "grin", "Position": "right" },
+    { "Command": "say", "Subject": "feiyin", "Expression": "grin", "Text": "两位，深夜密谈？楼下的信号又断了，整条街的霓虹灯都在闪。" },
+    { "Command": "say", "Subject": "producer", "Text": "又是那种杂音？" },
+    { "Command": "say", "Subject": "feiyin", "Expression": "serious", "Text": "比上次更近。星璃，你的耳返里应该也听到了吧——那不是电路故障。" },
+    { "Command": "jump-if", "Subject": "ch1-xingli-bond", "Value": true, "Jump": "bond-line" },
+    { "Command": "say", "Subject": "xingli", "Expression": "neutral", "Text": "……我们去看看。制作人，带上编队名单。" },
+    { "Command": "jump", "Jump": "outro" },
+
+    { "Label": "bond-line", "Command": "say", "Subject": "xingli", "Expression": "determined", "Text": "……我们去看看。制作人，这次站在我能看见你的地方。" },
+
+    { "Label": "outro", "Command": "hide", "Subject": "feiyin" },
+    { "Command": "bg", "Subject": "bg-neon-alley" },
+    { "Command": "bgm", "Subject": "bgm-static-approach" },
+    { "Command": "say", "Subject": "producer", "Text": "霓虹后巷。杂音就是从这里传出来的。" },
+    { "Command": "set", "Subject": "ch1-complete", "Value": true },
+    { "Command": "end" }
+  ]
+}

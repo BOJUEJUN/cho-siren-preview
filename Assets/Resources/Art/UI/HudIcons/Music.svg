@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>音乐</title>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#35ddff" stroke-width="5.5" opacity="0.42" transform="translate(-1.25 1.25)">
+      <path d="M25 15v31M25 17l28-7v29"/>
+      <path d="M25 25 53 18"/>
+      <ellipse cx="17" cy="47" rx="9" ry="7"/>
+      <ellipse cx="45" cy="40" rx="9" ry="7"/>
+    </g>
+    <g stroke="#ff5acb" stroke-width="5.5" opacity="0.38" transform="translate(1.25 -1.25)">
+      <path d="M25 15v31M25 17l28-7v29"/>
+      <path d="M25 25 53 18"/>
+      <ellipse cx="17" cy="47" rx="9" ry="7"/>
+      <ellipse cx="45" cy="40" rx="9" ry="7"/>
+    </g>
+    <g stroke="#ffffff" stroke-width="3.35">
+      <path d="M25 15v31M25 17l28-7v29"/>
+      <path d="M25 25 53 18"/>
+      <ellipse cx="17" cy="47" rx="9" ry="7"/>
+      <ellipse cx="45" cy="40" rx="9" ry="7"/>
+    </g>
+    <path d="m8.5 20 1.1 2.8 2.9 1.1-2.9 1.1-1.1 2.9L7.4 25l-2.9-1.1 2.9-1.1Z" fill="#ff73d3" stroke="none"/>
+  </g>
+</svg>

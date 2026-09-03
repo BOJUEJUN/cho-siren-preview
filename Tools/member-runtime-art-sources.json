@@ -1,0 +1,612 @@
+{
+  "schemaVersion": 1,
+  "inventory": "Docs/hero-asset-inventory-50.md",
+  "expectedHeroCount": 55,
+  "records": [
+    {
+      "heroId": "0002",
+      "stableId": "hero-0002",
+      "filename": "char000202.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2844,
+        3177
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000202.png"
+    },
+    {
+      "heroId": "0003",
+      "stableId": "hero-0003",
+      "filename": "char000303.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2472,
+        4551
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000303.png"
+    },
+    {
+      "heroId": "0005",
+      "stableId": "hero-0005",
+      "filename": "char000506.png",
+      "risk": "W",
+      "inventoryDimensions": [
+        3114,
+        2991
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000506.png"
+    },
+    {
+      "heroId": "0007",
+      "stableId": "hero-0007",
+      "filename": "Char000701.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2562,
+        3624
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\Char000701.png"
+    },
+    {
+      "heroId": "0008",
+      "stableId": "hero-0008",
+      "filename": "char000801.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2577,
+        3738
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char000801.png"
+    },
+    {
+      "heroId": "0010",
+      "stableId": "hero-0010",
+      "filename": "char001001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2976,
+        4197
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char001001.png"
+    },
+    {
+      "heroId": "0011",
+      "stableId": "hero-0011",
+      "filename": "char001101.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2625,
+        3186
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char001101.png"
+    },
+    {
+      "heroId": "0012",
+      "stableId": "hero-0012",
+      "filename": "char001201.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2199,
+        3528
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char001201.png"
+    },
+    {
+      "heroId": "0024",
+      "stableId": "hero-0024",
+      "filename": "char002406.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1887,
+        3123
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char002406.png"
+    },
+    {
+      "heroId": "0031",
+      "stableId": "hero-0031",
+      "filename": "char003101.png",
+      "risk": "ND",
+      "inventoryDimensions": [
+        2375,
+        5455
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003101.png"
+    },
+    {
+      "heroId": "0032",
+      "stableId": "hero-0032",
+      "filename": "char003203.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5438,
+        12530
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003203.png"
+    },
+    {
+      "heroId": "0033",
+      "stableId": "hero-0033",
+      "filename": "char003303.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5383,
+        11872
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003303.png"
+    },
+    {
+      "heroId": "0034",
+      "stableId": "hero-0034",
+      "filename": "char003402.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7696,
+        13111
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003402.png"
+    },
+    {
+      "heroId": "0035",
+      "stableId": "hero-0035",
+      "filename": "char003501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2244,
+        4644
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003501.png"
+    },
+    {
+      "heroId": "0037",
+      "stableId": "hero-0037",
+      "filename": "char003702.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        4589,
+        7134
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003702.png"
+    },
+    {
+      "heroId": "0038",
+      "stableId": "hero-0038",
+      "filename": "char003802.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2370,
+        6579
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char003802.png"
+    },
+    {
+      "heroId": "0200",
+      "stableId": "hero-0200",
+      "filename": "char020001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1572,
+        2946
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020001.png"
+    },
+    {
+      "heroId": "0201",
+      "stableId": "hero-0201",
+      "filename": "char020101.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1752,
+        3399
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020101.png"
+    },
+    {
+      "heroId": "0202",
+      "stableId": "hero-0202",
+      "filename": "char020201.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2328,
+        3111
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020201.png"
+    },
+    {
+      "heroId": "0203",
+      "stableId": "hero-0203",
+      "filename": "char020301.png",
+      "risk": "W",
+      "inventoryDimensions": [
+        2763,
+        2937
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020301.png"
+    },
+    {
+      "heroId": "0205",
+      "stableId": "hero-0205",
+      "filename": "char020501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1218,
+        3240
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020501.png"
+    },
+    {
+      "heroId": "0207",
+      "stableId": "hero-0207",
+      "filename": "char020701.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        4640,
+        9024
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020701.png"
+    },
+    {
+      "heroId": "0208",
+      "stableId": "hero-0208",
+      "filename": "char020801.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5016,
+        8352
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020801.png"
+    },
+    {
+      "heroId": "0209",
+      "stableId": "hero-0209",
+      "filename": "char020901.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7544,
+        9569
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char020901.png"
+    },
+    {
+      "heroId": "0604",
+      "stableId": "hero-0604",
+      "filename": "char060403.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2004,
+        3993
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060403.png"
+    },
+    {
+      "heroId": "0605",
+      "stableId": "hero-0605",
+      "filename": "char060501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2088,
+        3258
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060501.png"
+    },
+    {
+      "heroId": "0607",
+      "stableId": "hero-0607",
+      "filename": "char060701.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2391,
+        3417
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060701.png"
+    },
+    {
+      "heroId": "0608",
+      "stableId": "hero-0608",
+      "filename": "char060802.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2115,
+        3258
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char060802.png"
+    },
+    {
+      "heroId": "0610",
+      "stableId": "hero-0610",
+      "filename": "char061001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1986,
+        3183
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061001.png"
+    },
+    {
+      "heroId": "0611",
+      "stableId": "hero-0611",
+      "filename": "char061101.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2523,
+        4134
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061101.png"
+    },
+    {
+      "heroId": "0613",
+      "stableId": "hero-0613",
+      "filename": "char061302.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        3054,
+        3774
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061302.png"
+    },
+    {
+      "heroId": "0614",
+      "stableId": "hero-0614",
+      "filename": "char061402.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2703,
+        3891
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char061402.png"
+    },
+    {
+      "heroId": "0630",
+      "stableId": "hero-0630",
+      "filename": "char063001.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1395,
+        3405
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char063001.png"
+    },
+    {
+      "heroId": "0633",
+      "stableId": "hero-0633",
+      "filename": "char063301.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2331,
+        3159
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char063301.png"
+    },
+    {
+      "heroId": "0634",
+      "stableId": "hero-0634",
+      "filename": "char063401.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2034,
+        3111
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char063401.png"
+    },
+    {
+      "heroId": "0651",
+      "stableId": "hero-0651",
+      "filename": "char065102.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1893,
+        3288
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char065102.png"
+    },
+    {
+      "heroId": "0664",
+      "stableId": "hero-0664",
+      "filename": "char066402.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2553,
+        3753
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char066402.png"
+    },
+    {
+      "heroId": "0668",
+      "stableId": "hero-0668",
+      "filename": "char066802.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2229,
+        2694
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char066802.png"
+    },
+    {
+      "heroId": "0670",
+      "stableId": "hero-0670",
+      "filename": "char067004.png",
+      "risk": "ND",
+      "inventoryDimensions": [
+        2798,
+        6839
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067004.png"
+    },
+    {
+      "heroId": "0671",
+      "stableId": "hero-0671",
+      "filename": "char067101.png",
+      "risk": "W",
+      "inventoryDimensions": [
+        5091,
+        5436
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067101.png"
+    },
+    {
+      "heroId": "0672",
+      "stableId": "hero-0672",
+      "filename": "char067202.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7674,
+        13933
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067202.png"
+    },
+    {
+      "heroId": "0673",
+      "stableId": "hero-0673",
+      "filename": "char067303.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        5503,
+        13648
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067303.png"
+    },
+    {
+      "heroId": "0674",
+      "stableId": "hero-0674",
+      "filename": "char067403.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        4137,
+        7074
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067403.png"
+    },
+    {
+      "heroId": "0675",
+      "stableId": "hero-0675",
+      "filename": "char067502.png",
+      "risk": "H+W",
+      "inventoryDimensions": [
+        11993,
+        12092
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067502.png"
+    },
+    {
+      "heroId": "0676",
+      "stableId": "hero-0676",
+      "filename": "char067601.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        3088,
+        6724
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char067601.png"
+    },
+    {
+      "heroId": "1006",
+      "stableId": "hero-1006",
+      "filename": "char100601.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1878,
+        3525
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char100601.png"
+    },
+    {
+      "heroId": "1008",
+      "stableId": "hero-1008",
+      "filename": "char100801.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1170,
+        2931
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char100801.png"
+    },
+    {
+      "heroId": "1011",
+      "stableId": "hero-1011",
+      "filename": "char101103.png",
+      "risk": "H",
+      "inventoryDimensions": [
+        7531,
+        11324
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101103.png"
+    },
+    {
+      "heroId": "1013",
+      "stableId": "hero-1013",
+      "filename": "char101301.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1794,
+        3249
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101301.png"
+    },
+    {
+      "heroId": "1014",
+      "stableId": "hero-1014",
+      "filename": "char101401.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        2463,
+        3330
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101401.png"
+    },
+    {
+      "heroId": "1016",
+      "stableId": "hero-1016",
+      "filename": "char101601.png",
+      "risk": "ND",
+      "inventoryDimensions": [
+        1746,
+        3450
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char101601.png"
+    },
+    {
+      "heroId": "1034",
+      "stableId": "hero-1034",
+      "filename": "char103401.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1524,
+        2931
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103401.png"
+    },
+    {
+      "heroId": "1035",
+      "stableId": "hero-1035",
+      "filename": "char103501.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1632,
+        3495
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103501.png"
+    },
+    {
+      "heroId": "1036",
+      "stableId": "hero-1036",
+      "filename": "char103601.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1257,
+        3330
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103601.png"
+    },
+    {
+      "heroId": "1037",
+      "stableId": "hero-1037",
+      "filename": "char103701.png",
+      "risk": "P",
+      "inventoryDimensions": [
+        1404,
+        3363
+      ],
+      "sourcePath": "D:\\BaiduNetdiskDownload\\3695 棕色尘埃2【202605】\\01.立绘\\char103701.png"
+    }
+  ]
+}

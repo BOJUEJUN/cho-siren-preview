@@ -1,0 +1,92 @@
+{
+  "SchemaVersion": 1,
+  "Skills": [
+    { "Id": "strike", "Name": "普通攻击", "Effect": "damage", "Pattern": "single", "PowerPermille": 1000, "Duration": 0, "Cooldown": 0, "CanCrit": true },
+    { "Id": "high-note", "Name": "高音穿刺", "Effect": "damage", "Pattern": "row", "PowerPermille": 1300, "Duration": 0, "Cooldown": 3, "CanCrit": true },
+    { "Id": "spin-kick", "Name": "旋身回踢", "Effect": "damage", "Pattern": "plus", "PowerPermille": 1100, "Duration": 0, "Cooldown": 3, "CanCrit": true },
+    { "Id": "stage-light", "Name": "追光", "Effect": "debuff-defense", "Pattern": "column", "PowerPermille": 300, "Duration": 2, "Cooldown": 3, "CanCrit": false },
+    { "Id": "encore", "Name": "安可", "Effect": "heal", "Pattern": "plus", "PowerPermille": 900, "Duration": 0, "Cooldown": 3, "CanCrit": false },
+    { "Id": "chorus", "Name": "合声护盾", "Effect": "shield", "Pattern": "all", "PowerPermille": 200, "Duration": 2, "Cooldown": 4, "CanCrit": false },
+    { "Id": "hype", "Name": "全场应援", "Effect": "buff-attack", "Pattern": "all", "PowerPermille": 250, "Duration": 2, "Cooldown": 4, "CanCrit": false },
+    { "Id": "finale", "Name": "终场合唱", "Effect": "damage", "Pattern": "all", "PowerPermille": 900, "Duration": 0, "Cooldown": 5, "CanCrit": true },
+
+    { "Id": "static-burst", "Name": "杂音爆裂", "Effect": "damage", "Pattern": "single", "PowerPermille": 1000, "Duration": 0, "Cooldown": 0, "CanCrit": true },
+    { "Id": "feedback-wave", "Name": "回授冲击", "Effect": "damage", "Pattern": "row", "PowerPermille": 1100, "Duration": 0, "Cooldown": 3, "CanCrit": false },
+    { "Id": "jam-signal", "Name": "信号干扰", "Effect": "debuff-defense", "Pattern": "plus", "PowerPermille": 250, "Duration": 2, "Cooldown": 4, "CanCrit": false }
+  ],
+  "Units": [
+    { "Id": "xingli", "Name": "星璃", "Role": "主唱", "MaxHp": 1450, "Attack": 168, "Defense": 62, "Speed": 108, "CritPermille": 120, "SkillIds": ["strike", "high-note", "finale"] },
+    { "Id": "feiyin", "Name": "绯音", "Role": "舞者", "MaxHp": 1600, "Attack": 154, "Defense": 74, "Speed": 122, "CritPermille": 150, "SkillIds": ["strike", "spin-kick"] },
+    { "Id": "wubai", "Name": "雾白", "Role": "支援", "MaxHp": 1700, "Attack": 118, "Defense": 88, "Speed": 96, "CritPermille": 50, "SkillIds": ["strike", "encore", "chorus"] },
+    { "Id": "yeying", "Name": "夜莺", "Role": "主唱", "MaxHp": 1300, "Attack": 148, "Defense": 56, "Speed": 104, "CritPermille": 100, "SkillIds": ["strike", "high-note"] },
+    { "Id": "yaoguang", "Name": "瑶光", "Role": "舞者", "MaxHp": 1420, "Attack": 136, "Defense": 66, "Speed": 118, "CritPermille": 130, "SkillIds": ["strike", "spin-kick"] },
+    { "Id": "hupo", "Name": "琥珀", "Role": "支援", "MaxHp": 1520, "Attack": 104, "Defense": 80, "Speed": 92, "CritPermille": 50, "SkillIds": ["strike", "hype"] },
+    { "Id": "xianyue", "Name": "弦月", "Role": "主唱", "MaxHp": 1180, "Attack": 130, "Defense": 50, "Speed": 100, "CritPermille": 90, "SkillIds": ["strike", "stage-light"] },
+    { "Id": "chuxue", "Name": "初雪", "Role": "舞者", "MaxHp": 1260, "Attack": 122, "Defense": 60, "Speed": 112, "CritPermille": 110, "SkillIds": ["strike", "spin-kick"] },
+    { "Id": "chengxia", "Name": "澄夏", "Role": "支援", "MaxHp": 1360, "Attack": 96, "Defense": 72, "Speed": 90, "CritPermille": 50, "SkillIds": ["strike", "encore"] },
+
+    { "Id": "echo-drone", "Name": "回声无人机", "Role": "敌方", "MaxHp": 900, "Attack": 92, "Defense": 40, "Speed": 95, "CritPermille": 40, "SkillIds": ["static-burst"] },
+    { "Id": "noise-wraith", "Name": "噪声幽影", "Role": "敌方", "MaxHp": 1200, "Attack": 118, "Defense": 52, "Speed": 105, "CritPermille": 80, "SkillIds": ["static-burst", "feedback-wave"] },
+    { "Id": "static-golem", "Name": "静电魔像", "Role": "敌方", "MaxHp": 2600, "Attack": 140, "Defense": 110, "Speed": 70, "CritPermille": 30, "SkillIds": ["static-burst", "jam-signal", "feedback-wave"] }
+  ],
+  "Stages": [
+    {
+      "Id": "stage-1-1", "Chapter": "第 01 章", "Name": "1-1 霓虹后巷", "StaminaCost": 8, "TurnLimit": 20, "ThreeStarRounds": 6,
+      "GoldReward": 300, "DiamondFirstClear": 20,
+      "Enemies": [
+        { "UnitId": "echo-drone", "Row": 0, "Col": 0, "ScalePermille": 1000 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1000 },
+        { "UnitId": "noise-wraith", "Row": 1, "Col": 1, "ScalePermille": 1000 }
+      ],
+      "Drops": { "Rolls": 2, "Entries": [
+        { "ItemId": "gold", "Weight": 6, "Min": 80, "Max": 160 },
+        { "ItemId": "shard", "Weight": 3, "Min": 1, "Max": 3 },
+        { "ItemId": "accessory-neon-clip", "Weight": 1, "Min": 1, "Max": 1 }
+      ] }
+    },
+    {
+      "Id": "stage-1-2", "Chapter": "第 01 章", "Name": "1-2 地下电台", "StaminaCost": 8, "TurnLimit": 20, "ThreeStarRounds": 7,
+      "GoldReward": 320, "DiamondFirstClear": 20,
+      "Enemies": [
+        { "UnitId": "echo-drone", "Row": 0, "Col": 0, "ScalePermille": 1150 },
+        { "UnitId": "echo-drone", "Row": 1, "Col": 0, "ScalePermille": 1150 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1150 },
+        { "UnitId": "noise-wraith", "Row": 1, "Col": 2, "ScalePermille": 1100 }
+      ],
+      "Drops": { "Rolls": 2, "Entries": [
+        { "ItemId": "gold", "Weight": 6, "Min": 100, "Max": 180 },
+        { "ItemId": "shard", "Weight": 3, "Min": 1, "Max": 3 },
+        { "ItemId": "accessory-neon-earring", "Weight": 1, "Min": 1, "Max": 1 }
+      ] }
+    },
+    {
+      "Id": "stage-1-3", "Chapter": "第 01 章", "Name": "1-3 天桥回响", "StaminaCost": 10, "TurnLimit": 20, "ThreeStarRounds": 8,
+      "GoldReward": 360, "DiamondFirstClear": 30,
+      "Enemies": [
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1200 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1200 },
+        { "UnitId": "echo-drone", "Row": 0, "Col": 2, "ScalePermille": 1300 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 2, "ScalePermille": 1300 }
+      ],
+      "Drops": { "Rolls": 3, "Entries": [
+        { "ItemId": "gold", "Weight": 5, "Min": 120, "Max": 200 },
+        { "ItemId": "shard", "Weight": 4, "Min": 2, "Max": 4 },
+        { "ItemId": "recruit-ticket", "Weight": 1, "Min": 1, "Max": 1 }
+      ] }
+    },
+    {
+      "Id": "stage-1-4", "Chapter": "第 01 章", "Name": "1-4 静电之心", "StaminaCost": 12, "TurnLimit": 25, "ThreeStarRounds": 10,
+      "GoldReward": 500, "DiamondFirstClear": 60,
+      "Enemies": [
+        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1000 },
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1250 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1250 }
+      ],
+      "Drops": { "Rolls": 3, "Entries": [
+        { "ItemId": "gold", "Weight": 4, "Min": 200, "Max": 320 },
+        { "ItemId": "shard", "Weight": 4, "Min": 3, "Max": 6 },
+        { "ItemId": "costume-ticket", "Weight": 1, "Min": 1, "Max": 1 }
+      ] }
+    }
+  ]
+}
