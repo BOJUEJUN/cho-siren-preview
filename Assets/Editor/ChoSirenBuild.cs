@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -26,6 +28,7 @@ namespace ChoSiren.Editor
             // running. A clean cache keeps reproducible release builds from inheriting
             // a stale dependency graph after parallel art imports.
             Build(output, BuildTarget.WebGL, BuildOptions.CleanBuildCache);
+            HashWebGLBuildAssets(output);
             WriteGitHubPagesMarker(output);
         }
 
@@ -37,9 +40,94 @@ namespace ChoSiren.Editor
             PlayerSettings.WebGL.template = "PROJECT:ChoSirenPortrait";
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             PlayerSettings.WebGL.decompressionFallback = true;
-            PlayerSettings.WebGL.nameFilesAsHashes = true;
+            // Unity's built-in hashed-name pass can repeatedly invalidate its own Bee
+            // graph ("Backend has requested a buildprogram run 6 times"). Build stable
+            // names first and hash them deterministically after a successful build.
+            PlayerSettings.WebGL.nameFilesAsHashes = false;
             PlayerSettings.runInBackground = true;
             AssetDatabase.SaveAssets();
+        }
+
+        private static void HashWebGLBuildAssets(string output)
+        {
+            string absoluteOutput = Path.GetFullPath(output);
+            string indexPath = Path.Combine(absoluteOutput, "index.html");
+            string buildDirectory = Path.Combine(absoluteOutput, "Build");
+            if (!File.Exists(indexPath) || !Directory.Exists(buildDirectory))
+                throw new BuildFailedException("WebGL output is missing index.html or Build directory.");
+
+            string html = File.ReadAllText(indexPath);
+            string[] suffixes =
+            {
+                ".data.unityweb",
+                ".framework.js.unityweb",
+                ".wasm.unityweb",
+                ".loader.js"
+            };
+            var keep = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string suffix in suffixes)
+            {
+                string marker = "buildAssetUrl(\"";
+                int markerIndex = html.IndexOf(marker, StringComparison.Ordinal);
+                string sourceName = null;
+                while (markerIndex >= 0)
+                {
+                    int nameStart = markerIndex + marker.Length;
+                    int nameEnd = html.IndexOf("\"", nameStart, StringComparison.Ordinal);
+                    if (nameEnd < 0)
+                        break;
+
+                    string candidate = html.Substring(nameStart, nameEnd - nameStart);
+                    if (candidate.EndsWith(suffix, StringComparison.Ordinal))
+                    {
+                        sourceName = candidate;
+                        break;
+                    }
+                    markerIndex = html.IndexOf(marker, nameEnd, StringComparison.Ordinal);
+                }
+
+                if (string.IsNullOrEmpty(sourceName))
+                    throw new BuildFailedException($"WebGL index does not reference a *{suffix} asset.");
+
+                string sourcePath = Path.Combine(buildDirectory, sourceName);
+                if (!File.Exists(sourcePath))
+                    throw new BuildFailedException($"WebGL asset referenced by index is missing: {sourceName}");
+
+                string hash;
+                using (var algorithm = SHA256.Create())
+                using (var stream = File.OpenRead(sourcePath))
+                    hash = BitConverter.ToString(algorithm.ComputeHash(stream)).Replace("-", string.Empty).ToLowerInvariant();
+
+                string hashedName = hash.Substring(0, 32) + suffix;
+                string hashedPath = Path.Combine(buildDirectory, hashedName);
+                if (!sourceName.Equals(hashedName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (File.Exists(hashedPath))
+                        File.Delete(hashedPath);
+                    File.Move(sourcePath, hashedPath);
+                    html = html.Replace($"buildAssetUrl(\"{sourceName}\")", $"buildAssetUrl(\"{hashedName}\")");
+                }
+                keep.Add(hashedName);
+            }
+
+            foreach (string filePath in Directory.GetFiles(buildDirectory))
+            {
+                string fileName = Path.GetFileName(filePath);
+                bool isUnityBuildAsset = false;
+                foreach (string suffix in suffixes)
+                {
+                    if (fileName.EndsWith(suffix, StringComparison.Ordinal))
+                    {
+                        isUnityBuildAsset = true;
+                        break;
+                    }
+                }
+                if (isUnityBuildAsset && !keep.Contains(fileName))
+                    File.Delete(filePath);
+            }
+
+            File.WriteAllText(indexPath, html, new System.Text.UTF8Encoding(false));
         }
 
         private static void WriteGitHubPagesMarker(string output)
