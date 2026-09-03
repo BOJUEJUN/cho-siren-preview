@@ -13,7 +13,7 @@
     <style>
       :root {
         color-scheme: dark;
-        --portrait-ratio: 720 / 1552;
+        --portrait-ratio: 720 / 1536;
         --page-bg: #08061f;
         --accent: #ff69bf;
       }
@@ -43,10 +43,10 @@
 
       #game-shell {
         position: relative;
-        width: min(100%, calc(100vh * 720 / 1552));
-        height: min(100%, calc(100vw * 1552 / 720));
+        width: min(100%, calc(100vh * 720 / 1536));
+        height: min(100%, calc(100vw * 1536 / 720));
         max-width: 720px;
-        max-height: 1552px;
+        max-height: 1536px;
         aspect-ratio: var(--portrait-ratio);
         overflow: hidden;
         background: #090625;
@@ -55,8 +55,8 @@
 
       @supports (height: 100dvh) {
         #game-shell {
-          width: min(100%, calc(100dvh * 720 / 1552));
-          height: min(100%, calc(100dvw * 1552 / 720));
+          width: min(100%, calc(100dvh * 720 / 1536));
+          height: min(100%, calc(100dvw * 1536 / 720));
         }
       }
 

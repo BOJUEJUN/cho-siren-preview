@@ -18,6 +18,9 @@ const html = readFileSync(indexPath, "utf8");
 if (!/<canvas[^>]+width="720"[^>]+height="1536"/.test(html)) {
   throw new Error("WebGL 画布不是 720×1536 竖屏尺寸");
 }
+if (!/--portrait-ratio:\s*720\s*\/\s*1536/.test(html) || html.includes("1552")) {
+  throw new Error("WebGL 网页外壳比例与 720×1536 画布不一致");
+}
 if (!html.includes('new URL("Build/", pageUrl)')) {
   throw new Error("WebGL 资源没有使用 GitHub Pages 子路径安全地址");
 }
