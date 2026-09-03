@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using ChoSiren.Systems.Economy;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Story;
 using ChoSiren.Systems.Tactics;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -27,21 +29,33 @@ namespace ChoSiren
         {
             public int Stage;
             public LevelState State;
+            public Button Button;
             public Image Background;
             public Image Glow;
             public Outline Outline;
+            public Text StageLabel;
             public Text StatusLabel;
+        }
+
+        private sealed class RouteView
+        {
+            public int TargetStage;
+            public Image Glow;
+            public Image Core;
+            public Image Marker;
         }
 
         private static readonly Color White = new Color32(249, 247, 255, 255);
         private static readonly Color Muted = new Color32(188, 183, 218, 255);
         private static readonly Color Pink = new Color32(255, 83, 196, 255);
         private static readonly Color Cyan = new Color32(86, 218, 255, 255);
-        private static readonly Color Glass = new Color32(25, 20, 72, 242);
+        private static readonly Color Glass = new Color32(18, 20, 65, 178);
         private static readonly Color Locked = new Color32(45, 48, 86, 238);
+        private const int ChapterStageCount = GameModel.ChapterOneStageCount;
 
         private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
         private readonly Dictionary<int, NodeView> nodeViews = new Dictionary<int, NodeView>();
+        private readonly List<RouteView> routeViews = new List<RouteView>();
         private readonly List<UnityEngine.Object> generatedAssets = new List<UnityEngine.Object>();
 
         private GameModel model;
@@ -61,10 +75,22 @@ namespace ChoSiren
         private Text diamondRewardText;
         private Text goldRewardText;
         private Text startLabel;
+        private Text stageTitleText;
         private Text storyChapterLabel;
+        private Text chapterProgressText;
+        private Text rewardSummaryText;
+        private Text difficultySummaryText;
+        private Text taskSummaryText;
+        private Text rewardBadgeText;
+        private Text taskBadgeText;
         private Button startButton;
         private Image startBackground;
         private Image currentGlow;
+        private Sprite nodeFrameSprite;
+        private Sprite progressRingSprite;
+        private Sprite rewardChestSprite;
+        private Sprite actionFrameSprite;
+        private GameObject modalRoot;
         private GameObject toastObject;
         private Text toastText;
         private float toastHideAt;
@@ -166,19 +192,46 @@ namespace ChoSiren
             font = Resources.Load<Font>("Fonts/NotoSansSC-Subset") ??
                    Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
+            nodeFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/stage-node-frame-ai-v1");
+            progressRingSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-progress-ring-ai-v1");
+            rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
+            actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
+
             BuildBackdrop();
             BuildHeader();
             BuildMap();
             BuildDetails();
+            BuildChapterDock();
             BuildToast();
         }
 
         private void BuildBackdrop()
         {
+            Image inputBlocker = NewImage("LevelMapInputBlocker", transform, null, new Color(0f, 0f, 0f, 0.001f));
+            Stretch(inputBlocker.rectTransform);
+            inputBlocker.raycastTarget = true;
+
             Image gradient = NewImage("NightGradient", transform, CreateGradientSprite(
                 new Color32(7, 8, 35, 255), new Color32(31, 14, 77, 255), new Color32(8, 24, 65, 255)), White);
             Stretch(gradient.rectTransform);
-            gradient.raycastTarget = true;
+            gradient.raycastTarget = false;
+
+            // User-approved chapter-map art is used as a clean background plate only. All labels,
+            // stage state and hit targets remain live Unity UI below, so save data never disagrees
+            // with text baked into a screenshot. EnvelopeParent preserves the original composition
+            // without stretching on either the Windows portrait window or WebGL.
+            Sprite chapterCity = Resources.Load<Sprite>("Art/LevelMapUser/chapter-01-city-clean-ai-v1");
+            if (chapterCity != null)
+            {
+                Image city = NewImage("Chapter01UserCityBackground", transform, chapterCity,
+                    new Color32(238, 241, 255, 255));
+                Stretch(city.rectTransform);
+                city.preserveAspect = true;
+                city.raycastTarget = false;
+                AspectRatioFitter cover = city.gameObject.AddComponent<AspectRatioFitter>();
+                cover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                cover.aspectRatio = chapterCity.rect.width / Mathf.Max(1f, chapterCity.rect.height);
+            }
 
             Sprite glowSprite = CreateRadialSprite(128, false);
             AddGlow("SkyGlow", new Vector2(360, 205), new Vector2(650, 390),
@@ -188,15 +241,16 @@ namespace ChoSiren
             AddGlow("CyanGlow", new Vector2(590, 535), new Vector2(360, 560),
                 new Color32(50, 198, 255, 35), glowSprite);
 
-            Image distantCity = NewImage("DistantSkyline", transform, CreateSkylineSprite(29, true),
-                new Color(0.7f, 0.72f, 1f, 0.48f));
-            PlaceTop(distantCity.rectTransform, 0, 130, 720, 670);
-            distantCity.preserveAspect = false;
+            if (chapterCity == null)
+            {
+                Image distantCity = NewImage("DistantSkyline", transform, CreateSkylineSprite(29, true),
+                    new Color(0.7f, 0.72f, 1f, 0.48f));
+                PlaceTop(distantCity.rectTransform, 0, 130, 720, 670);
 
-            Image nearCity = NewImage("NearSkyline", transform, CreateSkylineSprite(73, false),
-                new Color(1f, 1f, 1f, 0.86f));
-            PlaceTop(nearCity.rectTransform, 0, 410, 720, 710);
-            nearCity.preserveAspect = false;
+                Image nearCity = NewImage("NearSkyline", transform, CreateSkylineSprite(73, false),
+                    new Color(1f, 1f, 1f, 0.86f));
+                PlaceTop(nearCity.rectTransform, 0, 410, 720, 710);
+            }
 
             Image horizon = NewImage("HorizonGlow", transform, null, new Color32(157, 73, 247, 54));
             PlaceTop(horizon.rectTransform, 0, 1055, 720, 3);
@@ -213,6 +267,13 @@ namespace ChoSiren
                 CenterPivot(rect);
                 rect.localEulerAngles = new Vector3(0, 0, index % 2 == 0 ? -7f : 6f);
             }
+
+            // Keep the procedural skyline visible while separating navigation and level nodes
+            // from its dense neon detail. This remains behind every functional surface.
+            Image readabilityVeil = NewImage("LevelMapReadabilityVeil", transform, null,
+                new Color32(5, 10, 38, 58));
+            Stretch(readabilityVeil.rectTransform);
+            readabilityVeil.raycastTarget = false;
         }
 
         private void BuildHeader()
@@ -250,23 +311,36 @@ namespace ChoSiren
             GameObject mapLayer = NewObject("CityRoute", transform);
             Stretch(mapLayer.AddComponent<RectTransform>());
 
-            NewPlacedText(mapLayer.transform, "城市巡演路线", 11,
-                new Color32(158, 189, 255, 205), 24, 126, 260, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(mapLayer.transform, "霓虹演出城区", 20, White,
-                24, 148, 220, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            GameObject chapterTitle = NewPanel("ChapterMapTitleGlass", mapLayer.transform,
+                new Color32(9, 12, 46, 188), 18);
+            PlaceTop(chapterTitle.GetComponent<RectTransform>(), 18, 122, 286, 78);
+            AddGlassOutline(chapterTitle, new Color32(183, 115, 255, 96), 1f);
+            NewPlacedText(chapterTitle.transform, "♪  主线剧情  ·  第一章", 12,
+                new Color32(255, 167, 226, 255), 16, 8, 250, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(chapterTitle.transform, "欲望都市", 25, White,
+                16, 29, 160, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(chapterTitle.transform, "霓虹不眠，舞台由你定义", 11, Muted,
+                174, 32, 98, 34, TextAnchor.MiddleRight, FontStyle.Normal);
 
             Vector2[] points =
             {
-                new Vector2(140, 270),
-                new Vector2(500, 470),
-                new Vector2(220, 700),
-                new Vector2(535, 930),
+                new Vector2(410, 928),
+                new Vector2(250, 852),
+                new Vector2(385, 778),
+                new Vector2(542, 704),
+                new Vector2(420, 630),
+                new Vector2(252, 556),
+                new Vector2(390, 482),
+                new Vector2(535, 408),
+                new Vector2(402, 334),
+                new Vector2(548, 252),
             };
 
             GameObject routeLines = NewObject("RouteLines", mapLayer.transform);
             Stretch(routeLines.AddComponent<RectTransform>());
+            int currentStage = CurrentStoryStage();
             for (int index = 0; index < points.Length - 1; index++)
-                AddRouteSegment(routeLines.transform, points[index], points[index + 1], index >= 2);
+                AddRouteSegment(routeLines.transform, points[index], points[index + 1], index + 2 > currentStage);
 
             for (int index = 0; index < points.Length; index++)
                 BuildNode(mapLayer.transform, index + 1, points[index]);
@@ -275,8 +349,8 @@ namespace ChoSiren
         private void BuildNode(Transform parent, int stage, Vector2 center)
         {
             LevelState state = StateFor(stage);
-            float width = state == LevelState.Current ? 132f : 116f;
-            float height = state == LevelState.Current ? 92f : 82f;
+            float width = state == LevelState.Current ? 126f : 116f;
+            float height = state == LevelState.Current ? 84f : 77f;
 
             Image glow = NewImage($"Glow-1-{stage}", parent, CreateRadialSprite(96, false),
                 state == LevelState.Locked
@@ -288,17 +362,22 @@ namespace ChoSiren
                 width * 1.56f, height * 1.76f);
             CenterPivot(glow.rectTransform);
 
-            Color background = state == LevelState.Locked
-                ? Locked
+            Color frameTint = state == LevelState.Locked
+                ? new Color32(92, 94, 132, 215)
                 : state == LevelState.Current
-                    ? new Color32(107, 40, 168, 250)
-                    : new Color32(62, 40, 126, 246);
-            GameObject node = NewButton($"Level-1-{stage}", parent, $"1-{stage}",
-                state == LevelState.Current ? 27 : 24, background,
-                state == LevelState.Locked ? new Color32(151, 153, 190, 255) : White,
-                () => SelectStage(stage), state == LevelState.Current ? 24 : 20);
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(205, 222, 255, 242);
+            GameObject node = NewSpriteButton($"Level-1-{stage}", parent,
+                nodeFrameSprite, frameTint, () => SelectStage(stage));
             RectTransform rect = node.GetComponent<RectTransform>();
             PlaceTop(rect, center.x - width * 0.5f, center.y - height * 0.5f, width, height);
+            Text nodeLabel = NewPlacedText(node.transform, $"1-{stage}",
+                state == LevelState.Current ? 22 : 19,
+                state == LevelState.Locked ? new Color32(151, 153, 190, 255) : White,
+                8, 8, width - 16, height * 0.52f, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Shadow labelShadow = nodeLabel.gameObject.AddComponent<Shadow>();
+            labelShadow.effectColor = new Color32(12, 4, 38, 235);
+            labelShadow.effectDistance = new Vector2(1.5f, -1.5f);
 
             Outline outline = node.AddComponent<Outline>();
             outline.effectDistance = new Vector2(2f, -2f);
@@ -309,17 +388,19 @@ namespace ChoSiren
                     : new Color32(197, 156, 255, 210);
 
             string status = StateLabel(state);
-            Text statusLabel = NewPlacedText(node.transform, status, state == LevelState.Cleared ? 14 : 12,
+            Text statusLabel = NewPlacedText(node.transform, status, state == LevelState.Cleared ? 12 : 11,
                 state == LevelState.Locked ? new Color32(150, 154, 193, 255) : new Color32(255, 186, 229, 255),
-                6, height - 27, width - 12, 21, TextAnchor.MiddleCenter, FontStyle.Bold);
+                8, height - 29, width - 16, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             NodeView view = new NodeView
             {
                 Stage = stage,
                 State = state,
+                Button = node.GetComponent<Button>(),
                 Background = node.GetComponent<Image>(),
                 Glow = glow,
                 Outline = outline,
+                StageLabel = nodeLabel,
                 StatusLabel = statusLabel,
             };
             nodeViews[stage] = view;
@@ -329,70 +410,383 @@ namespace ChoSiren
         private void BuildDetails()
         {
             GameObject card = NewPanel("SelectedLevel", transform, Glass, 28);
-            PlaceTop(card.GetComponent<RectTransform>(), 20, 1138, 680, 390);
-            Outline outline = card.AddComponent<Outline>();
-            outline.effectColor = new Color32(166, 112, 255, 150);
-            outline.effectDistance = new Vector2(2, -2);
+            PlaceTop(card.GetComponent<RectTransform>(), 20, 978, 680, 184);
+            AddGlassOutline(card, new Color32(166, 112, 255, 150), 2f);
 
-            stageText = NewPlacedText(card.transform, "1-1", 39, White,
-                30, 20, 130, 58, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Image topAccent = NewImage("SelectedLevelAccent", card.transform, null,
+                new Color32(255, 91, 207, 225));
+            PlaceTop(topAccent.rectTransform, 30, 0, 180, 3);
+
+            stageText = NewPlacedText(card.transform, "1-1", 34, White,
+                24, 12, 104, 50, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageTitleText = NewPlacedText(card.transform, "霓虹序曲", 19, White,
+                128, 13, 295, 29, TextAnchor.MiddleLeft, FontStyle.Bold);
             stageStatusText = NewPlacedText(card.transform, "当前关卡", 16,
-                new Color32(255, 137, 213, 255), 30, 76, 170, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                new Color32(255, 137, 213, 255), 128, 43, 295, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             progressText = NewPlacedText(card.transform, string.Empty, 13, Muted,
-                30, 108, 255, 28, TextAnchor.MiddleLeft);
+                24, 70, 414, 26, TextAnchor.MiddleLeft);
 
-            GameObject cost = NewPanel("StaminaCost", card.transform, new Color32(54, 35, 105, 235), 18);
-            PlaceTop(cost.GetComponent<RectTransform>(), 30, 145, 206, 56);
-            NewPlacedText(cost.transform, "体力", 15, Muted, 18, 8, 70, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
-            staminaCostText = NewPlacedText(cost.transform, "-8", 22, new Color32(255, 138, 210, 255),
-                116, 7, 68, 41, TextAnchor.MiddleRight, FontStyle.Bold);
+            staminaCostText = InfoChip(card.transform, "StaminaCost", "体力 -8",
+                24, 108, 116, new Color32(255, 157, 220, 255));
+            diamondRewardText = InfoChip(card.transform, "DiamondReward", "星钻 ×20",
+                148, 108, 132, Cyan);
+            goldRewardText = InfoChip(card.transform, "GoldReward", "星币 ×300",
+                288, 108, 150, new Color32(255, 215, 111, 255));
 
-            Image separator = NewImage("Separator", card.transform, null, new Color32(156, 116, 221, 90));
-            PlaceTop(separator.rectTransform, 272, 28, 2, 176);
-
-            NewPlacedText(card.transform, "奖励", 17, White,
-                306, 20, 110, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
-            diamondRewardText = RewardChip(card.transform, "星钻 ×20", 306, 68, Cyan, true);
-            goldRewardText = RewardChip(card.transform, "星币 ×300", 487, 68,
-                new Color32(255, 211, 104, 255), false);
-
-            Image cardDivider = NewImage("CardDivider", card.transform, null, new Color32(170, 125, 239, 70));
-            PlaceTop(cardDivider.rectTransform, 28, 224, 624, 2);
-
-            GameObject start = NewButton("StartChallenge", card.transform, "开始挑战", 27,
-                Pink, White, StartChallenge, 28);
-            PlaceTop(start.GetComponent<RectTransform>(), 30, 251, 620, 102);
+            GameObject start = NewSpriteButton("StartChallenge", card.transform, actionFrameSprite,
+                Color.white, StartChallenge);
+            PlaceTop(start.GetComponent<RectTransform>(), 454, 36, 206, 108);
             startButton = start.GetComponent<Button>();
             startBackground = start.GetComponent<Image>();
-            startLabel = start.transform.Find("Label").GetComponent<Text>();
-
-            Image buttonGlow = NewImage("ButtonGlow", card.transform, CreateRadialSprite(128, false),
-                new Color32(255, 78, 212, 38));
-            PlaceTop(buttonGlow.rectTransform, 70, 317, 540, 80);
-            buttonGlow.transform.SetAsFirstSibling();
+            startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
+                14, 28, 178, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
+            startLabel.name = "Label";
+            Text hint = NewPlacedText(start.transform, "进入骰子演出", 11, new Color32(213, 196, 255, 255),
+                20, 66, 166, 22, TextAnchor.MiddleCenter, FontStyle.Normal);
+            hint.name = "StartHint";
         }
 
-        private Text RewardChip(Transform parent, string label, float x, float y, Color accent, bool diamond)
+        private Text InfoChip(Transform parent, string name, string label, float x, float y, float width, Color accent)
         {
-            GameObject chip = NewPanel("Reward", parent, new Color32(43, 32, 93, 220), 17);
-            PlaceTop(chip.GetComponent<RectTransform>(), x, y, 163, 82);
+            GameObject chip = NewPanel(name, parent, new Color32(37, 29, 83, 215), 14);
+            PlaceTop(chip.GetComponent<RectTransform>(), x, y, width, 48);
+            Image accentLine = NewImage("Accent", chip.transform, null, accent);
+            PlaceTop(accentLine.rectTransform, 0, 7, 3, 34);
+            return NewPlacedText(chip.transform, label, 13, White,
+                8, 4, width - 14, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
+        }
 
-            Image icon = NewImage("Icon", chip.transform, diamond ? RoundedSprite(8) : CreateRadialSprite(64, true), accent);
-            PlaceTop(icon.rectTransform, 12, 18, 46, 46);
-            if (diamond)
+        private void BuildChapterDock()
+        {
+            GameObject dock = NewPanel("ChapterControlDock", transform, new Color32(6, 9, 38, 236), 26);
+            PlaceTop(dock.GetComponent<RectTransform>(), 14, 1174, 692, 344);
+            AddGlassOutline(dock, new Color32(116, 201, 255, 86), 1.5f);
+
+            NewPlacedText(dock.transform, "章节探索控制台", 14, new Color32(224, 207, 255, 255),
+                22, 8, 220, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(dock.transform, "每颗星都会点亮一段舞台航线", 11, Muted,
+                282, 9, 385, 24, TextAnchor.MiddleRight, FontStyle.Normal);
+
+            Image progressArt = NewImage("ChapterProgressAIFrame", dock.transform,
+                progressRingSprite, Color.white);
+            PlaceTop(progressArt.rectTransform, 20, 36, 154, 148);
+            progressArt.preserveAspect = true;
+            chapterProgressText = NewPlacedText(progressArt.transform, "0%\n0/30 星", 16, White,
+                30, 43, 94, 60, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(dock.transform, "章节进度", 13, White,
+                32, 183, 130, 24, TextAnchor.MiddleCenter, FontStyle.Bold);
+
+            GameObject rewards = NewSpriteButton("ChapterRewards", dock.transform, rewardChestSprite,
+                Color.white, OpenChapterRewards);
+            PlaceTop(rewards.GetComponent<RectTransform>(), 187, 40, 154, 122);
+            rewardSummaryText = NewPlacedText(dock.transform, "章节奖励", 13, White,
+                182, 183, 164, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
+            rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 118, 1);
+
+            GameObject difficulty = NewSpriteButton("ChapterDifficulty", dock.transform, actionFrameSprite,
+                new Color32(225, 236, 255, 255), OpenDifficultySelector);
+            PlaceTop(difficulty.GetComponent<RectTransform>(), 358, 64, 150, 77);
+            NewPlacedText(difficulty.transform, "难度", 12, new Color32(205, 190, 255, 255),
+                16, 14, 118, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
+            difficultySummaryText = NewPlacedText(difficulty.transform, "普通", 19, White,
+                16, 33, 118, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(dock.transform, "战斗与星币倍率", 11, Muted,
+                350, 183, 166, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
+
+            GameObject tasks = NewSpriteButton("ChapterTasks", dock.transform, actionFrameSprite,
+                new Color32(255, 228, 251, 255), OpenChapterTasks);
+            PlaceTop(tasks.GetComponent<RectTransform>(), 526, 64, 150, 77);
+            NewPlacedText(tasks.transform, "章节任务", 17, White,
+                14, 23, 122, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
+            taskSummaryText = NewPlacedText(dock.transform, "0/3 已完成", 11, Muted,
+                518, 183, 166, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
+            taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 119, -2);
+
+            GameObject milestone = NewPanel("StarMilestones", dock.transform,
+                new Color32(31, 25, 77, 196), 17);
+            PlaceTop(milestone.GetComponent<RectTransform>(), 24, 220, 644, 76);
+            NewPlacedText(milestone.transform, "星级里程碑", 12, new Color32(255, 159, 220, 255),
+                15, 8, 105, 25, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(milestone.transform, "10 星", 14, White,
+                142, 8, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(milestone.transform, "20 星", 14, White,
+                272, 8, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(milestone.transform, "30 星", 14, White,
+                402, 8, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(milestone.transform, "通关 1-10 解锁本章最终奖励", 12, Muted,
+                15, 38, 614, 24, TextAnchor.MiddleCenter, FontStyle.Normal);
+
+            NewPlacedText(dock.transform, "选择关卡后可查看消耗与奖励  ·  难度会在开始战斗时生效", 11,
+                new Color32(163, 174, 221, 255), 28, 304, 636, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
+        }
+
+        private void OpenDifficultySelector()
+        {
+            GameObject card = OpenModalShell("ChapterDifficultyModal", 338, 720);
+            Image headerArt = NewImage("DifficultyHeaderAIFrame", card.transform, actionFrameSprite, Color.white);
+            PlaceTop(headerArt.rectTransform, 126, 22, 408, 208);
+            headerArt.preserveAspect = true;
+            NewPlacedText(card.transform, "演出难度", 27, White,
+                186, 82, 288, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(card.transform, "选择后立即保存，并应用到下一场战斗", 12, Muted,
+                146, 122, 368, 26, TextAnchor.MiddleCenter, FontStyle.Normal);
+
+            BattleDifficulty[] options =
             {
-                CenterPivot(icon.rectTransform);
-                icon.rectTransform.localEulerAngles = new Vector3(0, 0, 45);
+                BattleDifficulty.Easy,
+                BattleDifficulty.Normal,
+                BattleDifficulty.Hard,
+            };
+
+            for (int index = 0; index < options.Length; index++)
+            {
+                BattleDifficulty difficulty = options[index];
+                BattleDifficultyProfile profile = GameModel.DifficultyProfileFor(difficulty);
+                bool selected = model.ChapterOneDifficulty == difficulty;
+                GameObject option = NewSpriteButton($"Difficulty-{difficulty}", card.transform,
+                    actionFrameSprite,
+                    selected ? new Color32(255, 255, 255, 255) : new Color32(164, 178, 225, 225),
+                    () => SelectDifficulty(difficulty));
+                PlaceTop(option.GetComponent<RectTransform>(), 35 + index * 198, 224, 190, 97);
+                NewPlacedText(option.transform, profile.Name, 20,
+                    selected ? new Color32(255, 231, 113, 255) : White,
+                    12, 23, 166, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
+                NewPlacedText(option.transform, selected ? "已选择" : "点击选择", 10,
+                    selected ? new Color32(255, 166, 224, 255) : Muted,
+                    14, 58, 162, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
             }
 
-            return NewPlacedText(chip.transform, label, 15, White,
-                62, 16, 93, 50, TextAnchor.MiddleCenter, FontStyle.Bold);
+            GameObject comparison = NewPanel("DifficultyComparison", card.transform,
+                new Color32(20, 22, 69, 221), 22);
+            PlaceTop(comparison.GetComponent<RectTransform>(), 35, 352, 590, 238);
+            AddGlassOutline(comparison, new Color32(105, 211, 255, 94), 1f);
+            NewPlacedText(comparison.transform, "难度影响预览", 15, new Color32(255, 157, 220, 255),
+                22, 14, 220, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+            for (int index = 0; index < options.Length; index++)
+            {
+                BattleDifficultyProfile profile = GameModel.DifficultyProfileFor(options[index]);
+                Color accent = options[index] == BattleDifficulty.Easy
+                    ? Cyan
+                    : options[index] == BattleDifficulty.Hard
+                        ? new Color32(255, 111, 182, 255)
+                        : new Color32(196, 153, 255, 255);
+                float y = 52 + index * 57;
+                NewPlacedText(comparison.transform, profile.Name, 15, accent,
+                    22, y, 76, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
+                NewPlacedText(comparison.transform,
+                    $"敌方生命 {profile.EnemyHpPermille / 10}%  ·  攻击 {profile.EnemyAttackPermille / 10}%  ·  星币 {profile.GoldRewardPermille / 10}%",
+                    13, White, 104, y, 452, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
+            }
+
+            NewPlacedText(card.transform, "困难难度提高风险，同时使每次通关获得更多星币", 12,
+                new Color32(185, 192, 231, 255), 60, 610, 540, 32, TextAnchor.MiddleCenter, FontStyle.Normal);
+        }
+
+        private void SelectDifficulty(BattleDifficulty difficulty)
+        {
+            model.SetChapterOneDifficulty(difficulty, out string message);
+            CloseChapterModal();
+            Refresh();
+            Notify(message);
+        }
+
+        private void OpenChapterRewards()
+        {
+            GameObject card = OpenModalShell("ChapterRewardsModal", 232, 1048);
+            Image chest = NewImage("ChapterRewardsAIChest", card.transform, rewardChestSprite, Color.white);
+            PlaceTop(chest.rectTransform, 242, 16, 176, 138);
+            chest.preserveAspect = true;
+            NewPlacedText(card.transform, "章节奖励", 27, White,
+                205, 139, 250, 42, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(card.transform, $"已获得 {model.ChapterOneTotalStars}/30 星  ·  达成里程碑即可领取",
+                12, Muted, 105, 178, 450, 28, TextAnchor.MiddleCenter, FontStyle.Normal);
+
+            List<ChapterStarRewardView> rewards = model.ChapterOneStarRewardViews();
+            for (int index = 0; index < rewards.Count; index++)
+            {
+                ChapterStarRewardView view = rewards[index];
+                GameObject row = NewPanel($"StarRewardRow-{view.RequiredStars}", card.transform,
+                    new Color32(23, 22, 72, 225), 22);
+                PlaceTop(row.GetComponent<RectTransform>(), 35, 226 + index * 204, 590, 174);
+                AddGlassOutline(row, view.Claimable
+                    ? new Color32(255, 104, 211, 205)
+                    : new Color32(132, 108, 211, 92), view.Claimable ? 2f : 1f);
+
+                NewPlacedText(row.transform, $"{view.RequiredStars} 星", 25,
+                    view.Completed ? new Color32(255, 218, 104, 255) : White,
+                    22, 16, 118, 42, TextAnchor.MiddleLeft, FontStyle.Bold);
+                NewPlacedText(row.transform, FormatRewards(view.Rewards), 14, White,
+                    22, 62, 365, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+                string progress = view.Claimed
+                    ? "奖励已领取"
+                    : view.Claimable
+                        ? "里程碑已达成"
+                        : $"当前 {view.CurrentStars}/{view.RequiredStars} 星";
+                NewPlacedText(row.transform, progress, 12, view.Claimable ? Pink : Muted,
+                    22, 104, 360, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+                int requiredStars = view.RequiredStars;
+                GameObject claim = NewSpriteButton($"ChapterStarReward-{requiredStars}", row.transform,
+                    actionFrameSprite,
+                    view.Claimed ? new Color32(100, 105, 143, 190) : Color.white,
+                    () => ClaimStarReward(requiredStars));
+                PlaceTop(claim.GetComponent<RectTransform>(), 406, 45, 160, 82);
+                NewPlacedText(claim.transform, view.Claimed ? "已领取" : view.Claimable ? "领取" : "未达成", 16,
+                    view.Claimable ? White : Muted,
+                    14, 22, 132, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                claim.GetComponent<Button>().interactable = view.Claimable;
+            }
+
+            NewPlacedText(card.transform, "章节星数取每一关的最佳评价，同一关可重复挑战提升星级", 11,
+                new Color32(170, 180, 222, 255), 60, 884, 540, 30, TextAnchor.MiddleCenter, FontStyle.Normal);
+        }
+
+        private void ClaimStarReward(int requiredStars)
+        {
+            bool claimed = model.TryClaimChapterOneStarReward(requiredStars, out string message);
+            if (claimed)
+            {
+                CloseChapterModal();
+                Refresh();
+            }
+            Notify(message);
+        }
+
+        private void OpenChapterTasks()
+        {
+            GameObject card = OpenModalShell("ChapterTasksModal", 246, 1016);
+            Image headerArt = NewImage("ChapterTasksAIHeader", card.transform, actionFrameSprite, Color.white);
+            PlaceTop(headerArt.rectTransform, 126, 24, 408, 208);
+            headerArt.preserveAspect = true;
+            NewPlacedText(card.transform, "章节任务", 27, White,
+                186, 82, 288, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(card.transform, "沿着欲望都市的舞台航线完成挑战", 12, Muted,
+                146, 124, 368, 26, TextAnchor.MiddleCenter, FontStyle.Normal);
+
+            List<ChapterTaskView> tasks = model.ChapterOneTaskViews();
+            for (int index = 0; index < tasks.Count; index++)
+            {
+                ChapterTaskView view = tasks[index];
+                GameObject row = NewPanel($"ChapterTaskRow-{view.Id}", card.transform,
+                    new Color32(23, 22, 72, 225), 22);
+                PlaceTop(row.GetComponent<RectTransform>(), 35, 232 + index * 200, 590, 170);
+                AddGlassOutline(row, view.Claimable
+                    ? new Color32(91, 218, 255, 200)
+                    : new Color32(132, 108, 211, 92), view.Claimable ? 2f : 1f);
+
+                NewPlacedText(row.transform, view.Title, 18, White,
+                    22, 17, 360, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+                NewPlacedText(row.transform, FormatRewards(view.Rewards), 13,
+                    new Color32(255, 201, 110, 255),
+                    22, 56, 360, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+                string progress = view.Claimed ? "已完成并领取" : $"任务进度 {Mathf.Min(view.Progress, view.Target)}/{view.Target}";
+                NewPlacedText(row.transform, progress, 12, view.Claimable ? Cyan : Muted,
+                    22, 96, 360, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+                string taskId = view.Id;
+                GameObject claim = NewSpriteButton($"ChapterTaskClaim-{index + 1}", row.transform,
+                    actionFrameSprite,
+                    view.Claimed ? new Color32(100, 105, 143, 190) : Color.white,
+                    () => ClaimChapterTask(taskId));
+                PlaceTop(claim.GetComponent<RectTransform>(), 406, 44, 160, 82);
+                NewPlacedText(claim.transform, view.Claimed ? "已领取" : view.Claimable ? "领取" : "进行中", 16,
+                    view.Claimable ? White : Muted,
+                    14, 22, 132, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                claim.GetComponent<Button>().interactable = view.Claimable;
+            }
+
+            NewPlacedText(card.transform, "章节任务奖励每个存档仅可领取一次", 11,
+                new Color32(170, 180, 222, 255), 60, 872, 540, 28, TextAnchor.MiddleCenter, FontStyle.Normal);
+        }
+
+        private void ClaimChapterTask(string taskId)
+        {
+            bool claimed = model.TryClaimChapterOneTask(taskId, out string message);
+            if (claimed)
+            {
+                CloseChapterModal();
+                Refresh();
+            }
+            Notify(message);
+        }
+
+        private GameObject OpenModalShell(string name, float top, float height)
+        {
+            CloseChapterModal();
+            modalRoot = NewObject(name, transform);
+            RectTransform modalRect = modalRoot.AddComponent<RectTransform>();
+            Stretch(modalRect);
+            modalRoot.transform.SetAsLastSibling();
+
+            Image blocker = NewImage("ModalBlocker", modalRoot.transform, null, new Color32(1, 2, 18, 222));
+            Stretch(blocker.rectTransform);
+            blocker.raycastTarget = true;
+            Button blockerButton = blocker.gameObject.AddComponent<Button>();
+            blockerButton.targetGraphic = blocker;
+            blockerButton.onClick.AddListener(CloseChapterModal);
+
+            GameObject card = NewPanel("ModalCard", modalRoot.transform, new Color32(12, 13, 51, 249), 30);
+            PlaceTop(card.GetComponent<RectTransform>(), 30, top, 660, height);
+            card.GetComponent<Image>().raycastTarget = true;
+            AddGlassOutline(card, new Color32(188, 112, 255, 220), 2f);
+
+            GameObject close = NewButton("CloseChapterModal", card.transform, "×", 28,
+                new Color32(61, 39, 106, 244), White, CloseChapterModal, 18);
+            PlaceTop(close.GetComponent<RectTransform>(), 586, 18, 52, 52);
+            return card;
+        }
+
+        private void CloseChapterModal()
+        {
+            if (modalRoot == null) return;
+            GameObject closingModal = modalRoot;
+            modalRoot = null;
+            if (Application.isPlaying) Destroy(closingModal);
+            else DestroyImmediate(closingModal);
+        }
+
+        private Text NewNotificationBadge(Transform parent, string name, float x, float y)
+        {
+            GameObject badge = NewPanel(name, parent, Pink, 14);
+            PlaceTop(badge.GetComponent<RectTransform>(), x, y, 31, 31);
+            Text value = NewPlacedText(badge.transform, "0", 13, White,
+                2, 1, 27, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+            value.name = "Value";
+            return value;
+        }
+
+        private static string FormatRewards(IReadOnlyList<CurrencyAmount> rewards)
+        {
+            if (rewards == null || rewards.Count == 0) return "无奖励";
+            var labels = new List<string>(rewards.Count);
+            for (int index = 0; index < rewards.Count; index++)
+            {
+                CurrencyAmount reward = rewards[index];
+                if (reward == null) continue;
+                labels.Add($"{CurrencyLabel(reward.Currency)} ×{reward.Amount}");
+            }
+
+            return labels.Count == 0 ? "无奖励" : string.Join("  ·  ", labels);
+        }
+
+        private static string CurrencyLabel(string currency)
+        {
+            switch (currency)
+            {
+                case CurrencyIds.Diamond: return "星钻";
+                case CurrencyIds.Gold: return "星币";
+                case CurrencyIds.RecruitTicket: return "签约券";
+                case CurrencyIds.CostumeTicket: return "服装券";
+                case CurrencyIds.Stamina: return "体力";
+                default: return "奖励";
+            }
         }
 
         private void BuildToast()
         {
             toastObject = NewPanel("LevelToast", transform, new Color32(10, 11, 42, 247), 20);
-            PlaceTop(toastObject.GetComponent<RectTransform>(), 70, 1052, 580, 68);
+            PlaceTop(toastObject.GetComponent<RectTransform>(), 70, 900, 580, 64);
             Outline outline = toastObject.AddComponent<Outline>();
             outline.effectColor = new Color32(255, 105, 211, 120);
             outline.effectDistance = new Vector2(1, -1);
@@ -426,7 +820,7 @@ namespace ChoSiren
                 return;
             }
 
-            if (selectedStage < 1 || selectedStage > 4)
+            if (selectedStage < 1 || selectedStage > ChapterStageCount)
             {
                 Notify("该关卡暂未开放战术演出");
                 return;
@@ -535,28 +929,54 @@ namespace ChoSiren
             stageText.text = $"1-{selectedStage}";
 
             LevelState state = StateFor(selectedStage);
-            StageDefinition selectedDefinition = model.Tactics.FindStage($"stage-1-{selectedStage}");
+            string selectedStageId = $"stage-1-{selectedStage}";
+            StageDefinition selectedDefinition = model.Tactics.FindStage(selectedStageId);
             int staminaCost = selectedDefinition != null ? selectedDefinition.StaminaCost : GameModel.StoryStaminaCost;
             int diamondReward = selectedDefinition != null ? selectedDefinition.DiamondFirstClear : GameModel.StoryDiamondReward;
-            int goldReward = selectedDefinition != null ? selectedDefinition.GoldReward : GameModel.StoryGoldReward;
-            bool chapterComplete = model.Save.StoryProgress >= GameModel.MaxStoryProgress;
-            stageStatusText.text = chapterComplete && selectedStage == 4
+            int goldReward = selectedDefinition != null
+                ? model.PreviewStageGoldReward(selectedStageId)
+                : GameModel.StoryGoldReward;
+            bool chapterComplete = model.IsChapterOneComplete;
+            stageTitleText.text = selectedDefinition != null && !string.IsNullOrWhiteSpace(selectedDefinition.Name)
+                ? selectedDefinition.Name
+                : "欲望都市演出";
+            stageStatusText.text = chapterComplete && selectedStage == ChapterStageCount
                 ? "章节已完成"
-                : state == LevelState.Cleared ? "已通关 · 三星评价" : "当前关卡";
+                : state == LevelState.Cleared
+                    ? $"已通关 · 最佳 {Mathf.Max(1, model.StarsOf(selectedStageId))} 星"
+                    : "当前关卡";
             progressText.text = state == LevelState.Cleared
-                ? "首通奖励已领取  ·  最佳评价 卓越"
-                : $"章节探索 {model.Save.StoryProgress}%  ·  推荐战力 {RecommendedPower(selectedStage):N0}";
-            staminaCostText.text = $"-{staminaCost}";
-            diamondRewardText.text = state == LevelState.Cleared ? "已领取" : $"星钻 ×{diamondReward}";
-            // Gold is a repeatable stage drop; only the diamond reward is first-clear-only.
+                ? $"可重复挑战提升评价  ·  推荐战力 {RecommendedPower(selectedStage):N0}"
+                : $"严格顺序解锁  ·  推荐战力 {RecommendedPower(selectedStage):N0}";
+            staminaCostText.text = $"体力 -{staminaCost}";
+            diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";
             goldRewardText.text = $"星币 ×{goldReward}";
             startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
             startBackground.color = model.Save.Stamina < staminaCost
-                ? new Color32(139, 66, 133, 245)
+                ? new Color32(145, 126, 165, 210)
                 : state == LevelState.Cleared
-                    ? new Color32(126, 72, 194, 250)
-                    : Pink;
+                    ? new Color32(226, 219, 255, 245)
+                    : Color.white;
+
+            int chapterStars = model.ChapterOneTotalStars;
+            int progressPercent = Mathf.RoundToInt(chapterStars / 30f * 100f);
+            chapterProgressText.text = $"{progressPercent}%\n{chapterStars}/30 星";
+            int claimableRewards = model.ChapterOneClaimableStarRewardCount;
+            rewardSummaryText.text = claimableRewards > 0 ? $"章节奖励 · {claimableRewards} 可领" : "章节奖励";
+            rewardBadgeText.text = claimableRewards.ToString();
+            rewardBadgeText.transform.parent.gameObject.SetActive(claimableRewards > 0);
+
+            BattleDifficultyProfile currentDifficulty = model.CurrentBattleDifficultyProfile;
+            difficultySummaryText.text = currentDifficulty.Name;
+            List<ChapterTaskView> chapterTasks = model.ChapterOneTaskViews();
+            int completedTasks = 0;
+            for (int taskIndex = 0; taskIndex < chapterTasks.Count; taskIndex++)
+                if (chapterTasks[taskIndex].Completed) completedTasks++;
+            taskSummaryText.text = $"{completedTasks}/{chapterTasks.Count} 已完成";
+            int claimableTasks = model.ChapterOneClaimableTaskCount;
+            taskBadgeText.text = claimableTasks.ToString();
+            taskBadgeText.transform.parent.gameObject.SetActive(claimableTasks > 0);
 
             foreach (KeyValuePair<int, NodeView> pair in nodeViews)
             {
@@ -566,24 +986,43 @@ namespace ChoSiren
                 if (view.State == LevelState.Locked)
                 {
                     view.Glow.enabled = false;
-                    view.Background.color = Locked;
+                    view.Background.color = new Color32(92, 94, 132, 215);
+                    view.StageLabel.color = new Color32(151, 153, 190, 255);
                     view.StatusLabel.text = StateLabel(view.State);
                     view.StatusLabel.color = new Color32(150, 154, 193, 255);
+                    view.Outline.effectColor = new Color32(102, 109, 157, 94);
                     continue;
                 }
 
                 view.Glow.enabled = selected || view.State == LevelState.Current;
                 if (view.State == LevelState.Current) currentGlow = view.Glow;
-                view.StatusLabel.text = StateLabel(view.State);
+                int stars = model.StarsOf($"stage-1-{view.Stage}");
+                view.StatusLabel.text = view.State == LevelState.Cleared
+                    ? new string('★', Mathf.Clamp(stars, 1, 3))
+                    : StateLabel(view.State);
+                view.StageLabel.color = White;
                 view.StatusLabel.color = new Color32(255, 186, 229, 255);
                 view.Outline.effectColor = selected
                     ? new Color32(255, 182, 236, 255)
                     : new Color32(178, 132, 246, 180);
-                view.Background.color = selected
-                    ? new Color32(116, 43, 177, 252)
-                    : view.State == LevelState.Current
-                        ? new Color32(92, 39, 154, 248)
-                        : new Color32(62, 40, 126, 246);
+                view.Background.color = selected || view.State == LevelState.Current
+                    ? Color.white
+                    : new Color32(205, 222, 255, 242);
+            }
+
+            for (int index = 0; index < routeViews.Count; index++)
+            {
+                RouteView route = routeViews[index];
+                bool future = StateFor(route.TargetStage) == LevelState.Locked;
+                route.Glow.color = future
+                    ? new Color32(113, 101, 181, 48)
+                    : new Color32(255, 60, 205, 72);
+                route.Core.color = future
+                    ? new Color32(122, 121, 176, 145)
+                    : new Color32(238, 104, 255, 230);
+                route.Marker.color = future
+                    ? new Color32(141, 139, 185, 180)
+                    : new Color32(255, 190, 240, 255);
             }
         }
 
@@ -600,14 +1039,16 @@ namespace ChoSiren
 
         private LevelState StateFor(int stage)
         {
-            if (stage < 1 || stage > 4) return LevelState.Locked;
-            if (IsStoryStageCleared(stage, model.Save.StoryProgress)) return LevelState.Cleared;
-            return stage == CurrentStoryStage() ? LevelState.Current : LevelState.Locked;
+            if (stage < 1 || stage > ChapterStageCount) return LevelState.Locked;
+            string stageId = $"stage-1-{stage}";
+            if (model.IsStageCleared(stageId) || IsStoryStageCleared(stage, model.Save.StoryProgress))
+                return LevelState.Cleared;
+            return model.IsStageUnlocked(stageId) ? LevelState.Current : LevelState.Locked;
         }
 
         private int CurrentStoryStage()
         {
-            return StoryStageForProgress(model.Save.StoryProgress);
+            return model.CurrentChapterOneStage;
         }
 
         public static int StoryStageForProgress(int progress)
@@ -618,12 +1059,12 @@ namespace ChoSiren
                 if (normalizedProgress < GameModel.StoryStageThresholds[index]) return index + 1;
             }
 
-            return 4;
+            return ChapterStageCount;
         }
 
         public static bool IsStoryStageCleared(int stage, int progress)
         {
-            if (stage < 1 || stage > 4) return false;
+            if (stage < 1 || stage > ChapterStageCount) return false;
             return Mathf.Clamp(progress, 0, GameModel.MaxStoryProgress) >=
                    GameModel.StoryStageThresholds[stage - 1];
         }
@@ -642,8 +1083,8 @@ namespace ChoSiren
         {
             Color glowColor = future ? new Color32(113, 101, 181, 48) : new Color32(255, 60, 205, 72);
             Color lineColor = future ? new Color32(122, 121, 176, 145) : new Color32(238, 104, 255, 230);
-            AddLine(parent, from, to, 17f, glowColor);
-            AddLine(parent, from, to, 5f, lineColor);
+            Image glow = AddLine(parent, from, to, 17f, glowColor);
+            Image core = AddLine(parent, from, to, 5f, lineColor);
 
             Vector2 middle = Vector2.Lerp(from, to, 0.5f);
             Image marker = NewImage("RouteMarker", parent, RoundedSprite(6), future
@@ -652,9 +1093,17 @@ namespace ChoSiren
             PlaceTop(marker.rectTransform, middle.x - 7, middle.y - 7, 14, 14);
             CenterPivot(marker.rectTransform);
             marker.rectTransform.localEulerAngles = new Vector3(0, 0, 45);
+
+            routeViews.Add(new RouteView
+            {
+                TargetStage = routeViews.Count + 2,
+                Glow = glow,
+                Core = core,
+                Marker = marker,
+            });
         }
 
-        private void AddLine(Transform parent, Vector2 from, Vector2 to, float thickness, Color color)
+        private Image AddLine(Transform parent, Vector2 from, Vector2 to, float thickness, Color color)
         {
             Vector2 localFrom = new Vector2(from.x, -from.y);
             Vector2 localTo = new Vector2(to.x, -to.y);
@@ -666,6 +1115,7 @@ namespace ChoSiren
             rect.anchoredPosition = (localFrom + localTo) * 0.5f;
             rect.sizeDelta = new Vector2(delta.magnitude, thickness);
             rect.localEulerAngles = new Vector3(0, 0, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
+            return line;
         }
 
         private void AddGlow(string name, Vector2 center, Vector2 size, Color color, Sprite sprite)
@@ -855,6 +1305,20 @@ namespace ChoSiren
             return image.gameObject;
         }
 
+        private GameObject NewSpriteButton(string name, Transform parent, Sprite sprite, Color tint,
+            UnityAction action)
+        {
+            Image image = NewImage(name, parent, sprite != null ? sprite : RoundedSprite(24), tint);
+            image.preserveAspect = sprite != null;
+            image.raycastTarget = true;
+            Button button = image.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            ConfigureButtonColors(button);
+            button.onClick.AddListener(action);
+            AddButtonFeedback(image.gameObject);
+            return image.gameObject;
+        }
+
         private GameObject NewButton(string name, Transform parent, string label, int fontSize, Color background,
             Color foreground, UnityAction action, int radius)
         {
@@ -863,19 +1327,54 @@ namespace ChoSiren
             image.raycastTarget = true;
             Button button = result.AddComponent<Button>();
             button.targetGraphic = image;
-            ColorBlock colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
-            colors.pressedColor = new Color(0.8f, 0.8f, 0.9f, 1f);
-            colors.selectedColor = Color.white;
-            colors.colorMultiplier = 1f;
-            button.colors = colors;
+            ConfigureButtonColors(button);
             button.onClick.AddListener(action);
+            AddButtonFeedback(result);
 
             Text text = NewText("Label", result.transform, label, fontSize, foreground, FontStyle.Bold,
                 TextAnchor.MiddleCenter);
             Stretch(text.rectTransform, 6, 4, -6, -4);
             return result;
+        }
+
+        private static void ConfigureButtonColors(Button button)
+        {
+            ColorBlock colors = button.colors;
+            colors.normalColor = Color.white;
+            colors.highlightedColor = new Color(1.14f, 1.10f, 1.18f, 1f);
+            colors.pressedColor = new Color(0.70f, 0.76f, 0.92f, 1f);
+            colors.selectedColor = new Color(1.05f, 1.03f, 1.08f, 1f);
+            colors.disabledColor = new Color(0.45f, 0.46f, 0.55f, 0.65f);
+            colors.colorMultiplier = 1f;
+            colors.fadeDuration = 0.08f;
+            button.colors = colors;
+        }
+
+        private static void AddButtonFeedback(GameObject target)
+        {
+            EventTrigger trigger = target.AddComponent<EventTrigger>();
+            AddPointerEvent(trigger, EventTriggerType.PointerEnter,
+                () => target.transform.localScale = Vector3.one * 1.045f);
+            AddPointerEvent(trigger, EventTriggerType.PointerExit,
+                () => target.transform.localScale = Vector3.one);
+            AddPointerEvent(trigger, EventTriggerType.PointerDown,
+                () => target.transform.localScale = Vector3.one * 0.955f);
+            AddPointerEvent(trigger, EventTriggerType.PointerUp,
+                () => target.transform.localScale = Vector3.one * 1.045f);
+        }
+
+        private static void AddPointerEvent(EventTrigger trigger, EventTriggerType eventType, UnityAction action)
+        {
+            var entry = new EventTrigger.Entry { eventID = eventType };
+            entry.callback.AddListener(_ => action());
+            trigger.triggers.Add(entry);
+        }
+
+        private static void AddGlassOutline(GameObject target, Color color, float distance)
+        {
+            Outline outline = target.AddComponent<Outline>();
+            outline.effectColor = color;
+            outline.effectDistance = new Vector2(distance, -distance);
         }
 
         private Text NewText(string name, Transform parent, string value, int size, Color color, FontStyle style,

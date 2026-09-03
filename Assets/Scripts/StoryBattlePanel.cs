@@ -196,7 +196,11 @@ namespace ChoSiren
             Image background = NewImage("BattleBackground", transform,
                 Resources.Load<Sprite>("Art/LobbyBackground"), White);
             Stretch(background.rectTransform);
-            background.preserveAspect = false;
+            background.preserveAspect = true;
+            AspectRatioFitter backgroundCover = background.gameObject.AddComponent<AspectRatioFitter>();
+            backgroundCover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            if (background.sprite != null)
+                backgroundCover.aspectRatio = background.sprite.rect.width / Mathf.Max(1f, background.sprite.rect.height);
             background.raycastTarget = true;
             Image shade = NewImage("BattleShade", transform, null, new Color32(3, 6, 28, 128));
             Stretch(shade.rectTransform);
@@ -214,7 +218,7 @@ namespace ChoSiren
             GameObject back = NewButton("BattleBack", header.transform, "返回", 17,
                 new Color32(70, 46, 118, 242), White, AbortBattle, 18);
             PlaceTop(back.GetComponent<RectTransform>(), 18, 27, 88, 56);
-            NewPlacedText(header.transform, $"剧情  7-{stage}", 13, new Color32(255, 173, 226, 255),
+            NewPlacedText(header.transform, $"剧情  1-{DisplayedChapterStage(stage)}", 13, new Color32(255, 173, 226, 255),
                 128, 17, 220, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(header.transform, StageName(stage), 27, White,
                 128, 40, 250, 42, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -459,7 +463,7 @@ namespace ChoSiren
                 resultTitle.text = "挑战完成";
                 resultGrade.text = GradeLabel(grade);
                 resultGrade.color = grade == "S" ? new Color32(255, 158, 224, 255) : White;
-                resultStats.text = $"7-{stage}  {StageName(stage)}\n回合  {battle.Turn}    总伤害  {battle.TotalDamage}\n剩余生命  {battle.PlayerHp}/{battle.MaxPlayerHp}";
+                resultStats.text = $"1-{DisplayedChapterStage(stage)}  {StageName(stage)}\n回合  {battle.Turn}    总伤害  {battle.TotalDamage}\n剩余生命  {battle.PlayerHp}/{battle.MaxPlayerHp}";
                 resultReward.text = succeeded ? message : $"战斗胜利\n{message}";
                 retryButton.SetActive(false);
                 gameAudio?.PlaySuccess();
@@ -469,7 +473,7 @@ namespace ChoSiren
                 resultTitle.text = "挑战失败";
                 resultGrade.text = "未过关";
                 resultGrade.color = new Color32(196, 190, 220, 255);
-                resultStats.text = $"7-{stage}  {StageName(stage)}\n回合  {battle.Turn}    总伤害  {battle.TotalDamage}\n请调整技能顺序后重试";
+                resultStats.text = $"1-{DisplayedChapterStage(stage)}  {StageName(stage)}\n回合  {battle.Turn}    总伤害  {battle.TotalDamage}\n请调整技能顺序后重试";
                 resultReward.text = "挑战失败，没有消耗体力\n建议用支援抵挡每第 3 回合的重击";
                 retryButton.SetActive(true);
                 retryLabel.text = "重新挑战";
@@ -562,6 +566,11 @@ namespace ChoSiren
         {
             string[] names = { "镜潮街区", "余响天桥", "星幕塔台", "梦核终演" };
             return names[Mathf.Clamp(value - 3, 0, names.Length - 1)];
+        }
+
+        private static int DisplayedChapterStage(int legacyStage)
+        {
+            return Mathf.Clamp(legacyStage - 2, 1, GameModel.ChapterOneStageCount);
         }
 
         public static bool IsCurrentStoryStage(int stage, int progress)

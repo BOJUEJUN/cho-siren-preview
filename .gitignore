@@ -9,13 +9,22 @@
 /[Mm]emoryCaptures/
 /[Rr]ecordings/
 /[Tt]est[Rr]esults/
+/[Cc]rashes/
+/[Pp]rofiling/
 
 # Packaged previews, smoke screenshots and Android/WebGL intermediates that Unity or
 # the packaging scripts drop into the project root.
 /[Rr]eleases/
+/[Ss]creenshots/
 /tmp/
 /.utmp/
 /Data/
+
+# Unity Performance Test runner emits these transient resources during CLI runs.
+/Assets/Resources/PerformanceTestRunInfo.json
+/Assets/Resources/PerformanceTestRunInfo.json.meta
+/Assets/Resources/PerformanceTestRunSettings.json
+/Assets/Resources/PerformanceTestRunSettings.json.meta
 
 # Vendored Python packages (imageio_ffmpeg ships an 87 MB ffmpeg.exe). Install with
 # pip on each machine instead of committing the binaries.
@@ -64,6 +73,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/
+# Do not ignore Assets/StreamingAssets as a whole: the lobby video and other
+# runtime media are source assets and must travel with a clone.
 
 # Operating-system files.
 .DS_Store
@@ -80,3 +91,7 @@ Desktop.ini
 *.jks
 *.p12
 *.mobileprovision
+
+# Unity may emit these next to a player when a custom output path is used.
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+*_BurstDebugInformation_DoNotShip/

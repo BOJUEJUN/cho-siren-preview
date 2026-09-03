@@ -1,4 +1,4 @@
-"""Build Assets/Resources/Fonts/NotoSansSC-Subset.otf from NotoSansSC-Regular.otf.
+"""Build Assets/Resources/Fonts/NotoSansSC-Subset.otf from SourceAssets/Fonts/NotoSansSC-Regular.otf.
 
 The character set is the union of
   * every non-ASCII character found in project source, data JSON, docs and the
@@ -24,7 +24,9 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FONT_DIR = PROJECT_ROOT / "Assets" / "Resources" / "Fonts"
-SOURCE_FONT = FONT_DIR / "NotoSansSC-Regular.otf"
+# Keep the 44k-glyph source outside Assets so Unity/WebGL packages only the
+# verified runtime subset. The source remains versioned for deterministic rebuilds.
+SOURCE_FONT = PROJECT_ROOT / "SourceAssets" / "Fonts" / "NotoSansSC-Regular.otf"
 OUTPUT_FONT = FONT_DIR / "NotoSansSC-Subset.otf"
 
 SCAN_GLOBS = [

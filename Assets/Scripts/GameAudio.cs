@@ -8,6 +8,8 @@ namespace ChoSiren
     /// </summary>
     public sealed class GameAudio : MonoBehaviour
     {
+        public const float MusicOutputVolume = 0.18f;
+
         private GameModel model;
         private AudioSource musicSource;
         private AudioSource sfxSource;
@@ -15,6 +17,7 @@ namespace ChoSiren
         private AudioClip clickClip;
         private AudioClip successClip;
         private bool lobbyVideoOwnsMusic;
+        private bool fallbackHasStarted;
 
         public void Initialize(GameModel gameModel)
         {
@@ -23,7 +26,7 @@ namespace ChoSiren
             musicSource = gameObject.AddComponent<AudioSource>();
             musicSource.playOnAwake = false;
             musicSource.loop = true;
-            musicSource.volume = 0.12f;
+            musicSource.volume = MusicOutputVolume;
             musicSource.ignoreListenerPause = true;
 
             sfxSource = gameObject.AddComponent<AudioSource>();
@@ -46,7 +49,16 @@ namespace ChoSiren
             musicSource.mute = !model.Save.MusicEnabled;
             sfxSource.mute = !model.Save.SfxEnabled;
             bool playFallback = ShouldPlayFallbackMusic(model.Save.MusicEnabled, lobbyVideoOwnsMusic);
-            if (playFallback && !musicSource.isPlaying) musicSource.Play();
+            if (playFallback && !musicSource.isPlaying)
+            {
+                if (fallbackHasStarted)
+                    musicSource.UnPause();
+                else
+                {
+                    musicSource.Play();
+                    fallbackHasStarted = true;
+                }
+            }
             if (!playFallback && musicSource.isPlaying) musicSource.Pause();
         }
 

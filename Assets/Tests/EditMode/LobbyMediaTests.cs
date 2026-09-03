@@ -59,5 +59,28 @@ namespace ChoSiren.Tests
             Assert.That(LobbyVideoLoopPlayer.ShouldMuteVideoAudio(musicEnabled, audioUnlocked, lobbyActive),
                 Is.EqualTo(expectedMuted));
         }
+
+        [TestCase(true, true, true, true, true, true, false, true)]
+        [TestCase(false, true, true, true, true, true, false, false)]
+        [TestCase(true, false, true, true, true, true, false, false)]
+        [TestCase(true, true, false, true, true, true, false, false)]
+        [TestCase(true, true, true, false, true, true, false, false)]
+        [TestCase(true, true, true, true, false, true, false, false)]
+        [TestCase(true, true, true, true, true, false, false, false)]
+        [TestCase(true, true, true, true, true, true, true, false)]
+        public void VideoOnlyOwnsMusicWhileItsAudibleTrackIsActuallyPlaying(
+            bool musicEnabled, bool audioUnlocked, bool lobbyActive, bool prepared, bool playing,
+            bool hasEnabledAudioTrack, bool muted, bool expected)
+        {
+            Assert.That(LobbyVideoLoopPlayer.ShouldVideoOwnMusic(
+                    musicEnabled, audioUnlocked, lobbyActive, prepared, playing, hasEnabledAudioTrack, muted),
+                Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void SharedMusicGainIsKeptInAComfortableRange()
+        {
+            Assert.That(GameAudio.MusicOutputVolume, Is.InRange(0.1f, 0.3f));
+        }
     }
 }

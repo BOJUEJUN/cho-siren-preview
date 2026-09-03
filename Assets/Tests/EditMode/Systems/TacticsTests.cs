@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChoSiren.Systems;
 using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
@@ -84,6 +85,139 @@ namespace ChoSiren.Tests.Systems
             // 200 * 1000 / (1000 + 250*4) = 100
             Assert.That(battle.PreviewDamage(singer, strike, golem), Is.EqualTo(100));
             Assert.That(battle.PreviewDamage(singer, strike, golem, critical: true), Is.EqualTo(150));
+        }
+
+        [Test]
+        public void EnemyHpScaleIsIndependentAndZeroFallsBackToLegacyScale()
+        {
+            TacticsManifest manifest = Manifest();
+            StageDefinition stage = manifest.FindStage("test-stage");
+            stage.Enemies = new List<EnemySpawn>
+            {
+                new EnemySpawn
+                {
+                    UnitId = "drone", Row = 0, Col = 0,
+                    ScalePermille = 2000, HpScalePermille = 3000
+                }
+            };
+
+            var independent = new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }));
+            BattleUnit scaledEnemy = independent.UnitAt(BattleSide.Enemy, 0, 0);
+            Assert.That(scaledEnemy.MaxHp, Is.EqualTo(900), "HP 应只使用独立的 3000‰");
+            Assert.That(scaledEnemy.BaseAttack, Is.EqualTo(120), "攻击仍使用通用的 2000‰");
+            Assert.That(scaledEnemy.BaseDefense, Is.Zero);
+
+            stage.Enemies[0].HpScalePermille = 0;
+            var compatible = new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }));
+            Assert.That(compatible.UnitAt(BattleSide.Enemy, 0, 0).MaxHp, Is.EqualTo(600),
+                "旧 JSON 未提供独立 HP 时必须回退到 ScalePermille");
+        }
+
+        [Test]
+        public void DifficultyScalesEnemyHpAndAttackWithoutChangingDefenseOrLegacyCallers()
+        {
+            TacticsManifest manifest = Manifest();
+            StageDefinition stage = manifest.FindStage("test-stage");
+            stage.Enemies = new List<EnemySpawn>
+            {
+                new EnemySpawn
+                {
+                    UnitId = "golem", Row = 1, Col = 1,
+                    ScalePermille = 2000, HpScalePermille = 3000
+                }
+            };
+
+            var normal = new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }));
+            BattleUnit normalEnemy = normal.UnitAt(BattleSide.Enemy, 1, 1);
+            Assert.That(normalEnemy.MaxHp, Is.EqualTo(9000));
+            Assert.That(normalEnemy.BaseAttack, Is.EqualTo(240));
+            Assert.That(normalEnemy.BaseDefense, Is.EqualTo(500));
+            Assert.That(normal.EnemyHpMultiplierPermille, Is.EqualTo(1000));
+            Assert.That(normal.EnemyAttackMultiplierPermille, Is.EqualTo(1000));
+
+            var hard = new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }),
+                1300, 1200);
+            BattleUnit hardEnemy = hard.UnitAt(BattleSide.Enemy, 1, 1);
+            Assert.That(hardEnemy.MaxHp, Is.EqualTo(11700));
+            Assert.That(hardEnemy.BaseAttack, Is.EqualTo(288));
+            Assert.That(hardEnemy.BaseDefense, Is.EqualTo(500), "难度不应悄悄改变敌方防御与玩家伤害公式。");
+            Assert.That(hard.EnemyHpMultiplierPermille, Is.EqualTo(1300));
+            Assert.That(hard.EnemyAttackMultiplierPermille, Is.EqualTo(1200));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }), 0, 1000));
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }), 1000, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                new BattleSimulator(manifest, stage, Party(), new ScriptedRandom(new[] { 999 }),
+                    BattleSimulator.MaxEnemyDifficultyMultiplierPermille + 1, 1000));
+        }
+
+        [Test]
+        public void EnemyTotalHpAdvancesThroughOrderedThreePhaseEventsAndRemainsWinnable()
+        {
+            TacticsManifest manifest = Manifest();
+            UnitDefinition drone = manifest.FindUnit("drone");
+            drone.MaxHp = 3000;
+            StageDefinition stage = manifest.FindStage("test-stage");
+            stage.TurnLimit = 10;
+            stage.Enemies = new List<EnemySpawn>
+            {
+                new EnemySpawn { UnitId = "drone", Row = 0, Col = 0, ScalePermille = 1000 }
+            };
+            var party = new List<PlayerUnitSetup>
+            {
+                new PlayerUnitSetup { UnitId = "singer", Row = 1, Col = 0, Level = 1 }
+            };
+            var battle = new BattleSimulator(manifest, stage, party, new ScriptedRandom(new[] { 999 }));
+            Assert.That(battle.EnemyPhase, Is.EqualTo(1));
+            Assert.That(battle.InitialEnemyHp, Is.EqualTo(3000));
+
+            ActCurrentPlayerStrike(battle, 5500);
+            Assert.That(battle.EnemyPhase, Is.EqualTo(2));
+            Assert.That(battle.UnitAt(BattleSide.Enemy, 0, 0).Attack, Is.EqualTo(64),
+                "第二阶段敌方攻击只小幅提升 8%");
+
+            AdvanceEnemyTurns(battle);
+            ActCurrentPlayerStrike(battle, 5500);
+            Assert.That(battle.EnemyPhase, Is.EqualTo(3));
+            Assert.That(battle.UnitAt(BattleSide.Enemy, 0, 0).Attack, Is.EqualTo(69),
+                "第三阶段敌方攻击总增幅应为 16%");
+
+            int[] phases = battle.Log.Where(item => item.Kind == BattleEventKind.PhaseChanged)
+                .Select(item => item.Phase).ToArray();
+            Assert.That(phases, Is.EqualTo(new[] { 2, 3 }));
+
+            AdvanceEnemyTurns(battle);
+            ActCurrentPlayerStrike(battle, 5500);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+        }
+
+        [Test]
+        public void FiveKindBurstEmitsBothPhaseBoundariesInsteadOfJumpingDirectlyToThree()
+        {
+            TacticsManifest manifest = Manifest();
+            StageDefinition stage = manifest.FindStage("test-stage");
+            stage.Enemies = new List<EnemySpawn>
+            {
+                new EnemySpawn { UnitId = "drone", Row = 0, Col = 0, ScalePermille = 1000 }
+            };
+            var party = new List<PlayerUnitSetup>
+            {
+                new PlayerUnitSetup { UnitId = "singer", Row = 1, Col = 0, Level = 1 }
+            };
+            var battle = new BattleSimulator(manifest, stage, party, new ScriptedRandom(new[] { 999 }));
+
+            ActCurrentPlayerStrike(battle, 10000);
+
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+            Assert.That(battle.EnemyPhase, Is.EqualTo(3));
+            BattleEvent[] phaseEvents = battle.Log
+                .Where(item => item.Kind == BattleEventKind.PhaseChanged).ToArray();
+            Assert.That(phaseEvents.Length, Is.EqualTo(2));
+            Assert.That(phaseEvents[0].Phase, Is.EqualTo(2));
+            Assert.That(phaseEvents[1].Phase, Is.EqualTo(3));
+            Assert.That(battle.Log[battle.Log.Count - 1].Kind, Is.EqualTo(BattleEventKind.Finished));
         }
 
         [Test]
@@ -272,6 +406,36 @@ namespace ChoSiren.Tests.Systems
             manifest.Stages[0].Enemies.Add(new EnemySpawn { UnitId = "drone", Row = 0, Col = 0 });
             Assert.That(manifest.TryValidate(out error), Is.False);
             Assert.That(error, Does.Contain("同一格"));
+        }
+
+        private static void ActCurrentPlayerStrike(BattleSimulator battle, int multiplierPermille)
+        {
+            BattleUnit actor = battle.CurrentActor;
+            Assert.That(actor, Is.Not.Null);
+            Assert.That(actor.Side, Is.EqualTo(BattleSide.Player));
+            BattleUnit target = battle.UnitAt(BattleSide.Enemy, 0, 0);
+            Assert.That(target, Is.Not.Null);
+            Assert.That(battle.TryAct(new BattleAction
+            {
+                ActorId = actor.Id,
+                SkillId = "strike",
+                Row = target.Row,
+                Col = target.Col,
+                PowerMultiplierPermille = multiplierPermille
+            }, out string error), Is.True, error);
+        }
+
+        private static void AdvanceEnemyTurns(BattleSimulator battle)
+        {
+            int guard = 0;
+            while (battle.Outcome == BattleOutcome.Ongoing &&
+                   battle.CurrentActor.Side == BattleSide.Enemy && guard++ < 20)
+            {
+                BattleAction action = EnemyAi.Choose(battle, battle.CurrentActor);
+                Assert.That(battle.TryAct(action, out string error), Is.True, error);
+            }
+
+            Assert.That(guard, Is.LessThan(20));
         }
     }
 }

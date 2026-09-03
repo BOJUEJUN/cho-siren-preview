@@ -22,10 +22,16 @@ namespace ChoSiren
         private static readonly Color GlassLight = new Color32(91, 55, 132, 215);
 
         private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
+        private readonly Dictionary<int, Sprite> generatedLobbySprites = new Dictionary<int, Sprite>();
+        private readonly Dictionary<string, Sprite> aiUiSprites = new Dictionary<string, Sprite>();
+        private readonly List<Sprite> runtimeAiUiSprites = new List<Sprite>();
         private readonly List<Image> navHighlights = new List<Image>();
         private Sprite[] navIconSprites;
         private Sprite[] lobbyEmblemSprites;
         private Sprite stageGlowSprite;
+        private Sprite accessoryDressingRoomSprite;
+        private Sprite teamStellarStageSprite;
+        private Sprite memberGalleryCalmSprite;
 
         private GameModel model;
         private GameAudio gameAudio;
@@ -57,7 +63,7 @@ namespace ChoSiren
         private int lastViewportHeight;
         private float memberResizeRefreshAt = -1f;
         private float toastHideAt;
-        private int lastStaminaDisplaySecond = -1;
+        private int lastResourceRefreshSecond = -1;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void EnsureRuntime()
@@ -99,17 +105,17 @@ namespace ChoSiren
                 memberResizeRefreshAt = Time.unscaledTime + 0.12f;
             }
 
-            if (currentScreen == "members" && memberResizeRefreshAt >= 0f &&
+            if ((currentScreen == "members" || currentScreen == "team") && memberResizeRefreshAt >= 0f &&
                 Time.unscaledTime >= memberResizeRefreshAt)
             {
                 memberResizeRefreshAt = -1f;
-                ShowScreen("members");
+                ShowScreen(currentScreen);
             }
 
             if (model == null || staminaText == null) return;
             int second = (int)Time.unscaledTime;
-            if (second == lastStaminaDisplaySecond) return;
-            lastStaminaDisplaySecond = second;
+            if (second == lastResourceRefreshSecond) return;
+            lastResourceRefreshSecond = second;
             model.RefreshDailyState();
             UpdateTopBar();
         }
@@ -117,6 +123,14 @@ namespace ChoSiren
         private void OnDestroy()
         {
             if (model != null) model.Changed -= UpdateTopBar;
+            if (lobbyVideoPlayer != null) lobbyVideoPlayer.MusicAvailabilityChanged -= ApplyMusicRouting;
+            DestroyRuntimeSprite(ref teamStellarStageSprite);
+            DestroyRuntimeSprite(ref memberGalleryCalmSprite);
+            DestroyRuntimeSprite(ref accessoryDressingRoomSprite);
+            for (int index = 0; index < runtimeAiUiSprites.Count; index++)
+                if (runtimeAiUiSprites[index] != null) Destroy(runtimeAiUiSprites[index]);
+            runtimeAiUiSprites.Clear();
+            aiUiSprites.Clear();
         }
 
         private void BuildShell()
@@ -135,6 +149,7 @@ namespace ChoSiren
             // width preserves its coordinates on taller/shorter desktop windows.
             scaler.matchWidthOrHeight = 0f;
             canvasObject.AddComponent<GraphicRaycaster>();
+            canvasObject.AddComponent<ButtonInteractionFeedbackInstaller>();
 
             GameObject background = NewImage("Background", canvasObject.transform, Resources.Load<Sprite>("Art/LobbyBackground"), White);
             Stretch(background.GetComponent<RectTransform>());
@@ -147,6 +162,7 @@ namespace ChoSiren
             lobbyVideoSurface.color = White;
             lobbyVideoSurface.raycastTarget = false;
             lobbyVideoPlayer = lobbyVideoObject.AddComponent<LobbyVideoLoopPlayer>();
+            lobbyVideoPlayer.MusicAvailabilityChanged += ApplyMusicRouting;
             lobbyVideoObject.SetActive(false);
 
             GameObject tint = NewImage("Atmosphere", canvasObject.transform, null, new Color32(8, 6, 42, 65));
@@ -206,7 +222,8 @@ namespace ChoSiren
             Stretch(avatarMask.GetComponent<RectTransform>(), 2, 2, -2, -2);
             Mask mask = avatarMask.AddComponent<Mask>();
             mask.showMaskGraphic = false;
-            GameObject avatar = NewImage("Avatar", avatarMask.transform, Resources.Load<Sprite>("Art/ProfileAvatar"), White);
+            GameObject avatar = NewImage("Avatar", avatarMask.transform,
+                AiUiSprite("Art/ProfileAvatarUser") ?? Resources.Load<Sprite>("Art/ProfileAvatar"), White);
             Stretch(avatar.GetComponent<RectTransform>());
             avatar.GetComponent<Image>().preserveAspect = false;
 
@@ -222,38 +239,27 @@ namespace ChoSiren
             PlaceTop(profileHit.GetComponent<RectTransform>(), 12, 8, 176, 70);
             profileHit.transform.SetAsFirstSibling();
 
-            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 194, 28, 25);
+            // 资源组以约 120 像素为节拍排布，邮件紧跟体力；音乐设置已归入设置弹窗后，
+            // 这里不再保留一个看起来像“缺按钮”的空槽。
+            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 200, 28, 25);
             diamondText = NewText("Diamonds", bar.transform, string.Empty, 17, Cyan, FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(diamondText.rectTransform, 221, 18, 84, 44);
+            PlaceTop(diamondText.rectTransform, 228, 18, 86, 44);
             ConfigureHudNumber(diamondText);
 
-            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 309, 28, 25);
+            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 320, 28, 25);
             goldText = NewText("Gold", bar.transform, string.Empty, 17, new Color32(255, 219, 126, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(goldText.rectTransform, 336, 18, 78, 44);
+            PlaceTop(goldText.rectTransform, 348, 18, 86, 44);
             ConfigureHudNumber(goldText);
 
-            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 419, 27, 26);
+            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 440, 27, 26);
             staminaText = NewText("Stamina", bar.transform, string.Empty, 17, new Color32(255, 151, 211, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(staminaText.rectTransform, 447, 18, 113, 44);
+            PlaceTop(staminaText.rectTransform, 468, 18, 80, 44);
             ConfigureHudNumber(staminaText);
 
             AddSpriteIconButton(bar.transform, "Mail",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 112, OpenInbox);
-            AddSpriteIconButton(bar.transform, "Music",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Music"), 68, () =>
-            {
-                model.ToggleMusic();
-                ApplyMusicRouting();
-                Toast(model.Save.MusicEnabled ? "音乐已开启" : "音乐已关闭");
-            });
-            GameObject settings = AddSpriteIconButton(bar.transform, "Settings",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 24, OpenSettings);
-            GameObject notice = NewImage("Notice", settings.transform, null, new Color32(255, 79, 157, 255));
-            RectTransform noticeRect = notice.GetComponent<RectTransform>();
-            noticeRect.anchorMin = noticeRect.anchorMax = new Vector2(1f, 1f);
-            noticeRect.pivot = new Vector2(0.5f, 0.5f);
-            noticeRect.anchoredPosition = new Vector2(-2f, -3f);
-            noticeRect.sizeDelta = new Vector2(8f, 8f);
+                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 120, OpenInbox);
+            AddSpriteIconButton(bar.transform, "Settings",
+                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 80, OpenSettings);
             UpdateTopBar();
         }
 
@@ -377,28 +383,11 @@ namespace ChoSiren
             Text loadingText = NewText("Status", loadingBadge.transform, "舞台资源载入中 · 0%", 12,
                 new Color32(232, 217, 250, 255), FontStyle.Bold, TextAnchor.MiddleCenter);
             Stretch(loadingText.rectTransform, 8, 2, -8, -2);
-            // Option A: the stage itself is the menu. These three lightweight hotspots keep the
-            // full-screen video and character visible instead of covering them with solid cards.
-            LobbyHotspot(cardLayer.transform, "闪耀舞台", 1, 26, 350, 208, 146, OpenActivity);
-            LobbyHotspot(cardLayer.transform, "冒险剧本", 2, 486, 350, 208, 146, OpenLevelMap);
-            LobbyHotspot(cardLayer.transform, "任务", 3, 500, 642, 190, 140, OpenDailyTasks);
-            if (model.ClaimableTaskCount > 0)
-            {
-                Transform dailyCard = cardLayer.transform.Find("任务");
-                if (dailyCard != null)
-                {
-                    GameObject claimDot = NewImage("ClaimableDot", dailyCard, null, new Color32(255, 79, 157, 255));
-                    RectTransform dotRect = claimDot.GetComponent<RectTransform>();
-                    dotRect.anchorMin = dotRect.anchorMax = new Vector2(1f, 1f);
-                    dotRect.pivot = new Vector2(0.5f, 0.5f);
-                    dotRect.anchoredPosition = new Vector2(-12f, -12f);
-                    dotRect.sizeDelta = new Vector2(14f, 14f);
-                }
-            }
-            NewPlacedText(cardLayer.transform,
-                $"今日演出 {Mathf.Min(GameModel.DailyPerformanceGoal, model.Save.DailyPerformances)}/{GameModel.DailyPerformanceGoal}   ·   体力 {model.Save.Stamina}/{model.StaminaCap}",
-                12, new Color32(244, 228, 252, 245), 210, 1014, 300, 26,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
+            // The stage itself is the menu. Each hotspot uses a complete transparent AI-rendered
+            // holographic device; code only supplies localized labels and interaction.
+            LobbyHotspot(cardLayer.transform, "闪耀舞台", 1, 8, 326, 270, 238, OpenActivity);
+            LobbyHotspot(cardLayer.transform, "冒险剧本", 2, 0, 676, 276, 244, OpenLevelMap);
+            LobbyHotspot(cardLayer.transform, "任务", 3, 446, 520, 274, 242, OpenDailyTasks);
             BuildStageCallToAction(cardLayer.transform);
             cardLayer.transform.SetAsLastSibling();
             UiEntranceMotion cardEntrance = cardLayer.AddComponent<UiEntranceMotion>();
@@ -424,76 +413,224 @@ namespace ChoSiren
 
         private void BuildTeam()
         {
-            ScreenTitle("当前编队", "团队成员", "组合战力与当前编队");
-            GameObject powerCard = NewPanel("TeamPower", contentRoot, Glass, 20);
-            PlaceTop(powerCard.GetComponent<RectTransform>(), 20, 90, 680, 96);
-            NewPlacedText(powerCard.transform, "共鸣战力", 20, Muted, 20, 16, 220, 32, TextAnchor.MiddleLeft);
-            NewPlacedText(powerCard.transform, model.TeamPower.ToString("N0"), 31, White, 430, 10, 220, 48,
-                TextAnchor.MiddleRight, FontStyle.Bold);
+            BuildTeamStellarBackdrop();
+            GameObject titlePlaque = NewAiDecoration("TeamTitlePlaque", contentRoot,
+                "Art/TeamAI/UI/team-title-plaque-ai-v2");
+            PlaceTop(titlePlaque.GetComponent<RectTransform>(), 8, 2, 472, 142);
+            // The AI plaque has a large treble-clef ornament on its left. Keep all copy inside
+            // the clear center field so the artwork and text read as one authored component.
+            NewPlacedText(contentRoot, "当前编队", 13, new Color32(255, 174, 225, 255),
+                116, 16, 312, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(contentRoot, "星环编队", 30, White,
+                108, 39, 312, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(contentRoot, "四重星轨 · 协同舞台阵列", 14, Muted,
+                110, 80, 310, 27, TextAnchor.MiddleLeft);
+            NewPlacedText(contentRoot, "编队 1", 15, new Color32(185, 222, 255, 255),
+                22, 107, 150, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
 
-            GameObject auto = NewButton("AutoTeam", contentRoot, "自动编队", 17, GlassLight, White, () =>
+            int teamCount = Mathf.Min(GameModel.TeamCapacity, model.Save.Team.Count);
+            int roleCount = model.Save.Team.Take(teamCount)
+                .Where(index => index >= 0 && index < GameModel.Members.Length)
+                .Select(index => GameModel.Members[index].Role)
+                .Distinct()
+                .Count();
+            int resonance = teamCount * 2;
+            int harmony = roleCount * 2;
+            int focus = teamCount > 0 ? 4 : 0;
+            int resonanceScore = resonance + harmony + focus;
+
+            GameObject powerCard = NewPanel("TeamPower", contentRoot, new Color32(8, 18, 55, 92), 20);
+            PlaceTop(powerCard.GetComponent<RectTransform>(), 492, 16, 208, 130);
+            if (!ApplyAiUiSprite(powerCard, "Art/TeamAI/UI/team-power-panel-ai-v2"))
+            {
+                Outline powerEdge = powerCard.AddComponent<Outline>();
+                powerEdge.effectColor = new Color32(104, 224, 255, 118);
+                powerEdge.effectDistance = new Vector2(1f, -1f);
+            }
+            NewPlacedText(powerCard.transform, "总战力", 13, Muted, 14, 10, 180, 22, TextAnchor.MiddleLeft);
+            Text teamPower = NewPlacedText(powerCard.transform, model.TeamPower.ToString("N0"), 30, White,
+                14, 28, 180, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+            teamPower.horizontalOverflow = HorizontalWrapMode.Overflow;
+            teamPower.verticalOverflow = VerticalWrapMode.Overflow;
+            teamPower.name = "TeamPowerValue";
+            NewPlacedText(powerCard.transform, $"阵容共鸣评分  {resonanceScore}", 14,
+                new Color32(112, 242, 255, 255), 14, 74, 180, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(powerCard.transform, $"成员  {teamCount}/{GameModel.TeamCapacity}", 12, Muted,
+                14, 99, 180, 20, TextAnchor.MiddleLeft);
+
+            Canvas.ForceUpdateCanvases();
+            float contentHeight = Mathf.Max(1f, contentRoot.rect.height);
+            const float buttonHeight = 48f;
+            const float synergyHeight = 88f;
+            float buttonY = Mathf.Max(0f, contentHeight - buttonHeight - 8f);
+            float synergyY = Mathf.Max(0f, buttonY - synergyHeight - 10f);
+            float formationTop = 146f;
+            float formationHeight = Mathf.Max(1f, synergyY - formationTop - 8f);
+            Vector2[] orbitPositions =
+            {
+                new Vector2(220f, formationTop + formationHeight * 0.04f),
+                new Vector2(22f, formationTop + formationHeight * 0.34f),
+                new Vector2(448f, formationTop + formationHeight * 0.34f),
+                new Vector2(224f, formationTop + formationHeight * 0.62f),
+            };
+            Vector2[] orbitSizes =
+            {
+                new Vector2(280f, Mathf.Min(390f, formationHeight * 0.48f)),
+                new Vector2(250f, Mathf.Min(350f, formationHeight * 0.41f)),
+                new Vector2(250f, Mathf.Min(350f, formationHeight * 0.41f)),
+                new Vector2(272f, Mathf.Min(340f, formationHeight * 0.38f)),
+            };
+
+            for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+            {
+                int memberIndex = slot < teamCount ? model.Save.Team[slot] : -1;
+                TeamOrbitSlot(slot, memberIndex, orbitPositions[slot], orbitSizes[slot], slot == 0);
+            }
+
+            GameObject synergyBar = NewPanel("TeamSynergy", contentRoot, new Color32(7, 17, 52, 112), 20);
+            PlaceTop(synergyBar.GetComponent<RectTransform>(), 20, synergyY, 680, synergyHeight);
+            if (!ApplyAiUiSprite(synergyBar, "Art/TeamAI/UI/team-synergy-panel-ai-v2"))
+            {
+                Outline synergyEdge = synergyBar.AddComponent<Outline>();
+                synergyEdge.effectColor = new Color32(192, 118, 255, 94);
+                synergyEdge.effectDistance = new Vector2(1f, -1f);
+            }
+            NewPlacedText(synergyBar.transform, "组合效果（展示）", 15, new Color32(255, 184, 232, 255),
+                18, 9, 128, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(synergyBar.transform, $"星轨配合  {resonance}", 14, White,
+                18, 39, 205, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(synergyBar.transform, $"职业和声  {harmony}", 14, White,
+                236, 39, 205, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(synergyBar.transform, $"队长聚光  {focus}", 14, White,
+                454, 39, 205, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(synergyBar.transform, "阵容评价", 12, new Color32(132, 222, 255, 255),
+                544, 11, 116, 22, TextAnchor.MiddleRight, FontStyle.Bold).name = "TeamAttributes";
+
+            GameObject leader = NewButton("ChangeLeader", contentRoot, "更换队长", 16,
+                new Color32(22, 35, 82, 178), White, () =>
+                {
+                    model.RotateTeamLeader(out string message);
+                    Toast(message);
+                    ShowScreen("team");
+            });
+            PlaceTop(leader.GetComponent<RectTransform>(), 174, buttonY, 178, buttonHeight);
+            if (!ApplyAiUiSprite(leader, "Art/TeamAI/UI/team-action-cyan-ai-v2"))
+            {
+                Outline leaderEdge = leader.AddComponent<Outline>();
+                leaderEdge.effectColor = new Color32(101, 211, 255, 150);
+                leaderEdge.effectDistance = new Vector2(1f, -1f);
+            }
+            GameObject swapIcon = NewAiDecoration("TeamSwapIcon", leader.transform,
+                "Art/TeamAI/UI/team-swap-ai-v2");
+            PlaceTop(swapIcon.GetComponent<RectTransform>(), 12, 9, 30, 30);
+            RectTransform leaderLabel = leader.transform.Find("Label")?.GetComponent<RectTransform>();
+            if (leaderLabel != null) Stretch(leaderLabel, 36, 4, -8, -4);
+
+            GameObject auto = NewButton("AutoTeam", contentRoot, "一键编队", 16,
+                new Color32(74, 45, 132, 194), White, () =>
             {
                 model.AutoTeam();
                 Toast("已按战力自动完成编队");
                 ShowScreen("team");
             });
-            PlaceTop(auto.GetComponent<RectTransform>(), 530, 18, 170, 58);
-
-            for (int slot = 0; slot < 4; slot++)
+            PlaceTop(auto.GetComponent<RectTransform>(), 368, buttonY, 178, buttonHeight);
+            if (!ApplyAiUiSprite(auto, "Art/TeamAI/UI/team-action-pink-ai-v2"))
             {
-                int x = slot % 2 == 0 ? 20 : 370;
-                int y = 210 + (slot / 2) * 346;
-                if (slot < model.Save.Team.Count)
-                    TeamMemberCard(model.Save.Team[slot], x, y);
-                else
-                    EmptyTeamCard(x, y);
+                Outline autoEdge = auto.AddComponent<Outline>();
+                autoEdge.effectColor = new Color32(255, 185, 238, 168);
+                autoEdge.effectDistance = new Vector2(1f, -1f);
+            }
+        }
+
+        private void BuildTeamStellarBackdrop()
+        {
+            Sprite backdrop = TeamStellarStageSprite();
+            GameObject stage = NewImage("TeamStellarBackground", contentRoot, backdrop, Color.white);
+            Stretch(stage.GetComponent<RectTransform>());
+            Image stageImage = stage.GetComponent<Image>();
+            stageImage.raycastTarget = false;
+            stageImage.preserveAspect = false;
+            if (backdrop != null)
+            {
+                AspectRatioFitter fitter = stage.AddComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = backdrop.rect.width / Mathf.Max(1f, backdrop.rect.height);
             }
 
-            NewPlacedText(contentRoot, "点击成员可训练或调整编队；所有变化都会自动存档。", 14, Muted,
-                30, 922, 660, 38, TextAnchor.MiddleCenter);
+            GameObject veil = NewImage("TeamStellarVeil", contentRoot, null, new Color32(2, 6, 28, 28));
+            Stretch(veil.GetComponent<RectTransform>());
+            veil.GetComponent<Image>().raycastTarget = false;
         }
 
-        private void TeamMemberCard(int memberIndex, int x, int y)
+        private Sprite TeamStellarStageSprite()
         {
+            if (teamStellarStageSprite != null) return teamStellarStageSprite;
+            const string path = "Art/TeamAI/team-stellar-stage-bg-ai-v1-20260903";
+            teamStellarStageSprite = Resources.Load<Sprite>(path);
+            if (teamStellarStageSprite != null) return teamStellarStageSprite;
+
+            Texture2D texture = Resources.Load<Texture2D>(path);
+            if (texture == null) return null;
+            teamStellarStageSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+            teamStellarStageSprite.name = "Team-Stellar-Stage-AI";
+            teamStellarStageSprite.hideFlags = HideFlags.DontSave;
+            return teamStellarStageSprite;
+        }
+
+        private void TeamOrbitSlot(int slot, int memberIndex, Vector2 position, Vector2 size, bool isLeader)
+        {
+            bool hasMember = memberIndex >= 0 && memberIndex < GameModel.Members.Length;
+            GameObject orbit = NewPanel($"TeamOrbit-{slot}", contentRoot, new Color32(8, 15, 50, 8), 28);
+            PlaceTop(orbit.GetComponent<RectTransform>(), position.x, position.y, size.x, size.y);
+            Image orbitImage = orbit.GetComponent<Image>();
+            orbitImage.raycastTarget = true;
+            Button orbitButton = orbit.AddComponent<Button>();
+            orbitButton.targetGraphic = orbitImage;
+            orbitButton.onClick.AddListener(() =>
+            {
+                if (hasMember) OpenMember(memberIndex);
+                else ShowScreen("members");
+                ResumeMediaAfterUserGesture();
+            });
+
+            if (!hasMember)
+            {
+                NewPlacedText(orbit.transform, "+", 42, new Color32(140, 224, 255, 210),
+                    0, size.y * 0.38f, size.x, 56, TextAnchor.MiddleCenter, FontStyle.Bold);
+                NewPlacedText(orbit.transform, "添加成员", 14, Muted,
+                    0, size.y - 64f, size.x, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+                return;
+            }
+
             MemberDefinition member = GameModel.Members[memberIndex];
-            GameObject card = NewPanel($"Team-{member.Id}", contentRoot, Glass, 20);
-            PlaceTop(card.GetComponent<RectTransform>(), x, y, 330, 322);
-            Button button = card.AddComponent<Button>();
-            button.targetGraphic = card.GetComponent<Image>();
-            button.onClick.AddListener(() =>
-            {
-                OpenMember(memberIndex);
-                ResumeMediaAfterUserGesture();
-            });
+            GameObject character = NewImage($"TeamCharacter-{slot}", orbit.transform,
+                Resources.Load<Sprite>(member.ResourcePath), White);
+            PlaceTop(character.GetComponent<RectTransform>(), 0, 0, size.x, size.y - 50f);
+            Image characterImage = character.GetComponent<Image>();
+            characterImage.preserveAspect = true;
+            characterImage.useSpriteMesh = true;
 
-            GameObject portrait = NewImage("Portrait", card.transform, Resources.Load<Sprite>(member.ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 14, 12, 302, 220);
-            portrait.GetComponent<Image>().preserveAspect = true;
-            NewPlacedText(card.transform, $"{member.Role} · {member.Rarity}", 13, Pink, 16, 225, 160, 25, TextAnchor.MiddleLeft);
-            NewPlacedText(card.transform, member.Name, 24, White, 16, 252, 160, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(card.transform, $"等级 {model.LevelOf(memberIndex)}", 18, Muted, 180, 255, 130, 28, TextAnchor.MiddleRight, FontStyle.Bold);
-            NewPlacedText(card.transform, $"战力 {model.PowerOf(memberIndex):N0}", 14, Cyan, 16, 288, 294, 24, TextAnchor.MiddleLeft);
-        }
-
-        private void EmptyTeamCard(int x, int y)
-        {
-            GameObject card = NewPanel("EmptySlot", contentRoot, new Color32(28, 26, 78, 150), 20);
-            PlaceTop(card.GetComponent<RectTransform>(), x, y, 330, 322);
-            Text plus = NewText("Plus", card.transform, "+", 54, Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
-            Stretch(plus.rectTransform, 0, 0, 0, -42);
-            Text label = NewText("Label", card.transform, "空闲位置\n从成员列表加入", 16, Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
-            PlaceTop(label.rectTransform, 30, 200, 270, 70);
-            Button button = card.AddComponent<Button>();
-            button.targetGraphic = card.GetComponent<Image>();
-            button.onClick.AddListener(() =>
+            if (isLeader)
             {
-                ShowScreen("members");
-                ResumeMediaAfterUserGesture();
-            });
+                Text leader = NewPlacedText(orbit.transform, "队长", 13, new Color32(255, 218, 113, 255),
+                    size.x * 0.5f - 40f, 5f, 80f, 26f, TextAnchor.MiddleCenter, FontStyle.Bold);
+                leader.name = "TeamLeader";
+            }
+
+            GameObject tag = NewPanel($"TeamLabel-{slot}", orbit.transform, new Color32(6, 13, 44, 132), 14);
+            PlaceTop(tag.GetComponent<RectTransform>(), 8, size.y - 69f, size.x - 16f, 66f);
+            NewPlacedText(tag.transform, member.Name, isLeader ? 20 : 18, White,
+                11, 4, size.x - 38f, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(tag.transform, $"{member.Rarity} · {member.Role}  等级 {model.LevelOf(memberIndex)}",
+                11, new Color32(255, 160, 222, 255), 11, 28, size.x - 38f, 18, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(tag.transform, $"战力 {model.PowerOf(memberIndex):N0}", 11,
+                new Color32(102, 221, 255, 255), 11, 46, size.x - 38f, 17, TextAnchor.MiddleLeft, FontStyle.Bold);
         }
 
         private void BuildMembers()
         {
+            BuildMemberGalleryBackdrop();
             string[] roleFilters = { string.Empty, "主唱", "舞者", "支援" };
             string[] rarityFilters = { string.Empty, "SSR", "SR", "R" };
             memberRoleFilterIndex = Mathf.Clamp(memberRoleFilterIndex, 0, roleFilters.Length - 1);
@@ -502,8 +639,10 @@ namespace ChoSiren
             string rarityFilter = rarityFilters[memberRarityFilterIndex];
 
             Canvas.ForceUpdateCanvases();
-            float contentHeight = Mathf.Max(960f, contentRoot.rect.height);
-            int visibleRows = MemberRosterPagination.RowsForContentHeight(contentHeight);
+            float contentHeight = Mathf.Max(1f, contentRoot.rect.height);
+            int visibleRows = contentHeight >= 938f
+                ? MemberRosterPagination.RowsForContentHeight(contentHeight)
+                : Mathf.Max(1, Mathf.FloorToInt((contentHeight - 278f) / 220f));
             int dynamicPageSize = MemberRosterPagination.DefaultColumns * visibleRows;
 
             MemberRosterPage page = MemberRosterPagination.Build(GameModel.Members.Length, memberPageIndex, index =>
@@ -562,7 +701,7 @@ namespace ChoSiren
 
             float pagerY = contentHeight - 58f;
             GameObject previous = NewButton("MemberPreviousPage", contentRoot, "上一页", 16,
-                page.HasPrevious ? Purple : new Color32(70, 65, 102, 180), White, () =>
+                page.HasPrevious ? new Color32(111, 66, 181, 138) : new Color32(46, 44, 79, 92), White, () =>
                 {
                     memberPageIndex = MemberRosterPagination.MovePage(memberPageIndex, -1, page.PageCount);
                     ShowScreen("members");
@@ -574,7 +713,7 @@ namespace ChoSiren
                 315, pagerY, 90, 50, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             GameObject next = NewButton("MemberNextPage", contentRoot, "下一页", 16,
-                page.HasNext ? Purple : new Color32(70, 65, 102, 180), White, () =>
+                page.HasNext ? new Color32(111, 66, 181, 138) : new Color32(46, 44, 79, 92), White, () =>
                 {
                     memberPageIndex = MemberRosterPagination.MovePage(memberPageIndex, 1, page.PageCount);
                     ShowScreen("members");
@@ -583,11 +722,48 @@ namespace ChoSiren
             next.GetComponent<Button>().interactable = page.HasNext;
         }
 
+        private void BuildMemberGalleryBackdrop()
+        {
+            Sprite backdrop = MemberGalleryCalmSprite();
+            GameObject stage = NewImage("MemberGalleryBackground", contentRoot, backdrop, Color.white);
+            Stretch(stage.GetComponent<RectTransform>());
+            Image stageImage = stage.GetComponent<Image>();
+            stageImage.raycastTarget = false;
+            stageImage.preserveAspect = false;
+            if (backdrop != null)
+            {
+                AspectRatioFitter fitter = stage.AddComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = backdrop.rect.width / Mathf.Max(1f, backdrop.rect.height);
+            }
+
+            GameObject veil = NewImage("MemberGalleryVeil", contentRoot, null, new Color32(3, 8, 31, 34));
+            Stretch(veil.GetComponent<RectTransform>());
+            veil.GetComponent<Image>().raycastTarget = false;
+        }
+
+        private Sprite MemberGalleryCalmSprite()
+        {
+            if (memberGalleryCalmSprite != null) return memberGalleryCalmSprite;
+            const string path = "Art/MemberAI/member-gallery-calm-bg-ai-v1-20260903";
+            memberGalleryCalmSprite = Resources.Load<Sprite>(path);
+            if (memberGalleryCalmSprite != null) return memberGalleryCalmSprite;
+
+            Texture2D texture = Resources.Load<Texture2D>(path);
+            if (texture == null) return null;
+            memberGalleryCalmSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+            memberGalleryCalmSprite.name = "Member-Gallery-Calm-AI";
+            memberGalleryCalmSprite.hideFlags = HideFlags.DontSave;
+            return memberGalleryCalmSprite;
+        }
+
         private void MemberFilterButton(string name, string label, int x, int y, int width,
             UnityEngine.Events.UnityAction action, bool selected = false)
         {
             GameObject button = NewButton(name, contentRoot, label, 14,
-                selected ? Purple : new Color32(30, 27, 78, 224), selected ? White : Muted, action);
+                selected ? new Color32(133, 72, 194, 142) : new Color32(20, 22, 68, 92),
+                selected ? White : Muted, action);
             PlaceTop(button.GetComponent<RectTransform>(), x, y, width, 44);
             Outline outline = button.AddComponent<Outline>();
             outline.effectColor = selected ? new Color32(255, 109, 212, 210) : new Color32(113, 174, 255, 100);
@@ -596,7 +772,7 @@ namespace ChoSiren
 
         private void BuildMemberSearchBox()
         {
-            GameObject box = NewPanel("MemberSearch", contentRoot, new Color32(16, 18, 58, 226), 16);
+            GameObject box = NewPanel("MemberSearch", contentRoot, new Color32(12, 17, 58, 88), 16);
             PlaceTop(box.GetComponent<RectTransform>(), 20, 162, 680, 44);
             Outline outline = box.AddComponent<Outline>();
             outline.effectColor = new Color32(113, 174, 255, 110);
@@ -630,17 +806,23 @@ namespace ChoSiren
         {
             MemberDefinition member = GameModel.Members[index];
             bool unlocked = model.IsUnlocked(index);
-            Color cardColor = unlocked ? new Color32(31, 28, 82, 232) : new Color32(16, 19, 55, 220);
+            Color cardColor = unlocked ? new Color32(25, 24, 78, 78) : new Color32(12, 17, 49, 46);
             GameObject card = NewPanel($"Member-{member.Id}", contentRoot, cardColor, 18);
             PlaceTop(card.GetComponent<RectTransform>(), x, y, width, height);
             Button button = card.AddComponent<Button>();
             button.targetGraphic = card.GetComponent<Image>();
             button.onClick.AddListener(() =>
             {
-                if (unlocked) OpenMember(index);
-                else Toast("尚未签约：前往女团选秀查看候选人");
+                // 未签约成员也属于可浏览的图鉴内容；拥有状态只限制培养与编队操作。
+                OpenMember(index);
                 ResumeMediaAfterUserGesture();
             });
+
+            Color glowColor = member.Rarity == "SSR"
+                ? new Color32(255, 191, 82, unlocked ? (byte)76 : (byte)24)
+                : new Color32(80, 199, 255, unlocked ? (byte)62 : (byte)20);
+            GameObject glow = NewImage("RarityGlow", card.transform, StageGlowSprite(), glowColor);
+            PlaceTop(glow.GetComponent<RectTransform>(), 3, 3, width - 6, 148);
 
             GameObject portrait = NewImage("Portrait", card.transform,
                 Resources.Load<Sprite>(member.ThumbnailResourcePath),
@@ -656,8 +838,8 @@ namespace ChoSiren
 
             Outline edge = card.AddComponent<Outline>();
             edge.effectColor = unlocked
-                ? (member.Rarity == "SSR" ? new Color32(255, 190, 86, 190) : new Color32(120, 190, 255, 130))
-                : new Color32(95, 111, 165, 80);
+                ? (member.Rarity == "SSR" ? new Color32(255, 190, 86, 178) : new Color32(120, 190, 255, 112))
+                : new Color32(95, 111, 165, 58);
             edge.effectDistance = new Vector2(1f, -1f);
         }
 
@@ -722,6 +904,7 @@ namespace ChoSiren
 
         private void BuildAccessories()
         {
+            BuildAccessoryStageBackdrop();
             ScreenTitle("饰品与设置", "星环试衣舱", "选择饰品，实时预览舞台搭配与战力变化");
 
             if (selectedAccessoryIndex < 0 || selectedAccessoryIndex >= GameModel.AccessoryNames.Length)
@@ -746,49 +929,73 @@ namespace ChoSiren
             BuildAccessoryCollection(selected);
         }
 
+        private void BuildAccessoryStageBackdrop()
+        {
+            Sprite backdrop = AccessoryDressingRoomSprite();
+            GameObject stage = NewImage("AccessoryDressingRoomStage", contentRoot, backdrop, Color.white);
+            Stretch(stage.GetComponent<RectTransform>());
+            Image stageImage = stage.GetComponent<Image>();
+            stageImage.preserveAspect = false;
+            stageImage.raycastTarget = false;
+            if (backdrop != null)
+            {
+                AspectRatioFitter fitter = stage.AddComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = backdrop.rect.width / Mathf.Max(1f, backdrop.rect.height);
+            }
+
+            GameObject veil = NewImage("AccessoryDressingRoomVeil", contentRoot, null,
+                new Color32(3, 6, 29, 92));
+            Stretch(veil.GetComponent<RectTransform>());
+            veil.GetComponent<Image>().raycastTarget = false;
+        }
+
+        private Sprite AccessoryDressingRoomSprite()
+        {
+            if (accessoryDressingRoomSprite != null) return accessoryDressingRoomSprite;
+            const string path = "Art/AccessoryAI/accessory-calm-bg-ai-v2-20260903";
+            accessoryDressingRoomSprite = Resources.Load<Sprite>(path);
+            if (accessoryDressingRoomSprite != null) return accessoryDressingRoomSprite;
+
+            Texture2D texture = Resources.Load<Texture2D>(path);
+            if (texture == null) return null;
+            accessoryDressingRoomSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+            accessoryDressingRoomSprite.name = "Accessory-Calm-Stage-AI";
+            accessoryDressingRoomSprite.hideFlags = HideFlags.DontSave;
+            return accessoryDressingRoomSprite;
+        }
+
         private void BuildAccessoryPreview(int selected)
         {
-            GameObject preview = NewPanel("AccessoryPreview", contentRoot, new Color32(10, 18, 58, 145), 28);
-            PlaceTop(preview.GetComponent<RectTransform>(), 20, 112, 430, 686);
+            // A calm veil prevents the decorative rings baked into older backgrounds from reading as
+            // additional equipment slots. The six interactive rings below are now the single source of truth.
+            GameObject preview = NewPanel("AccessoryPreview", contentRoot, new Color32(4, 11, 39, 28), 28);
+            PlaceTop(preview.GetComponent<RectTransform>(), 12, 108, 462, 704);
             Outline previewEdge = preview.AddComponent<Outline>();
-            previewEdge.effectColor = new Color32(112, 208, 255, 110);
-            previewEdge.effectDistance = new Vector2(1.2f, -1.2f);
+            previewEdge.effectColor = new Color32(112, 208, 255, 42);
+            previewEdge.effectDistance = new Vector2(1f, -1f);
 
-            GameObject auraOuter = NewImage("PreviewAuraOuter", preview.transform, RoundedSprite(30),
-                new Color32(112, 69, 224, 54));
-            PlaceTop(auraOuter.GetComponent<RectTransform>(), 55, 118, 320, 410);
-            GameObject auraInner = NewImage("PreviewAuraInner", preview.transform, RoundedSprite(30),
-                new Color32(255, 91, 193, 38));
-            PlaceTop(auraInner.GetComponent<RectTransform>(), 84, 160, 262, 330);
+            GameObject previewArt = NewAiDecoration("AccessoryPreviewArt", preview.transform,
+                "Art/AccessoryAI/UI/accessory-preview-panel-ai-v1");
+            PlaceTop(previewArt.GetComponent<RectTransform>(), 45, 4, 360, 700);
 
             NewPlacedText(preview.transform, "角色佩戴预览", 15, new Color32(255, 181, 230, 255),
-                130, 18, 170, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+                132, 18, 186, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             GameObject character = NewImage("AccessoryPreviewCharacter", preview.transform,
-                Resources.Load<Sprite>("Art/HeroFallback"), White);
-            PlaceTop(character.GetComponent<RectTransform>(), 46, 74, 338, 548);
+                Resources.Load<Sprite>("Art/Members/member-feiyin") ?? Resources.Load<Sprite>("Art/HeroFallback"), White);
+            PlaceTop(character.GetComponent<RectTransform>(), 74, 90, 302, 548);
             Image characterImage = character.GetComponent<Image>();
             characterImage.preserveAspect = true;
             characterImage.useSpriteMesh = true;
 
-            GameObject wornGlow = NewPanel("WornAccessoryGlow", preview.transform,
-                new Color32(255, 76, 195, 90), 30);
-            PlaceTop(wornGlow.GetComponent<RectTransform>(), 268, 126, 86, 86);
-            wornGlow.GetComponent<Image>().raycastTarget = false;
-            Outline wornEdge = wornGlow.AddComponent<Outline>();
-            wornEdge.effectColor = new Color32(124, 226, 255, 220);
-            wornEdge.effectDistance = new Vector2(2f, -2f);
-            GameObject wornArt = NewImage("WornAccessory", wornGlow.transform,
-                LobbyEmblemSprite(selected), White);
-            PlaceTop(wornArt.GetComponent<RectTransform>(), 8, 8, 70, 70);
-            wornArt.GetComponent<Image>().preserveAspect = true;
-
             string[] slotNames = { "耳返", "心链", "舞鞋", "挂饰", "手环", "冠冕" };
             Vector2[] slotPositions =
             {
-                new Vector2(12, 78), new Vector2(326, 78),
-                new Vector2(4, 260), new Vector2(334, 260),
-                new Vector2(12, 448), new Vector2(326, 448),
+                new Vector2(52, 92), new Vector2(298, 92),
+                new Vector2(52, 296), new Vector2(298, 296),
+                new Vector2(52, 502), new Vector2(298, 502),
             };
             for (int index = 0; index < slotPositions.Length; index++)
             {
@@ -798,7 +1005,7 @@ namespace ChoSiren
                 bool equipped = selectable && model.Save.EquippedAccessory == index;
                 GameObject slot = NewButton(selectable ? $"Accessory-{index}" : $"AccessorySlot-{index}",
                     preview.transform, string.Empty, 1,
-                    active ? new Color32(86, 43, 139, 225) : new Color32(10, 20, 60, 205), White,
+                    active ? new Color32(86, 43, 139, 158) : new Color32(10, 20, 60, 34), White,
                     () =>
                     {
                         if (!selectable)
@@ -809,35 +1016,49 @@ namespace ChoSiren
                         selectedAccessoryIndex = captured;
                         ShowScreen("accessory");
                     });
-                PlaceTop(slot.GetComponent<RectTransform>(), slotPositions[index].x, slotPositions[index].y, 92, 112);
-                Outline slotEdge = slot.AddComponent<Outline>();
-                slotEdge.effectColor = active
-                    ? new Color32(255, 95, 201, 245)
-                    : new Color32(96, 211, 255, 132);
-                slotEdge.effectDistance = active ? new Vector2(2f, -2f) : new Vector2(1f, -1f);
+                PlaceTop(slot.GetComponent<RectTransform>(), slotPositions[index].x, slotPositions[index].y, 100, 112);
+                bool hasAiRing = ApplyAiUiSprite(slot, "Art/AccessoryAI/UI/accessory-slot-ring-ai-v1", true);
+                Image slotImage = slot.GetComponent<Image>();
+                if (hasAiRing)
+                {
+                    slotImage.color = active
+                        ? White
+                        : (selectable ? new Color32(218, 230, 255, 235) : new Color32(124, 133, 178, 155));
+                }
+                else
+                {
+                    Outline slotEdge = slot.AddComponent<Outline>();
+                    slotEdge.effectColor = active
+                        ? new Color32(255, 95, 201, 245)
+                        : new Color32(96, 211, 255, 132);
+                    slotEdge.effectDistance = active ? new Vector2(2f, -2f) : new Vector2(1f, -1f);
+                }
 
-                GameObject art = NewImage("Art", slot.transform, LobbyEmblemSprite(index),
+                GameObject art = NewImage("Art", slot.transform, AccessoryItemSprite(index),
                     selectable ? White : new Color32(176, 184, 224, 190));
-                PlaceTop(art.GetComponent<RectTransform>(), 10, 5, 72, 72);
+                PlaceTop(art.GetComponent<RectTransform>(), 16, 7, 68, 68);
                 art.GetComponent<Image>().preserveAspect = true;
                 NewPlacedText(slot.transform, slotNames[index], 13, active ? White : Muted,
-                    4, 78, 84, 22, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    5, 77, 90, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
                 if (equipped)
                     NewPlacedText(slot.transform, "已装备", 11, new Color32(111, 255, 194, 255),
-                        4, 96, 84, 15, TextAnchor.MiddleCenter, FontStyle.Bold);
+                        5, 94, 90, 14, TextAnchor.MiddleCenter, FontStyle.Bold);
             }
 
             NewPlacedText(preview.transform, "切换饰品可立即查看角色佩戴效果", 13, Muted,
-                80, 637, 270, 28, TextAnchor.MiddleCenter);
+                82, 668, 286, 26, TextAnchor.MiddleCenter);
         }
 
         private void BuildAccessoryDetail(int selected, bool equipped)
         {
-            GameObject detail = NewPanel("AccessoryDetail", contentRoot, new Color32(9, 17, 55, 224), 24);
-            PlaceTop(detail.GetComponent<RectTransform>(), 462, 112, 238, 686);
-            Outline edge = detail.AddComponent<Outline>();
-            edge.effectColor = new Color32(94, 211, 255, 158);
-            edge.effectDistance = new Vector2(1.2f, -1.2f);
+            GameObject detail = NewPanel("AccessoryDetail", contentRoot, new Color32(9, 17, 55, 104), 22);
+            PlaceTop(detail.GetComponent<RectTransform>(), 474, 116, 226, 692);
+            if (!ApplyAiUiSprite(detail, "Art/AccessoryAI/UI/accessory-detail-panel-ai-v1"))
+            {
+                Outline edge = detail.AddComponent<Outline>();
+                edge.effectColor = new Color32(94, 211, 255, 82);
+                edge.effectDistance = new Vector2(1f, -1f);
+            }
 
             NewPlacedText(detail.transform, GameModel.AccessoryNames[selected], 22, White,
                 18, 20, 154, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -848,9 +1069,12 @@ namespace ChoSiren
                 18, 62, 100, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(detail.transform, equipped ? "已装备" : "可装备", 13,
                 equipped ? new Color32(112, 255, 196, 255) : Pink,
-                126, 62, 94, 26, TextAnchor.MiddleRight, FontStyle.Bold);
+                106, 66, 48, 26, TextAnchor.MiddleRight, FontStyle.Bold);
+            GameObject detailArt = NewImage("AccessoryDetailArt", detail.transform, AccessoryItemSprite(selected), White);
+            PlaceTop(detailArt.GetComponent<RectTransform>(), 158, 58, 58, 58);
+            detailArt.GetComponent<Image>().preserveAspect = true;
             NewPlacedText(detail.transform, $"组合战力  +{GameModel.AccessoryPower[selected]:N0}", 16, Pink,
-                18, 100, 202, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+                18, 112, 132, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
 
             GameObject divider = NewImage("DetailDivider", detail.transform, null, new Color32(99, 213, 255, 92));
             PlaceTop(divider.GetComponent<RectTransform>(), 18, 142, 202, 2);
@@ -863,6 +1087,10 @@ namespace ChoSiren
             for (int row = 0; row < names.Length; row++)
             {
                 float y = 192 + row * 43;
+                GameObject reading = NewPanel("AccessoryStat-" + row, detail.transform,
+                    new Color32(62, 52, 112, 48), 10);
+                PlaceTop(reading.GetComponent<RectTransform>(), 12, y - 5, 202, 34);
+                reading.GetComponent<Image>().raycastTarget = false;
                 NewPlacedText(detail.transform, names[row], 13, White,
                     18, y, 46, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
                 NewPlacedText(detail.transform, before[row], 12, Muted,
@@ -895,22 +1123,27 @@ namespace ChoSiren
                     model.EquipAccessory(selected);
                     Toast(model.Save.EquippedAccessory == selected ? "饰品已装备" : "饰品已卸下");
                     ShowScreen("accessory");
-                });
+            });
             PlaceTop(equip.GetComponent<RectTransform>(), 18, 528, 202, 56);
+            ApplyAiUiSprite(equip, "Art/AccessoryAI/UI/accessory-action-pink-ai-v1");
 
             GameObject settings = NewButton("AccessorySettings", detail.transform, "游戏设置", 15,
                 new Color32(45, 52, 105, 220), White, OpenSettings);
             PlaceTop(settings.GetComponent<RectTransform>(), 18, 598, 202, 50);
+            ApplyAiUiSprite(settings, "Art/AccessoryAI/UI/accessory-action-blue-ai-v1");
         }
 
         private void BuildAccessoryCollection(int selected)
         {
             GameObject collection = NewPanel("AccessoryCollection", contentRoot,
-                new Color32(8, 15, 50, 150), 24);
-            PlaceTop(collection.GetComponent<RectTransform>(), 20, 816, 680, 318);
-            Outline edge = collection.AddComponent<Outline>();
-            edge.effectColor = new Color32(255, 91, 194, 92);
-            edge.effectDistance = new Vector2(1f, -1f);
+                new Color32(8, 15, 50, 44), 24);
+            PlaceTop(collection.GetComponent<RectTransform>(), 20, 824, 680, 300);
+            if (!ApplyAiUiSprite(collection, "Art/AccessoryAI/UI/accessory-collection-panel-ai-v1"))
+            {
+                Outline edge = collection.AddComponent<Outline>();
+                edge.effectColor = new Color32(255, 91, 194, 52);
+                edge.effectDistance = new Vector2(1f, -1f);
+            }
 
             NewPlacedText(collection.transform, "饰品图鉴", 20, White,
                 18, 14, 180, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -926,7 +1159,7 @@ namespace ChoSiren
                 bool owned = index < GameModel.AccessoryNames.Length;
                 bool active = owned && selected == index;
                 GameObject item = NewButton($"AccessoryCollection-{index}", collection.transform, string.Empty, 1,
-                    active ? new Color32(74, 39, 126, 225) : new Color32(18, 25, 69, 210), White,
+                    active ? new Color32(74, 39, 126, 122) : new Color32(18, 25, 69, 30), White,
                     () =>
                     {
                         if (!owned)
@@ -937,14 +1170,14 @@ namespace ChoSiren
                         selectedAccessoryIndex = captured;
                         ShowScreen("accessory");
                     });
-                PlaceTop(item.GetComponent<RectTransform>(), 16 + index * 109, 58, 102, 182);
+                PlaceTop(item.GetComponent<RectTransform>(), 16 + index * 109, 56, 102, 176);
                 Outline itemEdge = item.AddComponent<Outline>();
                 itemEdge.effectColor = active
                     ? new Color32(255, 88, 198, 230)
                     : new Color32(91, 206, 255, owned ? (byte)105 : (byte)52);
                 itemEdge.effectDistance = active ? new Vector2(2f, -2f) : new Vector2(1f, -1f);
 
-                GameObject art = NewImage("Art", item.transform, LobbyEmblemSprite(index),
+                GameObject art = NewImage("Art", item.transform, AccessoryItemSprite(index),
                     owned ? White : new Color32(117, 126, 169, 155));
                 PlaceTop(art.GetComponent<RectTransform>(), 8, 8, 86, 92);
                 art.GetComponent<Image>().preserveAspect = true;
@@ -960,13 +1193,23 @@ namespace ChoSiren
 
             NewPlacedText(collection.transform,
                 $"当前搭配加成  +{GameModel.AccessoryPower[selected]:N0}    ·    队伍战力  {model.TeamPower:N0}",
-                15, White, 18, 262, 644, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                15, White, 18, 248, 644, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
 
         private void OpenMember(int memberIndex)
         {
             CloseModal();
             MemberDefinition member = GameModel.Members[memberIndex];
+            bool unlocked = model.IsUnlocked(memberIndex);
+            int level = model.LevelOf(memberIndex);
+            int displayPower = unlocked
+                ? model.PowerOf(memberIndex)
+                : member.BasePower + level * 135;
+            MemberDisplayStats(member, memberIndex, out int attack, out int hp, out int critPercent,
+                out int speed);
+            MemberSkillCopy(member, out string firstSkillName, out string firstSkillEffect,
+                out string secondSkillName, out string secondSkillEffect);
+
             GameObject overlay = NewImage("MemberModal", safeRoot, null, new Color32(3, 4, 20, 220));
             Stretch(overlay.GetComponent<RectTransform>());
             overlay.GetComponent<Image>().raycastTarget = true;
@@ -976,39 +1219,177 @@ namespace ChoSiren
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(620, 850);
+            panelRect.sizeDelta = new Vector2(620, 1110);
+            GameObject profileArt = NewAiDecoration("MemberProfilePanelArt", panel.transform,
+                "Art/MemberAI/UI/member-profile-panel-ai-v1");
+            PlaceTop(profileArt.GetComponent<RectTransform>(), 0, 0, 620, 905);
 
             GameObject portrait = NewImage("Portrait", panel.transform, Resources.Load<Sprite>(member.ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 100, 24, 420, 470);
-            portrait.GetComponent<Image>().preserveAspect = true;
-            NewPlacedText(panel.transform, member.Name, 34, White, 38, 480, 360, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(panel.transform, $"{member.Role} · {member.Rarity}", 17, Pink, 400, 489, 175, 34, TextAnchor.MiddleRight);
-            NewPlacedText(panel.transform, $"等级 {model.LevelOf(memberIndex)}    战力 {model.PowerOf(memberIndex):N0}", 21, Cyan,
-                38, 540, 544, 42, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(panel.transform, "舞台表现、训练等级和装备共同决定组合战力。", 16, Muted,
-                38, 590, 544, 50, TextAnchor.MiddleLeft);
+            PlaceTop(portrait.GetComponent<RectTransform>(), 24, 52, 292, 390);
+            Image portraitImage = portrait.GetComponent<Image>();
+            portraitImage.preserveAspect = true;
+            portraitImage.useSpriteMesh = true;
 
-            GameObject train = NewButton("Train", panel.transform, "训练升级", 18, Pink, White, () =>
+            Text ownership = NewPlacedText(panel.transform, unlocked ? "已签约成员" : "尚未签约", 14,
+                unlocked ? new Color32(111, 255, 194, 255) : new Color32(255, 185, 218, 255),
+                328, 48, 250, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            ownership.name = "MemberOwnershipStatus";
+            NewPlacedText(panel.transform, member.Name, 32, White,
+                326, 76, 250, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(panel.transform, $"{member.Rarity} · {member.Role}", 17, Pink,
+                328, 122, 248, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text power = NewPlacedText(panel.transform,
+                unlocked ? $"等级 {level}  ·  战力 {displayPower:N0}" : $"推荐等级 {level}  ·  潜力战力 {displayPower:N0}",
+                16, Cyan, 328, 152, 252, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
+            power.name = "MemberPower";
+
+            GameObject statPanel = NewPanel("MemberStatPanel", panel.transform,
+                new Color32(12, 23, 67, 215), 20);
+            PlaceTop(statPanel.GetComponent<RectTransform>(), 320, 198, 276, 238);
+            ApplyAiUiSprite(statPanel, "Art/MemberAI/UI/member-stat-panel-ai-v1");
+            NewPlacedText(statPanel.transform, "基础属性", 16, new Color32(255, 183, 229, 255),
+                16, 12, 244, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            AddMemberStat(statPanel.transform, "MemberStatAttack", "攻击", attack.ToString("N0"), 50);
+            AddMemberStat(statPanel.transform, "MemberStatHp", "生命", hp.ToString("N0"), 91);
+            AddMemberStat(statPanel.transform, "MemberStatCrit", "暴击", critPercent + "%", 132);
+            AddMemberStat(statPanel.transform, "MemberStatSpeed", "速度", speed.ToString(), 173);
+
+            GameObject skillPanel = NewPanel("MemberSkillPanel", panel.transform,
+                new Color32(18, 22, 70, 222), 22);
+            PlaceTop(skillPanel.GetComponent<RectTransform>(), 28, 458, 564, 302);
+            ApplyAiUiSprite(skillPanel, "Art/MemberAI/UI/member-skill-panel-ai-v1");
+            NewPlacedText(skillPanel.transform, "成员技能", 17, new Color32(255, 184, 230, 255),
+                18, 12, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text firstSkill = NewPlacedText(skillPanel.transform, firstSkillName, 17, White,
+                20, 50, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            firstSkill.name = "MemberSkillPrimary";
+            NewPlacedText(skillPanel.transform, firstSkillEffect, 14, Muted,
+                20, 80, 520, 52, TextAnchor.UpperLeft);
+            Text secondSkill = NewPlacedText(skillPanel.transform, secondSkillName, 17, White,
+                20, 150, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            secondSkill.name = "MemberSkillSecondary";
+            NewPlacedText(skillPanel.transform, secondSkillEffect, 14, Muted,
+                20, 180, 520, 52, TextAnchor.UpperLeft);
+            NewPlacedText(skillPanel.transform, MemberTeamBonus(member), 13,
+                new Color32(110, 225, 255, 255), 20, 248, 520, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+            GameObject guidePanel = NewPanel("MemberAcquireGuide", panel.transform,
+                new Color32(20, 26, 73, 220), 18);
+            PlaceTop(guidePanel.GetComponent<RectTransform>(), 28, 780, 564, 128);
+            ApplyAiUiSprite(guidePanel, unlocked
+                ? "Art/MemberAI/UI/member-stat-panel-ai-v1"
+                : "Art/MemberAI/UI/member-locked-panel-ai-v1");
+            NewPlacedText(guidePanel.transform, unlocked ? "培养建议" : "获取方式", 15,
+                new Color32(255, 188, 231, 255), 18, 12, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(guidePanel.transform,
+                unlocked
+                    ? $"优先提升{member.Role}核心属性；训练等级、饰品套装与编队协同都会计入战力。"
+                    : MemberAcquisitionCopy(member),
+                14, White, 18, 42, 520, 66, TextAnchor.UpperLeft);
+
+            if (unlocked)
             {
-                model.Train(memberIndex, out string message);
-                Toast(message);
-                CloseModal();
-                ShowScreen(currentScreen);
-            });
-            PlaceTop(train.GetComponent<RectTransform>(), 38, 660, 250, 62);
+                GameObject train = NewButton("Train", panel.transform, "训练升级", 18, Pink, White, () =>
+                {
+                    model.Train(memberIndex, out string message);
+                    Toast(message);
+                    CloseModal();
+                    ShowScreen(currentScreen);
+                });
+                PlaceTop(train.GetComponent<RectTransform>(), 34, 930, 258, 60);
+                ApplyAiUiSprite(train, "Art/MemberAI/UI/member-action-pink-ai-v1");
 
-            GameObject team = NewButton("Team", panel.transform, model.IsInTeam(memberIndex) ? "移出编队" : "加入编队",
-                18, Purple, White, () =>
+                GameObject team = NewButton("Team", panel.transform,
+                    model.IsInTeam(memberIndex) ? "移出编队" : "加入编队", 18, Purple, White, () =>
+                {
+                    model.ToggleTeamMember(memberIndex, out string message);
+                    Toast(message);
+                    CloseModal();
+                    ShowScreen(currentScreen);
+                });
+                PlaceTop(team.GetComponent<RectTransform>(), 328, 930, 258, 60);
+                ApplyAiUiSprite(team, "Art/MemberAI/UI/member-action-cyan-ai-v1");
+            }
+            else
             {
-                model.ToggleTeamMember(memberIndex, out string message);
-                Toast(message);
-                CloseModal();
-                ShowScreen(currentScreen);
-            });
-            PlaceTop(team.GetComponent<RectTransform>(), 332, 660, 250, 62);
+                GameObject acquire = NewButton("AcquireMember", panel.transform, "前往选秀", 18,
+                    Pink, White, () =>
+                {
+                    CloseModal();
+                    ShowScreen("audition");
+                });
+                PlaceTop(acquire.GetComponent<RectTransform>(), 154, 930, 312, 60);
+                ApplyAiUiSprite(acquire, "Art/MemberAI/UI/member-action-pink-ai-v1");
+            }
 
-            GameObject close = NewButton("Close", panel.transform, "关闭", 17, new Color32(69, 60, 107, 255), White, CloseModal);
-            PlaceTop(close.GetComponent<RectTransform>(), 185, 756, 250, 58);
+            GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
+                new Color32(63, 57, 108, 245), White, CloseModal);
+            PlaceTop(close.GetComponent<RectTransform>(), 185, 1012, 250, 56);
+        }
+
+        private static void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,
+            out int critPercent, out int speed)
+        {
+            int rarityBonus = member.Rarity == "SSR" ? 24 : member.Rarity == "SR" ? 12 : 0;
+            int roleAttack = member.Role == "主唱" ? 38 : member.Role == "舞者" ? 24 : 8;
+            int roleHp = member.Role == "支援" ? 260 : member.Role == "舞者" ? 130 : 0;
+            attack = 82 + member.BasePower / 92 + rarityBonus + roleAttack;
+            hp = 980 + member.BasePower / 7 + roleHp;
+            critPercent = 6 + rarityBonus / 3 + (member.Role == "舞者" ? 7 : member.Role == "主唱" ? 3 : 0);
+            speed = 88 + index % 9 + (member.Role == "舞者" ? 22 : member.Role == "主唱" ? 12 : 4);
+        }
+
+        private void AddMemberStat(Transform parent, string name, string label, string value, float y)
+        {
+            Text labelText = NewPlacedText(parent, label, 14, Muted,
+                18, y, 100, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            labelText.name = name + "Label";
+            Text valueText = NewPlacedText(parent, value, 15, White,
+                126, y, 130, 28, TextAnchor.MiddleRight, FontStyle.Bold);
+            valueText.name = name;
+        }
+
+        private static void MemberSkillCopy(MemberDefinition member, out string firstName, out string firstEffect,
+            out string secondName, out string secondEffect)
+        {
+            switch (member.Role)
+            {
+                case "舞者":
+                    firstName = "流光连舞";
+                    firstEffect = "对十字范围造成伤害，并提高自身下一次行动的暴击率。";
+                    secondName = "星澜律动";
+                    secondEffect = "连续命中时积累舞步，满层后为全队提升速度。";
+                    break;
+                case "支援":
+                    firstName = "和声守护";
+                    firstEffect = "为生命最低的成员回复生命，并附加短时护盾。";
+                    secondName = "应援回响";
+                    secondEffect = "提高全队攻击并延长正面状态，持续两个行动回合。";
+                    break;
+                default:
+                    firstName = "星声穿透";
+                    firstEffect = "对一列目标造成高音伤害，暴击时额外削弱防御。";
+                    secondName = "幻域终演";
+                    secondEffect = "对全体敌人造成伤害，并依据当前共鸣提高倍率。";
+                    break;
+            }
+        }
+
+        private static string MemberTeamBonus(MemberDefinition member)
+        {
+            return member.Role switch
+            {
+                "舞者" => "编队加成 · 全队速度 +6%，连击伤害 +4%",
+                "支援" => "编队加成 · 治疗与护盾 +8%，受击伤害 -3%",
+                _ => "编队加成 · 全队攻击 +6%，暴击伤害 +4%",
+            };
+        }
+
+        private static string MemberAcquisitionCopy(MemberDefinition member)
+        {
+            return member.Rarity == "SSR"
+                ? "可在限定签约或常驻签约中获取。签约后即可训练、加入编队并参与舞台战斗。"
+                : "可在常驻签约与章节奖励中获取。首次获得后会永久加入成员档案。";
         }
 
         private void OpenProfile()
@@ -1056,7 +1437,7 @@ namespace ChoSiren
         private void OpenGacha()
         {
             CloseModal();
-            GachaPanel.Open(safeRoot, model, model, () => ShowScreen("lobby"), Toast);
+            GachaPanel.OpenEmbedded(contentRoot, model, model, Toast);
         }
 
         private void OpenPerformanceConfirm()
@@ -1320,36 +1701,25 @@ namespace ChoSiren
                 gameAudio?.PlayClick();
             });
 
-            GameObject glow = NewImage("Glow", hotspot.transform, StageGlowSprite(),
-                new Color32(154, 82, 255, 155));
-            PlaceTop(glow.GetComponent<RectTransform>(), 12, 2, width - 24, height - 18);
-            glow.GetComponent<Image>().raycastTarget = false;
-
-            float emblemSize = Mathf.Min(106f, height - 28f);
-            GameObject emblem = NewImage("Emblem", hotspot.transform, LobbyEmblemSprite(emblemIndex), White);
-            PlaceTop(emblem.GetComponent<RectTransform>(), (width - emblemSize) * 0.5f, -4,
-                emblemSize, emblemSize);
+            GameObject emblem = NewImage("Emblem", hotspot.transform, GeneratedLobbySprite(emblemIndex), White);
+            Stretch(emblem.GetComponent<RectTransform>());
             Image emblemImage = emblem.GetComponent<Image>();
             emblemImage.preserveAspect = true;
             emblemImage.useSpriteMesh = true;
             emblemImage.raycastTarget = false;
 
-            GameObject label = NewPanel("HotspotLabel", hotspot.transform, new Color32(15, 13, 54, 172), 16);
-            PlaceTop(label.GetComponent<RectTransform>(), 12, height - 45, width - 24, 40);
-            label.GetComponent<Image>().raycastTarget = false;
-            Outline outline = label.AddComponent<Outline>();
-            outline.effectColor = new Color32(147, 213, 255, 150);
-            outline.effectDistance = new Vector2(1f, -1f);
-            Text labelText = NewText("Label", label.transform, title, 18, White, FontStyle.Bold,
-                TextAnchor.MiddleCenter);
-            Stretch(labelText.rectTransform, 6, 2, -6, -2);
+            Text labelText = NewPlacedText(hotspot.transform, title, 22, White,
+                22, height - 58, width - 44, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             AddReadableShadow(labelText);
+            Outline outline = labelText.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color32(238, 118, 255, 215);
+            outline.effectDistance = new Vector2(1.4f, -1.4f);
         }
 
         private void BuildStageCallToAction(Transform parent)
         {
             GameObject stage = NewImage("LiveOnStage", parent, null, Color.clear);
-            PlaceTop(stage.GetComponent<RectTransform>(), 205, 1044, 310, 221);
+            PlaceTop(stage.GetComponent<RectTransform>(), 165, 1002, 390, 264);
             Image hitImage = stage.GetComponent<Image>();
             hitImage.raycastTarget = true;
             Button button = stage.AddComponent<Button>();
@@ -1360,25 +1730,116 @@ namespace ChoSiren
                 ResumeMediaAfterUserGesture();
             });
 
-            GameObject glow = NewImage("StageGlow", stage.transform, StageGlowSprite(), White);
-            PlaceTop(glow.GetComponent<RectTransform>(), -4, 8, 313, 205);
-            glow.GetComponent<Image>().raycastTarget = false;
-
-            GameObject frame = NewImage("StageFrame", stage.transform, LobbyEmblemSprite(5),
-                White);
-            PlaceTop(frame.GetComponent<RectTransform>(), -43, -42, 390, 305);
+            GameObject frame = NewImage("StageFrame", stage.transform, GeneratedLobbySprite(5), White);
+            Stretch(frame.GetComponent<RectTransform>());
             Image frameImage = frame.GetComponent<Image>();
             frameImage.preserveAspect = true;
             frameImage.useSpriteMesh = true;
-            glow.transform.SetAsFirstSibling();
+            frameImage.raycastTarget = false;
 
-            NewPlacedText(stage.transform, "♪   ♫", 21, new Color32(255, 226, 250, 255),
-                61, 14, 197, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
-            Text live = NewPlacedText(stage.transform, "开始演出", 40, White, 49, 34, 221, 82,
+            Text live = NewPlacedText(stage.transform, "开始演出", 40, White, 67, 77, 256, 70,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             live.fontStyle = FontStyle.Bold;
-            NewPlacedText(stage.transform, "舞台已就绪", 17, new Color32(255, 231, 249, 255),
-                63, 108, 193, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+            AddReadableShadow(live);
+            Outline outline = live.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color32(239, 77, 255, 220);
+            outline.effectDistance = new Vector2(1.5f, -1.5f);
+            NewPlacedText(stage.transform, "舞台已就绪", 16, new Color32(255, 231, 249, 255),
+                91, 139, 208, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+        }
+
+        private Sprite GeneratedLobbySprite(int index)
+        {
+            if (generatedLobbySprites.TryGetValue(index, out Sprite cached) && cached != null)
+                return cached;
+
+            string path = index switch
+            {
+                1 => "Art/LobbyAI/lobby-stage-hotspot-v2",
+                2 => "Art/LobbyAI/lobby-story-hotspot-v2",
+                3 => "Art/LobbyAI/lobby-task-hotspot-v2",
+                5 => "Art/LobbyAI/lobby-perform-cta-v2",
+                _ => string.Empty
+            };
+
+            Sprite sprite = string.IsNullOrEmpty(path) ? null : Resources.Load<Sprite>(path);
+            if (sprite == null && !string.IsNullOrEmpty(path))
+            {
+                Texture2D texture = Resources.Load<Texture2D>(path);
+                if (texture != null)
+                {
+                    sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                        new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+                    sprite.name = $"GeneratedLobby-{index}";
+                    sprite.hideFlags = HideFlags.DontSave;
+                }
+            }
+
+            sprite ??= LobbyEmblemSprite(index);
+            generatedLobbySprites[index] = sprite;
+            return sprite;
+        }
+
+        private GameObject NewAiDecoration(string name, Transform parent, string resourcePath)
+        {
+            Sprite sprite = AiUiSprite(resourcePath);
+            GameObject decoration = NewImage(name, parent, sprite, sprite != null ? White : Color.clear);
+            Image image = decoration.GetComponent<Image>();
+            image.preserveAspect = false;
+            image.useSpriteMesh = true;
+            image.raycastTarget = false;
+            return decoration;
+        }
+
+        private bool ApplyAiUiSprite(GameObject target, string resourcePath, bool preserveAspect = false)
+        {
+            Sprite sprite = AiUiSprite(resourcePath);
+            Image image = target != null ? target.GetComponent<Image>() : null;
+            if (sprite == null || image == null) return false;
+
+            image.sprite = sprite;
+            image.type = Image.Type.Simple;
+            image.color = White;
+            image.preserveAspect = preserveAspect;
+            image.useSpriteMesh = true;
+            return true;
+        }
+
+        private Sprite AiUiSprite(string resourcePath)
+        {
+            if (string.IsNullOrWhiteSpace(resourcePath)) return null;
+            if (aiUiSprites.TryGetValue(resourcePath, out Sprite cached) && cached != null) return cached;
+
+            Sprite sprite = Resources.Load<Sprite>(resourcePath);
+            if (sprite == null)
+            {
+                Texture2D texture = Resources.Load<Texture2D>(resourcePath);
+                if (texture != null)
+                {
+                    sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
+                        new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+                    sprite.name = "Runtime-AI-UI-" + resourcePath.Replace('/', '-');
+                    sprite.hideFlags = HideFlags.DontSave;
+                    runtimeAiUiSprites.Add(sprite);
+                }
+            }
+
+            if (sprite != null) aiUiSprites[resourcePath] = sprite;
+            return sprite;
+        }
+
+        private Sprite AccessoryItemSprite(int index)
+        {
+            string[] resourcePaths =
+            {
+                "Art/AccessoryAI/Items/accessory-ear-monitor-ai-v1",
+                "Art/AccessoryAI/Items/accessory-heart-necklace-ai-v1",
+                "Art/AccessoryAI/Items/accessory-dance-boots-ai-v1",
+                "Art/AccessoryAI/Items/accessory-microphone-charm-ai-v1",
+                "Art/AccessoryAI/Items/accessory-star-bracelet-ai-v1",
+                "Art/AccessoryAI/Items/accessory-stage-crown-ai-v1",
+            };
+            return index >= 0 && index < resourcePaths.Length ? AiUiSprite(resourcePaths[index]) : null;
         }
 
         private void AddIconButton(Transform parent, string name, string glyph, int x, UnityEngine.Events.UnityAction action)
@@ -1521,16 +1982,7 @@ namespace ChoSiren
             diamondText.text = $"{model.Save.Diamonds:N0}";
             goldText.text = $"{model.Save.Gold:N0}";
             int cap = model.StaminaCap;
-            if (model.Save.Stamina >= cap)
-            {
-                staminaText.text = $"{model.Save.Stamina}/{cap}";
-                return;
-            }
-
-            long seconds = Math.Max(0L, model.SecondsUntilNextStamina);
-            int minutes = (int)(seconds / 60L);
-            int remain = (int)(seconds % 60L);
-            staminaText.text = $"{model.Save.Stamina}/{cap} {minutes:00}:{remain:00}";
+            staminaText.text = $"{model.Save.Stamina}/{cap}";
         }
 
         private void BuildToast()
@@ -1845,6 +2297,13 @@ namespace ChoSiren
                 child.SetActive(false);
                 Destroy(child);
             }
+        }
+
+        private static void DestroyRuntimeSprite(ref Sprite sprite)
+        {
+            if (sprite != null && (sprite.hideFlags & HideFlags.DontSave) != 0)
+                UnityEngine.Object.Destroy(sprite);
+            sprite = null;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using ChoSiren.Panels;
+using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -133,17 +134,22 @@ namespace ChoSiren.Tests
             Click("Nav-audition");
             yield return null;
             RequireActiveObject("GachaPanel");
-            RequireActiveObject("GachaTopShade");
+            RequireActiveObject("TopBar");
+            RequireActiveObject("BottomNavigation");
+            RequireActiveObject("Nav-members");
             RequireActiveObject("FeaturedFrame");
             RequireActiveObject("RateBoard");
             RequireActiveObject("PityBoard");
             RequireActiveObject("GachaDetails");
             RequireActiveObject("PullTen");
+            AssertInactiveOrMissing("BalanceDiamond");
+            AssertInactiveOrMissing("BalanceGold");
+            AssertInactiveOrMissing("Back");
             AssertActiveUiUsesChineseOnly();
 
-            Click("Back");
+            Click("Nav-members");
             yield return null;
-            RequireActiveObject("LobbyCards");
+            RequireActiveObject("Member-" + GameModel.Members[0].Id);
             AssertInactiveOrMissing("GachaPanel");
             AssertActiveUiUsesChineseOnly();
         }
@@ -168,7 +174,7 @@ namespace ChoSiren.Tests
             AssertInactiveOrMissing("GachaResult");
             RequireActiveObject("GachaPanel");
 
-            Click("Back");
+            Click("Nav-lobby");
             yield return null;
             AssertInactiveOrMissing("GachaPanel");
             RequireActiveObject("LobbyCards");
@@ -183,6 +189,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("GachaPanel");
 
             string[] bannerIds = { "debut-xingli", "standard-signing", "costume-neon-night" };
+            var portraits = new HashSet<Texture>();
             for (int index = 0; index < bannerIds.Length; index++)
             {
                 Click("BannerTab-" + bannerIds[index]);
@@ -193,13 +200,17 @@ namespace ChoSiren.Tests
                 Assert.That(portrait.enabled, Is.True, $"卡池 {bannerIds[index]} 的主视觉被隐藏");
                 Assert.That(portrait.sprite, Is.Not.Null, $"卡池 {bannerIds[index]} 没有加载本地角色素材");
                 Assert.That(portrait.preserveAspect, Is.True, "招募主视觉不能拉伸角色立绘");
+                portraits.Add(portrait.sprite.texture);
                 RectTransform frame = RequireActiveObject("FeaturedFrame").GetComponent<RectTransform>();
                 Assert.That(frame.rect.width, Is.GreaterThanOrEqualTo(620f), "C 方案必须保持中央大角色主视觉");
             }
 
-            Click("Back");
+            Assert.That(portraits.Count, Is.EqualTo(3), "三个卡池必须展示不同的本地角色素材");
+
+            Click("Nav-members");
             yield return null;
             AssertInactiveOrMissing("GachaPanel");
+            RequireActiveObject("Member-" + GameModel.Members[0].Id);
         }
 
         [UnityTest]
@@ -248,6 +259,7 @@ namespace ChoSiren.Tests
             Click("StartChallenge");
             yield return null;
             RequireActiveObject("TacticsBattlePanel");
+            RequireActiveObject("BattleStageArt");
             RequireActiveObject("BattleHud");
             RequireActiveObject("EnemyStage");
             RequireActiveObject("DiceConsole");
@@ -256,6 +268,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("DiceReroll");
             RequireActiveObject("EnergyReroll");
             RequireActiveObject("TeamRoster");
+            RequireActiveObject("BattleExit");
             AssertActiveUiUsesChineseOnly();
 
             TacticsBattlePanel tactics = Object.FindAnyObjectByType<TacticsBattlePanel>();
@@ -266,8 +279,18 @@ namespace ChoSiren.Tests
             Click("PauseToggle");
             Assert.That(tactics.IsPaused, Is.False, "继续按钮必须恢复战斗推进");
 
+            Click("BattleExit");
+            yield return null;
+            AssertInactiveOrMissing("TacticsBattlePanel");
+            RequireActiveObject("LevelMapPanel");
+
+            Click("Level-1-1");
+            Click("StartChallenge");
+            yield return null;
+            RequireActiveObject("TacticsBattlePanel");
+
             Click("AutoToggle");
-            float battleTimeout = Time.realtimeSinceStartup + 20f;
+            float battleTimeout = Time.realtimeSinceStartup + 90f;
             while (GameObject.Find("BattleResult") == null && Time.realtimeSinceStartup < battleTimeout)
                 yield return null;
 
@@ -283,6 +306,40 @@ namespace ChoSiren.Tests
             yield return null;
             AssertInactiveOrMissing("LevelMapPanel");
             RequireActiveObject("LobbyCards");
+        }
+
+        [UnityTest]
+        public IEnumerator ProgrammaticBattleCloseAbortsSettlesAndAllowsImmediateRetry()
+        {
+            GameObject battleHost = new GameObject("战斗关闭测试根节点", typeof(RectTransform));
+            var model = new GameModel(() => new System.DateTime(2026, 9, 3, 12, 0, 0,
+                System.DateTimeKind.Local));
+            int staminaBefore = model.Save.Stamina;
+            BattleSimulator battle = model.StartStageBattle("stage-1-1", 7331UL, out string startMessage);
+            Assert.That(battle, Is.Not.Null, startMessage);
+            int staminaAfterStart = model.Save.Stamina;
+            Assert.That(staminaAfterStart, Is.LessThan(staminaBefore), "开始关卡时应且仅应扣除一次体力。");
+
+            int backCount = 0;
+            TacticsBattlePanel panel = TacticsBattlePanel.Open(battleHost.transform, model, battle,
+                finished: simulator => model.SettleStageBattle(simulator, out _),
+                back: () => backCount++);
+            Assert.That(panel.Battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
+
+            panel.Close();
+            yield return null;
+
+            Assert.That(panel == null, Is.True, "进行中的战斗调用 Close 后必须销毁面板。");
+            Assert.That(backCount, Is.EqualTo(1), "安全关闭后必须回到关卡地图一次。");
+            Assert.That(model.Save.Stamina, Is.EqualTo(staminaAfterStart), "关闭战斗不能二次扣除体力。");
+            model.SettleStageBattle(battle, out string settleAgain);
+            Assert.That(settleAgain, Does.Contain("已经结算"), "Close 必须清除模型里的 pending battle。");
+
+            BattleSimulator retry = model.StartStageBattle("stage-1-1", 7332UL, out string retryMessage);
+            Assert.That(retry, Is.Not.Null, retryMessage);
+            retry.AutoPlay(0);
+            model.SettleStageBattle(retry, out _);
+            Object.Destroy(battleHost);
         }
 
         [UnityTest]

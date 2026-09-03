@@ -119,8 +119,13 @@ namespace ChoSiren.Systems.Tactics
         public string UnitId = string.Empty;
         public int Row;
         public int Col;
-        /// <summary>Stat multiplier (‰) so one enemy definition can serve several stages.</summary>
+        /// <summary>Attack/defense multiplier (‰) so one enemy definition can serve several stages.</summary>
         public int ScalePermille = 1000;
+        /// <summary>
+        /// Independent max-HP multiplier (‰). Zero keeps old JSON compatible by falling back
+        /// to <see cref="ScalePermille"/>.
+        /// </summary>
+        public int HpScalePermille;
     }
 
     [Serializable]
@@ -178,7 +183,8 @@ namespace ChoSiren.Systems.Tactics
             for (int index = 0; index < Enemies.Count; index++)
             {
                 EnemySpawn spawn = Enemies[index];
-                if (spawn == null || !BattleGrid.IsValid(spawn.Row, spawn.Col) || spawn.ScalePermille <= 0)
+                if (spawn == null || !BattleGrid.IsValid(spawn.Row, spawn.Col) ||
+                    spawn.ScalePermille <= 0 || spawn.HpScalePermille < 0)
                 {
                     error = $"关卡 {Id} 第 {index + 1} 个敌人的位置或缩放无效";
                     return false;

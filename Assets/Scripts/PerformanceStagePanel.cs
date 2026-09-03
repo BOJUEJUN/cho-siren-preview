@@ -120,13 +120,24 @@ namespace ChoSiren
                    Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             gameAudio = FindAnyObjectByType<GameAudio>();
 
-            Image background = NewImage("StageBackground", transform, Resources.Load<Sprite>("Art/LobbyBackground"), White);
-            Stretch(background.rectTransform);
-            background.preserveAspect = false;
-            background.raycastTarget = true;
+            Image inputBlocker = NewImage("PerformanceInputBlocker", transform, null,
+                new Color(0f, 0f, 0f, 0.001f));
+            Stretch(inputBlocker.rectTransform);
+            inputBlocker.raycastTarget = true;
 
-            Image shade = NewImage("StageShade", transform, null, new Color32(4, 6, 30, 92));
+            Sprite backgroundSprite = Resources.Load<Sprite>("Art/LobbyBackground");
+            Image background = NewImage("StageBackground", transform, backgroundSprite, White);
+            Stretch(background.rectTransform);
+            background.preserveAspect = true;
+            background.raycastTarget = false;
+            AspectRatioFitter backgroundCover = background.gameObject.AddComponent<AspectRatioFitter>();
+            backgroundCover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            if (backgroundSprite != null)
+                backgroundCover.aspectRatio = backgroundSprite.rect.width / Mathf.Max(1f, backgroundSprite.rect.height);
+
+            Image shade = NewImage("PerformanceReadabilityVeil", transform, null, new Color32(4, 6, 30, 82));
             Stretch(shade.rectTransform);
+            shade.raycastTarget = false;
 
             Image spotlight = NewImage("Spotlight", transform, CreateRadialSprite(192),
                 new Color32(255, 121, 229, 82));
@@ -179,7 +190,7 @@ namespace ChoSiren
             hero.useSpriteMesh = true;
             heroBaseY = heroRect.anchoredPosition.y;
 
-            GameObject banner = NewPanel("RoundBanner", transform, new Color32(28, 22, 76, 224), 22);
+            GameObject banner = NewPanel("RoundBanner", transform, new Color32(18, 18, 62, 178), 22);
             PlaceTop(banner.GetComponent<RectTransform>(), 116, 704, 488, 72);
             noteText = NewPlacedText(banner.transform, "节拍 1 / 6", 15, new Color32(255, 179, 229, 255),
                 16, 8, 160, 25, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -189,7 +200,7 @@ namespace ChoSiren
 
         private void BuildTimingTrack()
         {
-            GameObject trackPanel = NewPanel("TimingPanel", transform, new Color32(15, 14, 61, 238), 26);
+            GameObject trackPanel = NewPanel("TimingPanel", transform, new Color32(12, 14, 54, 184), 26);
             PlaceTop(trackPanel.GetComponent<RectTransform>(), 38, 796, 644, 236);
 
             NewPlacedText(trackPanel.transform, "节拍到达中心高亮区时点击", 15, Muted,
@@ -224,7 +235,7 @@ namespace ChoSiren
             outline.effectColor = new Color32(255, 176, 232, 135);
             outline.effectDistance = new Vector2(0, 5);
 
-            GameObject stats = NewPanel("StageStats", transform, new Color32(28, 23, 74, 232), 24);
+            GameObject stats = NewPanel("StageStats", transform, new Color32(18, 20, 62, 176), 24);
             PlaceTop(stats.GetComponent<RectTransform>(), 46, 1234, 628, 104);
             NewPlacedText(stats.transform, "完美", 13, new Color32(255, 165, 225, 255),
                 18, 16, 160, 22, TextAnchor.MiddleCenter, FontStyle.Bold);

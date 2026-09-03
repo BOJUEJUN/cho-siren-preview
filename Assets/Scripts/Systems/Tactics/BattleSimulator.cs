@@ -37,12 +37,14 @@ namespace ChoSiren.Systems.Tactics
         public int BaseDefense;
         public int Speed;
         public int Shield;
+        public int PhaseAttackMultiplierPermille = 1000;
         public readonly Dictionary<string, int> Cooldowns = new Dictionary<string, int>(StringComparer.Ordinal);
         public readonly List<StatusEffect> Statuses = new List<StatusEffect>();
 
         public bool Alive => Hp > 0;
 
-        public int Attack => ApplyStatus(BaseAttack, SkillEffect.BuffAttack);
+        public int Attack => Math.Max(0,
+            (int)((long)ApplyStatus(BaseAttack, SkillEffect.BuffAttack) * PhaseAttackMultiplierPermille / 1000));
         public int Defense => ApplyStatus(BaseDefense, SkillEffect.DebuffDefense);
 
         private int ApplyStatus(int baseValue, string effect)
@@ -66,7 +68,8 @@ namespace ChoSiren.Systems.Tactics
         Buff,
         Shield,
         Defeated,
-        Finished
+        Finished,
+        PhaseChanged
     }
 
     public sealed class BattleEvent
@@ -79,6 +82,7 @@ namespace ChoSiren.Systems.Tactics
         public int Amount;
         public bool Critical;
         public BattleOutcome Outcome;
+        public int Phase;
     }
 
     public sealed class PlayerUnitSetup
@@ -108,6 +112,10 @@ namespace ChoSiren.Systems.Tactics
     {
         public const int CritMultiplierPermille = 1500;
         public const int DefenseWeight = 4;
+        public const int PhaseTwoThresholdPermille = 660;
+        public const int PhaseThreeThresholdPermille = 330;
+        public const int EnemyAttackGainPerPhasePermille = 80;
+        public const int MaxEnemyDifficultyMultiplierPermille = 10000;
 
         private readonly TacticsManifest manifest;
         private readonly IRandomSource random;
@@ -118,11 +126,32 @@ namespace ChoSiren.Systems.Tactics
 
         public BattleSimulator(TacticsManifest manifest, StageDefinition stage, IReadOnlyList<PlayerUnitSetup> party,
             IRandomSource random)
+            : this(manifest, stage, party, random, 1000, 1000)
+        {
+        }
+
+        /// <summary>
+        /// Creates a battle with explicit enemy-only difficulty multipliers. Enemy defense keeps
+        /// the stage's authored scale; HP and attack are adjusted independently so difficulty does
+        /// not silently change the player's damage formula. Existing four-argument callers remain
+        /// normal difficulty through the delegating overload above.
+        /// </summary>
+        public BattleSimulator(TacticsManifest manifest, StageDefinition stage, IReadOnlyList<PlayerUnitSetup> party,
+            IRandomSource random, int enemyHpMultiplierPermille, int enemyAttackMultiplierPermille)
         {
             this.manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
             Stage = stage ?? throw new ArgumentNullException(nameof(stage));
             this.random = random ?? throw new ArgumentNullException(nameof(random));
             if (party == null || party.Count == 0) throw new ArgumentException("需要至少一名出战成员", nameof(party));
+            if (enemyHpMultiplierPermille <= 0 ||
+                enemyHpMultiplierPermille > MaxEnemyDifficultyMultiplierPermille)
+                throw new ArgumentOutOfRangeException(nameof(enemyHpMultiplierPermille));
+            if (enemyAttackMultiplierPermille <= 0 ||
+                enemyAttackMultiplierPermille > MaxEnemyDifficultyMultiplierPermille)
+                throw new ArgumentOutOfRangeException(nameof(enemyAttackMultiplierPermille));
+
+            EnemyHpMultiplierPermille = enemyHpMultiplierPermille;
+            EnemyAttackMultiplierPermille = enemyAttackMultiplierPermille;
 
             var occupied = new HashSet<int>();
             for (int index = 0; index < party.Count; index++)
@@ -132,7 +161,8 @@ namespace ChoSiren.Systems.Tactics
                     ?? throw new ArgumentException($"未知单位：{setup.UnitId}", nameof(party));
                 if (!BattleGrid.IsValid(setup.Row, setup.Col) || !occupied.Add(setup.Row * BattleGrid.Columns + setup.Col))
                     throw new ArgumentException($"成员 {setup.UnitId} 的站位无效或重复", nameof(party));
-                AddUnit(definition, BattleSide.Player, setup.Row, setup.Col, Math.Max(1, setup.Level), 1000);
+                AddUnit(definition, BattleSide.Player, setup.Row, setup.Col, Math.Max(1, setup.Level),
+                    1000, 1000, 1000);
             }
 
             for (int index = 0; index < stage.Enemies.Count; index++)
@@ -140,9 +170,16 @@ namespace ChoSiren.Systems.Tactics
                 EnemySpawn spawn = stage.Enemies[index];
                 UnitDefinition definition = manifest.FindUnit(spawn.UnitId)
                     ?? throw new ArgumentException($"关卡引用了未知单位：{spawn.UnitId}", nameof(stage));
-                AddUnit(definition, BattleSide.Enemy, spawn.Row, spawn.Col, 1, spawn.ScalePermille);
+                int hpScalePermille = spawn.HpScalePermille > 0
+                    ? spawn.HpScalePermille
+                    : spawn.ScalePermille;
+                hpScalePermille = CombinePermille(hpScalePermille, EnemyHpMultiplierPermille);
+                int attackScalePermille = CombinePermille(spawn.ScalePermille, EnemyAttackMultiplierPermille);
+                AddUnit(definition, BattleSide.Enemy, spawn.Row, spawn.Col, 1,
+                    attackScalePermille, spawn.ScalePermille, hpScalePermille);
             }
 
+            InitialEnemyHp = CurrentEnemyHp;
             StartRound();
         }
 
@@ -152,6 +189,11 @@ namespace ChoSiren.Systems.Tactics
         public IReadOnlyList<BattleUnit> Units => units;
         public IReadOnlyList<BattleEvent> Log => log;
         public int PlayerUnitsLost { get; private set; }
+        public int EnemyPhase { get; private set; } = 1;
+        public int InitialEnemyHp { get; }
+        public int CurrentEnemyHp => TotalHp(BattleSide.Enemy);
+        public int EnemyHpMultiplierPermille { get; }
+        public int EnemyAttackMultiplierPermille { get; }
 
         public BattleUnit CurrentActor =>
             Outcome == BattleOutcome.Ongoing && queueIndex < turnQueue.Count ? FindUnit(turnQueue[queueIndex]) : null;
@@ -258,6 +300,7 @@ namespace ChoSiren.Systems.Tactics
 
             Resolve(actor, skill, action.Row, action.Col, ClampActionMultiplier(action.PowerMultiplierPermille));
             if (skill.Cooldown > 0) actor.Cooldowns[skill.Id] = skill.Cooldown;
+            UpdateEnemyPhase();
             EvaluateOutcome();
             if (Outcome == BattleOutcome.Ongoing) AdvanceTurn();
             error = string.Empty;
@@ -292,7 +335,8 @@ namespace ChoSiren.Systems.Tactics
             return stars;
         }
 
-        private void AddUnit(UnitDefinition definition, BattleSide side, int row, int col, int level, int scalePermille)
+        private void AddUnit(UnitDefinition definition, BattleSide side, int row, int col, int level,
+            int attackScalePermille, int defenseScalePermille, int hpScalePermille)
         {
             int levelPermille = 1000 + (level - 1) * 30;
             var unit = new BattleUnit
@@ -303,9 +347,9 @@ namespace ChoSiren.Systems.Tactics
                 Row = row,
                 Col = col,
                 Level = level,
-                MaxHp = Scale(definition.MaxHp, levelPermille, scalePermille, 1),
-                BaseAttack = Scale(definition.Attack, levelPermille, scalePermille, 1),
-                BaseDefense = Scale(definition.Defense, levelPermille, scalePermille, 0),
+                MaxHp = Scale(definition.MaxHp, levelPermille, hpScalePermille, 1),
+                BaseAttack = Scale(definition.Attack, levelPermille, attackScalePermille, 1),
+                BaseDefense = Scale(definition.Defense, levelPermille, defenseScalePermille, 0),
                 Speed = definition.Speed,
             };
             unit.Hp = unit.MaxHp;
@@ -314,6 +358,9 @@ namespace ChoSiren.Systems.Tactics
 
         private static int Scale(int value, int levelPermille, int scalePermille, int minimum) =>
             Math.Max(minimum, (int)((long)value * levelPermille / 1000 * scalePermille / 1000));
+
+        private static int CombinePermille(int authoredScalePermille, int difficultyMultiplierPermille) =>
+            Math.Max(1, (int)((long)authoredScalePermille * difficultyMultiplierPermille / 1000));
 
         private static BattleSide TargetSideFor(BattleUnit actor, SkillDefinition skill)
         {
@@ -408,6 +455,44 @@ namespace ChoSiren.Systems.Tactics
             for (int index = 0; index < units.Count; index++)
                 if (units[index].Side == side && units[index].Alive) return true;
             return false;
+        }
+
+        private int TotalHp(BattleSide side)
+        {
+            int total = 0;
+            for (int index = 0; index < units.Count; index++)
+                if (units[index].Side == side) total += Math.Max(0, units[index].Hp);
+            return total;
+        }
+
+        private void UpdateEnemyPhase()
+        {
+            if (InitialEnemyHp <= 0 || EnemyPhase >= 3) return;
+            int remaining = CurrentEnemyHp;
+            while (EnemyPhase < 3)
+            {
+                int threshold = EnemyPhase == 1
+                    ? PhaseTwoThresholdPermille
+                    : PhaseThreeThresholdPermille;
+                if ((long)remaining * 1000 > (long)InitialEnemyHp * threshold) break;
+
+                EnemyPhase++;
+                int attackMultiplier = 1000 + (EnemyPhase - 1) * EnemyAttackGainPerPhasePermille;
+                for (int index = 0; index < units.Count; index++)
+                {
+                    BattleUnit unit = units[index];
+                    if (unit.Side == BattleSide.Enemy)
+                        unit.PhaseAttackMultiplierPermille = attackMultiplier;
+                }
+
+                log.Add(new BattleEvent
+                {
+                    Kind = BattleEventKind.PhaseChanged,
+                    Round = Round,
+                    Phase = EnemyPhase,
+                    Amount = attackMultiplier
+                });
+            }
         }
 
         private void AdvanceTurn()

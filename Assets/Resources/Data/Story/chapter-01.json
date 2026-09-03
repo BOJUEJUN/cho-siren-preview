@@ -4,7 +4,7 @@
   "Title": "第 01 章 · 星途初醒",
   "Chapter": "01",
   "Lines": [
-    { "Label": "start", "Command": "bg", "Subject": "bg-rehearsal-room-night" },
+    { "Label": "start", "Command": "bg", "Subject": "Art/MemberAI/member-gallery-calm-bg-ai-v1-20260903" },
     { "Command": "bgm", "Subject": "bgm-rehearsal-quiet" },
     { "Command": "show", "Subject": "xingli", "Expression": "neutral", "Position": "center" },
     { "Command": "say", "Subject": "xingli", "Expression": "neutral", "Text": "……排练室的灯还亮着。制作人，你也没回去吗？" },
@@ -34,7 +34,7 @@
     { "Label": "bond-line", "Command": "say", "Subject": "xingli", "Expression": "determined", "Text": "……我们去看看。制作人，这次站在我能看见你的地方。" },
 
     { "Label": "outro", "Command": "hide", "Subject": "feiyin" },
-    { "Command": "bg", "Subject": "bg-neon-alley" },
+    { "Command": "bg", "Subject": "Art/TaskAI/task-board-bg-ai-v1-20260903" },
     { "Command": "bgm", "Subject": "bgm-static-approach" },
     { "Command": "say", "Subject": "producer", "Text": "霓虹后巷。杂音就是从这里传出来的。" },
     { "Command": "set", "Subject": "ch1-complete", "Value": true },

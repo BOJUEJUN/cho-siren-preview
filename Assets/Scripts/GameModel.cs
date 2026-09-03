@@ -48,7 +48,59 @@ namespace ChoSiren
     }
 
     /// <summary>
-    /// Persisted player state (save schema v2, key <see cref="GameModel.SaveKey"/>).
+    /// Persisted tactics difficulty. Normal deliberately owns value zero so saves written before
+    /// this field existed deserialize to the intended default without accidentally becoming easy.
+    /// </summary>
+    public enum BattleDifficulty
+    {
+        Normal = 0,
+        Easy = 1,
+        Hard = 2,
+    }
+
+    public sealed class BattleDifficultyProfile
+    {
+        public BattleDifficulty Difficulty { get; }
+        public string Name { get; }
+        public int EnemyHpPermille { get; }
+        public int EnemyAttackPermille { get; }
+        public int GoldRewardPermille { get; }
+
+        public BattleDifficultyProfile(BattleDifficulty difficulty, string name, int enemyHpPermille,
+            int enemyAttackPermille, int goldRewardPermille)
+        {
+            Difficulty = difficulty;
+            Name = name;
+            EnemyHpPermille = enemyHpPermille;
+            EnemyAttackPermille = enemyAttackPermille;
+            GoldRewardPermille = goldRewardPermille;
+        }
+    }
+
+    public sealed class ChapterStarRewardView
+    {
+        public int RequiredStars;
+        public int CurrentStars;
+        public bool Claimed;
+        public List<CurrencyAmount> Rewards = new List<CurrencyAmount>();
+        public bool Completed => CurrentStars >= RequiredStars;
+        public bool Claimable => Completed && !Claimed;
+    }
+
+    public sealed class ChapterTaskView
+    {
+        public string Id = string.Empty;
+        public string Title = string.Empty;
+        public int Progress;
+        public int Target;
+        public bool Claimed;
+        public List<CurrencyAmount> Rewards = new List<CurrencyAmount>();
+        public bool Completed => Progress >= Target;
+        public bool Claimable => Completed && !Claimed;
+    }
+
+    /// <summary>
+    /// Persisted player state (save schema v4, key <see cref="GameModel.SaveKey"/>).
     /// Member progress is authoritative in <see cref="Roster"/> (stable ids). The index lists
     /// (<see cref="UnlockedMembers"/>, <see cref="MemberLevels"/>, <see cref="Team"/>) are kept as
     /// a projection over the current <see cref="GameModel.Members"/> order so existing panels keep
@@ -87,11 +139,16 @@ namespace ChoSiren
         public List<StageClear> ClearedStages = new List<StageClear>();
         public List<string> OwnedCostumes = new List<string>();
         public MemberRosterSaveV2 Roster = new MemberRosterSaveV2();
+
+        // ---- v4 ----
+        public BattleDifficulty SelectedDifficulty = BattleDifficulty.Normal;
+        public List<int> ClaimedChapterOneStarRewards = new List<int>();
+        public List<string> ClaimedChapterOneTasks = new List<string>();
     }
 
     public sealed class GameModel : IGachaService, ITaskBoardService
     {
-        public const int SaveSchemaVersion = 2;
+        public const int SaveSchemaVersion = 4;
         public const string SaveKey = "ChoSiren.Save.v2";
         /// <summary>v1 index-based save. Read for migration, never deleted (kept for at least two releases).</summary>
         public const string LegacySaveKey = "ChoSiren.Save.v1";
@@ -109,10 +166,96 @@ namespace ChoSiren
         public const int StoryStaminaCost = 8;
         public const int StoryGoldReward = 300;
         public const int StoryDiamondReward = 20;
-        public const int StoryProgressPerRun = 5;
+        public const int StoryProgressPerRun = 2;
         public const int MaxStoryProgress = 100;
         public const int TeamCapacity = 4;
-        public static readonly int[] StoryStageThresholds = { 84, 89, 94, 100 };
+        public const int ChapterOneStageCount = 10;
+        public static readonly int[] StoryStageThresholds = { 81, 83, 85, 87, 89, 91, 93, 95, 97, 100 };
+        public static readonly int[] ChapterOneStarRewardThresholds = { 10, 20, 30 };
+
+        public const string ChapterOneTaskClearStageThree = "chapter-1-clear-3";
+        public const string ChapterOneTaskFifteenStars = "chapter-1-stars-15";
+        public const string ChapterOneTaskClearFinalStage = "chapter-1-clear-10";
+
+        private static readonly BattleDifficultyProfile NormalDifficulty =
+            new BattleDifficultyProfile(BattleDifficulty.Normal, "普通", 1000, 1000, 1000);
+        private static readonly BattleDifficultyProfile EasyDifficulty =
+            new BattleDifficultyProfile(BattleDifficulty.Easy, "简单", 850, 850, 800);
+        private static readonly BattleDifficultyProfile HardDifficulty =
+            new BattleDifficultyProfile(BattleDifficulty.Hard, "困难", 1300, 1200, 1500);
+
+        private sealed class ChapterRewardDefinition
+        {
+            public int RequiredStars;
+            public CurrencyAmount[] Rewards;
+        }
+
+        private sealed class ChapterTaskDefinition
+        {
+            public string Id;
+            public string Title;
+            public int Target;
+            public CurrencyAmount[] Rewards;
+        }
+
+        private sealed class PendingBattleContext
+        {
+            public ulong Seed;
+            public BattleDifficulty Difficulty;
+            public int GoldRewardPermille;
+        }
+
+        private static readonly ChapterRewardDefinition[] ChapterOneStarRewards =
+        {
+            new ChapterRewardDefinition
+            {
+                RequiredStars = 10,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 100) }
+            },
+            new ChapterRewardDefinition
+            {
+                RequiredStars = 20,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Gold, 2000) }
+            },
+            new ChapterRewardDefinition
+            {
+                RequiredStars = 30,
+                Rewards = new[]
+                {
+                    new CurrencyAmount(CurrencyIds.Diamond, 300),
+                    new CurrencyAmount(CurrencyIds.RecruitTicket, 1)
+                }
+            },
+        };
+
+        private static readonly ChapterTaskDefinition[] ChapterOneTasks =
+        {
+            new ChapterTaskDefinition
+            {
+                Id = ChapterOneTaskClearStageThree,
+                Title = "首次通关 1-3",
+                Target = 1,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 50) }
+            },
+            new ChapterTaskDefinition
+            {
+                Id = ChapterOneTaskFifteenStars,
+                Title = "第一章累计获得 15 星",
+                Target = 15,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Gold, 1000) }
+            },
+            new ChapterTaskDefinition
+            {
+                Id = ChapterOneTaskClearFinalStage,
+                Title = "首次通关 1-10",
+                Target = 1,
+                Rewards = new[]
+                {
+                    new CurrencyAmount(CurrencyIds.RecruitTicket, 1),
+                    new CurrencyAmount(CurrencyIds.Diamond, 100)
+                }
+            },
+        };
 
         private static readonly MemberDefinition[] LegacyMembers =
         {
@@ -145,7 +288,8 @@ namespace ChoSiren
         private readonly GachaManifest gacha;
         private readonly TacticsManifest tactics;
         private readonly Func<string, StoryScript> storyLoader;
-        private readonly Dictionary<BattleSimulator, ulong> pendingBattles = new Dictionary<BattleSimulator, ulong>();
+        private readonly Dictionary<BattleSimulator, PendingBattleContext> pendingBattles =
+            new Dictionary<BattleSimulator, PendingBattleContext>();
         private readonly Dictionary<string, StoryRunner> activeStories = new Dictionary<string, StoryRunner>(StringComparer.Ordinal);
 
         public GameModel() : this(() => DateTime.Now)
@@ -404,6 +548,50 @@ namespace ChoSiren
             SaveState();
         }
 
+        /// <summary>
+        /// Moves an existing party member to the leader slot and persists both the index projection
+        /// and the stable-id roster order. The member must already belong to the current party.
+        /// </summary>
+        public bool SetTeamLeader(int memberIndex, out string message)
+        {
+            if (!IsValidMemberIndex(memberIndex) || !Save.Team.Contains(memberIndex))
+            {
+                message = "该成员不在当前编队中";
+                return false;
+            }
+
+            int currentIndex = Save.Team.IndexOf(memberIndex);
+            if (currentIndex == 0)
+            {
+                message = $"{Members[memberIndex].Name} 已经是当前队长";
+                return false;
+            }
+
+            Save.Team.RemoveAt(currentIndex);
+            Save.Team.Insert(0, memberIndex);
+            SaveState();
+            message = $"已任命 {Members[memberIndex].Name} 为队长";
+            return true;
+        }
+
+        /// <summary>Cycles the next current party member into the leader slot.</summary>
+        public bool RotateTeamLeader(out string message)
+        {
+            if (Save.Team.Count < 2)
+            {
+                message = "当前编队至少需要两名成员才能轮换队长";
+                return false;
+            }
+
+            int previousLeader = Save.Team[0];
+            Save.Team.RemoveAt(0);
+            Save.Team.Add(previousLeader);
+            int nextLeader = Save.Team[0];
+            SaveState();
+            message = $"已任命 {Members[nextLeader].Name} 为队长";
+            return true;
+        }
+
         // ------------------------------------------------------------------ performance / legacy story / check-in
 
         public bool Perform(out string message)
@@ -656,6 +844,62 @@ namespace ChoSiren
 
         // ------------------------------------------------------------------ tactics battle
 
+        public BattleDifficulty CurrentBattleDifficulty => Save.SelectedDifficulty;
+        public BattleDifficulty ChapterOneDifficulty => CurrentBattleDifficulty;
+        public BattleDifficultyProfile CurrentBattleDifficultyProfile =>
+            DifficultyProfileFor(CurrentBattleDifficulty);
+
+        public static BattleDifficultyProfile DifficultyProfileFor(BattleDifficulty difficulty)
+        {
+            switch (difficulty)
+            {
+                case BattleDifficulty.Easy: return EasyDifficulty;
+                case BattleDifficulty.Hard: return HardDifficulty;
+                default: return NormalDifficulty;
+            }
+        }
+
+        public bool SetBattleDifficulty(BattleDifficulty difficulty) =>
+            SetBattleDifficulty(difficulty, out _);
+
+        public bool SetBattleDifficulty(BattleDifficulty difficulty, out string message)
+        {
+            if (!Enum.IsDefined(typeof(BattleDifficulty), difficulty))
+            {
+                message = "难度不存在";
+                return false;
+            }
+
+            BattleDifficultyProfile profile = DifficultyProfileFor(difficulty);
+            if (Save.SelectedDifficulty == difficulty)
+            {
+                message = $"当前已是{profile.Name}难度";
+                return true;
+            }
+
+            Save.SelectedDifficulty = difficulty;
+            SaveState();
+            message = $"已切换为{profile.Name}难度";
+            return true;
+        }
+
+        public bool SetChapterOneDifficulty(BattleDifficulty difficulty, out string message) =>
+            SetBattleDifficulty(difficulty, out message);
+
+        /// <summary>
+        /// Returns the fixed coin reward shown before battle at the selected difficulty. Random
+        /// coin drops are intentionally excluded because their amount is only known at settlement.
+        /// </summary>
+        public int PreviewStageGoldReward(string stageId) =>
+            StageGoldRewardForDifficulty(stageId, CurrentBattleDifficulty);
+
+        public int StageGoldRewardForDifficulty(string stageId, BattleDifficulty difficulty)
+        {
+            StageDefinition stage = tactics.FindStage(stageId);
+            if (stage == null || !Enum.IsDefined(typeof(BattleDifficulty), difficulty)) return 0;
+            return ScalePositiveReward(stage.GoldReward, DifficultyProfileFor(difficulty).GoldRewardPermille);
+        }
+
         public int StarsOf(string stageId)
         {
             for (int index = 0; index < Save.ClearedStages.Count; index++)
@@ -664,6 +908,153 @@ namespace ChoSiren
         }
 
         public bool IsStageCleared(string stageId) => StarsOf(stageId) > 0;
+
+        public int ChapterOneTotalStars
+        {
+            get
+            {
+                int total = 0;
+                for (int stageNumber = 1; stageNumber <= ChapterOneStageCount; stageNumber++)
+                    total += StarsOf(ChapterOneStageId(stageNumber));
+                return total;
+            }
+        }
+
+        public List<ChapterStarRewardView> ChapterOneStarRewardViews()
+        {
+            int currentStars = ChapterOneTotalStars;
+            var views = new List<ChapterStarRewardView>(ChapterOneStarRewards.Length);
+            for (int index = 0; index < ChapterOneStarRewards.Length; index++)
+            {
+                ChapterRewardDefinition definition = ChapterOneStarRewards[index];
+                views.Add(new ChapterStarRewardView
+                {
+                    RequiredStars = definition.RequiredStars,
+                    CurrentStars = currentStars,
+                    Claimed = Save.ClaimedChapterOneStarRewards.Contains(definition.RequiredStars),
+                    Rewards = CopyRewards(definition.Rewards),
+                });
+            }
+
+            return views;
+        }
+
+        public int ChapterOneClaimableStarRewardCount =>
+            ChapterOneStarRewardViews().Count(view => view.Claimable);
+
+        public bool TryClaimChapterOneStarReward(int requiredStars, out string message)
+        {
+            ChapterRewardDefinition definition = FindChapterOneStarReward(requiredStars);
+            if (definition == null)
+            {
+                message = "章节星级奖励档位不存在";
+                return false;
+            }
+
+            if (Save.ClaimedChapterOneStarRewards.Contains(requiredStars))
+            {
+                message = "章节星级奖励已经领取";
+                return false;
+            }
+
+            int currentStars = ChapterOneTotalStars;
+            if (currentStars < requiredStars)
+            {
+                message = $"章节星数不足（{currentStars}/{requiredStars}）";
+                return false;
+            }
+
+            GrantRewards(definition.Rewards);
+            Save.ClaimedChapterOneStarRewards.Add(requiredStars);
+            Save.ClaimedChapterOneStarRewards.Sort();
+            SaveState();
+            message = $"已领取 {requiredStars} 星章节奖励：{FormatRewards(ToRewardTuples(definition.Rewards))}";
+            return true;
+        }
+
+        public List<ChapterTaskView> ChapterOneTaskViews()
+        {
+            var views = new List<ChapterTaskView>(ChapterOneTasks.Length);
+            for (int index = 0; index < ChapterOneTasks.Length; index++)
+            {
+                ChapterTaskDefinition definition = ChapterOneTasks[index];
+                views.Add(new ChapterTaskView
+                {
+                    Id = definition.Id,
+                    Title = definition.Title,
+                    Progress = ChapterOneTaskProgress(definition.Id),
+                    Target = definition.Target,
+                    Claimed = Save.ClaimedChapterOneTasks.Contains(definition.Id),
+                    Rewards = CopyRewards(definition.Rewards),
+                });
+            }
+
+            return views;
+        }
+
+        public int ChapterOneClaimableTaskCount => ChapterOneTaskViews().Count(view => view.Claimable);
+        public int ChapterOneClaimableRewardCount =>
+            ChapterOneClaimableStarRewardCount + ChapterOneClaimableTaskCount;
+
+        public bool TryClaimChapterOneTask(string taskId, out string message)
+        {
+            ChapterTaskDefinition definition = FindChapterOneTask(taskId);
+            if (definition == null)
+            {
+                message = "章节任务不存在";
+                return false;
+            }
+
+            if (Save.ClaimedChapterOneTasks.Contains(taskId))
+            {
+                message = "章节任务奖励已经领取";
+                return false;
+            }
+
+            int progress = ChapterOneTaskProgress(taskId);
+            if (progress < definition.Target)
+            {
+                message = $"章节任务尚未完成（{progress}/{definition.Target}）";
+                return false;
+            }
+
+            GrantRewards(definition.Rewards);
+            Save.ClaimedChapterOneTasks.Add(taskId);
+            SaveState();
+            message = $"已领取：{definition.Title}（{FormatRewards(ToRewardTuples(definition.Rewards))}）";
+            return true;
+        }
+
+        /// <summary>
+        /// The first chapter is a strict ten-stage route. Story progress remains in the save for
+        /// UI/backward compatibility, while explicit clear records preserve each stage's best stars.
+        /// </summary>
+        public bool IsChapterOneComplete => Save.StoryProgress >= MaxStoryProgress;
+
+        public int CurrentChapterOneStage
+        {
+            get
+            {
+                int progress = Mathf.Clamp(Save.StoryProgress, 0, MaxStoryProgress);
+                for (int index = 0; index < StoryStageThresholds.Length; index++)
+                    if (progress < StoryStageThresholds[index]) return index + 1;
+                return ChapterOneStageCount;
+            }
+        }
+
+        /// <summary>
+        /// Chapter-one encounters unlock in order. A previous explicit clear or its migrated
+        /// progress threshold is accepted, so pre-v3 saves and the legacy story route remain usable.
+        /// Non-chapter stages are left unrestricted for tools, tutorials and tests.
+        /// </summary>
+        public bool IsStageUnlocked(string stageId)
+        {
+            if (!TryGetChapterOneStageNumber(stageId, out int stageNumber)) return true;
+            if (stageNumber == 1) return true;
+            if (IsChapterOneComplete) return true;
+            return IsStageCleared(ChapterOneStageId(stageNumber - 1)) ||
+                   Save.StoryProgress >= StoryStageThresholds[stageNumber - 2];
+        }
 
         /// <summary>
         /// Builds the party from <see cref="GameSave.Team"/> (members with a tactics unit only),
@@ -676,6 +1067,12 @@ namespace ChoSiren
             if (stage == null)
             {
                 message = "关卡不存在";
+                return null;
+            }
+
+            if (!IsStageUnlocked(stage.Id))
+            {
+                message = "关卡尚未解锁，请先完成前一关";
                 return null;
             }
 
@@ -696,9 +1093,11 @@ namespace ChoSiren
             }
 
             BattleSimulator battle;
+            BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
             try
             {
-                battle = new BattleSimulator(tactics, stage, party, new SeededRandom(seed));
+                battle = new BattleSimulator(tactics, stage, party, new SeededRandom(seed),
+                    difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille);
             }
             catch (ArgumentException exception)
             {
@@ -708,20 +1107,26 @@ namespace ChoSiren
             }
 
             SpendStaminaInternal(stage.StaminaCost);
-            pendingBattles[battle] = seed;
+            pendingBattles[battle] = new PendingBattleContext
+            {
+                Seed = seed,
+                Difficulty = difficulty.Difficulty,
+                GoldRewardPermille = difficulty.GoldRewardPermille,
+            };
             SaveState();
-            message = $"{stage.Name} 开始，体力 -{stage.StaminaCost}";
+            message = $"{stage.Name} 开始（{difficulty.Name}），体力 -{stage.StaminaCost}";
             return battle;
         }
 
         /// <summary>
         /// Settles a battle created by <see cref="StartStageBattle"/> exactly once. Victory pays
-        /// gold, first-clear diamonds, drops, records the best star rating and advances the
-        /// chapter like <see cref="AdvanceStory"/>. Defeat only clears the pending entry.
+        /// gold, first-clear diamonds, drops and records the best star rating. A chapter-one stage
+        /// advances progress only on its first clear, preventing replayed early stages from
+        /// skipping locked encounters. Defeat only clears the pending entry.
         /// </summary>
         public void SettleStageBattle(BattleSimulator battle, out string message)
         {
-            if (battle == null || !pendingBattles.TryGetValue(battle, out ulong seed))
+            if (battle == null || !pendingBattles.TryGetValue(battle, out PendingBattleContext context))
             {
                 message = "该战斗不是由本局开始的，或已经结算";
                 return;
@@ -742,24 +1147,35 @@ namespace ChoSiren
 
             StageDefinition stage = battle.Stage;
             var rewards = new List<(string ItemId, int Amount)>();
-            if (stage.GoldReward > 0) rewards.Add((CurrencyIds.Gold, stage.GoldReward));
+
+            // Difficulty scales the complete coin payout (authored reward plus rolled coin drops)
+            // once, avoiding per-entry rounding differences. Diamonds and item drops are unchanged.
+            List<(string ItemId, int Amount)> drops = DropResolver.Roll(stage.Drops,
+                new SeededRandom(context.Seed ^ 0xD1CE5EEDUL));
+            int rawGold = Mathf.Max(0, stage.GoldReward) + drops
+                .Where(drop => drop.ItemId == CurrencyIds.Gold)
+                .Sum(drop => Mathf.Max(0, drop.Amount));
+            int difficultyGold = ScalePositiveReward(rawGold, context.GoldRewardPermille);
+            if (difficultyGold > 0) rewards.Add((CurrencyIds.Gold, difficultyGold));
 
             bool firstClear = !IsStageCleared(stage.Id);
             if (firstClear && stage.DiamondFirstClear > 0) rewards.Add((CurrencyIds.Diamond, stage.DiamondFirstClear));
 
-            // Drop rolls are seeded from the battle seed so (setup, seed) still determines everything.
-            List<(string ItemId, int Amount)> drops = DropResolver.Roll(stage.Drops, new SeededRandom(seed ^ 0xD1CE5EEDUL));
-            rewards.AddRange(drops);
+            rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
 
             foreach ((string itemId, int amount) in rewards) GrantItemInternal(itemId, amount);
 
             int stars = battle.StarRating();
             RecordStageClear(stage.Id, stars);
-            AdvanceStoryProgressInternal();
+            if (firstClear && TryGetChapterOneStageNumber(stage.Id, out int chapterOneStage))
+                AdvanceChapterOneProgressAfterClear(chapterOneStage);
+            else if (!TryGetChapterOneStageNumber(stage.Id, out _))
+                AdvanceStoryProgressInternal();
             Report(TaskTriggers.BattleWin);
             SaveState();
 
-            message = $"战斗胜利 {new string('★', stars)}：{FormatRewards(rewards)}";
+            string difficultyName = DifficultyProfileFor(context.Difficulty).Name;
+            message = $"战斗胜利 {new string('★', stars)}（{difficultyName}）：{FormatRewards(rewards)}";
             if (firstClear) message += "（首次通关）";
         }
 
@@ -862,7 +1278,10 @@ namespace ChoSiren
             SaveState();
         }
 
-        /// <summary>Starts a fresh v2 save. The v1 key is left untouched; a fresh v2 shadows it.</summary>
+        /// <summary>
+        /// Starts a fresh current-schema save. The stable v2 storage key is intentionally retained
+        /// for in-place upgrades; the older v1 key remains untouched and shadowed.
+        /// </summary>
         public void Reset()
         {
             PlayerPrefs.DeleteKey(SaveKey);
@@ -914,7 +1333,8 @@ namespace ChoSiren
             {
                 GameSave legacy = JsonUtility.FromJson<GameSave>(v1) ?? CreateDefault();
                 if (!v1.Contains("\"StoryProgress\"")) legacy.StoryProgress = DefaultStoryProgress;
-                legacy.SchemaVersion = SaveSchemaVersion;
+                // Keep the original schema marker until Normalize has applied every migration.
+                legacy.SchemaVersion = Math.Min(legacy.SchemaVersion, 1);
                 legacy.Roster = MigrateLegacyRoster(legacy);
                 return legacy;
             }
@@ -1127,11 +1547,96 @@ namespace ChoSiren
         private void AdvanceStoryProgressInternal()
         {
             if (Save.StoryProgress >= MaxStoryProgress) return;
-            // The final encounter completes the chapter in one run instead of leaving a misleading
-            // 99% state that has no additional map node.
-            Save.StoryProgress = Save.StoryProgress >= StoryStageThresholds[2]
-                ? MaxStoryProgress
-                : Mathf.Min(MaxStoryProgress, Save.StoryProgress + StoryProgressPerRun);
+            for (int index = 0; index < StoryStageThresholds.Length; index++)
+            {
+                if (Save.StoryProgress >= StoryStageThresholds[index]) continue;
+                Save.StoryProgress = StoryStageThresholds[index];
+                return;
+            }
+        }
+
+        private void AdvanceChapterOneProgressAfterClear(int stageNumber)
+        {
+            if (stageNumber < 1 || stageNumber > ChapterOneStageCount) return;
+            Save.StoryProgress = Mathf.Max(Save.StoryProgress, StoryStageThresholds[stageNumber - 1]);
+        }
+
+        private static string ChapterOneStageId(int stageNumber) => $"stage-1-{stageNumber}";
+
+        private static bool TryGetChapterOneStageNumber(string stageId, out int stageNumber)
+        {
+            const string prefix = "stage-1-";
+            stageNumber = 0;
+            if (string.IsNullOrEmpty(stageId) || !stageId.StartsWith(prefix, StringComparison.Ordinal)) return false;
+            if (!int.TryParse(stageId.Substring(prefix.Length), NumberStyles.None, CultureInfo.InvariantCulture,
+                    out stageNumber)) return false;
+            return stageNumber >= 1 && stageNumber <= ChapterOneStageCount;
+        }
+
+        private static ChapterRewardDefinition FindChapterOneStarReward(int requiredStars)
+        {
+            for (int index = 0; index < ChapterOneStarRewards.Length; index++)
+                if (ChapterOneStarRewards[index].RequiredStars == requiredStars)
+                    return ChapterOneStarRewards[index];
+            return null;
+        }
+
+        private static ChapterTaskDefinition FindChapterOneTask(string taskId)
+        {
+            if (string.IsNullOrEmpty(taskId)) return null;
+            for (int index = 0; index < ChapterOneTasks.Length; index++)
+                if (ChapterOneTasks[index].Id == taskId)
+                    return ChapterOneTasks[index];
+            return null;
+        }
+
+        private int ChapterOneTaskProgress(string taskId)
+        {
+            switch (taskId)
+            {
+                case ChapterOneTaskClearStageThree:
+                    return IsStageCleared(ChapterOneStageId(3)) ? 1 : 0;
+                case ChapterOneTaskFifteenStars:
+                    return Mathf.Min(15, ChapterOneTotalStars);
+                case ChapterOneTaskClearFinalStage:
+                    return IsStageCleared(ChapterOneStageId(10)) ? 1 : 0;
+                default:
+                    return 0;
+            }
+        }
+
+        private static List<CurrencyAmount> CopyRewards(IEnumerable<CurrencyAmount> rewards)
+        {
+            var copy = new List<CurrencyAmount>();
+            if (rewards == null) return copy;
+            foreach (CurrencyAmount reward in rewards)
+                if (reward != null)
+                    copy.Add(new CurrencyAmount(reward.Currency, reward.Amount));
+            return copy;
+        }
+
+        private void GrantRewards(IEnumerable<CurrencyAmount> rewards)
+        {
+            if (rewards == null) return;
+            foreach (CurrencyAmount reward in rewards)
+                if (reward != null)
+                    GrantItemInternal(reward.Currency, reward.Amount);
+        }
+
+        private static List<(string ItemId, int Amount)> ToRewardTuples(IEnumerable<CurrencyAmount> rewards)
+        {
+            var tuples = new List<(string ItemId, int Amount)>();
+            if (rewards == null) return tuples;
+            foreach (CurrencyAmount reward in rewards)
+                if (reward != null)
+                    tuples.Add((reward.Currency, reward.Amount));
+            return tuples;
+        }
+
+        private static int ScalePositiveReward(int amount, int multiplierPermille)
+        {
+            if (amount <= 0 || multiplierPermille <= 0) return 0;
+            return Mathf.Max(1, (int)((long)amount * multiplierPermille / 1000));
         }
 
         private List<PlayerUnitSetup> BuildParty()
@@ -1272,7 +1777,7 @@ namespace ChoSiren
 
         private void Normalize()
         {
-            Save.SchemaVersion = SaveSchemaVersion;
+            int loadedSchemaVersion = Save.SchemaVersion;
             Save.Diamonds = Mathf.Max(0, Save.Diamonds);
             Save.Gold = Mathf.Max(0, Save.Gold);
             Save.Stamina = Mathf.Clamp(Save.Stamina, 0, economy.StaminaMax);
@@ -1303,6 +1808,19 @@ namespace ChoSiren
             Save.ClearedStages.RemoveAll(clear => clear == null || string.IsNullOrEmpty(clear.Id) || clear.Stars <= 0);
             foreach (StageClear clear in Save.ClearedStages) clear.Stars = Mathf.Clamp(clear.Stars, 1, 3);
             MigrateChapterOneStageIds();
+            NormalizeStageClearRecords();
+            if (loadedSchemaVersion < 3) MigrateFourStageChapterOneProgress();
+            SynchronizeChapterOneProgressFromClears();
+            if (!Enum.IsDefined(typeof(BattleDifficulty), Save.SelectedDifficulty))
+                Save.SelectedDifficulty = BattleDifficulty.Normal;
+            Save.ClaimedChapterOneStarRewards = (Save.ClaimedChapterOneStarRewards ?? new List<int>())
+                .Where(requiredStars => requiredStars > 0)
+                .Distinct()
+                .OrderBy(requiredStars => requiredStars)
+                .ToList();
+            // Preserve unknown positive claim markers for forward compatibility: a temporarily
+            // retired milestone/task must not become claimable again if a later build restores it.
+            Save.ClaimedChapterOneTasks = CleanStrings(Save.ClaimedChapterOneTasks);
             Save.Roster ??= new MemberRosterSaveV2();
 
             while (Save.MemberLevels.Count < Members.Length)
@@ -1332,6 +1850,7 @@ namespace ChoSiren
                 Save.EquippedAccessory = -1;
 
             SyncRosterFromIndices();
+            Save.SchemaVersion = SaveSchemaVersion;
         }
 
         private void MigrateChapterOneStageIds()
@@ -1359,6 +1878,68 @@ namespace ChoSiren
                 current.Stars = Mathf.Max(current.Stars, legacy.Stars);
                 Save.ClearedStages.RemoveAt(index);
             }
+        }
+
+        private void NormalizeStageClearRecords()
+        {
+            var normalized = new List<StageClear>();
+            var byId = new Dictionary<string, StageClear>(StringComparer.Ordinal);
+            for (int index = 0; index < Save.ClearedStages.Count; index++)
+            {
+                StageClear candidate = Save.ClearedStages[index];
+                if (byId.TryGetValue(candidate.Id, out StageClear existing))
+                {
+                    existing.Stars = Mathf.Max(existing.Stars, candidate.Stars);
+                    continue;
+                }
+
+                var copy = new StageClear { Id = candidate.Id, Stars = Mathf.Clamp(candidate.Stars, 1, 3) };
+                byId.Add(copy.Id, copy);
+                normalized.Add(copy);
+            }
+
+            Save.ClearedStages = normalized;
+        }
+
+        /// <summary>
+        /// Schema v2 shipped with four chapter-one nodes at 84/89/94/100%. Preserve the exact
+        /// amount of progress those values represented, synthesize only the missing old clear
+        /// records, and leave a previously completed chapter completed.
+        /// </summary>
+        private void MigrateFourStageChapterOneProgress()
+        {
+            int completedOldStages = Save.StoryProgress >= 100 ? 4
+                : Save.StoryProgress >= 94 ? 3
+                : Save.StoryProgress >= 89 ? 2
+                : Save.StoryProgress >= 84 ? 1
+                : 0;
+
+            for (int index = 0; index < Save.ClearedStages.Count; index++)
+            {
+                if (!TryGetChapterOneStageNumber(Save.ClearedStages[index].Id, out int stageNumber)) continue;
+                if (stageNumber <= 4) completedOldStages = Mathf.Max(completedOldStages, stageNumber);
+            }
+
+            for (int stageNumber = 1; stageNumber <= completedOldStages; stageNumber++)
+                if (!IsStageCleared(ChapterOneStageId(stageNumber)))
+                    Save.ClearedStages.Add(new StageClear { Id = ChapterOneStageId(stageNumber), Stars = 1 });
+
+            if (Save.StoryProgress >= MaxStoryProgress) return;
+            if (completedOldStages > 0)
+                Save.StoryProgress = StoryStageThresholds[completedOldStages - 1];
+        }
+
+        private void SynchronizeChapterOneProgressFromClears()
+        {
+            int contiguousClears = 0;
+            for (int stageNumber = 1; stageNumber <= ChapterOneStageCount; stageNumber++)
+            {
+                if (!IsStageCleared(ChapterOneStageId(stageNumber))) break;
+                contiguousClears = stageNumber;
+            }
+
+            if (contiguousClears > 0)
+                Save.StoryProgress = Mathf.Max(Save.StoryProgress, StoryStageThresholds[contiguousClears - 1]);
         }
 
         private static List<string> CleanStrings(List<string> values)

@@ -18,6 +18,19 @@ namespace ChoSiren.Panels
         private const float CharSeconds = 0.03f;
         private const float AutoBaseDelay = 1.2f;
         private const float AutoPerCharDelay = 0.045f;
+        private const string DefaultBackgroundResource =
+            "Art/MemberAI/member-gallery-calm-bg-ai-v1-20260903";
+        private const string LobbyBackgroundResource = "Art/LobbyBackground";
+
+        // Keep the original semantic IDs usable by older saves/scripts while new scripts can
+        // point at any Resources path directly. This also makes chapter data portable when its
+        // art is reorganised later.
+        private static readonly Dictionary<string, string> BackgroundResourceAliases =
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "bg-rehearsal-room-night", DefaultBackgroundResource },
+                { "bg-neon-alley", "Art/TaskAI/task-board-bg-ai-v1-20260903" },
+            };
 
         private sealed class SlotView
         {
@@ -56,6 +69,7 @@ namespace ChoSiren.Panels
         private Sprite backgroundFallback;
 
         private Image background;
+        private AspectRatioFitter backgroundCover;
         private Text backgroundId;
         private Text titleText;
         private GameObject dialogueBox;
@@ -108,10 +122,28 @@ namespace ChoSiren.Panels
             backgroundFallback = kit.CreateGradientSprite("StoryBackdrop",
                 new Color32(12, 10, 48, 255), new Color32(46, 18, 96, 255), new Color32(8, 20, 60, 255));
 
-            background = kit.NewImage("Background", transform, backgroundFallback, PanelKit.White);
+            Image inputBlocker = kit.NewImage("StoryInputBlocker", transform, null, new Color(0f, 0f, 0f, 0.001f));
+            PanelKit.Stretch(inputBlocker.rectTransform);
+            inputBlocker.raycastTarget = true;
+
+            // The generated gradient is deliberately stretchable. Scene art lives in its own
+            // cover image below so raster backgrounds are never distorted on tall screens.
+            Image fallback = kit.NewImage("StoryFallbackBackground", transform, backgroundFallback, PanelKit.White);
+            PanelKit.Stretch(fallback.rectTransform);
+            fallback.raycastTarget = false;
+
+            background = kit.NewImage("Background", transform, null, new Color(1f, 1f, 1f, 0f));
             PanelKit.Stretch(background.rectTransform);
-            background.raycastTarget = true;
-            background.preserveAspect = false;
+            background.raycastTarget = false;
+            background.preserveAspect = true;
+            backgroundCover = background.gameObject.AddComponent<AspectRatioFitter>();
+            backgroundCover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            ApplyBackgroundSprite(LoadFirstBackground(DefaultBackgroundResource, LobbyBackgroundResource));
+
+            Image readabilityVeil = kit.NewImage("StoryReadabilityVeil", transform, null,
+                new Color32(5, 9, 35, 68));
+            PanelKit.Stretch(readabilityVeil.rectTransform);
+            readabilityVeil.raycastTarget = false;
 
             Image vignette = kit.NewImage("Vignette", transform, kit.RadialSprite(), new Color32(255, 78, 212, 40));
             PanelKit.PlaceTop(vignette.rectTransform, -100, 500, 920, 900);
@@ -189,7 +221,7 @@ namespace ChoSiren.Panels
 
         private void BuildDialogue()
         {
-            dialogueBox = kit.NewButton("DialogueBox", transform, string.Empty, 12, new Color32(10, 11, 42, 236),
+            dialogueBox = kit.NewButton("DialogueBox", transform, string.Empty, 12, new Color32(10, 11, 42, 190),
                 PanelKit.White, DialogueClicked, 28);
             PanelKit.PlaceTop(dialogueBox.GetComponent<RectTransform>(), 20, 1050, 680, 372);
             kit.AddOutline(dialogueBox, new Color32(166, 112, 255, 160), 2);
@@ -348,7 +380,7 @@ namespace ChoSiren.Panels
             {
                 int captured = index;
                 GameObject button = kit.NewButton("Choice-" + index, choiceLayer, line.Choices[index].Text, 18,
-                    new Color32(46, 27, 96, 248), PanelKit.White, () => Choose(captured), 22);
+                    new Color32(23, 20, 72, 190), PanelKit.White, () => Choose(captured), 22);
                 PanelKit.PlaceTop(button.GetComponent<RectTransform>(), 100, top + index * (height + gap), 520, height);
                 kit.AddOutline(button, new Color32(255, 126, 226, 200), 2);
                 choiceButtons.Add(button);
@@ -536,18 +568,58 @@ namespace ChoSiren.Panels
 
         private void SetBackground(string assetId)
         {
-            Sprite sprite = string.IsNullOrEmpty(assetId) ? null : Resources.Load<Sprite>("Art/Story/" + assetId);
-            if (sprite != null)
+            Sprite sprite = ResolveBackgroundSprite(assetId);
+            ApplyBackgroundSprite(sprite);
+
+            // Asset identifiers are implementation details. A missing optional scene-specific
+            // image must never replace the stage art with a debug warning in the player's UI.
+            backgroundId.text = string.Empty;
+        }
+
+        private static Sprite ResolveBackgroundSprite(string assetId)
+        {
+            if (!string.IsNullOrWhiteSpace(assetId))
             {
-                background.sprite = sprite;
-                background.color = PanelKit.White;
-                backgroundId.text = string.Empty;
-                return;
+                string normalized = assetId.Trim().Replace('\\', '/');
+                if (normalized.StartsWith("Resources/", StringComparison.Ordinal))
+                    normalized = normalized.Substring("Resources/".Length);
+
+                if (BackgroundResourceAliases.TryGetValue(normalized, out string mapped))
+                {
+                    Sprite aliased = Resources.Load<Sprite>(mapped);
+                    if (aliased != null) return aliased;
+                }
+
+                Sprite direct = Resources.Load<Sprite>(normalized);
+                if (direct != null) return direct;
+
+                if (!normalized.StartsWith("Art/", StringComparison.Ordinal))
+                {
+                    Sprite legacy = Resources.Load<Sprite>("Art/Story/" + normalized);
+                    if (legacy != null) return legacy;
+                }
             }
 
-            background.sprite = backgroundFallback;
-            background.color = PanelKit.White;
-            backgroundId.text = string.IsNullOrEmpty(assetId) ? string.Empty : "背景资源缺失";
+            return LoadFirstBackground(DefaultBackgroundResource, LobbyBackgroundResource);
+        }
+
+        private static Sprite LoadFirstBackground(params string[] resourcePaths)
+        {
+            for (int index = 0; index < resourcePaths.Length; index++)
+            {
+                Sprite sprite = Resources.Load<Sprite>(resourcePaths[index]);
+                if (sprite != null) return sprite;
+            }
+
+            return null;
+        }
+
+        private void ApplyBackgroundSprite(Sprite sprite)
+        {
+            background.sprite = sprite;
+            background.color = sprite != null ? PanelKit.White : new Color(1f, 1f, 1f, 0f);
+            if (sprite != null && backgroundCover != null)
+                backgroundCover.aspectRatio = sprite.rect.width / Mathf.Max(1f, sprite.rect.height);
         }
 
         private void ShowCharacter(string characterId, string expression, string position)

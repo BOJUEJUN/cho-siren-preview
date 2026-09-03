@@ -73,6 +73,31 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void TeamLeaderRotationChangesStableOrderFiresChangedAndPersists()
+        {
+            GameModel model = CreateModel();
+            int[] originalOrder = model.Save.Team.ToArray();
+            int[] expectedOrder = originalOrder.Skip(1).Concat(originalOrder.Take(1)).ToArray();
+            int expectedLeader = expectedOrder[0];
+            int changedCount = 0;
+            model.Changed += () => changedCount++;
+
+            Assert.That(model.RotateTeamLeader(out string message), Is.True, message);
+            Assert.That(model.Save.Team, Is.EqualTo(expectedOrder),
+                "队长轮换应遍历整支队伍，而不是只在前两名之间来回切换。");
+            Assert.That(model.Save.Roster.TeamMemberIds[0], Is.EqualTo(GameModel.MemberIdAt(expectedLeader)));
+            Assert.That(changedCount, Is.EqualTo(1));
+
+            GameModel reloaded = CreateModel();
+            Assert.That(reloaded.Save.Team, Is.EqualTo(expectedOrder));
+            Assert.That(reloaded.Save.Roster.TeamMemberIds[0], Is.EqualTo(GameModel.MemberIdAt(expectedLeader)));
+
+            int finalLeader = reloaded.Save.Team[2];
+            Assert.That(reloaded.SetTeamLeader(finalLeader, out message), Is.True, message);
+            Assert.That(CreateModel().Save.Team[0], Is.EqualTo(finalLeader));
+        }
+
+        [Test]
         public void LegacyChapterStageClearsMigrateToChapterOneIdsAndKeepBestStars()
         {
             SaveRaw(new GameSave
@@ -90,6 +115,226 @@ namespace ChoSiren.Tests
             Assert.That(model.StarsOf("stage-1-1"), Is.EqualTo(3));
             Assert.That(model.StarsOf("stage-1-4"), Is.EqualTo(1));
             Assert.That(model.Save.ClearedStages.Any(clear => clear.Id.StartsWith("stage-7-")), Is.False);
+        }
+
+        [Test]
+        public void FourStageV2SaveMigratesToTheEquivalentTenStageCheckpoint()
+        {
+            SaveRaw(new GameSave
+            {
+                SchemaVersion = 2,
+                StoryProgress = 89,
+                ClearedStages = new List<StageClear>
+                {
+                    new StageClear { Id = "stage-1-1", Stars = 2 },
+                },
+            });
+
+            GameModel model = CreateModel();
+
+            Assert.That(model.Save.SchemaVersion, Is.EqualTo(GameModel.SaveSchemaVersion));
+            Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[1]),
+                "旧版 89% 代表已经完成两关，迁移后应落在十关制的第二个检查点。");
+            Assert.That(model.StarsOf("stage-1-1"), Is.EqualTo(2), "旧有最佳星级不得被迁移覆盖。");
+            Assert.That(model.StarsOf("stage-1-2"), Is.EqualTo(1), "旧版进度缺失的通关记录用一星补齐。");
+            Assert.That(model.IsStageUnlocked("stage-1-3"), Is.True);
+            Assert.That(model.IsStageUnlocked("stage-1-4"), Is.False);
+        }
+
+        [Test]
+        public void ChapterOneStagesUnlockAndSettleStrictlyFromOneToTen()
+        {
+            tactics = BuildChapterOneTactics();
+            GameModel model = CreateModel();
+
+            Assert.That(model.IsStageUnlocked("stage-1-1"), Is.True);
+            Assert.That(model.StartStageBattle("stage-1-2", 11UL, out string locked), Is.Null);
+            Assert.That(locked, Does.Contain("尚未解锁"));
+
+            for (int stageNumber = 1; stageNumber <= GameModel.ChapterOneStageCount; stageNumber++)
+            {
+                string stageId = $"stage-1-{stageNumber}";
+                Assert.That(model.IsStageUnlocked(stageId), Is.True, $"{stageId} 应按顺序解锁");
+
+                BattleSimulator battle = model.StartStageBattle(stageId, (ulong)(100 + stageNumber), out string start);
+                Assert.That(battle, Is.Not.Null, start);
+                Assert.That(battle.AutoPlay(), Is.EqualTo(BattleOutcome.Victory));
+                model.SettleStageBattle(battle, out string settlement);
+
+                Assert.That(settlement, Does.Contain("胜利"));
+                Assert.That(model.StarsOf(stageId), Is.EqualTo(3));
+                Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[stageNumber - 1]));
+
+                if (stageNumber == 1)
+                {
+                    BattleSimulator replay = model.StartStageBattle(stageId, 501UL, out string replayStart);
+                    Assert.That(replay, Is.Not.Null, replayStart);
+                    replay.AutoPlay();
+                    model.SettleStageBattle(replay, out _);
+                    Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[0]),
+                        "重复挑战只更新最佳星级，不能跳过后续关卡。");
+                }
+            }
+
+            Assert.That(model.IsChapterOneComplete, Is.True);
+            Assert.That(model.Save.ClearedStages.Count(clear => clear.Id.StartsWith("stage-1-")),
+                Is.EqualTo(GameModel.ChapterOneStageCount));
+        }
+
+        [Test]
+        public void BattleDifficultyPersistsScalesTheBattleAndSnapshotsSettlementRewards()
+        {
+            GameModel model = CreateModel();
+            int gold = model.Save.Gold;
+            int diamonds = model.Save.Diamonds;
+
+            Assert.That(model.CurrentBattleDifficulty, Is.EqualTo(BattleDifficulty.Normal));
+            Assert.That(model.SetBattleDifficulty(BattleDifficulty.Easy, out string selected), Is.True, selected);
+            Assert.That(model.PreviewStageGoldReward(EasyStage), Is.EqualTo(StageGold * 800 / 1000));
+            Assert.That(model.PreviewStageGoldReward("missing"), Is.Zero);
+
+            BattleSimulator battle = model.StartStageBattle(EasyStage, 81UL, out string started);
+            Assert.That(battle, Is.Not.Null, started);
+            Assert.That(battle.EnemyHpMultiplierPermille, Is.EqualTo(850));
+            Assert.That(battle.EnemyAttackMultiplierPermille, Is.EqualTo(850));
+            Assert.That(battle.Units.Single(unit => unit.Side == BattleSide.Enemy).MaxHp, Is.EqualTo(8));
+
+            Assert.That(model.SetBattleDifficulty(BattleDifficulty.Hard, out _), Is.True);
+            Assert.That(battle.AutoPlay(), Is.EqualTo(BattleOutcome.Victory));
+            model.SettleStageBattle(battle, out string settlement);
+
+            int expectedEasyGold = (StageGold + StageDropGold) * 800 / 1000;
+            Assert.That(model.Save.Gold, Is.EqualTo(gold + expectedEasyGold),
+                "结算必须沿用开战时的简单难度快照，并缩放基础金币与金币掉落的总和。");
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + StageFirstClearDiamonds));
+            Assert.That(settlement, Does.Contain("简单"));
+
+            GameModel reloaded = CreateModel();
+            Assert.That(reloaded.CurrentBattleDifficulty, Is.EqualTo(BattleDifficulty.Hard));
+            Assert.That(reloaded.CurrentBattleDifficultyProfile.EnemyHpPermille, Is.EqualTo(1300));
+            Assert.That(reloaded.CurrentBattleDifficultyProfile.EnemyAttackPermille, Is.EqualTo(1200));
+            Assert.That(reloaded.CurrentBattleDifficultyProfile.GoldRewardPermille, Is.EqualTo(1500));
+            Assert.That(reloaded.PreviewStageGoldReward(EasyStage), Is.EqualTo(StageGold * 1500 / 1000));
+            Assert.That(reloaded.SetBattleDifficulty((BattleDifficulty)999, out string invalid), Is.False);
+            Assert.That(invalid, Does.Contain("不存在"));
+            Assert.That(reloaded.CurrentBattleDifficulty, Is.EqualTo(BattleDifficulty.Hard));
+        }
+
+        [Test]
+        public void ChapterStarRewardsRequireTenTwentyThirtyStarsAndPayOnlyOnce()
+        {
+            GameModel empty = CreateModel();
+            Assert.That(empty.ChapterOneTotalStars, Is.Zero);
+            Assert.That(empty.TryClaimChapterOneStarReward(10, out string incomplete), Is.False);
+            Assert.That(incomplete, Does.Contain("不足"));
+            Assert.That(empty.TryClaimChapterOneStarReward(12, out string missing), Is.False);
+            Assert.That(missing, Does.Contain("不存在"));
+
+            PlayerPrefs.DeleteKey(SaveKey);
+            var completed = new GameSave
+            {
+                Diamonds = 500,
+                Gold = 700,
+                RecruitTickets = 2,
+                StoryProgress = GameModel.MaxStoryProgress,
+                ClearedStages = Enumerable.Range(1, GameModel.ChapterOneStageCount)
+                    .Select(stage => new StageClear { Id = $"stage-1-{stage}", Stars = 3 })
+                    .ToList(),
+            };
+            SaveRaw(completed);
+            GameModel model = CreateModel();
+
+            Assert.That(model.ChapterOneTotalStars, Is.EqualTo(30));
+            Assert.That(model.ChapterOneStarRewardViews().Select(view => view.RequiredStars),
+                Is.EqualTo(GameModel.ChapterOneStarRewardThresholds));
+            Assert.That(model.ChapterOneStarRewardViews().All(view => view.Claimable), Is.True);
+            Assert.That(model.ChapterOneClaimableStarRewardCount, Is.EqualTo(3));
+
+            Assert.That(model.TryClaimChapterOneStarReward(10, out _), Is.True);
+            Assert.That(model.TryClaimChapterOneStarReward(20, out _), Is.True);
+            Assert.That(model.TryClaimChapterOneStarReward(30, out _), Is.True);
+            Assert.That(model.Save.Diamonds, Is.EqualTo(500 + 100 + 300));
+            Assert.That(model.Save.Gold, Is.EqualTo(700 + 2000));
+            Assert.That(model.Save.RecruitTickets, Is.EqualTo(3));
+            Assert.That(model.TryClaimChapterOneStarReward(30, out string duplicate), Is.False);
+            Assert.That(duplicate, Does.Contain("已经领取"));
+
+            GameModel reloaded = CreateModel();
+            Assert.That(reloaded.ChapterOneStarRewardViews().All(view => view.Claimed), Is.True);
+            Assert.That(reloaded.ChapterOneClaimableStarRewardCount, Is.Zero);
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(900));
+            Assert.That(reloaded.Save.Gold, Is.EqualTo(2700));
+            Assert.That(reloaded.Save.RecruitTickets, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ChapterTasksDeriveProgressFromStageClearsAndPersistOneTimeClaims()
+        {
+            GameModel empty = CreateModel();
+            Assert.That(empty.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearStageThree,
+                out string incomplete), Is.False);
+            Assert.That(incomplete, Does.Contain("尚未完成"));
+
+            SaveRaw(new GameSave
+            {
+                Diamonds = 100,
+                Gold = 200,
+                RecruitTickets = 0,
+                ClearedStages = Enumerable.Range(1, 5)
+                    .Select(stage => new StageClear { Id = $"stage-1-{stage}", Stars = 3 })
+                    .Concat(new[] { new StageClear { Id = "stage-1-10", Stars = 1 } })
+                    .ToList(),
+            });
+            GameModel model = CreateModel();
+            List<ChapterTaskView> tasks = model.ChapterOneTaskViews();
+
+            Assert.That(tasks.Select(task => task.Id), Is.EqualTo(new[]
+            {
+                GameModel.ChapterOneTaskClearStageThree,
+                GameModel.ChapterOneTaskFifteenStars,
+                GameModel.ChapterOneTaskClearFinalStage,
+            }));
+            Assert.That(tasks.All(task => task.Claimable), Is.True);
+            Assert.That(model.ChapterOneClaimableTaskCount, Is.EqualTo(3));
+            Assert.That(tasks.Single(task => task.Id == GameModel.ChapterOneTaskFifteenStars).Progress,
+                Is.EqualTo(15), "星级任务视图应封顶在目标值。 ");
+
+            Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearStageThree, out _), Is.True);
+            Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskFifteenStars, out _), Is.True);
+            Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearFinalStage, out _), Is.True);
+            Assert.That(model.Save.Diamonds, Is.EqualTo(250));
+            Assert.That(model.Save.Gold, Is.EqualTo(1200));
+            Assert.That(model.Save.RecruitTickets, Is.EqualTo(1));
+            Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearStageThree, out string duplicate),
+                Is.False);
+            Assert.That(duplicate, Does.Contain("已经领取"));
+            Assert.That(model.TryClaimChapterOneTask("missing", out string missing), Is.False);
+            Assert.That(missing, Does.Contain("不存在"));
+
+            GameModel reloaded = CreateModel();
+            Assert.That(reloaded.ChapterOneTaskViews().All(task => task.Claimed), Is.True);
+            Assert.That(reloaded.ChapterOneClaimableTaskCount, Is.Zero);
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(250));
+            Assert.That(reloaded.Save.Gold, Is.EqualTo(1200));
+            Assert.That(reloaded.Save.RecruitTickets, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SchemaThreeSaveMigratesToNormalDifficultyAndEmptyChapterClaimState()
+        {
+            PlayerPrefs.SetString(SaveKey,
+                "{\"SchemaVersion\":3,\"Diamonds\":321,\"Gold\":654,\"StoryProgress\":79}");
+            PlayerPrefs.Save();
+
+            GameModel model = CreateModel();
+
+            Assert.That(model.Save.SchemaVersion, Is.EqualTo(GameModel.SaveSchemaVersion));
+            Assert.That(model.CurrentBattleDifficulty, Is.EqualTo(BattleDifficulty.Normal));
+            Assert.That(model.Save.ClaimedChapterOneStarRewards, Is.Empty);
+            Assert.That(model.Save.ClaimedChapterOneTasks, Is.Empty);
+            Assert.That(model.Save.Diamonds, Is.EqualTo(321));
+            Assert.That(model.Save.Gold, Is.EqualTo(654));
+            Assert.That(CreateModel().CurrentBattleDifficulty, Is.EqualTo(BattleDifficulty.Normal));
         }
 
         [Test]
@@ -163,11 +408,11 @@ namespace ChoSiren.Tests
             int initialStamina = model.Save.Stamina;
 
             Assert.That(model.AdvanceStory(out _), Is.True);
-            Assert.That(model.Save.StoryProgress, Is.EqualTo(84));
+            Assert.That(model.Save.StoryProgress, Is.EqualTo(81));
             Assert.That(model.Save.Gold, Is.EqualTo(initialGold + GameModel.StoryGoldReward));
             Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + GameModel.StoryDiamondReward));
             Assert.That(model.Save.Stamina, Is.EqualTo(initialStamina - GameModel.StoryStaminaCost));
-            Assert.That(CreateModel().Save.StoryProgress, Is.EqualTo(84));
+            Assert.That(CreateModel().Save.StoryProgress, Is.EqualTo(81));
         }
 
         [Test]
@@ -194,18 +439,17 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void StoryChapterCompletesAcrossAllFourMapEncounters()
+        public void StoryChapterCompletesAcrossAllTenMapEncounters()
         {
             GameModel model = CreateModel();
 
-            Assert.That(model.AdvanceStory(out _), Is.True);
-            Assert.That(model.Save.StoryProgress, Is.EqualTo(84));
-            Assert.That(model.AdvanceStory(out _), Is.True);
-            Assert.That(model.Save.StoryProgress, Is.EqualTo(89));
-            Assert.That(model.AdvanceStory(out _), Is.True);
-            Assert.That(model.Save.StoryProgress, Is.EqualTo(94));
-            Assert.That(model.AdvanceStory(out _), Is.True);
-            Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.MaxStoryProgress));
+            for (int index = 0; index < GameModel.ChapterOneStageCount; index++)
+            {
+                Assert.That(model.AdvanceStory(out _), Is.True, $"第 {index + 1} 次推进应成功");
+                Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[index]));
+            }
+
+            Assert.That(model.IsChapterOneComplete, Is.True);
             Assert.That(model.AdvanceStory(out _), Is.False);
         }
 
@@ -750,7 +994,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + StageFirstClearDiamonds));
             Assert.That(model.StarsOf(EasyStage), Is.EqualTo(3));
             Assert.That(model.IsStageCleared(EasyStage), Is.True);
-            Assert.That(model.Save.StoryProgress, Is.EqualTo(84));
+            Assert.That(model.Save.StoryProgress, Is.EqualTo(81));
             Assert.That(ProgressOf(model, "daily-battle-2"), Is.EqualTo(1));
             Assert.That(ProgressOf(model, "daily-stamina-40"), Is.EqualTo(StageStamina));
 
@@ -766,7 +1010,7 @@ namespace ChoSiren.Tests
 
             GameModel reloaded = CreateModel();
             Assert.That(reloaded.StarsOf(EasyStage), Is.EqualTo(3));
-            Assert.That(reloaded.Save.StoryProgress, Is.EqualTo(89));
+            Assert.That(reloaded.Save.StoryProgress, Is.EqualTo(83));
         }
 
         [Test]
@@ -1117,6 +1361,33 @@ namespace ChoSiren.Tests
                 Enemies = new List<EnemySpawn> { new EnemySpawn { UnitId = "wall", Row = 1, Col = 1, ScalePermille = 1000 } },
                 Drops = new DropTable(),
             });
+            Assert.That(manifest.TryValidate(out string error), Is.True, error);
+            return manifest;
+        }
+
+        private static TacticsManifest BuildChapterOneTactics()
+        {
+            TacticsManifest manifest = BuildTactics();
+            for (int stageNumber = 1; stageNumber <= GameModel.ChapterOneStageCount; stageNumber++)
+            {
+                manifest.Stages.Add(new StageDefinition
+                {
+                    Id = $"stage-1-{stageNumber}",
+                    Chapter = "第 01 章",
+                    Name = $"1-{stageNumber} 测试演出",
+                    StaminaCost = 0,
+                    TurnLimit = 20,
+                    ThreeStarRounds = 8,
+                    GoldReward = 0,
+                    DiamondFirstClear = 0,
+                    Enemies = new List<EnemySpawn>
+                    {
+                        new EnemySpawn { UnitId = "dummy", Row = 1, Col = 1, ScalePermille = 1000 },
+                    },
+                    Drops = new DropTable(),
+                });
+            }
+
             Assert.That(manifest.TryValidate(out string error), Is.True, error);
             return manifest;
         }

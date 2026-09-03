@@ -13,6 +13,8 @@ namespace ChoSiren
     [RequireComponent(typeof(RawImage))]
     public sealed class LobbyVideoLoopPlayer : MonoBehaviour
     {
+        public event Action MusicAvailabilityChanged;
+
         private RawImage surface;
         private VideoPlayer player;
         private RenderTexture target;
@@ -25,10 +27,21 @@ namespace ChoSiren
         private bool audioUnlocked;
         private float prepareDeadline;
         private Vector2 lastSurfaceSize;
+        private bool hasReportedMusicAvailability;
+        private bool lastReportedMusicAvailability;
 
         public bool IsReady => player != null && player.isPrepared;
         public bool HasAudioTrack => IsReady && player.audioTrackCount > 0;
-        public bool CanProvideMusic => loopRequested && HasAudioTrack;
+        public bool HasEnabledAudioTrack => HasAudioTrack && player.IsAudioTrackEnabled(0);
+        public bool IsVideoAudioMuted => !HasAudioTrack || player.GetDirectAudioMute(0);
+        public bool CanProvideMusic => ShouldVideoOwnMusic(
+            musicEnabled,
+            audioUnlocked,
+            loopRequested,
+            IsReady,
+            player != null && player.isPlaying,
+            HasEnabledAudioTrack,
+            IsVideoAudioMuted);
 
         public void StartLoop(Action onReady, Action<string> onError)
         {
@@ -43,8 +56,9 @@ namespace ChoSiren
                 surface.enabled = true;
                 UpdateCrop();
                 ApplyAudioState();
-                readyCallback?.Invoke();
                 if (loopRequested && !player.isPlaying) player.Play();
+                NotifyMusicAvailabilityIfChanged();
+                readyCallback?.Invoke();
                 return;
             }
 
@@ -58,12 +72,14 @@ namespace ChoSiren
             loopRequested = false;
             ApplyAudioState();
             if (player != null && player.isPlaying) player.Pause();
+            NotifyMusicAvailabilityIfChanged();
         }
 
         public void SetMusicEnabled(bool enabled)
         {
             musicEnabled = enabled;
             ApplyAudioState();
+            NotifyMusicAvailabilityIfChanged();
         }
 
         public void ResumeAudioAfterUserGesture()
@@ -71,6 +87,7 @@ namespace ChoSiren
             audioUnlocked = true;
             ApplyAudioState();
             if (loopRequested && player != null && player.isPrepared && !player.isPlaying) player.Play();
+            NotifyMusicAvailabilityIfChanged();
         }
 
         private void InitializePlayer()
@@ -90,12 +107,13 @@ namespace ChoSiren
             player.audioOutputMode = VideoAudioOutputMode.Direct;
             player.controlledAudioTrackCount = 1;
             player.EnableAudioTrack(0, true);
-            player.SetDirectAudioVolume(0, 1f);
+            player.SetDirectAudioVolume(0, GameAudio.MusicOutputVolume);
             player.SetDirectAudioMute(0, ShouldMuteVideoAudio(musicEnabled, audioUnlocked, loopRequested));
             player.source = VideoSource.Url;
             string root = Application.streamingAssetsPath.TrimEnd('/', '\\');
             player.url = $"{root}/Lobby/lobby-loop.mp4";
             player.prepareCompleted += HandlePrepared;
+            player.started += HandleStarted;
             player.errorReceived += HandleError;
         }
 
@@ -120,17 +138,29 @@ namespace ChoSiren
             }
 
             ApplyAudioState();
-            if (!loopRequested) return;
+            if (!loopRequested)
+            {
+                NotifyMusicAvailabilityIfChanged();
+                return;
+            }
             surface.enabled = true;
             UpdateCrop();
-            readyCallback?.Invoke();
             if (loopRequested) source.Play();
+            NotifyMusicAvailabilityIfChanged();
+            readyCallback?.Invoke();
+        }
+
+        private void HandleStarted(VideoPlayer source)
+        {
+            ApplyAudioState();
+            NotifyMusicAvailabilityIfChanged();
         }
 
         private void HandleError(VideoPlayer source, string message)
         {
             waitingForPrepare = false;
             surface.enabled = false;
+            NotifyMusicAvailabilityIfChanged();
             errorCallback?.Invoke(string.IsNullOrEmpty(message) ? "首页动画载入失败" : message);
         }
 
@@ -141,10 +171,12 @@ namespace ChoSiren
                 waitingForPrepare = false;
                 player.Stop();
                 surface.enabled = false;
+                NotifyMusicAvailabilityIfChanged();
                 errorCallback?.Invoke("首页动画准备超时，已使用静态背景");
                 return;
             }
 
+            NotifyMusicAvailabilityIfChanged();
             if (!IsReady || surface == null) return;
             Vector2 size = surface.rectTransform.rect.size;
             if ((size - lastSurfaceSize).sqrMagnitude < 0.25f) return;
@@ -168,6 +200,19 @@ namespace ChoSiren
 
         public static bool ShouldMuteVideoAudio(bool enabled, bool unlocked, bool playingOnLobby) =>
             !enabled || !unlocked || !playingOnLobby;
+
+        public static bool ShouldVideoOwnMusic(bool enabled, bool unlocked, bool playingOnLobby,
+            bool prepared, bool playing, bool hasEnabledAudioTrack, bool muted) =>
+            enabled && unlocked && playingOnLobby && prepared && playing && hasEnabledAudioTrack && !muted;
+
+        private void NotifyMusicAvailabilityIfChanged()
+        {
+            bool available = CanProvideMusic;
+            if (hasReportedMusicAvailability && available == lastReportedMusicAvailability) return;
+            hasReportedMusicAvailability = true;
+            lastReportedMusicAvailability = available;
+            MusicAvailabilityChanged?.Invoke();
+        }
 
         public static Vector2Int CalculateRenderTextureSize(int sourceWidth, int sourceHeight, int maxDimension = 2048)
         {
@@ -202,6 +247,7 @@ namespace ChoSiren
             if (player != null)
             {
                 player.prepareCompleted -= HandlePrepared;
+                player.started -= HandleStarted;
                 player.errorReceived -= HandleError;
                 player.targetTexture = null;
             }

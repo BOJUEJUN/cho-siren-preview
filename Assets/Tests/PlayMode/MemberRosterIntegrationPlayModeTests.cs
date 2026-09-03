@@ -11,6 +11,7 @@ namespace ChoSiren.Tests
     public sealed class MemberRosterIntegrationPlayModeTests
     {
         private const string SaveKey = "ChoSiren.Save.v1";
+        private const float ShortPortraitContentHeight = 1280f - 246f;
 
         [UnitySetUp]
         public IEnumerator SetUp()
@@ -22,6 +23,14 @@ namespace ChoSiren.Tests
             yield return null;
             new GameObject("CHO-SIREN Member Roster Test").AddComponent<ChoSirenApp>();
             yield return null;
+
+            // Batch-mode PlayMode tests often start in a small landscape GameView. The
+            // production roster is a portrait UI, so establish its shortest supported
+            // 720x1280 content area before evaluating the responsive five-column grid.
+            RectTransform content = Require("Content").GetComponent<RectTransform>();
+            Assert.That(content, Is.Not.Null);
+            content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, ShortPortraitContentHeight);
+            Canvas.ForceUpdateCanvases();
             Click("Nav-members");
             yield return null;
         }
@@ -41,6 +50,10 @@ namespace ChoSiren.Tests
         {
             Assert.That(GameModel.Members.Length, Is.GreaterThanOrEqualTo(50));
             int firstPageCount = VisibleMemberCards().Length;
+            int expectedPageSize = MemberRosterPagination.RowsForContentHeight(ShortPortraitContentHeight) *
+                                   MemberRosterPagination.DefaultColumns;
+            Assert.That(firstPageCount, Is.EqualTo(expectedPageSize),
+                "最短支持竖屏应显示三行五列；更矮的批处理 GameView 不能改变产品布局前提。");
             Assert.That(firstPageCount, Is.InRange(
                 MemberRosterPagination.MinimumRows * MemberRosterPagination.DefaultColumns,
                 MemberRosterPagination.MaximumRows * MemberRosterPagination.DefaultColumns));

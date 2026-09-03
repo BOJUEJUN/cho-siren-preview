@@ -24,8 +24,12 @@ namespace ChoSiren.Panels
     /// </summary>
     public sealed class TaskBoardPanel : MonoBehaviour
     {
+        private const string StageBackgroundResource = "Art/TaskAI/task-board-bg-ai-v1-20260903";
         private const float RowHeight = 132f;
         private const float RowGap = 12f;
+        private const float ListTop = 238f;
+        private const float ListBottom = 52f;
+        private static readonly Color RowGlass = new Color32(15, 14, 54, 108);
 
         private sealed class RowView
         {
@@ -35,6 +39,7 @@ namespace ChoSiren.Panels
             public GameObject ClaimButton;
             public Text ClaimLabel;
             public Image RowBackground;
+            public Image Accent;
         }
 
         private readonly List<RowView> rows = new List<RowView>();
@@ -54,6 +59,7 @@ namespace ChoSiren.Panels
         private Text summaryText;
         private GameObject checkInButton;
         private Text checkInLabel;
+        private RectTransform listViewport;
         private RectTransform listContent;
         private Text emptyText;
         private Text hintText;
@@ -86,7 +92,7 @@ namespace ChoSiren.Panels
         {
             kit = new PanelKit("TaskBoard");
             model.Changed += HandleModelChanged;
-            kit.BuildBackdrop(transform);
+            BuildStageBackdrop();
 
             GameObject header = kit.NewHeader(transform, "活跃奖励", "任务面板", Close);
             claimAllButton = kit.NewButton("ClaimAll", header.transform, "一键领取", 15, PanelKit.Pink,
@@ -104,7 +110,8 @@ namespace ChoSiren.Panels
             summaryText = kit.NewPlacedText(transform, string.Empty, 13, PanelKit.Muted, 24, 192, 470, 34,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
 
-            checkInButton = kit.NewButton("TaskCheckIn", transform, string.Empty, 13, PanelKit.Pink,
+            checkInButton = kit.NewButton("CheckInTaskChip", transform, string.Empty, 13,
+                new Color32(91, 49, 151, 205),
                 PanelKit.White, CheckIn, 14);
             PanelKit.PlaceTop(checkInButton.GetComponent<RectTransform>(), 510, 190, 190, 38);
             checkInLabel = PanelKit.LabelOf(checkInButton);
@@ -112,36 +119,80 @@ namespace ChoSiren.Panels
             BuildList();
 
             hintText = kit.NewPlacedText(transform, "完成演出、战斗与签约会自动推进任务进度", 12,
-                new Color32(220, 206, 239, 255), 24, 1486, 672, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+                new Color32(220, 206, 239, 255), 24, 0, 672, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+            RectTransform hintRect = hintText.rectTransform;
+            hintRect.anchorMin = new Vector2(0f, 0f);
+            hintRect.anchorMax = new Vector2(1f, 0f);
+            hintRect.pivot = new Vector2(0.5f, 0f);
+            hintRect.anchoredPosition = new Vector2(0f, 12f);
+            hintRect.sizeDelta = new Vector2(-48f, 30f);
 
             Refresh();
         }
 
+        private void BuildStageBackdrop()
+        {
+            Sprite stageSprite = Resources.Load<Sprite>(StageBackgroundResource);
+            if (stageSprite == null)
+            {
+                Texture2D stageTexture = Resources.Load<Texture2D>(StageBackgroundResource);
+                if (stageTexture != null)
+                {
+                    stageSprite = kit.NewSprite(stageTexture,
+                        new Rect(0f, 0f, stageTexture.width, stageTexture.height),
+                        Vector2.one * 0.5f, Vector4.zero);
+                }
+            }
+
+            if (stageSprite == null)
+            {
+                kit.BuildBackdrop(transform);
+                return;
+            }
+
+            Image background = kit.NewImage("TaskBoardStageBackground", transform, stageSprite, Color.white);
+            PanelKit.Stretch(background.rectTransform);
+            background.raycastTarget = true;
+            background.type = Image.Type.Simple;
+
+            AspectRatioFitter cover = background.gameObject.AddComponent<AspectRatioFitter>();
+            cover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            cover.aspectRatio = stageSprite.rect.width / Mathf.Max(1f, stageSprite.rect.height);
+
+            // Keep the generated stage visible while gently damping its brightest floor lights behind text.
+            Image shade = kit.NewImage("TaskBoardStageShade", transform, null, new Color32(3, 6, 27, 54));
+            PanelKit.Stretch(shade.rectTransform);
+        }
+
         private void BuildList()
         {
-            RectTransform viewport = kit.NewRect("TaskList", transform);
-            PanelKit.PlaceTop(viewport, 20, 224, 680, 1250);
-            Image viewportImage = viewport.gameObject.AddComponent<Image>();
+            listViewport = kit.NewRect("TaskList", transform);
+            listViewport.anchorMin = Vector2.zero;
+            listViewport.anchorMax = Vector2.one;
+            listViewport.pivot = new Vector2(0.5f, 0.5f);
+            listViewport.offsetMin = new Vector2(20f, ListBottom);
+            listViewport.offsetMax = new Vector2(-20f, -ListTop);
+            Image viewportImage = listViewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(0f, 0f, 0f, 0.001f);
             viewportImage.raycastTarget = true;
-            viewport.gameObject.AddComponent<RectMask2D>();
+            listViewport.gameObject.AddComponent<RectMask2D>();
 
-            listContent = kit.NewRect("Content", viewport);
+            listContent = kit.NewRect("Content", listViewport);
             listContent.anchorMin = new Vector2(0, 1);
             listContent.anchorMax = new Vector2(1, 1);
             listContent.pivot = new Vector2(0.5f, 1);
             listContent.anchoredPosition = Vector2.zero;
             listContent.sizeDelta = new Vector2(0, 0);
 
-            ScrollRect scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            ScrollRect scroll = listViewport.gameObject.AddComponent<ScrollRect>();
             scroll.content = listContent;
-            scroll.viewport = viewport;
+            scroll.viewport = listViewport;
             scroll.horizontal = false;
             scroll.vertical = true;
             scroll.movementType = ScrollRect.MovementType.Clamped;
             scroll.scrollSensitivity = 40f;
 
-            emptyText = kit.NewPlacedText(viewport, "本周期暂无任务", 17, PanelKit.Muted, 0, 120, 680, 40,
+            emptyText = kit.NewPlacedText(listViewport, "本周期暂无任务", 17, PanelKit.Muted, 0, 120, 680, 40,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             emptyText.gameObject.SetActive(false);
         }
@@ -182,16 +233,25 @@ namespace ChoSiren.Panels
 
             int count = tasks == null ? 0 : tasks.Count;
             emptyText.gameObject.SetActive(count == 0);
-            listContent.sizeDelta = new Vector2(0, Mathf.Max(0, count * (RowHeight + RowGap)));
+            listContent.sizeDelta = new Vector2(0, ListContentHeight(count));
             for (int index = 0; index < count; index++) rows.Add(BuildRow(tasks[index], index));
+        }
+
+        public static float ListContentHeight(int count)
+        {
+            int normalizedCount = Mathf.Max(0, count);
+            if (normalizedCount == 0) return 0f;
+            return normalizedCount * RowHeight + (normalizedCount - 1) * RowGap;
         }
 
         private RowView BuildRow(TaskView task, int index)
         {
             TaskDefinition definition = task.Definition;
-            GameObject row = kit.NewPanel("Task-" + definition.Id, listContent, PanelKit.Glass, 22);
+            GameObject row = kit.NewPanel("Task-" + definition.Id, listContent, RowGlass, 22);
             PanelKit.PlaceTop(row.GetComponent<RectTransform>(), 0, index * (RowHeight + RowGap), 680, RowHeight);
-            kit.AddOutline(row, new Color32(166, 112, 255, 110), 1.5f);
+            kit.AddOutline(row, new Color32(166, 112, 255, 62), 1f);
+            Image accent = kit.NewImage("Accent", row.transform, kit.RoundedSprite(3), PanelKit.Cyan);
+            PanelKit.PlaceTop(accent.rectTransform, 0, 18, 4, 96);
 
             kit.NewPlacedText(row.transform, definition.Title, 18, PanelKit.White, 24, 16, 400, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -203,7 +263,7 @@ namespace ChoSiren.Panels
             Text progress = kit.NewPlacedText(row.transform, string.Empty, 13, PanelKit.White, 362, 50, 120, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
 
-            GameObject reward = kit.NewPanel("Reward", row.transform, new Color32(43, 32, 93, 230), 14);
+            GameObject reward = kit.NewPanel("Reward", row.transform, new Color32(30, 25, 76, 118), 14);
             PanelKit.PlaceTop(reward.GetComponent<RectTransform>(), 24, 86, 250, 36);
             string currency = definition.Reward != null ? definition.Reward.Currency : string.Empty;
             int amount = definition.Reward != null ? definition.Reward.Amount : 0;
@@ -228,6 +288,7 @@ namespace ChoSiren.Panels
                 ClaimButton = claim,
                 ClaimLabel = PanelKit.LabelOf(claim),
                 RowBackground = row.GetComponent<Image>(),
+                Accent = accent,
             };
             ApplyRowState(view);
             return view;
@@ -246,24 +307,27 @@ namespace ChoSiren.Panels
                 view.ClaimLabel.text = "已领取";
                 view.ClaimLabel.color = new Color32(196, 190, 220, 255);
                 PanelKit.SetButtonState(view.ClaimButton, false, new Color32(74, 70, 104, 235));
-                view.RowBackground.color = new Color32(22, 19, 58, 215);
+                view.RowBackground.color = new Color32(13, 12, 43, 88);
                 view.ProgressFill.color = new Color32(140, 132, 180, 255);
+                view.Accent.color = new Color32(126, 119, 164, 180);
             }
             else if (task.Claimable)
             {
                 view.ClaimLabel.text = "领取";
                 view.ClaimLabel.color = PanelKit.White;
                 PanelKit.SetButtonState(view.ClaimButton, true, PanelKit.Pink);
-                view.RowBackground.color = new Color32(46, 27, 96, 248);
+                view.RowBackground.color = new Color32(39, 21, 88, 132);
                 view.ProgressFill.color = PanelKit.Pink;
+                view.Accent.color = PanelKit.Pink;
             }
             else
             {
                 view.ClaimLabel.text = "进行中";
                 view.ClaimLabel.color = new Color32(214, 206, 236, 255);
                 PanelKit.SetButtonState(view.ClaimButton, false, new Color32(88, 66, 138, 235));
-                view.RowBackground.color = PanelKit.Glass;
+                view.RowBackground.color = RowGlass;
                 view.ProgressFill.color = PanelKit.Cyan;
+                view.Accent.color = PanelKit.Cyan;
             }
         }
 
@@ -357,9 +421,9 @@ namespace ChoSiren.Panels
             PanelKit.SetButtonState(claimAllButton, claimable > 0, claimable > 0 ? PanelKit.Pink : PanelKit.Disabled);
 
             bool canCheckIn = !model.HasCheckedInToday;
-            checkInLabel.text = canCheckIn ? $"签到 · 连续 {model.Save.CheckInDay} 天" : "今日已签到";
+            checkInLabel.text = canCheckIn ? $"签到任务 · 连续 {model.Save.CheckInDay} 天" : "签到任务 · 已完成";
             PanelKit.SetButtonState(checkInButton, canCheckIn,
-                canCheckIn ? new Color32(120, 62, 190, 250) : PanelKit.Disabled);
+                canCheckIn ? new Color32(91, 49, 151, 205) : new Color32(69, 62, 103, 190));
         }
 
         // ------------------------------------------------------------------ lifecycle

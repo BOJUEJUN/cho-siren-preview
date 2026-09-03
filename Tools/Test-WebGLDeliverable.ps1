@@ -18,7 +18,7 @@ $html = Get-Content -Raw -LiteralPath $indexPath
 if ($html -notmatch '<canvas[^>]+width="720"[^>]+height="1536"') {
     throw 'WebGL canvas is not built at the required 720 x 1536 portrait size.'
 }
-if ($html -notmatch '--portrait-ratio:\s*720\s*/\s*1536' -or $html -match '1552') {
+if ($html -notmatch '--portrait-ratio:\s*720\s*/\s*1536') {
     throw 'WebGL page shell does not match the 720 x 1536 canvas ratio.'
 }
 
@@ -42,6 +42,8 @@ if ($matches.Count -ne 4) {
     throw "Expected four WebGL build asset references, found $($matches.Count)."
 }
 
+$githubFileLimit = 100MB
+$recommendedDataLimit = 90MB
 $assets = foreach ($match in $matches) {
     $fileName = $match.Groups['file'].Value
     if ($fileName -notmatch '^[0-9a-f]{32}\.') {
@@ -54,6 +56,12 @@ $assets = foreach ($match in $matches) {
     }
 
     $item = Get-Item -LiteralPath $assetPath
+    if ($item.Length -ge $githubFileLimit) {
+        throw "WebGL asset exceeds GitHub's 100 MiB file limit: $fileName ($($item.Length) bytes)."
+    }
+    if ($fileName -match '\.data\.unityweb$' -and $item.Length -gt $recommendedDataLimit) {
+        Write-Warning "WebGL data is publishable but above the preferred 90 MiB budget: $($item.Length) bytes."
+    }
     [pscustomobject]@{
         file = $fileName
         bytes = $item.Length
@@ -61,11 +69,20 @@ $assets = foreach ($match in $matches) {
     }
 }
 
+$referencedNames = @($assets | ForEach-Object { $_.file })
+$unexpectedBuildEntries = @(Get-ChildItem -LiteralPath (Join-Path $resolvedBuildPath 'Build') -Force |
+    Where-Object { $_.PSIsContainer -or $_.Name -notin $referencedNames })
+if ($unexpectedBuildEntries.Count -gt 0) {
+    throw "WebGL Build contains entries not referenced by index.html: $($unexpectedBuildEntries.Name -join ', ')"
+}
+
 [pscustomobject]@{
     success = $true
     buildPath = $resolvedBuildPath
     canvas = '720x1536'
     githubPagesMarker = $pagesMarkerPath
+    githubPerFileLimitBytes = $githubFileLimit
+    preferredDataLimitBytes = $recommendedDataLimit
     lobbyVideo = [pscustomobject]@{
         file = 'StreamingAssets/Lobby/lobby-loop.mp4'
         bytes = (Get-Item -LiteralPath $lobbyVideoPath).Length

@@ -63,6 +63,12 @@ $duplicateReadmeNames = @(
     '预览说明.txt'
 )
 
+# This shortcut only works while Builds\Windows is inside the source checkout.
+# A standalone player archive intentionally contains no editable Unity project.
+$developerOnlyNames = @(
+    '打开Unity编辑器.cmd'
+)
+
 $projectVersionFile = Join-Path $projectRoot 'ProjectSettings\ProjectSettings.asset'
 if (Test-Path -LiteralPath $projectVersionFile) {
     $bundleLine = Select-String -LiteralPath $projectVersionFile -Pattern '^\s*bundleVersion:\s*(\S+)' | Select-Object -First 1
@@ -76,7 +82,8 @@ New-Item -ItemType Directory -Force -Path $stagingPath | Out-Null
 Get-ChildItem -LiteralPath $buildRoot -Force | Where-Object {
     $item = $_
     -not ($doNotShipPatterns | Where-Object { $item.Name -like $_ }) -and
-    -not ($duplicateReadmeNames -contains $item.Name)
+    -not ($duplicateReadmeNames -contains $item.Name) -and
+    -not ($developerOnlyNames -contains $item.Name)
 } | ForEach-Object {
     Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $stagingPath $_.Name) -Recurse -Force
 }
@@ -95,7 +102,7 @@ $manifest = [ordered]@{
     executableSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $stagingPath 'CHO-SIREN.exe')).Hash.ToLowerInvariant()
     onlinePreview = 'https://bojuejun.github.io/cho-siren-preview/'
     gitIgnoredJunkExcluded = $true
-    excludedPatterns = @($doNotShipPatterns + $duplicateReadmeNames)
+    excludedPatterns = @($doNotShipPatterns + $duplicateReadmeNames + $developerOnlyNames)
 }
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stagingPath '版本信息.json') -Encoding utf8
 

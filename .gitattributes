@@ -1,6 +1,8 @@
 # Keep Unity's text-serialized assets stable between Windows and macOS.
 * text=auto
 
+.gitattributes text eol=lf
+.gitignore text eol=lf
 *.cs text eol=lf
 *.cginc text eol=lf
 *.compute text eol=lf
@@ -11,6 +13,10 @@
 *.json text eol=lf
 *.md text eol=lf
 *.py text eol=lf
+*.ps1 text eol=lf
+*.cmd text eol=crlf
+*.csv text eol=lf
+*.xml text eol=lf
 *.txt text eol=lf
 *.uxml text eol=lf
 *.uss text eol=lf
@@ -65,3 +71,7 @@
 *.woff binary
 *.woff2 binary
 *.zip binary
+
+# No LFS pattern is enabled yet: the current Git history has no blob >= 50 MiB.
+# Add narrowly scoped LFS rules before committing future large source media;
+# never enable a broad rule here as an accidental history migration.

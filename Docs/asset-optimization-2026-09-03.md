@@ -66,30 +66,27 @@
 
 ## 4. 字体子集化
 
-- 源字体：`Assets/Resources/Fonts/NotoSansSC-Regular.otf` = **16,437,364 字节**（15.68 MiB），cmap 44,810 字符。**未修改、未删除。**
-- 新文件：`Assets/Resources/Fonts/NotoSansSC-Subset.otf` = **1,567,384 字节**（1.49 MiB），cmap 4,095 字符，体积为原来的 9.54%。
+- 源字体：`SourceAssets/Fonts/NotoSansSC-Regular.otf` = **16,437,364 字节**（15.68 MiB），cmap 44,810 字符。它仍随源码版本化，但已移出 `Assets/Resources`，不会进入玩家包。
+- 运行时文件：`Assets/Resources/Fonts/NotoSansSC-Subset.otf` = **1,570,352 字节**（1.50 MiB），cmap 4,101 字符，体积为原来的 9.55%。
 - 新 `.meta`：`NotoSansSC-Subset.otf.meta`，内容复制原 meta，仅 guid 换为随机 `9b7a3807d37abf20e920b3863d77c294`（已确认全项目唯一）。`fontNames` 仍是 `Noto Sans CJK SC`（子集保留了完整 name 表）。
 - 新脚本：`Tools/build_font_subset.py`（可重复运行，`--dry-run` 只统计）
   - 字符集来源：
-    - 扫描 `Assets/Scripts/**/*.cs`、`Assets/Resources/Data/**/*.json`、`Docs/*.md`、`%LOCALAPPDATA%\Temp\chosiren-stage\**\*.cs;*.json` 共 65 个文件，得到 976 个非 ASCII 字符（其中 45 个不在 GB2312 一级）；
+    - 扫描 `Assets/Scripts/**/*.cs`、`Assets/Resources/Data/**/*.json`、`Docs/*.md`、`%LOCALAPPDATA%\Temp\chosiren-stage\**\*.cs;*.json`，当前得到 1,168 个非 ASCII 字符（其中 72 个不在 GB2312 一级）；
     - GB2312 一级常用字 3,755 字（区位 B0A1–D7F9 枚举）；
     - ASCII 可打印、全角 ASCII（U+FF01–FF5E）、CJK 标点（U+3000–303F）、通用标点（U+2010–2027、2030–205E）、`♪♫◇♡☆★×▶◀●○◆■□▲▼→←↑↓…—–·•‰℃°±÷≈≠≤≥∞√` 等 UI 符号。
-  - 合并后请求 4,133 字符；源字体中不存在的 39 个全部是通用标点区的冷门码位（U+2017、U+201B、U+2040… 等），**项目实际用到的 976 个字符 100% 命中**。
+  - 合并后请求 4,139 字符；子集 cmap 为 4,101。另用 `GlyphTypeface` 对当前运行时代码和数据逐字核验，**项目实际用到的字符 100% 命中**，包括此前漏掉的“骰”。
   - pyftsubset 参数：`--layout-features='*' --glyph-names --name-IDs='*' --name-legacy --notdef-outline --recommended-glyphs --no-hinting`（CFF hint 已关，若接线后觉得小字号发虚可加 `--keep-hinting` 重生成，体积约 +10%）。
   - 运行环境：本机无系统 Python，使用 uv 管理的 `cpython-3.12.14`，在 `%TEMP%\chosiren-fonttools-venv` 建 venv 安装 `fonttools 4.64.0` + `brotli`；venv 在仓库外，不入库。
-- **接线（未做，需要拿到对应脚本独占权的人来改）：** 同一行字符串出现在 5 处——`ChoSirenApp.cs:65`、`Panels/PanelKit.cs:37`、`PerformanceStagePanel.cs:119`、`StoryBattlePanel.cs:192`、`LevelMapPanel.cs:161`，每处都是：
+- **接线（已完成）：** `ChoSirenApp`、`PanelKit`、`PerformanceStagePanel`、`StoryBattlePanel` 与 `LevelMapPanel` 均优先加载：
 
   ```csharp
-  // 原
-  Resources.Load<Font>("Fonts/NotoSansSC-Regular")
-  // 改为
   Resources.Load<Font>("Fonts/NotoSansSC-Subset")
   ```
 
-  建议接线者顺手把 5 处收拢成一个常量/工具方法，以后只改一处。切换后再构建，`Resources` 内两份字体都会被打进包——因此切换完成、验收通过后应把 `NotoSansSC-Regular.otf` 移出 `Resources/`（例如移到 `Assets/Fonts~/` 或仓库外备份），否则省下的 15 MiB 不会体现在构建里。**本次未移动原字体**，由接线者在验收后决定。
+  完整字体已移到 `SourceAssets/Fonts/`，重新运行 `Tools/build_font_subset.py` 仍可确定性生成同一路径的运行时子集。
 - 风险：未来新增文案若含 GB2312 一级以外的生僻字（如部分人名、繁体），子集会显示为方框。处理方式：重新运行 `build_font_subset.py`（它会自动扫描到新字符），或在 `EXTRA_SYMBOLS` 里补字。
 - 验证方式：切换后跑 PlayMode + 截图，重点看成员名、技能描述、数字与全角标点。
-- 回退：把 `Resources.Load` 改回 `NotoSansSC-Regular`；子集文件与 meta 可直接删除。
+- 回退：把完整字体和 meta 移回 `Assets/Resources/Fonts/`，再将加载路径改回 `Fonts/NotoSansSC-Regular`。
 
 ## 5. Windows 打包脚本
 

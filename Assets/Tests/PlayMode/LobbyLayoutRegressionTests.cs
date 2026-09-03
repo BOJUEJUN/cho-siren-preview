@@ -62,7 +62,110 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator LobbyContentEntriesAreUniqueLightweightHotspots()
+        public IEnumerator TeamUsesStellarFormationStageInsteadOfSolidCards()
+        {
+            RequireButtonRect("Nav-team").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            RectTransform backdrop = RequireRect("TeamStellarBackground");
+            Image backdropImage = backdrop.GetComponent<Image>();
+            AspectRatioFitter fitter = backdrop.GetComponent<AspectRatioFitter>();
+            Assert.That(backdropImage, Is.Not.Null);
+            Assert.That(backdropImage.sprite, Is.Not.Null,
+                "星环编队必须使用本地 AI 舞台底图，不能回退为空背景。");
+            Assert.That(fitter, Is.Not.Null,
+                "星环舞台背景必须由 AspectRatioFitter 保持原始比例。");
+            Assert.That(fitter.aspectMode, Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
+                "星环舞台应等比覆盖内容区，不能被强行拉伸。");
+
+            for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+            {
+                RectTransform orbit = RequireButtonRect($"TeamOrbit-{slot}");
+                Assert.That(orbit.GetComponent<Image>().color.a, Is.LessThanOrEqualTo(0.08f),
+                    $"TeamOrbit-{slot} 点击层应接近透明，不能恢复成大块纯色卡片。");
+                RequireRect($"TeamCharacter-{slot}");
+            }
+
+            RequireRect("TeamLeader");
+            Text powerValue = RequireRect("TeamPowerValue").GetComponent<Text>();
+            Assert.That(powerValue, Is.Not.Null);
+            Assert.That(powerValue.text, Is.Not.Empty, "编队总战力数字不能为空。");
+            Assert.That(powerValue.verticalOverflow, Is.EqualTo(VerticalWrapMode.Overflow),
+                "总战力大号数字不能被字体行高裁掉。");
+            RectTransform power = RequireRect("TeamPower");
+            RectTransform synergy = RequireRect("TeamSynergy");
+            Assert.That(power.GetComponent<Image>().sprite, Is.Not.Null,
+                "总战力必须装配完整美术框体，不能退回纯色卡片。");
+            Assert.That(synergy.GetComponent<Image>().sprite, Is.Not.Null,
+                "协同效果必须装配完整美术框体，不能退回纯色卡片。");
+            RequireButtonRect("ChangeLeader");
+            RequireButtonRect("AutoTeam");
+            AssertContained(RequireRect("Content"), synergy, "协同效果");
+        }
+
+        [UnityTest]
+        public IEnumerator MemberAndAccessoryPagesUseCalmAspectSafeBackgrounds()
+        {
+            RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            RectTransform memberBackdrop = RequireRect("MemberGalleryBackground");
+            Assert.That(memberBackdrop.GetComponent<Image>().sprite, Is.Not.Null,
+                "成员页必须加载指定的低干扰舞台背景。");
+            Assert.That(memberBackdrop.GetComponent<AspectRatioFitter>()?.aspectMode,
+                Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
+                "成员页背景必须等比覆盖，不能拉伸。");
+            Assert.That(RequireRect("Member-" + GameModel.Members[0].Id).GetComponent<Image>().color.a,
+                Is.LessThan(0.4f), "成员图鉴卡应使用低透明深蓝玻璃。");
+
+            RequireButtonRect("Nav-accessory").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            RectTransform accessoryBackdrop = RequireRect("AccessoryDressingRoomStage");
+            Assert.That(accessoryBackdrop.GetComponent<Image>().sprite, Is.Not.Null,
+                "饰品页必须加载指定的低干扰舞台背景。");
+            Assert.That(accessoryBackdrop.GetComponent<AspectRatioFitter>()?.aspectMode,
+                Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
+                "饰品页背景必须等比覆盖，不能拉伸。");
+            Assert.That(RequireRect("AccessoryPreview").GetComponent<Image>().color.a,
+                Is.LessThan(0.2f), "饰品角色预览不应恢复为大块实色底卡。");
+        }
+
+        [UnityTest]
+        public IEnumerator TeamAndMemberLayoutsStayInsideShortAndStandardPortraitContent()
+        {
+            RectTransform content = RequireRect("Content");
+            float originalHeight = content.rect.height;
+            float[] designContentHeights = { 1280f - 246f, 1536f - 246f };
+
+            foreach (float targetHeight in designContentHeights)
+            {
+                content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, targetHeight);
+                Canvas.ForceUpdateCanvases();
+
+                RequireButtonRect("Nav-team").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                content = RequireRect("Content");
+                AssertContained(content, RequireRect("TeamSynergy"), $"{targetHeight} 高度下的组合效果");
+                AssertContained(content, RequireButtonRect("ChangeLeader"), $"{targetHeight} 高度下的更换队长");
+                AssertContained(content, RequireButtonRect("AutoTeam"), $"{targetHeight} 高度下的一键编队");
+                for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+                    AssertContained(content, RequireButtonRect($"TeamOrbit-{slot}"),
+                        $"{targetHeight} 高度下的编队槽 {slot}");
+
+                RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                content = RequireRect("Content");
+                AssertContained(content, RequireButtonRect("MemberPreviousPage"),
+                    $"{targetHeight} 高度下的成员上一页");
+                AssertContained(content, RequireButtonRect("MemberNextPage"),
+                    $"{targetHeight} 高度下的成员下一页");
+            }
+
+            content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight);
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator LobbyContentEntriesAreUniqueAiRenderedHotspots()
         {
             RectTransform[] hotspots =
             {
@@ -74,14 +177,18 @@ namespace ChoSiren.Tests
             for (int index = 0; index < hotspots.Length; index++)
             {
                 Rect rect = RectInParent(hotspots[index]);
-                Assert.That(rect.width, Is.LessThanOrEqualTo(210f + PositionTolerance),
-                    $"{hotspots[index].name} 应为轻量热点，不能恢复成宽卡片。");
-                Assert.That(rect.height, Is.LessThanOrEqualTo(150f + PositionTolerance),
-                    $"{hotspots[index].name} 应为轻量热点，不能恢复成高卡片。");
+                Assert.That(rect.width, Is.InRange(240f - PositionTolerance, 280f + PositionTolerance),
+                    $"{hotspots[index].name} 应保留完整 AI 全息装置的视觉尺寸，同时不能扩张成页面卡片。");
+                Assert.That(rect.height, Is.InRange(220f - PositionTolerance, 250f + PositionTolerance),
+                    $"{hotspots[index].name} 应保留完整 AI 全息装置的视觉尺寸，同时不能扩张成页面卡片。");
                 Assert.That(hotspots[index].GetComponent<Image>().color.a, Is.LessThanOrEqualTo(0.01f),
                     $"{hotspots[index].name} 的点击层必须透明，让视频舞台保持完整。");
                 Assert.That(hotspots[index].GetComponent<Mask>(), Is.Null,
                     $"{hotspots[index].name} 不应使用会形成实体卡片的遮罩。");
+                Transform emblem = hotspots[index].Find("Emblem");
+                Assert.That(emblem, Is.Not.Null, $"{hotspots[index].name} 必须保留 AI 生成的透明入口素材。");
+                Assert.That(emblem.GetComponent<Image>()?.sprite, Is.Not.Null,
+                    $"{hotspots[index].name} 的 AI 入口素材未成功载入。");
                 FindText(hotspots[index], hotspots[index].name);
             }
 
@@ -93,10 +200,16 @@ namespace ChoSiren.Tests
             Assert.That(Object.FindObjectsByType<Button>(FindObjectsInactive.Exclude)
                     .Count(button => button.name == "LiveOnStage"), Is.EqualTo(1),
                 "首页只能有一个开始演出主入口。");
+            Transform stageFrame = RequireRect("LiveOnStage").Find("StageFrame");
+            Assert.That(stageFrame, Is.Not.Null, "开始演出必须保留 AI 生成的主视觉素材。");
+            Assert.That(stageFrame.GetComponent<Image>()?.sprite, Is.Not.Null,
+                "开始演出的 AI 主视觉素材未成功载入。");
             Assert.That(GameObject.Find("闪耀舞台计划"), Is.Null, "首页入口应使用短标签“闪耀舞台”。");
             Assert.That(GameObject.Find("每日签到"), Is.Null, "签到应合并进任务面板，不应重复占据首页入口。");
             Assert.That(GameObject.Find("直播间"), Is.Null, "演出只能保留一个主入口。");
             Assert.That(GameObject.Find("商城抽卡"), Is.Null, "底部导航功能不应在首页重复出现。");
+            Assert.That(GameObject.Find("ClaimableDot"), Is.Null,
+                "首页不应出现悬空的纯色方块通知，任务状态统一在任务面板中呈现。");
             yield return null;
         }
 
@@ -121,12 +234,25 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator TopBarControlsHaveAccessibleNonOverlappingHitAreas()
+        public IEnumerator TopBarOnlyKeepsCompactMailAndSettingsWithMusicInsideSettings()
         {
             RectTransform mail = RequireButtonRect("Mail");
-            RectTransform music = RequireButtonRect("Music");
             RectTransform settings = RequireButtonRect("Settings");
-            RectTransform[] controls = { mail, music, settings };
+            RectTransform[] controls = { mail, settings };
+            RectTransform topBar = RequireRect("TopBar");
+
+            Assert.That(topBar.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "Music"), Is.False,
+                "顶部栏不应再创建音乐按钮或遗留点击热区。");
+            Assert.That(topBar.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "Notice"), Is.False,
+                "设置按钮不应显示没有真实状态来源的粉色通知点。");
+            Assert.That(topBar.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "Badge"), Is.False,
+                "顶部栏不应遗留无意义的 Badge 节点。");
+            Assert.That(topBar.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "Accent"), Is.False,
+                "顶部栏不应遗留无意义的 Accent 小方块。");
 
             foreach (RectTransform control in controls)
             {
@@ -147,6 +273,76 @@ namespace ChoSiren.Tests
                         $"{controls[first].name} 与 {controls[second].name} 的点击热区不应重叠。");
                 }
             }
+
+            Rect mailRect = RectInParent(mail);
+            Rect settingsRect = RectInParent(settings);
+            Assert.That(settingsRect.xMin - mailRect.xMax, Is.InRange(0f, 8f),
+                "邮件与设置应紧凑排列，不应为已移除的音乐按钮保留空槽。");
+
+            Rect diamondIconRect = RectInParent(RequireRect("DiamondIcon"));
+            Rect diamondValueRect = RectInParent(RequireRect("Diamonds"));
+            Rect goldIconRect = RectInParent(RequireRect("GoldIcon"));
+            Rect goldValueRect = RectInParent(RequireRect("Gold"));
+            Rect staminaIconRect = RectInParent(RequireRect("StaminaIcon"));
+            RectTransform staminaValue = RequireRect("Stamina");
+            Rect staminaValueRect = RectInParent(staminaValue);
+            Assert.That(staminaValue.GetComponent<Text>().text, Does.Match(@"^\d+/\d+$"),
+                "体力栏只应显示当前值/上限，不应再包含倒计时。");
+            Assert.That(staminaValue.GetComponent<Text>().text, Does.Not.Contain(":"));
+            Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(80f + PositionTolerance),
+                "体力文本不应为已删除的倒计时保留空白宽度。");
+            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.InRange(0f, 4f));
+            Assert.That(goldIconRect.xMin - diamondValueRect.xMax, Is.InRange(0f, 8f));
+            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.InRange(0f, 4f));
+            Assert.That(staminaIconRect.xMin - goldValueRect.xMax, Is.InRange(0f, 8f));
+            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.InRange(0f, 4f));
+
+            settings.GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            RectTransform settingsModal = RequireRect("SettingsModal");
+            RectTransform musicRow = RequireRect("Setting-音乐");
+            Assert.That(musicRow.IsChildOf(settingsModal), Is.True,
+                "音乐开关应继续保留在设置弹窗内。");
+            FindText(musicRow, "音乐");
+            Assert.That(musicRow.GetComponentsInChildren<Text>(true)
+                    .Any(text => text.text == "已开启" || text.text == "已关闭"), Is.True,
+                "设置中的音乐行应显示当前开关状态。");
+
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator ButtonsReceiveHoverPressAndExitScaleFeedback()
+        {
+            RectTransform mail = RequireButtonRect("Mail");
+            ButtonInteractionFeedback feedback = mail.GetComponent<ButtonInteractionFeedback>();
+            Assert.That(feedback, Is.Not.Null,
+                "Canvas installer should attach feedback to dynamically built buttons.");
+
+            float restingScale = mail.localScale.x;
+            PointerEventData pointer = new PointerEventData(EventSystem.current)
+            {
+                button = PointerEventData.InputButton.Left,
+            };
+
+            ExecuteEvents.Execute<IPointerEnterHandler>(mail.gameObject, pointer,
+                ExecuteEvents.pointerEnterHandler);
+            yield return new WaitForSecondsRealtime(0.12f);
+            float hoverScale = mail.localScale.x;
+            Assert.That(hoverScale, Is.GreaterThan(restingScale + 0.01f),
+                "Hover should visibly increase the button scale.");
+
+            ExecuteEvents.Execute<IPointerDownHandler>(mail.gameObject, pointer,
+                ExecuteEvents.pointerDownHandler);
+            yield return new WaitForSecondsRealtime(0.16f);
+            Assert.That(mail.localScale.x, Is.LessThan(restingScale),
+                "Pointer down should rebound below the resting scale.");
+
+            ExecuteEvents.Execute<IPointerExitHandler>(mail.gameObject, pointer,
+                ExecuteEvents.pointerExitHandler);
+            yield return new WaitForSecondsRealtime(0.22f);
+            Assert.That(mail.localScale.x, Is.EqualTo(restingScale).Within(0.01f),
+                "Pointer exit should restore the scale even when it follows pointer down.");
 
             yield return null;
         }

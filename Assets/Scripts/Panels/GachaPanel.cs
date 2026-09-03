@@ -52,8 +52,15 @@ namespace ChoSiren.Panels
         private static readonly Color SsrColor = new Color32(120, 62, 26, 250);
         private static readonly Color SrColor = new Color32(92, 46, 150, 250);
         private static readonly Color RColor = new Color32(43, 48, 92, 250);
+        private const string AiArtRoot = "Art/GachaAI/";
+        private const string AiUiRoot = "Art/GachaAI/UI/";
+        private static readonly Color DetailGlass = new Color32(17, 27, 75, 124);
+        private static readonly Color ActionGlass = new Color32(23, 32, 88, 142);
+        private static readonly Color TenPullGlass = new Color32(36, 22, 82, 146);
+        private static readonly Color DisabledActionGlass = new Color32(42, 44, 82, 150);
 
         private readonly List<GameObject> bannerTabs = new List<GameObject>();
+        private readonly List<Image> bannerTabEmblems = new List<Image>();
         private readonly List<ResultCell> resultCells = new List<ResultCell>();
 
         private PanelKit kit;
@@ -61,6 +68,7 @@ namespace ChoSiren.Panels
         private IGachaService service;
         private Action onBack;
         private Action<string> onMessage;
+        private bool embeddedMode;
         private bool closing;
         private int bannerIndex;
         private int lastPullCount = 10;
@@ -79,12 +87,16 @@ namespace ChoSiren.Panels
         private GameObject guaranteeChip;
         private Text totalsText;
         private Text diamondText;
+        private Image ticketIcon;
+        private Text ticketNameText;
         private Text ticketText;
         private Text goldText;
         private GameObject pullOneButton;
         private GameObject pullTenButton;
         private Text pullOneLabel;
         private Text pullTenLabel;
+        private Text pullTenCostLabel;
+        private Image pullTenFrame;
         private Text hintText;
         private GameObject resultOverlay;
         private Text resultTitle;
@@ -94,6 +106,23 @@ namespace ChoSiren.Panels
 
         public static GachaPanel Open(Transform host, GameModel gameModel, IGachaService gachaService,
             Action back = null, Action<string> message = null)
+        {
+            return Create(host, gameModel, gachaService, false, back, message);
+        }
+
+        /// <summary>
+        /// Opens inside the main app's contentRoot. The global player HUD and five-item navigation
+        /// remain visible and interactive, so recruitment behaves like a primary tab rather than
+        /// a modal screen with a duplicate header.
+        /// </summary>
+        public static GachaPanel OpenEmbedded(Transform contentHost, GameModel gameModel,
+            IGachaService gachaService, Action<string> message = null)
+        {
+            return Create(contentHost, gameModel, gachaService, true, null, message);
+        }
+
+        private static GachaPanel Create(Transform host, GameModel gameModel, IGachaService gachaService,
+            bool embedded, Action back, Action<string> message)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (gameModel == null) throw new ArgumentNullException(nameof(gameModel));
@@ -108,6 +137,7 @@ namespace ChoSiren.Panels
             panel.service = gachaService;
             panel.onBack = back;
             panel.onMessage = message;
+            panel.embeddedMode = embedded;
             panel.Build();
             return panel;
         }
@@ -124,7 +154,7 @@ namespace ChoSiren.Panels
             kit.BuildBackdrop(transform);
             BuildStageBackdrop();
 
-            BuildLightHeader();
+            if (!embeddedMode) BuildLightHeader();
             BuildBannerCard();
             // The portrait is the stage. Controls are created afterwards so they always render
             // above the character instead of being washed out by the hero image.
@@ -138,29 +168,62 @@ namespace ChoSiren.Panels
         }
 
         /// <summary>
-        /// The approved C concept is a character standing on a luminous stage, not a flat
-        /// purple sheet. Reuse the shipped stage art and let the fitter crop the few excess
-        /// pixels so every portrait viewport keeps the original image proportions.
+        /// The recruitment center owns a dedicated portrait stage. The generated background
+        /// deliberately reserves quiet side lanes for live HUD while keeping the summon gate
+        /// behind the featured character.
         /// </summary>
         private void BuildStageBackdrop()
         {
-            Sprite stageSprite = Resources.Load<Sprite>("Art/LobbyBackground");
+            Sprite stageSprite = embeddedMode
+                ? LoadResourceSprite(AiArtRoot + "gacha-calm-stage-bg-ai-v2-20260903")
+                : null;
+            stageSprite ??= LoadResourceSprite(AiArtRoot + "gacha-stage-bg-ai-v1-20260903");
             if (stageSprite == null) return;
 
             Image stage = kit.NewImage("ImmersiveStage", transform, stageSprite,
-                new Color32(150, 164, 222, 238));
+                Color.white);
             PanelKit.Stretch(stage.rectTransform);
-            stage.preserveAspect = false;
+            stage.preserveAspect = true;
             stage.raycastTarget = false;
             AspectRatioFitter fitter = stage.gameObject.AddComponent<AspectRatioFitter>();
             fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
             fitter.aspectRatio = stageSprite.rect.width / Mathf.Max(1f, stageSprite.rect.height);
             stage.transform.SetSiblingIndex(1);
 
-            Image veil = kit.NewImage("StageVeil", transform, null, new Color32(4, 5, 28, 88));
+            Image veil = kit.NewImage("StageVeil", transform, null, new Color32(4, 5, 28, 42));
             PanelKit.Stretch(veil.rectTransform);
             veil.raycastTarget = false;
             veil.transform.SetSiblingIndex(2);
+        }
+
+        private Sprite LoadResourceSprite(string resourcePath)
+        {
+            Sprite sprite = Resources.Load<Sprite>(resourcePath);
+            if (sprite != null) return sprite;
+
+            Texture2D texture = Resources.Load<Texture2D>(resourcePath);
+            if (texture == null) return null;
+            return kit.NewSprite(texture, new Rect(0f, 0f, texture.width, texture.height),
+                Vector2.one * 0.5f, Vector4.zero);
+        }
+
+        /// <summary>
+        /// Places an authored AI UI surface behind live labels and controls.  The fallback panel
+        /// remains in place when an optional art asset has not imported yet, keeping the screen
+        /// functional while avoiding a second decorative layer once the asset is available.
+        /// </summary>
+        private Image AddAiUiSkin(GameObject owner, string assetName, Color tint)
+        {
+            if (owner == null || string.IsNullOrEmpty(assetName)) return null;
+            Sprite sprite = LoadResourceSprite(AiUiRoot + assetName);
+            if (sprite == null) return null;
+
+            Image skin = kit.NewImage("AI-" + assetName, owner.transform, sprite, tint);
+            PanelKit.Stretch(skin.rectTransform);
+            skin.preserveAspect = false;
+            skin.raycastTarget = false;
+            skin.transform.SetAsFirstSibling();
+            return skin;
         }
 
         private void BuildLightHeader()
@@ -170,9 +233,9 @@ namespace ChoSiren.Panels
                     new Color32(4, 7, 31, 150), new Color32(4, 7, 31, 0)), Color.white);
             PanelKit.PlaceTop(shade.rectTransform, 0, 0, 720, 112);
             GameObject back = kit.NewButton("Back", transform, "返回", 15,
-                new Color32(30, 24, 76, 188), PanelKit.White, Close, 16);
+                new Color32(20, 19, 66, 82), PanelKit.White, Close, 16);
             PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 18, 18, 78, 48);
-            kit.AddOutline(back, new Color32(156, 111, 255, 120), 1);
+            kit.AddOutline(back, new Color32(156, 111, 255, 72), 1);
             kit.NewPlacedText(transform, "招募中心", 25, PanelKit.White, 112, 16, 210, 46,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
         }
@@ -183,39 +246,80 @@ namespace ChoSiren.Panels
             int count = banners == null ? 0 : banners.Count;
             if (count == 0)
             {
-                kit.NewPlacedText(transform, "暂无开放中的卡池", 16, PanelKit.Muted, 20, 128, 680, 44,
+                kit.NewPlacedText(transform, "暂无开放中的卡池", 16, PanelKit.Muted, 20,
+                    embeddedMode ? 48 : 128, 680, 44,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 return;
             }
+
+            float tabsTop = embeddedMode ? 68f : 208f;
+            float tabStride = embeddedMode ? 122f : 142f;
+            float tabHeight = embeddedMode ? 110f : 126f;
+            float emblemSize = embeddedMode ? 86f : 100f;
 
             for (int index = 0; index < count; index++)
             {
                 int captured = index;
                 GachaBannerDefinition banner = banners[index];
-                GameObject tab = kit.NewButton("BannerTab-" + banner.Id, transform, banner.Name, 14,
-                    new Color32(25, 20, 72, 226), PanelKit.White, () => SelectBanner(captured), 18);
-                PanelKit.PlaceTop(tab.GetComponent<RectTransform>(), 20, 242 + index * 104, 142, 88);
-                kit.AddOutline(tab, new Color32(144, 103, 238, 110), 1);
-                Image activeMark = kit.NewImage("ActiveMark", tab.transform, kit.RoundedSprite(4), PanelKit.Pink);
-                PanelKit.PlaceTop(activeMark.rectTransform, 0, 12, 5, 60);
+                GameObject tab = kit.NewButton("BannerTab-" + banner.Id, transform, ShortBannerLabel(banner), 13,
+                    new Color32(7, 8, 37, 12), PanelKit.White, () => SelectBanner(captured), 18);
+                PanelKit.PlaceTop(tab.GetComponent<RectTransform>(), 14, tabsTop + index * tabStride, 140, tabHeight);
+
+                Image activeMark = kit.NewImage("ActiveMark", tab.transform, kit.RadialSprite(),
+                    new Color32(255, 69, 205, 112));
+                PanelKit.PlaceTop(activeMark.rectTransform, 4, -2, 132, tabHeight - 4f);
+                activeMark.transform.SetAsFirstSibling();
                 activeMark.gameObject.SetActive(index == bannerIndex);
+
+                Sprite emblemSprite = Resources.Load<Sprite>(BannerEmblemPath(banner));
+                Image emblem = kit.NewImage("BannerEmblem", tab.transform, emblemSprite, Color.white);
+                PanelKit.PlaceTop(emblem.rectTransform, (140f - emblemSize) * 0.5f, 0, emblemSize, emblemSize);
+                emblem.preserveAspect = true;
+                emblem.raycastTarget = false;
+                emblem.transform.SetSiblingIndex(1);
+
+                Text label = PanelKit.LabelOf(tab);
+                PanelKit.PlaceTop(label.rectTransform, 8, embeddedMode ? 80 : 91, 124, 30);
+                label.alignment = TextAnchor.MiddleCenter;
+                kit.AddOutline(label.gameObject, new Color32(8, 5, 30, 230), 1.5f);
                 bannerTabs.Add(tab);
+                bannerTabEmblems.Add(emblem);
             }
+        }
+
+        private static string BannerEmblemPath(GachaBannerDefinition banner)
+        {
+            if (banner != null && banner.Kind == GachaBannerKind.Costume)
+                return AiArtRoot + "gacha-emblem-costume-ai-v1-20260903";
+            if (banner != null && banner.Id.IndexOf("standard", StringComparison.OrdinalIgnoreCase) >= 0)
+                return AiArtRoot + "gacha-emblem-standard-ai-v1-20260903";
+            return AiArtRoot + "gacha-emblem-debut-ai-v1-20260903";
+        }
+
+        private static string ShortBannerLabel(GachaBannerDefinition banner)
+        {
+            if (banner != null && banner.Kind == GachaBannerKind.Costume) return "霓虹衣装";
+            if (banner != null && banner.Id.IndexOf("standard", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "常驻签约";
+            return "初登场";
         }
 
         private void BuildBannerCard()
         {
             GameObject card = kit.NewPanel("BannerCard", transform, new Color32(9, 10, 42, 12), 0);
-            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 0, 70, 720, 1150);
+            float cardTop = embeddedMode ? 0f : 70f;
+            float cardHeight = embeddedMode ? 914f : 1150f;
+            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 0, cardTop, 720, cardHeight);
 
             Image glow = kit.NewImage("BannerGlow", card.transform, kit.RadialSprite(), new Color32(95, 128, 255, 92));
-            PanelKit.PlaceTop(glow.rectTransform, 24, 0, 672, 1010);
+            PanelKit.PlaceTop(glow.rectTransform, 24, 0, 672, embeddedMode ? 850 : 1010);
             Image lowerGlow = kit.NewImage("BannerLowerGlow", card.transform, kit.RadialSprite(),
                 new Color32(255, 61, 193, 74));
-            PanelKit.PlaceTop(lowerGlow.rectTransform, 60, 610, 600, 520);
+            PanelKit.PlaceTop(lowerGlow.rectTransform, 60, embeddedMode ? 510 : 610, 600,
+                embeddedMode ? 390 : 520);
 
             GameObject frame = kit.NewPanel("FeaturedFrame", card.transform, new Color32(7, 9, 38, 3), 28);
-            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 38, 0, 644, 1090);
+            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 38, 0, 644, embeddedMode ? 874 : 1090);
             kit.AddOutline(frame, new Color32(157, 111, 255, 42), 1);
             featuredPortrait = kit.NewImage("FeaturedPortrait", frame.transform, null, PanelKit.White);
             PanelKit.Stretch(featuredPortrait.rectTransform, -34, -18, 34, 18);
@@ -224,98 +328,137 @@ namespace ChoSiren.Panels
             featuredFallback = kit.NewPlacedText(frame.transform, string.Empty, 12, Color.clear,
                 0, 0, 1, 1, TextAnchor.MiddleCenter);
 
-            GameObject caption = kit.NewPanel("HeroCaption", card.transform, new Color32(8, 10, 42, 184), 22);
-            PanelKit.PlaceTop(caption.GetComponent<RectTransform>(), 154, 906, 412, 144);
+            GameObject caption = kit.NewPanel("HeroCaption", card.transform, new Color32(8, 10, 42, 148), 22);
+            PanelKit.PlaceTop(caption.GetComponent<RectTransform>(), 154, embeddedMode ? 716 : 824, 412, 144);
+            AddAiUiSkin(caption, "gacha-identity-panel-ai-v2", Color.white);
             kit.AddOutline(caption, new Color32(255, 103, 216, 155), 1.5f);
             bannerKind = kit.NewPlacedText(caption.transform, "角色招募", 13,
-                new Color32(255, 173, 226, 255), 20, 12, 380, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+                new Color32(255, 173, 226, 255), 34, 16, 350, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             bannerTitle = kit.NewPlacedText(caption.transform, string.Empty, 30, PanelKit.White,
-                20, 34, 380, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
+                34, 38, 350, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
             featuredText = kit.NewPlacedText(caption.transform, string.Empty, 16, PanelKit.Gold,
-                20, 78, 380, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                34, 80, 350, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             kit.NewPlacedText(caption.transform, "重复获得转化为碎片 · 十连至少获得 SR", 12, PanelKit.Muted,
-                20, 108, 380, 24, TextAnchor.MiddleLeft);
+                34, 108, 350, 24, TextAnchor.MiddleLeft);
         }
 
         private void BuildRates()
         {
-            GameObject panel = kit.NewPanel("RateBoard", transform, new Color32(9, 12, 49, 204), 18);
-            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 530, 254, 172, 174);
-            kit.AddOutline(panel, new Color32(131, 94, 224, 115), 1);
-            kit.NewPlacedText(panel.transform, "概率公示", 15, new Color32(255, 173, 226, 255),
-                14, 10, 144, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            GameObject panel = kit.NewPanel("RateBoard", transform, new Color32(8, 11, 44, 116), 16);
+            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 166, embeddedMode ? 914 : 1052, 536, 62);
+            AddAiUiSkin(panel, "gacha-rates-panel-ai-v2", Color.white);
+            kit.AddOutline(panel, new Color32(151, 119, 255, 72), 1);
+            kit.NewPlacedText(panel.transform, "概率公示", 13, new Color32(255, 173, 226, 255),
+                26, 0, 82, 62, TextAnchor.MiddleLeft, FontStyle.Bold);
             rateText = kit.NewPlacedText(panel.transform, string.Empty, 13, PanelKit.White,
-                14, 42, 144, 118, TextAnchor.UpperLeft, FontStyle.Bold);
-            rateText.lineSpacing = 1.18f;
+                112, 0, 400, 62, TextAnchor.MiddleLeft, FontStyle.Bold);
         }
 
         private void BuildPity()
         {
-            GameObject panel = kit.NewPanel("PityBoard", transform, new Color32(9, 12, 49, 204), 18);
-            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 530, 442, 172, 204);
-            kit.AddOutline(panel, new Color32(131, 94, 224, 115), 1);
-            kit.NewPlacedText(panel.transform, "保底进度", 15, new Color32(255, 173, 226, 255),
-                14, 10, 144, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            pityText = kit.NewPlacedText(panel.transform, string.Empty, 15, PanelKit.White,
-                14, 40, 144, 58, TextAnchor.UpperLeft, FontStyle.Bold);
-            pityFill = kit.NewBar("PityBar", panel.transform, 14, 101, 144, 12,
+            GameObject panel = kit.NewPanel("PityBoard", transform, new Color32(8, 11, 44, 124), 16);
+            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 166, embeddedMode ? 982 : 1122, 536, 84);
+            AddAiUiSkin(panel, "gacha-pity-panel-ai-v2", Color.white);
+            kit.AddOutline(panel, new Color32(151, 119, 255, 76), 1);
+            kit.NewPlacedText(panel.transform, "保底进度", 13, new Color32(255, 173, 226, 255),
+                26, 0, 82, 84, TextAnchor.MiddleLeft, FontStyle.Bold);
+            pityText = kit.NewPlacedText(panel.transform, string.Empty, 13, PanelKit.White,
+                102, 5, 420, 27, TextAnchor.MiddleLeft, FontStyle.Bold);
+            pityFill = kit.NewBar("PityBar", panel.transform, 102, 35, 250, 9,
                 new Color32(66, 54, 117, 255), PanelKit.Pink, 9);
             totalsText = kit.NewPlacedText(panel.transform, string.Empty, 12, PanelKit.Muted,
-                14, 121, 144, 36, TextAnchor.UpperLeft);
+                102, 48, 286, 27, TextAnchor.MiddleLeft);
             guaranteeChip = kit.NewPanel("GuaranteeChip", panel.transform, new Color32(255, 205, 96, 235), 12);
-            PanelKit.PlaceTop(guaranteeChip.GetComponent<RectTransform>(), 14, 164, 144, 30);
+            PanelKit.PlaceTop(guaranteeChip.GetComponent<RectTransform>(), 392, 44, 130, 28);
             kit.NewPlacedText(guaranteeChip.transform, "限定保底已激活", 12,
-                new Color32(52, 30, 8, 255), 4, 1, 136, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+                new Color32(52, 30, 8, 255), 4, 0, 122, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
 
         private void BuildBalances()
         {
-            diamondText = BalanceChip("BalanceDiamond", 356, 14, "diamond", 168);
-            goldText = BalanceChip("BalanceGold", 532, 14, "gold", 170);
-            ticketText = BalanceChip("BalanceTicket", 20, 1218, "recruit-ticket", 142);
+            if (!embeddedMode)
+            {
+                diamondText = BalanceChip("BalanceDiamond", 356, 14, "diamond", 168);
+                goldText = BalanceChip("BalanceGold", 532, 14, "gold", 170);
+            }
+
+            ticketText = BalanceChip("BalanceTicket", 20, embeddedMode ? 1078 : 1218,
+                "recruit-ticket", 142);
         }
 
         private Text BalanceChip(string name, float x, float y, string currency, float width)
         {
-            GameObject chip = kit.NewPanel(name, transform, new Color32(18, 19, 59, 196), 17);
+            GameObject chip = kit.NewPanel(name, transform, new Color32(13, 16, 55, 88), 17);
             PanelKit.PlaceTop(chip.GetComponent<RectTransform>(), x, y, width, 54);
-            kit.AddOutline(chip, new Color32(137, 110, 222, 95), 1);
+            if (name == "BalanceTicket")
+                AddAiUiSkin(chip, "gacha-ticket-panel-ai-v2", Color.white);
+            kit.AddOutline(chip, new Color32(137, 110, 222, 56), 1);
             Sprite icon = PanelKit.CurrencyIcon(currency);
             Image iconImage = kit.NewImage("Icon", chip.transform, icon ?? kit.RoundedSprite(8),
                 icon != null ? Color.white : PanelKit.CurrencyColor(currency));
             PanelKit.PlaceTop(iconImage.rectTransform, 12, 12, 32, 32);
             iconImage.preserveAspect = true;
-            kit.NewPlacedText(chip.transform, PanelKit.CurrencyName(currency), 13, PanelKit.Muted,
+            Text currencyName = kit.NewPlacedText(chip.transform, PanelKit.CurrencyName(currency), 13, PanelKit.Muted,
                 50, 5, width - 58, 21, TextAnchor.MiddleLeft, FontStyle.Bold);
-            return kit.NewPlacedText(chip.transform, "0", 17, PanelKit.White,
+            currencyName.name = "CurrencyName";
+            Text value = kit.NewPlacedText(chip.transform, "0", 17, PanelKit.White,
                 50, 25, width - 58, 25, TextAnchor.MiddleLeft, FontStyle.Bold);
+            value.name = "Value";
+            if (name == "BalanceTicket")
+            {
+                ticketIcon = iconImage;
+                ticketNameText = currencyName;
+            }
+            return value;
         }
 
         private void BuildPullButtons()
         {
+            float sideButtonTop = embeddedMode ? 1152f : 1308f;
+            float sideButtonHeight = embeddedMode ? 58f : 66f;
+            float tenButtonTop = embeddedMode ? 1138f : 1274f;
+            float tenButtonHeight = embeddedMode ? 88f : 116f;
             GameObject details = kit.NewButton("GachaDetails", transform, "详情", 15,
-                new Color32(22, 25, 70, 205), PanelKit.White, () => Notify(RateSummary(CurrentBanner)), 18);
-            PanelKit.PlaceTop(details.GetComponent<RectTransform>(), 20, 1308, 130, 66);
+                DetailGlass, PanelKit.White, () => Notify(RateSummary(CurrentBanner)), 18);
+            PanelKit.PlaceTop(details.GetComponent<RectTransform>(), 20, sideButtonTop, 130, sideButtonHeight);
             kit.AddOutline(details, new Color32(174, 148, 255, 115), 1);
 
             pullOneButton = kit.NewButton("PullOne", transform, string.Empty, 20,
-                new Color32(98, 57, 166, 242), PanelKit.White, () => Pull(1), 24);
-            PanelKit.PlaceTop(pullOneButton.GetComponent<RectTransform>(), 544, 1305, 158, 78);
+                ActionGlass, PanelKit.White, () => Pull(1), 20);
+            PanelKit.PlaceTop(pullOneButton.GetComponent<RectTransform>(), 552,
+                embeddedMode ? sideButtonTop : 1312, 150, sideButtonHeight);
+            AddAiUiSkin(pullOneButton, "gacha-one-pull-frame-ai-v2", Color.white);
             pullOneLabel = PanelKit.LabelOf(pullOneButton);
-            pullOneLabel.fontSize = 16;
-            kit.AddOutline(pullOneButton, new Color32(197, 156, 255, 145), 1.5f);
+            pullOneLabel.fontSize = 14;
+            kit.AddOutline(pullOneButton, new Color32(197, 156, 255, 105), 1);
 
             pullTenButton = kit.NewButton("PullTen", transform, string.Empty, 20,
-                new Color32(207, 43, 213, 252), PanelKit.White, () => Pull(10), 30);
-            PanelKit.PlaceTop(pullTenButton.GetComponent<RectTransform>(), 166, 1278, 362, 112);
+                TenPullGlass, PanelKit.White, () => Pull(10), 30);
+            PanelKit.PlaceTop(pullTenButton.GetComponent<RectTransform>(), 158, tenButtonTop, 380, tenButtonHeight);
             pullTenLabel = PanelKit.LabelOf(pullTenButton);
-            pullTenLabel.fontSize = 21;
-            kit.AddOutline(pullTenButton, new Color32(255, 211, 103, 245), 3);
+            pullTenLabel.text = "签约 ×10";
+            pullTenLabel.fontSize = 18;
+            pullTenLabel.alignment = TextAnchor.MiddleCenter;
+            PanelKit.PlaceTop(pullTenLabel.rectTransform, 58, embeddedMode ? 17 : 30, 264, 26);
+            pullTenCostLabel = kit.NewPlacedText(pullTenButton.transform, string.Empty, 12,
+                new Color32(242, 231, 255, 255), 54, embeddedMode ? 48 : 60, 272, 20,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            pullTenCostLabel.gameObject.name = "PullTenCost";
+            Sprite frameSprite = LoadResourceSprite(AiUiRoot + "gacha-ten-pull-frame-ai-v2") ??
+                                 LoadResourceSprite(AiArtRoot + "gacha-ten-pull-frame-ai-v1-20260903");
+            pullTenFrame = kit.NewImage("TenPullCrystalFrame", pullTenButton.transform, frameSprite, Color.white);
+            PanelKit.Stretch(pullTenFrame.rectTransform);
+            pullTenFrame.type = Image.Type.Simple;
+            pullTenFrame.raycastTarget = false;
+            pullTenFrame.transform.SetAsFirstSibling();
+            pullTenLabel.transform.SetAsLastSibling();
+            pullTenCostLabel.transform.SetAsLastSibling();
 
             hintText = kit.NewPlacedText(transform, "选择心仪卡池，与舞台上的她签订契约", 13,
-                new Color32(220, 206, 239, 255), 40, 1402, 640, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+                new Color32(220, 206, 239, 255), 40, embeddedMode ? 1232 : 1402, 640, 30,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
             kit.NewPlacedText(transform, "星光汇聚，下一位成员正在等待", 12, new Color32(151, 140, 190, 255),
-                40, 1436, 640, 24, TextAnchor.MiddleCenter);
+                40, embeddedMode ? 1260 : 1436, 640, 24, TextAnchor.MiddleCenter);
         }
 
         private void BuildResult()
@@ -435,16 +578,19 @@ namespace ChoSiren.Panels
             {
                 bool selected = index == bannerIndex;
                 PanelKit.SetButtonState(bannerTabs[index], true,
-                    selected ? new Color32(116, 43, 177, 248) : new Color32(25, 20, 72, 226));
+                    Color.clear);
                 Text label = PanelKit.LabelOf(bannerTabs[index]);
-                if (label != null) label.color = selected ? PanelKit.White : PanelKit.Muted;
+                if (label != null) label.color = selected ? PanelKit.White : new Color32(184, 173, 211, 220);
+                if (index < bannerTabEmblems.Count)
+                    bannerTabEmblems[index].color = selected ? Color.white : new Color(0.62f, 0.59f, 0.76f, 0.78f);
                 Transform activeMark = bannerTabs[index].transform.Find("ActiveMark");
                 if (activeMark != null) activeMark.gameObject.SetActive(selected);
+                bannerTabs[index].transform.localScale = selected ? Vector3.one * 1.04f : Vector3.one;
             }
 
-            diamondText.text = service.Balance("diamond").ToString("N0");
-            ticketText.text = service.Balance("recruit-ticket").ToString("N0");
-            goldText.text = service.Balance("gold").ToString("N0");
+            if (diamondText != null) diamondText.text = service.Balance("diamond").ToString("N0");
+            RefreshTicketBalance(banner);
+            if (goldText != null) goldText.text = service.Balance("gold").ToString("N0");
 
             if (banner == null)
             {
@@ -458,8 +604,10 @@ namespace ChoSiren.Panels
                 guaranteeChip.SetActive(false);
                 pullOneLabel.text = "签约 ×1";
                 pullTenLabel.text = "签约 ×10";
-                PanelKit.SetButtonState(pullOneButton, false, PanelKit.Disabled);
-                PanelKit.SetButtonState(pullTenButton, false, PanelKit.Disabled);
+                pullTenCostLabel.text = string.Empty;
+                PanelKit.SetButtonState(pullOneButton, false, DisabledActionGlass);
+                PanelKit.SetButtonState(pullTenButton, false, DisabledActionGlass);
+                if (pullTenFrame != null) pullTenFrame.color = new Color(0.55f, 0.55f, 0.65f, 0.62f);
                 featuredPortrait.enabled = false;
                 featuredFallback.gameObject.SetActive(false);
                 return;
@@ -473,7 +621,7 @@ namespace ChoSiren.Panels
             featuredPortrait.enabled = featuredSprite != null;
             featuredFallback.gameObject.SetActive(false);
 
-            rateText.text = CompactRateSummary(banner);
+            rateText.text = InlineRateSummary(banner);
 
             GachaBannerState state = service.BannerState(banner.Id);
             int pity = state != null ? state.Pity : 0;
@@ -494,25 +642,68 @@ namespace ChoSiren.Panels
             pullOneLabel.text = ticketCoversOne
                 ? $"签约 ×1\n{PanelKit.CurrencyName(banner.TicketCurrency)} ×1（余 {tickets}）"
                 : $"签约 ×1\n{currencyName} {banner.CostPerPull}（余 {balance:N0}）";
-            pullTenLabel.text = ticketCoversTen
-                ? $"签约 ×10\n{PanelKit.CurrencyName(banner.TicketCurrency)} ×10（余 {tickets}）"
-                : $"签约 ×10\n{currencyName} {banner.CostTenPull}（余 {balance:N0}）";
+            pullTenLabel.text = "签约 ×10";
+            pullTenCostLabel.text = ticketCoversTen
+                ? $"{PanelKit.CurrencyName(banner.TicketCurrency)} ×10 · 余 {tickets}"
+                : $"{currencyName} {banner.CostTenPull} · 余 {balance:N0}";
 
             bool canOne = !pulling && (ticketCoversOne || balance >= banner.CostPerPull);
             bool canTen = !pulling && (ticketCoversTen || balance >= banner.CostTenPull);
             PanelKit.SetButtonState(pullOneButton, canOne,
-                canOne ? new Color32(120, 62, 190, 250) : PanelKit.Disabled);
-            PanelKit.SetButtonState(pullTenButton, canTen, canTen ? PanelKit.Pink : PanelKit.Disabled);
+                canOne ? ActionGlass : DisabledActionGlass);
+            PanelKit.SetButtonState(pullTenButton, canTen,
+                canTen ? TenPullGlass : DisabledActionGlass);
+            if (pullTenFrame != null)
+                pullTenFrame.color = canTen ? Color.white : new Color(0.55f, 0.55f, 0.65f, 0.62f);
+        }
+
+        private void RefreshTicketBalance(GachaBannerDefinition banner)
+        {
+            string currency = banner != null && !string.IsNullOrEmpty(banner.TicketCurrency)
+                ? banner.TicketCurrency
+                : "recruit-ticket";
+            if (ticketText != null) ticketText.text = service.Balance(currency).ToString("N0");
+            if (ticketNameText != null) ticketNameText.text = PanelKit.CurrencyName(currency);
+            if (ticketIcon == null) return;
+
+            Sprite icon = PanelKit.CurrencyIcon(currency);
+            ticketIcon.sprite = icon ?? kit.RoundedSprite(8);
+            ticketIcon.color = icon != null ? Color.white : PanelKit.CurrencyColor(currency);
+            ticketIcon.preserveAspect = true;
+        }
+
+        private static string InlineRateSummary(GachaBannerDefinition banner)
+        {
+            if (banner == null) return string.Empty;
+            int rPermille = Mathf.Max(0, 1000 - banner.SsrRatePermille - banner.SrRatePermille);
+            string guarantee = banner.TenPullGuaranteesSr ? " · 十连至少 SR" : string.Empty;
+            return $"SSR {PanelKit.Permille(banner.SsrRatePermille)} · " +
+                   $"SR {PanelKit.Permille(banner.SrRatePermille)} · " +
+                   $"R {PanelKit.Permille(rPermille)}{guarantee}";
         }
 
         /// <summary>
-        /// Every banner must show real art. Character banners prefer their featured member,
-        /// standard banners use the first permanent SSR, and costume ids are mapped back to
-        /// their owning member (for example costume-xingli-neon-night -> xingli).
+        /// Each public pool owns a distinct local stage model: debut = xingli,
+        /// standard = feiyin (wubai fallback), costume = yeying (yaoguang fallback).
+        /// The visual assignment is intentionally independent from probability data.
         /// </summary>
         private static Sprite ResolveBannerPortrait(GachaBannerDefinition banner)
         {
             if (banner == null) return null;
+
+            string[] visualCandidates;
+            if (banner.Kind == GachaBannerKind.Costume)
+                visualCandidates = new[] { "yeying", "yaoguang" };
+            else if (banner.Id.IndexOf("standard", StringComparison.OrdinalIgnoreCase) >= 0)
+                visualCandidates = new[] { "feiyin", "wubai" };
+            else
+                visualCandidates = new[] { "xingli" };
+
+            for (int index = 0; index < visualCandidates.Length; index++)
+            {
+                Sprite visual = PanelKit.MemberSpriteOrNull(visualCandidates[index], false);
+                if (visual != null) return visual;
+            }
 
             for (int index = 0; index < banner.FeaturedItemIds.Count; index++)
             {
@@ -746,7 +937,7 @@ namespace ChoSiren.Panels
             cell.NewBadge.SetActive(result.IsNew);
             cell.Outline.effectColor = new Color(1f, 0.8f, 0.37f, 0f);
 
-            Sprite portrait = PanelKit.MemberSpriteOrNull(result.ItemId, true);
+            Sprite portrait = ResolveResultPortrait(result.ItemId);
             cell.Portrait.sprite = portrait;
             cell.Portrait.enabled = portrait != null;
 
@@ -757,6 +948,45 @@ namespace ChoSiren.Panels
             else if (result.UpgradedByTenPullGuarantee) footer = "十连保底 · " + footer;
             cell.Footer.text = footer;
             cell.Footer.color = result.IsNew ? PanelKit.Pink : PanelKit.Muted;
+        }
+
+        private static Sprite ResolveResultPortrait(string itemId)
+        {
+            Sprite exact = PanelKit.MemberSpriteOrNull(itemId, true);
+            if (exact != null) return exact;
+
+            MemberDefinition[] members = GameModel.Members;
+            if (!string.IsNullOrEmpty(itemId))
+            {
+                for (int index = 0; index < members.Length; index++)
+                {
+                    MemberDefinition member = members[index];
+                    if (member == null || string.IsNullOrEmpty(member.Id)) continue;
+                    string marker = "-" + member.Id + "-";
+                    if (itemId.IndexOf(marker, StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    Sprite owner = PanelKit.MemberSpriteOrNull(member.Id, true);
+                    if (owner != null) return owner;
+                }
+
+                if (itemId.StartsWith("accessory-", StringComparison.OrdinalIgnoreCase))
+                {
+                    Sprite accessory = Resources.Load<Sprite>(
+                        AiArtRoot + "gacha-emblem-costume-ai-v1-20260903");
+                    if (accessory != null) return accessory;
+                }
+            }
+
+            // Keep malformed or future non-member pool entries legible until they receive
+            // dedicated art instead of silently leaving a transparent result card.
+            for (int index = 0; index < members.Length; index++)
+            {
+                MemberDefinition member = members[index];
+                if (member == null) continue;
+                Sprite fallback = PanelKit.MemberSpriteOrNull(member.Id, true);
+                if (fallback != null) return fallback;
+            }
+
+            return Resources.Load<Sprite>(AiArtRoot + "gacha-emblem-debut-ai-v1-20260903");
         }
 
         private IEnumerator RevealResults(int count)
