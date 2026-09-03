@@ -6,10 +6,9 @@
 
 审计时间：2026-09-03（Asia/Shanghai）。
 
-- Git 仓库：存在，当前分支 `master`。
-- 当前提交：`c20e9c1 feature: improve dice evaluation and auto holds`。
-- 当前实际状态：没有配置 `origin`，因此此刻另一台电脑还不能从 GitHub 取得这份源码；这是最终 checkpoint 前的硬阻断。
-- 目标源码远端方案：`https://github.com/BOJUEJUN/cho-siren-preview.git` 的 `unity-source` 分支。最终维护者必须将同一 checkpoint push 到该分支并建立 upstream；不得用 Pages 的 `main` 代替。
+- Git 仓库：存在，当前分支 `unity-source`；用 `git rev-parse HEAD` 取得当前精确 checkpoint。
+- 当前实际状态：源码已经完整本地提交并生成可验证的 `CHO-SIREN-Unity-Source-0.3.0.bundle`；GitHub 的 `unity-source` 是否已经发布必须以远端仓库页面为准。
+- 目标源码远端方案：`https://github.com/BOJUEJUN/cho-siren-preview.git` 的 `unity-source` 分支。发布完整私有源码/美术资产前必须由仓库所有者确认目标与授权；不得用 Pages 的 `main` 代替。
 - 已跟踪文件：约 1,036 个，工作树内合计约 192.64 MiB。
 - 已跟踪最大单文件：`SourceAssets/Fonts/NotoSansSC-Regular.otf`，15.68 MiB；它保留为字体子集源文件，但不进入 Unity 构建。
 - 当前工作树与全部 Git 历史：没有 ≥50 MiB blob，也没有 ≥100 MiB blob。
@@ -81,6 +80,14 @@ checkpoint tag 必须指向已通过门禁且已 push 的 commit，不能指向�
 git clone --branch unity-source --single-branch https://github.com/BOJUEJUN/cho-siren-preview.git cho-siren-unity
 Set-Location .\cho-siren-unity
 git lfs pull
+```
+
+如果远端尚无 `unity-source`，把交付的 bundle 复制到新电脑并恢复：
+
+```powershell
+git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
+Set-Location .\cho-siren-unity
+git switch unity-source
 ```
 
 3. 运行只读环境检查，确认 `origin`、关键素材、构建入口和包 JSON。

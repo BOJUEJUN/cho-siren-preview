@@ -27,7 +27,7 @@
 - `unity-source`：Unity 可编辑源码，是开发工作的唯一真相。
 - `main`：GitHub Pages 的 WebGL 网页预览，只是可再生成的发布物。
 
-> 2026-09-03 的本地审计副本仍在 `master`，且尚未配置 `origin`。以下 clone 命令只有在最终维护者已将同一份 checkpoint push 到目标仓库的 `unity-source` 并建立 upstream 后才可使用。若远端没有该分支，应联系维护者完成发布，不得改为克隆 `main` 冒充源码。
+2026-09-03 的本地审计副本已整理到 `unity-source`，并配置了上述 `origin`。使用 GitHub 换机前，必须先在仓库网页确认远端确实存在 `unity-source`；若远端尚未发布该分支，不得改为克隆 `main` 冒充源码，应使用本次交付的完整 Git bundle 恢复。
 
 新电脑必须只克隆 `unity-source`，不要在源码工作目录切换到 `main`：
 
@@ -42,6 +42,17 @@ git status --short
 ```
 
 当前提交历史没有 LFS 对象，`git lfs pull` 会是空操作；保留这一步可兼容以后加入的大型源媒体。克隆后必须能看到 `Assets/`、`Packages/`、`ProjectSettings/`、`Tools/` 和全部 `.meta` 文件。
+
+若手头拿到的是 `CHO-SIREN-Unity-Source-0.3.0.bundle`，无需联网也可以恢复完整历史：
+
+```powershell
+git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
+Set-Location .\cho-siren-unity
+git switch unity-source
+git status --short
+```
+
+bundle 是完整、可验证的 Git 仓库快照，不包含 `Library/`、构建缓存或玩家存档。恢复后如需与 GitHub 同步，再由仓库所有者确认目标远端并执行 `git remote add origin <SOURCE_REPOSITORY_URL>`。
 
 运行只读环境检查：
 

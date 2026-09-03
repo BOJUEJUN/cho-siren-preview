@@ -37,6 +37,14 @@ git clone --branch unity-source --single-branch https://github.com/BOJUEJUN/cho-
 Set-Location .\cho-siren-unity
 ```
 
+若远端尚无 `unity-source`，可从交付的完整 Git bundle 离线恢复：
+
+```powershell
+git clone .\CHO-SIREN-Unity-Source-0.3.0.bundle cho-siren-unity
+Set-Location .\cho-siren-unity
+git switch unity-source
+```
+
 不要在 Unity 源码工作目录切换到 `main`；`main` 只存放可再生成的 WebGL 网页预览。
 
 Git 仓库中应保留这些内容：
