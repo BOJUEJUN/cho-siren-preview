@@ -15,8 +15,8 @@ requireFile(indexPath);
 requireFile(join(root, ".nojekyll"));
 
 const html = readFileSync(indexPath, "utf8");
-if (!/<canvas[^>]+width="720"[^>]+height="1552"/.test(html)) {
-  throw new Error("WebGL 画布不是 720×1552 竖屏尺寸");
+if (!/<canvas[^>]+width="720"[^>]+height="1536"/.test(html)) {
+  throw new Error("WebGL 画布不是 720×1536 竖屏尺寸");
 }
 if (!html.includes('new URL("Build/", pageUrl)')) {
   throw new Error("WebGL 资源没有使用 GitHub Pages 子路径安全地址");
@@ -42,4 +42,12 @@ const assets = references.map(file => {
   return { file, bytes, sha256 };
 });
 
-console.log(JSON.stringify({ success: true, canvas: "720x1552", assets }, null, 2));
+const lobbyVideoPath = join(root, "StreamingAssets", "Lobby", "lobby-loop.mp4");
+requireFile(lobbyVideoPath);
+const lobbyVideo = {
+  file: "StreamingAssets/Lobby/lobby-loop.mp4",
+  bytes: statSync(lobbyVideoPath).size,
+  sha256: createHash("sha256").update(readFileSync(lobbyVideoPath)).digest("hex"),
+};
+
+console.log(JSON.stringify({ success: true, canvas: "720x1536", lobbyVideo, assets }, null, 2));

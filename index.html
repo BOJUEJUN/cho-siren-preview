@@ -157,7 +157,7 @@
   </head>
   <body>
     <main id="game-shell">
-      <canvas id="unity-canvas" width="720" height="1552" tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width="720" height="1536" tabindex="-1"></canvas>
       <div id="warning" role="status"></div>
       <div id="loading">
         <div class="brand">CHO-SIREN</div>
@@ -203,20 +203,20 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("1662d9c4e3a82f9b8bbeb34d53f59b91.data.unityweb"),
-        frameworkUrl: buildAssetUrl("d25ba467e7a56ff6ad92506c6c01d2e2.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("935810f0ffff426aa0a73f5fac953df4.wasm.unityweb"),
+        dataUrl: buildAssetUrl("516aa3ac97e780bdf6185843de161d11.data.unityweb"),
+        frameworkUrl: buildAssetUrl("1278ffa82c593cb9d9653b0404ed148f.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("1b713c795309ba47fdba74349cf2f331.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.1.0",
+        productVersion: "0.3.0",
         showBanner,
         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         matchWebGLToCanvasSize: true
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("7bd25d0c2f9c6d1b460ff5e91c604a2b.loader.js");
+      loader.src = buildAssetUrl("7282e2d8a7ff85b8d8a229baba0be8aa.loader.js");
       loader.onload = () => {
         createUnityInstance(canvas, config, value => {
           progress.style.width = `${Math.round(value * 100)}%`;
