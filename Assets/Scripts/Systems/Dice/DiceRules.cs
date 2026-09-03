@@ -20,23 +20,54 @@ namespace ChoSiren.Systems.Dice
     {
         private readonly int[] values;
         private readonly IReadOnlyList<int> readOnlyValues;
+        private readonly bool[] participating;
+        private readonly IReadOnlyList<bool> readOnlyParticipating;
 
         public DiceHand(IReadOnlyList<int> values, DicePattern pattern, string displayName,
             int multiplierPermille)
+            : this(values, pattern, displayName, multiplierPermille,
+                DiceRules.BuildParticipationMask(values, pattern))
+        {
+        }
+
+        public DiceHand(IReadOnlyList<int> values, DicePattern pattern, string displayName,
+            int multiplierPermille, IReadOnlyList<bool> participating)
         {
             if (values == null) throw new ArgumentNullException(nameof(values));
+            if (participating == null) throw new ArgumentNullException(nameof(participating));
+            if (participating.Count != values.Count)
+                throw new ArgumentException("参与掩码必须与骰子数量相同", nameof(participating));
+
             this.values = new int[values.Count];
-            for (int index = 0; index < values.Count; index++) this.values[index] = values[index];
+            this.participating = new bool[participating.Count];
+            int pipTotal = 0;
+            int participatingPipTotal = 0;
+            for (int index = 0; index < values.Count; index++)
+            {
+                int value = values[index];
+                bool isParticipating = participating[index];
+                this.values[index] = value;
+                this.participating[index] = isParticipating;
+                pipTotal += value;
+                if (isParticipating) participatingPipTotal += value;
+            }
+
             readOnlyValues = Array.AsReadOnly(this.values);
+            readOnlyParticipating = Array.AsReadOnly(this.participating);
             Pattern = pattern;
             DisplayName = displayName ?? string.Empty;
             MultiplierPermille = multiplierPermille;
+            PipTotal = pipTotal;
+            ParticipatingPipTotal = participatingPipTotal;
         }
 
         public IReadOnlyList<int> Values => readOnlyValues;
+        public IReadOnlyList<bool> Participating => readOnlyParticipating;
         public DicePattern Pattern { get; }
         public string DisplayName { get; }
         public int MultiplierPermille { get; }
+        public int PipTotal { get; }
+        public int ParticipatingPipTotal { get; }
     }
 
     /// <summary>Evaluates the five-die patterns and multipliers agreed for dungeon combat.</summary>
@@ -86,6 +117,65 @@ namespace ChoSiren.Systems.Dice
             else pattern = DicePattern.HighPoint;
 
             return new DiceHand(values, pattern, DisplayNameFor(pattern), MultiplierFor(pattern));
+        }
+
+        internal static bool[] BuildParticipationMask(IReadOnlyList<int> values, DicePattern pattern)
+        {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+
+            var participating = new bool[values.Count];
+            if (values.Count == 0) return participating;
+
+            if (pattern == DicePattern.Straight || pattern == DicePattern.FullHouse ||
+                pattern == DicePattern.FiveKind)
+            {
+                for (int index = 0; index < participating.Length; index++) participating[index] = true;
+                return participating;
+            }
+
+            if (pattern == DicePattern.HighPoint)
+            {
+                int highestIndex = 0;
+                for (int index = 1; index < values.Count; index++)
+                {
+                    if (values[index] > values[highestIndex]) highestIndex = index;
+                }
+
+                participating[highestIndex] = true;
+                return participating;
+            }
+
+            var counts = new int[7];
+            for (int index = 0; index < values.Count; index++)
+            {
+                int value = values[index];
+                if (value >= 1 && value <= 6) counts[value]++;
+            }
+
+            int requiredCount;
+            switch (pattern)
+            {
+                case DicePattern.Pair:
+                case DicePattern.TwoPair:
+                    requiredCount = 2;
+                    break;
+                case DicePattern.ThreeKind:
+                    requiredCount = 3;
+                    break;
+                case DicePattern.FourKind:
+                    requiredCount = 4;
+                    break;
+                default:
+                    return participating;
+            }
+
+            for (int index = 0; index < values.Count; index++)
+            {
+                int value = values[index];
+                participating[index] = value >= 1 && value <= 6 && counts[value] == requiredCount;
+            }
+
+            return participating;
         }
 
         private static bool IsStraight(int[] counts)

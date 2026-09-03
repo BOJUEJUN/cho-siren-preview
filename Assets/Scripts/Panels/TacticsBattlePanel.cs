@@ -62,6 +62,10 @@ namespace ChoSiren.Panels
         private static readonly Color CellEnemy = new Color32(70, 24, 66, 240);
         private static readonly Color AnchorTint = new Color32(80, 220, 255, 90);
         private static readonly Color AffectedTint = new Color32(255, 82, 194, 120);
+        private static readonly Color DiceIdle = new Color32(59, 42, 112, 252);
+        private static readonly Color DiceParticipating = new Color32(126, 83, 35, 252);
+        private static readonly Color DiceHeld = new Color32(174, 80, 151, 255);
+        private static readonly Color DiceParticipatingHeld = new Color32(204, 93, 116, 255);
 
         private readonly List<CellView> cells = new List<CellView>();
         private readonly List<GameObject> skillButtons = new List<GameObject>();
@@ -69,6 +73,7 @@ namespace ChoSiren.Panels
         private readonly List<Text> popupPool = new List<Text>();
         private readonly List<GameObject> diceButtons = new List<GameObject>();
         private readonly List<Text> diceHoldLabels = new List<Text>();
+        private readonly List<Outline> diceOutlines = new List<Outline>();
         private readonly StringBuilder logBuilder = new StringBuilder();
 
         private PanelKit kit;
@@ -92,6 +97,7 @@ namespace ChoSiren.Panels
         private int popupIndex;
         private DiceTurn diceTurn;
         private int diceEnergy;
+        private int diceRollSequence;
         private float battleElapsed;
 
         private Text turnText;
@@ -332,8 +338,9 @@ namespace ChoSiren.Panels
             kit.AddOutline(console, new Color32(255, 76, 202, 110), 1.5f);
             kit.NewPlacedText(console.transform, "骰子演出", 13, PanelKit.Pink, 18, 10, 150, 24,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            diceHandText = kit.NewPlacedText(console.transform, "等待骰子回合", 20, PanelKit.White,
-                170, 8, 320, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+            diceHandText = kit.NewPlacedText(console.transform, "等待骰子回合", 14, PanelKit.White,
+                150, 2, 350, 48, TextAnchor.MiddleCenter, FontStyle.Bold);
+            diceHandText.gameObject.name = "DiceHandSummary";
             diceEnergyText = kit.NewPlacedText(console.transform, "能量 0/100", 12, PanelKit.Cyan,
                 500, 10, 160, 24, TextAnchor.MiddleRight, FontStyle.Bold);
             diceEnergyFill = kit.NewBar("DiceEnergy", console.transform, 500, 37, 160, 8,
@@ -345,13 +352,15 @@ namespace ChoSiren.Panels
             {
                 int captured = index;
                 GameObject die = kit.NewButton("Dice-" + index, console.transform, "?", 38,
-                    new Color32(59, 42, 112, 252), PanelKit.White, () => ToggleDie(captured), 20);
+                    DiceIdle, PanelKit.White, () => ToggleDie(captured), 20);
                 PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), 60, dieSize, dieSize);
-                kit.AddOutline(die, new Color32(96, 220, 255, 135), 1.5f);
+                Outline outline = kit.AddOutline(die, new Color32(96, 220, 255, 135), 1.5f);
                 Text held = kit.NewPlacedText(die.transform, "", 11, PanelKit.Gold, 5, 78, dieSize - 10, 20,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
+                held.gameObject.name = "DiceStatus-" + index;
                 diceButtons.Add(die);
                 diceHoldLabels.Add(held);
+                diceOutlines.Add(outline);
             }
 
             rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留（2）", 15,
@@ -939,13 +948,14 @@ namespace ChoSiren.Panels
         private void PrepareDiceTurn()
         {
             ulong seed = StableDiceSeed(battle.Stage != null ? battle.Stage.Id : string.Empty,
-                battle.Round, Environment.TickCount);
+                battle.Round, diceRollSequence);
+            diceRollSequence = unchecked(diceRollSequence + 1);
             diceTurn = new DiceTurn(new SeededRandom(seed), diceEnergy);
             diceTurn.Begin();
             RefreshDiceUi();
         }
 
-        private static ulong StableDiceSeed(string stageId, int round, int tick)
+        private static ulong StableDiceSeed(string stageId, int teamRound, int rollSequence)
         {
             // FNV-1a is stable across Mono/IL2CPP and processes; do not use string.GetHashCode,
             // whose randomized implementation can change between runtimes.
@@ -956,9 +966,9 @@ namespace ChoSiren.Panels
                 hash ^= value[index];
                 hash *= 1099511628211UL;
             }
-            hash ^= unchecked((uint)round);
+            hash ^= unchecked((uint)teamRound);
             hash *= 1099511628211UL;
-            hash ^= unchecked((uint)tick);
+            hash ^= unchecked((uint)rollSequence);
             return hash == 0 ? 1UL : hash;
         }
 
@@ -973,9 +983,22 @@ namespace ChoSiren.Panels
         private void AutoTuneDice()
         {
             if (diceTurn == null) return;
+            ApplyAutoHolds();
             while (diceTurn.RerollsRemaining > 0 && diceTurn.Hand.MultiplierPermille < 2500)
+            {
                 if (!diceTurn.RerollUnheld(out _)) break;
+                ApplyAutoHolds();
+            }
             RefreshDiceUi();
+        }
+
+        private void ApplyAutoHolds()
+        {
+            bool[] planned = DiceHoldPlanner.Choose(diceTurn.Values);
+            for (int index = 0; index < planned.Length; index++)
+            {
+                if (diceTurn.Held[index] != planned[index]) diceTurn.ToggleHold(index);
+            }
         }
 
         private void ToggleDie(int index)
@@ -1008,9 +1031,23 @@ namespace ChoSiren.Panels
                 Text label = PanelKit.LabelOf(diceButtons[index]);
                 label.text = active ? diceTurn.Values[index].ToString() : "?";
                 bool held = active && diceTurn.Held[index];
-                diceHoldLabels[index].text = held ? "已保留" : "";
+                bool participating = active && diceTurn.Hand.Participating[index];
+                diceHoldLabels[index].text = participating
+                    ? held ? "成型 · 已保留" : "成型"
+                    : held ? "已保留" : "";
+                Color background = participating
+                    ? held ? DiceParticipatingHeld : DiceParticipating
+                    : held ? DiceHeld : DiceIdle;
                 PanelKit.SetButtonState(diceButtons[index], awaitingInput,
-                    held ? new Color32(174, 80, 151, 255) : new Color32(59, 42, 112, 252));
+                    background);
+                if (index < diceOutlines.Count)
+                {
+                    diceOutlines[index].effectColor = participating
+                        ? new Color32(255, 204, 83, 235)
+                        : new Color32(96, 220, 255, 135);
+                    float distance = participating ? 3f : 1.5f;
+                    diceOutlines[index].effectDistance = new Vector2(distance, -distance);
+                }
             }
 
             int energy = active ? diceTurn.Energy : diceEnergy;
@@ -1018,7 +1055,8 @@ namespace ChoSiren.Panels
             if (diceEnergyText != null) diceEnergyText.text = $"能量 {energy}/100";
             if (diceHandText != null)
                 diceHandText.text = active
-                    ? $"{diceTurn.Hand.DisplayName}  ×{diceTurn.Hand.MultiplierPermille / 1000f:0.#}"
+                    ? $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.#}\n" +
+                      $"总点 {diceTurn.Hand.PipTotal} · 成型点 {diceTurn.Hand.ParticipatingPipTotal}"
                     : "等待骰子回合";
             if (rerollButton != null)
             {

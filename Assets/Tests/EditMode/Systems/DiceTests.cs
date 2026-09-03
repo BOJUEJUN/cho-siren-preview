@@ -6,16 +6,26 @@ namespace ChoSiren.Tests.Systems
 {
     public sealed class DiceTests
     {
-        [TestCase(new[] { 1, 2, 3, 4, 6 }, DicePattern.HighPoint, 1000)]
-        [TestCase(new[] { 1, 1, 3, 4, 6 }, DicePattern.Pair, 1500)]
-        [TestCase(new[] { 1, 1, 3, 3, 6 }, DicePattern.TwoPair, 2000)]
-        [TestCase(new[] { 2, 2, 2, 4, 6 }, DicePattern.ThreeKind, 2500)]
-        [TestCase(new[] { 1, 2, 3, 4, 5 }, DicePattern.Straight, 3000)]
-        [TestCase(new[] { 2, 3, 4, 5, 6 }, DicePattern.Straight, 3000)]
-        [TestCase(new[] { 2, 2, 2, 5, 5 }, DicePattern.FullHouse, 4900)]
-        [TestCase(new[] { 4, 4, 4, 4, 6 }, DicePattern.FourKind, 5000)]
-        [TestCase(new[] { 6, 6, 6, 6, 6 }, DicePattern.FiveKind, 10000)]
-        public void EvaluateRecognizesEveryPattern(int[] values, DicePattern expected, int multiplier)
+        [TestCase(new[] { 1, 2, 3, 4, 6 }, DicePattern.HighPoint, 1000, 16, 6,
+            new[] { false, false, false, false, true })]
+        [TestCase(new[] { 1, 1, 3, 4, 6 }, DicePattern.Pair, 1500, 15, 2,
+            new[] { true, true, false, false, false })]
+        [TestCase(new[] { 1, 1, 3, 3, 6 }, DicePattern.TwoPair, 2000, 14, 8,
+            new[] { true, true, true, true, false })]
+        [TestCase(new[] { 2, 2, 2, 4, 6 }, DicePattern.ThreeKind, 2500, 16, 6,
+            new[] { true, true, true, false, false })]
+        [TestCase(new[] { 1, 2, 3, 4, 5 }, DicePattern.Straight, 3000, 15, 15,
+            new[] { true, true, true, true, true })]
+        [TestCase(new[] { 2, 3, 4, 5, 6 }, DicePattern.Straight, 3000, 20, 20,
+            new[] { true, true, true, true, true })]
+        [TestCase(new[] { 2, 2, 2, 5, 5 }, DicePattern.FullHouse, 4900, 16, 16,
+            new[] { true, true, true, true, true })]
+        [TestCase(new[] { 4, 4, 4, 4, 6 }, DicePattern.FourKind, 5000, 22, 16,
+            new[] { true, true, true, true, false })]
+        [TestCase(new[] { 6, 6, 6, 6, 6 }, DicePattern.FiveKind, 10000, 30, 30,
+            new[] { true, true, true, true, true })]
+        public void EvaluateRecognizesEveryPattern(int[] values, DicePattern expected, int multiplier,
+            int pipTotal, int participatingPipTotal, bool[] participating)
         {
             DiceHand hand = DiceRules.Evaluate(values);
 
@@ -23,6 +33,36 @@ namespace ChoSiren.Tests.Systems
             Assert.That(hand.MultiplierPermille, Is.EqualTo(multiplier));
             Assert.That(hand.DisplayName, Is.Not.Empty);
             Assert.That(hand.Values, Is.EqualTo(values));
+            Assert.That(hand.PipTotal, Is.EqualTo(pipTotal));
+            Assert.That(hand.ParticipatingPipTotal, Is.EqualTo(participatingPipTotal));
+            Assert.That(hand.Participating, Is.EqualTo(participating));
+        }
+
+        [TestCase(new[] { 2, 2, 4, 5, 6 }, new[] { true, true, false, false, false },
+            TestName = "Planner_PairTakesPriorityOverLongRun")]
+        [TestCase(new[] { 1, 1, 3, 3, 6 }, new[] { true, true, true, true, false },
+            TestName = "Planner_KeepsBothPairs")]
+        [TestCase(new[] { 2, 2, 2, 4, 6 }, new[] { true, true, true, false, false },
+            TestName = "Planner_KeepsThreeKind")]
+        [TestCase(new[] { 1, 2, 4, 5, 6 }, new[] { false, false, true, true, true },
+            TestName = "Planner_ChoosesLongestHighRun")]
+        [TestCase(new[] { 1, 2, 3, 5, 6 }, new[] { true, true, true, false, false },
+            TestName = "Planner_ChoosesLongestLowRun")]
+        [TestCase(new[] { 1, 2, 3, 4, 5 }, new[] { true, true, true, true, true },
+            TestName = "Planner_DoesNotBreakStraight")]
+        [TestCase(new[] { 2, 2, 2, 5, 5 }, new[] { true, true, true, true, true },
+            TestName = "Planner_DoesNotBreakFullHouse")]
+        [TestCase(new[] { 4, 4, 4, 4, 6 }, new[] { true, true, true, true, false },
+            TestName = "Planner_KeepsFourKind")]
+        [TestCase(new[] { 6, 6, 6, 6, 6 }, new[] { true, true, true, true, true },
+            TestName = "Planner_DoesNotBreakFiveKind")]
+        public void HoldPlannerChoosesDeterministicBestKeep(int[] values, bool[] expected)
+        {
+            bool[] first = DiceHoldPlanner.Choose(values);
+            bool[] second = DiceHoldPlanner.Choose(values);
+
+            Assert.That(first, Is.EqualTo(expected));
+            Assert.That(second, Is.EqualTo(expected));
         }
 
         [Test]
