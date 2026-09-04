@@ -52,9 +52,9 @@ namespace ChoSiren.Tests
                     "顶部资源与邮件应保持一致的视觉节拍，不能在体力后留出一个空按钮位。");
 
             Assert.That(Require("Mail").GetComponent<RectTransform>().anchoredPosition.x,
-                Is.EqualTo(-120f).Within(0.1f));
+                Is.EqualTo(-88f).Within(0.1f));
             Assert.That(Require("Settings").GetComponent<RectTransform>().anchoredPosition.x,
-                Is.EqualTo(-80f).Within(0.1f));
+                Is.EqualTo(-48f).Within(0.1f));
             yield return null;
         }
 

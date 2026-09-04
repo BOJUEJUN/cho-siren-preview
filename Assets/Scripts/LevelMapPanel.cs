@@ -350,7 +350,7 @@ namespace ChoSiren
             CenterPivot(glow.rectTransform);
 
             Color frameTint = state == LevelState.Locked
-                ? new Color32(104, 111, 151, 160)
+                ? new Color32(190, 198, 231, 225)
                 : state == LevelState.Current
                     ? White
                     : new Color32(205, 216, 255, 226);
@@ -359,9 +359,9 @@ namespace ChoSiren
             RectTransform rect = node.GetComponent<RectTransform>();
             PlaceTop(rect, center.x - width * 0.5f, center.y - height * 0.5f, width, height);
             Text nodeLabel = NewPlacedText(node.transform, $"1-{stage}",
-                state == LevelState.Current ? 24 : 20,
-                state == LevelState.Locked ? new Color32(151, 153, 190, 255) : White,
-                8, height * 0.17f, width - 16, height * 0.36f, TextAnchor.MiddleCenter, FontStyle.Bold);
+                state == LevelState.Current ? 24 : 22, White,
+                8, height * 0.08f, width - 16, height * 0.42f, TextAnchor.MiddleCenter, FontStyle.Bold);
+            nodeLabel.name = "StageLabel";
             Shadow labelShadow = nodeLabel.gameObject.AddComponent<Shadow>();
             labelShadow.effectColor = new Color32(12, 4, 38, 235);
             labelShadow.effectDistance = new Vector2(1.5f, -1.5f);
@@ -375,9 +375,10 @@ namespace ChoSiren
                     : new Color32(154, 182, 245, 186);
 
             string status = StateLabel(state);
-            Text statusLabel = NewPlacedText(node.transform, status, state == LevelState.Cleared ? 12 : 11,
-                state == LevelState.Locked ? new Color32(150, 154, 193, 255) : new Color32(255, 186, 229, 255),
-                8, height * 0.52f, width - 16, height * 0.20f, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Text statusLabel = NewPlacedText(node.transform, status, 12,
+                state == LevelState.Locked ? new Color32(215, 219, 242, 255) : new Color32(255, 186, 229, 255),
+                8, height * 0.48f, width - 16, height * 0.24f, TextAnchor.MiddleCenter, FontStyle.Bold);
+            statusLabel.name = "StatusLabel";
 
             NodeView view = new NodeView
             {
@@ -464,14 +465,10 @@ namespace ChoSiren
                 new Color32(10, 23, 55, 228), 20, OpenChapterTasks);
             PlaceTop(tasks.GetComponent<RectTransform>(), 347, 18, 319, 122);
             AddGlassOutline(tasks, new Color32(119, 158, 235, 80), 1f);
-            Image taskIcon = NewImage("ChapterTasksIcon", tasks.transform, actionFrameSprite,
-                new Color32(255, 232, 252, 255));
-            PlaceTop(taskIcon.rectTransform, 17, 25, 78, 70);
-            taskIcon.preserveAspect = true;
             NewPlacedText(tasks.transform, "章节任务", 18, White,
-                106, 23, 176, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+                28, 27, 230, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
             taskSummaryText = NewPlacedText(tasks.transform, "0/3 已完成", 11, Muted,
-                106, 62, 176, 28, TextAnchor.MiddleLeft, FontStyle.Normal);
+                28, 66, 230, 28, TextAnchor.MiddleLeft, FontStyle.Normal);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 278, 8);
         }
 
@@ -865,10 +862,10 @@ namespace ChoSiren
                 if (view.State == LevelState.Locked)
                 {
                     view.Glow.enabled = false;
-                    view.Background.color = new Color32(104, 111, 151, 160);
-                    view.StageLabel.color = new Color32(151, 153, 190, 255);
+                    view.Background.color = new Color32(190, 198, 231, 225);
+                    view.StageLabel.color = White;
                     view.StatusLabel.text = StateLabel(view.State);
-                    view.StatusLabel.color = new Color32(150, 154, 193, 255);
+                    view.StatusLabel.color = new Color32(215, 219, 242, 255);
                     view.Outline.effectColor = new Color32(111, 127, 177, 105);
                     continue;
                 }

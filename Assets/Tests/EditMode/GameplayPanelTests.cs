@@ -136,8 +136,13 @@ namespace ChoSiren.Tests
                 Is.SameAs(Resources.Load<Sprite>(retainedAiResources[2])));
             Assert.That(FindNamed<Image>(map.transform, "ChapterRewardsIcon").sprite,
                 Is.SameAs(Resources.Load<Sprite>(retainedAiResources[1])));
-            Assert.That(FindNamed<Image>(map.transform, "ChapterTasksIcon").sprite,
-                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[2])));
+            Assert.That(map.GetComponentsInChildren<Transform>(true)
+                .Any(item => item.name == "ChapterTasksIcon"), Is.False,
+                "章节任务入口左侧不应再显示装饰按钮素材。 ");
+            Assert.That(FindNamed<Text>(FindNamed<Transform>(map.transform, "Level-1-2"), "StageLabel").text,
+                Is.EqualTo("1-2"));
+            Assert.That(FindNamed<Text>(FindNamed<Transform>(map.transform, "Level-1-2"), "StatusLabel").text,
+                Is.EqualTo("★★★"), "通关节点应显示该关最佳星数。 ");
 
             Assert.That(FindNamed<Transform>(map.transform, "ChapterControlDock"), Is.Not.Null);
             RectTransform dock = FindNamed<RectTransform>(map.transform, "ChapterControlDock");
@@ -162,6 +167,19 @@ namespace ChoSiren.Tests
             Assert.That(FindNamed<Transform>(map.transform, "ChapterTasksModal"), Is.Not.Null);
             FindButton(map.transform, "ChapterTaskClaim-1").onClick.Invoke();
             Assert.That(model.Save.ClaimedChapterOneTasks, Does.Contain(GameModel.ChapterOneTaskClearStageThree));
+        }
+
+        [Test]
+        public void LockedChapterNodesKeepTheirStageNumberAndFullFrameVisible()
+        {
+            GameModel model = CreateModel();
+            LevelMapPanel map = LevelMapPanel.Open(host.transform, model);
+            Transform lockedNode = FindNamed<Transform>(map.transform, "Level-1-2");
+
+            Assert.That(FindNamed<Text>(lockedNode, "StageLabel").text, Is.EqualTo("1-2"));
+            Assert.That(FindNamed<Text>(lockedNode, "StatusLabel").text, Is.EqualTo("锁定"));
+            Assert.That(FindNamed<Image>(lockedNode, "Level-1-2").color.a, Is.GreaterThan(0.85f),
+                "锁定节点的完整台座不应被淡化到难以辨认。 ");
         }
 
         [Test]

@@ -217,7 +217,7 @@ namespace ChoSiren
 
             GameObject avatarFrame = NewImage("AvatarFrame", bar.transform, RoundedSprite(30),
                 new Color32(222, 195, 255, 230));
-            PlaceTop(avatarFrame.GetComponent<RectTransform>(), 19, 13, 56, 56);
+            PlaceTop(avatarFrame.GetComponent<RectTransform>(), 51, 13, 56, 56);
             GameObject avatarMask = NewImage("AvatarMask", avatarFrame.transform, RoundedSprite(30), White);
             Stretch(avatarMask.GetComponent<RectTransform>(), 2, 2, -2, -2);
             Mask mask = avatarMask.AddComponent<Mask>();
@@ -228,38 +228,38 @@ namespace ChoSiren
             avatar.GetComponent<Image>().preserveAspect = false;
 
             Text name = NewText("PlayerName", bar.transform, "音律少女", 19, White, FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(name.rectTransform, 83, 14, 104, 29);
+            PlaceTop(name.rectTransform, 115, 14, 104, 29);
             AddReadableShadow(name);
             Text level = NewText("PlayerLevel", bar.transform, "等级 68", 14,
                 new Color32(225, 215, 242, 255), FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(level.rectTransform, 83, 43, 82, 22);
+            PlaceTop(level.rectTransform, 115, 43, 82, 22);
             AddReadableShadow(level);
 
             GameObject profileHit = NewButton("Profile", bar.transform, string.Empty, 1, Color.clear, Color.clear, OpenProfile);
-            PlaceTop(profileHit.GetComponent<RectTransform>(), 12, 8, 176, 70);
+            PlaceTop(profileHit.GetComponent<RectTransform>(), 44, 8, 176, 70);
             profileHit.transform.SetAsFirstSibling();
 
-            // 资源组以约 120 像素为节拍排布，邮件紧跟体力；音乐设置已归入设置弹窗后，
-            // 这里不再保留一个看起来像“缺按钮”的空槽。
-            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 200, 28, 25);
+            // 整排内容在 720 设计宽度内左右留白对称；资源组以约 120 像素为节拍排布，
+            // 邮件紧跟体力，音乐设置已归入设置弹窗。
+            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 232, 28, 25);
             diamondText = NewText("Diamonds", bar.transform, string.Empty, 17, Cyan, FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(diamondText.rectTransform, 228, 18, 86, 44);
+            PlaceTop(diamondText.rectTransform, 260, 18, 86, 44);
             ConfigureHudNumber(diamondText);
 
-            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 320, 28, 25);
+            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 352, 28, 25);
             goldText = NewText("Gold", bar.transform, string.Empty, 17, new Color32(255, 219, 126, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(goldText.rectTransform, 348, 18, 86, 44);
+            PlaceTop(goldText.rectTransform, 380, 18, 86, 44);
             ConfigureHudNumber(goldText);
 
-            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 440, 27, 26);
+            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 472, 27, 26);
             staminaText = NewText("Stamina", bar.transform, string.Empty, 17, new Color32(255, 151, 211, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(staminaText.rectTransform, 468, 18, 80, 44);
+            PlaceTop(staminaText.rectTransform, 500, 18, 80, 44);
             ConfigureHudNumber(staminaText);
 
             AddSpriteIconButton(bar.transform, "Mail",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 120, OpenInbox);
+                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 88, OpenInbox);
             AddSpriteIconButton(bar.transform, "Settings",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 80, OpenSettings);
+                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 48, OpenSettings);
             UpdateTopBar();
         }
 
