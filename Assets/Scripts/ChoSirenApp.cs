@@ -1146,9 +1146,12 @@ namespace ChoSiren
 
         private void BuildAccessoryCollection(int selected)
         {
+            float contentHeight = Mathf.Max(1f, contentRoot.rect.height);
+            bool compact = contentHeight < 1132f;
+            float collectionHeight = compact ? 202f : 300f;
             GameObject collection = NewPanel("AccessoryCollection", contentRoot,
                 new Color32(8, 15, 50, 44), 24);
-            PlaceTop(collection.GetComponent<RectTransform>(), 20, 824, 680, 300);
+            PlaceTop(collection.GetComponent<RectTransform>(), 20, 824, 680, collectionHeight);
             if (!ApplyAiUiSprite(collection, "Art/AccessoryAI/UI/accessory-collection-panel-ai-v1"))
             {
                 Outline edge = collection.AddComponent<Outline>();
@@ -1156,12 +1159,13 @@ namespace ChoSiren
                 edge.effectDistance = new Vector2(1f, -1f);
             }
 
-            NewPlacedText(collection.transform, "饰品图鉴", 20, White,
-                18, 14, 180, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(collection.transform, "饰品图鉴", compact ? 18 : 20, White,
+                18, compact ? 8 : 14, 180, compact ? 28 : 34,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(collection.transform, "已收集 3/6", 13, Muted,
-                198, 18, 120, 28, TextAnchor.MiddleLeft);
+                198, compact ? 10 : 18, 120, 28, TextAnchor.MiddleLeft);
             NewPlacedText(collection.transform, "选中饰品会同步至上方佩戴预览", 13, Cyan,
-                338, 18, 324, 28, TextAnchor.MiddleRight);
+                338, compact ? 10 : 18, 324, 28, TextAnchor.MiddleRight);
 
             string[] names = { "星轨耳返", "霓虹心链", "月桂舞鞋", "麦克风挂饰", "星辉手环", "舞台冠冕" };
             for (int index = 0; index < names.Length; index++)
@@ -1181,7 +1185,8 @@ namespace ChoSiren
                         selectedAccessoryIndex = captured;
                         ShowScreen("accessory");
                     });
-                PlaceTop(item.GetComponent<RectTransform>(), 16 + index * 109, 56, 102, 176);
+                PlaceTop(item.GetComponent<RectTransform>(), 16 + index * 109,
+                    compact ? 44 : 56, 102, compact ? 118 : 176);
                 Outline itemEdge = item.AddComponent<Outline>();
                 itemEdge.effectColor = active
                     ? new Color32(255, 88, 198, 230)
@@ -1190,21 +1195,27 @@ namespace ChoSiren
 
                 GameObject art = NewImage("Art", item.transform, AccessoryItemSprite(index),
                     owned ? White : new Color32(117, 126, 169, 155));
-                PlaceTop(art.GetComponent<RectTransform>(), 8, 8, 86, 92);
+                PlaceTop(art.GetComponent<RectTransform>(), 8, compact ? 4 : 8, 86, compact ? 56 : 92);
                 art.GetComponent<Image>().preserveAspect = true;
                 NewPlacedText(item.transform, names[index], 12, owned ? White : Muted,
-                    5, 105, 92, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    5, compact ? 58 : 105, 92, compact ? 28 : 34,
+                    TextAnchor.MiddleCenter, FontStyle.Bold);
                 NewPlacedText(item.transform, owned ? "已收集" : "待收集", 11,
                     owned ? (index == 2 ? Cyan : new Color32(255, 211, 102, 255)) : Muted,
-                    5, 140, 92, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    5, compact ? 86 : 140, 92, compact ? 17 : 20,
+                    TextAnchor.MiddleCenter, FontStyle.Bold);
                 if (model.Save.EquippedAccessory == index)
                     NewPlacedText(item.transform, "已装备", 11, new Color32(111, 255, 194, 255),
-                        5, 160, 92, 18, TextAnchor.MiddleCenter, FontStyle.Bold);
+                        5, compact ? 101 : 160, 92, compact ? 14 : 18,
+                        TextAnchor.MiddleCenter, FontStyle.Bold);
             }
 
-            NewPlacedText(collection.transform,
+            Text collectionSummary = NewPlacedText(collection.transform,
                 $"当前搭配加成  +{GameModel.AccessoryPower[selected]:N0}    ·    队伍战力  {model.TeamPower:N0}",
-                15, White, 18, 248, 644, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                compact ? 13 : 15, White, 18, compact ? 166 : 248, 644,
+                compact ? 28 : 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+            collectionSummary.name = "AccessoryCollectionSummary";
+            PanelKit.EnableBestFit(collectionSummary, 10);
         }
 
         private void OpenMember(int memberIndex)

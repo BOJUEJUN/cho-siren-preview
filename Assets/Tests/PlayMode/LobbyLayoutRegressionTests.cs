@@ -203,6 +203,23 @@ namespace ChoSiren.Tests
                     $"{targetHeight} 高度下的成员上一页");
                 AssertContained(content, RequireButtonRect("MemberNextPage"),
                     $"{targetHeight} 高度下的成员下一页");
+
+                RequireButtonRect("Nav-accessory").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                content = RequireRect("Content");
+                RectTransform collection = RequireRect("AccessoryCollection");
+                AssertContained(content, RequireRect("AccessoryPreview"),
+                    $"{targetHeight} 高度下的饰品预览");
+                AssertContained(content, RequireRect("AccessoryDetail"),
+                    $"{targetHeight} 高度下的饰品详情");
+                AssertContained(content, collection,
+                    $"{targetHeight} 高度下的饰品图鉴");
+                for (int index = 0; index < 6; index++)
+                    AssertContained(collection, RequireButtonRect($"AccessoryCollection-{index}"),
+                        $"{targetHeight} 高度下的饰品图鉴卡 {index + 1}");
+                Text collectionSummary = RequireRect("AccessoryCollectionSummary").GetComponent<Text>();
+                Assert.That(collectionSummary.resizeTextForBestFit, Is.True,
+                    "饰品图鉴摘要包含动态战力，必须允许受控缩字号。");
             }
 
             content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight);
