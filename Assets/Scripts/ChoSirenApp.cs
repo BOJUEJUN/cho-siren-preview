@@ -1498,7 +1498,10 @@ namespace ChoSiren
         {
             CloseModal();
             SuspendLobbyMedia();
-            LevelMapPanel.Open(safeRoot, model, () => ShowScreen("lobby"), Toast);
+            // The chapter map owns a dedicated in-context toast positioned above its dock.
+            // Forwarding the same message to the app toast creates two simultaneous notices,
+            // with the global one covering chapter rewards and tasks.
+            LevelMapPanel.Open(safeRoot, model, () => ShowScreen("lobby"));
         }
 
         private void OpenInfoModal(string title, string body, string primaryLabel,

@@ -233,6 +233,12 @@ namespace ChoSiren.Tests
             Assert.That(map.SelectedStage, Is.EqualTo(1),
                 "Clicking a locked level must not silently select it.");
             RequireActiveObject("LevelToast");
+            GameObject globalToast = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include)
+                .Select(item => item.gameObject)
+                .SingleOrDefault(item => item.name == "Toast");
+            Assert.That(globalToast, Is.Not.Null, "大厅全局提示节点必须存在。");
+            Assert.That(globalToast.activeSelf, Is.False,
+                "章节地图已有专用提示时，不能再叠加一条遮住章节奖励的全局提示。");
 
             Click("StoryChapter-01");
             yield return null;
