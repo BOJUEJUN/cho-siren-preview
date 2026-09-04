@@ -24,12 +24,50 @@ namespace ChoSiren.Editor
         {
             string output = ResolveOutput("Builds/WebGL");
             ConfigurePortraitWebGL();
-            // WebGL's Bee/IL2CPP graph is sensitive to assets changing while a build is
-            // running. A clean cache keeps reproducible release builds from inheriting
-            // a stale dependency graph after parallel art imports.
-            Build(output, BuildTarget.WebGL, BuildOptions.CleanBuildCache);
+            // The old 238-frame PNG lobby loop was superseded by the small MP4 player
+            // and is not referenced by the current scene. Resources would nevertheless
+            // force every frame into the Web archive, creating a large decompression
+            // spike on iPhone. Move it under Editor only for this build, then restore it
+            // immediately so desktop/source assets remain untouched.
+            const string heroFrames = "Assets/Resources/Art/HeroFrames";
+            const string excludedHeroFrames = "Assets/Editor/HeroFrames-WebGL-Excluded";
+            bool movedHeroFrames = TemporarilyMoveAsset(heroFrames, excludedHeroFrames);
+            try
+            {
+                // WebGL's Bee/IL2CPP graph is sensitive to assets changing while a build is
+                // running. A clean cache keeps reproducible release builds from inheriting
+                // a stale dependency graph after parallel art imports.
+                Build(output, BuildTarget.WebGL, BuildOptions.CleanBuildCache);
+            }
+            finally
+            {
+                if (movedHeroFrames)
+                    RestoreMovedAsset(excludedHeroFrames, heroFrames);
+            }
             HashWebGLBuildAssets(output);
             WriteGitHubPagesMarker(output);
+        }
+
+        private static bool TemporarilyMoveAsset(string source, string destination)
+        {
+            if (!AssetDatabase.IsValidFolder(source)) return false;
+            if (AssetDatabase.IsValidFolder(destination))
+                throw new BuildFailedException($"Temporary WebGL exclusion path already exists: {destination}");
+
+            string error = AssetDatabase.MoveAsset(source, destination);
+            if (!string.IsNullOrEmpty(error))
+                throw new BuildFailedException($"Could not exclude legacy WebGL frames: {error}");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+            Debug.Log("CHO_SIREN_WEBGL_HERO_FRAMES_EXCLUDED count=238");
+            return true;
+        }
+
+        private static void RestoreMovedAsset(string source, string destination)
+        {
+            string error = AssetDatabase.MoveAsset(source, destination);
+            if (!string.IsNullOrEmpty(error))
+                throw new BuildFailedException($"Could not restore legacy hero frames: {error}");
+            AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         }
 
         private static void ConfigurePortraitWebGL()
@@ -40,6 +78,11 @@ namespace ChoSiren.Editor
             PlayerSettings.WebGL.template = "PROJECT:ChoSirenPortrait";
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             PlayerSettings.WebGL.decompressionFallback = true;
+            // The public preview is hosted on GitHub Pages and must use Unity's
+            // JavaScript decompression fallback. Avoid making iOS Safari also copy the
+            // large .data response into IndexedDB during startup; hashed HTTP assets
+            // already give this preview reliable browser caching.
+            PlayerSettings.WebGL.dataCaching = false;
             // Unity's built-in hashed-name pass can repeatedly invalidate its own Bee
             // graph ("Backend has requested a buildprogram run 6 times"). Build stable
             // names first and hash them deterministically after a successful build.
