@@ -175,6 +175,87 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator EveryMemberPageAndProfileKeepsTaxonomyInsideItsLayout()
+        {
+            RectTransform initialContent = RequireRect("Content");
+            float originalHeight = initialContent.rect.height;
+            initialContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 1536f - 246f);
+            Canvas.ForceUpdateCanvases();
+            RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            const int maximumExpectedPages = 12;
+            int visitedPages = 0;
+            while (true)
+            {
+                RectTransform content = RequireRect("Content");
+                RectTransform[] cards = content.GetComponentsInChildren<Button>(true)
+                    .Where(button => button.name.StartsWith("Member-"))
+                    .Select(button => button.GetComponent<RectTransform>())
+                    .ToArray();
+                Assert.That(cards.Length, Is.GreaterThan(0),
+                    $"成员第 {visitedPages + 1} 页至少应显示一张角色卡。");
+
+                for (int first = 0; first < cards.Length; first++)
+                {
+                    AssertContained(content, cards[first],
+                        $"成员第 {visitedPages + 1} 页角色卡 {first + 1}");
+                    string[] cardLabels = cards[first].GetComponentsInChildren<Text>(true)
+                        .Select(text => text.text)
+                        .Where(text => !string.IsNullOrWhiteSpace(text))
+                        .ToArray();
+                    Assert.That(cardLabels.Any(IsVisibleMemberTaxonomy), Is.True,
+                        $"成员第 {visitedPages + 1} 页角色卡 {first + 1} 缺少种族与职业。");
+                    Assert.That(cardLabels.Any(IsLegacyVisibleRarity), Is.False,
+                        $"成员第 {visitedPages + 1} 页角色卡 {first + 1} 不应显示内部稀有度。");
+
+                    for (int second = first + 1; second < cards.Length; second++)
+                        Assert.That(RectInParent(cards[first]).Overlaps(RectInParent(cards[second])), Is.False,
+                            $"成员第 {visitedPages + 1} 页角色卡 {first + 1} 与 {second + 1} 不能重叠。");
+                }
+
+                cards[0].GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                RectTransform overlay = RequireRect("MemberModal");
+                overlay.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 720f);
+                overlay.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 1536f);
+                Canvas.ForceUpdateCanvases();
+                RectTransform profile = overlay.Find("Panel") as RectTransform;
+                Assert.That(profile, Is.Not.Null, "成员详情必须包含完整资料面板。");
+                AssertContained(overlay, profile, $"成员第 {visitedPages + 1} 页资料面板");
+                string[] profileLabels = profile.GetComponentsInChildren<Text>(true)
+                    .Select(text => text.text)
+                    .Where(text => !string.IsNullOrWhiteSpace(text))
+                    .ToArray();
+                Assert.That(profileLabels.Any(IsVisibleMemberTaxonomy), Is.True,
+                    $"成员第 {visitedPages + 1} 页资料面板缺少种族与职业。");
+                Assert.That(profileLabels.Any(IsLegacyVisibleRarity), Is.False,
+                    $"成员第 {visitedPages + 1} 页资料面板不应显示内部稀有度。");
+                AssertContained(profile, RequireRect("MemberStatPanel"),
+                    $"成员第 {visitedPages + 1} 页基础属性");
+                AssertContained(profile, RequireRect("MemberSkillPanel"),
+                    $"成员第 {visitedPages + 1} 页成员技能");
+                AssertContained(profile, RequireRect("MemberAcquireGuide"),
+                    $"成员第 {visitedPages + 1} 页培养或获取说明");
+                RequireButtonRect("Close").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+
+                visitedPages++;
+                Assert.That(visitedPages, Is.LessThanOrEqualTo(maximumExpectedPages),
+                    "成员分页数量异常，可能出现翻页状态没有收敛。");
+                Button next = RequireButtonRect("MemberNextPage").GetComponent<Button>();
+                if (!next.interactable) break;
+                next.onClick.Invoke();
+                yield return null;
+            }
+
+            Assert.That(visitedPages, Is.GreaterThan(1),
+                "当前成员目录应覆盖多个分页，避免回归只验证首屏角色。");
+            RequireRect("Content").SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator PrimaryPagesStayInsideShortAndStandardPortraitContent()
         {
             RectTransform content = RequireRect("Content");
@@ -504,13 +585,13 @@ namespace ChoSiren.Tests
             Rect parentRect = parent.rect;
             Rect childRect = RectRelativeTo(parent, child);
             Assert.That(childRect.xMin, Is.GreaterThanOrEqualTo(parentRect.xMin - PositionTolerance),
-                $"{label} 的左侧溢出 LiveOnStage 热区。");
+                $"{label} 的左侧溢出父容器。");
             Assert.That(childRect.xMax, Is.LessThanOrEqualTo(parentRect.xMax + PositionTolerance),
-                $"{label} 的右侧溢出 LiveOnStage 热区。");
+                $"{label} 的右侧溢出父容器。");
             Assert.That(childRect.yMin, Is.GreaterThanOrEqualTo(parentRect.yMin - PositionTolerance),
-                $"{label} 的底部溢出 LiveOnStage 热区。");
+                $"{label} 的底部溢出父容器。");
             Assert.That(childRect.yMax, Is.LessThanOrEqualTo(parentRect.yMax + PositionTolerance),
-                $"{label} 的顶部溢出 LiveOnStage 热区。");
+                $"{label} 的顶部溢出父容器。");
         }
 
         private static void AssertVerticallyContained(RectTransform parent, RectTransform child, string label)
@@ -557,6 +638,20 @@ namespace ChoSiren.Tests
                 .SingleOrDefault(candidate => candidate.text == value);
             Assert.That(result, Is.Not.Null, $"Expected text '{value}' under {parent.name} was not found.");
             return result;
+        }
+
+        private static bool IsVisibleMemberTaxonomy(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return false;
+            bool hasRace = value.Contains("魅族") || value.Contains("魔族") ||
+                           value.Contains("海灵族") || value.Contains("血精灵");
+            bool hasCareer = value.Contains("主唱") || value.Contains("舞者") || value.Contains("支援");
+            return hasRace && hasCareer;
+        }
+
+        private static bool IsLegacyVisibleRarity(string value)
+        {
+            return value == "SSR" || value == "SR" || value == "R";
         }
 
         private static RectTransform RequireButtonRect(string objectName)
