@@ -186,9 +186,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("474430f92626aec69bb9f0d0f49a83b0.data.unityweb"),
-        frameworkUrl: buildAssetUrl("afc365eb73244b21fe28084cd4fae688.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("25036090f220783cc07862b283a93c05.wasm.unityweb"),
+        dataUrl: buildAssetUrl("298269c92b590fd802da2152ad8afc8c.data.unityweb"),
+        frameworkUrl: buildAssetUrl("81a514dc8c3b89f711abc7405286562e.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("bc4945d2a427fdf657d666fc08ecb943.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -199,7 +199,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("c08fa4326b08a0619e83e02340b08222.loader.js");
+      loader.src = buildAssetUrl("ec25f4c197c3a14e37b8606a48b76fd1.loader.js");
       loader.onload = () => {
         createUnityInstance(canvas, config, value => {
           progress.style.width = `${Math.round(value * 100)}%`;
