@@ -130,6 +130,19 @@
         line-height: 1.45;
       }
 
+      #retry {
+        display: none;
+        width: 100%;
+        margin-top: 9px;
+        padding: 9px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 9px;
+        color: #fff;
+        background: linear-gradient(90deg, #704ee8, #c34caa);
+        font: inherit;
+        font-weight: 700;
+      }
+
       @media (max-width: 760px) {
         #game-shell {
           max-width: none;
@@ -142,7 +155,10 @@
   <body>
     <main id="game-shell">
       <canvas id="unity-canvas" width="720" height="1536" tabindex="-1"></canvas>
-      <div id="warning" role="status"></div>
+      <div id="warning" role="status">
+        <span id="warning-text"></span>
+        <button id="retry" type="button">重新加载</button>
+      </div>
       <div id="loading">
         <div class="brand">CHO-SIREN</div>
         <div class="subtitle">幻域魅声 · 正在进入舞台</div>
@@ -170,9 +186,20 @@
       const loading = document.querySelector("#loading");
       const progress = document.querySelector("#progress");
       const warning = document.querySelector("#warning");
+      const warningText = document.querySelector("#warning-text");
+      const retry = document.querySelector("#retry");
 
       function showBanner(message, type) {
-        warning.textContent = message;
+        const detail = String(message || "");
+        const isLoadFailure = type === "error" && (
+          detail.includes("fetching of the wasm failed") ||
+          detail.includes("Failed to download file") ||
+          detail.includes("Failed to fetch")
+        );
+        warningText.textContent = isLoadFailure
+          ? "游戏资源加载中断。请确认网络稳定后重新加载；手机端建议关闭其他大型应用再试。"
+          : detail;
+        retry.style.display = type === "error" ? "block" : "none";
         warning.style.display = "block";
         warning.style.borderColor = type === "error" ? "#ff5f7f" : "rgba(255,255,255,.18)";
         if (type !== "error") {
@@ -180,15 +207,21 @@
         }
       }
 
+      retry.addEventListener("click", () => {
+        const refreshed = new URL(window.location.href);
+        refreshed.searchParams.set("retry", Date.now().toString(36));
+        window.location.replace(refreshed.href);
+      });
+
       // All URLs stay relative to the document so GitHub Pages project paths work.
       const pageUrl = new URL("./", document.baseURI);
       const buildUrl = new URL("Build/", pageUrl);
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("b1c62ae07e09e16e079990615d659270.data.unityweb"),
-        frameworkUrl: buildAssetUrl("b1147ce9710c1d9224479388599408ca.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("68bb5e078e53cbc1e6849aff8c3f4c11.wasm.unityweb"),
+        dataUrl: buildAssetUrl("ced79bc136642c32ef8802849bc7f80a.data.unityweb"),
+        frameworkUrl: buildAssetUrl("a1ecda70007c37e8da737fdd206f3608.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("4cc10a9a51a4695a03cab3818d4b6147.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -199,7 +232,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("964ac387355b96a3122ee29f4d573dd9.loader.js");
+      loader.src = buildAssetUrl("8f2679c8ca9b3f9150ccd04e64ebd1e1.loader.js");
       loader.onload = () => {
         createUnityInstance(canvas, config, value => {
           progress.style.width = `${Math.round(value * 100)}%`;
