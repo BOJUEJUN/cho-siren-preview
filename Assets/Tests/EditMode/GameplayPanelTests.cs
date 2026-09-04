@@ -120,23 +120,25 @@ namespace ChoSiren.Tests
             int diamondsBefore = model.Save.Diamonds;
             LevelMapPanel map = LevelMapPanel.Open(host.transform, model);
 
-            string[] aiResources =
+            string[] retainedAiResources =
             {
-                "Art/LevelMapAI/stage-node-frame-ai-v1",
                 "Art/LevelMapAI/chapter-reward-chest-ai-v1",
                 "Art/LevelMapAI/chapter-action-frame-ai-v1",
             };
-            for (int index = 0; index < aiResources.Length; index++)
-                Assert.That(Resources.Load<Sprite>(aiResources[index]), Is.Not.Null,
-                    $"章节地图 AI 素材未导入：{aiResources[index]}");
+            for (int index = 0; index < retainedAiResources.Length; index++)
+                Assert.That(Resources.Load<Sprite>(retainedAiResources[index]), Is.Not.Null,
+                    $"章节地图保留素材未导入：{retainedAiResources[index]}");
 
-            Assert.That(FindNamed<Image>(map.transform, "Level-1-1").sprite,
-                Is.SameAs(Resources.Load<Sprite>(aiResources[0])));
-            Assert.That(FindNamed<Image>(map.transform, "ChapterRewards").sprite,
-                Is.SameAs(Resources.Load<Sprite>(aiResources[1])));
+            Assert.That(FindNamed<Image>(map.transform, "ChapterRewardsIcon").sprite,
+                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[0])));
+            Assert.That(FindNamed<Image>(map.transform, "ChapterTasksIcon").sprite,
+                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[1])));
 
             Assert.That(FindNamed<Transform>(map.transform, "ChapterControlDock"), Is.Not.Null);
-            string[] hiddenControls = { "ChapterProgressAIFrame", "ChapterDifficulty" };
+            RectTransform dock = FindNamed<RectTransform>(map.transform, "ChapterControlDock");
+            Assert.That(dock.sizeDelta.y, Is.EqualTo(168f).Within(0.01f),
+                "章节底栏应保持为紧凑的奖励与任务双入口。 ");
+            string[] hiddenControls = { "ChapterProgressAIFrame", "ChapterDifficulty", "StarMilestones" };
             Transform[] descendants = map.GetComponentsInChildren<Transform>(true);
             for (int index = 0; index < hiddenControls.Length; index++)
                 Assert.That(descendants.Any(item => item.name == hiddenControls[index]), Is.False,
@@ -175,7 +177,7 @@ namespace ChoSiren.Tests
             Assert.That(cityCover.aspectMode, Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent));
             Assert.That(cityCover.aspectRatio,
                 Is.EqualTo(userCity.sprite.rect.width / userCity.sprite.rect.height).Within(0.001f));
-            AssertGlass(FindNamed<Image>(map.transform, "SelectedLevel"), 0.72f, "关卡详情");
+            AssertGlass(FindNamed<Image>(map.transform, "SelectedLevel"), 0.94f, "关卡详情");
             AssertBright(FindNamed<Text>(FindNamed<Transform>(map.transform, "StartChallenge"), "Label"), "开始挑战");
             UnityEngine.Object.DestroyImmediate(map.gameObject);
 

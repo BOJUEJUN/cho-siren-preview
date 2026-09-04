@@ -46,11 +46,11 @@ namespace ChoSiren
         }
 
         private static readonly Color White = new Color32(249, 247, 255, 255);
-        private static readonly Color Muted = new Color32(188, 183, 218, 255);
-        private static readonly Color Pink = new Color32(255, 83, 196, 255);
-        private static readonly Color Cyan = new Color32(86, 218, 255, 255);
-        private static readonly Color Glass = new Color32(18, 20, 65, 178);
-        private static readonly Color Locked = new Color32(45, 48, 86, 238);
+        private static readonly Color Muted = new Color32(171, 181, 213, 255);
+        private static readonly Color Pink = new Color32(255, 112, 220, 255);
+        private static readonly Color Cyan = new Color32(104, 198, 255, 255);
+        private static readonly Color Glass = new Color32(8, 18, 48, 232);
+        private static readonly Color Locked = new Color32(18, 25, 55, 238);
         private const int ChapterStageCount = GameModel.ChapterOneStageCount;
 
         private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
@@ -84,7 +84,6 @@ namespace ChoSiren
         private Button startButton;
         private Image startBackground;
         private Image currentGlow;
-        private Sprite nodeFrameSprite;
         private Sprite rewardChestSprite;
         private Sprite actionFrameSprite;
         private GameObject modalRoot;
@@ -189,7 +188,6 @@ namespace ChoSiren
             font = Resources.Load<Font>("Fonts/NotoSansSC-Subset") ??
                    Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-            nodeFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/stage-node-frame-ai-v1");
             rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
             actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
 
@@ -208,7 +206,7 @@ namespace ChoSiren
             inputBlocker.raycastTarget = true;
 
             Image gradient = NewImage("NightGradient", transform, CreateGradientSprite(
-                new Color32(7, 8, 35, 255), new Color32(31, 14, 77, 255), new Color32(8, 24, 65, 255)), White);
+                new Color32(3, 8, 24, 255), new Color32(8, 20, 49, 255), new Color32(4, 15, 38, 255)), White);
             Stretch(gradient.rectTransform);
             gradient.raycastTarget = false;
 
@@ -220,7 +218,7 @@ namespace ChoSiren
             if (chapterCity != null)
             {
                 Image city = NewImage("Chapter01UserCityBackground", transform, chapterCity,
-                    new Color32(238, 241, 255, 255));
+                    new Color32(219, 229, 255, 255));
                 Stretch(city.rectTransform);
                 city.preserveAspect = true;
                 city.raycastTarget = false;
@@ -231,11 +229,11 @@ namespace ChoSiren
 
             Sprite glowSprite = CreateRadialSprite(128, false);
             AddGlow("SkyGlow", new Vector2(360, 205), new Vector2(650, 390),
-                new Color32(94, 49, 204, 95), glowSprite);
+                new Color32(64, 104, 210, 62), glowSprite);
             AddGlow("CityGlow", new Vector2(360, 735), new Vector2(760, 720),
-                new Color32(255, 48, 194, 54), glowSprite);
+                new Color32(255, 72, 199, 38), glowSprite);
             AddGlow("CyanGlow", new Vector2(590, 535), new Vector2(360, 560),
-                new Color32(50, 198, 255, 35), glowSprite);
+                new Color32(72, 188, 255, 28), glowSprite);
 
             if (chapterCity == null)
             {
@@ -248,58 +246,44 @@ namespace ChoSiren
                 PlaceTop(nearCity.rectTransform, 0, 410, 720, 710);
             }
 
-            Image horizon = NewImage("HorizonGlow", transform, null, new Color32(157, 73, 247, 54));
+            Image horizon = NewImage("HorizonGlow", transform, null, new Color32(124, 164, 255, 42));
             PlaceTop(horizon.rectTransform, 0, 1055, 720, 3);
             Image reflection = NewImage("Reflection", transform, CreateGradientSprite(
                 new Color32(79, 31, 155, 80), new Color32(17, 15, 61, 26), new Color32(4, 7, 29, 0)), White);
             PlaceTop(reflection.rectTransform, 0, 1058, 720, 166);
 
-            for (int index = 0; index < 6; index++)
-            {
-                Image beam = NewImage("StageBeam", transform, null,
-                    index % 2 == 0 ? new Color32(255, 92, 214, 18) : new Color32(73, 207, 255, 15));
-                RectTransform rect = beam.rectTransform;
-                PlaceTop(rect, 88 + index * 116, 120, 3, 880);
-                CenterPivot(rect);
-                rect.localEulerAngles = new Vector3(0, 0, index % 2 == 0 ? -7f : 6f);
-            }
-
-            // Keep the procedural skyline visible while separating navigation and level nodes
-            // from its dense neon detail. This remains behind every functional surface.
+            // Preserve the city as the hero visual while keeping text and the star route legible.
             Image readabilityVeil = NewImage("LevelMapReadabilityVeil", transform, null,
-                new Color32(5, 10, 38, 58));
+                new Color32(2, 8, 27, 82));
             Stretch(readabilityVeil.rectTransform);
             readabilityVeil.raycastTarget = false;
         }
 
         private void BuildHeader()
         {
-            Image header = NewImage("HeaderGlass", transform, null, new Color32(6, 8, 34, 232));
-            PlaceTop(header.rectTransform, 0, 0, 720, 112);
+            Image header = NewImage("HeaderGlass", transform, null, new Color32(2, 8, 25, 236));
+            PlaceTop(header.rectTransform, 0, 0, 720, 116);
 
-            GameObject back = NewButton("Back", header.transform, "返回", 17,
-                new Color32(64, 42, 112, 235), White, Close, 18);
-            PlaceTop(back.GetComponent<RectTransform>(), 18, 25, 86, 56);
+            GameObject back = NewButton("Back", header.transform, "〈", 38,
+                new Color32(11, 22, 54, 226), White, Close, 17);
+            PlaceTop(back.GetComponent<RectTransform>(), 22, 21, 76, 66);
+            AddGlassOutline(back, new Color32(134, 169, 246, 112), 1f);
 
-            NewPlacedText(header.transform, "第 01 章", 17, new Color32(220, 198, 255, 255),
-                126, 19, 140, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(header.transform, "踏梦迷踪", 30, White,
-                126, 43, 235, 45, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(header.transform, "第01章", 16, new Color32(220, 202, 255, 255),
+                122, 14, 142, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(header.transform, "踏梦迷踪", 31, White,
+                122, 39, 254, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
 
-            GameObject story = NewButton("StoryChapter-01", header.transform, "剧情 · 第 01 章", 13,
-                new Color32(74, 42, 128, 235), White, OpenStoryChapter01, 16);
-            PlaceTop(story.GetComponent<RectTransform>(), 360, 22, 122, 52);
-            storyChapterLabel = story.transform.Find("Label").GetComponent<Text>();
+            GameObject stamina = NewPanel("Stamina", header.transform, new Color32(12, 21, 54, 220), 23);
+            PlaceTop(stamina.GetComponent<RectTransform>(), 508, 24, 190, 60);
+            AddGlassOutline(stamina, new Color32(135, 147, 232, 70), 1f);
+            NewPlacedText(stamina.transform, "体力", 15, new Color32(255, 166, 225, 255),
+                16, 10, 52, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
+            staminaText = NewPlacedText(stamina.transform, string.Empty, 20, White,
+                63, 10, 110, 40, TextAnchor.MiddleRight, FontStyle.Bold);
 
-            GameObject stamina = NewPanel("Stamina", header.transform, new Color32(34, 24, 83, 235), 24);
-            PlaceTop(stamina.GetComponent<RectTransform>(), 492, 27, 210, 54);
-            NewPlacedText(stamina.transform, "体力", 15, new Color32(255, 151, 219, 255),
-                18, 8, 58, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            staminaText = NewPlacedText(stamina.transform, string.Empty, 19, White,
-                72, 8, 120, 38, TextAnchor.MiddleRight, FontStyle.Bold);
-
-            Image divider = NewImage("Divider", header.transform, null, new Color32(152, 105, 226, 88));
-            PlaceTop(divider.rectTransform, 18, 108, 684, 2);
+            Image divider = NewImage("Divider", header.transform, null, new Color32(133, 163, 240, 78));
+            PlaceTop(divider.rectTransform, 24, 112, 672, 1.5f);
         }
 
         private void BuildMap()
@@ -307,29 +291,35 @@ namespace ChoSiren
             GameObject mapLayer = NewObject("CityRoute", transform);
             Stretch(mapLayer.AddComponent<RectTransform>());
 
-            GameObject chapterTitle = NewPanel("ChapterMapTitleGlass", mapLayer.transform,
-                new Color32(9, 12, 46, 188), 18);
-            PlaceTop(chapterTitle.GetComponent<RectTransform>(), 18, 122, 286, 78);
-            AddGlassOutline(chapterTitle, new Color32(183, 115, 255, 96), 1f);
-            NewPlacedText(chapterTitle.transform, "♪  主线剧情  ·  第一章", 12,
-                new Color32(255, 167, 226, 255), 16, 8, 250, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(chapterTitle.transform, "欲望都市", 25, White,
-                16, 29, 160, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(chapterTitle.transform, "霓虹不眠，舞台由你定义", 11, Muted,
-                174, 32, 98, 34, TextAnchor.MiddleRight, FontStyle.Normal);
+            GameObject chapterTitle = NewPanelButton("StoryChapter-01", mapLayer.transform,
+                new Color32(4, 12, 35, 148), 18, OpenStoryChapter01);
+            PlaceTop(chapterTitle.GetComponent<RectTransform>(), 24, 136, 292, 108);
+            AddGlassOutline(chapterTitle, new Color32(133, 166, 239, 70), 1f);
+            storyChapterLabel = NewPlacedText(chapterTitle.transform, "主线剧情 · 第一章", 13,
+                new Color32(255, 145, 220, 255), 18, 12, 246, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(chapterTitle.transform, "欲望都市", 29, White,
+                18, 38, 194, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Image titleLine = NewImage("ChapterTitleLine", chapterTitle.transform, null,
+                new Color32(192, 211, 255, 155));
+            PlaceTop(titleLine.rectTransform, 18, 91, 236, 1.5f);
+            Image titleStar = NewImage("ChapterTitleStar", chapterTitle.transform, RoundedSprite(4),
+                new Color32(244, 246, 255, 235));
+            PlaceTop(titleStar.rectTransform, 10, 88, 7, 7);
+            CenterPivot(titleStar.rectTransform);
+            titleStar.rectTransform.localEulerAngles = new Vector3(0, 0, 45);
 
             Vector2[] points =
             {
-                new Vector2(410, 928),
-                new Vector2(250, 852),
-                new Vector2(385, 778),
-                new Vector2(542, 704),
-                new Vector2(420, 630),
-                new Vector2(252, 556),
-                new Vector2(390, 482),
-                new Vector2(535, 408),
-                new Vector2(402, 334),
-                new Vector2(548, 252),
+                new Vector2(414, 1044),
+                new Vector2(268, 956),
+                new Vector2(420, 868),
+                new Vector2(554, 780),
+                new Vector2(430, 690),
+                new Vector2(260, 600),
+                new Vector2(422, 510),
+                new Vector2(552, 420),
+                new Vector2(382, 330),
+                new Vector2(544, 246),
             };
 
             GameObject routeLines = NewObject("RouteLines", mapLayer.transform);
@@ -345,48 +335,56 @@ namespace ChoSiren
         private void BuildNode(Transform parent, int stage, Vector2 center)
         {
             LevelState state = StateFor(stage);
-            float width = state == LevelState.Current ? 126f : 116f;
-            float height = state == LevelState.Current ? 84f : 77f;
+            float width = state == LevelState.Current ? 134f : 108f;
+            float height = state == LevelState.Current ? 74f : 58f;
 
             Image glow = NewImage($"Glow-1-{stage}", parent, CreateRadialSprite(96, false),
                 state == LevelState.Locked
-                    ? new Color32(84, 94, 155, 28)
+                    ? new Color32(80, 105, 160, 22)
                     : state == LevelState.Current
-                        ? new Color32(255, 70, 210, 105)
-                        : new Color32(132, 84, 255, 72));
-            PlaceTop(glow.rectTransform, center.x - width * 0.78f, center.y - height * 0.88f,
-                width * 1.56f, height * 1.76f);
+                        ? new Color32(255, 96, 222, 102)
+                        : new Color32(119, 154, 255, 48));
+            PlaceTop(glow.rectTransform, center.x - width * 0.72f, center.y - height * 0.95f,
+                width * 1.44f, height * 1.9f);
             CenterPivot(glow.rectTransform);
 
+            GameObject orbit = NewPanel($"Orbit-1-{stage}", parent,
+                new Color32(5, 13, 39, state == LevelState.Locked ? (byte)132 : (byte)194), 24);
+            PlaceTop(orbit.GetComponent<RectTransform>(), center.x - width * 0.54f,
+                center.y - height * 0.24f, width * 1.08f, height * 0.76f);
+            AddGlassOutline(orbit, state == LevelState.Current
+                ? new Color32(255, 131, 229, 205)
+                : new Color32(131, 163, 238, 110), 1f);
+
             Color frameTint = state == LevelState.Locked
-                ? new Color32(92, 94, 132, 215)
+                ? Locked
                 : state == LevelState.Current
-                    ? new Color32(255, 255, 255, 255)
-                    : new Color32(205, 222, 255, 242);
-            GameObject node = NewSpriteButton($"Level-1-{stage}", parent,
-                nodeFrameSprite, frameTint, () => SelectStage(stage));
+                    ? new Color32(18, 23, 61, 245)
+                    : new Color32(10, 20, 49, 240);
+            GameObject node = NewPanelButton($"Level-1-{stage}", parent,
+                frameTint, Mathf.RoundToInt(height * 0.5f), () => SelectStage(stage));
             RectTransform rect = node.GetComponent<RectTransform>();
             PlaceTop(rect, center.x - width * 0.5f, center.y - height * 0.5f, width, height);
             Text nodeLabel = NewPlacedText(node.transform, $"1-{stage}",
-                state == LevelState.Current ? 22 : 19,
+                state == LevelState.Current ? 24 : 20,
                 state == LevelState.Locked ? new Color32(151, 153, 190, 255) : White,
-                8, 8, width - 16, height * 0.52f, TextAnchor.MiddleCenter, FontStyle.Bold);
+                8, 3, width - 16, height * 0.60f, TextAnchor.MiddleCenter, FontStyle.Bold);
             Shadow labelShadow = nodeLabel.gameObject.AddComponent<Shadow>();
             labelShadow.effectColor = new Color32(12, 4, 38, 235);
             labelShadow.effectDistance = new Vector2(1.5f, -1.5f);
 
             Outline outline = node.AddComponent<Outline>();
-            outline.effectDistance = new Vector2(2f, -2f);
+            outline.effectDistance = new Vector2(1.25f, -1.25f);
             outline.effectColor = state == LevelState.Locked
-                ? new Color32(126, 132, 185, 130)
+                ? new Color32(111, 127, 177, 105)
                 : state == LevelState.Current
-                    ? new Color32(255, 126, 226, 245)
-                    : new Color32(197, 156, 255, 210);
+                    ? new Color32(255, 154, 232, 245)
+                    : new Color32(154, 182, 245, 186);
 
             string status = StateLabel(state);
             Text statusLabel = NewPlacedText(node.transform, status, state == LevelState.Cleared ? 12 : 11,
                 state == LevelState.Locked ? new Color32(150, 154, 193, 255) : new Color32(255, 186, 229, 255),
-                8, height - 29, width - 16, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
+                8, height - 24, width - 16, 17, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             NodeView view = new NodeView
             {
@@ -406,95 +404,83 @@ namespace ChoSiren
         private void BuildDetails()
         {
             GameObject card = NewPanel("SelectedLevel", transform, Glass, 28);
-            PlaceTop(card.GetComponent<RectTransform>(), 20, 978, 680, 184);
-            AddGlassOutline(card, new Color32(166, 112, 255, 150), 2f);
+            PlaceTop(card.GetComponent<RectTransform>(), 20, 1100, 680, 230);
+            AddGlassOutline(card, new Color32(132, 164, 238, 126), 1.5f);
 
             Image topAccent = NewImage("SelectedLevelAccent", card.transform, null,
                 new Color32(255, 91, 207, 225));
-            PlaceTop(topAccent.rectTransform, 30, 0, 180, 3);
+            PlaceTop(topAccent.rectTransform, 28, 0, 184, 3);
 
-            stageText = NewPlacedText(card.transform, "1-1", 34, White,
-                24, 12, 104, 50, TextAnchor.MiddleLeft, FontStyle.Bold);
-            stageTitleText = NewPlacedText(card.transform, "霓虹序曲", 19, White,
-                128, 13, 295, 29, TextAnchor.MiddleLeft, FontStyle.Bold);
-            stageStatusText = NewPlacedText(card.transform, "当前关卡", 16,
-                new Color32(255, 137, 213, 255), 128, 43, 295, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageText = NewPlacedText(card.transform, "1-1", 38, White,
+                28, 14, 106, 56, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageTitleText = NewPlacedText(card.transform, "霓虹序曲", 20, White,
+                140, 16, 292, 31, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageStatusText = NewPlacedText(card.transform, "当前关卡", 14,
+                new Color32(255, 142, 217, 255), 140, 48, 292, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             progressText = NewPlacedText(card.transform, string.Empty, 13, Muted,
-                24, 70, 414, 26, TextAnchor.MiddleLeft);
+                28, 79, 414, 28, TextAnchor.MiddleLeft);
 
             staminaCostText = InfoChip(card.transform, "StaminaCost", "体力 -8",
-                24, 108, 116, new Color32(255, 157, 220, 255));
+                28, 145, 126, new Color32(255, 157, 220, 255));
             diamondRewardText = InfoChip(card.transform, "DiamondReward", "星钻 ×20",
-                148, 108, 132, Cyan);
+                164, 145, 140, Cyan);
             goldRewardText = InfoChip(card.transform, "GoldReward", "星币 ×300",
-                288, 108, 150, new Color32(255, 215, 111, 255));
+                314, 145, 146, new Color32(255, 215, 111, 255));
 
-            GameObject start = NewSpriteButton("StartChallenge", card.transform, actionFrameSprite,
-                Color.white, StartChallenge);
-            PlaceTop(start.GetComponent<RectTransform>(), 454, 36, 206, 108);
+            GameObject start = NewPanelButton("StartChallenge", card.transform,
+                new Color32(24, 20, 70, 246), 34, StartChallenge);
+            PlaceTop(start.GetComponent<RectTransform>(), 474, 105, 184, 92);
+            AddGlassOutline(start, new Color32(255, 129, 224, 224), 2f);
             startButton = start.GetComponent<Button>();
             startBackground = start.GetComponent<Image>();
             startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
-                14, 28, 178, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
+                12, 23, 160, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             startLabel.name = "Label";
-            Text hint = NewPlacedText(start.transform, "进入骰子演出", 11, new Color32(213, 196, 255, 255),
-                20, 66, 166, 22, TextAnchor.MiddleCenter, FontStyle.Normal);
-            hint.name = "StartHint";
         }
 
         private Text InfoChip(Transform parent, string name, string label, float x, float y, float width, Color accent)
         {
-            GameObject chip = NewPanel(name, parent, new Color32(37, 29, 83, 215), 14);
-            PlaceTop(chip.GetComponent<RectTransform>(), x, y, width, 48);
+            GameObject chip = NewPanel(name, parent, new Color32(13, 24, 58, 228), 14);
+            PlaceTop(chip.GetComponent<RectTransform>(), x, y, width, 54);
+            AddGlassOutline(chip, new Color32(120, 151, 222, 68), 1f);
             Image accentLine = NewImage("Accent", chip.transform, null, accent);
-            PlaceTop(accentLine.rectTransform, 0, 7, 3, 34);
+            PlaceTop(accentLine.rectTransform, 0, 8, 3, 38);
             return NewPlacedText(chip.transform, label, 13, White,
-                8, 4, width - 14, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
+                8, 6, width - 14, 42, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
 
         private void BuildChapterDock()
         {
-            GameObject dock = NewPanel("ChapterControlDock", transform, new Color32(6, 9, 38, 236), 26);
-            PlaceTop(dock.GetComponent<RectTransform>(), 14, 1174, 692, 344);
-            AddGlassOutline(dock, new Color32(116, 201, 255, 86), 1.5f);
+            GameObject dock = NewPanel("ChapterControlDock", transform, new Color32(4, 12, 36, 236), 24);
+            PlaceTop(dock.GetComponent<RectTransform>(), 20, 1348, 680, 168);
+            AddGlassOutline(dock, new Color32(122, 157, 231, 98), 1.25f);
 
-            NewPlacedText(dock.transform, "章节探索控制台", 14, new Color32(224, 207, 255, 255),
-                22, 8, 220, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(dock.transform, "每颗星都会点亮一段舞台航线", 11, Muted,
-                282, 9, 385, 24, TextAnchor.MiddleRight, FontStyle.Normal);
+            GameObject rewards = NewPanelButton("ChapterRewards", dock.transform,
+                new Color32(10, 23, 55, 228), 20, OpenChapterRewards);
+            PlaceTop(rewards.GetComponent<RectTransform>(), 14, 18, 319, 122);
+            AddGlassOutline(rewards, new Color32(119, 158, 235, 80), 1f);
+            Image rewardIcon = NewImage("ChapterRewardsIcon", rewards.transform, rewardChestSprite, Color.white);
+            PlaceTop(rewardIcon.rectTransform, 18, 20, 76, 76);
+            rewardIcon.preserveAspect = true;
+            NewPlacedText(rewards.transform, "章节奖励", 18, White,
+                106, 23, 176, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            rewardSummaryText = NewPlacedText(rewards.transform, "章节奖励", 11, Muted,
+                106, 62, 176, 28, TextAnchor.MiddleLeft, FontStyle.Normal);
+            rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 278, 8);
 
-            GameObject rewards = NewSpriteButton("ChapterRewards", dock.transform, rewardChestSprite,
-                Color.white, OpenChapterRewards);
-            PlaceTop(rewards.GetComponent<RectTransform>(), 187, 40, 154, 122);
-            rewardSummaryText = NewPlacedText(dock.transform, "章节奖励", 13, White,
-                182, 183, 164, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
-            rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 118, 1);
-
-            GameObject tasks = NewSpriteButton("ChapterTasks", dock.transform, actionFrameSprite,
-                new Color32(255, 228, 251, 255), OpenChapterTasks);
-            PlaceTop(tasks.GetComponent<RectTransform>(), 358, 64, 150, 77);
-            NewPlacedText(tasks.transform, "章节任务", 17, White,
-                14, 23, 122, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
-            taskSummaryText = NewPlacedText(dock.transform, "0/3 已完成", 11, Muted,
-                350, 183, 166, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
-            taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 119, -2);
-
-            GameObject milestone = NewPanel("StarMilestones", dock.transform,
-                new Color32(31, 25, 77, 196), 17);
-            PlaceTop(milestone.GetComponent<RectTransform>(), 24, 220, 644, 76);
-            NewPlacedText(milestone.transform, "星级里程碑", 12, new Color32(255, 159, 220, 255),
-                15, 8, 105, 25, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(milestone.transform, "10 星", 14, White,
-                142, 8, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(milestone.transform, "20 星", 14, White,
-                272, 8, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(milestone.transform, "30 星", 14, White,
-                402, 8, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(milestone.transform, "通关 1-10 解锁本章最终奖励", 12, Muted,
-                15, 38, 614, 24, TextAnchor.MiddleCenter, FontStyle.Normal);
-
-            NewPlacedText(dock.transform, "选择关卡后可查看消耗与奖励", 11,
-                new Color32(163, 174, 221, 255), 28, 304, 636, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
+            GameObject tasks = NewPanelButton("ChapterTasks", dock.transform,
+                new Color32(10, 23, 55, 228), 20, OpenChapterTasks);
+            PlaceTop(tasks.GetComponent<RectTransform>(), 347, 18, 319, 122);
+            AddGlassOutline(tasks, new Color32(119, 158, 235, 80), 1f);
+            Image taskIcon = NewImage("ChapterTasksIcon", tasks.transform, actionFrameSprite,
+                new Color32(255, 232, 252, 255));
+            PlaceTop(taskIcon.rectTransform, 17, 25, 78, 70);
+            taskIcon.preserveAspect = true;
+            NewPlacedText(tasks.transform, "章节任务", 18, White,
+                106, 23, 176, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            taskSummaryText = NewPlacedText(tasks.transform, "0/3 已完成", 11, Muted,
+                106, 62, 176, 28, TextAnchor.MiddleLeft, FontStyle.Normal);
+            taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 278, 8);
         }
 
         private void OpenChapterRewards()
@@ -831,7 +817,7 @@ namespace ChoSiren
 
             staminaText.text = $"{model.Save.Stamina}/{model.StaminaCap}";
             if (storyChapterLabel != null)
-                storyChapterLabel.text = model.IsStoryCompleted("chapter-01") ? "剧情 · 已读" : "剧情 · 第 01 章";
+                storyChapterLabel.text = model.IsStoryCompleted("chapter-01") ? "主线剧情 · 已读" : "主线剧情 · 第一章";
             stageText.text = $"1-{selectedStage}";
 
             LevelState state = StateFor(selectedStage);
@@ -860,13 +846,13 @@ namespace ChoSiren
             startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
             startBackground.color = model.Save.Stamina < staminaCost
-                ? new Color32(145, 126, 165, 210)
+                ? new Color32(48, 52, 80, 220)
                 : state == LevelState.Cleared
-                    ? new Color32(226, 219, 255, 245)
-                    : Color.white;
+                    ? new Color32(23, 38, 80, 245)
+                    : new Color32(29, 21, 76, 246);
 
             int claimableRewards = model.ChapterOneClaimableStarRewardCount;
-            rewardSummaryText.text = claimableRewards > 0 ? $"章节奖励 · {claimableRewards} 可领" : "章节奖励";
+            rewardSummaryText.text = claimableRewards > 0 ? $"{claimableRewards} 项奖励可领取" : "查看星级奖励";
             rewardBadgeText.text = claimableRewards.ToString();
             rewardBadgeText.transform.parent.gameObject.SetActive(claimableRewards > 0);
 
@@ -887,11 +873,11 @@ namespace ChoSiren
                 if (view.State == LevelState.Locked)
                 {
                     view.Glow.enabled = false;
-                    view.Background.color = new Color32(92, 94, 132, 215);
+                    view.Background.color = Locked;
                     view.StageLabel.color = new Color32(151, 153, 190, 255);
                     view.StatusLabel.text = StateLabel(view.State);
                     view.StatusLabel.color = new Color32(150, 154, 193, 255);
-                    view.Outline.effectColor = new Color32(102, 109, 157, 94);
+                    view.Outline.effectColor = new Color32(111, 127, 177, 105);
                     continue;
                 }
 
@@ -904,11 +890,11 @@ namespace ChoSiren
                 view.StageLabel.color = White;
                 view.StatusLabel.color = new Color32(255, 186, 229, 255);
                 view.Outline.effectColor = selected
-                    ? new Color32(255, 182, 236, 255)
-                    : new Color32(178, 132, 246, 180);
+                    ? new Color32(255, 164, 235, 255)
+                    : new Color32(154, 182, 245, 186);
                 view.Background.color = selected || view.State == LevelState.Current
-                    ? Color.white
-                    : new Color32(205, 222, 255, 242);
+                    ? new Color32(18, 23, 61, 245)
+                    : new Color32(10, 20, 49, 240);
             }
 
             for (int index = 0; index < routeViews.Count; index++)
@@ -916,14 +902,14 @@ namespace ChoSiren
                 RouteView route = routeViews[index];
                 bool future = StateFor(route.TargetStage) == LevelState.Locked;
                 route.Glow.color = future
-                    ? new Color32(113, 101, 181, 48)
-                    : new Color32(255, 60, 205, 72);
+                    ? new Color32(94, 118, 175, 34)
+                    : new Color32(255, 98, 218, 58);
                 route.Core.color = future
-                    ? new Color32(122, 121, 176, 145)
-                    : new Color32(238, 104, 255, 230);
+                    ? new Color32(159, 177, 219, 145)
+                    : new Color32(232, 220, 255, 235);
                 route.Marker.color = future
-                    ? new Color32(141, 139, 185, 180)
-                    : new Color32(255, 190, 240, 255);
+                    ? new Color32(166, 181, 216, 180)
+                    : new Color32(255, 214, 246, 255);
             }
         }
 
@@ -982,16 +968,16 @@ namespace ChoSiren
 
         private void AddRouteSegment(Transform parent, Vector2 from, Vector2 to, bool future)
         {
-            Color glowColor = future ? new Color32(113, 101, 181, 48) : new Color32(255, 60, 205, 72);
-            Color lineColor = future ? new Color32(122, 121, 176, 145) : new Color32(238, 104, 255, 230);
-            Image glow = AddLine(parent, from, to, 17f, glowColor);
-            Image core = AddLine(parent, from, to, 5f, lineColor);
+            Color glowColor = future ? new Color32(94, 118, 175, 34) : new Color32(255, 98, 218, 58);
+            Color lineColor = future ? new Color32(159, 177, 219, 145) : new Color32(232, 220, 255, 235);
+            Image glow = AddLine(parent, from, to, 11f, glowColor);
+            Image core = AddLine(parent, from, to, 3f, lineColor);
 
             Vector2 middle = Vector2.Lerp(from, to, 0.5f);
-            Image marker = NewImage("RouteMarker", parent, RoundedSprite(6), future
-                ? new Color32(141, 139, 185, 180)
-                : new Color32(255, 190, 240, 255));
-            PlaceTop(marker.rectTransform, middle.x - 7, middle.y - 7, 14, 14);
+            Image marker = NewImage("RouteMarker", parent, RoundedSprite(5), future
+                ? new Color32(166, 181, 216, 180)
+                : new Color32(255, 214, 246, 255));
+            PlaceTop(marker.rectTransform, middle.x - 5, middle.y - 5, 10, 10);
             CenterPivot(marker.rectTransform);
             marker.rectTransform.localEulerAngles = new Vector3(0, 0, 45);
 
@@ -1218,6 +1204,20 @@ namespace ChoSiren
             button.onClick.AddListener(action);
             AddButtonFeedback(image.gameObject);
             return image.gameObject;
+        }
+
+        private GameObject NewPanelButton(string name, Transform parent, Color background, int radius,
+            UnityAction action)
+        {
+            GameObject result = NewPanel(name, parent, background, radius);
+            Image image = result.GetComponent<Image>();
+            image.raycastTarget = true;
+            Button button = result.AddComponent<Button>();
+            button.targetGraphic = image;
+            ConfigureButtonColors(button);
+            button.onClick.AddListener(action);
+            AddButtonFeedback(result);
+            return result;
         }
 
         private GameObject NewButton(string name, Transform parent, string label, int fontSize, Color background,
