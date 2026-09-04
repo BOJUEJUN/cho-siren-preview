@@ -87,12 +87,31 @@ namespace ChoSiren.Tests
             }
 
             RequireRect("TeamLeader");
+            RectTransform titlePlaque = RequireRect("TeamTitlePlaque");
+            RectTransform teamIndex = RequireRect("TeamIndexLabel");
+            RectTransform power = RequireRect("TeamPower");
+            AssertContained(titlePlaque, teamIndex, "编队编号");
+            Rect titlePlaqueRect = RectInParent(titlePlaque);
+            Rect teamIndexRect = RectInParent(teamIndex);
+            Rect powerRect = RectInParent(power);
+            Assert.That(teamIndexRect.xMin - titlePlaqueRect.xMin,
+                Is.GreaterThanOrEqualTo(100f - PositionTolerance),
+                "编队编号必须避开标题牌左侧的大音符装饰。");
+            Assert.That(teamIndexRect.Overlaps(powerRect), Is.False,
+                "编队编号不能侵入右侧总战力卡。");
             Text powerValue = RequireRect("TeamPowerValue").GetComponent<Text>();
             Assert.That(powerValue, Is.Not.Null);
             Assert.That(powerValue.text, Is.Not.Empty, "编队总战力数字不能为空。");
+            Assert.That(powerValue.resizeTextForBestFit, Is.True,
+                "总战力数字必须在数值增长后仍受控缩放，不能溢出美术框。");
             Assert.That(powerValue.verticalOverflow, Is.EqualTo(VerticalWrapMode.Overflow),
                 "总战力大号数字不能被字体行高裁掉。");
-            RectTransform power = RequireRect("TeamPower");
+            Text resonanceValue = RequireRect("TeamResonanceValue").GetComponent<Text>();
+            Text memberCount = RequireRect("TeamMemberCount").GetComponent<Text>();
+            Assert.That(resonanceValue.resizeTextForBestFit, Is.True,
+                "共鸣评分动态文案必须允许受控缩字号。");
+            Assert.That(memberCount.resizeTextForBestFit, Is.True,
+                "成员数量动态文案必须允许受控缩字号。");
             RectTransform synergy = RequireRect("TeamSynergy");
             Assert.That(power.GetComponent<Image>().sprite, Is.Not.Null,
                 "总战力必须装配完整美术框体，不能退回纯色卡片。");
@@ -125,6 +144,13 @@ namespace ChoSiren.Tests
             Assert.That(accessoryBackdrop.GetComponent<AspectRatioFitter>()?.aspectMode,
                 Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
                 "饰品页背景必须等比覆盖，不能拉伸。");
+            string[] accessoryLabels = RequireRect("Content").GetComponentsInChildren<Text>(true)
+                .Select(text => text.text)
+                .ToArray();
+            Assert.That(accessoryLabels, Does.Contain("舞台饰品"),
+                "饰品页眉应准确描述当前功能。");
+            Assert.That(accessoryLabels, Does.Not.Contain("饰品与设置"),
+                "设置已经统一到顶部齿轮，饰品页不能继续使用旧的混合页标题。");
             Assert.That(RequireRect("AccessoryPreview").GetComponent<Image>().color.a,
                 Is.LessThan(0.2f), "饰品角色预览不应恢复为大块实色底卡。");
         }

@@ -425,8 +425,10 @@ namespace ChoSiren
                 108, 39, 312, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(contentRoot, "四重星轨 · 协同舞台阵列", 14, Muted,
                 110, 80, 310, 27, TextAnchor.MiddleLeft);
-            NewPlacedText(contentRoot, "编队 1", 15, new Color32(185, 222, 255, 255),
-                22, 107, 150, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text teamIndexLabel = NewPlacedText(contentRoot, "编队 1", 15,
+                new Color32(185, 222, 255, 255),
+                110, 108, 310, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            teamIndexLabel.name = "TeamIndexLabel";
 
             int teamCount = Mathf.Min(GameModel.TeamCapacity, model.Save.Team.Count);
             int roleCount = model.Save.Team.Take(teamCount)
@@ -450,13 +452,21 @@ namespace ChoSiren
             NewPlacedText(powerCard.transform, "总战力", 13, Muted, 14, 10, 180, 22, TextAnchor.MiddleLeft);
             Text teamPower = NewPlacedText(powerCard.transform, model.TeamPower.ToString("N0"), 30, White,
                 14, 28, 180, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
-            teamPower.horizontalOverflow = HorizontalWrapMode.Overflow;
+            teamPower.resizeTextForBestFit = true;
+            teamPower.resizeTextMinSize = 20;
+            teamPower.resizeTextMaxSize = 30;
+            teamPower.horizontalOverflow = HorizontalWrapMode.Wrap;
             teamPower.verticalOverflow = VerticalWrapMode.Overflow;
             teamPower.name = "TeamPowerValue";
-            NewPlacedText(powerCard.transform, $"阵容共鸣评分  {resonanceScore}", 14,
+            Text resonanceText = NewPlacedText(powerCard.transform, $"阵容共鸣评分  {resonanceScore}", 14,
                 new Color32(112, 242, 255, 255), 14, 74, 180, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(powerCard.transform, $"成员  {teamCount}/{GameModel.TeamCapacity}", 12, Muted,
+            resonanceText.name = "TeamResonanceValue";
+            PanelKit.EnableBestFit(resonanceText, 11);
+            Text memberCountText = NewPlacedText(powerCard.transform,
+                $"成员  {teamCount}/{GameModel.TeamCapacity}", 12, Muted,
                 14, 99, 180, 20, TextAnchor.MiddleLeft);
+            memberCountText.name = "TeamMemberCount";
+            PanelKit.EnableBestFit(memberCountText, 10);
 
             Canvas.ForceUpdateCanvases();
             float contentHeight = Mathf.Max(1f, contentRoot.rect.height);
@@ -906,7 +916,7 @@ namespace ChoSiren
         private void BuildAccessories()
         {
             BuildAccessoryStageBackdrop();
-            ScreenTitle("饰品与设置", "星环试衣舱", "选择饰品，实时预览舞台搭配与战力变化");
+            ScreenTitle("舞台饰品", "星环试衣舱", "选择饰品，实时预览舞台搭配与战力变化");
 
             if (selectedAccessoryIndex < 0 || selectedAccessoryIndex >= GameModel.AccessoryNames.Length)
             {
