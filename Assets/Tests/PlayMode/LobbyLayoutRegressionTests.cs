@@ -175,7 +175,7 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator TeamAndMemberLayoutsStayInsideShortAndStandardPortraitContent()
+        public IEnumerator PrimaryPagesStayInsideShortAndStandardPortraitContent()
         {
             RectTransform content = RequireRect("Content");
             float originalHeight = content.rect.height;
@@ -220,6 +220,50 @@ namespace ChoSiren.Tests
                 Text collectionSummary = RequireRect("AccessoryCollectionSummary").GetComponent<Text>();
                 Assert.That(collectionSummary.resizeTextForBestFit, Is.True,
                     "饰品图鉴摘要包含动态战力，必须允许受控缩字号。");
+
+                RequireButtonRect("Nav-audition").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                content = RequireRect("Content");
+                RectTransform onlinePool = RequireButtonRect("InterviewPool-0");
+                RectTransform offlinePool = RequireButtonRect("InterviewPool-1");
+                RectTransform candidate = RequireRect("CandidateCard");
+                RectTransform actions = RequireRect("InterviewActions");
+                AssertContained(content, onlinePool, $"{targetHeight} 高度下的线上面试入口");
+                AssertContained(content, offlinePool, $"{targetHeight} 高度下的线下面试入口");
+                AssertContained(content, RequireRect("InterviewRefresh"),
+                    $"{targetHeight} 高度下的候选刷新信息");
+                AssertContained(content, candidate, $"{targetHeight} 高度下的候选主卡");
+                AssertContained(content, actions, $"{targetHeight} 高度下的签约操作区");
+                AssertVerticallyContained(content, RequireButtonRect("PreviousCandidate"),
+                    $"{targetHeight} 高度下的上一位候选");
+                AssertVerticallyContained(content, RequireButtonRect("NextCandidate"),
+                    $"{targetHeight} 高度下的下一位候选");
+                Assert.That(RectInParent(onlinePool).Overlaps(RectInParent(offlinePool)), Is.False,
+                    "线上与线下面试入口不能重叠。");
+                Assert.That(RectInParent(candidate).Overlaps(RectInParent(actions)), Is.False,
+                    $"{targetHeight} 高度下候选主卡不能侵入签约操作区。");
+                AssertContained(candidate, RequireRect("CandidateStats"),
+                    $"{targetHeight} 高度下的候选能力值");
+                AssertContained(candidate, RequireRect("CandidateCharm"),
+                    $"{targetHeight} 高度下的魅力与收益信息");
+                AssertContained(actions, RequireButtonRect("ViewInterview"),
+                    $"{targetHeight} 高度下的查看面试操作");
+                AssertContained(actions, RequireButtonRect("SignCandidate"),
+                    $"{targetHeight} 高度下的签约操作");
+                foreach (RectTransform dot in actions.GetComponentsInChildren<RectTransform>(true)
+                             .Where(rect => rect.name.StartsWith("CandidateDot-")))
+                    AssertContained(actions, dot, $"{targetHeight} 高度下的候选分页点");
+
+                offlinePool.GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                content = RequireRect("Content");
+                AssertContained(content, RequireRect("CandidateCard"),
+                    $"{targetHeight} 高度下的线下候选主卡");
+                AssertContained(content, RequireRect("InterviewActions"),
+                    $"{targetHeight} 高度下的线下签约操作区");
+                Assert.That(RectInParent(RequireRect("CandidateCard"))
+                        .Overlaps(RectInParent(RequireRect("InterviewActions"))), Is.False,
+                    $"{targetHeight} 高度下线下面试主卡不能侵入签约操作区。");
             }
 
             content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight);
@@ -467,6 +511,16 @@ namespace ChoSiren.Tests
                 $"{label} 的底部溢出 LiveOnStage 热区。");
             Assert.That(childRect.yMax, Is.LessThanOrEqualTo(parentRect.yMax + PositionTolerance),
                 $"{label} 的顶部溢出 LiveOnStage 热区。");
+        }
+
+        private static void AssertVerticallyContained(RectTransform parent, RectTransform child, string label)
+        {
+            Rect parentRect = parent.rect;
+            Rect childRect = RectRelativeTo(parent, child);
+            Assert.That(childRect.yMin, Is.GreaterThanOrEqualTo(parentRect.yMin - PositionTolerance),
+                $"{label} 的底部溢出内容区。");
+            Assert.That(childRect.yMax, Is.LessThanOrEqualTo(parentRect.yMax + PositionTolerance),
+                $"{label} 的顶部溢出内容区。");
         }
 
         private static Rect RectInParent(RectTransform rect)

@@ -34,6 +34,7 @@ namespace ChoSiren.Panels
     {
         private const float RevealInterval = 0.12f;
         private const float RevealDuration = 0.22f;
+        private const float CompactInterviewHeight = 1168f;
 
         private sealed class ResultCell
         {
@@ -194,7 +195,9 @@ namespace ChoSiren.Panels
                     new Color32(8, 12, 42, 184), new Color32(6, 8, 29, 218)), Color.white);
             PanelKit.Stretch(shade.rectTransform);
 
-            BuildInterviewTabs(interviewContent.transform);
+            Canvas.ForceUpdateCanvases();
+            bool compact = contentRect.rect.height > 1f && contentRect.rect.height < CompactInterviewHeight;
+            BuildInterviewTabs(interviewContent.transform, compact);
 
             List<int> candidates = InterviewCandidates();
             if (candidates.Count == 0)
@@ -209,16 +212,17 @@ namespace ChoSiren.Panels
             int nextIndex = candidates[(interviewCandidateIndex + 1) % candidates.Count];
 
             BuildInterviewSideCard(interviewContent.transform, "PreviousCandidate", previousIndex,
-                -62f, 246f, -1, candidates.Count > 1);
+                -62f, compact ? 160f : 246f, -1, candidates.Count > 1);
             BuildInterviewSideCard(interviewContent.transform, "NextCandidate", nextIndex,
-                606f, 246f, 1, candidates.Count > 1);
-            BuildInterviewCandidateCard(interviewContent.transform, memberIndex, candidates.Count);
-            BuildInterviewActions(interviewContent.transform, memberIndex);
+                606f, compact ? 160f : 246f, 1, candidates.Count > 1);
+            BuildInterviewCandidateCard(interviewContent.transform, memberIndex, candidates.Count, compact);
+            BuildInterviewActions(interviewContent.transform, memberIndex, compact);
         }
 
-        private void BuildInterviewTabs(Transform parent)
+        private void BuildInterviewTabs(Transform parent, bool compact)
         {
-            const float top = 24f;
+            float top = compact ? 10f : 24f;
+            float height = compact ? 70f : 88f;
             const float width = 320f;
             string[] titles = { "线上面试", "线下面试" };
             string[] subtitles = { "视频候选 · 预算较低", "当面试镜 · 预算较高" };
@@ -231,26 +235,29 @@ namespace ChoSiren.Panels
                 GameObject tab = kit.NewButton("InterviewPool-" + index, parent, string.Empty, 16,
                     selected ? new Color32(17, 29, 66, 196) : new Color32(12, 15, 48, 112),
                     selected ? selectedColor : PanelKit.Muted, () => SelectInterviewPool(captured), 20);
-                PanelKit.PlaceTop(tab.GetComponent<RectTransform>(), 36f + index * 324f, top, width, 88f);
+                PanelKit.PlaceTop(tab.GetComponent<RectTransform>(), 36f + index * 324f, top, width, height);
                 kit.AddOutline(tab, selected ? new Color(selectedColor.r, selectedColor.g, selectedColor.b, .68f)
                     : new Color32(121, 109, 170, 54), selected ? 1.5f : 1f);
 
-                Text title = kit.NewPlacedText(tab.transform, titles[index], 21,
+                Text title = kit.NewPlacedText(tab.transform, titles[index], compact ? 19 : 21,
                     selected ? selectedColor : new Color32(198, 190, 221, 225),
-                    12, 10, width - 24, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    12, compact ? 5 : 10, width - 24, compact ? 28 : 34,
+                    TextAnchor.MiddleCenter, FontStyle.Bold);
                 title.name = "PoolTitle";
-                Text subtitle = kit.NewPlacedText(tab.transform, subtitles[index], 13,
+                Text subtitle = kit.NewPlacedText(tab.transform, subtitles[index], compact ? 12 : 13,
                     selected ? new Color32(229, 237, 255, 245) : new Color32(176, 168, 203, 205),
-                    12, 46, width - 24, 24, TextAnchor.MiddleCenter);
+                    12, compact ? 35 : 46, width - 24, compact ? 22 : 24,
+                    TextAnchor.MiddleCenter);
                 subtitle.name = "PoolSubtitle";
 
                 Image underline = kit.NewImage("PoolUnderline", tab.transform, null,
                     selected ? selectedColor : Color.clear);
-                PanelKit.PlaceTop(underline.rectTransform, 78, 82, width - 156, selected ? 3 : 1);
+                PanelKit.PlaceTop(underline.rectTransform, 78, compact ? 65 : 82,
+                    width - 156, selected ? 3 : 1);
             }
 
             Text refresh = kit.NewPlacedText(parent, "每日免费刷新 · 18:00 更新", 14,
-                new Color32(193, 187, 221, 225), 40, 120, 640, 34,
+                new Color32(193, 187, 221, 225), 40, compact ? 84 : 120, 640, compact ? 30 : 34,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             refresh.name = "InterviewRefresh";
         }
@@ -291,7 +298,8 @@ namespace ChoSiren.Panels
                 direction < 0 ? 100 : 10, 494, 66, 58, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
 
-        private void BuildInterviewCandidateCard(Transform parent, int memberIndex, int candidateCount)
+        private void BuildInterviewCandidateCard(Transform parent, int memberIndex, int candidateCount,
+            bool compact)
         {
             MemberDefinition member = GameModel.Members[memberIndex];
             string career = InterviewCareer(member, memberIndex);
@@ -299,7 +307,8 @@ namespace ChoSiren.Panels
                 out int resonance, out int charm);
 
             GameObject card = kit.NewPanel("CandidateCard", parent, new Color32(10, 14, 49, 236), 28);
-            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 102, 172, 516, 724);
+            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 102, compact ? 126 : 172,
+                516, compact ? 684 : 724);
             kit.AddOutline(card, interviewPoolIndex == 0
                 ? new Color32(91, 215, 255, 164)
                 : new Color32(190, 129, 255, 150), 1.5f);
@@ -381,13 +390,14 @@ namespace ChoSiren.Panels
             }
         }
 
-        private void BuildInterviewActions(Transform parent, int memberIndex)
+        private void BuildInterviewActions(Transform parent, int memberIndex, bool compact)
         {
             MemberDefinition member = GameModel.Members[memberIndex];
             string career = InterviewCareer(member, memberIndex);
             int cost = InterviewCost(memberIndex);
             GameObject action = kit.NewPanel("InterviewActions", parent, new Color32(10, 13, 46, 218), 20);
-            PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 34, 944, 652, 220);
+            PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 34, compact ? 820 : 944,
+                652, compact ? 206 : 220);
             kit.AddOutline(action, new Color32(136, 111, 213, 68), 1);
 
             Text recommend = kit.NewPlacedText(action.transform, TeamNeedsCareer(career)
