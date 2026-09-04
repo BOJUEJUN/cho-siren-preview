@@ -146,7 +146,6 @@ namespace ChoSiren.Panels
         private GameObject rerollButton;
         private GameObject energyRerollButton;
         private Sprite battleStageSprite;
-        private Sprite diceFrameSprite;
         private readonly Sprite[] userDiceFaceSprites = new Sprite[6];
         private Sprite userBossSprite;
         private Sprite rerollRingSprite;
@@ -221,7 +220,6 @@ namespace ChoSiren.Panels
         private void LoadBattleAiArt()
         {
             battleStageSprite = LoadRuntimeSprite("Art/BattleAI/battle-stage-hud-v1");
-            diceFrameSprite = LoadRuntimeSprite("Art/BattleAI/dice-frame-v1");
             userBossSprite = LoadRuntimeSprite("Art/BattleUser/boss-throne-user-v1");
             for (int index = 0; index < userDiceFaceSprites.Length; index++)
                 userDiceFaceSprites[index] = LoadRuntimeSprite($"Art/BattleUser/dice-face-{index + 1}-user-v1");
@@ -600,8 +598,9 @@ namespace ChoSiren.Panels
             Image titleLine = kit.NewImage("DiceConsoleTitleLine", console.transform, kit.RoundedSprite(2),
                 new Color32(106, 222, 255, 132));
             PanelKit.PlaceTop(titleLine.rectTransform, 18, 48, 644, 2);
-            kit.NewPlacedText(console.transform, "骰子演出", 12, PanelKit.Pink, 18, 9, 230, 24,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text diceTitle = kit.NewPlacedText(console.transform, "骰子演出", 12, PanelKit.Pink,
+                18, 9, 180, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+            diceTitle.gameObject.name = "DiceConsoleTitle";
             diceHandText = kit.NewPlacedText(console.transform, "等待骰子回合", 14, PanelKit.White,
                 214, 3, 274, 45, TextAnchor.MiddleCenter, FontStyle.Bold);
             diceHandText.gameObject.name = "DiceHandSummary";
@@ -616,24 +615,21 @@ namespace ChoSiren.Panels
             for (int index = 0; index < DiceRules.DiceCount; index++)
             {
                 int captured = index;
-                Image pedestal = kit.NewImage("DicePedestal-" + index, console.transform, kit.RadialSprite(),
-                    index % 2 == 0 ? new Color32(72, 207, 255, 86) : new Color32(255, 72, 209, 90));
-                PanelKit.PlaceTop(pedestal.rectTransform, 27 + index * (dieSize + gap), 171, 122, 68);
-                PanelKit.CenterPivot(pedestal.rectTransform);
-                pedestal.raycastTarget = false;
                 GameObject die = kit.NewButton("Dice-" + index, console.transform, "?", 38,
-                    DiceIdle, PanelKit.White, () => ToggleDie(captured), 20);
+                    Color.clear, PanelKit.White, () => ToggleDie(captured), 20);
                 PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), 96, dieSize, dieSize);
                 Image dieArt = die.GetComponent<Image>();
-                dieArt.sprite = diceFrameSprite;
+                // The button remains a full-size invisible hit target. The authored diamond die is the only visible art.
+                dieArt.sprite = null;
                 dieArt.type = Image.Type.Simple;
-                dieArt.preserveAspect = true;
+                dieArt.color = Color.clear;
                 Image faceArt = kit.NewImage("DiceFace-" + index, die.transform, null, PanelKit.White);
-                PanelKit.Stretch(faceArt.rectTransform, 2, 2, -2, -2);
+                PanelKit.Stretch(faceArt.rectTransform);
                 faceArt.type = Image.Type.Simple;
                 faceArt.preserveAspect = true;
+                faceArt.useSpriteMesh = true;
                 faceArt.raycastTarget = false;
-                Outline outline = kit.AddOutline(die, new Color32(96, 220, 255, 135), 1.5f);
+                Outline outline = kit.AddOutline(faceArt.gameObject, new Color32(96, 220, 255, 90), 1f);
                 Text held = kit.NewPlacedText(die.transform, "", 11, PanelKit.Gold, 5, 78, dieSize - 10, 20,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 held.gameObject.name = "DiceStatus-" + index;
@@ -650,7 +646,7 @@ namespace ChoSiren.Panels
 
             rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留 · 2次", 15,
                 PanelKit.White, PanelKit.White, RerollDice, 18);
-            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 44, 212, 276, 54);
+            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 44, 242, 276, 54);
             Image rerollFrame = rerollButton.GetComponent<Image>();
             rerollFrame.sprite = skillButtonFrameSprite;
             rerollFrame.type = Image.Type.Simple;
@@ -663,17 +659,18 @@ namespace ChoSiren.Panels
             rerollGlass.transform.SetAsFirstSibling();
             energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "能量重投\n0/100", 13,
                 PanelKit.White, PanelKit.White, EnergyRerollDice, 40);
-            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 518, 158, 138, 138);
+            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 518, 242, 138, 54);
             Image energyArt = energyRerollButton.GetComponent<Image>();
             energyArt.sprite = rerollRingSprite;
             energyArt.type = Image.Type.Simple;
             energyArt.preserveAspect = true;
             Text energyLabel = PanelKit.LabelOf(energyRerollButton);
             energyLabel.lineSpacing = 0.86f;
-            PanelKit.Stretch(energyLabel.rectTransform, 22, 22, -22, -22);
+            PanelKit.Stretch(energyLabel.rectTransform, 14, 6, -14, -6);
             Text diceHint = kit.NewPlacedText(console.transform,
                 "点击骰子保留 · 最多重投 2 次 · 骰型倍率加成下一技能", 11,
-                PanelKit.Muted, 44, 270, 460, 22, TextAnchor.MiddleCenter);
+                PanelKit.Muted, 44, 58, 612, 24, TextAnchor.MiddleCenter);
+            diceHint.gameObject.name = "DiceInstruction";
             PanelKit.EnableBestFit(diceHint, 9);
 
             kit.NewPlacedText(transform, "出战成员", 13, PanelKit.Cyan,
@@ -692,7 +689,7 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(glow.rectTransform, -20, -30, 20, 30);
             glow.raycastTarget = false;
             skillBar = kit.NewRect("SkillBar", transform);
-            PanelKit.PlaceTop(skillBar, 20, 1354, 680, 100);
+            PanelKit.PlaceTop(skillBar, 20, 1354, 680, 104);
         }
 
         private void BuildControls()
@@ -1607,14 +1604,26 @@ namespace ChoSiren.Panels
                 Color background = participating
                     ? held ? DiceParticipatingHeld : DiceParticipating
                     : held ? DiceHeld : DiceIdle;
-                PanelKit.SetButtonState(diceButtons[index], awaitingInput,
-                    background);
+                Button dieButton = diceButtons[index].GetComponent<Button>();
+                if (dieButton != null) dieButton.interactable = awaitingInput;
+                Image hitArea = diceButtons[index].GetComponent<Image>();
+                if (hitArea != null)
+                {
+                    hitArea.sprite = null;
+                    hitArea.color = Color.clear;
+                }
+                if (index < diceFaceImages.Count)
+                {
+                    // Use a restrained tint on the die itself instead of restoring a square state background.
+                    float tintStrength = participating ? 0.16f : held ? 0.11f : 0f;
+                    diceFaceImages[index].color = Color.Lerp(PanelKit.White, background, tintStrength);
+                }
                 if (index < diceOutlines.Count)
                 {
                     diceOutlines[index].effectColor = participating
-                        ? new Color32(255, 204, 83, 235)
-                        : new Color32(96, 220, 255, 135);
-                    float distance = participating ? 3f : 1.5f;
+                        ? new Color32(255, 204, 83, 150)
+                        : held ? new Color32(255, 105, 210, 105) : new Color32(96, 220, 255, 56);
+                    float distance = participating ? 2f : 1f;
                     diceOutlines[index].effectDistance = new Vector2(distance, -distance);
                 }
             }
