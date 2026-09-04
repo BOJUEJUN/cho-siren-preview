@@ -71,11 +71,11 @@ namespace ChoSiren.Panels
             public void OnPointerExit(PointerEventData eventData) => Exit?.Invoke();
         }
 
-        private static readonly Color CellIdle = new Color32(22, 20, 66, 178);
+        private static readonly Color CellIdle = new Color32(13, 20, 57, 156);
         private static readonly Color CellEmpty = new Color32(18, 16, 52, 150);
-        private static readonly Color CellEnemy = new Color32(55, 20, 68, 186);
-        private static readonly Color AnchorTint = new Color32(80, 220, 255, 90);
-        private static readonly Color AffectedTint = new Color32(255, 82, 194, 120);
+        private static readonly Color CellEnemy = new Color32(36, 17, 57, 168);
+        private static readonly Color AnchorTint = new Color32(80, 220, 255, 40);
+        private static readonly Color AffectedTint = new Color32(255, 82, 194, 58);
         private static readonly Color DiceIdle = new Color32(220, 235, 255, 235);
         private static readonly Color DiceParticipating = new Color32(255, 232, 170, 255);
         private static readonly Color DiceHeld = new Color32(255, 180, 235, 255);
@@ -514,7 +514,7 @@ namespace ChoSiren.Panels
             }
 
             Image ornament = kit.NewImage("BattleFrame", root.transform, player ? memberFrameSprite : null,
-                player ? PanelKit.White : Color.clear);
+                player ? new Color32(255, 255, 255, 205) : Color.clear);
             PanelKit.Stretch(ornament.rectTransform);
             ornament.preserveAspect = true;
             ornament.raycastTarget = false;
@@ -524,10 +524,10 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(highlight.rectTransform);
             highlight.enabled = false;
 
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 12, PanelKit.White,
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 14 : 12, PanelKit.White,
                 player ? 14 : 8, player ? 65 : 5, width - (player ? 28 : 16), player ? 18 : 20,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(unitName, 9);
+            PanelKit.EnableBestFit(unitName, player ? 11 : 9);
             Image hpFill = kit.NewBar("Hp", root.transform, player ? 18 : 8, player ? 85 : 29,
                 width - (player ? 36 : 16), player ? 7 : 9,
                 new Color32(66, 54, 117, 255), player ? PanelKit.Cyan : PanelKit.Pink, 5);
@@ -589,16 +589,16 @@ namespace ChoSiren.Panels
 
         private void BuildDiceConsole()
         {
-            GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(8, 7, 36, 206), 24);
+            GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(5, 9, 31, 238), 24);
             PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 900, 680, 306);
-            kit.AddOutline(console, new Color32(255, 76, 202, 116), 1.5f);
+            kit.AddOutline(console, new Color32(102, 218, 255, 92), 1.25f);
             Image consoleGlow = kit.NewImage("DiceConsoleGlow", console.transform, kit.RadialSprite(),
-                new Color32(255, 52, 201, 36));
+                new Color32(120, 79, 255, 16));
             PanelKit.PlaceTop(consoleGlow.rectTransform, -30, 58, 740, 260);
             consoleGlow.raycastTarget = false;
             consoleGlow.transform.SetAsFirstSibling();
             Image titleLine = kit.NewImage("DiceConsoleTitleLine", console.transform, kit.RoundedSprite(2),
-                new Color32(255, 84, 208, 155));
+                new Color32(106, 222, 255, 132));
             PanelKit.PlaceTop(titleLine.rectTransform, 18, 48, 644, 2);
             kit.NewPlacedText(console.transform, "骰子演出", 12, PanelKit.Pink, 18, 9, 230, 24,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -648,7 +648,7 @@ namespace ChoSiren.Panels
                 indexLabel.raycastTarget = false;
             }
 
-            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留（2）", 15,
+            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留 · 2次", 15,
                 PanelKit.White, PanelKit.White, RerollDice, 18);
             PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 44, 212, 276, 54);
             Image rerollFrame = rerollButton.GetComponent<Image>();
@@ -661,7 +661,7 @@ namespace ChoSiren.Panels
             rerollGlass.type = Image.Type.Sliced;
             rerollGlass.raycastTarget = false;
             rerollGlass.transform.SetAsFirstSibling();
-            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "全重投\n0/100", 13,
+            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "能量重投\n0/100", 13,
                 PanelKit.White, PanelKit.White, EnergyRerollDice, 40);
             PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 518, 158, 138, 138);
             Image energyArt = energyRerollButton.GetComponent<Image>();
@@ -672,7 +672,7 @@ namespace ChoSiren.Panels
             energyLabel.lineSpacing = 0.86f;
             PanelKit.Stretch(energyLabel.rectTransform, 22, 22, -22, -22);
             Text diceHint = kit.NewPlacedText(console.transform,
-                "点击保留 · 每回合最多重投 2 次 · 骰型倍率赋予下一技能", 11,
+                "点击骰子保留 · 最多重投 2 次 · 骰型倍率加成下一技能", 11,
                 PanelKit.Muted, 44, 270, 460, 22, TextAnchor.MiddleCenter);
             PanelKit.EnableBestFit(diceHint, 9);
 
@@ -1446,9 +1446,11 @@ namespace ChoSiren.Panels
             }
 
             actorGlow.enabled = true;
-            actorGlow.color = actor.Side == BattleSide.Player ? new Color32(80, 220, 255, 120) : new Color32(255, 92, 214, 120);
+            actorGlow.color = actor.Side == BattleSide.Player
+                ? new Color32(80, 220, 255, 42)
+                : new Color32(255, 92, 214, 42);
             Vector2 anchored = cell.Rect.anchoredPosition;
-            actorGlow.rectTransform.sizeDelta = cell.Rect.rect.size * 1.25f;
+            actorGlow.rectTransform.sizeDelta = cell.Rect.rect.size * 1.04f;
             actorGlow.rectTransform.anchoredPosition = new Vector2(anchored.x + cell.Rect.rect.width * 0.5f,
                 anchored.y - cell.Rect.rect.height * 0.5f);
             actorGlow.transform.SetSiblingIndex(cell.Root.transform.GetSiblingIndex());
@@ -1462,9 +1464,9 @@ namespace ChoSiren.Panels
             if (actorGlow == null || !actorGlow.enabled) return;
             float pulse = 0.5f + Mathf.Sin(Time.unscaledTime * 4.2f) * 0.5f;
             Color color = actorGlow.color;
-            color.a = Mathf.Lerp(0.28f, 0.62f, pulse);
+            color.a = Mathf.Lerp(0.08f, 0.18f, pulse);
             actorGlow.color = color;
-            actorGlow.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.94f, 1.08f, pulse);
+            actorGlow.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.99f, 1.02f, pulse);
         }
 
         private void RefreshBattleHud()
@@ -1623,18 +1625,18 @@ namespace ChoSiren.Panels
             if (diceHandText != null)
                 diceHandText.text = active
                     ? $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.#}\n" +
-                      $"总点 {diceTurn.Hand.PipTotal} · 成型点 {diceTurn.Hand.ParticipatingPipTotal}"
+                      $"总点 {diceTurn.Hand.PipTotal} · 计分点 {diceTurn.Hand.ParticipatingPipTotal}"
                     : "等待骰子回合";
             if (rerollButton != null)
             {
                 int rerolls = active ? diceTurn.RerollsRemaining : 0;
-                PanelKit.LabelOf(rerollButton).text = $"重投未保留（{rerolls}）";
+                PanelKit.LabelOf(rerollButton).text = $"重投未保留 · {rerolls}次";
                 PanelKit.SetButtonState(rerollButton, awaitingInput && rerolls > 0,
                     rerolls > 0 ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
             }
             if (energyRerollButton != null)
             {
-                PanelKit.LabelOf(energyRerollButton).text = $"全重投\n{energy}/100";
+                PanelKit.LabelOf(energyRerollButton).text = $"能量重投\n{energy}/100";
                 PanelKit.SetButtonState(energyRerollButton, awaitingInput && active && diceTurn.CanEnergyReroll,
                     energy >= 100 ? PanelKit.White : new Color32(145, 150, 184, 150));
             }
@@ -1657,7 +1659,7 @@ namespace ChoSiren.Panels
                 if (skill == null) continue;
                 bool ready = battle.IsSkillReady(actor, skillId);
                 int remaining = actor.Cooldowns.TryGetValue(skillId, out int value) ? value : 0;
-                string label = $"{skill.Name}\n{PatternName(skill.Pattern)}{EffectName(skill.Effect)}";
+                string label = $"{skill.Name}\n{PatternName(skill.Pattern)} · {EffectName(skill.Effect)}";
                 if (!ready && remaining > 0) label += $" · 冷却 {remaining}";
                 Color color = SkillColor(skill.Effect);
                 GameObject button = kit.NewButton("Skill-" + skillId, skillBar, label, 14,
@@ -1668,6 +1670,9 @@ namespace ChoSiren.Panels
                 frame.sprite = skillButtonFrameSprite;
                 frame.type = Image.Type.Simple;
                 frame.preserveAspect = false;
+                frame.color = ready
+                    ? new Color32(255, 255, 255, 210)
+                    : new Color32(138, 134, 170, 145);
                 Image glass = kit.NewImage("SkillGlass", button.transform, kit.RoundedSprite(18), color);
                 PanelKit.Stretch(glass.rectTransform, 11, 11, -11, -11);
                 glass.type = Image.Type.Sliced;
@@ -1746,7 +1751,7 @@ namespace ChoSiren.Panels
                 cell.Highlight.color = AnchorTint;
             }
 
-            previewText.text = $"{skill.Name} · {PatternName(skill.Pattern)}{EffectName(skill.Effect)} · " +
+            previewText.text = $"{skill.Name} · {PatternName(skill.Pattern)} · {EffectName(skill.Effect)} · " +
                                $"可选目标 {anchors.Count} 处，点击{(targetSide == BattleSide.Enemy ? "敌方" : "我方")}高亮格释放";
         }
 
@@ -1792,7 +1797,7 @@ namespace ChoSiren.Panels
 
             if (!entered || !isAnchor)
             {
-                previewText.text = $"{skill.Name} · {PatternName(skill.Pattern)}{EffectName(skill.Effect)} · 可选目标 {anchors.Count} 处";
+                previewText.text = $"{skill.Name} · {PatternName(skill.Pattern)} · {EffectName(skill.Effect)} · 可选目标 {anchors.Count} 处";
                 return;
             }
 

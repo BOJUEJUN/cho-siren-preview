@@ -50,6 +50,55 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void DiceConsoleUsesCalmGlassAndClearActionLanguage()
+        {
+            GameObject root = new GameObject("Tactics Dice Hierarchy Test", typeof(RectTransform));
+            try
+            {
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(),
+                    null);
+                Image console = FindRect(panel.transform, "DiceConsole").GetComponent<Image>();
+                Image glow = FindRect(panel.transform, "DiceConsoleGlow").GetComponent<Image>();
+                Text reroll = FindRect(panel.transform, "DiceReroll").GetComponentInChildren<Text>(true);
+                Text energy = FindRect(panel.transform, "EnergyReroll").GetComponentInChildren<Text>(true);
+                Transform highlightNode = FindRect(panel.transform, "Cell-P-0-0").Find("Highlight");
+                Assert.That(highlightNode, Is.Not.Null);
+                Image playerHighlight = highlightNode.GetComponent<Image>();
+
+                Assert.That(console.color.b, Is.GreaterThan(console.color.r),
+                    "骰子台应使用冷色深玻璃，不再以大面积洋红色抢过舞台主体。");
+                Assert.That(console.color.a, Is.GreaterThan(0.9f));
+                Assert.That(glow.color.a, Is.LessThanOrEqualTo(0.08f),
+                    "骰子台氛围光必须克制，不能重新把整块面板染成高饱和色。");
+                Assert.That(reroll.text, Does.StartWith("重投未保留 · "));
+                Assert.That(energy.text, Does.StartWith("能量重投"));
+                Assert.That(playerHighlight.color.a, Is.LessThanOrEqualTo(0.25f),
+                    "目标高亮应保留角色可见性，而不是形成实色遮挡。");
+
+                BattleUnit player = panel.Battle.Units.First(unit => unit.Side == BattleSide.Player);
+                InvokeWithResult(panel, "BuildSkillButtons", player);
+                Image skillFrame = FindRect(panel.transform, "Skill-strike").GetComponent<Image>();
+                Text skillLabel = skillFrame.GetComponentInChildren<Text>(true);
+                Assert.That(skillLabel.text, Does.Contain("单体 · 伤害"),
+                    "技能按钮应把作用范围和效果分隔，避免两个词黏成难读文案。");
+                Assert.That(skillFrame.color.a, Is.LessThanOrEqualTo(0.85f),
+                    "技能美术框应退居文字之后，避免高亮边框压过技能名称。");
+
+                InvokeWithResult(panel, "SetActorHighlight", player);
+                Image actorGlow = GetField<Image>(panel, "actorGlow");
+                RectTransform playerCard = FindRect(panel.transform, "Cell-P-0-0");
+                Assert.That(actorGlow.color.a, Is.LessThanOrEqualTo(0.18f));
+                Assert.That(actorGlow.rectTransform.rect.width,
+                    Is.LessThanOrEqualTo(playerCard.rect.width * 1.05f),
+                    "行动者光晕不应扩张成遮挡相邻成员的大色块。");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        [Test]
         public void DiceSummaryAndParticipatingDiceAreRenderedFromHand()
         {
             GameObject root = new GameObject("Tactics Dice Visual Test");
@@ -92,7 +141,7 @@ namespace ChoSiren.Tests
 
                 Invoke(panel, "RefreshDiceUi");
 
-                Assert.That(summary.text, Is.EqualTo("一对 ×1.5\n总点 15 · 成型点 2"));
+                Assert.That(summary.text, Is.EqualTo("一对 ×1.5\n总点 15 · 计分点 2"));
                 Assert.That(statuses[0].text, Is.EqualTo("成型"));
                 Assert.That(statuses[1].text, Is.EqualTo("成型"));
                 Assert.That(statuses[2].text, Is.Empty);
