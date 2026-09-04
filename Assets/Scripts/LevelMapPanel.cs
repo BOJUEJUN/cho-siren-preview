@@ -50,7 +50,6 @@ namespace ChoSiren
         private static readonly Color Pink = new Color32(255, 112, 220, 255);
         private static readonly Color Cyan = new Color32(104, 198, 255, 255);
         private static readonly Color Glass = new Color32(8, 18, 48, 232);
-        private static readonly Color Locked = new Color32(18, 25, 55, 238);
         private const int ChapterStageCount = GameModel.ChapterOneStageCount;
 
         private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
@@ -84,6 +83,7 @@ namespace ChoSiren
         private Button startButton;
         private Image startBackground;
         private Image currentGlow;
+        private Sprite stageNodeSprite;
         private Sprite rewardChestSprite;
         private Sprite actionFrameSprite;
         private GameObject modalRoot;
@@ -188,6 +188,7 @@ namespace ChoSiren
             font = Resources.Load<Font>("Fonts/NotoSansSC-Subset") ??
                    Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
+            stageNodeSprite = Resources.Load<Sprite>("Art/LevelMapAI/stage-node-frame-ai-v1");
             rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
             actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
 
@@ -335,8 +336,8 @@ namespace ChoSiren
         private void BuildNode(Transform parent, int stage, Vector2 center)
         {
             LevelState state = StateFor(stage);
-            float width = state == LevelState.Current ? 134f : 108f;
-            float height = state == LevelState.Current ? 74f : 58f;
+            float width = state == LevelState.Current ? 146f : 118f;
+            float height = state == LevelState.Current ? 96f : 78f;
 
             Image glow = NewImage($"Glow-1-{stage}", parent, CreateRadialSprite(96, false),
                 state == LevelState.Locked
@@ -348,27 +349,19 @@ namespace ChoSiren
                 width * 1.44f, height * 1.9f);
             CenterPivot(glow.rectTransform);
 
-            GameObject orbit = NewPanel($"Orbit-1-{stage}", parent,
-                new Color32(5, 13, 39, state == LevelState.Locked ? (byte)132 : (byte)194), 24);
-            PlaceTop(orbit.GetComponent<RectTransform>(), center.x - width * 0.54f,
-                center.y - height * 0.24f, width * 1.08f, height * 0.76f);
-            AddGlassOutline(orbit, state == LevelState.Current
-                ? new Color32(255, 131, 229, 205)
-                : new Color32(131, 163, 238, 110), 1f);
-
             Color frameTint = state == LevelState.Locked
-                ? Locked
+                ? new Color32(104, 111, 151, 160)
                 : state == LevelState.Current
-                    ? new Color32(18, 23, 61, 245)
-                    : new Color32(10, 20, 49, 240);
-            GameObject node = NewPanelButton($"Level-1-{stage}", parent,
-                frameTint, Mathf.RoundToInt(height * 0.5f), () => SelectStage(stage));
+                    ? White
+                    : new Color32(205, 216, 255, 226);
+            GameObject node = NewSpriteButton($"Level-1-{stage}", parent,
+                stageNodeSprite, frameTint, () => SelectStage(stage));
             RectTransform rect = node.GetComponent<RectTransform>();
             PlaceTop(rect, center.x - width * 0.5f, center.y - height * 0.5f, width, height);
             Text nodeLabel = NewPlacedText(node.transform, $"1-{stage}",
                 state == LevelState.Current ? 24 : 20,
                 state == LevelState.Locked ? new Color32(151, 153, 190, 255) : White,
-                8, 3, width - 16, height * 0.60f, TextAnchor.MiddleCenter, FontStyle.Bold);
+                8, height * 0.17f, width - 16, height * 0.36f, TextAnchor.MiddleCenter, FontStyle.Bold);
             Shadow labelShadow = nodeLabel.gameObject.AddComponent<Shadow>();
             labelShadow.effectColor = new Color32(12, 4, 38, 235);
             labelShadow.effectDistance = new Vector2(1.5f, -1.5f);
@@ -384,7 +377,7 @@ namespace ChoSiren
             string status = StateLabel(state);
             Text statusLabel = NewPlacedText(node.transform, status, state == LevelState.Cleared ? 12 : 11,
                 state == LevelState.Locked ? new Color32(150, 154, 193, 255) : new Color32(255, 186, 229, 255),
-                8, height - 24, width - 16, 17, TextAnchor.MiddleCenter, FontStyle.Bold);
+                8, height * 0.52f, width - 16, height * 0.20f, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             NodeView view = new NodeView
             {
@@ -427,10 +420,9 @@ namespace ChoSiren
             goldRewardText = InfoChip(card.transform, "GoldReward", "星币 ×300",
                 314, 145, 146, new Color32(255, 215, 111, 255));
 
-            GameObject start = NewPanelButton("StartChallenge", card.transform,
-                new Color32(24, 20, 70, 246), 34, StartChallenge);
+            GameObject start = NewSpriteButton("StartChallenge", card.transform,
+                actionFrameSprite, White, StartChallenge);
             PlaceTop(start.GetComponent<RectTransform>(), 474, 105, 184, 92);
-            AddGlassOutline(start, new Color32(255, 129, 224, 224), 2f);
             startButton = start.GetComponent<Button>();
             startBackground = start.GetComponent<Image>();
             startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
@@ -846,10 +838,10 @@ namespace ChoSiren
             startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
             startBackground.color = model.Save.Stamina < staminaCost
-                ? new Color32(48, 52, 80, 220)
+                ? new Color32(125, 135, 160, 175)
                 : state == LevelState.Cleared
-                    ? new Color32(23, 38, 80, 245)
-                    : new Color32(29, 21, 76, 246);
+                    ? new Color32(210, 224, 255, 235)
+                    : White;
 
             int claimableRewards = model.ChapterOneClaimableStarRewardCount;
             rewardSummaryText.text = claimableRewards > 0 ? $"{claimableRewards} 项奖励可领取" : "查看星级奖励";
@@ -873,7 +865,7 @@ namespace ChoSiren
                 if (view.State == LevelState.Locked)
                 {
                     view.Glow.enabled = false;
-                    view.Background.color = Locked;
+                    view.Background.color = new Color32(104, 111, 151, 160);
                     view.StageLabel.color = new Color32(151, 153, 190, 255);
                     view.StatusLabel.text = StateLabel(view.State);
                     view.StatusLabel.color = new Color32(150, 154, 193, 255);
@@ -893,8 +885,8 @@ namespace ChoSiren
                     ? new Color32(255, 164, 235, 255)
                     : new Color32(154, 182, 245, 186);
                 view.Background.color = selected || view.State == LevelState.Current
-                    ? new Color32(18, 23, 61, 245)
-                    : new Color32(10, 20, 49, 240);
+                    ? White
+                    : new Color32(205, 216, 255, 226);
             }
 
             for (int index = 0; index < routeViews.Count; index++)

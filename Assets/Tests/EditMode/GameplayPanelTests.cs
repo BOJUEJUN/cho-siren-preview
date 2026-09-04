@@ -122,6 +122,7 @@ namespace ChoSiren.Tests
 
             string[] retainedAiResources =
             {
+                "Art/LevelMapAI/stage-node-frame-ai-v1",
                 "Art/LevelMapAI/chapter-reward-chest-ai-v1",
                 "Art/LevelMapAI/chapter-action-frame-ai-v1",
             };
@@ -129,10 +130,14 @@ namespace ChoSiren.Tests
                 Assert.That(Resources.Load<Sprite>(retainedAiResources[index]), Is.Not.Null,
                     $"章节地图保留素材未导入：{retainedAiResources[index]}");
 
-            Assert.That(FindNamed<Image>(map.transform, "ChapterRewardsIcon").sprite,
+            Assert.That(FindNamed<Image>(map.transform, "Level-1-1").sprite,
                 Is.SameAs(Resources.Load<Sprite>(retainedAiResources[0])));
-            Assert.That(FindNamed<Image>(map.transform, "ChapterTasksIcon").sprite,
+            Assert.That(FindNamed<Image>(map.transform, "StartChallenge").sprite,
+                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[2])));
+            Assert.That(FindNamed<Image>(map.transform, "ChapterRewardsIcon").sprite,
                 Is.SameAs(Resources.Load<Sprite>(retainedAiResources[1])));
+            Assert.That(FindNamed<Image>(map.transform, "ChapterTasksIcon").sprite,
+                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[2])));
 
             Assert.That(FindNamed<Transform>(map.transform, "ChapterControlDock"), Is.Not.Null);
             RectTransform dock = FindNamed<RectTransform>(map.transform, "ChapterControlDock");
