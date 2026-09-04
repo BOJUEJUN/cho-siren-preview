@@ -105,7 +105,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void ChapterMapUsesAiControlsAndConnectsDifficultyRewardsAndTasksToSaveData()
+        public void ChapterMapHidesProgressAndDifficultyAndConnectsRewardsAndTasksToSaveData()
         {
             GameModel model = CreateModel();
             for (int stage = 1; stage <= 10; stage++)
@@ -123,7 +123,6 @@ namespace ChoSiren.Tests
             string[] aiResources =
             {
                 "Art/LevelMapAI/stage-node-frame-ai-v1",
-                "Art/LevelMapAI/chapter-progress-ring-ai-v1",
                 "Art/LevelMapAI/chapter-reward-chest-ai-v1",
                 "Art/LevelMapAI/chapter-action-frame-ai-v1",
             };
@@ -133,28 +132,17 @@ namespace ChoSiren.Tests
 
             Assert.That(FindNamed<Image>(map.transform, "Level-1-1").sprite,
                 Is.SameAs(Resources.Load<Sprite>(aiResources[0])));
-            Assert.That(FindNamed<Image>(map.transform, "ChapterProgressAIFrame").sprite,
-                Is.SameAs(Resources.Load<Sprite>(aiResources[1])));
             Assert.That(FindNamed<Image>(map.transform, "ChapterRewards").sprite,
-                Is.SameAs(Resources.Load<Sprite>(aiResources[2])));
-            Assert.That(FindNamed<Image>(map.transform, "ChapterDifficulty").sprite,
-                Is.SameAs(Resources.Load<Sprite>(aiResources[3])));
+                Is.SameAs(Resources.Load<Sprite>(aiResources[1])));
 
             Assert.That(FindNamed<Transform>(map.transform, "ChapterControlDock"), Is.Not.Null);
-            Button difficultyEntry = FindButton(map.transform, "ChapterDifficulty");
-            Assert.That(difficultyEntry.GetComponent<UnityEngine.EventSystems.EventTrigger>(), Is.Not.Null,
-                "章节入口应有鼠标悬停与按压缩放反馈。");
-            Assert.That(difficultyEntry.colors.highlightedColor,
-                Is.Not.EqualTo(difficultyEntry.colors.normalColor), "悬停颜色不能与常态完全相同。");
-            Assert.That(difficultyEntry.colors.pressedColor,
-                Is.Not.EqualTo(difficultyEntry.colors.normalColor), "按压颜色不能与常态完全相同。");
-            Assert.That(map.GetComponentsInChildren<Text>(true).Any(text => text.text.Contains("20/30 星")), Is.True,
-                "章节进度必须显示真实累计星数。");
-
-            difficultyEntry.onClick.Invoke();
-            Assert.That(FindNamed<Transform>(map.transform, "ChapterDifficultyModal"), Is.Not.Null);
-            FindButton(map.transform, "Difficulty-Easy").onClick.Invoke();
-            Assert.That(model.ChapterOneDifficulty, Is.EqualTo(BattleDifficulty.Easy));
+            string[] hiddenControls = { "ChapterProgressAIFrame", "ChapterDifficulty" };
+            Transform[] descendants = map.GetComponentsInChildren<Transform>(true);
+            for (int index = 0; index < hiddenControls.Length; index++)
+                Assert.That(descendants.Any(item => item.name == hiddenControls[index]), Is.False,
+                    $"章节地图不应再创建界面节点：{hiddenControls[index]}");
+            Assert.That(map.GetComponentsInChildren<Text>(true).Any(text => text.text == "章节进度"), Is.False);
+            Assert.That(map.GetComponentsInChildren<Text>(true).Any(text => text.text == "难度"), Is.False);
 
             FindButton(map.transform, "ChapterRewards").onClick.Invoke();
             Assert.That(FindNamed<Transform>(map.transform, "ChapterRewardsModal"), Is.Not.Null);

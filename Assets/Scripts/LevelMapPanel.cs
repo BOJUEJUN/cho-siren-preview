@@ -77,9 +77,7 @@ namespace ChoSiren
         private Text startLabel;
         private Text stageTitleText;
         private Text storyChapterLabel;
-        private Text chapterProgressText;
         private Text rewardSummaryText;
-        private Text difficultySummaryText;
         private Text taskSummaryText;
         private Text rewardBadgeText;
         private Text taskBadgeText;
@@ -87,7 +85,6 @@ namespace ChoSiren
         private Image startBackground;
         private Image currentGlow;
         private Sprite nodeFrameSprite;
-        private Sprite progressRingSprite;
         private Sprite rewardChestSprite;
         private Sprite actionFrameSprite;
         private GameObject modalRoot;
@@ -193,7 +190,6 @@ namespace ChoSiren
                    Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             nodeFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/stage-node-frame-ai-v1");
-            progressRingSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-progress-ring-ai-v1");
             rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
             actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
 
@@ -467,15 +463,6 @@ namespace ChoSiren
             NewPlacedText(dock.transform, "每颗星都会点亮一段舞台航线", 11, Muted,
                 282, 9, 385, 24, TextAnchor.MiddleRight, FontStyle.Normal);
 
-            Image progressArt = NewImage("ChapterProgressAIFrame", dock.transform,
-                progressRingSprite, Color.white);
-            PlaceTop(progressArt.rectTransform, 20, 36, 154, 148);
-            progressArt.preserveAspect = true;
-            chapterProgressText = NewPlacedText(progressArt.transform, "0%\n0/30 星", 16, White,
-                30, 43, 94, 60, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(dock.transform, "章节进度", 13, White,
-                32, 183, 130, 24, TextAnchor.MiddleCenter, FontStyle.Bold);
-
             GameObject rewards = NewSpriteButton("ChapterRewards", dock.transform, rewardChestSprite,
                 Color.white, OpenChapterRewards);
             PlaceTop(rewards.GetComponent<RectTransform>(), 187, 40, 154, 122);
@@ -483,23 +470,13 @@ namespace ChoSiren
                 182, 183, 164, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
             rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 118, 1);
 
-            GameObject difficulty = NewSpriteButton("ChapterDifficulty", dock.transform, actionFrameSprite,
-                new Color32(225, 236, 255, 255), OpenDifficultySelector);
-            PlaceTop(difficulty.GetComponent<RectTransform>(), 358, 64, 150, 77);
-            NewPlacedText(difficulty.transform, "难度", 12, new Color32(205, 190, 255, 255),
-                16, 14, 118, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
-            difficultySummaryText = NewPlacedText(difficulty.transform, "普通", 19, White,
-                16, 33, 118, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(dock.transform, "战斗与星币倍率", 11, Muted,
-                350, 183, 166, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
-
             GameObject tasks = NewSpriteButton("ChapterTasks", dock.transform, actionFrameSprite,
                 new Color32(255, 228, 251, 255), OpenChapterTasks);
-            PlaceTop(tasks.GetComponent<RectTransform>(), 526, 64, 150, 77);
+            PlaceTop(tasks.GetComponent<RectTransform>(), 358, 64, 150, 77);
             NewPlacedText(tasks.transform, "章节任务", 17, White,
                 14, 23, 122, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
             taskSummaryText = NewPlacedText(dock.transform, "0/3 已完成", 11, Muted,
-                518, 183, 166, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
+                350, 183, 166, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 119, -2);
 
             GameObject milestone = NewPanel("StarMilestones", dock.transform,
@@ -516,79 +493,8 @@ namespace ChoSiren
             NewPlacedText(milestone.transform, "通关 1-10 解锁本章最终奖励", 12, Muted,
                 15, 38, 614, 24, TextAnchor.MiddleCenter, FontStyle.Normal);
 
-            NewPlacedText(dock.transform, "选择关卡后可查看消耗与奖励  ·  难度会在开始战斗时生效", 11,
+            NewPlacedText(dock.transform, "选择关卡后可查看消耗与奖励", 11,
                 new Color32(163, 174, 221, 255), 28, 304, 636, 25, TextAnchor.MiddleCenter, FontStyle.Normal);
-        }
-
-        private void OpenDifficultySelector()
-        {
-            GameObject card = OpenModalShell("ChapterDifficultyModal", 338, 720);
-            Image headerArt = NewImage("DifficultyHeaderAIFrame", card.transform, actionFrameSprite, Color.white);
-            PlaceTop(headerArt.rectTransform, 126, 22, 408, 208);
-            headerArt.preserveAspect = true;
-            NewPlacedText(card.transform, "演出难度", 27, White,
-                186, 82, 288, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(card.transform, "选择后立即保存，并应用到下一场战斗", 12, Muted,
-                146, 122, 368, 26, TextAnchor.MiddleCenter, FontStyle.Normal);
-
-            BattleDifficulty[] options =
-            {
-                BattleDifficulty.Easy,
-                BattleDifficulty.Normal,
-                BattleDifficulty.Hard,
-            };
-
-            for (int index = 0; index < options.Length; index++)
-            {
-                BattleDifficulty difficulty = options[index];
-                BattleDifficultyProfile profile = GameModel.DifficultyProfileFor(difficulty);
-                bool selected = model.ChapterOneDifficulty == difficulty;
-                GameObject option = NewSpriteButton($"Difficulty-{difficulty}", card.transform,
-                    actionFrameSprite,
-                    selected ? new Color32(255, 255, 255, 255) : new Color32(164, 178, 225, 225),
-                    () => SelectDifficulty(difficulty));
-                PlaceTop(option.GetComponent<RectTransform>(), 35 + index * 198, 224, 190, 97);
-                NewPlacedText(option.transform, profile.Name, 20,
-                    selected ? new Color32(255, 231, 113, 255) : White,
-                    12, 23, 166, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
-                NewPlacedText(option.transform, selected ? "已选择" : "点击选择", 10,
-                    selected ? new Color32(255, 166, 224, 255) : Muted,
-                    14, 58, 162, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
-            }
-
-            GameObject comparison = NewPanel("DifficultyComparison", card.transform,
-                new Color32(20, 22, 69, 221), 22);
-            PlaceTop(comparison.GetComponent<RectTransform>(), 35, 352, 590, 238);
-            AddGlassOutline(comparison, new Color32(105, 211, 255, 94), 1f);
-            NewPlacedText(comparison.transform, "难度影响预览", 15, new Color32(255, 157, 220, 255),
-                22, 14, 220, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-
-            for (int index = 0; index < options.Length; index++)
-            {
-                BattleDifficultyProfile profile = GameModel.DifficultyProfileFor(options[index]);
-                Color accent = options[index] == BattleDifficulty.Easy
-                    ? Cyan
-                    : options[index] == BattleDifficulty.Hard
-                        ? new Color32(255, 111, 182, 255)
-                        : new Color32(196, 153, 255, 255);
-                float y = 52 + index * 57;
-                NewPlacedText(comparison.transform, profile.Name, 15, accent,
-                    22, y, 76, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
-                NewPlacedText(comparison.transform,
-                    $"敌方生命 {profile.EnemyHpPermille / 10}%  ·  攻击 {profile.EnemyAttackPermille / 10}%  ·  星币 {profile.GoldRewardPermille / 10}%",
-                    13, White, 104, y, 452, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
-            }
-
-            NewPlacedText(card.transform, "困难难度提高风险，同时使每次通关获得更多星币", 12,
-                new Color32(185, 192, 231, 255), 60, 610, 540, 32, TextAnchor.MiddleCenter, FontStyle.Normal);
-        }
-
-        private void SelectDifficulty(BattleDifficulty difficulty)
-        {
-            model.SetChapterOneDifficulty(difficulty, out string message);
-            CloseChapterModal();
-            Refresh();
-            Notify(message);
         }
 
         private void OpenChapterRewards()
@@ -959,16 +865,11 @@ namespace ChoSiren
                     ? new Color32(226, 219, 255, 245)
                     : Color.white;
 
-            int chapterStars = model.ChapterOneTotalStars;
-            int progressPercent = Mathf.RoundToInt(chapterStars / 30f * 100f);
-            chapterProgressText.text = $"{progressPercent}%\n{chapterStars}/30 星";
             int claimableRewards = model.ChapterOneClaimableStarRewardCount;
             rewardSummaryText.text = claimableRewards > 0 ? $"章节奖励 · {claimableRewards} 可领" : "章节奖励";
             rewardBadgeText.text = claimableRewards.ToString();
             rewardBadgeText.transform.parent.gameObject.SetActive(claimableRewards > 0);
 
-            BattleDifficultyProfile currentDifficulty = model.CurrentBattleDifficultyProfile;
-            difficultySummaryText.text = currentDifficulty.Name;
             List<ChapterTaskView> chapterTasks = model.ChapterOneTaskViews();
             int completedTasks = 0;
             for (int taskIndex = 0; taskIndex < chapterTasks.Count; taskIndex++)

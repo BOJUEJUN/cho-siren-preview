@@ -138,14 +138,6 @@ namespace ChoSiren
                 yield return ClickNamed("冒险剧本", "levelmap");
                 yield return new WaitForSecondsRealtime(0.75f);
             }
-            else if (string.Equals(requestedScreen, "levelmap-difficulty", StringComparison.OrdinalIgnoreCase))
-            {
-                yield return ClickNamed("冒险剧本", "levelmap-difficulty");
-                yield return new WaitForSecondsRealtime(0.75f);
-                yield return ClickNamed("ChapterDifficulty", "levelmap-difficulty");
-                yield return new WaitForSecondsRealtime(0.45f);
-                RequireNamed("ChapterDifficultyModal", "levelmap-difficulty");
-            }
             else if (string.Equals(requestedScreen, "levelmap-rewards", StringComparison.OrdinalIgnoreCase))
             {
                 yield return ClickNamed("冒险剧本", "levelmap-rewards");
