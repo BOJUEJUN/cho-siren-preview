@@ -434,7 +434,8 @@ namespace ChoSiren.Panels
         private void Notify(string message)
         {
             if (string.IsNullOrEmpty(message)) return;
-            if (hintText != null) hintText.text = message;
+            // Keep the footer as stable guidance. Mirroring the same transient message here
+            // and in the app toast produces two identical notices on the task board.
             onMessage?.Invoke(message);
         }
 

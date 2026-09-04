@@ -103,6 +103,9 @@ namespace ChoSiren.Tests
             Click("TabWeekly");
             yield return null;
             RequireActiveObject("TaskBoardPanel");
+            Assert.That(Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude)
+                    .Count(text => text.text == "已切换到每周任务"), Is.EqualTo(1),
+                "任务切换反馈只能出现一次，不能同时覆盖底部说明与全局提示。");
             Click("Back");
             yield return null;
             RequireActiveObject("LobbyCards");
