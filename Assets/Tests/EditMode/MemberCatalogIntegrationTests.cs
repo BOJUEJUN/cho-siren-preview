@@ -34,6 +34,28 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void LegacyNineExposeSelectionProfileRaceAndCareer()
+        {
+            string[] expectedRaces =
+            {
+                "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵", "魅族",
+                "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵", "魅族"
+            };
+            string[] expectedCareers =
+            {
+                "主唱", "舞者", "支援", "主唱", "舞者", "支援", "主唱", "舞者", "支援"
+            };
+
+            for (int index = 0; index < expectedRaces.Length; index++)
+            {
+                Assert.That(GameModel.Members[index].Race, Is.EqualTo(expectedRaces[index]),
+                    $"成员 {GameModel.Members[index].Id} 的选秀种族映射不一致");
+                Assert.That(GameModel.Members[index].Career, Is.EqualTo(expectedCareers[index]),
+                    $"成员 {GameModel.Members[index].Id} 的职业定位不一致");
+            }
+        }
+
+        [Test]
         public void EveryCatalogMemberHasLoadablePortraitAndThumbnailSprites()
         {
             for (int index = 0; index < GameModel.Members.Length; index++)

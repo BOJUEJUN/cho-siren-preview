@@ -371,6 +371,10 @@ namespace ChoSiren.Tests
             Assert.That(FindNamed<Text>(panel.transform, "CandidateName").text, Is.Not.Empty);
             Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
                 Does.Match("魅族|魔族|海灵族|血精灵"));
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
+                Does.Match("主唱|舞者|支援"), "候选资料只能使用统一的三种舞台职能。");
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
+                Does.Match("治疗|增益|输出|共鸣|破甲|护盾"), "候选资料必须在职能之后给出阵容定位。");
 
             string[] stats = { "声能", "律动", "气场", "共鸣" };
             for (int index = 0; index < stats.Length; index++)
@@ -409,6 +413,22 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void StandaloneSigningUiNeverExposesInternalRarityCodes()
+        {
+            GameModel model = CreateModel();
+            GachaPanel panel = GachaPanel.Open(host.transform, model, model);
+
+            string[] labels = panel.GetComponentsInChildren<Text>(true)
+                .Select(label => label.text ?? string.Empty)
+                .ToArray();
+            Assert.That(labels.Any(label => System.Text.RegularExpressions.Regex.IsMatch(label,
+                    @"(?<![A-Za-z])(SSR|SR|R)(?![A-Za-z])")), Is.False,
+                "签约页应使用候选与邀约语言，不应显示内部稀有度代码。");
+            Assert.That(labels, Has.Some.Contains("特别邀约"));
+            Assert.That(labels, Has.Some.Contains("重点邀约"));
+        }
+
+        [Test]
         public void CostumeAndAccessoryResultsAlwaysHavePortraits()
         {
             GameModel model = CreateModel();
@@ -435,6 +455,9 @@ namespace ChoSiren.Tests
 
             showResults.Invoke(panel, new object[] { banner, results });
 
+            Assert.That(FindNamed<Text>(panel.transform, "ResultSummary").text,
+                Does.Not.Match(@"(?<![A-Za-z])(SSR|SR|R)(?![A-Za-z])"));
+
             for (int index = 0; index < results.Count; index++)
             {
                 Transform result = FindNamed<Transform>(panel.transform, "Result-" + index);
@@ -443,6 +466,10 @@ namespace ChoSiren.Tests
                     $"{results[index].ItemId} 的抽卡结果不能留下空立绘。");
                 Assert.That(portrait.enabled, Is.True,
                     $"{results[index].ItemId} 的抽卡结果立绘不能被禁用。");
+                Assert.That(result.GetComponentsInChildren<Text>(true).Any(text =>
+                        text.text.Contains("主唱") || text.text.Contains("舞者") || text.text.Contains("支援") ||
+                        text.text.Contains("舞台饰品")),
+                    Is.True, "结果卡应优先显示候选职能或物品定位，而不是稀有度。");
             }
         }
 

@@ -21,7 +21,10 @@ namespace ChoSiren.Panels
         private const float EnemyCellWidth = 152f;
         private const float EnemyCellHeight = 58f;
         private const float PlayerCellWidth = 154f;
-        private const float PlayerCellHeight = 154f;
+        // The roster lives in the band between the dice console and command deck.
+        private const float PlayerCellHeight = 108f;
+        private const float PlayerRosterLabelTop = 1208f;
+        private const float PlayerRosterTop = 1230f;
         private const float BeatSeconds = 2f;
         private const float BattleIntroSeconds = 2f;
         private const int LogLines = 5;
@@ -501,7 +504,7 @@ namespace ChoSiren.Panels
             Image portrait = kit.NewImage("Portrait", root.transform, null, PanelKit.White);
             if (player)
             {
-                PanelKit.PlaceTop(portrait.rectTransform, 24, 14, width - 48, 102);
+                PanelKit.PlaceTop(portrait.rectTransform, 28, 4, width - 56, 62);
                 portrait.preserveAspect = true;
                 portrait.useSpriteMesh = true;
             }
@@ -522,22 +525,23 @@ namespace ChoSiren.Panels
             highlight.enabled = false;
 
             Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 12, PanelKit.White,
-                player ? 14 : 8, player ? 112 : 5, width - (player ? 28 : 16), 20,
+                player ? 14 : 8, player ? 65 : 5, width - (player ? 28 : 16), player ? 18 : 20,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
-            Image hpFill = kit.NewBar("Hp", root.transform, player ? 18 : 8, player ? 135 : 29,
+            PanelKit.EnableBestFit(unitName, 9);
+            Image hpFill = kit.NewBar("Hp", root.transform, player ? 18 : 8, player ? 85 : 29,
                 width - (player ? 36 : 16), player ? 7 : 9,
                 new Color32(66, 54, 117, 255), player ? PanelKit.Cyan : PanelKit.Pink, 5);
             Text hpText = kit.NewPlacedText(root.transform, string.Empty, player ? 9 : 10, PanelKit.White,
-                player ? 14 : 8, player ? 139 : 40, width - (player ? 28 : 16), 14,
+                player ? 14 : 8, player ? 91 : 40, width - (player ? 28 : 16), player ? 13 : 14,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft);
-            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 20 : 8, player ? 147 : 50,
-                width - (player ? 40 : 16), 5,
+            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 20 : 8, player ? 103 : 50,
+                width - (player ? 40 : 16), player ? 4 : 5,
                 new Color32(50, 60, 110, 255), new Color32(150, 230, 255, 255), 3);
             GameObject shieldTrack = shieldFill.transform.parent.gameObject;
             Text status = kit.NewPlacedText(root.transform, string.Empty, 9, PanelKit.Gold,
                 player ? 94 : width - 70, player ? 6 : 40, player ? 54 : 62, 16,
                 TextAnchor.MiddleRight, FontStyle.Bold);
-            Text fallen = kit.NewPlacedText(root.transform, "倒下", 14, new Color32(196, 190, 220, 255), 4, player ? 62 : 22,
+            Text fallen = kit.NewPlacedText(root.transform, "倒下", 14, new Color32(196, 190, 220, 255), 4, player ? 31 : 22,
                 width - 8, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
             fallen.gameObject.SetActive(false);
 
@@ -573,6 +577,8 @@ namespace ChoSiren.Panels
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             eventText = kit.NewPlacedText(strip.transform, "战斗开始", 11, PanelKit.Muted, 14, 27, 652, 22,
                 TextAnchor.MiddleLeft);
+            PanelKit.EnableBestFit(actorText, 10);
+            PanelKit.EnableBestFit(eventText, 8);
 
             roundFlash = kit.NewPlacedText(transform, string.Empty, 40, PanelKit.White, 60, 300, 600, 80,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -599,6 +605,7 @@ namespace ChoSiren.Panels
             diceHandText = kit.NewPlacedText(console.transform, "等待骰子回合", 14, PanelKit.White,
                 214, 3, 274, 45, TextAnchor.MiddleCenter, FontStyle.Bold);
             diceHandText.gameObject.name = "DiceHandSummary";
+            PanelKit.EnableBestFit(diceHandText, 10);
             diceEnergyText = kit.NewPlacedText(console.transform, "能量 0/100", 12, PanelKit.Cyan,
                 500, 10, 160, 24, TextAnchor.MiddleRight, FontStyle.Bold);
             diceEnergyFill = kit.NewBar("DiceEnergy", console.transform, 500, 37, 160, 8,
@@ -664,10 +671,13 @@ namespace ChoSiren.Panels
             Text energyLabel = PanelKit.LabelOf(energyRerollButton);
             energyLabel.lineSpacing = 0.86f;
             PanelKit.Stretch(energyLabel.rectTransform, 22, 22, -22, -22);
-            kit.NewPlacedText(console.transform, "点击保留 · 每回合最多重投 2 次 · 骰型倍率赋予下一技能", 11,
-                PanelKit.Muted, 260, 262, 252, 28, TextAnchor.MiddleCenter);
+            Text diceHint = kit.NewPlacedText(console.transform,
+                "点击保留 · 每回合最多重投 2 次 · 骰型倍率赋予下一技能", 11,
+                PanelKit.Muted, 44, 270, 460, 22, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(diceHint, 9);
 
-            kit.NewPlacedText(transform, "出战成员", 13, PanelKit.Cyan, 28, 1190, 180, 20,
+            kit.NewPlacedText(transform, "出战成员", 13, PanelKit.Cyan,
+                28, PlayerRosterLabelTop, 180, 18,
                 TextAnchor.MiddleLeft, FontStyle.Bold).gameObject.name = "TeamRoster";
             RefreshDiceUi();
         }
@@ -717,6 +727,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 20, 1462, 680, 48);
             previewText = kit.NewPlacedText(panel.transform, "保留骰子并重投，再选择技能和目标", 11,
                 PanelKit.White, 12, 4, 656, 40, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(previewText, 8);
         }
 
         private void BuildLog()
@@ -1305,7 +1316,7 @@ namespace ChoSiren.Panels
                     {
                         int row = playerIndex / 4;
                         int col = playerIndex % 4;
-                        PanelKit.PlaceTop(cell.Rect, 20f + col * 170f, 1196f + row * 160f,
+                        PanelKit.PlaceTop(cell.Rect, 20f + col * 170f, PlayerRosterTop + row * 116f,
                             PlayerCellWidth, PlayerCellHeight);
                         playerIndex++;
                     }

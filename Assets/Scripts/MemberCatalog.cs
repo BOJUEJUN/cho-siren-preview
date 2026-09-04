@@ -11,6 +11,7 @@ namespace ChoSiren
         public string Id = string.Empty;
         public string Name = string.Empty;
         public string Role = string.Empty;
+        public string Race = string.Empty;
         public string Rarity = string.Empty;
         public string PortraitResourcePath = string.Empty;
         public string ThumbnailResourcePath = string.Empty;
@@ -33,6 +34,7 @@ namespace ChoSiren
             Id = source.Id.Trim();
             Name = source.Name.Trim();
             Role = source.Role.Trim();
+            Race = source.Race.Trim();
             Rarity = source.Rarity.Trim();
             PortraitResourcePath = portraitPath;
             ThumbnailResourcePath = string.IsNullOrEmpty(thumbnailPath) ? portraitPath : thumbnailPath;
@@ -44,6 +46,8 @@ namespace ChoSiren
         public string Id { get; }
         public string Name { get; }
         public string Role { get; }
+        public string Career => Role;
+        public string Race { get; }
         public string Rarity { get; }
         public string PortraitResourcePath { get; }
         public string ThumbnailResourcePath { get; }
@@ -77,6 +81,11 @@ namespace ChoSiren
         private static readonly HashSet<string> Rarities = new HashSet<string>(StringComparer.Ordinal)
         {
             "SSR", "SR", "R"
+        };
+
+        private static readonly HashSet<string> Races = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵"
         };
 
         private readonly MemberCatalogRecord[] entries;
@@ -118,7 +127,8 @@ namespace ChoSiren
                 entry.Rarity,
                 entry.PortraitResourcePath,
                 entry.BasePower,
-                entry.ThumbnailResourcePath)).ToArray();
+                entry.ThumbnailResourcePath,
+                entry.Race)).ToArray();
         }
 
         public static bool TryLoad(string manifestResourcePath, out MemberCatalog catalog, out string error)
@@ -181,6 +191,7 @@ namespace ChoSiren
                 string id = (source.Id ?? string.Empty).Trim();
                 string name = (source.Name ?? string.Empty).Trim();
                 string role = (source.Role ?? string.Empty).Trim();
+                string race = (source.Race ?? string.Empty).Trim();
                 string rarity = (source.Rarity ?? string.Empty).Trim();
                 string portraitPath = NormalizeResourcePath(source.PortraitResourcePath);
                 string thumbnailPath = NormalizeResourcePath(source.ThumbnailResourcePath);
@@ -206,6 +217,14 @@ namespace ChoSiren
                 if (!Roles.Contains(role))
                 {
                     error = $"成员 {id} 的定位无效：{role}";
+                    return false;
+                }
+
+                // Race was added after the original catalog shipped. Empty remains valid for
+                // older manifests; newly authored values must use the shared profile vocabulary.
+                if (!string.IsNullOrEmpty(race) && !Races.Contains(race))
+                {
+                    error = $"成员 {id} 的种族无效：{race}";
                     return false;
                 }
 
@@ -263,6 +282,7 @@ namespace ChoSiren
                 source.Id = id;
                 source.Name = name;
                 source.Role = role;
+                source.Race = race;
                 source.Rarity = rarity;
                 normalized[index] = new MemberCatalogRecord(source, portraitPath, thumbnailPath);
             }

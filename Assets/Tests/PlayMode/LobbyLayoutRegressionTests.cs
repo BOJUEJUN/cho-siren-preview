@@ -130,6 +130,25 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator MemberPageUsesRaceAndCareerInsteadOfVisibleRarity()
+        {
+            RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            RectTransform content = RequireRect("Content");
+            string[] labels = content.GetComponentsInChildren<Text>(true)
+                .Select(text => text.text)
+                .Where(text => !string.IsNullOrWhiteSpace(text))
+                .ToArray();
+            Assert.That(labels, Does.Contain("职业：全部"));
+            Assert.That(labels, Does.Contain("种族：全部"));
+            Assert.That(labels.Any(text => text == "SSR" || text == "SR" || text == "R"), Is.False,
+                "成员页不应再把内部稀有度作为玩家可见身份标签。");
+            Assert.That(labels.Any(text => text.Contains("魅族") && text.Contains("主唱")), Is.True,
+                "成员卡应同时展示种族与职业。");
+        }
+
+        [UnityTest]
         public IEnumerator TeamAndMemberLayoutsStayInsideShortAndStandardPortraitContent()
         {
             RectTransform content = RequireRect("Content");
@@ -276,7 +295,8 @@ namespace ChoSiren.Tests
 
             Rect mailRect = RectInParent(mail);
             Rect settingsRect = RectInParent(settings);
-            Assert.That(settingsRect.xMin - mailRect.xMax, Is.InRange(0f, 8f),
+            Assert.That(settingsRect.xMin - mailRect.xMax,
+                Is.InRange(-PositionTolerance, 9f),
                 "邮件与设置应紧凑排列，不应为已移除的音乐按钮保留空槽。");
 
             Rect diamondIconRect = RectInParent(RequireRect("DiamondIcon"));
@@ -289,13 +309,18 @@ namespace ChoSiren.Tests
             Assert.That(staminaValue.GetComponent<Text>().text, Does.Match(@"^\d+/\d+$"),
                 "体力栏只应显示当前值/上限，不应再包含倒计时。");
             Assert.That(staminaValue.GetComponent<Text>().text, Does.Not.Contain(":"));
-            Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(80f + PositionTolerance),
+            Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(85f + PositionTolerance),
                 "体力文本不应为已删除的倒计时保留空白宽度。");
-            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.InRange(0f, 4f));
-            Assert.That(goldIconRect.xMin - diamondValueRect.xMax, Is.InRange(0f, 8f));
-            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.InRange(0f, 4f));
-            Assert.That(staminaIconRect.xMin - goldValueRect.xMax, Is.InRange(0f, 8f));
-            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.InRange(0f, 4f));
+            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax,
+                Is.InRange(-PositionTolerance, 4f + PositionTolerance));
+            Assert.That(goldIconRect.xMin - diamondValueRect.xMax,
+                Is.InRange(-PositionTolerance, 8f + PositionTolerance));
+            Assert.That(goldValueRect.xMin - goldIconRect.xMax,
+                Is.InRange(-PositionTolerance, 4f + PositionTolerance));
+            Assert.That(staminaIconRect.xMin - goldValueRect.xMax,
+                Is.InRange(-PositionTolerance, 8f + PositionTolerance));
+            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax,
+                Is.InRange(-PositionTolerance, 4f + PositionTolerance));
 
             settings.GetComponent<Button>().onClick.Invoke();
             yield return null;

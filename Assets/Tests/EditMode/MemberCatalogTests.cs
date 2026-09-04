@@ -18,7 +18,38 @@ namespace ChoSiren.Tests
             Assert.That(catalog.TryGetIndex("member-053", out int index), Is.True);
             Assert.That(index, Is.EqualTo(53));
             Assert.That(catalog.ToLegacyDefinitions()[53].Id, Is.EqualTo("member-053"));
+            Assert.That(catalog[0].Career, Is.EqualTo(catalog[0].Role));
             Assert.That(catalog[0].ThumbnailResourcePath, Is.EqualTo(catalog[0].PortraitResourcePath));
+        }
+
+        [Test]
+        public void RaceIsNormalizedAndCopiedWithoutBreakingLegacyConstructors()
+        {
+            MemberCatalogManifest manifest = Manifest(1);
+            manifest.Members[0].Race = "  血精灵  ";
+
+            Assert.That(MemberCatalog.TryCreate(manifest, out MemberCatalog catalog, out string error), Is.True,
+                error);
+            Assert.That(catalog[0].Race, Is.EqualTo("血精灵"));
+
+            MemberDefinition definition = catalog.ToLegacyDefinitions()[0];
+            Assert.That(definition.Race, Is.EqualTo("血精灵"));
+            Assert.That(definition.Career, Is.EqualTo(definition.Role));
+
+            var legacyCall = new MemberDefinition("legacy", "旧角色", "支援", "R",
+                "Art/Members/legacy/portrait", 6000);
+            Assert.That(legacyCall.Race, Is.Empty);
+            Assert.That(legacyCall.Career, Is.EqualTo("支援"));
+        }
+
+        [Test]
+        public void CatalogRejectsUnknownNonEmptyRace()
+        {
+            MemberCatalogManifest manifest = Manifest(1);
+            manifest.Members[0].Race = "未知种族";
+
+            Assert.That(MemberCatalog.TryCreate(manifest, out _, out string error), Is.False);
+            StringAssert.Contains("种族无效", error);
         }
 
         [Test]

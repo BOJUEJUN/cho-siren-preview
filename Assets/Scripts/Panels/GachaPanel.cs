@@ -42,7 +42,7 @@ namespace ChoSiren.Panels
             public Image Background;
             public Image Portrait;
             public Outline Outline;
-            public Text Rarity;
+            public Text Profile;
             public Text Name;
             public GameObject NewBadge;
             public Text Footer;
@@ -320,7 +320,7 @@ namespace ChoSiren.Panels
                 24, 62, 260, 54, TextAnchor.MiddleLeft, FontStyle.Bold);
             name.name = "CandidateName";
 
-            string meta = $"{InterviewRace(memberIndex)}\n{career}\n{InterviewPosition(career, memberIndex)}";
+            string meta = $"{InterviewRace(member, memberIndex)}\n{career}\n{InterviewPosition(career, memberIndex)}";
             Text identity = kit.NewPlacedText(card.transform, meta, 16, new Color32(225, 220, 245, 255),
                 24, 122, 248, 98, TextAnchor.UpperLeft, FontStyle.Bold);
             identity.name = "CandidateIdentity";
@@ -392,7 +392,7 @@ namespace ChoSiren.Panels
 
             Text recommend = kit.NewPlacedText(action.transform, TeamNeedsCareer(career)
                     ? $"✦ 团队缺少{career} · 推荐"
-                    : $"✦ {InterviewRace(memberIndex)} · 阵容适配",
+                    : $"✦ {InterviewRace(member, memberIndex)} · 阵容适配",
                 15, new Color32(255, 210, 117, 255), 18, 12, 610, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             recommend.name = "CandidateRecommendation";
@@ -521,32 +521,32 @@ namespace ChoSiren.Panels
             return PanelKit.MemberSpriteOrNull(member.Id, false) ?? Resources.Load<Sprite>(member.ResourcePath);
         }
 
-        private static string InterviewRace(int memberIndex)
+        private static string InterviewRace(MemberDefinition member, int memberIndex)
         {
+            if (member != null && !string.IsNullOrWhiteSpace(member.Race)) return member.Race.Trim();
             string[] races = { "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵" };
             return races[Mathf.Abs(memberIndex) % races.Length];
         }
 
         private static string InterviewCareer(MemberDefinition member, int memberIndex)
         {
-            if (member != null && member.Role != null && member.Role.Contains("主唱")) return "主唱";
-            if (member != null && member.Role != null && member.Role.Contains("舞")) return "主舞";
-            return memberIndex % 2 == 0 ? "Rapper" : "DJ";
+            string career = member == null ? string.Empty : member.Career;
+            if (!string.IsNullOrWhiteSpace(career) && career.Contains("主唱")) return "主唱";
+            if (!string.IsNullOrWhiteSpace(career) && career.Contains("舞")) return "舞者";
+            return "支援";
         }
 
         private static string InterviewPosition(string career, int memberIndex)
         {
             if (career == "主唱") return memberIndex % 2 == 0 ? "治疗 / 增益" : "输出 / 共鸣";
-            if (career == "主舞") return "破甲 / 输出";
-            if (career == "Rapper") return "输出 / 干扰";
+            if (career == "舞者") return "破甲 / 输出";
             return "护盾 / 增益";
         }
 
         private static string InterviewTrait(string career, int memberIndex)
         {
             if (career == "主唱") return memberIndex % 2 == 0 ? "治愈高音" : "穿透强音";
-            if (career == "主舞") return memberIndex % 2 == 0 ? "节拍追击" : "破绽舞步";
-            if (career == "Rapper") return memberIndex % 2 == 0 ? "韵脚压制" : "即兴连击";
+            if (career == "舞者") return memberIndex % 2 == 0 ? "节拍追击" : "破绽舞步";
             return memberIndex % 2 == 0 ? "共振护场" : "混音增幅";
         }
 
@@ -556,9 +556,9 @@ namespace ChoSiren.Panels
             string career = InterviewCareer(member, memberIndex);
             int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
             vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0), 55, 98);
-            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0), 55, 98);
-            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0), 55, 98);
-            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == "DJ" ? 10 : 0), 55, 98);
+            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "舞者" ? 11 : 0), 55, 98);
+            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "舞者" ? 7 : 0), 55, 98);
+            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == "支援" ? 10 : 0), 55, 98);
             charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias, 65, 96);
         }
 
@@ -643,7 +643,7 @@ namespace ChoSiren.Panels
                 new Color32(20, 19, 66, 82), PanelKit.White, Close, 16);
             PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 18, 18, 78, 48);
             kit.AddOutline(back, new Color32(156, 111, 255, 72), 1);
-            kit.NewPlacedText(transform, "招募中心", 25, PanelKit.White, 112, 16, 210, 46,
+            kit.NewPlacedText(transform, "签约中心", 25, PanelKit.White, 112, 16, 210, 46,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
         }
 
@@ -653,7 +653,7 @@ namespace ChoSiren.Panels
             int count = banners == null ? 0 : banners.Count;
             if (count == 0)
             {
-                kit.NewPlacedText(transform, "暂无开放中的卡池", 16, PanelKit.Muted, 20,
+                kit.NewPlacedText(transform, "暂无开放中的签约企划", 16, PanelKit.Muted, 20,
                     embeddedMode ? 48 : 128, 680, 44,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 return;
@@ -739,13 +739,13 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(caption.GetComponent<RectTransform>(), 154, embeddedMode ? 716 : 824, 412, 144);
             AddAiUiSkin(caption, "gacha-identity-panel-ai-v2", Color.white);
             kit.AddOutline(caption, new Color32(255, 103, 216, 155), 1.5f);
-            bannerKind = kit.NewPlacedText(caption.transform, "角色招募", 13,
+            bannerKind = kit.NewPlacedText(caption.transform, "成员签约", 13,
                 new Color32(255, 173, 226, 255), 34, 16, 350, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             bannerTitle = kit.NewPlacedText(caption.transform, string.Empty, 30, PanelKit.White,
                 34, 38, 350, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
             featuredText = kit.NewPlacedText(caption.transform, string.Empty, 16, PanelKit.Gold,
                 34, 80, 350, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            kit.NewPlacedText(caption.transform, "重复获得转化为碎片 · 十连至少获得 SR", 12, PanelKit.Muted,
+            kit.NewPlacedText(caption.transform, "重复候选转化为碎片 · 十连至少触发一次重点邀约", 12, PanelKit.Muted,
                 34, 108, 350, 24, TextAnchor.MiddleLeft);
         }
 
@@ -755,7 +755,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 166, embeddedMode ? 914 : 1052, 536, 62);
             AddAiUiSkin(panel, "gacha-rates-panel-ai-v2", Color.white);
             kit.AddOutline(panel, new Color32(151, 119, 255, 72), 1);
-            kit.NewPlacedText(panel.transform, "概率公示", 13, new Color32(255, 173, 226, 255),
+            kit.NewPlacedText(panel.transform, "邀约概率", 13, new Color32(255, 173, 226, 255),
                 26, 0, 82, 62, TextAnchor.MiddleLeft, FontStyle.Bold);
             rateText = kit.NewPlacedText(panel.transform, string.Empty, 13, PanelKit.White,
                 112, 0, 400, 62, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -767,7 +767,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 166, embeddedMode ? 982 : 1122, 536, 84);
             AddAiUiSkin(panel, "gacha-pity-panel-ai-v2", Color.white);
             kit.AddOutline(panel, new Color32(151, 119, 255, 76), 1);
-            kit.NewPlacedText(panel.transform, "保底进度", 13, new Color32(255, 173, 226, 255),
+            kit.NewPlacedText(panel.transform, "重点邀约", 13, new Color32(255, 173, 226, 255),
                 26, 0, 82, 84, TextAnchor.MiddleLeft, FontStyle.Bold);
             pityText = kit.NewPlacedText(panel.transform, string.Empty, 13, PanelKit.White,
                 102, 5, 420, 27, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -777,7 +777,7 @@ namespace ChoSiren.Panels
                 102, 48, 286, 27, TextAnchor.MiddleLeft);
             guaranteeChip = kit.NewPanel("GuaranteeChip", panel.transform, new Color32(255, 205, 96, 235), 12);
             PanelKit.PlaceTop(guaranteeChip.GetComponent<RectTransform>(), 392, 44, 130, 28);
-            kit.NewPlacedText(guaranteeChip.transform, "限定保底已激活", 12,
+            kit.NewPlacedText(guaranteeChip.transform, "限定邀约已激活", 12,
                 new Color32(52, 30, 8, 255), 4, 0, 122, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
 
@@ -861,7 +861,7 @@ namespace ChoSiren.Panels
             pullTenLabel.transform.SetAsLastSibling();
             pullTenCostLabel.transform.SetAsLastSibling();
 
-            hintText = kit.NewPlacedText(transform, "选择心仪卡池，与舞台上的她签订契约", 13,
+            hintText = kit.NewPlacedText(transform, "选择心仪企划，与舞台上的她签订契约", 13,
                 new Color32(220, 206, 239, 255), 40, embeddedMode ? 1232 : 1402, 640, 30,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             kit.NewPlacedText(transform, "星光汇聚，下一位成员正在等待", 12, new Color32(151, 140, 190, 255),
@@ -887,6 +887,7 @@ namespace ChoSiren.Panels
             kit.AddOutline(resultTitle.gameObject, new Color32(255, 74, 196, 150), 2);
             resultSummary = kit.NewPlacedText(overlay.transform, string.Empty, 15, PanelKit.Muted,
                 40, 206, 640, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+            resultSummary.name = "ResultSummary";
 
             for (int index = 0; index < GachaEngine.TenPullCount; index++)
                 resultCells.Add(BuildResultCell(overlay.transform, index));
@@ -922,8 +923,9 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(portrait.rectTransform, 10, 30, 100, 92);
             portrait.preserveAspect = true;
 
-            Text rarity = kit.NewPlacedText(root.transform, "R", 13, PanelKit.White, 8, 6, 60, 22,
+            Text profile = kit.NewPlacedText(root.transform, "候选资料", 10, PanelKit.White, 6, 4, 72, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
+            profile.name = "CandidateProfile";
             GameObject badge = kit.NewPanel("NewBadge", root.transform, PanelKit.Pink, 8);
             PanelKit.PlaceTop(badge.GetComponent<RectTransform>(), 80, 6, 34, 22);
             kit.NewPlacedText(badge.transform, "新", 12, PanelKit.White, 0, 0, 34, 22, TextAnchor.MiddleCenter,
@@ -940,7 +942,7 @@ namespace ChoSiren.Panels
                 Background = root.GetComponent<Image>(),
                 Portrait = portrait,
                 Outline = kit.AddOutline(root, new Color32(255, 205, 96, 0), 3),
-                Rarity = rarity,
+                Profile = profile,
                 Name = name,
                 NewBadge = badge,
                 Footer = footer,
@@ -1001,10 +1003,10 @@ namespace ChoSiren.Panels
 
             if (banner == null)
             {
-                bannerTitle.text = "暂无卡池";
+                bannerTitle.text = "暂无签约企划";
                 bannerKind.text = string.Empty;
                 featuredText.text = string.Empty;
-                rateText.text = "卡池数据尚未配置";
+                rateText.text = "签约数据尚未配置";
                 pityText.text = string.Empty;
                 pityFill.fillAmount = 0f;
                 totalsText.text = string.Empty;
@@ -1021,7 +1023,7 @@ namespace ChoSiren.Panels
             }
 
             bannerTitle.text = banner.Name;
-            bannerKind.text = banner.Kind == GachaBannerKind.Costume ? "服装招募" : "角色招募";
+            bannerKind.text = banner.Kind == GachaBannerKind.Costume ? "造型签约" : "成员签约";
             featuredText.text = FeaturedLine(banner);
             Sprite featuredSprite = ResolveBannerPortrait(banner) ?? Resources.Load<Sprite>("Art/HeroFallback");
             featuredPortrait.sprite = featuredSprite;
@@ -1033,12 +1035,12 @@ namespace ChoSiren.Panels
             GachaBannerState state = service.BannerState(banner.Id);
             int pity = state != null ? state.Pity : 0;
             int remaining = Mathf.Max(0, banner.HardPity - pity);
-            pityText.text = remaining == 0 ? "下一抽必得 SSR" : $"已累计 {pity} 抽 · 再 {remaining} 抽必得 SSR";
+            pityText.text = remaining == 0 ? "下一次将触发特别邀约" : $"已累计 {pity} 次 · 再 {remaining} 次触发特别邀约";
             pityFill.fillAmount = banner.HardPity > 0 ? Mathf.Clamp01(pity / (float)banner.HardPity) : 0f;
             pityFill.color = pity >= banner.SoftPityStart ? PanelKit.Gold : PanelKit.Pink;
             totalsText.text = state != null
-                ? $"累计签约 {state.TotalPulls} 次 · 获得 SSR {state.TotalSsr} 次"
-                : "尚未在此卡池签约";
+                ? $"累计签约 {state.TotalPulls} 次 · 特别邀约 {state.TotalSsr} 次"
+                : "尚未参与此签约企划";
             guaranteeChip.SetActive(state != null && state.FeaturedGuaranteed && banner.GuaranteeFeaturedAfterLoss);
 
             string currencyName = PanelKit.CurrencyName(banner.CostCurrency);
@@ -1083,10 +1085,10 @@ namespace ChoSiren.Panels
         {
             if (banner == null) return string.Empty;
             int rPermille = Mathf.Max(0, 1000 - banner.SsrRatePermille - banner.SrRatePermille);
-            string guarantee = banner.TenPullGuaranteesSr ? " · 十连至少 SR" : string.Empty;
-            return $"SSR {PanelKit.Permille(banner.SsrRatePermille)} · " +
-                   $"SR {PanelKit.Permille(banner.SrRatePermille)} · " +
-                   $"R {PanelKit.Permille(rPermille)}{guarantee}";
+            string guarantee = banner.TenPullGuaranteesSr ? " · 十连含重点邀约" : string.Empty;
+            return $"特别邀约 {PanelKit.Permille(banner.SsrRatePermille)} · " +
+                   $"重点邀约 {PanelKit.Permille(banner.SrRatePermille)} · " +
+                   $"常规邀约 {PanelKit.Permille(rPermille)}{guarantee}";
         }
 
         /// <summary>
@@ -1161,7 +1163,7 @@ namespace ChoSiren.Panels
 
         private string FeaturedLine(GachaBannerDefinition banner)
         {
-            if (banner.FeaturedItemIds.Count == 0) return "常驻卡池 · 无限定角色";
+            if (banner.FeaturedItemIds.Count == 0) return "常驻候选 · 无限定成员";
             var builder = new System.Text.StringBuilder();
             for (int index = 0; index < banner.FeaturedItemIds.Count; index++)
             {
@@ -1173,7 +1175,7 @@ namespace ChoSiren.Panels
         }
 
         /// <summary>
-        /// Rate table text generated purely from the banner numbers so 概率公示 can never drift
+        /// Rate table text generated purely from the banner numbers so 邀约概率 can never drift
         /// from what the engine rolls. Public so tests can assert on the wording.
         /// </summary>
         public static string RateSummary(GachaBannerDefinition banner)
@@ -1181,20 +1183,20 @@ namespace ChoSiren.Panels
             if (banner == null) return string.Empty;
             int rPermille = Mathf.Max(0, 1000 - banner.SsrRatePermille - banner.SrRatePermille);
             var builder = new System.Text.StringBuilder();
-            builder.Append("SSR ").Append(PanelKit.Permille(banner.SsrRatePermille))
-                .Append(" · SR ").Append(PanelKit.Permille(banner.SrRatePermille))
-                .Append(" · R ").Append(PanelKit.Permille(rPermille)).Append('\n');
-            builder.Append("第 ").Append(banner.SoftPityStart).Append(" 抽起概率提升，每抽 +")
+            builder.Append("特别邀约 ").Append(PanelKit.Permille(banner.SsrRatePermille))
+                .Append(" · 重点邀约 ").Append(PanelKit.Permille(banner.SrRatePermille))
+                .Append(" · 常规邀约 ").Append(PanelKit.Permille(rPermille)).Append('\n');
+            builder.Append("第 ").Append(banner.SoftPityStart).Append(" 次签约起概率提升，每次 +")
                 .Append(PanelKit.Permille(banner.SoftPityStepPermille))
-                .Append(" · ").Append(banner.HardPity).Append(" 抽必得 SSR").Append('\n');
+                .Append(" · 第 ").Append(banner.HardPity).Append(" 次触发特别邀约").Append('\n');
             if (banner.FeaturedItemIds.Count > 0 && banner.StandardSsrItemIds.Count > 0)
             {
-                builder.Append("SSR 中限定角色占 ").Append(PanelKit.Permille(banner.RateUpSharePermille));
-                if (banner.GuaranteeFeaturedAfterLoss) builder.Append(" · 未中限定后下一次 SSR 必为限定");
+                builder.Append("特别邀约中限定成员占 ").Append(PanelKit.Permille(banner.RateUpSharePermille));
+                if (banner.GuaranteeFeaturedAfterLoss) builder.Append(" · 未遇限定后下一次特别邀约锁定限定成员");
                 builder.Append('\n');
             }
 
-            if (banner.TenPullGuaranteesSr) builder.Append("每次十连至少获得一名 SR 及以上 · ");
+            if (banner.TenPullGuaranteesSr) builder.Append("每次十连至少触发一次重点邀约 · ");
             builder.Append("单抽 ").Append(banner.CostPerPull).Append(' ').Append(PanelKit.CurrencyName(banner.CostCurrency))
                 .Append("，十连 ").Append(banner.CostTenPull).Append(' ').Append(PanelKit.CurrencyName(banner.CostCurrency));
             return builder.ToString();
@@ -1206,10 +1208,10 @@ namespace ChoSiren.Panels
             if (banner == null) return string.Empty;
             int rPermille = Mathf.Max(0, 1000 - banner.SsrRatePermille - banner.SrRatePermille);
             var builder = new System.Text.StringBuilder();
-            builder.Append("SSR ").Append(PanelKit.Permille(banner.SsrRatePermille)).Append('\n');
-            builder.Append("SR  ").Append(PanelKit.Permille(banner.SrRatePermille)).Append('\n');
-            builder.Append("R   ").Append(PanelKit.Permille(rPermille)).Append("\n\n");
-            builder.Append(banner.TenPullGuaranteesSr ? "十连至少获得 SR" : "概率以公示为准");
+            builder.Append("特别邀约 ").Append(PanelKit.Permille(banner.SsrRatePermille)).Append('\n');
+            builder.Append("重点邀约 ").Append(PanelKit.Permille(banner.SrRatePermille)).Append('\n');
+            builder.Append("常规邀约 ").Append(PanelKit.Permille(rPermille)).Append("\n\n");
+            builder.Append(banner.TenPullGuaranteesSr ? "十连至少触发重点邀约" : "概率以公示为准");
             return builder.ToString();
         }
 
@@ -1217,6 +1219,29 @@ namespace ChoSiren.Panels
         {
             string custom = service.ItemDisplayName(itemId);
             return string.IsNullOrEmpty(custom) ? PanelKit.MemberNameOrId(itemId) : custom;
+        }
+
+        private static string CandidateProfile(string itemId)
+        {
+            MemberDefinition[] members = GameModel.Members;
+            for (int index = 0; index < members.Length; index++)
+            {
+                MemberDefinition member = members[index];
+                if (member == null || string.IsNullOrEmpty(member.Id)) continue;
+                bool exact = string.Equals(itemId, member.Id, StringComparison.OrdinalIgnoreCase);
+                bool ownedItem = !string.IsNullOrEmpty(itemId) &&
+                                 itemId.IndexOf("-" + member.Id + "-", StringComparison.OrdinalIgnoreCase) >= 0;
+                if (!exact && !ownedItem) continue;
+
+                string race = InterviewRace(member, index).Split('·')[0].Trim();
+                string career = InterviewCareer(member, index);
+                return $"{race} · {career}\n{InterviewPosition(career, index)}";
+            }
+
+            if (!string.IsNullOrEmpty(itemId) &&
+                itemId.StartsWith("accessory-", StringComparison.OrdinalIgnoreCase))
+                return "舞台饰品\n造型支援";
+            return "签约候选\n资料待确认";
         }
 
         // ------------------------------------------------------------------ pulls
@@ -1227,7 +1252,7 @@ namespace ChoSiren.Panels
             GachaBannerDefinition banner = CurrentBanner;
             if (banner == null)
             {
-                Notify("当前没有可用卡池");
+                Notify("当前没有开放中的签约企划");
                 return;
             }
 
@@ -1277,7 +1302,7 @@ namespace ChoSiren.Panels
                 if (results[index].IsNew) fresh++;
             }
 
-            resultSummary.text = $"{banner.Name} · SSR {ssr} · SR {sr} · 新成员 {fresh} · 碎片 +{shards}";
+            resultSummary.text = $"{banner.Name} · 特别邀约 {ssr} · 重点邀约 {sr} · 新成员 {fresh} · 碎片 +{shards}";
             PanelKit.LabelOf(pullAgainButton).text = results.Count == 1 ? "再来一次" : "再来十连";
 
             for (int index = 0; index < resultCells.Count; index++)
@@ -1308,7 +1333,8 @@ namespace ChoSiren.Panels
                 ResultCell single = resultCells[0];
                 PanelKit.PlaceTop(single.Rect, 300f - 30f, 300f, 180f, 250f);
                 PanelKit.CenterPivot(single.Rect);
-                PanelKit.PlaceTop(single.Portrait.rectTransform, 12, 36, 156, 150);
+                PanelKit.PlaceTop(single.Profile.rectTransform, 8, 6, 124, 30);
+                PanelKit.PlaceTop(single.Portrait.rectTransform, 12, 40, 156, 146);
                 PanelKit.PlaceTop(single.Name.rectTransform, 8, 192, 164, 30);
                 PanelKit.PlaceTop(single.Footer.rectTransform, 8, 222, 164, 22);
                 PanelKit.PlaceTop(single.NewBadge.GetComponent<RectTransform>(), 138, 8, 34, 22);
@@ -1324,7 +1350,8 @@ namespace ChoSiren.Panels
                 PanelKit.PlaceTop(cell.Rect, 36f + column * (cellWidth + gap), 268f + row * (cellHeight + gap),
                     cellWidth, cellHeight);
                 PanelKit.CenterPivot(cell.Rect);
-                PanelKit.PlaceTop(cell.Portrait.rectTransform, 10, 30, 100, 92);
+                PanelKit.PlaceTop(cell.Profile.rectTransform, 6, 4, 72, 30);
+                PanelKit.PlaceTop(cell.Portrait.rectTransform, 10, 34, 100, 88);
                 PanelKit.PlaceTop(cell.Name.rectTransform, 6, 122, 108, 24);
                 PanelKit.PlaceTop(cell.Footer.rectTransform, 6, 144, 108, 20);
                 PanelKit.PlaceTop(cell.NewBadge.GetComponent<RectTransform>(), 80, 6, 34, 22);
@@ -1338,8 +1365,8 @@ namespace ChoSiren.Panels
             bool sr = result.Rarity == GachaRarity.Sr;
             cell.Ssr = ssr;
             cell.Background.color = ssr ? SsrColor : sr ? SrColor : RColor;
-            cell.Rarity.text = result.Rarity;
-            cell.Rarity.color = ssr ? PanelKit.Gold : sr ? new Color32(214, 170, 255, 255) : PanelKit.Muted;
+            cell.Profile.text = CandidateProfile(result.ItemId);
+            cell.Profile.color = ssr ? PanelKit.Gold : sr ? new Color32(214, 170, 255, 255) : PanelKit.Muted;
             cell.Name.text = DisplayName(result.ItemId);
             cell.NewBadge.SetActive(result.IsNew);
             cell.Outline.effectColor = new Color(1f, 0.8f, 0.37f, 0f);
@@ -1351,8 +1378,8 @@ namespace ChoSiren.Panels
             string footer;
             if (result.IsNew) footer = result.IsFeatured ? "限定 · 新成员" : "新成员";
             else footer = result.ShardReward > 0 ? $"碎片 +{result.ShardReward}" : "重复";
-            if (result.HitHardPity) footer = "保底 · " + footer;
-            else if (result.UpgradedByTenPullGuarantee) footer = "十连保底 · " + footer;
+            if (result.HitHardPity) footer = "特别邀约 · " + footer;
+            else if (result.UpgradedByTenPullGuarantee) footer = "重点邀约 · " + footer;
             cell.Footer.text = footer;
             cell.Footer.color = result.IsNew ? PanelKit.Pink : PanelKit.Muted;
         }

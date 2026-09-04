@@ -247,6 +247,7 @@ namespace ChoSiren.Panels
             Text text = NewText("Label", result.transform, label, fontSize, foreground, FontStyle.Bold,
                 TextAnchor.MiddleCenter);
             Stretch(text.rectTransform, 6, 4, -6, -4);
+            EnableBestFit(text, Mathf.Max(10, fontSize - 4));
             return result;
         }
 
@@ -254,6 +255,15 @@ namespace ChoSiren.Panels
         {
             Transform label = button.transform.Find("Label");
             return label != null ? label.GetComponent<Text>() : null;
+        }
+
+        /// <summary>Keeps dynamic Chinese copy inside its authored bounds instead of clipping the tail.</summary>
+        public static void EnableBestFit(Text text, int minimumSize)
+        {
+            if (text == null) return;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = Mathf.Clamp(minimumSize, 8, text.fontSize);
+            text.resizeTextMaxSize = text.fontSize;
         }
 
         public static void SetButtonState(GameObject button, bool interactable, Color background)
@@ -316,10 +326,13 @@ namespace ChoSiren.Panels
             GameObject backButton = NewButton(backName, header.transform, "返回", 17, ButtonDark, White, back, 18);
             PlaceTop(backButton.GetComponent<RectTransform>(), 18, 27, 88, 56);
 
-            NewPlacedText(header.transform, eyebrow, 13, new Color32(255, 173, 226, 255),
-                128, 17, 300, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(header.transform, title, 27, White,
-                128, 40, 300, 42, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text eyebrowText = NewPlacedText(header.transform, eyebrow, 13,
+                new Color32(255, 173, 226, 255), 128, 17, 300, 24,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            EnableBestFit(eyebrowText, 10);
+            Text titleText = NewPlacedText(header.transform, title, 27, White,
+                128, 40, 380, 42, TextAnchor.MiddleLeft, FontStyle.Bold);
+            EnableBestFit(titleText, 18);
 
             Image divider = NewImage("Divider", header.transform, null, new Color32(152, 105, 226, 88));
             PlaceTop(divider.rectTransform, 18, 108, 684, 2);

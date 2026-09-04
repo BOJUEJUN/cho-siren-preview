@@ -1,0 +1,17 @@
+---
+description: Prevent CHO-SIREN UI regressions when multiple tasks change and publish the Unity project
+alwaysApply: true
+---
+
+# CHO-SIREN Release Guard
+
+- Treat the latest accepted production UI as the preservation baseline.
+- Before any WebGL build, fetch and inspect all relevant branches and worktrees. Never build an isolated feature branch that is behind the latest accepted UI branch.
+- Integrate every accepted UI commit into one release branch before building. Record the source commit and included feature commits in the release commit.
+- Preserve the top HUD and bottom navigation unless the user explicitly asks to redesign them. Audition work changes the middle content only.
+- Before publishing, verify these four areas together: top HUD alignment, bottom navigation, chapter map, and audition pools.
+- Compare the new build against the current production build and visually inspect each affected page. Do not infer that passing tests proves visual preservation.
+- Never replace the entire GitHub Pages WebGL bundle from a stale or partial branch.
+- Do not add web-shell controls or other UI the user did not request.
+- If a release regresses another accepted change, restore the last good production build first, then merge and rebuild; do not ask the user to enumerate every lost change.
+- After any preventable regression or repeated workflow error, add or update a durable rule/checklist and memory note as part of the fix.

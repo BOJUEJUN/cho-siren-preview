@@ -109,12 +109,14 @@ namespace ChoSiren.Panels
 
             summaryText = kit.NewPlacedText(transform, string.Empty, 13, PanelKit.Muted, 24, 192, 470, 34,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
+            PanelKit.EnableBestFit(summaryText, 10);
 
             checkInButton = kit.NewButton("CheckInTaskChip", transform, string.Empty, 13,
                 new Color32(91, 49, 151, 205),
                 PanelKit.White, CheckIn, 14);
             PanelKit.PlaceTop(checkInButton.GetComponent<RectTransform>(), 510, 190, 190, 38);
             checkInLabel = PanelKit.LabelOf(checkInButton);
+            PanelKit.EnableBestFit(checkInLabel, 10);
 
             BuildList();
 
@@ -253,8 +255,9 @@ namespace ChoSiren.Panels
             Image accent = kit.NewImage("Accent", row.transform, kit.RoundedSprite(3), PanelKit.Cyan);
             PanelKit.PlaceTop(accent.rectTransform, 0, 18, 4, 96);
 
-            kit.NewPlacedText(row.transform, definition.Title, 18, PanelKit.White, 24, 16, 400, 30,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text title = kit.NewPlacedText(row.transform, definition.Title, 18, PanelKit.White,
+                24, 16, 400, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+            PanelKit.EnableBestFit(title, 13);
             kit.NewPlacedText(row.transform, definition.Cadence == TaskCadence.Weekly ? "每周" : "每日", 12,
                 new Color32(255, 173, 226, 255), 430, 20, 60, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
 

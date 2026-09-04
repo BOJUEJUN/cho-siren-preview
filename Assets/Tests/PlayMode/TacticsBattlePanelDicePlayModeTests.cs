@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using ChoSiren.Panels;
 using ChoSiren.Systems;
@@ -12,6 +13,42 @@ namespace ChoSiren.Tests
 {
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
+        [Test]
+        public void PlayerRosterStaysBetweenDiceConsoleAndSkillDeck()
+        {
+            GameObject root = new GameObject("Tactics Layout Test", typeof(RectTransform));
+            try
+            {
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(),
+                    null);
+                RectTransform dice = FindRect(panel.transform, "DiceConsole");
+                RectTransform rosterLabel = FindRect(panel.transform, "TeamRoster");
+                RectTransform playerCard = FindRect(panel.transform, "Cell-P-0-0");
+                RectTransform deck = FindRect(panel.transform, "SkillCommandDeck");
+
+                float diceBottom = Top(dice) + dice.rect.height;
+                float labelBottom = Top(rosterLabel) + rosterLabel.rect.height;
+                float cardTop = Top(playerCard);
+                float cardBottom = cardTop + playerCard.rect.height;
+                float deckTop = Top(deck);
+
+                Assert.That(labelBottom, Is.LessThanOrEqualTo(cardTop),
+                    "出战成员标题不能压在第一排成员卡上。 ");
+                Assert.That(diceBottom, Is.LessThanOrEqualTo(cardTop),
+                    "成员卡不能覆盖骰子台底部的重投操作。 ");
+                Assert.That(cardBottom, Is.LessThanOrEqualTo(deckTop),
+                    "成员卡不能覆盖技能指令栏。 ");
+
+                Text preview = FindRect(panel.transform, "PreviewBoard").GetComponentInChildren<Text>(true);
+                Assert.That(preview.resizeTextForBestFit, Is.True,
+                    "目标预览会拼接技能名和多个单位名，必须允许受控缩字号。 ");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
         [Test]
         public void DiceSummaryAndParticipatingDiceAreRenderedFromHand()
         {
@@ -262,6 +299,16 @@ namespace ChoSiren.Tests
             child.transform.SetParent(parent, false);
             return child.AddComponent<Text>();
         }
+
+        private static RectTransform FindRect(Transform root, string name)
+        {
+            RectTransform result = root.GetComponentsInChildren<RectTransform>(true)
+                .FirstOrDefault(item => item.name == name);
+            Assert.That(result, Is.Not.Null, $"未找到布局节点：{name}");
+            return result;
+        }
+
+        private static float Top(RectTransform rect) => -rect.anchoredPosition.y;
 
         private static T GetField<T>(object target, string name)
         {

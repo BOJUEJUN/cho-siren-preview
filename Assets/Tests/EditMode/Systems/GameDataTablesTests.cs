@@ -102,7 +102,9 @@ namespace ChoSiren.Tests.Systems
             Assert.That(banner.HardPity, Is.EqualTo(80));
             Assert.That(banner.FeaturedItemIds, Is.EqualTo(new[] { "xingli" }));
             Assert.That(GachaPanel.CompactRateSummary(banner), Is.EqualTo(
-                "SSR 3.0%\nSR  18.5%\nR   78.5%\n\n十连至少获得 SR"));
+                "特别邀约 3.0%\n重点邀约 18.5%\n常规邀约 78.5%\n\n十连至少触发重点邀约"));
+            Assert.That(GachaPanel.RateSummary(banner), Does.Not.Match(@"(?<![A-Za-z])(SSR|SR|R)(?![A-Za-z])"),
+                "玩家可见的签约说明不应暴露内部稀有度代码。");
         }
 
         [Test]

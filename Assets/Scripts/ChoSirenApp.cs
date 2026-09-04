@@ -55,7 +55,7 @@ namespace ChoSiren
         private string currentScreen = "lobby";
         private int memberPageIndex;
         private int memberRoleFilterIndex;
-        private int memberRarityFilterIndex;
+        private int memberRaceFilterIndex;
         private bool memberOwnedOnly;
         private string memberSearchQuery = string.Empty;
         private int selectedAccessoryIndex = -1;
@@ -217,7 +217,7 @@ namespace ChoSiren
 
             GameObject avatarFrame = NewImage("AvatarFrame", bar.transform, RoundedSprite(30),
                 new Color32(222, 195, 255, 230));
-            PlaceTop(avatarFrame.GetComponent<RectTransform>(), 51, 13, 56, 56);
+            PlaceTop(avatarFrame.GetComponent<RectTransform>(), 22, 13, 56, 56);
             GameObject avatarMask = NewImage("AvatarMask", avatarFrame.transform, RoundedSprite(30), White);
             Stretch(avatarMask.GetComponent<RectTransform>(), 2, 2, -2, -2);
             Mask mask = avatarMask.AddComponent<Mask>();
@@ -228,38 +228,38 @@ namespace ChoSiren
             avatar.GetComponent<Image>().preserveAspect = false;
 
             Text name = NewText("PlayerName", bar.transform, "音律少女", 19, White, FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(name.rectTransform, 115, 14, 104, 29);
+            PlaceTop(name.rectTransform, 86, 14, 104, 29);
             AddReadableShadow(name);
             Text level = NewText("PlayerLevel", bar.transform, "等级 68", 14,
                 new Color32(225, 215, 242, 255), FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(level.rectTransform, 115, 43, 82, 22);
+            PlaceTop(level.rectTransform, 86, 43, 82, 22);
             AddReadableShadow(level);
 
             GameObject profileHit = NewButton("Profile", bar.transform, string.Empty, 1, Color.clear, Color.clear, OpenProfile);
-            PlaceTop(profileHit.GetComponent<RectTransform>(), 44, 8, 176, 70);
+            PlaceTop(profileHit.GetComponent<RectTransform>(), 16, 8, 190, 70);
             profileHit.transform.SetAsFirstSibling();
 
-            // 整排内容在 720 设计宽度内左右留白对称；资源组以约 120 像素为节拍排布，
-            // 邮件紧跟体力，音乐设置已归入设置弹窗。
-            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 232, 28, 25);
+            // 在 720 设计宽度内主动利用两侧空间；资源组保持约 128 像素节拍，
+            // 邮件紧跟体力，设置贴近右侧但保留可靠点击边距。
+            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 220, 28, 25);
             diamondText = NewText("Diamonds", bar.transform, string.Empty, 17, Cyan, FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(diamondText.rectTransform, 260, 18, 86, 44);
+            PlaceTop(diamondText.rectTransform, 248, 18, 92, 44);
             ConfigureHudNumber(diamondText);
 
-            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 352, 28, 25);
+            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 348, 28, 25);
             goldText = NewText("Gold", bar.transform, string.Empty, 17, new Color32(255, 219, 126, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(goldText.rectTransform, 380, 18, 86, 44);
+            PlaceTop(goldText.rectTransform, 376, 18, 92, 44);
             ConfigureHudNumber(goldText);
 
-            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 472, 27, 26);
+            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 476, 27, 26);
             staminaText = NewText("Stamina", bar.transform, string.Empty, 17, new Color32(255, 151, 211, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(staminaText.rectTransform, 500, 18, 80, 44);
+            PlaceTop(staminaText.rectTransform, 504, 18, 85, 44);
             ConfigureHudNumber(staminaText);
 
             AddSpriteIconButton(bar.transform, "Mail",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 88, OpenInbox);
+                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 83, OpenInbox);
             AddSpriteIconButton(bar.transform, "Settings",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 48, OpenSettings);
+                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 37, OpenSettings);
             UpdateTopBar();
         }
 
@@ -622,7 +622,7 @@ namespace ChoSiren
             PlaceTop(tag.GetComponent<RectTransform>(), 8, size.y - 69f, size.x - 16f, 66f);
             NewPlacedText(tag.transform, member.Name, isLeader ? 20 : 18, White,
                 11, 4, size.x - 38f, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(tag.transform, $"{member.Rarity} · {member.Role}  等级 {model.LevelOf(memberIndex)}",
+            NewPlacedText(tag.transform, $"{MemberRace(member, memberIndex)} · {member.Career}  等级 {model.LevelOf(memberIndex)}",
                 11, new Color32(255, 160, 222, 255), 11, 28, size.x - 38f, 18, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(tag.transform, $"战力 {model.PowerOf(memberIndex):N0}", 11,
                 new Color32(102, 221, 255, 255), 11, 46, size.x - 38f, 17, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -632,11 +632,11 @@ namespace ChoSiren
         {
             BuildMemberGalleryBackdrop();
             string[] roleFilters = { string.Empty, "主唱", "舞者", "支援" };
-            string[] rarityFilters = { string.Empty, "SSR", "SR", "R" };
+            string[] raceFilters = { string.Empty, "魅族", "魔族", "海灵族", "血精灵" };
             memberRoleFilterIndex = Mathf.Clamp(memberRoleFilterIndex, 0, roleFilters.Length - 1);
-            memberRarityFilterIndex = Mathf.Clamp(memberRarityFilterIndex, 0, rarityFilters.Length - 1);
+            memberRaceFilterIndex = Mathf.Clamp(memberRaceFilterIndex, 0, raceFilters.Length - 1);
             string roleFilter = roleFilters[memberRoleFilterIndex];
-            string rarityFilter = rarityFilters[memberRarityFilterIndex];
+            string raceFilter = raceFilters[memberRaceFilterIndex];
 
             Canvas.ForceUpdateCanvases();
             float contentHeight = Mathf.Max(1f, contentRoot.rect.height);
@@ -649,8 +649,8 @@ namespace ChoSiren
             {
                 MemberDefinition member = GameModel.Members[index];
                 if (memberOwnedOnly && !model.IsUnlocked(index)) return false;
-                if (!string.IsNullOrEmpty(roleFilter) && member.Role != roleFilter) return false;
-                if (!string.IsNullOrEmpty(rarityFilter) && member.Rarity != rarityFilter) return false;
+                if (!string.IsNullOrEmpty(roleFilter) && member.Career != roleFilter) return false;
+                if (!string.IsNullOrEmpty(raceFilter) && MemberRaceFamily(member, index) != raceFilter) return false;
                 return string.IsNullOrEmpty(memberSearchQuery) ||
                        member.Name.IndexOf(memberSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0;
             }, dynamicPageSize);
@@ -659,17 +659,17 @@ namespace ChoSiren
             ScreenTitle("成员档案", "全部成员",
                 $"已拥有 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} · 本页 {page.VisibleCount} 名");
 
-            MemberFilterButton("MemberRoleFilter", $"定位：{(string.IsNullOrEmpty(roleFilter) ? "全部" : roleFilter)}",
+            MemberFilterButton("MemberRoleFilter", $"职业：{(string.IsNullOrEmpty(roleFilter) ? "全部" : roleFilter)}",
                 20, 108, 196, () =>
                 {
                     memberRoleFilterIndex = (memberRoleFilterIndex + 1) % roleFilters.Length;
                     memberPageIndex = 0;
                     ShowScreen("members");
                 });
-            MemberFilterButton("MemberRarityFilter", $"稀有度：{(string.IsNullOrEmpty(rarityFilter) ? "全部" : rarityFilter)}",
+            MemberFilterButton("MemberRaceFilter", $"种族：{(string.IsNullOrEmpty(raceFilter) ? "全部" : raceFilter)}",
                 226, 108, 196, () =>
                 {
-                    memberRarityFilterIndex = (memberRarityFilterIndex + 1) % rarityFilters.Length;
+                    memberRaceFilterIndex = (memberRaceFilterIndex + 1) % raceFilters.Length;
                     memberPageIndex = 0;
                     ShowScreen("members");
                 });
@@ -818,10 +818,12 @@ namespace ChoSiren
                 ResumeMediaAfterUserGesture();
             });
 
-            Color glowColor = member.Rarity == "SSR"
-                ? new Color32(255, 191, 82, unlocked ? (byte)76 : (byte)24)
-                : new Color32(80, 199, 255, unlocked ? (byte)62 : (byte)20);
-            GameObject glow = NewImage("RarityGlow", card.transform, StageGlowSprite(), glowColor);
+            Color glowColor = member.Career == "主唱"
+                ? new Color32(80, 224, 255, unlocked ? (byte)76 : (byte)24)
+                : member.Career == "舞者"
+                    ? new Color32(181, 111, 255, unlocked ? (byte)70 : (byte)22)
+                    : new Color32(255, 119, 202, unlocked ? (byte)66 : (byte)20);
+            GameObject glow = NewImage("CareerGlow", card.transform, StageGlowSprite(), glowColor);
             PlaceTop(glow.GetComponent<RectTransform>(), 3, 3, width - 6, 148);
 
             GameObject portrait = NewImage("Portrait", card.transform,
@@ -829,7 +831,7 @@ namespace ChoSiren
                 unlocked ? White : new Color(0.68f, 0.68f, 0.78f, 0.72f));
             PlaceTop(portrait.GetComponent<RectTransform>(), 4, 4, width - 8, 145);
             portrait.GetComponent<Image>().preserveAspect = true;
-            NewPlacedText(card.transform, $"{member.Rarity} · {member.Role}", 11, unlocked ? Pink : Muted,
+            NewPlacedText(card.transform, $"{MemberRaceFamily(member, index)} · {member.Career}", 11, unlocked ? Pink : Muted,
                 7, 140, width - 14, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(card.transform, member.Name, 17, unlocked ? White : new Color32(222, 215, 238, 255),
                 7, 160, width - 14, 27, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -837,9 +839,7 @@ namespace ChoSiren
                 12, unlocked ? Cyan : Muted, 7, 185, width - 14, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
 
             Outline edge = card.AddComponent<Outline>();
-            edge.effectColor = unlocked
-                ? (member.Rarity == "SSR" ? new Color32(255, 190, 86, 178) : new Color32(120, 190, 255, 112))
-                : new Color32(95, 111, 165, 58);
+            edge.effectColor = unlocked ? new Color32(120, 190, 255, 112) : new Color32(95, 111, 165, 58);
             edge.effectDistance = new Vector2(1f, -1f);
         }
 
@@ -890,7 +890,8 @@ namespace ChoSiren
             PlaceTop(portrait.GetComponent<RectTransform>(), 6, 6, 202, 245);
             portrait.GetComponent<Image>().preserveAspect = true;
             NewPlacedText(card.transform, member.Name, 25, White, 14, 244, 186, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(card.transform, $"{member.Role} · {member.Rarity}", 14, Pink, 14, 282, 186, 25, TextAnchor.MiddleLeft);
+            NewPlacedText(card.transform, $"{MemberRaceFamily(member, memberIndex)} · {member.Career}", 14, Pink,
+                14, 282, 186, 25, TextAnchor.MiddleLeft);
             NewPlacedText(card.transform, $"潜力战力\n{member.BasePower + model.LevelOf(memberIndex) * 135:N0}", 15, Cyan,
                 14, 314, 186, 52, TextAnchor.MiddleLeft, FontStyle.Bold);
             GameObject recruit = NewButton("Recruit", card.transform, $"签约 ◇{GameModel.RecruitCost}", 16, Pink, White, () =>
@@ -1062,7 +1063,7 @@ namespace ChoSiren
 
             NewPlacedText(detail.transform, GameModel.AccessoryNames[selected], 22, White,
                 18, 20, 154, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(detail.transform, selected == 2 ? "SR" : "SSR", 19,
+            NewPlacedText(detail.transform, "专属", 14,
                 selected == 2 ? Cyan : new Color32(255, 213, 97, 255),
                 172, 20, 48, 38, TextAnchor.MiddleRight, FontStyle.Bold);
             NewPlacedText(detail.transform, $"强化 +{12 - selected * 2}", 15, new Color32(255, 202, 102, 255),
@@ -1183,7 +1184,7 @@ namespace ChoSiren
                 art.GetComponent<Image>().preserveAspect = true;
                 NewPlacedText(item.transform, names[index], 12, owned ? White : Muted,
                     5, 105, 92, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
-                NewPlacedText(item.transform, owned ? (index == 2 ? "SR" : "SSR") : "待收集", 11,
+                NewPlacedText(item.transform, owned ? "已收集" : "待收集", 11,
                     owned ? (index == 2 ? Cyan : new Color32(255, 211, 102, 255)) : Muted,
                     5, 140, 92, 20, TextAnchor.MiddleCenter, FontStyle.Bold);
                 if (model.Save.EquippedAccessory == index)
@@ -1236,7 +1237,7 @@ namespace ChoSiren
             ownership.name = "MemberOwnershipStatus";
             NewPlacedText(panel.transform, member.Name, 32, White,
                 326, 76, 250, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(panel.transform, $"{member.Rarity} · {member.Role}", 17, Pink,
+            NewPlacedText(panel.transform, $"{MemberRace(member, memberIndex)} · {member.Career}", 17, Pink,
                 328, 122, 248, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text power = NewPlacedText(panel.transform,
                 unlocked ? $"等级 {level}  ·  战力 {displayPower:N0}" : $"推荐等级 {level}  ·  潜力战力 {displayPower:N0}",
@@ -1283,7 +1284,7 @@ namespace ChoSiren
                 new Color32(255, 188, 231, 255), 18, 12, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(guidePanel.transform,
                 unlocked
-                    ? $"优先提升{member.Role}核心属性；训练等级、饰品套装与编队协同都会计入战力。"
+                    ? $"优先提升{member.Career}核心属性；训练等级、饰品套装与编队协同都会计入战力。"
                     : MemberAcquisitionCopy(member),
                 14, White, 18, 42, 520, 66, TextAnchor.UpperLeft);
 
@@ -1377,12 +1378,26 @@ namespace ChoSiren
 
         private static string MemberTeamBonus(MemberDefinition member)
         {
-            return member.Role switch
+            return member.Career switch
             {
                 "舞者" => "编队加成 · 全队速度 +6%，连击伤害 +4%",
                 "支援" => "编队加成 · 治疗与护盾 +8%，受击伤害 -3%",
                 _ => "编队加成 · 全队攻击 +6%，暴击伤害 +4%",
             };
+        }
+
+        private static string MemberRace(MemberDefinition member, int index)
+        {
+            if (member != null && !string.IsNullOrWhiteSpace(member.Race)) return member.Race.Trim();
+            string[] fallback = { "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵" };
+            return fallback[Mathf.Abs(index) % fallback.Length];
+        }
+
+        private static string MemberRaceFamily(MemberDefinition member, int index)
+        {
+            string race = MemberRace(member, index);
+            int separator = race.IndexOf('·');
+            return separator > 0 ? race.Substring(0, separator).Trim() : race;
         }
 
         private static string MemberAcquisitionCopy(MemberDefinition member)

@@ -19,17 +19,25 @@ namespace ChoSiren
         public string Id;
         public string Name;
         public string Role;
+        public string Race;
         public string Rarity;
         public string ResourcePath;
         public string ThumbnailResourcePath;
         public int BasePower;
 
+        /// <summary>
+        /// Stable profile-facing name for the member's performance role. Keep Role as the
+        /// serialized backing field so existing manifests, saves and callers remain compatible.
+        /// </summary>
+        public string Career => Role;
+
         public MemberDefinition(string id, string name, string role, string rarity, string resourcePath, int basePower,
-            string thumbnailResourcePath = null)
+            string thumbnailResourcePath = null, string race = null)
         {
             Id = id;
             Name = name;
             Role = role;
+            Race = (race ?? string.Empty).Trim();
             Rarity = rarity;
             ResourcePath = resourcePath;
             ThumbnailResourcePath = string.IsNullOrWhiteSpace(thumbnailResourcePath)
@@ -259,15 +267,24 @@ namespace ChoSiren
 
         private static readonly MemberDefinition[] LegacyMembers =
         {
-            new MemberDefinition("xingli", "星璃", "主唱", "SSR", "Art/Members/member-xingli", 9200),
-            new MemberDefinition("feiyin", "绯音", "舞者", "SSR", "Art/Members/member-feiyin", 8750),
-            new MemberDefinition("wubai", "雾白", "支援", "SSR", "Art/Members/member-wubai", 8340),
-            new MemberDefinition("yeying", "夜莺", "主唱", "SR", "Art/Members/member-yeying", 7920),
-            new MemberDefinition("yaoguang", "瑶光", "舞者", "SR", "Art/Members/member-yaoguang", 7560),
-            new MemberDefinition("hupo", "琥珀", "支援", "SR", "Art/Members/member-hupo", 7210),
-            new MemberDefinition("xianyue", "弦月", "主唱", "R", "Art/Members/member-xianyue", 6860),
-            new MemberDefinition("chuxue", "初雪", "舞者", "R", "Art/Members/member-chuxue", 6530),
-            new MemberDefinition("chengxia", "澄夏", "支援", "R", "Art/Members/member-chengxia", 6240),
+            new MemberDefinition("xingli", "星璃", "主唱", "SSR", "Art/Members/member-xingli", 9200,
+                race: "魅族"),
+            new MemberDefinition("feiyin", "绯音", "舞者", "SSR", "Art/Members/member-feiyin", 8750,
+                race: "魔族 · 恶魔"),
+            new MemberDefinition("wubai", "雾白", "支援", "SSR", "Art/Members/member-wubai", 8340,
+                race: "海灵族 · 人鱼"),
+            new MemberDefinition("yeying", "夜莺", "主唱", "SR", "Art/Members/member-yeying", 7920,
+                race: "血精灵"),
+            new MemberDefinition("yaoguang", "瑶光", "舞者", "SR", "Art/Members/member-yaoguang", 7560,
+                race: "魅族"),
+            new MemberDefinition("hupo", "琥珀", "支援", "SR", "Art/Members/member-hupo", 7210,
+                race: "魔族 · 恶魔"),
+            new MemberDefinition("xianyue", "弦月", "主唱", "R", "Art/Members/member-xianyue", 6860,
+                race: "海灵族 · 人鱼"),
+            new MemberDefinition("chuxue", "初雪", "舞者", "R", "Art/Members/member-chuxue", 6530,
+                race: "血精灵"),
+            new MemberDefinition("chengxia", "澄夏", "支援", "R", "Art/Members/member-chengxia", 6240,
+                race: "魅族"),
         };
 
         private static readonly int[] LegacyDefaultLevels = { 68, 64, 59, 57, 52, 49, 46, 43, 40 };
