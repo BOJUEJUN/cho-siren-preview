@@ -498,6 +498,35 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void SignCandidateUsesGoldValidatesQuoteAndPersistsUnlock()
+        {
+            GameModel model = CreateModel();
+            int initialGold = model.Save.Gold;
+            int initialDiamonds = model.Save.Diamonds;
+
+            Assert.That(model.SignCandidate(-1, 800, out string missing), Is.False);
+            Assert.That(missing, Does.Contain("不存在"));
+            Assert.That(model.SignCandidate(4, 0, out string invalidQuote), Is.False);
+            Assert.That(invalidQuote, Does.Contain("无效"));
+            Assert.That(model.SignCandidate(0, 800, out string owned), Is.False);
+            Assert.That(owned, Does.Contain("已经签约"));
+
+            Assert.That(model.SignCandidate(4, 800, out string signed), Is.True, signed);
+            Assert.That(signed, Does.Contain(GameModel.Members[4].Name));
+            Assert.That(model.IsUnlocked(4), Is.True);
+            Assert.That(model.Save.Gold, Is.EqualTo(initialGold - 800));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds),
+                "面试签约使用经营金币，不能继续扣除抽卡星钻。");
+            Assert.That(CreateModel().IsUnlocked(4), Is.True);
+
+            SaveRaw(new GameSave { Gold = 799 });
+            model = CreateModel();
+            Assert.That(model.SignCandidate(4, 800, out string poor), Is.False);
+            Assert.That(poor, Does.Contain("金币不足"));
+            Assert.That(model.IsUnlocked(4), Is.False);
+        }
+
+        [Test]
         public void TrainValidatesOwnershipFundsAndLevelCapAndPersistsSuccess()
         {
             GameModel model = CreateModel();

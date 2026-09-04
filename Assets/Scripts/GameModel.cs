@@ -464,6 +464,44 @@ namespace ChoSiren
             return true;
         }
 
+        /// <summary>
+        /// 面试页按候选人与面试池给出不同报价。报价使用经营金币，避免把角色签约继续表现为
+        /// 稀有度抽卡；旧 <see cref="Recruit"/> 仍保留给尚未迁移的入口。
+        /// </summary>
+        public bool SignCandidate(int memberIndex, int goldCost, out string message)
+        {
+            if (!IsValidMemberIndex(memberIndex))
+            {
+                message = "候选人不存在";
+                return false;
+            }
+
+            if (IsUnlocked(memberIndex))
+            {
+                message = "该成员已经签约";
+                return false;
+            }
+
+            if (goldCost <= 0)
+            {
+                message = "签约报价无效";
+                return false;
+            }
+
+            if (Save.Gold < goldCost)
+            {
+                message = "金币不足，完成演出可继续获得";
+                return false;
+            }
+
+            Save.Gold -= goldCost;
+            UnlockMemberInternal(memberIndex);
+            Report(TaskTriggers.GachaPull);
+            SaveState();
+            message = $"签约成功：{Members[memberIndex].Name} 已加入成员列表";
+            return true;
+        }
+
         public bool Train(int memberIndex, out string message)
         {
             if (!IsValidMemberIndex(memberIndex))

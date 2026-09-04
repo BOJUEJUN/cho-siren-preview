@@ -104,6 +104,13 @@ namespace ChoSiren.Panels
         private GameObject pullAgainButton;
         private Button resultSkipButton;
 
+        // The primary "选秀" tab is an interview browser, not a rarity gacha.  The legacy
+        // standalone gacha stays available for old entry points while embedded mode uses these
+        // lightweight pool and candidate states inside the unchanged global HUD/navigation shell.
+        private int interviewPoolIndex;
+        private int interviewCandidateIndex;
+        private GameObject interviewContent;
+
         public static GachaPanel Open(Transform host, GameModel gameModel, IGachaService gachaService,
             Action back = null, Action<string> message = null)
         {
@@ -144,12 +151,21 @@ namespace ChoSiren.Panels
 
         public int BannerIndex => bannerIndex;
         public bool IsRevealing => revealing;
+        public int InterviewPoolIndex => interviewPoolIndex;
+        public int InterviewCandidateIndex => interviewCandidateIndex;
 
         // ------------------------------------------------------------------ build
 
         private void Build()
         {
             kit = new PanelKit("Gacha");
+
+            if (embeddedMode)
+            {
+                BuildInterview();
+                return;
+            }
+
             model.Changed += HandleModelChanged;
             kit.BuildBackdrop(transform);
             BuildStageBackdrop();
@@ -165,6 +181,397 @@ namespace ChoSiren.Panels
             BuildPullButtons();
             BuildResult();
             Refresh();
+        }
+
+        private void BuildInterview()
+        {
+            interviewContent = kit.NewObject("InterviewContent", transform);
+            RectTransform contentRect = interviewContent.AddComponent<RectTransform>();
+            PanelKit.Stretch(contentRect);
+
+            Image shade = kit.NewImage("InterviewShade", interviewContent.transform,
+                kit.CreateGradientSprite("InterviewShade", new Color32(6, 8, 29, 232),
+                    new Color32(8, 12, 42, 184), new Color32(6, 8, 29, 218)), Color.white);
+            PanelKit.Stretch(shade.rectTransform);
+
+            BuildInterviewTabs(interviewContent.transform);
+
+            List<int> candidates = InterviewCandidates();
+            if (candidates.Count == 0)
+            {
+                BuildInterviewComplete(interviewContent.transform);
+                return;
+            }
+
+            interviewCandidateIndex = Mathf.Clamp(interviewCandidateIndex, 0, candidates.Count - 1);
+            int memberIndex = candidates[interviewCandidateIndex];
+            int previousIndex = candidates[(interviewCandidateIndex - 1 + candidates.Count) % candidates.Count];
+            int nextIndex = candidates[(interviewCandidateIndex + 1) % candidates.Count];
+
+            BuildInterviewSideCard(interviewContent.transform, "PreviousCandidate", previousIndex,
+                -62f, 246f, -1, candidates.Count > 1);
+            BuildInterviewSideCard(interviewContent.transform, "NextCandidate", nextIndex,
+                606f, 246f, 1, candidates.Count > 1);
+            BuildInterviewCandidateCard(interviewContent.transform, memberIndex, candidates.Count);
+            BuildInterviewActions(interviewContent.transform, memberIndex);
+        }
+
+        private void BuildInterviewTabs(Transform parent)
+        {
+            const float top = 24f;
+            const float width = 320f;
+            string[] titles = { "线上面试", "线下面试" };
+            string[] subtitles = { "视频候选 · 预算较低", "当面试镜 · 预算较高" };
+
+            for (int index = 0; index < 2; index++)
+            {
+                int captured = index;
+                bool selected = index == interviewPoolIndex;
+                Color selectedColor = index == 0 ? PanelKit.Cyan : new Color32(190, 129, 255, 255);
+                GameObject tab = kit.NewButton("InterviewPool-" + index, parent, string.Empty, 16,
+                    selected ? new Color32(17, 29, 66, 196) : new Color32(12, 15, 48, 112),
+                    selected ? selectedColor : PanelKit.Muted, () => SelectInterviewPool(captured), 20);
+                PanelKit.PlaceTop(tab.GetComponent<RectTransform>(), 36f + index * 324f, top, width, 88f);
+                kit.AddOutline(tab, selected ? new Color(selectedColor.r, selectedColor.g, selectedColor.b, .68f)
+                    : new Color32(121, 109, 170, 54), selected ? 1.5f : 1f);
+
+                Text title = kit.NewPlacedText(tab.transform, titles[index], 21,
+                    selected ? selectedColor : new Color32(198, 190, 221, 225),
+                    12, 10, width - 24, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                title.name = "PoolTitle";
+                Text subtitle = kit.NewPlacedText(tab.transform, subtitles[index], 13,
+                    selected ? new Color32(229, 237, 255, 245) : new Color32(176, 168, 203, 205),
+                    12, 46, width - 24, 24, TextAnchor.MiddleCenter);
+                subtitle.name = "PoolSubtitle";
+
+                Image underline = kit.NewImage("PoolUnderline", tab.transform, null,
+                    selected ? selectedColor : Color.clear);
+                PanelKit.PlaceTop(underline.rectTransform, 78, 82, width - 156, selected ? 3 : 1);
+            }
+
+            Text refresh = kit.NewPlacedText(parent, "每日免费刷新 · 18:00 更新", 14,
+                new Color32(193, 187, 221, 225), 40, 120, 640, 34,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            refresh.name = "InterviewRefresh";
+        }
+
+        private void BuildInterviewComplete(Transform parent)
+        {
+            GameObject complete = kit.NewPanel("InterviewComplete", parent, new Color32(20, 23, 67, 188), 26);
+            PanelKit.PlaceTop(complete.GetComponent<RectTransform>(), 80, 280, 560, 350);
+            kit.AddOutline(complete, new Color32(153, 97, 228, 98), 1);
+            kit.NewPlacedText(complete.transform, "本期候选已全部签约", 28, PanelKit.White,
+                30, 76, 500, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
+            kit.NewPlacedText(complete.transform, "她们已经进入成员列表。\n下次候选将在每日 18:00 刷新。", 17,
+                PanelKit.Muted, 50, 146, 460, 78, TextAnchor.MiddleCenter);
+            GameObject switchPool = kit.NewButton("SwitchInterviewPool", complete.transform,
+                interviewPoolIndex == 0 ? "查看线下面试" : "查看线上面试", 17,
+                new Color32(66, 49, 128, 210), PanelKit.White,
+                () => SelectInterviewPool(1 - interviewPoolIndex), 18);
+            PanelKit.PlaceTop(switchPool.GetComponent<RectTransform>(), 140, 252, 280, 58);
+        }
+
+        private void BuildInterviewSideCard(Transform parent, string name, int memberIndex,
+            float x, float y, int direction, bool enabled)
+        {
+            MemberDefinition member = GameModel.Members[memberIndex];
+            GameObject side = kit.NewButton(name, parent, string.Empty, 12,
+                new Color32(25, 20, 70, enabled ? (byte)148 : (byte)72), PanelKit.White,
+                enabled ? (UnityEngine.Events.UnityAction)(() => MoveInterviewCandidate(direction)) : null, 24);
+            PanelKit.PlaceTop(side.GetComponent<RectTransform>(), x, y, 176, 568);
+            kit.AddOutline(side, new Color32(153, 97, 228, enabled ? (byte)92 : (byte)36), 1);
+
+            Image portrait = kit.NewImage("Portrait", side.transform, CandidateSprite(member),
+                enabled ? new Color(0.72f, 0.67f, 0.90f, 0.58f) : new Color(0.45f, 0.43f, 0.58f, 0.3f));
+            PanelKit.PlaceTop(portrait.rectTransform, 8, 16, 160, 474);
+            portrait.preserveAspect = true;
+            portrait.useSpriteMesh = true;
+            kit.NewPlacedText(side.transform, direction < 0 ? "‹" : "›", 42,
+                enabled ? PanelKit.Muted : new Color32(120, 116, 145, 120),
+                direction < 0 ? 100 : 10, 494, 66, 58, TextAnchor.MiddleCenter, FontStyle.Bold);
+        }
+
+        private void BuildInterviewCandidateCard(Transform parent, int memberIndex, int candidateCount)
+        {
+            MemberDefinition member = GameModel.Members[memberIndex];
+            string career = InterviewCareer(member, memberIndex);
+            CandidateStats(member, memberIndex, out int vocal, out int rhythm, out int presence,
+                out int resonance, out int charm);
+
+            GameObject card = kit.NewPanel("CandidateCard", parent, new Color32(10, 14, 49, 236), 28);
+            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 102, 172, 516, 724);
+            kit.AddOutline(card, interviewPoolIndex == 0
+                ? new Color32(91, 215, 255, 164)
+                : new Color32(190, 129, 255, 150), 1.5f);
+
+            Image softGlow = kit.NewImage("CandidateGlow", card.transform, kit.RadialSprite(),
+                interviewPoolIndex == 0
+                    ? new Color32(58, 159, 255, 44)
+                    : new Color32(177, 77, 255, 40));
+            PanelKit.PlaceTop(softGlow.rectTransform, 186, 22, 340, 630);
+
+            Text index = kit.NewPlacedText(card.transform,
+                $"{interviewCandidateIndex + 1:00} / {candidateCount:00}", 19,
+                interviewPoolIndex == 0 ? PanelKit.Cyan : new Color32(202, 151, 255, 255),
+                24, 20, 180, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            index.name = "CandidateCounter";
+
+            Text name = kit.NewPlacedText(card.transform, member.Name, 35, PanelKit.White,
+                24, 62, 260, 54, TextAnchor.MiddleLeft, FontStyle.Bold);
+            name.name = "CandidateName";
+
+            string meta = $"{InterviewRace(memberIndex)}\n{career}\n{InterviewPosition(career, memberIndex)}";
+            Text identity = kit.NewPlacedText(card.transform, meta, 16, new Color32(225, 220, 245, 255),
+                24, 122, 248, 98, TextAnchor.UpperLeft, FontStyle.Bold);
+            identity.name = "CandidateIdentity";
+
+            Text trait = kit.NewPlacedText(card.transform, InterviewTrait(career, memberIndex), 15,
+                new Color32(205, 167, 255, 255), 24, 226, 236, 32,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            trait.name = "CandidateTrait";
+
+            Image portrait = kit.NewImage("CandidatePortrait", card.transform, CandidateSprite(member), Color.white);
+            PanelKit.PlaceTop(portrait.rectTransform, 244, 42, 282, 616);
+            portrait.preserveAspect = true;
+            portrait.useSpriteMesh = true;
+
+            GameObject statVeil = kit.NewPanel("CandidateStats", card.transform, new Color32(7, 10, 39, 194), 18);
+            PanelKit.PlaceTop(statVeil.GetComponent<RectTransform>(), 18, 270, 276, 326);
+            kit.NewPlacedText(statVeil.transform, "舞台四维", 16, PanelKit.White,
+                14, 10, 220, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+            int[] values = { vocal, rhythm, presence, resonance };
+            string[] labels = { "声能", "律动", "气场", "共鸣" };
+            int strongest = 0;
+            for (int stat = 1; stat < values.Length; stat++)
+                if (values[stat] > values[strongest]) strongest = stat;
+            for (int stat = 0; stat < values.Length; stat++)
+                BuildInterviewStat(statVeil.transform, labels[stat], values[stat], stat,
+                    stat == strongest);
+
+            Image divider = kit.NewImage("ManagementDivider", card.transform, null,
+                new Color32(153, 133, 204, 64));
+            PanelKit.PlaceTop(divider.rectTransform, 24, 620, 468, 1);
+            int benefit = Mathf.Clamp((charm - 50) / 2, 8, 24);
+            Text management = kit.NewPlacedText(card.transform,
+                $"魅力  {charm}        演出收益  +{benefit}%", 16,
+                new Color32(229, 217, 249, 255), 24, 632, 360, 40,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            management.name = "CandidateCharm";
+        }
+
+        private void BuildInterviewStat(Transform parent, string label, int value, int row, bool strongest)
+        {
+            float y = 50f + row * 63f;
+            Color accent = strongest ? PanelKit.Cyan : new Color32(157, 117, 234, 255);
+            kit.NewPlacedText(parent, label, 14, strongest ? accent : PanelKit.Muted,
+                14, y, 58, 28, TextAnchor.MiddleLeft, strongest ? FontStyle.Bold : FontStyle.Normal);
+            Text valueText = kit.NewPlacedText(parent, value.ToString(), 16, strongest ? accent : PanelKit.White,
+                210, y, 42, 28, TextAnchor.MiddleRight, FontStyle.Bold);
+            valueText.name = "StatValue-" + label;
+            Image fill = kit.NewBar("StatBar-" + label, parent, 14, y + 32, 238, 8,
+                new Color32(83, 78, 126, 86), accent, 8);
+            fill.fillAmount = value / 100f;
+            if (strongest)
+            {
+                GameObject chip = kit.NewPanel("StrongestStat", parent, new Color32(41, 118, 147, 205), 9);
+                PanelKit.PlaceTop(chip.GetComponent<RectTransform>(), 151, y - 1, 55, 27);
+                kit.NewPlacedText(chip.transform, "最强项", 12, new Color32(188, 246, 255, 255),
+                    2, 0, 51, 27, TextAnchor.MiddleCenter, FontStyle.Bold);
+            }
+        }
+
+        private void BuildInterviewActions(Transform parent, int memberIndex)
+        {
+            MemberDefinition member = GameModel.Members[memberIndex];
+            string career = InterviewCareer(member, memberIndex);
+            int cost = InterviewCost(memberIndex);
+            GameObject action = kit.NewPanel("InterviewActions", parent, new Color32(10, 13, 46, 218), 20);
+            PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 34, 944, 652, 220);
+            kit.AddOutline(action, new Color32(136, 111, 213, 68), 1);
+
+            Text recommend = kit.NewPlacedText(action.transform, TeamNeedsCareer(career)
+                    ? $"✦ 团队缺少{career} · 推荐"
+                    : $"✦ {InterviewRace(memberIndex)} · 阵容适配",
+                15, new Color32(255, 210, 117, 255), 18, 12, 610, 30,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            recommend.name = "CandidateRecommendation";
+
+            kit.NewPlacedText(action.transform, "签约报价", 14, PanelKit.Muted,
+                18, 54, 150, 26, TextAnchor.MiddleLeft);
+            Image currency = kit.NewImage("SigningCurrency", action.transform,
+                PanelKit.CurrencyIcon("gold"), PanelKit.CurrencyIcon("gold") != null
+                    ? Color.white : PanelKit.CurrencyColor("gold"));
+            PanelKit.PlaceTop(currency.rectTransform, 18, 86, 35, 35);
+            currency.preserveAspect = true;
+            Text price = kit.NewPlacedText(action.transform, cost.ToString("N0"), 30,
+                new Color32(255, 213, 126, 255), 60, 78, 160, 50,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            price.name = "SigningPrice";
+            kit.NewPlacedText(action.transform,
+                interviewPoolIndex == 0 ? "线上候选 · 预算较低" : "线下候选 · 预算较高",
+                12, PanelKit.Muted, 18, 130, 220, 25, TextAnchor.MiddleLeft);
+
+            string detailLabel = interviewPoolIndex == 0 ? "查看视频面试" : "开始现场面试";
+            GameObject details = kit.NewButton("ViewInterview", action.transform, detailLabel, 15,
+                new Color32(18, 22, 65, 218), PanelKit.White,
+                () => Notify($"{member.Name}：{InterviewTrait(career, memberIndex)}，{InterviewPosition(career, memberIndex)}。"),
+                16);
+            PanelKit.PlaceTop(details.GetComponent<RectTransform>(), 254, 84, 174, 66);
+            kit.AddOutline(details, new Color32(159, 139, 211, 98), 1);
+
+            GameObject sign = kit.NewButton("SignCandidate", action.transform, "签约", 21,
+                new Color32(92, 65, 191, 245), PanelKit.White,
+                () => SignInterviewCandidate(memberIndex, cost), 18);
+            PanelKit.PlaceTop(sign.GetComponent<RectTransform>(), 442, 76, 190, 82);
+            kit.AddOutline(sign, interviewPoolIndex == 0
+                ? new Color32(91, 215, 255, 168)
+                : new Color32(255, 102, 190, 160), 1.5f);
+
+            BuildInterviewDots(action.transform, InterviewCandidates().Count);
+        }
+
+        private void BuildInterviewDots(Transform parent, int candidateCount)
+        {
+            int visible = Mathf.Min(5, candidateCount);
+            float start = 326f - (visible * 18f - 8f) * .5f;
+            int windowStart = Mathf.Clamp(interviewCandidateIndex - visible / 2, 0,
+                Mathf.Max(0, candidateCount - visible));
+            for (int index = 0; index < visible; index++)
+            {
+                int candidateIndex = windowStart + index;
+                bool active = candidateIndex == interviewCandidateIndex;
+                Image dot = kit.NewImage("CandidateDot-" + candidateIndex, parent, kit.RoundedSprite(8),
+                    active ? PanelKit.Cyan : new Color32(139, 135, 171, 180));
+                PanelKit.PlaceTop(dot.rectTransform, start + index * 18f, 184, active ? 10 : 8, active ? 10 : 8);
+            }
+        }
+
+        private void SelectInterviewPool(int index)
+        {
+            if (index == interviewPoolIndex) return;
+            interviewPoolIndex = Mathf.Clamp(index, 0, 1);
+            interviewCandidateIndex = 0;
+            RebuildInterview();
+        }
+
+        private void MoveInterviewCandidate(int direction)
+        {
+            List<int> candidates = InterviewCandidates();
+            if (candidates.Count <= 1) return;
+            interviewCandidateIndex = (interviewCandidateIndex + direction + candidates.Count) % candidates.Count;
+            RebuildInterview();
+        }
+
+        private void SignInterviewCandidate(int memberIndex, int cost)
+        {
+            bool signed = model.SignCandidate(memberIndex, cost, out string message);
+            Notify(message);
+            if (!signed) return;
+            List<int> remaining = InterviewCandidates();
+            interviewCandidateIndex = remaining.Count == 0
+                ? 0
+                : Mathf.Clamp(interviewCandidateIndex, 0, remaining.Count - 1);
+            RebuildInterview();
+        }
+
+        private void RebuildInterview()
+        {
+            if (interviewContent != null)
+            {
+                if (Application.isPlaying) Destroy(interviewContent);
+                else DestroyImmediate(interviewContent);
+            }
+            BuildInterview();
+        }
+
+        private List<int> InterviewCandidates()
+        {
+            var pool = new List<int>();
+            DateTime now = DateTime.Now;
+            DateTime cycle = now.Hour < 18 ? now.AddDays(-1) : now;
+            int seed = cycle.Year * 400 + cycle.DayOfYear;
+            MemberDefinition[] members = GameModel.Members;
+
+            for (int index = 0; index < members.Length; index++)
+            {
+                if (model.IsUnlocked(index)) continue;
+                if (((index + seed) & 1) != interviewPoolIndex) continue;
+                pool.Add(index);
+            }
+
+            var result = new List<int>();
+            int count = Mathf.Min(10, pool.Count);
+            int offset = pool.Count == 0 ? 0 : Mathf.Abs(seed * 7 + interviewPoolIndex * 11) % pool.Count;
+            for (int index = 0; index < count; index++)
+                result.Add(pool[(offset + index) % pool.Count]);
+            return result;
+        }
+
+        private int InterviewCost(int memberIndex)
+        {
+            return interviewPoolIndex == 0
+                ? 700 + memberIndex % 4 * 100
+                : 1150 + memberIndex % 4 * 150;
+        }
+
+        private static Sprite CandidateSprite(MemberDefinition member)
+        {
+            if (member == null) return null;
+            return PanelKit.MemberSpriteOrNull(member.Id, false) ?? Resources.Load<Sprite>(member.ResourcePath);
+        }
+
+        private static string InterviewRace(int memberIndex)
+        {
+            string[] races = { "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵" };
+            return races[Mathf.Abs(memberIndex) % races.Length];
+        }
+
+        private static string InterviewCareer(MemberDefinition member, int memberIndex)
+        {
+            if (member != null && member.Role != null && member.Role.Contains("主唱")) return "主唱";
+            if (member != null && member.Role != null && member.Role.Contains("舞")) return "主舞";
+            return memberIndex % 2 == 0 ? "Rapper" : "DJ";
+        }
+
+        private static string InterviewPosition(string career, int memberIndex)
+        {
+            if (career == "主唱") return memberIndex % 2 == 0 ? "治疗 / 增益" : "输出 / 共鸣";
+            if (career == "主舞") return "破甲 / 输出";
+            if (career == "Rapper") return "输出 / 干扰";
+            return "护盾 / 增益";
+        }
+
+        private static string InterviewTrait(string career, int memberIndex)
+        {
+            if (career == "主唱") return memberIndex % 2 == 0 ? "治愈高音" : "穿透强音";
+            if (career == "主舞") return memberIndex % 2 == 0 ? "节拍追击" : "破绽舞步";
+            if (career == "Rapper") return memberIndex % 2 == 0 ? "韵脚压制" : "即兴连击";
+            return memberIndex % 2 == 0 ? "共振护场" : "混音增幅";
+        }
+
+        private static void CandidateStats(MemberDefinition member, int memberIndex, out int vocal,
+            out int rhythm, out int presence, out int resonance, out int charm)
+        {
+            string career = InterviewCareer(member, memberIndex);
+            int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
+            vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0), 55, 98);
+            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0), 55, 98);
+            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0), 55, 98);
+            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == "DJ" ? 10 : 0), 55, 98);
+            charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias, 65, 96);
+        }
+
+        private bool TeamNeedsCareer(string candidateCareer)
+        {
+            List<int> team = model.Save.Team;
+            for (int index = 0; index < team.Count; index++)
+            {
+                int memberIndex = team[index];
+                if (memberIndex < 0 || memberIndex >= GameModel.Members.Length) continue;
+                if (InterviewCareer(GameModel.Members[memberIndex], memberIndex) == candidateCareer) return false;
+            }
+            return true;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
@@ -137,13 +138,18 @@ namespace ChoSiren.Tests
             RequireActiveObject("TopBar");
             RequireActiveObject("BottomNavigation");
             RequireActiveObject("Nav-members");
-            RequireActiveObject("FeaturedFrame");
-            RequireActiveObject("RateBoard");
-            RequireActiveObject("PityBoard");
-            RequireActiveObject("GachaDetails");
-            RequireActiveObject("PullTen");
+            RequireActiveObject("InterviewPool-0");
+            RequireActiveObject("InterviewPool-1");
+            RequireActiveObject("CandidateCard");
+            RequireActiveObject("CandidatePortrait");
+            RequireActiveObject("CandidateStats");
+            RequireActiveObject("InterviewActions");
+            RequireActiveObject("SignCandidate");
             AssertInactiveOrMissing("BalanceDiamond");
             AssertInactiveOrMissing("BalanceGold");
+            AssertInactiveOrMissing("PullTen");
+            AssertInactiveOrMissing("RateBoard");
+            AssertInactiveOrMissing("PityBoard");
             AssertInactiveOrMissing("Back");
             AssertActiveUiUsesChineseOnly();
 
@@ -155,24 +161,32 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator GachaPullOneShowsResultAndReturns()
+        public IEnumerator AuditionCandidateCarouselPoolSwitchAndSigningCompleteTheirClickChains()
         {
             Click("Nav-audition");
             yield return null;
-            RequireActiveObject("GachaPanel");
+            GachaPanel panel = Object.FindAnyObjectByType<GachaPanel>();
+            Assert.That(panel, Is.Not.Null);
             AssertActiveUiUsesChineseOnly();
 
-            Click("PullOne");
-            float timeout = Time.realtimeSinceStartup + 8f;
-            while (GameObject.Find("GachaResult") == null && Time.realtimeSinceStartup < timeout)
-                yield return null;
-
-            RequireActiveObject("GachaResult");
-            AssertActiveUiUsesChineseOnly();
-            Click("ResultBack");
+            string firstName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
+            Click("NextCandidate");
             yield return null;
-            AssertInactiveOrMissing("GachaResult");
-            RequireActiveObject("GachaPanel");
+            string secondName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
+            Assert.That(secondName, Is.Not.EqualTo(firstName), "左右候选卡必须能够切换当前候选人。");
+
+            Click("InterviewPool-1");
+            yield return null;
+            Assert.That(panel.InterviewPoolIndex, Is.EqualTo(1));
+            Assert.That(RequireActiveObject("ViewInterview").transform.Find("Label").GetComponent<Text>().text,
+                Is.EqualTo("开始现场面试"));
+            string offlineName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
+
+            Click("SignCandidate");
+            yield return null;
+            string nextOfflineName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
+            Assert.That(nextOfflineName, Is.Not.EqualTo(offlineName), "签约成功后应从当前候选池移除该成员。");
+            AssertActiveUiUsesChineseOnly();
 
             Click("Nav-lobby");
             yield return null;
@@ -182,30 +196,22 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator EveryGachaBannerUsesLocalCharacterArt()
+        public IEnumerator AuditionCandidateUsesLocalArtAndOneHighlightedStrongestStat()
         {
             Click("Nav-audition");
             yield return null;
             RequireActiveObject("GachaPanel");
 
-            string[] bannerIds = { "debut-xingli", "standard-signing", "costume-neon-night" };
-            var portraits = new HashSet<Texture>();
-            for (int index = 0; index < bannerIds.Length; index++)
-            {
-                Click("BannerTab-" + bannerIds[index]);
-                yield return null;
-
-                Image portrait = RequireActiveObject("FeaturedPortrait").GetComponent<Image>();
-                Assert.That(portrait, Is.Not.Null, "招募主视觉必须由 Image 渲染");
-                Assert.That(portrait.enabled, Is.True, $"卡池 {bannerIds[index]} 的主视觉被隐藏");
-                Assert.That(portrait.sprite, Is.Not.Null, $"卡池 {bannerIds[index]} 没有加载本地角色素材");
-                Assert.That(portrait.preserveAspect, Is.True, "招募主视觉不能拉伸角色立绘");
-                portraits.Add(portrait.sprite.texture);
-                RectTransform frame = RequireActiveObject("FeaturedFrame").GetComponent<RectTransform>();
-                Assert.That(frame.rect.width, Is.GreaterThanOrEqualTo(620f), "C 方案必须保持中央大角色主视觉");
-            }
-
-            Assert.That(portraits.Count, Is.EqualTo(3), "三个卡池必须展示不同的本地角色素材");
+            Image portrait = RequireActiveObject("CandidatePortrait").GetComponent<Image>();
+            Assert.That(portrait.enabled, Is.True);
+            Assert.That(portrait.sprite, Is.Not.Null, "候选卡必须加载本地角色素材。");
+            Assert.That(portrait.preserveAspect, Is.True, "候选立绘不能拉伸。");
+            Assert.That(Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
+                    .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
+                "舞台四维只能强调当前候选人的一个最强项。");
+            RequireActiveObject("CandidateCharm");
+            RequireActiveObject("CandidateRecommendation");
+            RequireActiveObject("SigningPrice");
 
             Click("Nav-members");
             yield return null;
@@ -370,7 +376,7 @@ namespace ChoSiren.Tests
         {
             HashSet<string> allowedGameTokens = new HashSet<string>
             {
-                "SSR", "SR", "R", "S", "A", "B", "C",
+                "SSR", "SR", "R", "S", "A", "B", "C", "Rapper", "DJ",
             };
 
             Text[] labels = Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude);

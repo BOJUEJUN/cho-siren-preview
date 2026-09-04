@@ -305,7 +305,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void EmbeddedGachaKeepsShellVisibleAndUsesThreeDistinctPortraits()
+        public void EmbeddedAuditionKeepsShellAndBuildsTwoPoolCandidateBrowser()
         {
             RectTransform hostRect = host.GetComponent<RectTransform>();
             hostRect.sizeDelta = new Vector2(720f, 1536f);
@@ -329,66 +329,50 @@ namespace ChoSiren.Tests
                 Is.False, "钻石余额应由主界面顶栏统一显示。");
             Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item => item.name == "BalanceGold"),
                 Is.False, "金币余额应由主界面顶栏统一显示。");
-            Assert.That(FindNamed<Transform>(panel.transform, "BalanceTicket"), Is.Not.Null,
-                "招募券仍需留在签约操作区。");
+            Assert.That(panel.GetComponentsInChildren<Text>(true).Any(label =>
+                    label.text == "SSR" || label.text == "SR" || label.text == "R"),
+                Is.False, "选秀候选页不应再显示抽卡稀有度。");
 
-            Image calmStage = FindNamed<Image>(panel.transform, "ImmersiveStage");
-            Assert.That(calmStage.sprite, Is.Not.Null, "嵌入选秀页必须加载低干扰 AI 舞台底图。");
-            Assert.That(calmStage.sprite.texture.name, Does.Contain("gacha-calm-stage-bg-ai-v2-20260903"),
-                "嵌入选秀页应优先使用低干扰背景，旧底图只能作为回退。");
-            Assert.That(calmStage.preserveAspect, Is.True, "选秀舞台底图不能被拉伸。");
-            AspectRatioFitter stageCover = calmStage.GetComponent<AspectRatioFitter>();
-            Assert.That(stageCover, Is.Not.Null);
-            Assert.That(stageCover.aspectMode, Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
-                "选秀舞台底图必须等比覆盖内容区。");
+            Assert.That(FindNamed<Transform>(panel.transform, "InterviewPool-0"), Is.Not.Null);
+            Assert.That(FindNamed<Transform>(panel.transform, "InterviewPool-1"), Is.Not.Null);
+            Assert.That(FindNamed<Text>(panel.transform, "InterviewRefresh").text,
+                Does.Contain("每日免费刷新"));
+            Assert.That(panel.InterviewPoolIndex, Is.Zero);
 
-            string[] glassNames =
+            RectTransform card = FindNamed<RectTransform>(panel.transform, "CandidateCard");
+            RectTransform actions = FindNamed<RectTransform>(panel.transform, "InterviewActions");
+            Assert.That(-card.anchoredPosition.y + card.rect.height, Is.LessThanOrEqualTo(1290f));
+            Assert.That(-actions.anchoredPosition.y + actions.rect.height, Is.LessThanOrEqualTo(1290f),
+                "候选操作区必须留在中部内容区，不能遮挡原底部导航。");
+            Assert.That(FindNamed<Transform>(panel.transform, "PreviousCandidate"), Is.Not.Null);
+            Assert.That(FindNamed<Transform>(panel.transform, "NextCandidate"), Is.Not.Null);
+
+            Image portrait = FindNamed<Image>(panel.transform, "CandidatePortrait");
+            Assert.That(portrait.sprite, Is.Not.Null, "候选卡必须使用现有本地角色立绘。");
+            Assert.That(portrait.preserveAspect, Is.True, "候选立绘不能被拉伸。");
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateName").text, Is.Not.Empty);
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
+                Does.Match("魅族|魔族|海灵族|血精灵"));
+
+            string[] stats = { "声能", "律动", "气场", "共鸣" };
+            for (int index = 0; index < stats.Length; index++)
             {
-                "HeroCaption", "RateBoard", "PityBoard", "BalanceTicket",
-                "GachaDetails", "PullOne", "PullTen",
-            };
-            Transform guaranteeChip = FindNamed<Transform>(panel.transform, "GuaranteeChip");
-            for (int index = 0; index < glassNames.Length; index++)
-            {
-                Transform glass = FindNamed<Transform>(panel.transform, glassNames[index]);
-                Image glassImage = glass.GetComponent<Image>();
-                Assert.That(glassImage.color.a, Is.LessThanOrEqualTo(0.60f),
-                    $"{glassNames[index]} 应使用低透明深蓝玻璃，不能成为高饱和纯色块。");
-                Text[] labels = glass.GetComponentsInChildren<Text>(true);
-                for (int labelIndex = 0; labelIndex < labels.Length; labelIndex++)
-                {
-                    // The gold guarantee badge intentionally uses dark lettering on a bright chip.
-                    if (labels[labelIndex].transform.IsChildOf(guaranteeChip)) continue;
-                    Color textColor = labels[labelIndex].color;
-                    Assert.That(textColor.a, Is.GreaterThanOrEqualTo(0.75f),
-                        $"{glassNames[index]} 内文字透明度过低。\n");
-                    Assert.That(Mathf.Max(textColor.r, textColor.g, textColor.b), Is.GreaterThanOrEqualTo(0.70f),
-                        $"{glassNames[index]} 内文字亮度不足。\n");
-                }
+                int value = int.Parse(FindNamed<Text>(panel.transform, "StatValue-" + stats[index]).text);
+                Assert.That(value, Is.InRange(55, 98));
             }
+            Assert.That(panel.GetComponentsInChildren<Transform>(true)
+                    .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
+                "四维只突出一个最强项，避免所有属性同时抢视觉焦点。");
 
-            string[] bannerIds = { "debut-xingli", "standard-signing", "costume-neon-night" };
-            Texture[] portraitTextures = new Texture[bannerIds.Length];
-            for (int index = 0; index < bannerIds.Length; index++)
-            {
-                FindButton(panel.transform, "BannerTab-" + bannerIds[index]).onClick.Invoke();
-                Image portrait = FindNamed<Image>(panel.transform, "FeaturedPortrait");
-                Assert.That(portrait.preserveAspect, Is.True, "角色立绘不能拉伸。");
-                Assert.That(portrait.sprite, Is.Not.Null, $"卡池 {bannerIds[index]} 缺少本地角色素材。");
-                portraitTextures[index] = portrait.sprite.texture;
-            }
+            Text signingPrice = FindNamed<Text>(panel.transform, "SigningPrice");
+            int onlinePrice = int.Parse(signingPrice.text.Replace(",", string.Empty));
+            Assert.That(onlinePrice, Is.InRange(700, 1000));
+            Transform viewInterview = FindNamed<Transform>(panel.transform, "ViewInterview");
+            Assert.That(FindNamed<Text>(viewInterview, "Label").text, Is.EqualTo("查看视频面试"));
+            Assert.That(FindButton(panel.transform, "SignCandidate"), Is.Not.Null);
 
-            Assert.That(portraitTextures.Distinct().Count(), Is.EqualTo(3),
-                "初登场、常驻和霓虹服装必须展示三个不同的本地角色素材。");
-
-            RectTransform pullTen = FindNamed<RectTransform>(panel.transform, "PullTen");
-            Text pullTenTitle = FindNamed<Text>(pullTen, "Label");
-            RectTransform pullTenCost = FindNamed<RectTransform>(pullTen, "PullTenCost");
-            float titleBottom = -pullTenTitle.rectTransform.anchoredPosition.y + pullTenTitle.rectTransform.rect.height;
-            float costTop = -pullTenCost.anchoredPosition.y;
-            Assert.That(costTop - titleBottom, Is.GreaterThanOrEqualTo(4f), "十连标题与价格文字不能重叠。");
-            Assert.That(-pullTen.anchoredPosition.y + pullTen.rect.height, Is.LessThanOrEqualTo(1290f),
-                "签约按钮必须保持在竖屏内容区内，不能遮挡底部导航。");
+            FindButton(panel.transform, "InterviewPool-1").onClick.Invoke();
+            Assert.That(panel.InterviewPoolIndex, Is.EqualTo(1), "线上与线下必须是两个独立候选池。");
         }
 
         [Test]
