@@ -363,6 +363,46 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator BottomNavigationKeepsFiveEqualNonOverlappingDestinations()
+        {
+            string[] ids = { "team", "members", "lobby", "accessory", "audition" };
+            string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            RectTransform navigation = RequireRect("BottomNavigation");
+            var buttons = new RectTransform[ids.Length];
+            int selectedCount = 0;
+
+            for (int index = 0; index < ids.Length; index++)
+            {
+                buttons[index] = RequireButtonRect("Nav-" + ids[index]);
+                AssertContained(navigation, buttons[index], labels[index]);
+                FindText(buttons[index], labels[index]);
+                Rect hitRect = RectInParent(buttons[index]);
+                Assert.That(hitRect.width, Is.GreaterThanOrEqualTo(128f - PositionTolerance),
+                    $"{labels[index]} 的点击热区不能因页面切换被压窄。");
+                Assert.That(hitRect.height, Is.GreaterThanOrEqualTo(120f - PositionTolerance),
+                    $"{labels[index]} 的点击热区必须覆盖图标与文字。");
+                Image highlight = buttons[index].Find("Highlight")?.GetComponent<Image>();
+                Assert.That(highlight, Is.Not.Null, $"{labels[index]} 缺少选中态指示。");
+                if (highlight.color.a > 0.5f) selectedCount++;
+            }
+
+            float expectedWidth = RectInParent(buttons[0]).width;
+            for (int first = 0; first < buttons.Length; first++)
+            {
+                Assert.That(RectInParent(buttons[first]).width,
+                    Is.EqualTo(expectedWidth).Within(PositionTolerance),
+                    "底部导航的五个入口必须保持等宽。");
+                for (int second = first + 1; second < buttons.Length; second++)
+                    Assert.That(RectInParent(buttons[first]).Overlaps(RectInParent(buttons[second])), Is.False,
+                        $"{labels[first]} 与 {labels[second]} 的点击热区不能重叠。");
+            }
+
+            Assert.That(selectedCount, Is.EqualTo(1),
+                "底部导航任何时刻只能显示一个选中入口。");
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator ButtonsReceiveHoverPressAndExitScaleFeedback()
         {
             RectTransform mail = RequireButtonRect("Mail");
