@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 
 namespace ChoSiren.Tests
@@ -50,6 +51,20 @@ namespace ChoSiren.Tests
 
             Assert.That(MemberCatalog.TryCreate(manifest, out _, out string error), Is.False);
             StringAssert.Contains("种族无效", error);
+        }
+
+        [Test]
+        public void EmptyLegacyRacesMaterializeAsBalancedProfileValues()
+        {
+            MemberCatalogManifest manifest = Manifest(8);
+
+            Assert.That(MemberCatalog.TryCreate(manifest, out MemberCatalog catalog, out string error), Is.True,
+                error);
+            CollectionAssert.AreEqual(new[]
+            {
+                "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵",
+                "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵"
+            }, catalog.Entries.Select(member => member.Race).ToArray());
         }
 
         [Test]

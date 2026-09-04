@@ -88,6 +88,11 @@ namespace ChoSiren
             "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵"
         };
 
+        private static readonly string[] DefaultRaceCycle =
+        {
+            "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵"
+        };
+
         private readonly MemberCatalogRecord[] entries;
         private readonly Dictionary<string, int> indexById;
 
@@ -220,8 +225,11 @@ namespace ChoSiren
                     return false;
                 }
 
-                // Race was added after the original catalog shipped. Empty remains valid for
-                // older manifests; newly authored values must use the shared profile vocabulary.
+                // Older catalog rows predate the race field. Materialize the same balanced,
+                // deterministic four-race cycle used by the selection UI so every downstream
+                // screen receives one authoritative profile value instead of inventing its own.
+                if (string.IsNullOrEmpty(race))
+                    race = DefaultRaceCycle[index % DefaultRaceCycle.Length];
                 if (!string.IsNullOrEmpty(race) && !Races.Contains(race))
                 {
                     error = $"成员 {id} 的种族无效：{race}";

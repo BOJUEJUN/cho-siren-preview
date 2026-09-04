@@ -56,6 +56,24 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void EveryRuntimeMemberHasOneSupportedRaceAndCareer()
+        {
+            var races = new HashSet<string>
+            {
+                "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵"
+            };
+            var careers = new HashSet<string> { "主唱", "舞者", "支援" };
+
+            foreach (MemberDefinition member in GameModel.Members)
+            {
+                Assert.That(races.Contains(member.Race), Is.True,
+                    $"成员 {member.Id} 缺少统一种族资料：{member.Race}");
+                Assert.That(careers.Contains(member.Career), Is.True,
+                    $"成员 {member.Id} 缺少统一职业资料：{member.Career}");
+            }
+        }
+
+        [Test]
         public void EveryCatalogMemberHasLoadablePortraitAndThumbnailSprites()
         {
             for (int index = 0; index < GameModel.Members.Length; index++)
