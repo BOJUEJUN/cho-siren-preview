@@ -130,6 +130,22 @@
         line-height: 1.45;
       }
 
+      #fullscreen {
+        position: absolute;
+        z-index: 4;
+        right: 12px;
+        bottom: 12px;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 12px;
+        color: #fff;
+        background: rgba(17, 10, 51, 0.68);
+        font-size: 18px;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+      }
+
       @media (max-width: 760px) {
         #game-shell {
           max-width: none;
@@ -148,6 +164,7 @@
         <div class="subtitle">幻域魅声 · 正在进入舞台</div>
         <div class="track"><div id="progress"></div></div>
       </div>
+      <button id="fullscreen" type="button" aria-label="全屏">⛶</button>
     </main>
 
     <script>
@@ -186,9 +203,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("cac6c425346e6fd7bc610d478cc7fb6b.data.unityweb"),
-        frameworkUrl: buildAssetUrl("e2cfd05147722820acbcd076cfedf487.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("b140b834ba0f3fdc87f7072da08be93e.wasm.unityweb"),
+        dataUrl: buildAssetUrl("8517d4a71ff88669f35111c1a60cc8d1.data.unityweb"),
+        frameworkUrl: buildAssetUrl("b9ccdee62d7c1073f612c60c239ab620.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("7513a72cc33ca35828f77abafc0eece8.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -199,12 +216,13 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("554de7e37201da7444d9e1d637e0bcad.loader.js");
+      loader.src = buildAssetUrl("ab97b8b8101c11d44d1fa792b01041bf.loader.js");
       loader.onload = () => {
         createUnityInstance(canvas, config, value => {
           progress.style.width = `${Math.round(value * 100)}%`;
-        }).then(() => {
+        }).then(instance => {
           loading.classList.add("is-hidden");
+          document.querySelector("#fullscreen").onclick = () => instance.SetFullscreen(1);
         }).catch(error => showBanner(String(error), "error"));
       };
       loader.onerror = () => showBanner("游戏资源加载失败，请通过 HTTPS 网页链接访问并刷新重试。", "error");
