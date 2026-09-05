@@ -58,6 +58,9 @@ const assets = references.map(file => {
     throw new Error(`WebGL 文件达到或超过 GitHub 100 MiB 限制：${file} (${bytes} bytes)`);
   }
   const sha256 = createHash("sha256").update(readFileSync(path)).digest("hex");
+  if (!file.startsWith(sha256.slice(0, 32) + ".")) {
+    throw new Error(`WebGL 文件内容与哈希文件名不符，可能混入旧版资源：${file}`);
+  }
   return { file, bytes, sha256 };
 });
 
