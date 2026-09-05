@@ -37,3 +37,9 @@
 视觉检查同时发现同步攻击的伤害飘字重叠，**因此该内部构建禁止上传**。后续修复采用六条独立飘字通道，小头像仅保留该目标最新反馈（真实伤害及完整战斗记录不丢弃）。`playmode-progression-v3-20260905.xml`于15:49完成45/45通过，日志正常关闭。该修复仍须重新构建和网页目视检查；不把旧构建或源码测试通过当作新构建通过。内部 `WebGL-Realtime-Review-20260905` 更早且缺少成长/校准，也禁止上传。
 
 截图证据在本机 `Artifacts/qa-20260905/`：`progression-home.png`、`progression-dossier-320.png`、`migration-old-dossier.png`、`migration-new-dossier.png`、`progression-map-open.png`、`progression-battle-live.png`、`progression-battle-320.png`、`progression-finish.png`、`progression-online.png`、`progression-offline.png`。已发现问题为 `progression-battle-action.png`。这些文件不等于官网发布证据。
+
+15:58最终候选：源码 `035a0ab` 的 `Builds/WebGL-Progression-Candidate-20260905` 已构建成功，`Logs/build-progression-candidate-20260905.log` 记录 Success 且进程退出0。隔离浏览器从保留的2级/已通过1-1存档进入1-2，`candidate-battle.png` 实测多次普通/暴击伤害分布在六个独立位置、不再互相压字，成员头像反馈也没有堆叠；`candidate-home.png`、`candidate-map.png`、`candidate-damage-paused.png` 同批留证，浏览器未收到脚本异常。
+
+发布工具 dry-run 验证四个资源散列和上一版本保留计划通过；**未执行 --apply、未修改 Pages 构建、未推送本批**。正式站保持6693a99/二进制6e0f1a2。临近用户16:00截止，不再启动发布，防止没有时间验证公开站点传播和真实加载。后续获准继续时先读停止边界、核对并发提交和远端，再进行正式暂存、npm检查、推送及公开站验收，不能把此次内部验收写成已上线。
+
+候选四资源：`bf57272dc7864eab4b46062472c700fe.data.unityweb`、`1c3d6a28371db10315ba6e9c349865d4.framework.js.unityweb`、`9df31cfef78f6959b3867b5bddb366f5.wasm.unityweb`、`9f2f07adff0f39eaac427b4243347fd9.loader.js`。源码逻辑测试266项、最终UI测试45项通过；前述缺项依然未完成。禁止将目标标成全部完成。
