@@ -29,4 +29,29 @@
 
 ## 发布状态
 
-源码与Unity回归已完成；新版WebGL构建、浏览器旧档验收与正式发布待本次后续记录。不能把a7d14c7称作包含本批适配试演。
+游戏源码检查点为 `7de29ac`，成功构建至 `Builds/WebGL-Rehearsal-Release-20260905`；日志 `Logs/build-rehearsal-release-20260905.log` 显示成功且进程0。构建后源码tracked工作树干净，未混入其他未跟踪的Live2D、工具或素材。
+
+隔离Chrome实际运行此包：新档首关8.3秒胜利；合成旧档68/64/59/57级的1-10适配试演13.9秒胜利、零倒下。后者开启了自动重投，实际技能和骰型随机，因此不拿逻辑模拟的中位数代替实测。原强度/适配入口切换、地图显示战力、60级档标识、角色原血量、暂停/倍速和结算均已检查。还检查320×568、390×844、720×1536布局，以及大厅HUD、成员、双面试池、底部导航的保留；浏览器无pageerror。截图位于 `Artifacts/qa-20260905/rehearsal-*.png`。
+
+这里只在全新隔离浏览器中合成测试存档，没有读写用户日常浏览器的真实存档。不是iPhone或Windows真机测试，密集战斗特效、后续章节和完整经济仍需继续验收。
+
+经 `Tools/Stage-WebGL.mjs` 暂存并通过 `npm run check`（资源完整性与12项加载器回归），Pages从a7d14c7快进推送至 `9e90542`。上一版a7d14c7的四个资源保留，轮换更旧的6693a99四个资源，Git历史可恢复。推送时GitHub仅提示data 70.87MiB超过推荐50MiB，仍小于100MiB硬限制并成功接收；不因此宣称加载成本已足够低。
+
+当前资源：
+
+- `20f0d31d0dc682b5ccbc4ee5081d666d.data.unityweb`，74,310,843字节。
+- `e7af7c2b00fff9c9cb4aad71b378b5fb.framework.js.unityweb`，78,094字节。
+- `5711ef22d086f7c6a8ba2fd30e2a0cae.wasm.unityweb`，9,001,362字节。
+- `6654819761f067a2ef0f23486269a108.loader.js`，41,128字节。
+
+18:01首次官网探测仍为旧清单，新loader暂时404，属于发布传播期间。
+
+18:06正式站验收完成：
+
+- `https://bojuejun.github.io/cho-siren-preview/?v=9e90542` 的HTML与本地逐字节SHA256一致（`159a6ace61f3969adb74beb31417a76d642a4d5936eb401b923dc5fc27b3b8cd`），清单current/previous完全匹配，四个新资源均HTTP200且Content-Length与本地一致。
+- 在此官网实际加载新游戏，隔离Chrome合成旧档68/64/59/57级，地图出现“适配试演·60级档”与战力50,409；真实进入1-10并切换“自动重投”，约18秒三星胜利、0倒下。实际结算后返回大厅，体力从120按关卡14点扣至106，金币/钻石按真实结算增加，成员等级保留68。截图 `official-rehearsal-map.png`、`official-auto-reroll.png`、`official-rehearsal-result.png`、`official-rehearsal-members.png`。
+- 正式站大厅HUD、成员、线上/线下面试和底部选秀高亮已复查；截图 `official-rehearsal-home.png`、`official-rehearsal-online.png`、`official-rehearsal-offline.png`。全过程无pageerror。
+- `git push origin main` 成功，Pages本地HEAD与origin/main均 `9e9054271d16dfad4e03d5e38a74d46f6f12672c`。源码没有推远端；本地保留游戏检查点7de29ac及本文验收记录。原官网页面刷新即可取最新清单，旧query参数不锁二进制版本。
+- 额外复跑 `node --test Tools/test-stage-webgl.mjs` 为5/5。曾误调用不存在的 `Tools/Stage-WebGL.test.mjs`，该命令未执行测试；以上为找到真实文件后的有效结果。
+
+本轮完成的是针对旧演示存档秒杀、操作含义与错误阶段刻度的单批优化，不是游戏整体完成。未验证iPhone/Windows真机；首章以外内容、正式数值经济、加载包体与密集特效仍是后续工作，不在本批继续扩张。
