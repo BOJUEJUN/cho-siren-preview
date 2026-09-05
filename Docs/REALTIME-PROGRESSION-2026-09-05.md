@@ -32,4 +32,8 @@
 
 ## 网页验收及发布
 
-待追加。当前官网仍为6693a99，游戏二进制6e0f1a2。内部过早构建 WebGL-Realtime-Review-20260905 不包含本轮成长/校准，禁止直接上传。
+15:53追加：当前官网仍为6693a99，游戏二进制6e0f1a2。内部 `WebGL-Progression-Review-20260905`（源码d370dc8）成功构建，已在隔离浏览器存档中目视确认：新档1级培养扣50金币升2级；320宽档案不被关闭；旧版68级存档更新后仍为68级且17267金币/10695钻石不变；普通战12秒胜利、三星结算内容及按钮可读；两池选秀、原顶部HUD/底部导航、第一章地图保持。
+
+视觉检查同时发现同步攻击的伤害飘字重叠，**因此该内部构建禁止上传**。后续修复采用六条独立飘字通道，小头像仅保留该目标最新反馈（真实伤害及完整战斗记录不丢弃）。`playmode-progression-v3-20260905.xml`于15:49完成45/45通过，日志正常关闭。该修复仍须重新构建和网页目视检查；不把旧构建或源码测试通过当作新构建通过。内部 `WebGL-Realtime-Review-20260905` 更早且缺少成长/校准，也禁止上传。
+
+截图证据在本机 `Artifacts/qa-20260905/`：`progression-home.png`、`progression-dossier-320.png`、`migration-old-dossier.png`、`migration-new-dossier.png`、`progression-map-open.png`、`progression-battle-live.png`、`progression-battle-320.png`、`progression-finish.png`、`progression-online.png`、`progression-offline.png`。已发现问题为 `progression-battle-action.png`。这些文件不等于官网发布证据。

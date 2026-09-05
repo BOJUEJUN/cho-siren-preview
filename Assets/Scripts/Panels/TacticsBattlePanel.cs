@@ -113,6 +113,8 @@ namespace ChoSiren.Panels
         private string selectedSkillId;
         private readonly List<(int Row, int Col)> anchors = new List<(int Row, int Col)>();
         private int popupIndex;
+        private readonly int[] popupOwners = new int[PopupPoolSize];
+        private readonly Coroutine[] popupRoutines = new Coroutine[PopupPoolSize];
         private DiceTurn diceTurn;
         private int diceEnergy;
         private int diceRollSequence;
@@ -1329,8 +1331,15 @@ namespace ChoSiren.Panels
         {
             CellView cell = FindCell(target);
             if (cell == null) return;
-            Text popup = popupPool[popupIndex];
-            popupIndex = (popupIndex + 1) % popupPool.Count;
+            int slot = -1;
+            // Small portrait cards show the newest feedback for that target. Every underlying
+            // hit remains in the combat log; overlapping text must not obscure the member.
+            for (int i = 0; i < popupPool.Count; i++)
+                if (popupOwners[i] == target.Id && popupPool[i].gameObject.activeSelf) { slot = i; break; }
+            if (slot < 0) { slot = popupIndex; popupIndex = (popupIndex + 1) % popupPool.Count; }
+            Text popup = popupPool[slot];
+            if (popupRoutines[slot] != null) StopCoroutine(popupRoutines[slot]);
+            popupOwners[slot] = target.Id;
             popup.text = text;
             popup.color = color;
             popup.fontSize = fontSize;
@@ -1339,7 +1348,7 @@ namespace ChoSiren.Panels
                 anchored.y - cell.Rect.rect.height * 0.45f);
             popup.gameObject.SetActive(true);
             popup.transform.SetAsLastSibling();
-            StartCoroutine(AnimatePopup(popup));
+            popupRoutines[slot] = StartCoroutine(AnimatePopup(popup));
         }
 
         private IEnumerator AnimatePopup(Text popup)

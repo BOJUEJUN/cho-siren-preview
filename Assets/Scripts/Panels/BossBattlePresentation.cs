@@ -513,23 +513,32 @@ namespace ChoSiren.Panels
 
         private void SpawnDamageNumber(int amount, bool critical)
         {
-            if (damageTexts.Length == 0) return;
-            int slot = damageCursor++ % damageTexts.Length;
+            int capacity = Math.Min(damageTexts.Length, damageRoutines.Length);
+            if (capacity == 0) return;
+            int slot = damageCursor++ % capacity;
             Text text = damageTexts[slot];
             if (text == null) return;
             if (slot < damageRoutines.Length && damageRoutines[slot] != null)
                 StopCoroutine(damageRoutines[slot]);
-            damageRoutines[slot] = StartCoroutine(DamageNumberRoutine(text, amount, critical));
+            damageRoutines[slot] = StartCoroutine(DamageNumberRoutine(text, amount, critical, slot));
         }
 
-        private IEnumerator DamageNumberRoutine(Text text, int amount, bool critical)
+        private IEnumerator DamageNumberRoutine(Text text, int amount, bool critical, int slot)
         {
             RectTransform rect = text.rectTransform;
-            Vector2 origin = new Vector2(360f + UnityEngine.Random.Range(-52f, 53f), -330f);
+            // Six fixed lanes: independent clocks can produce many hits on the same frame.
+            // Row spacing exceeds text height plus its entire rise, even when births differ.
+            Vector2 origin = new Vector2(slot % 2 == 0 ? 245f : 475f, -230f - slot / 2 * 110f);
             rect.anchoredPosition = origin;
-            rect.localScale = Vector3.one * (critical ? 0.62f : 0.78f);
+            rect.sizeDelta = new Vector2(190f, 52f);
+            rect.localScale = Vector3.one;
             text.text = critical ? $"暴击  -{amount:N0}" : $"-{amount:N0}";
-            text.fontSize = critical ? 34 : 27;
+            text.fontSize = critical ? 30 : 26;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 18;
+            text.resizeTextMaxSize = text.fontSize;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
             text.color = critical ? new Color32(255, 221, 103, 255) : new Color32(255, 128, 213, 255);
             text.gameObject.SetActive(true);
             text.transform.SetAsLastSibling();
@@ -539,9 +548,7 @@ namespace ChoSiren.Panels
             {
                 elapsed += AnimationDelta();
                 float t = Mathf.Clamp01(elapsed / duration);
-                rect.anchoredPosition = origin + new Vector2(Mathf.Sin(t * Mathf.PI) * 10f, 72f * t);
-                float pop = Mathf.Sin(Mathf.Min(1f, t * 3.4f) * Mathf.PI * 0.5f);
-                rect.localScale = Vector3.one * Mathf.Lerp(0.62f, critical ? 1.18f : 1f, pop);
+                rect.anchoredPosition = origin + new Vector2(0f, 52f * t);
                 Color color = text.color;
                 color.a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.52f, 1f, t));
                 text.color = color;

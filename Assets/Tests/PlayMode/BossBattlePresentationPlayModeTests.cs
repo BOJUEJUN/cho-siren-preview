@@ -15,6 +15,46 @@ namespace ChoSiren.Tests
     public sealed class BossBattlePresentationPlayModeTests
     {
         [UnityTest]
+        public IEnumerator SimultaneousDamageUsesSeparatedLanesAndPortraitFeedbackCannotPileUp()
+        {
+            GameObject root = new GameObject("Simultaneous feedback test");
+            try
+            {
+                BattleSimulator simulator = CreateBattle();
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform,
+                    new GameModel(() => new DateTime(2026, 9, 3, 12, 0, 0)), simulator, _ => { });
+                BossBattlePresentation boss = panel.GetComponentInChildren<BossBattlePresentation>(true);
+                for (int i = 0; i < 3; i++) boss.PlayHit(1234567, true);
+                yield return new WaitForSecondsRealtime(.15f);
+                for (int i = 0; i < 3; i++) boss.PlayHit(999, false);
+                yield return null;
+                var visible = new List<RectTransform>();
+                foreach (Text text in panel.GetComponentsInChildren<Text>())
+                    if (text.name.StartsWith("BossDamage-"))
+                    {
+                        Assert.That(text.resizeTextForBestFit, Is.True);
+                        Assert.That(text.rectTransform.localScale, Is.EqualTo(Vector3.one));
+                        visible.Add(text.rectTransform);
+                    }
+                Assert.That(visible.Count, Is.EqualTo(6));
+                for (int a = 0; a < visible.Count; a++)
+                for (int b = a + 1; b < visible.Count; b++)
+                {
+                    Vector2 delta = visible[a].anchoredPosition - visible[b].anchoredPosition;
+                    Assert.That(Mathf.Abs(delta.x) >= 190 || Mathf.Abs(delta.y) >= 52, Is.True,
+                        "同时到达和不同年龄的飘字都不能交叠");
+                }
+                MethodInfo spawn = typeof(TacticsBattlePanel).GetMethod("SpawnPopup", BindingFlags.NonPublic | BindingFlags.Instance);
+                BattleUnit player = FindUnit(simulator, BattleSide.Player);
+                for (int i = 0; i < 5; i++) spawn.Invoke(panel, new object[] { player, "-42", Color.white, 22 });
+                int active = 0;
+                foreach (Text text in panel.GetComponentsInChildren<Text>()) if (text.name == "Popup") active++;
+                Assert.That(active, Is.EqualTo(1), "一个小头像上只保留最新反馈，完整伤害仍在战斗记录中");
+            }
+            finally { UnityEngine.Object.Destroy(root); }
+        }
+
+        [UnityTest]
         public IEnumerator BattleDamageAndEnemyActionDriveBossFeedbackLayers()
         {
             GameObject root = new GameObject("Boss Battle Integration Test");
