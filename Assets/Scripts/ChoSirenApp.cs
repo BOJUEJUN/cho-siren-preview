@@ -1108,32 +1108,32 @@ namespace ChoSiren
                 selectedStats.Sum(stat => stat.Defense), selectedStats.Sum(stat => stat.Power) };
             for (int row = 0; row < names.Length; row++)
             {
-                float y = 192 + row * 43;
+                float y = 182 + row * 52;
                 GameObject reading = NewPanel("AccessoryStat-" + row, detail.transform,
                     new Color32(62, 52, 112, 48), 10);
-                PlaceTop(reading.GetComponent<RectTransform>(), 12, y - 5, 202, 34);
+                PlaceTop(reading.GetComponent<RectTransform>(), 12, y - 2, 202, 48);
                 reading.GetComponent<Image>().raycastTarget = false;
-                NewPlacedText(detail.transform, names[row], 13, White,
-                    18, y, 46, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
-                Text beforeText = NewPlacedText(detail.transform, before[row].ToString("N0"), 12, Muted,
-                    66, y, 50, 24, TextAnchor.MiddleRight);
+                NewPlacedText(detail.transform, names[row], 16, White,
+                    18, y, 202, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
+                Text beforeText = NewPlacedText(detail.transform, before[row].ToString("N0"), 18, Muted,
+                    18, y + 20, 82, 26, TextAnchor.MiddleRight);
                 beforeText.name = "AccessoryBefore-" + row;
-                PanelKit.EnableBestFit(beforeText, 10);
-                NewPlacedText(detail.transform, "→", 13, Cyan,
-                    119, y, 23, 24, TextAnchor.MiddleCenter, FontStyle.Bold);
-                Text afterText = NewPlacedText(detail.transform, after[row].ToString("N0"), 12,
+                PanelKit.EnableBestFit(beforeText, 16);
+                NewPlacedText(detail.transform, "→", 16, Cyan,
+                    100, y + 20, 22, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
+                Text afterText = NewPlacedText(detail.transform, after[row].ToString("N0"), 18,
                     after[row] >= before[row] ? new Color32(111, 255, 194, 255) : Pink,
-                    144, y, 74, 24, TextAnchor.MiddleRight, FontStyle.Bold);
+                    122, y + 20, 96, 26, TextAnchor.MiddleRight, FontStyle.Bold);
                 afterText.name = "AccessoryAfter-" + row;
-                PanelKit.EnableBestFit(afterText, 10);
+                PanelKit.EnableBestFit(afterText, 16);
             }
 
             CombatStatBonuses bonuses = GameModel.AccessoryBonuses(selected);
-            NewPlacedText(detail.transform, "实际搭配效果", 15, Pink,
-                18, 382, 202, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(detail.transform, "实际搭配效果", 16, Pink,
+                18, 396, 202, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text effects = NewPlacedText(detail.transform,
                 $"生命 +{bonuses.Hp / 10f:0.#}%\n攻击 +{bonuses.Attack / 10f:0.#}%\n防御 +{bonuses.Defense / 10f:0.#}%",
-                15, White, 18, 416, 202, 84, TextAnchor.UpperLeft);
+                17, White, 18, 430, 202, 84, TextAnchor.UpperLeft);
             effects.name = "AccessoryEffects";
 
             GameObject equip = NewButton("AccessoryEquip", detail.transform, equipped ? "卸下" : "装备", 17,
