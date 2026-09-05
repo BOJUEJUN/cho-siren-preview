@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Reflection;
 using ChoSiren.Panels;
@@ -8,6 +9,7 @@ using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.TestTools;
 
 namespace ChoSiren.Tests
 {
@@ -204,17 +206,24 @@ namespace ChoSiren.Tests
                 Assert.That(panel.GetComponentsInChildren<RectTransform>(true)
                     .Any(item => item.name.StartsWith("DicePedestal-")), Is.False,
                     "骰子后方不应再生成额外底座光斑。");
-                Assert.That(reroll.text, Does.StartWith("重投未保留 · "));
-                Assert.That(energy.text, Does.StartWith("能量重投"));
+                Assert.That(reroll.text, Does.StartWith("本场剩余 "));
+                Assert.That(energy.text, Does.StartWith("全部重投"));
+                Assert.That(panel.Battle.BattleDice.Energy, Is.Zero);
+                Assert.That(FindRect(panel.transform, "EnergyReroll").GetComponent<Button>().interactable, Is.False);
+                Text controlHint = FindRect(panel.transform, "BattleControlInstruction").GetComponent<Text>();
+                Assert.That(controlHint.text, Does.Contain("自动释放"));
+                Assert.That(controlHint.text, Does.Not.Contain("手动选技能"));
+                Assert.That(controlHint.preferredHeight, Is.LessThanOrEqualTo(controlHint.rectTransform.rect.height));
                 Assert.That(playerHighlight.color.a, Is.LessThanOrEqualTo(0.25f),
                     "目标高亮应保留角色可见性，而不是形成实色遮挡。");
 
                 BattleUnit player = panel.Battle.Units.First(unit => unit.Side == BattleSide.Player);
-                InvokeWithResult(panel, "BuildSkillButtons", player);
-                Image skillFrame = FindRect(panel.transform, "Skill-strike").GetComponent<Image>();
+                Invoke(panel, "RefreshRealtimeCommands");
+                Image skillFrame = FindRect(panel.transform, "RealtimeSkill-0").GetComponent<Image>();
                 Text skillLabel = skillFrame.GetComponentInChildren<Text>(true);
-                Assert.That(skillLabel.text, Does.Contain("单体 · 伤害"),
-                    "技能按钮应把作用范围和效果分隔，避免两个词黏成难读文案。");
+                Assert.That(skillLabel.text, Does.Contain("自动 · "), "双技能显示真实冷却，不再等待玩家点击释放。");
+                Assert.That(FindRect(panel.transform, "RealtimeSkill-1"), Is.Not.Null);
+                Assert.That(skillLabel.preferredHeight, Is.LessThanOrEqualTo(skillLabel.rectTransform.rect.height));
                 Assert.That(skillFrame.color.a, Is.EqualTo(1f),
                     "简约技能卡必须挡住 Outline 的内部重复网格，避免整张卡被金色选中框染亮。");
                 Assert.That(skillFrame.color.r, Is.LessThan(0.25f));
@@ -232,6 +241,36 @@ namespace ChoSiren.Tests
             {
                 Object.DestroyImmediate(root);
             }
+        }
+
+        [UnityTest]
+        public IEnumerator RealtimeCombatContinuesInManualDiceModeAndPauseFreezesItsSingleClock()
+        {
+            GameObject root = new GameObject("Realtime Clock UI Test", typeof(RectTransform));
+            TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(1, 100000), null);
+            try
+            {
+                Assert.That(panel.AutoMode, Is.False);
+                yield return new WaitForSecondsRealtime(2.3f);
+                int before = panel.Battle.ElapsedMilliseconds;
+                yield return new WaitForSecondsRealtime(0.6f);
+                int normalAdvance = panel.Battle.ElapsedMilliseconds - before;
+                Assert.That(normalAdvance, Is.GreaterThan(100), "手动重投模式也必须自动推进角色行动");
+                Invoke(panel, "TogglePause");
+                int pausedAt = panel.Battle.ElapsedMilliseconds;
+                int enemyHp = panel.Battle.CurrentEnemyHp;
+                yield return new WaitForSecondsRealtime(0.4f);
+                Assert.That(panel.Battle.ElapsedMilliseconds, Is.EqualTo(pausedAt));
+                Assert.That(panel.Battle.CurrentEnemyHp, Is.EqualTo(enemyHp));
+                Invoke(panel, "TogglePause");
+                Invoke(panel, "ToggleSpeed");
+                before = panel.Battle.ElapsedMilliseconds;
+                yield return new WaitForSecondsRealtime(0.6f);
+                int doubleAdvance = panel.Battle.ElapsedMilliseconds - before;
+                Assert.That(doubleAdvance, Is.GreaterThan(normalAdvance * 1.3f), "2倍速必须作用于模拟器，不能仅加速动画");
+                Assert.That(panel.Battle.Log.Any(e => e.Kind == BattleEventKind.Damage), Is.True);
+            }
+            finally { Object.DestroyImmediate(root); }
         }
 
         [Test]
@@ -447,7 +486,7 @@ namespace ChoSiren.Tests
             return turn;
         }
 
-        private static BattleSimulator CreateBattle(int playerCount = 1)
+        private static BattleSimulator CreateBattle(int playerCount = 1, int hitPoints = 1000)
         {
             var manifest = new TacticsManifest();
             manifest.Skills.Add(new SkillDefinition
@@ -457,12 +496,12 @@ namespace ChoSiren.Tests
             });
             manifest.Units.Add(new UnitDefinition
             {
-                Id = "player", Name = "我方", MaxHp = 1000, Attack = 100, Defense = 20, Speed = 100,
+                Id = "player", Name = "我方", MaxHp = hitPoints, Attack = 100, Defense = 20, Speed = 100,
                 SkillIds = new List<string> { "strike" }
             });
             manifest.Units.Add(new UnitDefinition
             {
-                Id = "enemy", Name = "敌方", MaxHp = 1000, Attack = 50, Defense = 10, Speed = 90,
+                Id = "enemy", Name = "敌方", MaxHp = hitPoints, Attack = 50, Defense = 10, Speed = 90,
                 SkillIds = new List<string> { "strike" }
             });
             var stage = new StageDefinition

@@ -75,6 +75,7 @@ namespace ChoSiren.Systems.Tactics
     public sealed class BattleEvent
     {
         public BattleEventKind Kind;
+        public int TimeMilliseconds;
         public int Round;
         public int ActorId = -1;
         public int TargetId = -1;
@@ -137,7 +138,7 @@ namespace ChoSiren.Systems.Tactics
     /// order, skills hit shaped areas. Integer math plus <see cref="IRandomSource"/> keeps a
     /// battle reproducible from (setup, stage, seed), so results can be verified or replayed.
     /// </summary>
-    public sealed class BattleSimulator
+    public sealed partial class BattleSimulator
     {
         public const int CritMultiplierPermille = 1500;
         public const int DefenseWeight = 4;
@@ -222,7 +223,7 @@ namespace ChoSiren.Systems.Tactics
         public BattleUnit CurrentActor =>
             Outcome == BattleOutcome.Ongoing && queueIndex < turnQueue.Count ? FindUnit(turnQueue[queueIndex]) : null;
 
-        public SkillDefinition LookupSkill(string id) => manifest.FindSkill(id);
+        public SkillDefinition LookupSkill(string id) => RealtimeSkill(id) ?? manifest.FindSkill(id);
 
         public BattleUnit FindUnit(int id)
         {
@@ -295,6 +296,11 @@ namespace ChoSiren.Systems.Tactics
         public bool TryAct(BattleAction action, out string error)
         {
             if (action == null) throw new ArgumentNullException(nameof(action));
+            if (IsRealtime)
+            {
+                error = "普攻和双技能会自动释放，可选择集火目标和重投骰子";
+                return false;
+            }
             if (Outcome != BattleOutcome.Ongoing)
             {
                 error = "战斗已经结束";
@@ -334,6 +340,13 @@ namespace ChoSiren.Systems.Tactics
         /// <summary>Runs the battle with both sides controlled by <see cref="EnemyAi"/> until it ends.</summary>
         public BattleOutcome AutoPlay(int maxActions = 400)
         {
+            if (IsRealtime)
+            {
+                for (int i = 0; i < maxActions && Outcome == BattleOutcome.Ongoing; i++)
+                    AdvanceRealtime(250, true);
+                if (Outcome == BattleOutcome.Ongoing) Finish(BattleOutcome.Defeat);
+                return Outcome;
+            }
             int guard = 0;
             while (Outcome == BattleOutcome.Ongoing && guard++ < maxActions)
             {
@@ -355,7 +368,7 @@ namespace ChoSiren.Systems.Tactics
             if (Outcome != BattleOutcome.Victory) return 0;
             int stars = 1;
             if (PlayerUnitsLost == 0) stars++;
-            if (Round <= Stage.ThreeStarRounds) stars++;
+            if (IsRealtime ? ElapsedMilliseconds <= 45000 : Round <= Stage.ThreeStarRounds) stars++;
             return stars;
         }
 
@@ -539,6 +552,7 @@ namespace ChoSiren.Systems.Tactics
                 log.Add(new BattleEvent
                 {
                     Kind = BattleEventKind.PhaseChanged,
+                    TimeMilliseconds = ElapsedMilliseconds,
                     Round = Round,
                     Phase = EnemyPhase,
                     Amount = attackMultiplier
@@ -605,7 +619,8 @@ namespace ChoSiren.Systems.Tactics
         private void Finish(BattleOutcome outcome)
         {
             Outcome = outcome;
-            log.Add(new BattleEvent { Kind = BattleEventKind.Finished, Round = Round, Outcome = outcome });
+            log.Add(new BattleEvent { Kind = BattleEventKind.Finished, Round = Round,
+                TimeMilliseconds = ElapsedMilliseconds, Outcome = outcome });
         }
 
         private void Emit(BattleEventKind kind, int actorId, int targetId, string skillId, int amount, bool critical)
@@ -613,6 +628,7 @@ namespace ChoSiren.Systems.Tactics
             log.Add(new BattleEvent
             {
                 Kind = kind,
+                TimeMilliseconds = ElapsedMilliseconds,
                 Round = Round,
                 ActorId = actorId,
                 TargetId = targetId,

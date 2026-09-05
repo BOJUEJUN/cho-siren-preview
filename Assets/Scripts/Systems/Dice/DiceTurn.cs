@@ -16,6 +16,25 @@ namespace ChoSiren.Systems.Dice
         private readonly IReadOnlyList<int> readOnlyValues;
         private readonly IReadOnlyList<bool> readOnlyHeld;
         private bool begun;
+        private int legacyRerolls = InitialRerolls;
+        private long energyMicros;
+        private const long EnergyScale = 1000000;
+
+        public bool IsBattleSession { get; private set; }
+        public bool SelectiveReroll { get; private set; }
+        public int BattleRerollLimit { get; private set; }
+        public int UsedRerolls { get; private set; }
+        public int FreeRerolls { get; private set; }
+        public int Revision { get; private set; }
+
+        public static DiceTurn ForBattle(IRandomSource random, int rerollLimit, bool selectiveReroll)
+        {
+            if (rerollLimit < 1 || rerollLimit > 5) throw new ArgumentOutOfRangeException(nameof(rerollLimit));
+            return new DiceTurn(random)
+            {
+                IsBattleSession = true, BattleRerollLimit = rerollLimit, SelectiveReroll = selectiveReroll
+            };
+        }
 
         public DiceTurn(IRandomSource random, int startingEnergy = 0)
         {
@@ -27,15 +46,19 @@ namespace ChoSiren.Systems.Dice
 
         public IReadOnlyList<int> Values => readOnlyValues;
         public IReadOnlyList<bool> Held => readOnlyHeld;
-        public int RerollsRemaining { get; private set; } = InitialRerolls;
+        public int RerollsRemaining => IsBattleSession ? BattleRerollLimit - UsedRerolls : legacyRerolls;
         public int Energy { get; private set; }
-        public bool CanEnergyReroll => Energy >= MaxEnergy;
+        public bool CanEnergyReroll => IsBattleSession
+            ? begun && RerollsRemaining > 0 && (Energy >= MaxEnergy || FreeRerolls > 0)
+            : Energy >= MaxEnergy;
         public DiceHand Hand { get; private set; }
 
         public void Begin()
         {
+            // A battle owns one persistent hand and budget. A new actor must not refill it.
+            if (IsBattleSession && begun) return;
             for (int index = 0; index < held.Length; index++) held[index] = false;
-            RerollsRemaining = InitialRerolls;
+            legacyRerolls = InitialRerolls;
             RollAll();
             begun = true;
             RefreshHand();
@@ -52,6 +75,7 @@ namespace ChoSiren.Systems.Dice
 
         public bool RerollUnheld(out string error)
         {
+            if (IsBattleSession) return RerollBattle(true, out error);
             if (!begun)
             {
                 error = "请先开始骰子回合";
@@ -74,7 +98,7 @@ namespace ChoSiren.Systems.Dice
 
             for (int index = 0; index < values.Length; index++)
                 if (!held[index]) values[index] = RollDie();
-            RerollsRemaining--;
+            legacyRerolls--;
             RefreshHand();
             error = string.Empty;
             return true;
@@ -82,6 +106,7 @@ namespace ChoSiren.Systems.Dice
 
         public bool EnergyRerollAll(out string error)
         {
+            if (IsBattleSession) return RerollBattle(false, out error);
             if (!begun)
             {
                 error = "请先开始骰子回合";
@@ -105,7 +130,65 @@ namespace ChoSiren.Systems.Dice
         public void GainEnergy(int amount)
         {
             if (amount < 0) throw new ArgumentOutOfRangeException(nameof(amount));
+            if (IsBattleSession)
+            {
+                AddEnergyMicros((long)amount * EnergyScale);
+                return;
+            }
             Energy = (int)Math.Min(MaxEnergy, (long)Energy + amount);
+        }
+
+        /// <summary>Only actual HP/shield loss counts; callers must remove overkill first.</summary>
+        public void RecordDamage(int appliedDamage, bool killed, int gainPermille = 1000)
+        {
+            if (!IsBattleSession) throw new InvalidOperationException("需要局内骰子状态");
+            if (appliedDamage < 0 || gainPermille < 0 || gainPermille > 2000)
+                throw new ArgumentOutOfRangeException(nameof(appliedDamage));
+            // Keep fractional energy across small hits: 125 one-point hits also earn one energy.
+            long earned = (long)appliedDamage * 8000 + (killed ? 25 * EnergyScale : 0);
+            AddEnergyMicros(earned * gainPermille / 1000);
+        }
+
+        public void GrantFreeReroll()
+        {
+            if (IsBattleSession && RerollsRemaining > 0) FreeRerolls = Math.Min(1, FreeRerolls + 1);
+        }
+
+        private void AddEnergyMicros(long amount)
+        {
+            if (RerollsRemaining <= 0) return;
+            energyMicros = Math.Min(MaxEnergy * EnergyScale, energyMicros + amount);
+            Energy = (int)(energyMicros / EnergyScale);
+        }
+
+        private bool RerollBattle(bool selective, out string error)
+        {
+            if (!CanEnergyReroll)
+            {
+                error = RerollsRemaining <= 0 ? "本场重投次数已用完" : "造成伤害积攒能量，满100可重投";
+                return false;
+            }
+            if (selective)
+            {
+                int unheld = 0;
+                for (int i = 0; i < held.Length; i++) if (!held[i]) unheld++;
+                if (!SelectiveReroll || unheld < 1 || unheld > 2)
+                {
+                    error = SelectiveReroll ? "请保留3至4颗骰子，只重投1至2颗" : "人鱼队长才能精准重投";
+                    return false;
+                }
+            }
+            if (FreeRerolls > 0) FreeRerolls--;
+            else { energyMicros = 0; Energy = 0; }
+            UsedRerolls++;
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (!selective || !held[i]) values[i] = RollDie();
+                if (!selective) held[i] = false;
+            }
+            RefreshHand();
+            error = string.Empty;
+            return true;
         }
 
         private int RollDie() => random.Next(6) + 1;
@@ -118,6 +201,7 @@ namespace ChoSiren.Systems.Dice
         private void RefreshHand()
         {
             Hand = DiceRules.Evaluate(values);
+            Revision++;
         }
     }
 }

@@ -13,8 +13,8 @@ namespace ChoSiren.Panels
 {
     /// <summary>
     /// Portrait dice-battle presentation for <see cref="BattleSimulator"/>. The existing tactics
-    /// simulator still owns units, targeting and settlement; this view adds the five-die combat
-    /// turn agreed in the design meeting (hold, two rerolls, hand multiplier and energy reroll).
+    /// simulator owns units, targeting, independent skill clocks, dice energy and settlement.
+    /// Presentation never delays the combat clock while damage animations are playing.
     /// </summary>
     public sealed class TacticsBattlePanel : MonoBehaviour
     {
@@ -117,6 +117,9 @@ namespace ChoSiren.Panels
         private int diceEnergy;
         private int diceRollSequence;
         private float battleElapsed;
+        private float realtimeFractionMs;
+        private int displayedPerformerId = -1;
+        private int nextRealtimeUiRefresh;
         private int phaseFlashVersion;
 
         private Text turnText;
@@ -181,6 +184,11 @@ namespace ChoSiren.Panels
             panel.rewardLines = rewards;
             panel.onBack = back;
             panel.onMessage = message;
+            var races = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (MemberDefinition member in GameModel.Members) races[member.Id] = member.Race;
+            string captain = gameModel.Save.Team.Count > 0 ? GameModel.MemberIdAt(gameModel.Save.Team[0]) : null;
+            simulator.EnableRealtime(races, captain);
+            panel.diceTurn = simulator.BattleDice;
             panel.Build();
             panel.StartCoroutine(panel.MainLoop());
             return panel;
@@ -303,7 +311,7 @@ namespace ChoSiren.Panels
             enemyHpText = kit.NewPlacedText(header.transform, string.Empty, 13, PanelKit.White, 18, 91, 684, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             kit.AddOutline(enemyHpText.gameObject, new Color32(24, 5, 40, 210), 1f);
-            turnText = kit.NewPlacedText(header.transform, "第 1 回合", 16, PanelKit.Muted, 18, 60, 252, 22,
+            turnText = kit.NewPlacedText(header.transform, battle.IsRealtime ? "实时演出" : "第 1 回合", 14, PanelKit.Muted, 18, 60, 252, 22,
                 TextAnchor.MiddleLeft);
 
             for (int marker = 1; marker <= 2; marker++)
@@ -435,8 +443,8 @@ namespace ChoSiren.Panels
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             kit.NewPlacedText(stageCaption.transform, "魅声舞台", 17, PanelKit.White, 12, 26, 190, 28,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            kit.NewPlacedText(stageCaption.transform, "手动选技能 · 点击高亮目标", 10, PanelKit.Muted,
-                12, 56, 208, 18, TextAnchor.MiddleLeft);
+            kit.NewPlacedText(stageCaption.transform, battle.IsRealtime ? "自动释放 · 点击敌人集火" : "手动选技能 · 点击高亮目标", 14, PanelKit.Muted,
+                12, 56, 208, 24, TextAnchor.MiddleLeft).gameObject.name = "BattleControlInstruction";
 
             Text bossState = kit.NewPlacedText(stage.transform, string.Empty, 15, PanelKit.Pink,
                 210, 88, 300, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -658,7 +666,9 @@ namespace ChoSiren.Panels
                 PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 12);
             PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 352, 214, 292, 42);
             Text diceHint = kit.NewPlacedText(console.transform,
-                "点击保留 · 骰型加成下一技能", 16,
+                battle.IsRealtime ? (diceTurn.SelectiveReroll
+                    ? "人鱼队长：保留3至4颗，精准重投其余骰子"
+                    : "伤害与击杀积攒能量 · 骰型持续增益全队") : "点击保留 · 骰型加成下一技能", 16,
                 PanelKit.Muted, 36, 50, 608, 26, TextAnchor.MiddleCenter);
             diceHint.gameObject.name = "DiceInstruction";
             PanelKit.EnableBestFit(diceHint, 16);
@@ -685,6 +695,7 @@ namespace ChoSiren.Panels
         {
             autoButton = kit.NewButton("AutoToggle", transform, "自动", 20, PanelKit.ButtonDark, PanelKit.White,
                 ToggleAuto, 12);
+            if (battle.IsRealtime) PanelKit.LabelOf(autoButton).text = "手动";
             PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 456, 20, 78, 52);
             speedButton = kit.NewButton("SpeedToggle", transform, "1倍", 20, PanelKit.ButtonDark, PanelKit.White,
                 ToggleSpeed, 12);
@@ -843,6 +854,11 @@ namespace ChoSiren.Panels
 
         private IEnumerator MainLoop()
         {
+            if (battle.IsRealtime)
+            {
+                yield return RealtimeLoop();
+                yield break;
+            }
             while (!closing)
             {
                 while (paused && !closing) yield return null;
@@ -916,6 +932,87 @@ namespace ChoSiren.Panels
                 while (awaitingInput && !closing) yield return null;
                 inputActor = null;
             }
+        }
+
+        private IEnumerator RealtimeLoop()
+        {
+            awaitingInput = true;
+            foreach (BattleUnit unit in battle.Units)
+                if (unit.Side == BattleSide.Player) { inputActor = unit; break; }
+            RefreshRealtimeCommands();
+            RefreshDiceUi();
+            yield return WaitBattleDelay(BattleIntroSeconds);
+            while (!closing && battle.Outcome == BattleOutcome.Ongoing)
+            {
+                if (!paused)
+                {
+                    // A suspended browser must not instantly consume the encounter on returning.
+                    realtimeFractionMs += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * speed * 1000f;
+                    int elapsedMs = Mathf.FloorToInt(realtimeFractionMs);
+                    realtimeFractionMs -= elapsedMs;
+                    battle.AdvanceRealtime(elapsedMs, autoMode);
+                    int previousActor = -1;
+                    while (logCursor < battle.Log.Count)
+                    {
+                        BattleEvent entry = battle.Log[logCursor++];
+                        if (entry.Kind == BattleEventKind.RoundStart) continue;
+                        // All events are shown, but their animation durations don't stall the simulation.
+                        PresentEvent(entry, previousActor);
+                        previousActor = entry.ActorId;
+                    }
+                    battleElapsed = battle.ElapsedMilliseconds / 1000f;
+                    if (battle.ElapsedMilliseconds >= nextRealtimeUiRefresh)
+                    {
+                        nextRealtimeUiRefresh = battle.ElapsedMilliseconds + 100;
+                        RefreshAllCells();
+                        RefreshRealtimeCommands();
+                        RefreshDiceUi();
+                    }
+                }
+                yield return null;
+            }
+            if (closing) yield break;
+            awaitingInput = false;
+            RefreshDiceUi();
+            if (bossPresentation != null) bossPresentation.PlayOutcome(battle.Outcome == BattleOutcome.Victory);
+            yield return WaitBattleDelay(0.88f);
+            ShowResult();
+        }
+
+        private void RefreshRealtimeCommands()
+        {
+            if (inputActor == null || !inputActor.Alive)
+                foreach (BattleUnit unit in battle.Units)
+                    if (unit.Side == BattleSide.Player && unit.Alive) { inputActor = unit; break; }
+            if (inputActor == null) return;
+            if (displayedPerformerId != inputActor.Id)
+            {
+                ClearSkillBar();
+                displayedPerformerId = inputActor.Id;
+                if (skillWaitingText != null) skillWaitingText.gameObject.SetActive(false);
+                for (int i = 0; i < 2; i++)
+                {
+                    string description = BattleSimulator.ActiveSkillDescription(battle.RaceOf(inputActor), i == 1);
+                    GameObject button = kit.NewButton("RealtimeSkill-" + i, skillBar, "", 20,
+                        CellIdle, PanelKit.White,
+                        () => Notify(description), 12);
+                    PanelKit.PlaceTop(button.GetComponent<RectTransform>(), i * 342, 0, 330, 80);
+                    skillButtons.Add(button);
+                    PanelKit.EnableBestFit(PanelKit.LabelOf(button), 17);
+                }
+            }
+            for (int i = 0; i < skillButtons.Count; i++)
+            {
+                SkillDefinition skill = battle.LookupSkill(battle.ActiveSkillId(inputActor, i == 1));
+                float remaining = battle.SkillCooldownRemaining(inputActor, i == 1) / 1000f;
+                PanelKit.LabelOf(skillButtons[i]).text = $"{skill.Name}\n自动 · {remaining:0.0}秒";
+            }
+            actorText.text = $"{inputActor.Definition.Name} · 普攻与双技能自动释放";
+            BattleUnit focused = battle.FindUnit(battle.FocusTargetId);
+            previewText.text = focused != null && focused.Alive
+                ? $"集火：{focused.Definition.Name} · 点击其他敌人切换"
+                : "点击角色查看技能 · 点击敌人集火";
+            SetActorHighlight(inputActor);
         }
 
         private IEnumerator PlayPendingEvents()
@@ -1059,7 +1156,8 @@ namespace ChoSiren.Panels
                     return 0.45f;
                 case BattleEventKind.Finished:
                     AppendLog(battleEvent.Outcome == BattleOutcome.Victory ? "战斗胜利" : "战斗失败");
-                    eventText.text = battleEvent.Outcome == BattleOutcome.Victory ? "敌方全灭，演出成功" : "我方全灭或超出回合上限";
+                    eventText.text = battleEvent.Outcome == BattleOutcome.Victory ? "敌方全灭，演出成功"
+                        : battle.IsRealtime ? "我方全灭或已达到60秒时限" : "我方全灭或超出回合上限";
                     RefreshAllCells();
                     return 0.4f;
                 default:
@@ -1489,7 +1587,7 @@ namespace ChoSiren.Panels
 
         private void Update()
         {
-            if (!paused && battle != null && battle.Outcome == BattleOutcome.Ongoing)
+            if (!paused && battle != null && !battle.IsRealtime && battle.Outcome == BattleOutcome.Ongoing)
                 battleElapsed += Time.unscaledDeltaTime;
             RefreshBattleHud();
             if (actorGlow == null || !actorGlow.enabled) return;
@@ -1594,6 +1692,11 @@ namespace ChoSiren.Panels
         private void ToggleDie(int index)
         {
             if (paused || !awaitingInput || diceTurn == null) return;
+            if (diceTurn.IsBattleSession && !diceTurn.SelectiveReroll)
+            {
+                Notify("人鱼队长可保留3至4颗骰子，其他队长使用全部重投");
+                return;
+            }
             diceTurn.ToggleHold(index);
             RefreshDiceUi();
         }
@@ -1637,7 +1740,7 @@ namespace ChoSiren.Panels
                     ? held ? DiceParticipatingHeld : DiceParticipating
                     : held ? DiceHeld : DiceIdle;
                 Button dieButton = diceButtons[index].GetComponent<Button>();
-                if (dieButton != null) dieButton.interactable = awaitingInput;
+                if (dieButton != null) dieButton.interactable = awaitingInput && !paused;
                 Image hitArea = diceButtons[index].GetComponent<Image>();
                 if (hitArea != null)
                 {
@@ -1680,6 +1783,21 @@ namespace ChoSiren.Panels
                 PanelKit.LabelOf(energyRerollButton).text = energy >= 100 ? "能量重投 · 就绪" : "能量重投 · 充能中";
                 PanelKit.SetButtonState(energyRerollButton, awaitingInput && active && diceTurn.CanEnergyReroll,
                     energy >= 100 ? new Color32(58, 71, 126, 255) : PanelKit.ButtonDark);
+            }
+            if (active && diceTurn.IsBattleSession)
+            {
+                diceHandText.text = $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.##}\n" +
+                    $"本场重投 {diceTurn.UsedRerolls}/{diceTurn.BattleRerollLimit}";
+                bool canReroll = awaitingInput && !paused && diceTurn.CanEnergyReroll;
+                PanelKit.LabelOf(rerollButton).text = diceTurn.SelectiveReroll
+                    ? "精准重投 · 人鱼" : $"本场剩余 {diceTurn.RerollsRemaining} 次";
+                PanelKit.SetButtonState(rerollButton, canReroll && diceTurn.SelectiveReroll,
+                    canReroll && diceTurn.SelectiveReroll ? PanelKit.ButtonDark : PanelKit.Disabled);
+                PanelKit.LabelOf(energyRerollButton).text = diceTurn.FreeRerolls > 0 ? "免费重投 · 1次"
+                    : diceTurn.RerollsRemaining == 0 ? "本场重投已用完"
+                    : canReroll ? "全部重投 · 100能量" : "全部重投 · 充能中";
+                PanelKit.SetButtonState(energyRerollButton, canReroll,
+                    canReroll ? new Color32(100, 55, 151, 255) : PanelKit.ButtonDark);
             }
         }
 
@@ -1822,6 +1940,7 @@ namespace ChoSiren.Panels
 
         private void CellHovered(BattleSide side, int row, int col, bool entered)
         {
+            if (battle != null && battle.IsRealtime) return;
             if (!awaitingInput || inputActor == null || string.IsNullOrEmpty(selectedSkillId)) return;
             SkillDefinition skill = battle.LookupSkill(selectedSkillId);
             if (skill == null) return;
@@ -1872,6 +1991,15 @@ namespace ChoSiren.Panels
         {
             kit.PlayClick();
             if (paused) return;
+            if (battle.IsRealtime)
+            {
+                BattleUnit unit = battle.UnitAt(side, row, col);
+                if (unit == null) return;
+                if (side == BattleSide.Player) inputActor = unit;
+                else battle.FocusEnemy(unit.Id);
+                RefreshRealtimeCommands();
+                return;
+            }
             if (!awaitingInput || inputActor == null)
             {
                 CellView info = FindCell(side, row, col);
@@ -1920,6 +2048,14 @@ namespace ChoSiren.Panels
         private void ToggleAuto()
         {
             autoMode = !autoMode;
+            if (battle.IsRealtime)
+            {
+                PanelKit.LabelOf(autoButton).text = autoMode ? "自动开" : "手动";
+                PanelKit.SetButtonState(autoButton, true,
+                    autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
+                Notify(autoMode ? "已开启自动重投，角色技能持续自动释放" : "已切换手动重投，角色技能持续自动释放");
+                return;
+            }
             PanelKit.LabelOf(autoButton).text = autoMode ? "自动开" : "自动";
             PanelKit.SetButtonState(autoButton, true, autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
             if (autoMode && awaitingInput)
@@ -1989,7 +2125,9 @@ namespace ChoSiren.Panels
             int stars = battle.StarRating();
             resultStars.text = StarText(stars);
             resultStars.color = victory ? PanelKit.Gold : new Color32(120, 116, 150, 255);
-            resultStats.text = $"{battle.Stage.Name}\n共 {battle.Round} 回合 · 我方倒下 {battle.PlayerUnitsLost} 人";
+            resultStats.text = battle.IsRealtime
+                ? $"{battle.Stage.Name}\n用时 {battle.ElapsedMilliseconds / 1000f:0.0} 秒 · 我方倒下 {battle.PlayerUnitsLost} 人"
+                : $"{battle.Stage.Name}\n共 {battle.Round} 回合 · 我方倒下 {battle.PlayerUnitsLost} 人";
 
             IReadOnlyList<string> lines = null;
             try

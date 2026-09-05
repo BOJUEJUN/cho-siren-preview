@@ -14,6 +14,25 @@ namespace ChoSiren.Tests.Systems
         private const int MaxExpectedPlayerActions = 11;
 
         [Test]
+        public void RealtimeChapterMeasurementsUseTheActualResourcePartyAndAllTenStages()
+        {
+            var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
+            Assert.That(repository.LoadAll(), Is.True);
+            var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
+            foreach (StageDefinition stage in repository.Tactics.Stages)
+            {
+                var battle = new BattleSimulator(repository.Tactics, stage, DefaultParty(), new SeededRandom(847));
+                battle.EnableRealtime(races, "xingli");
+                battle.AdvanceRealtime(60000, true);
+                TestContext.WriteLine($"REALTIME {stage.Id}: {battle.Outcome}, {battle.ElapsedMilliseconds}ms, " +
+                    $"damage={battle.CharacterDamageDealt}, poison={battle.PoisonDamageDealt}, rerolls={battle.BattleDice.UsedRerolls}");
+                Assert.That(battle.Outcome, Is.Not.EqualTo(BattleOutcome.Ongoing));
+                Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(60000));
+            }
+            // These are measurements, not a claim that chapter pacing/balance has passed.
+        }
+
+        [Test]
         public void AllTenChapterOneBattlesStayNearTheOneMinuteInteractionBudget()
         {
             var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
