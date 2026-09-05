@@ -163,6 +163,35 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator FaceCareerFilterUsesLatestDocumentAndShowsOnlyMatchingMembers()
+        {
+            RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            for (int index = 0; index < 4; index++)
+            {
+                RequireButtonRect("MemberRoleFilter").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+            }
+            string filterLabel = RequireRect("MemberRoleFilter").GetComponentInChildren<Text>().text;
+            Assert.That(filterLabel, Is.EqualTo("职业：门面"));
+            var cards = RequireRect("Content").GetComponentsInChildren<Button>(true)
+                .Where(button => button.name.StartsWith("Member-")).ToArray();
+            Assert.That(cards, Is.Not.Empty);
+            foreach (Button card in cards)
+            {
+                string id = card.name.Substring("Member-".Length);
+                Assert.That(GameModel.Members.Single(member => member.Id == id).Career, Is.EqualTo("门面"));
+                string[] labels = card.GetComponentsInChildren<Text>(true).Select(label => label.text).ToArray();
+                Assert.That(labels.Any(value => value.Contains("门面")), Is.True);
+                Assert.That(labels.Any(value => value.Contains("DJ")), Is.False);
+            }
+            RequireButtonRect("Nav-team").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Text fourthCareer = RequireRect("CareerStatus-3").GetComponent<Text>();
+            Assert.That(fourthCareer.text, Does.StartWith("门面"));
+        }
+
+        [UnityTest]
         public IEnumerator MemberPageUsesRaceAndCareerInsteadOfVisibleRarity()
         {
             RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();

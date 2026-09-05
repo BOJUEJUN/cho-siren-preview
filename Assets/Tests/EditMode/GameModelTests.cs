@@ -79,7 +79,10 @@ namespace ChoSiren.Tests
         [Test]
         public void ProductionGrowthMigrationKeepsOldLevelsBalancesAndStageProgress()
         {
-            SaveRaw(new GameSave { Gold = 11300, Diamonds = 219, StoryProgress = 83 });
+            var previous = new GameSave { Gold = 11300, Diamonds = 219, StoryProgress = 83 };
+            int[] previousTeam = previous.Team.ToArray();
+            int[] previousLevels = previous.MemberLevels.ToArray();
+            SaveRaw(previous);
             var model = new GameModel(() => now);
             Assert.That(model.LevelOf(0), Is.EqualTo(68));
             Assert.That(model.Save.Gold, Is.EqualTo(11300));
@@ -93,6 +96,10 @@ namespace ChoSiren.Tests
             Assert.That(reloaded.LevelOf(0), Is.EqualTo(68));
             Assert.That(reloaded.Save.Gold, Is.EqualTo(11300));
             Assert.That(reloaded.Save.Diamonds, Is.EqualTo(219));
+            Assert.That(GameModel.Members[2].Id, Is.EqualTo("wubai"));
+            Assert.That(GameModel.Members[2].Career, Is.EqualTo("门面"));
+            CollectionAssert.AreEqual(previousTeam, reloaded.Save.Team);
+            CollectionAssert.AreEqual(previousLevels, reloaded.Save.MemberLevels.Take(previousLevels.Length));
         }
 
         [Test]
@@ -801,6 +808,8 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.Team.Count, Is.EqualTo(4));
             Assert.That(model.Save.Team, Does.Contain(4));
             Assert.That(model.Save.Team.Select(index => GameModel.Members[index].Career).Distinct().Count(), Is.EqualTo(4));
+            CollectionAssert.AreEquivalent(new[] { "主唱", "主舞", "Rapper", "门面" },
+                model.Save.Team.Select(index => GameModel.Members[index].Career));
             Assert.That(model.Save.Team, Is.All.Matches<int>(index => model.IsUnlocked(index)));
             Assert.That(CreateModel().Save.Team, Is.EqualTo(model.Save.Team));
         }
@@ -817,6 +826,7 @@ namespace ChoSiren.Tests
             int stamina = model.Save.Stamina;
             Assert.That(model.StartStageBattle(EasyStage, 9, out string incomplete), Is.Null);
             Assert.That(incomplete, Does.Contain("各一名"));
+            Assert.That(incomplete, Does.Contain("门面").And.Not.Contain("DJ"));
             Assert.That(model.Save.Stamina, Is.EqualTo(stamina));
             model.AutoTeam();
             Assert.That(model.StartStageBattle(EasyStage, 9, out _), Is.Not.Null);

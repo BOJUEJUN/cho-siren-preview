@@ -645,7 +645,7 @@ namespace ChoSiren
         private void BuildMembers()
         {
             BuildMemberGalleryBackdrop();
-            string[] roleFilters = { string.Empty, "主唱", "主舞", "Rapper", "DJ" };
+            string[] roleFilters = new[] { string.Empty }.Concat(MemberCareers.All).ToArray();
             string[] raceFilters = { string.Empty, "魅族", "魔族", "海灵族", "血精灵" };
             memberRoleFilterIndex = Mathf.Clamp(memberRoleFilterIndex, 0, roleFilters.Length - 1);
             memberRaceFilterIndex = Mathf.Clamp(memberRaceFilterIndex, 0, raceFilters.Length - 1);

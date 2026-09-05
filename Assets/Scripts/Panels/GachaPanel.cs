@@ -561,7 +561,7 @@ namespace ChoSiren.Panels
             vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0), 55, 98);
             rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0), 55, 98);
             presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0), 55, 98);
-            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == "DJ" ? 10 : 0), 55, 98);
+            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == MemberCareers.Face ? 10 : 0), 55, 98);
             charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias, 65, 96);
         }
 

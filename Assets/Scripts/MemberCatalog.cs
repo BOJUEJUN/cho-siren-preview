@@ -8,14 +8,15 @@ namespace ChoSiren
     /// <summary>Idol careers are independent from race and from combat skill effects.</summary>
     public static class MemberCareers
     {
-        public static readonly IReadOnlyList<string> All = Array.AsReadOnly(new[] { "主唱", "主舞", "Rapper", "DJ" });
+        public const string Face = "门面";
+        public static readonly IReadOnlyList<string> All = Array.AsReadOnly(new[] { "主唱", "主舞", "Rapper", Face });
 
         public static string Normalize(string role)
         {
             string value = (role ?? string.Empty).Trim();
             // Read old manifests without bringing retired player-facing labels back.
             if (value == "舞者") return "主舞";
-            if (value == "支援") return "DJ";
+            if (value == "支援" || string.Equals(value, "DJ", StringComparison.OrdinalIgnoreCase)) return Face;
             return value;
         }
     }
@@ -88,10 +89,7 @@ namespace ChoSiren
         public const int CurrentSchemaVersion = 1;
         public const string DefaultManifestResourcePath = "Data/member-catalog";
 
-        private static readonly HashSet<string> Roles = new HashSet<string>(StringComparer.Ordinal)
-        {
-            "主唱", "主舞", "Rapper", "DJ"
-        };
+        private static readonly HashSet<string> Roles = new HashSet<string>(MemberCareers.All, StringComparer.Ordinal);
 
         private static readonly HashSet<string> Rarities = new HashSet<string>(StringComparer.Ordinal)
         {

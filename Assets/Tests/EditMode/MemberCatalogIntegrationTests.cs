@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -6,6 +8,25 @@ namespace ChoSiren.Tests
 {
     public sealed class MemberCatalogIntegrationTests
     {
+        [Test]
+        public void LatestDocumentCareersAgreeAcrossAuthoredCatalogRuntimeAndBattleUnits()
+        {
+            CollectionAssert.AreEqual(new[] { "主唱", "主舞", "Rapper", "门面" }, MemberCareers.All);
+            var catalog = JsonUtility.FromJson<MemberCatalogManifest>(
+                Resources.Load<TextAsset>(MemberCatalog.DefaultManifestResourcePath).text);
+            var tactics = JsonUtility.FromJson<TacticsManifest>(Resources.Load<TextAsset>("Data/tactics").text);
+            var units = tactics.Units.ToDictionary(unit => unit.Id);
+            foreach (MemberCatalogEntry entry in catalog.Members)
+                Assert.That(MemberCareers.All, Does.Contain(entry.Role),
+                    $"正式成员清单不能重新写入旧职业：{entry.Id} / {entry.Role}");
+            foreach (MemberDefinition member in GameModel.Members)
+            {
+                Assert.That(units.ContainsKey(member.Id), Is.True, member.Id);
+                Assert.That(units[member.Id].Role, Is.EqualTo(member.Career),
+                    $"档案与战斗的职业必须一致：{member.Id}");
+            }
+        }
+
         [Test]
         public void RuntimeCatalogContainsAtLeastFiftyUniqueMembersAndKeepsLegacyOrder()
         {
@@ -43,7 +64,7 @@ namespace ChoSiren.Tests
             };
             string[] expectedCareers =
             {
-                "主唱", "主舞", "DJ", "Rapper", "主舞", "DJ", "主唱", "主舞", "DJ"
+                "主唱", "主舞", "门面", "Rapper", "主舞", "门面", "主唱", "主舞", "门面"
             };
 
             for (int index = 0; index < expectedRaces.Length; index++)

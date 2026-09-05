@@ -40,7 +40,30 @@ namespace ChoSiren.Tests
             var legacyCall = new MemberDefinition("legacy", "旧角色", "支援", "R",
                 "Art/Members/legacy/portrait", 6000);
             Assert.That(legacyCall.Race, Is.Empty);
-            Assert.That(legacyCall.Career, Is.EqualTo("DJ"));
+            Assert.That(legacyCall.Career, Is.EqualTo("门面"));
+        }
+
+        [TestCase("DJ")]
+        [TestCase(" dj ")]
+        [TestCase("支援")]
+        [TestCase("门面")]
+        public void PreviousFourthCareerNormalizesWithoutChangingIdentityOrRace(string previousCareer)
+        {
+            MemberCatalogManifest manifest = Manifest(1);
+            MemberCatalogEntry entry = manifest.Members[0];
+            entry.Role = previousCareer;
+            entry.Race = "血精灵";
+            entry.StartingLevel = 68;
+            string id = entry.Id;
+            int basePower = entry.BasePower;
+            Assert.That(MemberCatalog.TryCreate(manifest, out MemberCatalog catalog, out string error),
+                Is.True, error);
+            Assert.That(catalog[0].Career, Is.EqualTo("门面"));
+            Assert.That(catalog[0].Id, Is.EqualTo(id));
+            Assert.That(catalog[0].Race, Is.EqualTo("血精灵"));
+            Assert.That(catalog[0].StartingLevel, Is.EqualTo(68));
+            Assert.That(catalog[0].BasePower, Is.EqualTo(basePower));
+            Assert.That(catalog.ToLegacyDefinitions()[0].Career, Is.EqualTo("门面"));
         }
 
         [Test]

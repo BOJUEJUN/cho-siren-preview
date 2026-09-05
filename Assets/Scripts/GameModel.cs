@@ -1274,7 +1274,7 @@ namespace ChoSiren
                 Save.Team.Select(index => Members[index].Career).Distinct().Count() != TeamCapacity)
             {
                 if (stateChanged) SaveState();
-                message = "请配置主唱、主舞、Rapper、DJ 各一名，可在团队页一键编队";
+                message = $"请配置{string.Join("、", MemberCareers.All)}各一名，可在团队页一键编队";
                 return null;
             }
 
