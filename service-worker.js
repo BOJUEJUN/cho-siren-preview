@@ -13,6 +13,12 @@ self.addEventListener('activate', event => {
       .map(key => caches.delete(key)));
     await self.registration.unregister();
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const client of clients) client.navigate(client.url);
+    const gameBase = new URL('./', self.location.href);
+    for (const client of clients) {
+      const target = new URL(client.url);
+      if (target.origin === gameBase.origin && target.pathname.startsWith(gameBase.pathname)) {
+        client.navigate(client.url);
+      }
+    }
   })());
 });

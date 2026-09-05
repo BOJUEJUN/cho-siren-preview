@@ -1,11 +1,11 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const requireFile = path => {
-  if (!existsSync(path) || !statSync(path).isFile()) {
+  if (!existsSync(path) || lstatSync(path).isSymbolicLink() || !statSync(path).isFile()) {
     throw new Error(`缺少 WebGL 交付文件：${path}`);
   }
 };
@@ -37,17 +37,36 @@ if (new Set(references).size !== 4) {
   throw new Error("WebGL 构建文件引用存在重复");
 }
 
+requireFile(join(root, "build-versions.json"));
+const versions = JSON.parse(readFileSync(join(root, "build-versions.json"), "utf8"));
+if (versions.schemaVersion !== 1 || !Array.isArray(versions.current) ||
+    [...versions.current].sort().join() !== [...references].sort().join()) {
+  throw new Error("版本清单与当前 HTML 的四个资源不一致");
+}
+const previous = versions.previous;
+if (!Array.isArray(previous) || (previous.length !== 0 && previous.length !== 4) ||
+    new Set(previous).size !== previous.length) {
+  throw new Error("上一版资源清单不完整");
+}
+if (!html.includes('new URL("build-versions.json", pageUrl)') || !html.includes('cache: "no-store"')) {
+  throw new Error("缺少启动前的无缓存版本检查");
+}
+
 const unityAssetPattern = /^[0-9a-f]{32}\.(?:data\.unityweb|framework\.js\.unityweb|wasm\.unityweb|loader\.js)$/;
 const expectedSuffixes = [".data.unityweb", ".framework.js.unityweb", ".wasm.unityweb", ".loader.js"];
 for (const suffix of expectedSuffixes) {
   if (references.filter(file => file.endsWith(suffix)).length !== 1) {
     throw new Error(`WebGL 应且仅应引用一个 *${suffix} 文件`);
   }
+  if (previous.length && previous.filter(file => typeof file === 'string' && file.endsWith(suffix)).length !== 1) {
+    throw new Error(`上一版应且仅应保留一个 *${suffix} 文件`);
+  }
 }
 
 const githubFileLimit = 100 * 1024 * 1024;
 const buildDirectory = join(root, "Build");
-const assets = references.map(file => {
+const keptFiles = [...new Set([...references, ...previous])];
+const assets = keptFiles.map(file => {
   if (!unityAssetPattern.test(file)) {
     throw new Error(`WebGL 文件未使用内容哈希命名：${file}`);
   }
@@ -66,13 +85,13 @@ const assets = references.map(file => {
 
 const buildEntries = readdirSync(buildDirectory, { withFileTypes: true });
 const unexpectedBuildEntries = buildEntries.filter(entry =>
-  !entry.isFile() || !references.includes(entry.name)
+  !entry.isFile() || !keptFiles.includes(entry.name)
 );
 if (unexpectedBuildEntries.length > 0) {
   throw new Error(`Build 目录包含 index.html 未引用的内容：${unexpectedBuildEntries.map(entry => entry.name).join(", ")}`);
 }
-if (buildEntries.length !== references.length) {
-  throw new Error(`Build 目录应仅包含本版 4 个引用文件，实际为 ${buildEntries.length} 个`);
+if (buildEntries.length !== keptFiles.length) {
+  throw new Error(`Build 目录应仅包含本版及上一版资源，实际为 ${buildEntries.length} 个`);
 }
 
 const lobbyVideoPath = join(root, "StreamingAssets", "Lobby", "lobby-loop.mp4");
@@ -86,4 +105,5 @@ const lobbyVideo = {
   sha256: createHash("sha256").update(readFileSync(lobbyVideoPath)).digest("hex"),
 };
 
-console.log(JSON.stringify({ success: true, canvas: "720x1536", githubFileLimit, lobbyVideo, assets }, null, 2));
+console.log(JSON.stringify({ success: true, canvas: "720x1536", githubFileLimit, lobbyVideo,
+  current: references, previous, assets }, null, 2));

@@ -4,8 +4,8 @@
   "private": true,
   "description": "CHO-SIREN Unity WebGL portrait game preview",
   "scripts": {
-    "check": "node scripts/verify-webgl.mjs && node --check service-worker.js",
-    "test": "node scripts/verify-webgl.mjs",
+    "check": "node scripts/verify-webgl.mjs && node --check service-worker.js && node --test scripts/test-loader.mjs",
+    "test": "node --test scripts/test-loader.mjs",
     "verify": "npm run check"
   },
   "engines": {
