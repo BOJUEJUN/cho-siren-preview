@@ -1097,7 +1097,7 @@ namespace ChoSiren
             GameObject divider = NewImage("DetailDivider", detail.transform, null, new Color32(99, 213, 255, 92));
             PlaceTop(divider.GetComponent<RectTransform>(), 18, 142, 202, 2);
             NewPlacedText(detail.transform, "属性变化", 14, Muted,
-                18, 157, 202, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+                18, 150, 202, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
 
             string[] names = { "生命", "攻击", "防御", "战力" };
             IReadOnlyList<CombatStats> currentStats = model.PartyStatsWithAccessory(model.Save.EquippedAccessory);
@@ -1108,32 +1108,33 @@ namespace ChoSiren
                 selectedStats.Sum(stat => stat.Defense), selectedStats.Sum(stat => stat.Power) };
             for (int row = 0; row < names.Length; row++)
             {
-                float y = 182 + row * 52;
+                float y = 180 + row * 56;
                 GameObject reading = NewPanel("AccessoryStat-" + row, detail.transform,
                     new Color32(62, 52, 112, 48), 10);
-                PlaceTop(reading.GetComponent<RectTransform>(), 12, y - 2, 202, 48);
+                PlaceTop(reading.GetComponent<RectTransform>(), 12, y - 2, 202, 54);
                 reading.GetComponent<Image>().raycastTarget = false;
-                NewPlacedText(detail.transform, names[row], 16, White,
-                    18, y, 202, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
+                Text statName = NewPlacedText(detail.transform, names[row], 16, White,
+                    18, y, 202, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
+                statName.name = "AccessoryStatName-" + row;
                 Text beforeText = NewPlacedText(detail.transform, before[row].ToString("N0"), 18, Muted,
-                    18, y + 20, 82, 26, TextAnchor.MiddleRight);
+                    18, y + 24, 82, 28, TextAnchor.MiddleRight);
                 beforeText.name = "AccessoryBefore-" + row;
                 PanelKit.EnableBestFit(beforeText, 16);
                 NewPlacedText(detail.transform, "→", 16, Cyan,
-                    100, y + 20, 22, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    100, y + 24, 22, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
                 Text afterText = NewPlacedText(detail.transform, after[row].ToString("N0"), 18,
                     after[row] >= before[row] ? new Color32(111, 255, 194, 255) : Pink,
-                    122, y + 20, 96, 26, TextAnchor.MiddleRight, FontStyle.Bold);
+                    122, y + 24, 96, 28, TextAnchor.MiddleRight, FontStyle.Bold);
                 afterText.name = "AccessoryAfter-" + row;
                 PanelKit.EnableBestFit(afterText, 16);
             }
 
             CombatStatBonuses bonuses = GameModel.AccessoryBonuses(selected);
             NewPlacedText(detail.transform, "实际搭配效果", 16, Pink,
-                18, 396, 202, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                18, 408, 202, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text effects = NewPlacedText(detail.transform,
                 $"生命 +{bonuses.Hp / 10f:0.#}%\n攻击 +{bonuses.Attack / 10f:0.#}%\n防御 +{bonuses.Defense / 10f:0.#}%",
-                17, White, 18, 430, 202, 84, TextAnchor.UpperLeft);
+                17, White, 18, 442, 202, 84, TextAnchor.UpperLeft);
             effects.name = "AccessoryEffects";
 
             GameObject equip = NewButton("AccessoryEquip", detail.transform, equipped ? "卸下" : "装备", 17,
@@ -1143,12 +1144,12 @@ namespace ChoSiren
                     Toast(model.Save.EquippedAccessory == selected ? "饰品已装备" : "饰品已卸下");
                     ShowScreen("accessory");
             });
-            PlaceTop(equip.GetComponent<RectTransform>(), 18, 528, 202, 56);
+            PlaceTop(equip.GetComponent<RectTransform>(), 18, 548, 202, 56);
             ApplyAiUiSprite(equip, "Art/AccessoryAI/UI/accessory-action-pink-ai-v1");
 
             GameObject settings = NewButton("AccessorySettings", detail.transform, "游戏设置", 15,
                 new Color32(45, 52, 105, 220), White, OpenSettings);
-            PlaceTop(settings.GetComponent<RectTransform>(), 18, 598, 202, 50);
+            PlaceTop(settings.GetComponent<RectTransform>(), 18, 618, 202, 50);
             ApplyAiUiSprite(settings, "Art/AccessoryAI/UI/accessory-action-blue-ai-v1");
         }
 

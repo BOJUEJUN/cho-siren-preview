@@ -141,10 +141,14 @@ namespace ChoSiren.Tests
             }
             for (int row = 0; row < 4; row++)
             {
+                Text statName = RequireActiveObject("AccessoryStatName-" + row).GetComponent<Text>();
                 Text before = RequireActiveObject("AccessoryBefore-" + row).GetComponent<Text>();
                 Text after = RequireActiveObject("AccessoryAfter-" + row).GetComponent<Text>();
+                Assert.That(statName.preferredHeight, Is.LessThanOrEqualTo(statName.rectTransform.rect.height));
                 Assert.That(before.preferredHeight, Is.LessThanOrEqualTo(before.rectTransform.rect.height));
                 Assert.That(after.preferredHeight, Is.LessThanOrEqualTo(after.rectTransform.rect.height));
+                Assert.That(before.fontSize, Is.GreaterThanOrEqualTo(18));
+                Assert.That(after.fontSize, Is.GreaterThanOrEqualTo(18));
             }
             Click("AccessoryEquip");
             yield return null;
