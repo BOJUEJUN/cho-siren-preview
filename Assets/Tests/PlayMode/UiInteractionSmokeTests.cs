@@ -184,11 +184,18 @@ namespace ChoSiren.Tests
             Assert.That(RequireActiveObject("ViewInterview").transform.Find("Label").GetComponent<Text>().text,
                 Is.EqualTo("开始现场面试"));
             string offlineName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
+            string beforeCounter = RequireActiveObject("CandidateCounter").GetComponent<Text>().text;
+            int beforeCount = int.Parse(beforeCounter.Split('/')[1].Trim());
 
             Click("SignCandidate");
             yield return null;
             string nextOfflineName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
             Assert.That(nextOfflineName, Is.Not.EqualTo(offlineName), "签约成功后应从当前候选池移除该成员。");
+            string afterCounter = RequireActiveObject("CandidateCounter").GetComponent<Text>().text;
+            Assert.That(int.Parse(afterCounter.Split('/')[1].Trim()), Is.EqualTo(beforeCount - 1),
+                "签约后只能移除当前候选，不能补入新人或重排当日名单。");
+            Assert.That(Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
+                .Count(item => item.name == "CandidateCard"), Is.EqualTo(1));
             AssertActiveUiUsesChineseOnly();
 
             Click("Nav-lobby");
@@ -196,6 +203,30 @@ namespace ChoSiren.Tests
             AssertInactiveOrMissing("GachaPanel");
             RequireActiveObject("LobbyCards");
             AssertActiveUiUsesChineseOnly();
+        }
+
+        [UnityTest]
+        public IEnumerator MemberDossierShowsRealBattleAttributesAndKeepsSkillColumnsSeparate()
+        {
+            Click("Nav-members");
+            yield return null;
+            Click("Member-xingli");
+            yield return null;
+            var manifest = ChoSiren.Systems.Data.GameData.Repository.Tactics;
+            var definition = manifest.FindUnit("xingli");
+            Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
+                Is.EqualTo(ChoSiren.Systems.Tactics.BattleSimulator.MemberStatAtLevel(definition.Attack, 68).ToString("N0")));
+            Assert.That(RequireActiveObject("MemberSkillPrimary").GetComponent<Text>().text,
+                Is.EqualTo(manifest.FindSkill("high-note").Name));
+            Assert.That(RequireActiveObject("MemberSkillSecondary").GetComponent<Text>().text,
+                Is.EqualTo(manifest.FindSkill("finale").Name));
+            RectTransform first = RequireActiveObject("MemberSkillPrimary").GetComponent<RectTransform>();
+            RectTransform second = RequireActiveObject("MemberSkillSecondary").GetComponent<RectTransform>();
+            Assert.That(first.anchoredPosition.x + first.rect.width, Is.LessThan(second.anchoredPosition.x),
+                "两项技能须分别进入左右美术槽，不能都堆在左侧。");
+            Click("Close");
+            yield return null;
+            AssertInactiveOrMissing("MemberModal");
         }
 
         [UnityTest]

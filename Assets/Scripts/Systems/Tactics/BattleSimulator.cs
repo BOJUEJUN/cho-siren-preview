@@ -338,7 +338,7 @@ namespace ChoSiren.Systems.Tactics
         private void AddUnit(UnitDefinition definition, BattleSide side, int row, int col, int level,
             int attackScalePermille, int defenseScalePermille, int hpScalePermille)
         {
-            int levelPermille = 1000 + (level - 1) * 30;
+            int levelPermille = LevelMultiplierPermille(level);
             var unit = new BattleUnit
             {
                 Id = units.Count + 1,
@@ -358,6 +358,11 @@ namespace ChoSiren.Systems.Tactics
 
         private static int Scale(int value, int levelPermille, int scalePermille, int minimum) =>
             Math.Max(minimum, (int)((long)value * levelPermille / 1000 * scalePermille / 1000));
+
+        public static int LevelMultiplierPermille(int level) => 1000 + (Math.Max(1, level) - 1) * 30;
+
+        public static int MemberStatAtLevel(int baseValue, int level, int minimum = 1) =>
+            Scale(baseValue, LevelMultiplierPermille(level), 1000, minimum);
 
         private static int CombinePermille(int authoredScalePermille, int difficultyMultiplierPermille) =>
             Math.Max(1, (int)((long)authoredScalePermille * difficultyMultiplierPermille / 1000));

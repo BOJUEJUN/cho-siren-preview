@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ChoSiren.Systems.Gacha;
+using ChoSiren.Systems.Presentation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -111,6 +112,8 @@ namespace ChoSiren.Panels
         private int interviewPoolIndex;
         private int interviewCandidateIndex;
         private GameObject interviewContent;
+        private string displayedInterviewCycle;
+        private float nextInterviewRefreshCheck;
 
         public static GachaPanel Open(Transform host, GameModel gameModel, IGachaService gachaService,
             Action back = null, Action<string> message = null)
@@ -186,6 +189,7 @@ namespace ChoSiren.Panels
 
         private void BuildInterview()
         {
+            displayedInterviewCycle = model.CurrentInterviewCycle;
             interviewContent = kit.NewObject("InterviewContent", transform);
             RectTransform contentRect = interviewContent.AddComponent<RectTransform>();
             PanelKit.Stretch(contentRect);
@@ -475,9 +479,14 @@ namespace ChoSiren.Panels
 
         private void SignInterviewCandidate(int memberIndex, int cost)
         {
-            bool signed = model.SignCandidate(memberIndex, cost, out string message);
+            bool signed = model.SignInterviewCandidate(interviewPoolIndex, memberIndex,
+                displayedInterviewCycle, cost, out string message);
             Notify(message);
-            if (!signed) return;
+            if (!signed)
+            {
+                if (displayedInterviewCycle != model.CurrentInterviewCycle) RebuildInterview();
+                return;
+            }
             List<int> remaining = InterviewCandidates();
             interviewCandidateIndex = remaining.Count == 0
                 ? 0
@@ -489,6 +498,7 @@ namespace ChoSiren.Panels
         {
             if (interviewContent != null)
             {
+                interviewContent.SetActive(false);
                 if (Application.isPlaying) Destroy(interviewContent);
                 else DestroyImmediate(interviewContent);
             }
@@ -497,32 +507,21 @@ namespace ChoSiren.Panels
 
         private List<int> InterviewCandidates()
         {
-            var pool = new List<int>();
-            DateTime now = DateTime.Now;
-            DateTime cycle = now.Hour < 18 ? now.AddDays(-1) : now;
-            int seed = cycle.Year * 400 + cycle.DayOfYear;
-            MemberDefinition[] members = GameModel.Members;
-
-            for (int index = 0; index < members.Length; index++)
-            {
-                if (model.IsUnlocked(index)) continue;
-                if (((index + seed) & 1) != interviewPoolIndex) continue;
-                pool.Add(index);
-            }
-
-            var result = new List<int>();
-            int count = Mathf.Min(10, pool.Count);
-            int offset = pool.Count == 0 ? 0 : Mathf.Abs(seed * 7 + interviewPoolIndex * 11) % pool.Count;
-            for (int index = 0; index < count; index++)
-                result.Add(pool[(offset + index) % pool.Count]);
-            return result;
+            return new List<int>(model.InterviewCandidates(interviewPoolIndex));
         }
 
         private int InterviewCost(int memberIndex)
         {
-            return interviewPoolIndex == 0
-                ? 700 + memberIndex % 4 * 100
-                : 1150 + memberIndex % 4 * 150;
+            return model.InterviewQuote(interviewPoolIndex, memberIndex);
+        }
+
+        private void Update()
+        {
+            if (!embeddedMode || model == null || Time.unscaledTime < nextInterviewRefreshCheck) return;
+            nextInterviewRefreshCheck = Time.unscaledTime + 1f;
+            if (displayedInterviewCycle == model.CurrentInterviewCycle) return;
+            interviewCandidateIndex = 0;
+            RebuildInterview();
         }
 
         private static Sprite CandidateSprite(MemberDefinition member)
@@ -546,18 +545,15 @@ namespace ChoSiren.Panels
             return "支援";
         }
 
-        private static string InterviewPosition(string career, int memberIndex)
+        private string InterviewPosition(string career, int memberIndex)
         {
-            if (career == "主唱") return memberIndex % 2 == 0 ? "治疗 / 增益" : "输出 / 共鸣";
-            if (career == "舞者") return "破甲 / 输出";
-            return "护盾 / 增益";
+            return MemberBattlePresentation.Position(model.Tactics, GameModel.Members[memberIndex].Id);
         }
 
-        private static string InterviewTrait(string career, int memberIndex)
+        private string InterviewTrait(string career, int memberIndex)
         {
-            if (career == "主唱") return memberIndex % 2 == 0 ? "治愈高音" : "穿透强音";
-            if (career == "舞者") return memberIndex % 2 == 0 ? "节拍追击" : "破绽舞步";
-            return memberIndex % 2 == 0 ? "共振护场" : "混音增幅";
+            var skills = MemberBattlePresentation.FeaturedSkills(model.Tactics, GameModel.Members[memberIndex].Id);
+            return skills.Count == 0 ? "暂无技能" : skills[0].Name;
         }
 
         private static void CandidateStats(MemberDefinition member, int memberIndex, out int vocal,
@@ -1231,7 +1227,7 @@ namespace ChoSiren.Panels
             return string.IsNullOrEmpty(custom) ? PanelKit.MemberNameOrId(itemId) : custom;
         }
 
-        private static string CandidateProfile(string itemId)
+        private string CandidateProfile(string itemId)
         {
             MemberDefinition[] members = GameModel.Members;
             for (int index = 0; index < members.Length; index++)

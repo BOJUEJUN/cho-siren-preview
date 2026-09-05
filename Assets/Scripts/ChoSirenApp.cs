@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Economy;
+using ChoSiren.Systems.Tactics;
+using ChoSiren.Systems.Presentation;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -1269,7 +1271,7 @@ namespace ChoSiren
                 new Color32(12, 23, 67, 215), 20);
             PlaceTop(statPanel.GetComponent<RectTransform>(), 320, 198, 276, 238);
             ApplyAiUiSprite(statPanel, "Art/MemberAI/UI/member-stat-panel-ai-v1");
-            NewPlacedText(statPanel.transform, "基础属性", 16, new Color32(255, 183, 229, 255),
+            NewPlacedText(statPanel.transform, "当前等级属性", 16, new Color32(255, 183, 229, 255),
                 16, 12, 244, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             AddMemberStat(statPanel.transform, "MemberStatAttack", "攻击", attack.ToString("N0"), 50);
             AddMemberStat(statPanel.transform, "MemberStatHp", "生命", hp.ToString("N0"), 91);
@@ -1283,15 +1285,15 @@ namespace ChoSiren
             NewPlacedText(skillPanel.transform, "成员技能", 17, new Color32(255, 184, 230, 255),
                 18, 12, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text firstSkill = NewPlacedText(skillPanel.transform, firstSkillName, 17, White,
-                20, 50, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                20, 54, 246, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
             firstSkill.name = "MemberSkillPrimary";
             NewPlacedText(skillPanel.transform, firstSkillEffect, 14, Muted,
-                20, 80, 520, 52, TextAnchor.UpperLeft);
+                20, 98, 242, 132, TextAnchor.UpperLeft);
             Text secondSkill = NewPlacedText(skillPanel.transform, secondSkillName, 17, White,
-                20, 150, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                302, 54, 240, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
             secondSkill.name = "MemberSkillSecondary";
             NewPlacedText(skillPanel.transform, secondSkillEffect, 14, Muted,
-                20, 180, 520, 52, TextAnchor.UpperLeft);
+                302, 98, 238, 132, TextAnchor.UpperLeft);
             NewPlacedText(skillPanel.transform, MemberTeamBonus(member), 13,
                 new Color32(110, 225, 255, 255), 20, 248, 520, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
 
@@ -1305,7 +1307,7 @@ namespace ChoSiren
                 new Color32(255, 188, 231, 255), 18, 12, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(guidePanel.transform,
                 unlocked
-                    ? $"优先提升{member.Career}核心属性；训练等级、饰品套装与编队协同都会计入战力。"
+                    ? "训练提升等级与战斗属性；装备饰品可提高编队战力。"
                     : MemberAcquisitionCopy(member),
                 14, White, 18, 42, 520, 66, TextAnchor.UpperLeft);
 
@@ -1349,16 +1351,15 @@ namespace ChoSiren
             PlaceTop(close.GetComponent<RectTransform>(), 185, 1012, 250, 56);
         }
 
-        private static void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,
+        private void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,
             out int critPercent, out int speed)
         {
-            int rarityBonus = member.Rarity == "SSR" ? 24 : member.Rarity == "SR" ? 12 : 0;
-            int roleAttack = member.Role == "主唱" ? 38 : member.Role == "舞者" ? 24 : 8;
-            int roleHp = member.Role == "支援" ? 260 : member.Role == "舞者" ? 130 : 0;
-            attack = 82 + member.BasePower / 92 + rarityBonus + roleAttack;
-            hp = 980 + member.BasePower / 7 + roleHp;
-            critPercent = 6 + rarityBonus / 3 + (member.Role == "舞者" ? 7 : member.Role == "主唱" ? 3 : 0);
-            speed = 88 + index % 9 + (member.Role == "舞者" ? 22 : member.Role == "主唱" ? 12 : 4);
+            UnitDefinition unit = model.Tactics.FindUnit(member.Id);
+            int level = Mathf.Max(1, model.LevelOf(index));
+            attack = unit == null ? 0 : BattleSimulator.MemberStatAtLevel(unit.Attack, level);
+            hp = unit == null ? 0 : BattleSimulator.MemberStatAtLevel(unit.MaxHp, level);
+            critPercent = unit == null ? 0 : unit.CritPermille / 10;
+            speed = unit?.Speed ?? 0;
         }
 
         private void AddMemberStat(Transform parent, string name, string label, string value, float y)
@@ -1371,40 +1372,21 @@ namespace ChoSiren
             valueText.name = name;
         }
 
-        private static void MemberSkillCopy(MemberDefinition member, out string firstName, out string firstEffect,
+        private void MemberSkillCopy(MemberDefinition member, out string firstName, out string firstEffect,
             out string secondName, out string secondEffect)
         {
-            switch (member.Role)
-            {
-                case "舞者":
-                    firstName = "流光连舞";
-                    firstEffect = "对十字范围造成伤害，并提高自身下一次行动的暴击率。";
-                    secondName = "星澜律动";
-                    secondEffect = "连续命中时积累舞步，满层后为全队提升速度。";
-                    break;
-                case "支援":
-                    firstName = "和声守护";
-                    firstEffect = "为生命最低的成员回复生命，并附加短时护盾。";
-                    secondName = "应援回响";
-                    secondEffect = "提高全队攻击并延长正面状态，持续两个行动回合。";
-                    break;
-                default:
-                    firstName = "星声穿透";
-                    firstEffect = "对一列目标造成高音伤害，暴击时额外削弱防御。";
-                    secondName = "幻域终演";
-                    secondEffect = "对全体敌人造成伤害，并依据当前共鸣提高倍率。";
-                    break;
-            }
+            List<SkillDefinition> skills = MemberBattlePresentation.FeaturedSkills(model.Tactics, member.Id);
+            SkillDefinition first = skills.Count > 0 ? skills[0] : null;
+            SkillDefinition second = skills.Count > 1 ? skills[1] : null;
+            firstName = first?.Name ?? "暂无技能";
+            secondName = second?.Name ?? "暂无第二技能";
+            firstEffect = MemberBattlePresentation.DescribeSkill(first);
+            secondEffect = MemberBattlePresentation.DescribeSkill(second);
         }
 
         private static string MemberTeamBonus(MemberDefinition member)
         {
-            return member.Career switch
-            {
-                "舞者" => "编队加成 · 全队速度 +6%，连击伤害 +4%",
-                "支援" => "编队加成 · 治疗与护盾 +8%，受击伤害 -3%",
-                _ => "编队加成 · 全队攻击 +6%，暴击伤害 +4%",
-            };
+            return "技能随战斗骰型强化；具体效果以技能说明为准。";
         }
 
         private static string MemberRace(MemberDefinition member, int index)

@@ -498,6 +498,79 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void BattleMustNotSilentlyDropATeamMemberWithMissingCombatData()
+        {
+            GameModel model = CreateModel();
+            int stamina = model.Save.Stamina;
+            tactics.Units.RemoveAll(unit => unit.Id == GameModel.Members[0].Id);
+            Assert.That(model.StartStageBattle(EasyStage, 99, out string message), Is.Null);
+            Assert.That(model.Save.Stamina, Is.EqualTo(stamina));
+            Assert.That(message, Does.Contain("成员"));
+        }
+
+        [Test]
+        public void InterviewShortlistSurvivesSigningReloadAndPoolSwitchWithoutReplacingOtherCandidates()
+        {
+            GameModel model = CreateModel();
+            int[] online = model.InterviewCandidates(0).ToArray();
+            int[] offline = model.InterviewCandidates(1).ToArray();
+            Assert.That(online.Length, Is.EqualTo(10));
+            Assert.That(offline.Length, Is.EqualTo(10));
+            Assert.That(online.Intersect(offline), Is.Empty);
+            int candidate = online[3];
+            int cost = model.InterviewQuote(0, candidate);
+            int initialGold = model.Save.Gold;
+            Assert.That(model.SignInterviewCandidate(0, candidate, model.CurrentInterviewCycle,
+                cost, out string message), Is.True, message);
+            Assert.That(model.Save.Gold, Is.EqualTo(initialGold - cost));
+            Assert.That(model.InterviewCandidates(0), Is.EqualTo(online.Where(index => index != candidate)));
+            Assert.That(model.InterviewCandidates(1), Is.EqualTo(offline));
+            GameModel reloaded = CreateModel();
+            Assert.That(reloaded.InterviewCandidates(0), Is.EqualTo(online.Where(index => index != candidate)));
+            Assert.That(reloaded.InterviewCandidates(1), Is.EqualTo(offline));
+        }
+
+        [Test]
+        public void InterviewRefreshesAtEighteenRejectsOldQuotesAndDoesNotChargeForBrowsing()
+        {
+            now = new DateTime(2026, 9, 5, 17, 59, 59, DateTimeKind.Local);
+            GameModel model = CreateModel();
+            string oldCycle = model.CurrentInterviewCycle;
+            int candidate = model.InterviewCandidates(0)[0];
+            int gold = model.Save.Gold;
+            int quote = model.InterviewQuote(0, candidate);
+            Assert.That(model.InterviewQuote(1, candidate), Is.GreaterThan(quote));
+            Assert.That(model.SignInterviewCandidate(1, candidate, oldCycle, quote, out _), Is.False);
+            Assert.That(model.SignInterviewCandidate(0, candidate, oldCycle, quote - 1, out _), Is.False);
+            now = now.AddSeconds(1);
+            Assert.That(model.CurrentInterviewCycle, Is.Not.EqualTo(oldCycle));
+            Assert.That(model.SignInterviewCandidate(0, candidate, oldCycle, quote, out _), Is.False);
+            Assert.That(model.IsUnlocked(candidate), Is.False);
+            model.InterviewCandidates(0);
+            model.InterviewCandidates(1);
+            Assert.That(model.Save.InterviewCycle, Is.EqualTo("2026-09-05"));
+            Assert.That(model.Save.Gold, Is.EqualTo(gold));
+        }
+
+        [Test]
+        public void ExhaustedInterviewPoolStaysEmptyUntilTheNextRefresh()
+        {
+            GameModel model = CreateModel();
+            int[] online = model.InterviewCandidates(0).ToArray();
+            foreach (int candidate in online)
+                Assert.That(model.SignInterviewCandidate(0, candidate, model.CurrentInterviewCycle,
+                    model.InterviewQuote(0, candidate), out string message), Is.True, message);
+            Assert.That(model.InterviewCandidates(0), Is.Empty);
+            Assert.That(CreateModel().InterviewCandidates(0), Is.Empty);
+            int balance = model.Save.Gold;
+            Assert.That(model.SignInterviewCandidate(0, online[0], model.CurrentInterviewCycle,
+                model.InterviewQuote(0, online[0]), out _), Is.False);
+            Assert.That(model.Save.Gold, Is.EqualTo(balance));
+            now = now.AddDays(1);
+            Assert.That(model.InterviewCandidates(0), Is.Not.Empty);
+        }
+
+        [Test]
         public void SignCandidateUsesGoldValidatesQuoteAndPersistsUnlock()
         {
             GameModel model = CreateModel();

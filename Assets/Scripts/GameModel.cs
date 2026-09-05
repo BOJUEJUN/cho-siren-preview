@@ -152,6 +152,11 @@ namespace ChoSiren
         public BattleDifficulty SelectedDifficulty = BattleDifficulty.Normal;
         public List<int> ClaimedChapterOneStarRewards = new List<int>();
         public List<string> ClaimedChapterOneTasks = new List<string>();
+
+        // Stable daily shortlists: signing removes a candidate, never replenishes the pool.
+        public string InterviewCycle = string.Empty;
+        public List<string> OnlineCandidateIds = new List<string>();
+        public List<string> OfflineCandidateIds = new List<string>();
     }
 
     public sealed class GameModel : IGachaService, ITaskBoardService
@@ -446,6 +451,69 @@ namespace ChoSiren
                 var snapshot = new StaminaSnapshot(Save.Stamina, Save.StaminaRegenAnchorUnix, 0);
                 return snapshot.SecondsUntilNextPoint(NowUnix, economy.StaminaRegenSeconds, economy.StaminaMax);
             }
+        }
+
+        // ------------------------------------------------------------------ daily interviews
+
+        public string CurrentInterviewCycle => DateKey(nowProvider().AddHours(-18));
+
+        public IReadOnlyList<int> InterviewCandidates(int poolIndex)
+        {
+            if (poolIndex < 0 || poolIndex > 1) return Array.Empty<int>();
+            EnsureInterviewShortlists();
+            List<string> ids = poolIndex == 0 ? Save.OnlineCandidateIds : Save.OfflineCandidateIds;
+            return ids.Select(IndexOfMember).Where(index => index >= 0 && !IsUnlocked(index)).ToArray();
+        }
+
+        public int InterviewQuote(int poolIndex, int memberIndex)
+        {
+            if (poolIndex < 0 || poolIndex > 1 || !IsValidMemberIndex(memberIndex)) return 0;
+            return poolIndex == 0 ? 700 + memberIndex % 4 * 100 : 1150 + memberIndex % 4 * 150;
+        }
+
+        public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,
+            int displayedQuote, out string message)
+        {
+            if (displayedCycle != CurrentInterviewCycle)
+            {
+                message = "候选名单已更新，请查看新名单后再签约";
+                return false;
+            }
+            if (!InterviewCandidates(poolIndex).Contains(memberIndex))
+            {
+                message = "该成员已签约或不在本期候选名单中";
+                return false;
+            }
+            if (displayedQuote != InterviewQuote(poolIndex, memberIndex))
+            {
+                message = "签约报价已更新，请重新查看";
+                return false;
+            }
+            return SignCandidate(memberIndex, displayedQuote, out message);
+        }
+
+        private void EnsureInterviewShortlists()
+        {
+            string cycleKey = CurrentInterviewCycle;
+            if (Save.InterviewCycle == cycleKey) return;
+            DateTime cycle = nowProvider().AddHours(-18);
+            int seed = cycle.Year * 400 + cycle.DayOfYear;
+            var lists = new[] { new List<string>(), new List<string>() };
+            for (int poolIndex = 0; poolIndex < 2; poolIndex++)
+            {
+                var available = new List<int>();
+                for (int index = 0; index < Members.Length; index++)
+                    if (!IsUnlocked(index) && ((index + seed) & 1) == poolIndex)
+                        available.Add(index);
+                int offset = available.Count == 0 ? 0 : (seed * 7 + poolIndex * 11) % available.Count;
+                for (int index = 0; index < Math.Min(10, available.Count); index++)
+                    lists[poolIndex].Add(Members[available[(offset + index) % available.Count]].Id);
+            }
+            Save.InterviewCycle = cycleKey;
+            Save.OnlineCandidateIds = lists[0];
+            Save.OfflineCandidateIds = lists[1];
+            // A read may initialize the daily snapshot, but must not rebuild UI through Changed.
+            Persist();
         }
 
         // ------------------------------------------------------------------ legacy recruit (过渡)
@@ -1144,6 +1212,13 @@ namespace ChoSiren
             {
                 if (stateChanged) SaveState();
                 message = "当前编队没有可出战的成员";
+                return null;
+            }
+
+            if (party.Count != Save.Team.Count)
+            {
+                if (stateChanged) SaveState();
+                message = "部分编队成员暂时无法出战，请调整编队后重试";
                 return null;
             }
 
@@ -1850,6 +1925,9 @@ namespace ChoSiren
             Save.UnlockedMembers ??= new List<int> { 0, 1, 2, 3 };
             Save.MemberLevels ??= new List<int>();
             Save.Team ??= new List<int>();
+            Save.InterviewCycle ??= string.Empty;
+            Save.OnlineCandidateIds = CleanStrings(Save.OnlineCandidateIds);
+            Save.OfflineCandidateIds = CleanStrings(Save.OfflineCandidateIds);
             Save.Tasks ??= new TaskBoardState();
             Save.Tasks.Entries ??= new List<TaskProgress>();
             Save.Tasks.DailyKey ??= string.Empty;

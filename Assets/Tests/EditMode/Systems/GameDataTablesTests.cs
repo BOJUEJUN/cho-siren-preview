@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ChoSiren.Panels;
 using ChoSiren.Systems;
 using ChoSiren.Systems.Data;
@@ -50,24 +51,45 @@ namespace ChoSiren.Tests.Systems
         [Test]
         public void EveryLegacyMemberHasABattleUnit()
         {
-            // Catalog expands GameModel.Members to 50+; tactics.json currently covers the
-            // original nine. New hero-* ids use roster presentation only until battle data lands.
             string[] legacyIds =
             {
                 "xingli", "feiyin", "wubai", "yeying", "yaoguang", "hupo", "xianyue", "chuxue", "chengxia",
             };
 
             GameDataRepository repository = Load();
-            for (int index = 0; index < legacyIds.Length; index++)
+            foreach (MemberDefinition member in GameModel.Members)
             {
-                Assert.That(repository.Tactics.FindUnit(legacyIds[index]), Is.Not.Null,
-                    $"成员 {legacyIds[index]} 缺少 tactics.json 单位定义");
+                UnitDefinition unit = repository.Tactics.FindUnit(member.Id);
+                Assert.That(unit, Is.Not.Null, $"成员 {member.Id} 缺少战斗单位，签约后会无法出战");
+                Assert.That(unit.Name, Is.EqualTo(member.Name));
+                Assert.That(unit.SkillIds.All(id => repository.Tactics.FindSkill(id) != null), Is.True);
             }
 
             for (int index = 0; index < legacyIds.Length; index++)
             {
                 Assert.That(GameModel.Members[index].Id, Is.EqualTo(legacyIds[index]),
                     "前九名成员顺序必须与遗留存档约定一致");
+            }
+        }
+
+        [Test]
+        public void EveryCatalogMemberCanActuallyJoinBattleWithTheSameStatsShownInTheirDossier()
+        {
+            TacticsManifest manifest = Load().Tactics;
+            foreach (MemberDefinition member in GameModel.Members)
+            {
+                var battle = new BattleSimulator(manifest, manifest.Stages[0], new[]
+                {
+                    new PlayerUnitSetup { UnitId = member.Id, Level = 37, Row = 0, Col = 0 }
+                }, new SeededRandom(42));
+                BattleUnit actor = battle.Units.Single(unit => unit.Side == BattleSide.Player);
+                UnitDefinition definition = manifest.FindUnit(member.Id);
+                Assert.That(actor.Definition.Id, Is.EqualTo(member.Id));
+                Assert.That(actor.BaseAttack, Is.EqualTo(BattleSimulator.MemberStatAtLevel(definition.Attack, 37)));
+                Assert.That(actor.MaxHp, Is.EqualTo(BattleSimulator.MemberStatAtLevel(definition.MaxHp, 37)));
+                Assert.That(actor.Speed, Is.EqualTo(definition.Speed));
+                Assert.That(battle.AutoPlay(), Is.Not.EqualTo(BattleOutcome.Ongoing),
+                    $"{member.Name} 的技能或回合逻辑阻止了战斗结束");
             }
         }
 
