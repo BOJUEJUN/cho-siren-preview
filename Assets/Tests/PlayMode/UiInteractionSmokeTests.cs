@@ -266,6 +266,34 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator DeferredViewportRefreshNeverDismissesMemberDossier()
+        {
+            Click("Nav-members");
+            yield return null;
+            Click("Member-xingli");
+            yield return null;
+            GameObject dossier = RequireActiveObject("MemberModal");
+            var app = Object.FindAnyObjectByType<ChoSirenApp>();
+            // Drive the real debounce boundary deterministically; Editor Game View does
+            // not reliably honor Screen.SetResolution. WebGL viewport resize is also QA'd.
+            var pendingRefresh = typeof(ChoSirenApp).GetField("memberResizeRefreshAt",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(pendingRefresh, Is.Not.Null);
+            pendingRefresh.SetValue(app, 0f);
+            yield return null;
+            yield return null;
+            Assert.That(RequireActiveObject("MemberModal"), Is.SameAs(dossier));
+            RequireActiveObject("MemberTrainingCost");
+            Click("Close");
+            yield return null;
+            yield return null;
+            AssertInactiveOrMissing("MemberModal");
+            Assert.That((float)pendingRefresh.GetValue(app), Is.LessThan(0f),
+                "关闭档案后仍须完成背景列表的适配，不能丢弃重排请求。");
+            RequireActiveObject("Member-xingli");
+        }
+
+        [UnityTest]
         public IEnumerator TrainingBecomesUnavailableBeforeOverspending()
         {
             Click("Nav-members");

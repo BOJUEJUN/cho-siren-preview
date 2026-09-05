@@ -107,7 +107,9 @@ namespace ChoSiren
                 memberResizeRefreshAt = Time.unscaledTime + 0.12f;
             }
 
-            if ((currentScreen == "members" || currentScreen == "team") && memberResizeRefreshAt >= 0f &&
+            // The canvas already adapts the open modal to viewport changes. Defer the
+            // background grid rebuild until it closes; ShowScreen would discard the dossier.
+            if (modalObject == null && (currentScreen == "members" || currentScreen == "team") && memberResizeRefreshAt >= 0f &&
                 Time.unscaledTime >= memberResizeRefreshAt)
             {
                 memberResizeRefreshAt = -1f;
