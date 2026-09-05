@@ -19,12 +19,12 @@ namespace ChoSiren.Panels
     public sealed class TacticsBattlePanel : MonoBehaviour
     {
         private const float EnemyCellWidth = 152f;
-        private const float EnemyCellHeight = 58f;
-        private const float PlayerCellWidth = 154f;
+        private const float EnemyCellHeight = 84f;
+        private const float PlayerCellWidth = 158f;
         // The roster lives in the band between the dice console and command deck.
-        private const float PlayerCellHeight = 108f;
-        private const float PlayerRosterLabelTop = 1208f;
-        private const float PlayerRosterTop = 1230f;
+        private const float PlayerCellHeight = 172f;
+        private const float PlayerRosterLabelTop = 1170f;
+        private const float PlayerRosterTop = 1204f;
         private const float BeatSeconds = 2f;
         private const float BattleIntroSeconds = 2f;
         private const int LogLines = 5;
@@ -71,9 +71,9 @@ namespace ChoSiren.Panels
             public void OnPointerExit(PointerEventData eventData) => Exit?.Invoke();
         }
 
-        private static readonly Color CellIdle = new Color32(13, 20, 57, 156);
+        private static readonly Color CellIdle = new Color32(13, 16, 38, 255);
         private static readonly Color CellEmpty = new Color32(18, 16, 52, 150);
-        private static readonly Color CellEnemy = new Color32(36, 17, 57, 168);
+        private static readonly Color CellEnemy = new Color32(27, 17, 43, 255);
         private static readonly Color AnchorTint = new Color32(80, 220, 255, 40);
         private static readonly Color AffectedTint = new Color32(255, 82, 194, 58);
         private static readonly Color DiceIdle = new Color32(220, 235, 255, 235);
@@ -90,6 +90,8 @@ namespace ChoSiren.Panels
         private readonly List<Text> diceHoldLabels = new List<Text>();
         private readonly List<Outline> diceOutlines = new List<Outline>();
         private readonly List<Sprite> runtimeSprites = new List<Sprite>();
+        private readonly Dictionary<string, Sprite> battlePortraits = new Dictionary<string, Sprite>();
+        private Text skillWaitingText;
         private readonly StringBuilder logBuilder = new StringBuilder();
 
         private PanelKit kit;
@@ -256,6 +258,13 @@ namespace ChoSiren.Panels
                 new Color32(3, 4, 22, 46));
             PanelKit.Stretch(battleReadabilityVeil.rectTransform);
             battleReadabilityVeil.raycastTarget = false;
+
+            // The authored backdrop contains obsolete dice pedestals and four oversized rings.
+            // Cover that entire band once; transparent cards must not reveal a second UI underneath.
+            Image commandSurface = kit.NewImage("BattleCommandSurface", transform, null,
+                new Color32(8, 9, 27, 255));
+            PanelKit.PlaceTop(commandSurface.rectTransform, 0, 836, 720, 700);
+            commandSurface.raycastTarget = false;
         }
 
         private void BuildHeader()
@@ -275,18 +284,18 @@ namespace ChoSiren.Panels
 
             kit.NewPlacedText(header.transform, "♥ 首领", 13, PanelKit.Pink, 18, 10, 130, 22,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            kit.NewPlacedText(header.transform, stage.Name, 18, PanelKit.White, 18, 31, 270, 28,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
-            kit.NewPlacedText(header.transform, "魅音女团 · 主唱", 10, new Color32(205, 188, 231, 255),
-                18, 57, 230, 18, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text stageTitle = kit.NewPlacedText(header.transform, stage.Name, 22, PanelKit.White,
+                18, 31, 252, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageTitle.gameObject.name = "BattleStageTitle";
+            PanelKit.EnableBestFit(stageTitle, 18);
 
             GameObject phaseBadge = kit.NewPanel("BossPhaseBadge", header.transform,
                 new Color32(35, 24, 84, 224), 18);
-            PanelKit.PlaceTop(phaseBadge.GetComponent<RectTransform>(), 278, 8, 162, 70);
+            PanelKit.PlaceTop(phaseBadge.GetComponent<RectTransform>(), 282, 12, 150, 66);
             kit.AddOutline(phaseBadge, new Color32(155, 115, 255, 84), 1f);
-            phaseText = kit.NewPlacedText(phaseBadge.transform, "阶段 1/3", 17, PanelKit.Gold, 6, 5, 150, 30,
+            phaseText = kit.NewPlacedText(phaseBadge.transform, "阶段 1/3", 18, PanelKit.Gold, 6, 3, 138, 28,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
-            timerText = kit.NewPlacedText(phaseBadge.transform, "目标 01:00", 12, PanelKit.Muted, 6, 37, 150, 22,
+            timerText = kit.NewPlacedText(phaseBadge.transform, "目标 01:00", 16, PanelKit.Muted, 6, 34, 138, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
 
             enemyHpFill = kit.NewBar("EnemyHp", header.transform, 18, 93, 684, 22,
@@ -294,10 +303,8 @@ namespace ChoSiren.Panels
             enemyHpText = kit.NewPlacedText(header.transform, string.Empty, 13, PanelKit.White, 18, 91, 684, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             kit.AddOutline(enemyHpText.gameObject, new Color32(24, 5, 40, 210), 1f);
-            // Keep the round indicator below the HP track. The upper-right 2x2 control cluster
-            // occupies y=16..102, so placing it there makes the label read through the buttons.
-            turnText = kit.NewPlacedText(header.transform, "第 1 回合", 11, PanelKit.Cyan, 456, 114, 240, 16,
-                TextAnchor.MiddleRight, FontStyle.Bold);
+            turnText = kit.NewPlacedText(header.transform, "第 1 回合", 16, PanelKit.Muted, 18, 60, 252, 22,
+                TextAnchor.MiddleLeft);
 
             for (int marker = 1; marker <= 2; marker++)
             {
@@ -477,7 +484,7 @@ namespace ChoSiren.Panels
         {
             bool player = side == BattleSide.Player;
             string name = $"Cell-{(player ? "P" : "E")}-{row}-{col}";
-            GameObject root = kit.NewPanel(name, transform, CellEmpty, player ? 30 : 14);
+            GameObject root = kit.NewPanel(name, transform, CellEmpty, 12);
             RectTransform rect = root.GetComponent<RectTransform>();
             float width = player ? PlayerCellWidth : EnemyCellWidth;
             float height = player ? PlayerCellHeight : EnemyCellHeight;
@@ -502,7 +509,7 @@ namespace ChoSiren.Panels
             Image portrait = kit.NewImage("Portrait", root.transform, null, PanelKit.White);
             if (player)
             {
-                PanelKit.PlaceTop(portrait.rectTransform, 28, 4, width - 56, 62);
+                PanelKit.PlaceTop(portrait.rectTransform, 8, 8, width - 16, 98);
                 portrait.preserveAspect = true;
                 portrait.useSpriteMesh = true;
             }
@@ -511,34 +518,37 @@ namespace ChoSiren.Panels
                 portrait.enabled = false;
             }
 
-            Image ornament = kit.NewImage("BattleFrame", root.transform, player ? memberFrameSprite : null,
-                player ? new Color32(255, 255, 255, 205) : Color.clear);
+            Image ornament = kit.NewImage("BattleFrame", root.transform, null, Color.clear);
             PanelKit.Stretch(ornament.rectTransform);
             ornament.preserveAspect = true;
             ornament.raycastTarget = false;
 
-            Image highlight = kit.NewImage("Highlight", root.transform, kit.RoundedSprite(player ? 30 : 14), AnchorTint);
+            Image highlight = kit.NewImage("Highlight", root.transform, kit.RoundedSprite(12), AnchorTint);
             highlight.type = Image.Type.Sliced;
             PanelKit.Stretch(highlight.rectTransform);
             highlight.enabled = false;
 
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 14 : 12, PanelKit.White,
-                player ? 14 : 8, player ? 65 : 5, width - (player ? 28 : 16), player ? 18 : 20,
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 20 : 16, PanelKit.White,
+                player ? 10 : 8, player ? 108 : 3, width - (player ? 20 : 16), player ? 30 : 26,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(unitName, player ? 11 : 9);
-            Image hpFill = kit.NewBar("Hp", root.transform, player ? 18 : 8, player ? 85 : 29,
-                width - (player ? 36 : 16), player ? 7 : 9,
+            unitName.gameObject.name = "UnitName";
+            PanelKit.EnableBestFit(unitName, player ? 18 : 12);
+            Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 8, player ? 144 : 34,
+                width - (player ? 24 : 16), 6,
                 new Color32(66, 54, 117, 255), player ? PanelKit.Cyan : PanelKit.Pink, 5);
-            Text hpText = kit.NewPlacedText(root.transform, string.Empty, player ? 9 : 10, PanelKit.White,
-                player ? 14 : 8, player ? 91 : 40, width - (player ? 28 : 16), player ? 13 : 14,
+            Text hpText = kit.NewPlacedText(root.transform, string.Empty, 13, PanelKit.Muted,
+                player ? 10 : 8, player ? 152 : 42, width - (player ? 20 : 16), 20,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft);
-            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 20 : 8, player ? 103 : 50,
-                width - (player ? 40 : 16), player ? 4 : 5,
+            hpText.gameObject.name = "UnitHpText";
+            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 12 : 8, player ? 139 : 30,
+                width - (player ? 24 : 16), 3,
                 new Color32(50, 60, 110, 255), new Color32(150, 230, 255, 255), 3);
             GameObject shieldTrack = shieldFill.transform.parent.gameObject;
-            Text status = kit.NewPlacedText(root.transform, string.Empty, 9, PanelKit.Gold,
-                player ? 94 : width - 70, player ? 6 : 40, player ? 54 : 62, 16,
-                TextAnchor.MiddleRight, FontStyle.Bold);
+            Text status = kit.NewPlacedText(root.transform, string.Empty, 13, PanelKit.Gold,
+                8, player ? 152 : 62, width - 16, 20,
+                player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
+            status.gameObject.name = "UnitStatus";
+            PanelKit.EnableBestFit(status, 12);
             Text fallen = kit.NewPlacedText(root.transform, "倒下", 14, new Color32(196, 190, 220, 255), 4, player ? 31 : 22,
                 width - 8, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
             fallen.gameObject.SetActive(false);
@@ -571,12 +581,12 @@ namespace ChoSiren.Panels
         {
             GameObject strip = kit.NewPanel("TurnStrip", transform, new Color32(12, 11, 47, 78), 12);
             PanelKit.PlaceTop(strip.GetComponent<RectTransform>(), 20, 840, 680, 54);
-            actorText = kit.NewPlacedText(strip.transform, string.Empty, 14, PanelKit.White, 14, 3, 652, 25,
+            actorText = kit.NewPlacedText(strip.transform, string.Empty, 18, PanelKit.White, 14, 3, 652, 25,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            eventText = kit.NewPlacedText(strip.transform, "战斗开始", 11, PanelKit.Muted, 14, 27, 652, 22,
+            eventText = kit.NewPlacedText(strip.transform, "战斗开始", 16, PanelKit.Muted, 14, 27, 652, 22,
                 TextAnchor.MiddleLeft);
-            PanelKit.EnableBestFit(actorText, 10);
-            PanelKit.EnableBestFit(eventText, 8);
+            PanelKit.EnableBestFit(actorText, 16);
+            PanelKit.EnableBestFit(eventText, 14);
 
             roundFlash = kit.NewPlacedText(transform, string.Empty, 40, PanelKit.White, 60, 300, 600, 80,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -587,25 +597,25 @@ namespace ChoSiren.Panels
 
         private void BuildDiceConsole()
         {
-            GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(5, 9, 31, 238), 24);
-            PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 900, 680, 306);
+            GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(12, 14, 35, 255), 24);
+            PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 900, 680, 264);
             kit.AddOutline(console, new Color32(102, 218, 255, 92), 1.25f);
             Image consoleGlow = kit.NewImage("DiceConsoleGlow", console.transform, kit.RadialSprite(),
                 new Color32(120, 79, 255, 16));
-            PanelKit.PlaceTop(consoleGlow.rectTransform, -30, 58, 740, 260);
+            PanelKit.PlaceTop(consoleGlow.rectTransform, 0, 0, 680, 264);
             consoleGlow.raycastTarget = false;
             consoleGlow.transform.SetAsFirstSibling();
             Image titleLine = kit.NewImage("DiceConsoleTitleLine", console.transform, kit.RoundedSprite(2),
                 new Color32(106, 222, 255, 132));
             PanelKit.PlaceTop(titleLine.rectTransform, 18, 48, 644, 2);
-            Text diceTitle = kit.NewPlacedText(console.transform, "骰子演出", 12, PanelKit.Pink,
+            Text diceTitle = kit.NewPlacedText(console.transform, "骰子演出", 18, PanelKit.Pink,
                 18, 9, 180, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             diceTitle.gameObject.name = "DiceConsoleTitle";
-            diceHandText = kit.NewPlacedText(console.transform, "等待骰子回合", 14, PanelKit.White,
+            diceHandText = kit.NewPlacedText(console.transform, "等待骰子回合", 18, PanelKit.White,
                 214, 3, 274, 45, TextAnchor.MiddleCenter, FontStyle.Bold);
             diceHandText.gameObject.name = "DiceHandSummary";
-            PanelKit.EnableBestFit(diceHandText, 10);
-            diceEnergyText = kit.NewPlacedText(console.transform, "能量 0/100", 12, PanelKit.Cyan,
+            PanelKit.EnableBestFit(diceHandText, 16);
+            diceEnergyText = kit.NewPlacedText(console.transform, "能量 0/100", 18, PanelKit.Cyan,
                 500, 10, 160, 24, TextAnchor.MiddleRight, FontStyle.Bold);
             diceEnergyFill = kit.NewBar("DiceEnergy", console.transform, 500, 37, 160, 8,
                 new Color32(49, 42, 90, 255), PanelKit.Cyan, 4);
@@ -617,7 +627,7 @@ namespace ChoSiren.Panels
                 int captured = index;
                 GameObject die = kit.NewButton("Dice-" + index, console.transform, "?", 38,
                     Color.clear, PanelKit.White, () => ToggleDie(captured), 20);
-                PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), 96, dieSize, dieSize);
+                PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), 76, dieSize, dieSize);
                 Image dieArt = die.GetComponent<Image>();
                 // The button remains a full-size invisible hit target. The authored diamond die is the only visible art.
                 dieArt.sprite = null;
@@ -630,7 +640,8 @@ namespace ChoSiren.Panels
                 faceArt.useSpriteMesh = true;
                 faceArt.raycastTarget = false;
                 Outline outline = kit.AddOutline(faceArt.gameObject, new Color32(96, 220, 255, 90), 1f);
-                Text held = kit.NewPlacedText(die.transform, "", 11, PanelKit.Gold, 5, 78, dieSize - 10, 20,
+                Text held = kit.NewPlacedText(console.transform, "", 16, PanelKit.Gold,
+                    36 + index * (dieSize + gap), 184, dieSize, 24,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 held.gameObject.name = "DiceStatus-" + index;
                 diceButtons.Add(die);
@@ -638,82 +649,66 @@ namespace ChoSiren.Panels
                 diceHoldLabels.Add(held);
                 diceOutlines.Add(outline);
 
-                Text indexLabel = kit.NewPlacedText(console.transform, (index + 1).ToString(), 11,
-                    new Color32(210, 196, 239, 235), 74 + index * (dieSize + gap), 196, 28, 18,
-                    TextAnchor.MiddleCenter, FontStyle.Bold);
-                indexLabel.raycastTarget = false;
             }
 
-            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留 · 2次", 15,
-                PanelKit.White, PanelKit.White, RerollDice, 18);
-            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 44, 242, 276, 54);
-            Image rerollFrame = rerollButton.GetComponent<Image>();
-            rerollFrame.sprite = skillButtonFrameSprite;
-            rerollFrame.type = Image.Type.Simple;
-            rerollFrame.preserveAspect = false;
-            Image rerollGlass = kit.NewImage("RerollGlass", rerollButton.transform, kit.RoundedSprite(16),
-                new Color32(100, 46, 162, 178));
-            PanelKit.Stretch(rerollGlass.rectTransform, 9, 8, -9, -8);
-            rerollGlass.type = Image.Type.Sliced;
-            rerollGlass.raycastTarget = false;
-            rerollGlass.transform.SetAsFirstSibling();
-            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "能量重投\n0/100", 13,
-                PanelKit.White, PanelKit.White, EnergyRerollDice, 40);
-            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 518, 242, 138, 54);
-            Image energyArt = energyRerollButton.GetComponent<Image>();
-            energyArt.sprite = rerollRingSprite;
-            energyArt.type = Image.Type.Simple;
-            energyArt.preserveAspect = true;
-            Text energyLabel = PanelKit.LabelOf(energyRerollButton);
-            energyLabel.lineSpacing = 0.86f;
-            PanelKit.Stretch(energyLabel.rectTransform, 14, 6, -14, -6);
+            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留 · 2次", 20,
+                PanelKit.ButtonDark, PanelKit.White, RerollDice, 12);
+            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 36, 214, 292, 42);
+            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "能量重投", 20,
+                PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 12);
+            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 352, 214, 292, 42);
             Text diceHint = kit.NewPlacedText(console.transform,
-                "点击骰子保留 · 最多重投 2 次 · 骰型倍率加成下一技能", 11,
-                PanelKit.Muted, 44, 58, 612, 24, TextAnchor.MiddleCenter);
+                "点击保留 · 骰型加成下一技能", 16,
+                PanelKit.Muted, 36, 50, 608, 26, TextAnchor.MiddleCenter);
             diceHint.gameObject.name = "DiceInstruction";
-            PanelKit.EnableBestFit(diceHint, 9);
+            PanelKit.EnableBestFit(diceHint, 16);
 
-            kit.NewPlacedText(transform, "出战成员", 13, PanelKit.Cyan,
-                28, PlayerRosterLabelTop, 180, 18,
+            kit.NewPlacedText(transform, "出战成员", 18, PanelKit.Cyan,
+                28, PlayerRosterLabelTop, 180, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold).gameObject.name = "TeamRoster";
             RefreshDiceUi();
         }
 
         private void BuildSkillBar()
         {
-            GameObject frame = kit.NewPanel("SkillCommandDeck", transform, new Color32(7, 7, 34, 216), 22);
-            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 16, 1346, 688, 116);
+            GameObject frame = kit.NewPanel("SkillCommandDeck", transform, new Color32(12, 14, 35, 255), 16);
+            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, 1386, 680, 92);
             kit.AddOutline(frame, new Color32(114, 207, 255, 76), 1.25f);
-            Image glow = kit.NewImage("SkillCommandGlow", frame.transform, kit.RadialSprite(),
-                new Color32(82, 217, 255, 26));
-            PanelKit.Stretch(glow.rectTransform, -20, -30, 20, 30);
-            glow.raycastTarget = false;
+            skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", 20,
+                PanelKit.Muted, 18, 14, 644, 64, TextAnchor.MiddleCenter);
+            skillWaitingText.gameObject.name = "SkillWaitingState";
             skillBar = kit.NewRect("SkillBar", transform);
-            PanelKit.PlaceTop(skillBar, 20, 1354, 680, 104);
+            PanelKit.PlaceTop(skillBar, 24, 1390, 672, 84);
         }
 
         private void BuildControls()
         {
-            autoButton = kit.NewButton("AutoToggle", transform, "自动", 12, new Color32(40, 31, 83, 245), PanelKit.White,
-                ToggleAuto, 18);
-            PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 548, 16, 72, 42);
-            speedButton = kit.NewButton("SpeedToggle", transform, "1倍", 12, new Color32(40, 31, 83, 245), PanelKit.White,
-                ToggleSpeed, 18);
-            PanelKit.PlaceTop(speedButton.GetComponent<RectTransform>(), 628, 16, 72, 42);
-            retreatButton = kit.NewButton("PauseToggle", transform, "暂停", 11, new Color32(88, 31, 74, 245),
-                PanelKit.White, TogglePause, 18);
-            PanelKit.PlaceTop(retreatButton.GetComponent<RectTransform>(), 628, 64, 72, 38);
-            exitButton = kit.NewButton("BattleExit", transform, "退出", 11, new Color32(24, 22, 62, 210),
-                PanelKit.White, ExitBattle, 18);
-            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 548, 64, 72, 38);
+            autoButton = kit.NewButton("AutoToggle", transform, "自动", 20, PanelKit.ButtonDark, PanelKit.White,
+                ToggleAuto, 12);
+            PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 456, 20, 78, 52);
+            speedButton = kit.NewButton("SpeedToggle", transform, "1倍", 20, PanelKit.ButtonDark, PanelKit.White,
+                ToggleSpeed, 12);
+            PanelKit.PlaceTop(speedButton.GetComponent<RectTransform>(), 542, 20, 72, 52);
+            retreatButton = kit.NewButton("PauseToggle", transform, "暂停", 20, PanelKit.ButtonDark,
+                PanelKit.White, TogglePause, 12);
+            PanelKit.PlaceTop(retreatButton.GetComponent<RectTransform>(), 622, 20, 78, 52);
 
             Image pauseShade = kit.NewImage("PauseOverlay", transform, null, new Color32(3, 5, 24, 168));
             PanelKit.Stretch(pauseShade.rectTransform);
-            pauseShade.raycastTarget = false;
-            kit.NewPlacedText(pauseShade.transform, "已暂停", 36, PanelKit.White, 170, 650, 380, 78,
+            pauseShade.raycastTarget = true;
+            GameObject dialog = kit.NewPanel("PauseDialog", pauseShade.transform, new Color32(17, 17, 43, 255), 24);
+            PanelKit.PlaceTop(dialog.GetComponent<RectTransform>(), 140, 590, 440, 320);
+            kit.AddOutline(dialog, new Color32(146, 120, 218, 120), 1);
+            kit.NewPlacedText(dialog.transform, "演出已暂停", 30, PanelKit.White, 20, 24, 400, 54,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
-            kit.NewPlacedText(pauseShade.transform, "点击右上角“继续”返回演出", 14, PanelKit.Muted,
-                140, 724, 440, 40, TextAnchor.MiddleCenter);
+            GameObject resume = kit.NewButton("ResumeBattle", dialog.transform, "继续演出", 24,
+                new Color32(87, 49, 143, 255), PanelKit.White, TogglePause, 12);
+            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 32, 100, 376, 60);
+            exitButton = kit.NewButton("BattleExit", dialog.transform, "退出战斗", 22,
+                PanelKit.ButtonDark, PanelKit.Muted, ExitBattle, 12);
+            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 32, 178, 376, 60);
+            kit.NewPlacedText(dialog.transform, "退出不返还已消耗的体力", 18, PanelKit.Muted,
+                20, 258, 400, 36, TextAnchor.MiddleCenter);
             pauseOverlay = pauseShade.gameObject;
             pauseOverlay.SetActive(false);
         }
@@ -721,10 +716,10 @@ namespace ChoSiren.Panels
         private void BuildPreview()
         {
             GameObject panel = kit.NewPanel("PreviewBoard", transform, new Color32(18, 15, 56, 64), 12);
-            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 20, 1462, 680, 48);
-            previewText = kit.NewPlacedText(panel.transform, "保留骰子并重投，再选择技能和目标", 11,
-                PanelKit.White, 12, 4, 656, 40, TextAnchor.MiddleCenter);
-            PanelKit.EnableBestFit(previewText, 8);
+            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 20, 1486, 680, 40);
+            previewText = kit.NewPlacedText(panel.transform, "保留骰子并重投，再选择技能和目标", 16,
+                PanelKit.Muted, 12, 2, 656, 36, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(previewText, 14);
         }
 
         private void BuildLog()
@@ -878,6 +873,11 @@ namespace ChoSiren.Panels
                         ? $"敌方行动：{actor.Definition.Name}"
                         : $"自动行动：{actor.Definition.Name}";
                     ClearSkillBar();
+                    if (skillWaitingText != null)
+                        skillWaitingText.text = actor.Side == BattleSide.Enemy
+                            ? "对方行动中\n等待下一位成员登场"
+                            : "自动演出中\n关闭右上角自动，即可手动操作";
+                    if (previewText != null) previewText.text = "";
                     if (actor.Side == BattleSide.Player)
                     {
                         PrepareDiceTurn();
@@ -1313,7 +1313,7 @@ namespace ChoSiren.Panels
                     {
                         int row = playerIndex / 4;
                         int col = playerIndex % 4;
-                        PanelKit.PlaceTop(cell.Rect, 20f + col * 170f, PlayerRosterTop + row * 116f,
+                        PanelKit.PlaceTop(cell.Rect, 20f + col * 174f, PlayerRosterTop + row * 182f,
                             PlayerCellWidth, PlayerCellHeight);
                         playerIndex++;
                     }
@@ -1321,7 +1321,7 @@ namespace ChoSiren.Panels
                     {
                         int pair = enemyIndex / 2;
                         float left = enemyIndex % 2 == 0 ? 548f : 20f;
-                        PanelKit.PlaceTop(cell.Rect, left, 304f + pair * 68f,
+                        PanelKit.PlaceTop(cell.Rect, left, 304f + pair * 94f,
                             EnemyCellWidth, EnemyCellHeight);
                         enemyIndex++;
                     }
@@ -1353,7 +1353,7 @@ namespace ChoSiren.Panels
             if (cell.Portrait != null)
             {
                 Sprite portrait = cell.Side == BattleSide.Player
-                    ? PanelKit.MemberSpriteOrNull(unit.Definition.Id, true)
+                    ? BattlePortrait(unit.Definition.Id)
                     : null;
                 cell.Portrait.sprite = portrait;
                 cell.Portrait.enabled = portrait != null;
@@ -1364,6 +1364,8 @@ namespace ChoSiren.Panels
             cell.ShieldTrack.SetActive(shielded);
             if (shielded) cell.ShieldFill.fillAmount = Mathf.Clamp01(unit.Shield / (float)Mathf.Max(1, unit.MaxHp));
             cell.Status.text = StatusSummary(unit);
+            if (cell.Side == BattleSide.Player)
+                cell.HpText.gameObject.SetActive(string.IsNullOrEmpty(cell.Status.text));
             if (!unit.Alive)
             {
                 cell.Fallen.gameObject.SetActive(true);
@@ -1374,6 +1376,38 @@ namespace ChoSiren.Panels
                 cell.Fallen.gameObject.SetActive(false);
                 cell.Group.alpha = 1f;
             }
+        }
+
+        private Sprite BattlePortrait(string memberId)
+        {
+            if (battlePortraits.TryGetValue(memberId, out Sprite cached)) return cached;
+            Sprite source = PanelKit.MemberSpriteOrNull(memberId, false);
+            if (source == null) return null;
+            // UI-only framing, never replace the shared full-body artwork. Values are normalized
+            // texture rectangles, with y measured from the bottom (Unity sprite coordinates).
+            Rect focus;
+            switch (memberId)
+            {
+                case "xingli": focus = new Rect(.50f, .62f, .46f, .29f); break;
+                case "yeying": focus = new Rect(.23f, .48f, .52f, .29f); break;
+                case "feiyin": focus = new Rect(.30f, .60f, .48f, .30f); break;
+                case "wubai": focus = new Rect(.32f, .66f, .48f, .29f); break;
+                case "yaoguang": focus = new Rect(.32f, .61f, .48f, .30f); break;
+                case "hupo": focus = new Rect(.27f, .63f, .52f, .31f); break;
+                case "xianyue": focus = new Rect(.32f, .63f, .52f, .30f); break;
+                case "chuxue": focus = new Rect(.25f, .55f, .52f, .30f); break;
+                case "chengxia": focus = new Rect(.28f, .48f, .52f, .30f); break;
+                default: focus = new Rect(.20f, .48f, .65f, .42f); break;
+            }
+            Rect original = source.rect;
+            Rect crop = new Rect(original.x + original.width * focus.x,
+                original.y + original.height * focus.y, original.width * focus.width, original.height * focus.height);
+            Sprite portrait = Sprite.Create(source.texture, crop, Vector2.one * .5f, source.pixelsPerUnit,
+                0, SpriteMeshType.FullRect);
+            portrait.name = memberId + "-BattleCloseup";
+            runtimeSprites.Add(portrait);
+            battlePortraits.Add(memberId, portrait);
+            return portrait;
         }
 
         private static string StatusSummary(BattleUnit unit)
@@ -1598,9 +1632,7 @@ namespace ChoSiren.Panels
                 label.text = faceSprite != null ? string.Empty : active ? face.ToString() : "?";
                 bool held = active && diceTurn.Held[index];
                 bool participating = active && diceTurn.Hand.Participating[index];
-                diceHoldLabels[index].text = participating
-                    ? held ? "成型 · 已保留" : "成型"
-                    : held ? "已保留" : "";
+                diceHoldLabels[index].text = held ? "已保留" : participating ? "成型" : "";
                 Color background = participating
                     ? held ? DiceParticipatingHeld : DiceParticipating
                     : held ? DiceHeld : DiceIdle;
@@ -1645,9 +1677,9 @@ namespace ChoSiren.Panels
             }
             if (energyRerollButton != null)
             {
-                PanelKit.LabelOf(energyRerollButton).text = $"能量重投\n{energy}/100";
+                PanelKit.LabelOf(energyRerollButton).text = energy >= 100 ? "能量重投 · 就绪" : "能量重投 · 充能中";
                 PanelKit.SetButtonState(energyRerollButton, awaitingInput && active && diceTurn.CanEnergyReroll,
-                    energy >= 100 ? PanelKit.White : new Color32(145, 150, 184, 150));
+                    energy >= 100 ? new Color32(58, 71, 126, 255) : PanelKit.ButtonDark);
             }
         }
 
@@ -1659,8 +1691,9 @@ namespace ChoSiren.Panels
             List<string> skillIds = actor.Definition.SkillIds;
             int count = skillIds.Count;
             if (count == 0) return;
-            const float gap = 10f;
-            float width = (680f - gap * (count - 1)) / count;
+            if (skillWaitingText != null) skillWaitingText.gameObject.SetActive(false);
+            const float gap = 12f;
+            float width = (672f - gap * (count - 1)) / count;
             for (int index = 0; index < count; index++)
             {
                 string skillId = skillIds[index];
@@ -1670,25 +1703,18 @@ namespace ChoSiren.Panels
                 int remaining = actor.Cooldowns.TryGetValue(skillId, out int value) ? value : 0;
                 string label = $"{skill.Name}\n{PatternName(skill.Pattern)} · {EffectName(skill.Effect)}";
                 if (!ready && remaining > 0) label += $" · 冷却 {remaining}";
-                Color color = SkillColor(skill.Effect);
-                GameObject button = kit.NewButton("Skill-" + skillId, skillBar, label, 14,
+                GameObject button = kit.NewButton("Skill-" + skillId, skillBar, label, 20,
                     ready ? PanelKit.White : new Color32(110, 108, 145, 150), PanelKit.White,
                     () => SelectSkill(skillId), 20);
-                PanelKit.PlaceTop(button.GetComponent<RectTransform>(), index * (width + gap), 0, width, 104);
+                PanelKit.PlaceTop(button.GetComponent<RectTransform>(), index * (width + gap), 0, width, 84);
                 Image frame = button.GetComponent<Image>();
-                frame.sprite = skillButtonFrameSprite;
-                frame.type = Image.Type.Simple;
-                frame.preserveAspect = false;
+                frame.sprite = kit.RoundedSprite(12);
+                frame.type = Image.Type.Sliced;
                 frame.color = ready
-                    ? new Color32(255, 255, 255, 210)
-                    : new Color32(138, 134, 170, 145);
-                Image glass = kit.NewImage("SkillGlass", button.transform, kit.RoundedSprite(18), color);
-                PanelKit.Stretch(glass.rectTransform, 11, 11, -11, -11);
-                glass.type = Image.Type.Sliced;
-                glass.raycastTarget = false;
-                glass.transform.SetAsFirstSibling();
+                    ? new Color32(36, 27, 65, 255)
+                    : new Color32(23, 21, 41, 255);
                 Text skillLabel = PanelKit.LabelOf(button);
-                skillLabel.lineSpacing = 0.88f;
+                skillLabel.lineSpacing = 1.15f;
                 kit.AddOutline(skillLabel.gameObject, new Color32(4, 6, 28, 220), 1.2f);
                 kit.AddOutline(button, new Color32(94, 218, 255, ready ? (byte)70 : (byte)20), 1.5f);
                 button.GetComponent<Button>().interactable = ready;
@@ -1725,6 +1751,11 @@ namespace ChoSiren.Panels
             }
 
             skillButtons.Clear();
+            if (skillWaitingText != null)
+            {
+                skillWaitingText.gameObject.SetActive(true);
+                skillWaitingText.text = "正在释放技能…";
+            }
             selectedSkillId = null;
             ClearAnchors();
         }
@@ -1744,7 +1775,8 @@ namespace ChoSiren.Panels
                 bool selected = skillButtons[index].name == "Skill-" + skillId;
                 Outline outline = skillButtons[index].GetComponent<Outline>();
                 if (outline != null) outline.effectColor = selected ? new Color32(255, 230, 160, 255) : new Color32(197, 156, 255, 0);
-                skillButtons[index].transform.localScale = selected ? new Vector3(1.025f, 1.025f, 1f) : Vector3.one;
+                // Selection changes a border, never the button's size or its neighbour's hit area.
+                skillButtons[index].transform.localScale = Vector3.one;
             }
 
             SkillDefinition skill = battle.LookupSkill(skillId);
@@ -1913,12 +1945,12 @@ namespace ChoSiren.Panels
             paused = !paused;
             PanelKit.LabelOf(retreatButton).text = paused ? "继续" : "暂停";
             PanelKit.SetButtonState(retreatButton, true,
-                paused ? new Color32(116, 43, 177, 252) : new Color32(88, 31, 74, 245));
+                paused ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
             if (pauseOverlay != null)
             {
                 pauseOverlay.SetActive(paused);
                 if (paused) pauseOverlay.transform.SetAsLastSibling();
-                // The pause control must remain above the non-raycasting shade so it can resume.
+                // Modal shade blocks battle input; this one control can still close the pause menu.
                 retreatButton.transform.SetAsLastSibling();
                 if (exitButton != null) exitButton.transform.SetAsLastSibling();
             }

@@ -314,7 +314,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("DiceReroll");
             RequireActiveObject("EnergyReroll");
             RequireActiveObject("TeamRoster");
-            RequireActiveObject("BattleExit");
+            AssertInactiveOrMissing("BattleExit");
             AssertActiveUiUsesChineseOnly();
 
             TacticsBattlePanel tactics = Object.FindAnyObjectByType<TacticsBattlePanel>();
@@ -322,9 +322,11 @@ namespace ChoSiren.Tests
             Click("PauseToggle");
             Assert.That(tactics.IsPaused, Is.True, "暂停按钮必须真正冻结战斗推进");
             RequireActiveObject("PauseOverlay");
+            RequireActiveObject("BattleExit");
             Click("PauseToggle");
             Assert.That(tactics.IsPaused, Is.False, "继续按钮必须恢复战斗推进");
 
+            Click("PauseToggle");
             Click("BattleExit");
             yield return null;
             AssertInactiveOrMissing("TacticsBattlePanel");

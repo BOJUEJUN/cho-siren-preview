@@ -14,6 +14,96 @@ namespace ChoSiren.Tests
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
         [Test]
+        public void BattleControlsUseOneRowAndExitLivesInBlockingPauseMenu()
+        {
+            GameObject root = new GameObject("Battle Header Test", typeof(RectTransform));
+            try
+            {
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(), null);
+                RectTransform[] controls = { FindRect(panel.transform, "AutoToggle"),
+                    FindRect(panel.transform, "SpeedToggle"), FindRect(panel.transform, "PauseToggle") };
+                foreach (RectTransform control in controls)
+                {
+                    Assert.That(Top(control), Is.EqualTo(20));
+                    Assert.That(control.rect.height, Is.EqualTo(52));
+                    Assert.That(control.rect.width, Is.GreaterThanOrEqualTo(72));
+                    AssertNoOverlap(control, FindRect(panel.transform, "BossHpFrame"), "顶部操作不能压住血条");
+                    AssertNoOverlap(control, FindRect(panel.transform, "BossPhaseBadge"), "阶段信息不能挤入按钮");
+                    AssertNoOverlap(control, FindRect(panel.transform, "BattleStageTitle"), "关卡名称不能压住按钮");
+                }
+                for (int i = 0; i < controls.Length - 1; i++)
+                    AssertNoOverlap(controls[i], controls[i + 1], "同排按钮之间必须留出独立触摸区域");
+                RectTransform exit = FindRect(panel.transform, "BattleExit");
+                Assert.That(exit.gameObject.activeInHierarchy, Is.False);
+                Invoke(panel, "TogglePause");
+                Assert.That(exit.gameObject.activeInHierarchy, Is.True);
+                Assert.That(exit.parent.name, Is.EqualTo("PauseDialog"));
+                Assert.That(FindRect(panel.transform, "PauseOverlay").GetComponent<Image>().raycastTarget, Is.True);
+                FindRect(panel.transform, "ResumeBattle").GetComponent<Button>().onClick.Invoke();
+                Assert.That(panel.IsPaused, Is.False);
+                Assert.That(exit.gameObject.activeInHierarchy, Is.False);
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
+        public void BottomSurfaceHidesBakedUiAndStatusNeverCoversDiceOrFaces()
+        {
+            GameObject root = new GameObject("Battle Bottom Test", typeof(RectTransform));
+            try
+            {
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(4), null);
+                RectTransform surface = FindRect(panel.transform, "BattleCommandSurface");
+                Assert.That(surface.GetComponent<Image>().color.a, Is.EqualTo(1f), "旧背景光圈必须完全遮盖");
+                Assert.That(Top(surface), Is.LessThanOrEqualTo(840));
+                Assert.That(Top(surface) + surface.rect.height, Is.GreaterThanOrEqualTo(1536));
+                Text rosterTitle = FindRect(panel.transform, "TeamRoster").GetComponent<Text>();
+                Assert.That(rosterTitle.preferredHeight, Is.LessThanOrEqualTo(rosterTitle.rectTransform.rect.height),
+                    "中文字体真实行高必须能装进标题框，不能只验证框之间不重叠");
+                for (int index = 0; index < 5; index++)
+                {
+                    RectTransform status = FindRect(panel.transform, "DiceStatus-" + index);
+                    Assert.That(status.parent.name, Is.EqualTo("DiceConsole"));
+                    AssertNoOverlap(status, FindRect(panel.transform, "Dice-" + index), "保留状态应在骰子下方");
+                    AssertNoOverlap(status, FindRect(panel.transform, "DiceReroll"), "状态不能盖住按钮");
+                }
+                foreach (RectTransform card in panel.GetComponentsInChildren<RectTransform>(true)
+                             .Where(item => item.name.StartsWith("Cell-P-")))
+                {
+                    RectTransform portrait = FindRect(card, "Portrait");
+                    Assert.That(portrait.rect.height, Is.GreaterThanOrEqualTo(98));
+                    AssertNoOverlap(portrait, FindRect(card, "UnitName"), "名字与头像独立分区");
+                    AssertNoOverlap(portrait, FindRect(card, "Hp"), "血条不能盖住脸部");
+                    AssertNoOverlap(portrait, FindRect(card, "UnitStatus"), "异常状态不能盖住脸部");
+                    Assert.That(FindRect(card, "BattleFrame").GetComponent<Image>().sprite, Is.Null);
+                    Text hp = FindRect(card, "UnitHpText").GetComponent<Text>();
+                    hp.text = "9999/9999";
+                    Assert.That(hp.preferredHeight, Is.LessThanOrEqualTo(hp.rectTransform.rect.height),
+                        "成员血量数字必须可见，不能被字体行高裁切");
+                }
+                RectTransform enemy = FindRect(panel.transform, "Cell-E-0-0");
+                AssertNoOverlap(FindRect(enemy, "UnitHpText"), FindRect(enemy, "UnitStatus"),
+                    "敌方血量与异常状态必须使用独立行");
+                foreach (string id in new[] { "xingli", "yeying", "feiyin", "wubai" })
+                {
+                    Sprite portrait = (Sprite)InvokeWithResult(panel, "BattlePortrait", id);
+                    Sprite original = Resources.Load<Sprite>(GameModel.Members.First(member => member.Id == id).ResourcePath);
+                    Assert.That(portrait, Is.Not.Null);
+                    Assert.That(portrait.texture, Is.SameAs(original.texture), "只改变显示取景，不替换原立绘");
+                    Assert.That(portrait.rect.height, Is.LessThan(original.rect.height * .4f));
+                    Assert.That(InvokeWithResult(panel, "BattlePortrait", id), Is.SameAs(portrait), "重复刷新复用裁切精灵");
+                }
+                BattleUnit player = panel.Battle.Units.First(unit => unit.Side == BattleSide.Player);
+                InvokeWithResult(panel, "BuildSkillButtons", player);
+                Assert.That(FindRect(panel.transform, "SkillWaitingState").gameObject.activeSelf, Is.False);
+                Invoke(panel, "ClearSkillBar");
+                Assert.That(FindRect(panel.transform, "SkillWaitingState").gameObject.activeSelf, Is.True);
+                Assert.That(FindRect(panel.transform, "SkillWaitingState").GetComponent<Text>().text, Is.Not.Empty);
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void PlayerRosterStaysBetweenDiceConsoleAndSkillDeck()
         {
             GameObject root = new GameObject("Tactics Layout Test", typeof(RectTransform));
@@ -125,8 +215,10 @@ namespace ChoSiren.Tests
                 Text skillLabel = skillFrame.GetComponentInChildren<Text>(true);
                 Assert.That(skillLabel.text, Does.Contain("单体 · 伤害"),
                     "技能按钮应把作用范围和效果分隔，避免两个词黏成难读文案。");
-                Assert.That(skillFrame.color.a, Is.LessThanOrEqualTo(0.85f),
-                    "技能美术框应退居文字之后，避免高亮边框压过技能名称。");
+                Assert.That(skillFrame.color.a, Is.EqualTo(1f),
+                    "简约技能卡必须挡住 Outline 的内部重复网格，避免整张卡被金色选中框染亮。");
+                Assert.That(skillFrame.color.r, Is.LessThan(0.25f));
+                Assert.That(skillFrame.color.b, Is.LessThan(0.3f));
 
                 InvokeWithResult(panel, "SetActorHighlight", player);
                 Image actorGlow = GetField<Image>(panel, "actorGlow");
