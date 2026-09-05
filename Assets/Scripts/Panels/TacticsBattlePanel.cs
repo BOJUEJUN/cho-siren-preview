@@ -306,7 +306,7 @@ namespace ChoSiren.Panels
             kit.AddOutline(phaseBadge, new Color32(155, 115, 255, 84), 1f);
             phaseText = kit.NewPlacedText(phaseBadge.transform, "阶段 1/3", 18, PanelKit.Gold, 6, 3, 138, 28,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
-            timerText = kit.NewPlacedText(phaseBadge.transform, "目标 01:00", 16, PanelKit.Muted, 6, 34, 138, 24,
+            timerText = kit.NewPlacedText(phaseBadge.transform, "剩余 01:00", 16, PanelKit.Muted, 6, 34, 138, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
 
             enemyHpFill = kit.NewBar("EnemyHp", header.transform, 18, 93, 684, 22,
@@ -316,8 +316,11 @@ namespace ChoSiren.Panels
             kit.AddOutline(enemyHpText.gameObject, new Color32(24, 5, 40, 210), 1f);
             turnText = kit.NewPlacedText(header.transform, battle.IsRealtime ? "实时演出" : "第 1 回合", 14, PanelKit.Muted, 18, 60, 252, 22,
                 TextAnchor.MiddleLeft);
+            if (battle.RehearsalLevel > 0) turnText.text = $"适配试演 · {battle.RehearsalLevel}级档";
 
-            for (int marker = 1; marker <= 2 && (!stage.UsesRealtime || stage.HasBossPhases); marker++)
+            // This bar sums ALL enemies. Boss phase thresholds use only the boss's own HP,
+            // so dividing the aggregate bar into thirds would promise the wrong trigger points.
+            for (int marker = 1; marker <= 2 && !stage.UsesRealtime; marker++)
             {
                 Image phaseMarker = kit.NewImage("BossPhaseMarker-" + marker, header.transform,
                     kit.RoundedSprite(2), new Color32(255, 224, 245, 210));
@@ -698,8 +701,13 @@ namespace ChoSiren.Panels
         {
             autoButton = kit.NewButton("AutoToggle", transform, "自动", 20, PanelKit.ButtonDark, PanelKit.White,
                 ToggleAuto, 12);
-            if (battle.IsRealtime) PanelKit.LabelOf(autoButton).text = "手动";
-            PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 456, 20, 78, 52);
+            if (battle.IsRealtime)
+            {
+                PanelKit.LabelOf(autoButton).text = "手动重投";
+                PanelKit.LabelOf(autoButton).fontSize = 17;
+                PanelKit.EnableBestFit(PanelKit.LabelOf(autoButton), 15);
+            }
+            PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 440, 20, 94, 52);
             speedButton = kit.NewButton("SpeedToggle", transform, "1倍", 20, PanelKit.ButtonDark, PanelKit.White,
                 ToggleSpeed, 12);
             PanelKit.PlaceTop(speedButton.GetComponent<RectTransform>(), 542, 20, 72, 52);
@@ -846,7 +854,7 @@ namespace ChoSiren.Panels
             if (elapsed <= 60f)
             {
                 int remaining = Mathf.Max(0, Mathf.CeilToInt(60f - elapsed));
-                return $"目标 {remaining / 60:00}:{remaining % 60:00}";
+                return $"剩余 {remaining / 60:00}:{remaining % 60:00}";
             }
 
             int overtime = Mathf.CeilToInt(elapsed - 60f);
@@ -2062,7 +2070,7 @@ namespace ChoSiren.Panels
             autoMode = !autoMode;
             if (battle.IsRealtime)
             {
-                PanelKit.LabelOf(autoButton).text = autoMode ? "自动开" : "手动";
+                PanelKit.LabelOf(autoButton).text = autoMode ? "自动重投" : "手动重投";
                 PanelKit.SetButtonState(autoButton, true,
                     autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
                 Notify(autoMode ? "已开启自动重投，角色技能持续自动释放" : "已切换手动重投，角色技能持续自动释放");

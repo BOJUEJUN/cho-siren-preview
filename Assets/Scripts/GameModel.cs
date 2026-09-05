@@ -85,6 +85,16 @@ namespace ChoSiren
         }
     }
 
+    public sealed class StageRehearsalProfile
+    {
+        public int Level { get; }
+        public int HpPermille { get; }
+        public int AttackPermille { get; }
+        public bool Available => Level > 0;
+        public StageRehearsalProfile(int level, int hpPermille, int attackPermille)
+        { Level = level; HpPermille = hpPermille; AttackPermille = attackPermille; }
+    }
+
     public sealed class ChapterStarRewardView
     {
         public int RequiredStars;
@@ -384,13 +394,38 @@ namespace ChoSiren
         public int AccessoryPowerChange(int accessoryIndex) => TeamPowerWithAccessory(accessoryIndex) - TeamPower;
 
         // This is the enemy's actual opening power, not a guessed win recommendation.
-        public int EnemyPowerOfStage(string stageId)
+        public int EnemyPowerOfStage(string stageId, bool rehearsal = false)
         {
             StageDefinition stage = tactics.FindStage(stageId);
             if (stage == null) return 0;
             BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
+            StageRehearsalProfile profile = RehearsalOfStage(stageId);
             return stage.Enemies.Sum(spawn => BattleSimulator.EnemyStats(tactics.FindUnit(spawn.UnitId), spawn,
-                difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille).Power);
+                rehearsal ? profile.HpPermille : difficulty.EnemyHpPermille,
+                rehearsal ? profile.AttackPermille : difficulty.EnemyAttackPermille).Power);
+        }
+
+        // Explicit, optional rehearsal. Ordinary encounters, player levels/stats and rewards
+        // never change. Snapshot five-level bands before entry, never track live DPS.
+        public StageRehearsalProfile RehearsalOfStage(string stageId)
+        {
+            BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
+            var ordinary = new StageRehearsalProfile(0, difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille);
+            if (!TryGetChapterOneStageNumber(stageId, out int number) ||
+                tactics.FindStage(stageId)?.UsesRealtime != true || Save.Team.Count != TeamCapacity ||
+                Save.Team.Any(index => !IsValidMemberIndex(index) || !IsUnlocked(index))) return ordinary;
+            int[] referenceLevels = { 1, 3, 5, 5, 10, 11, 11, 12, 16, 22 };
+            int reference = referenceLevels[number - 1];
+            int weakest = Save.Team.Min(LevelOf);
+            if (weakest < reference + 15) return ordinary;
+            int level = Math.Min(95, (int)Save.Team.Average(LevelOf) / 5 * 5);
+            int gap = Math.Max(0, level - reference);
+            int hp = (int)Math.Min(BattleSimulator.MaxEnemyDifficultyMultiplierPermille,
+                Math.Round(difficulty.EnemyHpPermille * Math.Pow(1.065, gap)));
+            int attack = (int)Math.Min(BattleSimulator.MaxEnemyDifficultyMultiplierPermille,
+                Math.Round(difficulty.EnemyAttackPermille * Math.Pow(1.085,
+                    Math.Max(0, weakest / 5 * 5 - 5 - reference))));
+            return new StageRehearsalProfile(level, hp, attack);
         }
 
         // ------------------------------------------------------------------ members (stable-id API)
@@ -1232,7 +1267,7 @@ namespace ChoSiren
         /// front column top-down then the next column, spends the stage stamina and returns a
         /// battle ready for the UI or <see cref="BattleSimulator.AutoPlay"/>. Null on failure.
         /// </summary>
-        public BattleSimulator StartStageBattle(string stageId, ulong seed, out string message)
+        public BattleSimulator StartStageBattle(string stageId, ulong seed, out string message, bool rehearsal = false)
         {
             StageDefinition stage = tactics.FindStage(stageId);
             if (stage == null)
@@ -1280,10 +1315,13 @@ namespace ChoSiren
 
             BattleSimulator battle;
             BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
+            StageRehearsalProfile rehearsalProfile = RehearsalOfStage(stageId);
             try
             {
                 battle = new BattleSimulator(tactics, stage, party, new SeededRandom(seed),
-                    difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille);
+                    rehearsal ? rehearsalProfile.HpPermille : difficulty.EnemyHpPermille,
+                    rehearsal ? rehearsalProfile.AttackPermille : difficulty.EnemyAttackPermille);
+                battle.RehearsalLevel = rehearsal ? rehearsalProfile.Level : 0;
                 if (stage.UsesRealtime)
                     battle.EnableRealtime(Members.ToDictionary(member => member.Id, member => member.Race),
                         Members[Save.Team[0]].Id, stage.RerollLimit, stage.EncounterType == "world");
@@ -1303,7 +1341,8 @@ namespace ChoSiren
                 GoldRewardPermille = difficulty.GoldRewardPermille,
             };
             SaveState();
-            message = $"{stage.Name} 开始（{difficulty.Name}），体力 -{stage.StaminaCost}";
+            string mode = battle.RehearsalLevel > 0 ? $"适配试演 · {battle.RehearsalLevel}级档" : difficulty.Name;
+            message = $"{stage.Name} 开始（{mode}），体力 -{stage.StaminaCost}";
             return battle;
         }
 
@@ -1363,7 +1402,8 @@ namespace ChoSiren
             Report(TaskTriggers.BattleWin);
             SaveState();
 
-            string difficultyName = DifficultyProfileFor(context.Difficulty).Name;
+            string difficultyName = battle.RehearsalLevel > 0 ? $"适配试演 · {battle.RehearsalLevel}级档"
+                : DifficultyProfileFor(context.Difficulty).Name;
             message = $"战斗胜利 {new string('★', stars)}（{difficultyName}）：{FormatRewards(rewards)}";
             if (firstClear) message += "（首次通关）";
         }

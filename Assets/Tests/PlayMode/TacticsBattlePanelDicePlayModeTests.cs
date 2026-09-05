@@ -15,6 +15,49 @@ namespace ChoSiren.Tests
 {
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public void HighLevelMapDisclosesRehearsalAndOriginalStrengthChoice(bool original)
+        {
+            bool hadSave = PlayerPrefs.HasKey(GameModel.SaveKey), hadLegacy = PlayerPrefs.HasKey(GameModel.LegacySaveKey);
+            string before = PlayerPrefs.GetString(GameModel.SaveKey), legacy = PlayerPrefs.GetString(GameModel.LegacySaveKey);
+            GameObject root = new GameObject("Rehearsal Map Test", typeof(RectTransform));
+            root.GetComponent<RectTransform>().sizeDelta = new Vector2(720, 1536);
+            try
+            {
+                PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(new GameSave { StoryProgress = 100 }));
+                var model = new GameModel();
+                LevelMapPanel map = LevelMapPanel.Open(root.transform, model);
+                RectTransform choice = FindRect(map.transform, "RehearsalToggle");
+                Assert.That(choice.gameObject.activeInHierarchy, Is.True);
+                Assert.That(choice.GetComponentInChildren<Text>().text, Does.Contain("60级档"));
+                RectTransform start = FindRect(map.transform, "StartChallenge");
+                Assert.That(start.GetComponentInChildren<Text>().text, Is.EqualTo("适配试演"));
+                AssertNoOverlap(choice, start, "强度切换不能盖住开始按钮");
+                AssertNoOverlap(choice, FindRect(map.transform, "StaminaCost"), "强度提示不能盖住费用");
+                if (original)
+                {
+                    choice.GetComponent<Button>().onClick.Invoke();
+                    Assert.That(choice.GetComponentInChildren<Text>().text, Does.StartWith("原关强度"));
+                }
+                start.GetComponent<Button>().onClick.Invoke();
+                TacticsBattlePanel battlePanel = root.GetComponentInChildren<TacticsBattlePanel>();
+                Assert.That(battlePanel, Is.Not.Null);
+                Assert.That(battlePanel.Battle.RehearsalLevel, Is.EqualTo(original ? 0 : 60));
+                Assert.That(battlePanel.GetComponentsInChildren<RectTransform>(true)
+                    .Any(rect => rect.name.StartsWith("BossPhaseMarker-")), Is.False,
+                    "首领自身的阶段阈值不能错误标到所有敌人的总血条上");
+                Assert.That(model.LevelOf(0), Is.EqualTo(68));
+                Assert.That(model.Save.Stamina, Is.EqualTo(GameModel.MaxStamina - battlePanel.Battle.Stage.StaminaCost));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                if (hadSave) PlayerPrefs.SetString(GameModel.SaveKey, before); else PlayerPrefs.DeleteKey(GameModel.SaveKey);
+                if (hadLegacy) PlayerPrefs.SetString(GameModel.LegacySaveKey, legacy); else PlayerPrefs.DeleteKey(GameModel.LegacySaveKey);
+            }
+        }
+
         [Test]
         public void BattleControlsUseOneRowAndExitLivesInBlockingPauseMenu()
         {
@@ -251,6 +294,14 @@ namespace ChoSiren.Tests
             try
             {
                 Assert.That(panel.AutoMode, Is.False);
+                Text autoLabel = FindRect(panel.transform, "AutoToggle").GetComponentInChildren<Text>();
+                Assert.That(autoLabel.text, Is.EqualTo("手动重投"));
+                Invoke(panel, "ToggleAuto");
+                Assert.That(panel.AutoMode, Is.True);
+                Assert.That(autoLabel.text, Is.EqualTo("自动重投"));
+                Assert.That(autoLabel.preferredHeight, Is.LessThanOrEqualTo(autoLabel.rectTransform.rect.height));
+                Invoke(panel, "ToggleAuto");
+                Assert.That(autoLabel.text, Is.EqualTo("手动重投"));
                 yield return new WaitForSecondsRealtime(2.3f);
                 int before = panel.Battle.ElapsedMilliseconds;
                 yield return new WaitForSecondsRealtime(0.6f);
@@ -457,19 +508,19 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void BattleTimerUsesOvertimeWithoutEndingTheEncounter()
+        public void BattleTimerLabelsRemainingTimeAndLegacyReplayOvertime()
         {
             MethodInfo method = typeof(TacticsBattlePanel).GetMethod("FormatBattleTimer",
                 BindingFlags.Static | BindingFlags.NonPublic);
             Assert.That(method, Is.Not.Null);
 
-            Assert.That(method.Invoke(null, new object[] { 0f }), Is.EqualTo("目标 01:00"));
-            Assert.That(method.Invoke(null, new object[] { 60f }), Is.EqualTo("目标 00:00"));
+            Assert.That(method.Invoke(null, new object[] { 0f }), Is.EqualTo("剩余 01:00"));
+            Assert.That(method.Invoke(null, new object[] { 60f }), Is.EqualTo("剩余 00:00"));
             Assert.That(method.Invoke(null, new object[] { 61.2f }), Is.EqualTo("加时 +00:02"));
 
             BattleSimulator battle = CreateBattle();
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing),
-                "60 秒目标是展示节奏，不应改变模拟器胜负");
+                "旧回放未推进模拟时，不应由格式化计时文本决定胜负");
         }
 
         private static DiceTurn BeginTurnFromFaces(int[] faces)

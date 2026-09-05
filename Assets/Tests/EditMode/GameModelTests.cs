@@ -103,6 +103,120 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void OptionalRehearsalPreservesOriginalEncounterPlayerStatsSaveAndRewards()
+        {
+            SaveRaw(new GameSave { StoryProgress = 100, EquippedAccessory = 0 });
+            var model = new GameModel(() => now);
+            int[] levels = model.Save.MemberLevels.ToArray();
+            int[] team = model.Save.Team.ToArray();
+            int gold = model.Save.Gold, diamonds = model.Save.Diamonds;
+            StageRehearsalProfile profile = model.RehearsalOfStage("stage-1-10");
+            Assert.That(profile.Available, Is.True);
+            Assert.That(profile.Level, Is.EqualTo(60));
+            BattleSimulator original = model.StartStageBattle("stage-1-10", 17, out _);
+            BattleSimulator rehearsal = model.StartStageBattle("stage-1-10", 17, out string message, true);
+            Assert.That(message, Does.Contain("适配试演"));
+            Assert.That(original.RehearsalLevel, Is.Zero);
+            Assert.That(original.EnemyHpMultiplierPermille, Is.EqualTo(1000));
+            Assert.That(rehearsal.RehearsalLevel, Is.EqualTo(60));
+            Assert.That(rehearsal.CurrentEnemyHp, Is.GreaterThan(original.CurrentEnemyHp * 4));
+            Assert.That(model.EnemyPowerOfStage("stage-1-10", true), Is.EqualTo(rehearsal.Units
+                .Where(unit => unit.Side == BattleSide.Enemy)
+                .Sum(unit => unit.MaxHp / 10 + unit.BaseAttack * 5 + unit.BaseDefense)));
+            foreach (BattleUnit unit in rehearsal.Units.Where(unit => unit.Side == BattleSide.Player))
+            {
+                BattleUnit before = original.Units.Single(item => item.Id == unit.Id);
+                Assert.That(unit.BaseAttack, Is.EqualTo(before.BaseAttack));
+                Assert.That(unit.MaxHp, Is.EqualTo(before.MaxHp));
+                Assert.That(unit.BaseDefense, Is.EqualTo(before.BaseDefense));
+            }
+            original.AutoPlay(); rehearsal.AutoPlay();
+            Assert.That(original.Outcome, Is.EqualTo(BattleOutcome.Victory));
+            Assert.That(rehearsal.Outcome, Is.EqualTo(BattleOutcome.Victory));
+            Assert.That(rehearsal.ElapsedMilliseconds, Is.GreaterThan(original.ElapsedMilliseconds * 2));
+            Assert.That(rehearsal.Stage, Is.SameAs(original.Stage), "不可改写共享关卡数据");
+            Assert.That(model.Save.Gold, Is.EqualTo(gold));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds));
+            CollectionAssert.AreEqual(levels, model.Save.MemberLevels);
+            CollectionAssert.AreEqual(team, model.Save.Team);
+            int scaledHp = rehearsal.EnemyHpMultiplierPermille;
+            model.Save.MemberLevels[0] = 100;
+            Assert.That(rehearsal.EnemyHpMultiplierPermille, Is.EqualTo(scaledHp), "开战后不能跟着伤害或等级追涨");
+            model.SettleStageBattle(rehearsal, out string settled);
+            Assert.That(settled, Does.Contain("适配试演"));
+            int after = model.Save.Gold;
+            model.SettleStageBattle(rehearsal, out _);
+            Assert.That(model.Save.Gold, Is.EqualTo(after), "适配试演也不得重复领取奖励");
+        }
+
+        [Test]
+        public void RehearsalAndOrdinaryFirstClearPayIdenticalRewardsWithoutDoubleClaim()
+        {
+            var rewards = new List<string>();
+            foreach (bool rehearsal in new[] { false, true })
+            {
+                SaveRaw(new GameSave { StoryProgress = 100, EquippedAccessory = 0 });
+                var model = new GameModel(() => now);
+                BattleSimulator battle = model.StartStageBattle("stage-1-10", 17, out _, rehearsal);
+                battle.AutoPlay();
+                Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+                model.SettleStageBattle(battle, out _);
+                rewards.Add($"{model.Save.Gold}/{model.Save.Diamonds}/{model.Save.Stamina}/{model.StarsOf("stage-1-10")}");
+                var loaded = new GameModel(() => now);
+                Assert.That(loaded.LevelOf(0), Is.EqualTo(68));
+                Assert.That(loaded.Save.Gold, Is.EqualTo(model.Save.Gold));
+                Assert.That(loaded.Save.Team, Is.EqualTo(new[] { 0, 1, 2, 3 }));
+            }
+            Assert.That(rewards[0], Is.EqualTo(rewards[1]), "选择适配不应偷偷加价或改写同一首通的奖励");
+        }
+
+        [Test]
+        public void RehearsalIsNotForcedOnNewUnderlevelledOrMixedTeams()
+        {
+            var model = new GameModel(() => now);
+            Assert.That(model.RehearsalOfStage("stage-1-1").Available, Is.False);
+            Assert.That(model.RehearsalOfStage("missing").Available, Is.False);
+            BattleSimulator first = model.StartStageBattle("stage-1-1", 1, out _, true);
+            Assert.That(first.RehearsalLevel, Is.Zero);
+            Assert.That(first.EnemyHpMultiplierPermille, Is.EqualTo(1000));
+            model.Save.MemberLevels = Enumerable.Repeat(100, GameModel.Members.Length).ToList();
+            model.Save.MemberLevels[model.Save.Team[3]] = 1;
+            Assert.That(model.RehearsalOfStage("stage-1-1").Available, Is.False,
+                "一名高等级带新人时，不能按最高等级把弱队友秒杀");
+        }
+
+        [Test]
+        public void RehearsalPacingCoversLegacyAndMaxLevelTeamsAllCaptains()
+        {
+            var failures = new List<string>();
+            foreach (bool maximum in new[] { false, true })
+            foreach (int number in new[] { 1, 5, 10 })
+            for (int captain = 0; captain < 4; captain++)
+            {
+                var times = new List<int>();
+                int wins = 0;
+                for (ulong seed = 1; seed <= 8; seed++)
+                {
+                    var save = new GameSave { StoryProgress = 100, EquippedAccessory = 0 };
+                    if (maximum) save.MemberLevels = Enumerable.Repeat(100, GameModel.Members.Length).ToList();
+                    SaveRaw(save);
+                    var model = new GameModel(() => now);
+                    model.SetTeamLeader(captain, out _);
+                    BattleSimulator battle = model.StartStageBattle($"stage-1-{number}", seed, out _, true);
+                    battle.AutoPlay();
+                    times.Add(battle.ElapsedMilliseconds);
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
+                    Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(60000));
+                }
+                times.Sort();
+                TestContext.WriteLine($"REHEARSAL max={maximum} stage={number} captain={captain} wins={wins}/8 time={times[0]}/{times[4]}/{times[7]}");
+                if (wins < 6 || times[4] < 8000 || times[4] > 55000)
+                    failures.Add($"max={maximum} stage={number} captain={captain} wins={wins} median={times[4]}");
+            }
+            Assert.That(failures, Is.Empty, "高等级试演应保留可操作的时间，同时不强制拖满整分钟");
+        }
+
+        [Test]
         public void ProductionChapterAuditUsesRealFormationAllCaptainsAndSixteenSeeds()
         {
             int[] levels = { 1, 3, 5, 5, 10, 11, 11, 12, 16, 22 };
