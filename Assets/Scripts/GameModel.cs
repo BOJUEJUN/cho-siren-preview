@@ -615,8 +615,7 @@ namespace ChoSiren
             return true;
         }
 
-        // A read-only quote shared by the dossier and the purchase boundary. Keep the
-        // existing economy until the latest design's growth/economy migration is validated.
+        // One read-only quote at both presentation and spending boundaries.
         public bool CanTrain(int memberIndex, out int cost, out string message)
         {
             cost = 0;
@@ -639,7 +638,8 @@ namespace ChoSiren
                 return false;
             }
 
-            cost = 180 + level * 12;
+            cost = tactics.FindUnit(Members[memberIndex].Id)?.GrowthModel == "idol-v1"
+                ? BattleSimulator.TrainingCostAtLevel(level) : 180 + level * 12;
             if (Save.Gold < cost)
             {
                 message = $"金币不足，本次训练需要 {cost:N0}";
@@ -1284,6 +1284,9 @@ namespace ChoSiren
             {
                 battle = new BattleSimulator(tactics, stage, party, new SeededRandom(seed),
                     difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille);
+                if (stage.UsesRealtime)
+                    battle.EnableRealtime(Members.ToDictionary(member => member.Id, member => member.Race),
+                        Members[Save.Team[0]].Id, stage.RerollLimit, stage.EncounterType == "world");
             }
             catch (ArgumentException exception)
             {
@@ -1872,7 +1875,12 @@ namespace ChoSiren
             return parts.Count == 0 ? "无" : string.Join("，", parts);
         }
 
-        private static GameSave CreateDefault() => new GameSave();
+        // Only genuinely new saves start at level one. Serialized old rosters and levels win
+        // on Load, and missing old-save entries still use the legacy catalog fallback.
+        private static GameSave CreateDefault() => new GameSave
+        {
+            MemberLevels = Enumerable.Repeat(1, Members.Length).ToList()
+        };
 
         // ------------------------------------------------------------------ member definitions
 

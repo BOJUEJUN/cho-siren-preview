@@ -52,6 +52,90 @@ namespace ChoSiren.Tests
         // ------------------------------------------------------------------ existing behaviour
 
         [Test]
+        public void ProductionNewGameStartsAtOneAndTrainingMatchesBattleSnapshot()
+        {
+            var model = new GameModel(() => now);
+            Assert.That(model.Save.MemberLevels, Has.All.EqualTo(1));
+            Assert.That(model.StatsOf(0).Hp, Is.EqualTo(280));
+            Assert.That(model.StatsOf(0).Attack, Is.EqualTo(40));
+            Assert.That(model.CanTrain(0, out int cost, out _), Is.True);
+            Assert.That(cost, Is.EqualTo(50));
+            int beforeGold = model.Save.Gold;
+            Assert.That(model.Train(0, out _), Is.True);
+            Assert.That(model.Save.Gold, Is.EqualTo(beforeGold - 50));
+            Assert.That(model.LevelOf(0), Is.EqualTo(2));
+            Assert.That(model.Save.MemberLevels.Skip(1), Has.All.EqualTo(1));
+            var loaded = new GameModel(() => now);
+            Assert.That(loaded.LevelOf(0), Is.EqualTo(2));
+            BattleSimulator battle = loaded.StartStageBattle("stage-1-1", 847, out string message);
+            Assert.That(battle, Is.Not.Null, message);
+            Assert.That(battle.IsRealtime, Is.True, "生产模型的战斗从创建开始就必须使用新规则，不能依赖某个页面切换");
+            Assert.That(battle.BattleDice.BattleRerollLimit, Is.EqualTo(2));
+            BattleUnit first = battle.Units.Single(u => u.Side == BattleSide.Player && u.Definition.Id == "xingli");
+            Assert.That(first.BaseAttack, Is.EqualTo(loaded.StatsOf(0).Attack));
+            Assert.That(first.MaxHp, Is.EqualTo(loaded.StatsOf(0).Hp));
+        }
+
+        [Test]
+        public void ProductionGrowthMigrationKeepsOldLevelsBalancesAndStageProgress()
+        {
+            SaveRaw(new GameSave { Gold = 11300, Diamonds = 219, StoryProgress = 83 });
+            var model = new GameModel(() => now);
+            Assert.That(model.LevelOf(0), Is.EqualTo(68));
+            Assert.That(model.Save.Gold, Is.EqualTo(11300));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(219));
+            Assert.That(model.Save.StoryProgress, Is.EqualTo(83));
+            Assert.That(model.StatsOf(0).Hp, Is.EqualTo(66214));
+            Assert.That(model.CanTrain(0, out int cost, out _), Is.False);
+            Assert.That(cost, Is.EqualTo(583077));
+            Assert.That(model.Train(0, out _), Is.False);
+            var reloaded = new GameModel(() => now);
+            Assert.That(reloaded.LevelOf(0), Is.EqualTo(68));
+            Assert.That(reloaded.Save.Gold, Is.EqualTo(11300));
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(219));
+        }
+
+        [Test]
+        public void ProductionChapterAuditUsesRealFormationAllCaptainsAndSixteenSeeds()
+        {
+            int[] levels = { 1, 3, 5, 5, 10, 11, 11, 12, 16, 22 };
+            for (int number = 1; number <= 10; number++)
+            for (int captain = 0; captain < 4; captain++)
+            {
+                var durations = new List<int>();
+                int wins = 0, minimumCoreShare = 100;
+                for (ulong seed = 1; seed <= 16; seed++)
+                {
+                    SaveRaw(new GameSave { StoryProgress = 100,
+                        MemberLevels = Enumerable.Repeat(levels[number - 1], GameModel.Members.Length).ToList() });
+                    var model = new GameModel(() => now);
+                    if (model.Save.Team[0] != captain) Assert.That(model.SetTeamLeader(captain, out _), Is.True);
+                    BattleSimulator battle = model.StartStageBattle($"stage-1-{number}", seed, out string message);
+                    Assert.That(battle, Is.Not.Null, message);
+                    battle.AutoPlay();
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
+                    durations.Add(battle.ElapsedMilliseconds);
+                    if (battle.CharacterDamageDealt > 0)
+                        minimumCoreShare = Math.Min(minimumCoreShare,
+                            (int)(100 * battle.BasicAndActiveDamageDealt / battle.CharacterDamageDealt));
+                    Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(60000));
+                    Assert.That(battle.BattleDice.UsedRerolls, Is.LessThanOrEqualTo(battle.Stage.RerollLimit));
+                }
+                durations.Sort();
+                TestContext.WriteLine($"AUDIT 1-{number} L{levels[number - 1]} captain={captain} " +
+                    $"wins={wins}/16 time={durations[0]}/{durations[8]}/{durations[15]} core={minimumCoreShare}%");
+                Assert.That(minimumCoreShare, Is.GreaterThanOrEqualTo(70), "普攻与双主动技能必须是主要伤害来源");
+                Assert.That(wins, Is.GreaterThanOrEqualTo(number <= 4 ? 16 : 12),
+                    $"1-{number} 队长{captain}在校准等级下不应依赖罕见好运才能获胜");
+                int[] minimumMedians = { 8000, 14000, 22000, 14000, 30000, 25000, 18000, 20000, 25000, 25000 };
+                int[] maximumMedians = { 18000, 30000, 45000, 30000, 55000, 50000, 35000, 35000, 50000, 55000 };
+                Assert.That(durations[8], Is.InRange(minimumMedians[number - 1], maximumMedians[number - 1]),
+                    $"1-{number} 队长{captain} 的典型时长需留出决策空间，又不能靠拖满60秒取胜");
+            }
+            // Gates test a representative cohort; they do not claim every seed, item or tactic is balanced.
+        }
+
+        [Test]
         public void NewGameCreatesAndPersistsNormalizedDefaults()
         {
             GameModel model = CreateModel();

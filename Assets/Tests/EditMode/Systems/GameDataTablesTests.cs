@@ -85,16 +85,19 @@ namespace ChoSiren.Tests.Systems
                 BattleUnit actor = battle.Units.Single(unit => unit.Side == BattleSide.Player);
                 UnitDefinition definition = manifest.FindUnit(member.Id);
                 Assert.That(actor.Definition.Id, Is.EqualTo(member.Id));
-                Assert.That(actor.BaseAttack, Is.EqualTo(BattleSimulator.MemberStatAtLevel(definition.Attack, 37)));
-                Assert.That(actor.MaxHp, Is.EqualTo(BattleSimulator.MemberStatAtLevel(definition.MaxHp, 37)));
+                CombatStats expected = BattleSimulator.PlayerStats(definition, 37);
+                Assert.That(actor.BaseAttack, Is.EqualTo(expected.Attack));
+                Assert.That(actor.MaxHp, Is.EqualTo(expected.Hp));
                 Assert.That(actor.Speed, Is.EqualTo(definition.Speed));
+                battle.EnableRealtime(GameModel.Members.ToDictionary(m => m.Id, m => m.Race), member.Id,
+                    manifest.Stages[0].RerollLimit);
                 Assert.That(battle.AutoPlay(), Is.Not.EqualTo(BattleOutcome.Ongoing),
                     $"{member.Name} 的技能或回合逻辑阻止了战斗结束");
             }
         }
 
         [Test]
-        public void EveryShippedStageIsWinnableByAutoBattleWithAFullSsrParty()
+        public void EveryShippedStageIsWinnableByRealtimeAutoBattleWithFourCareers()
         {
             GameDataRepository repository = Load();
             var party = new List<PlayerUnitSetup>
@@ -109,6 +112,7 @@ namespace ChoSiren.Tests.Systems
             {
                 StageDefinition stage = repository.Tactics.Stages[index];
                 var battle = new BattleSimulator(repository.Tactics, stage, party, new SeededRandom(1000 + (ulong)index));
+                battle.EnableRealtime(GameModel.Members.ToDictionary(m => m.Id, m => m.Race), "xingli", stage.RerollLimit);
                 Assert.That(battle.AutoPlay(), Is.EqualTo(BattleOutcome.Victory), $"{stage.Name} 用 40 级满编队自动战斗应能通关");
             }
         }

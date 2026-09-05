@@ -16,6 +16,75 @@ namespace ChoSiren.Tests
             { "mermaid", "海灵族 · 人鱼" }, { "elf", "血精灵" }
         };
 
+        [TestCase(1, 280, 40, 6, 50)]
+        [TestCase(5, 388, 51, 7, 88)]
+        [TestCase(10, 583, 70, 9, 176)]
+        [TestCase(30, 2982, 248, 24, 2879)]
+        [TestCase(68, 66214, 2719, 157, 583077)]
+        [TestCase(100, 900952, 20401, 751, 51057107)]
+        public void CompoundingUsesEachAuthoredFormulaInsteadOfConflictingIllustrativeTables(
+            int level, int hp, int attack, int defense, int trainingCost)
+        {
+            var unit = new UnitDefinition { MaxHp = 280, Attack = 40, Defense = 6, GrowthModel = "idol-v1" };
+            CombatStats stats = BattleSimulator.PlayerStats(unit, level);
+            Assert.That(stats.Hp, Is.EqualTo(hp));
+            Assert.That(stats.Attack, Is.EqualTo(attack));
+            Assert.That(stats.Defense, Is.EqualTo(defense));
+            Assert.That(BattleSimulator.TrainingCostAtLevel(level), Is.EqualTo(trainingCost));
+            CombatStats equipped = BattleSimulator.PlayerStats(unit, level, new CombatStatBonuses(900, 900, 900));
+            Assert.That(equipped.Attack, Is.EqualTo((int)((long)attack * 1200 / 1000)));
+        }
+
+        [TestCase("normal", 2)]
+        [TestCase("elite", 3)]
+        [TestCase("boss", 4)]
+        [TestCase("world", 5)]
+        public void EncounterTypeDeterminesWholeBattleBudget(string kind, int limit)
+        {
+            var stage = new StageDefinition { EncounterType = kind };
+            Assert.That(stage.RerollLimit, Is.EqualTo(limit));
+            BattleSimulator battle = Create("none", encounter: kind);
+            Assert.That(battle.BattleDice.BattleRerollLimit, Is.EqualTo(limit));
+            Assert.That(battle.WorldEncounter, Is.EqualTo(kind == "world"));
+        }
+
+        [Test]
+        public void NormalEnemiesNeverRunBossPhasesAndEliteHardenReallyReducesDamageForTwoSeconds()
+        {
+            BattleSimulator normal = Create("none", encounter: "normal");
+            normal.FindUnit(2).Hp = 1000;
+            normal.AdvanceRealtime(1000);
+            Assert.That(normal.Log.Any(e => e.Kind == BattleEventKind.PhaseChanged), Is.False);
+            BattleSimulator elite = Create("none", encounter: "elite",
+                rolls: new ScriptedRandom(new[] { 999 }, new[] { 0, 1, 2, 3, 5 }));
+            elite.AdvanceRealtime(10000);
+            int At(int ms) => elite.Log.Single(e => e.ActorId == 1 && e.SkillId == "rt-basic" && e.TimeMilliseconds == ms).Amount;
+            Assert.That(At(8000), Is.EqualTo(At(7000) / 2));
+            Assert.That(At(9000), Is.EqualTo(At(8000)));
+            Assert.That(At(10000), Is.EqualTo(At(7000)));
+        }
+
+        [Test]
+        public void BossCrossesSixtyAndThirtyPercentWithRealShieldAndEnrageAndCannotReviveOnLethalHit()
+        {
+            BattleSimulator battle = Create("none", encounter: "boss");
+            BattleUnit boss = battle.FindUnit(2);
+            boss.Hp = 600000;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.EnemyPhase, Is.EqualTo(2));
+            Assert.That(boss.Shield, Is.EqualTo(150000));
+            boss.Hp = 300000; boss.Shield = 0;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.EnemyPhase, Is.EqualTo(3));
+            Assert.That(boss.PhaseAttackMultiplierPermille, Is.EqualTo(1500));
+            battle.AdvanceRealtime(2000);
+            Assert.That(battle.Log.Any(e => e.ActorId == boss.Id && e.SkillId == "rt-enemy-finale"), Is.True);
+            BattleSimulator lethal = Create("none", enemyHp: 10, attack: 10000, encounter: "boss");
+            lethal.AdvanceRealtime(1000);
+            Assert.That(lethal.Outcome, Is.EqualTo(BattleOutcome.Victory));
+            Assert.That(lethal.FindUnit(2).Shield, Is.Zero);
+        }
+
         [Test]
         public void BattleEnergyRetainsFractionalHitsAndHonorsWorldAndThreeKindModifiers()
         {
@@ -224,7 +293,7 @@ namespace ChoSiren.Tests
             $"{e.TimeMilliseconds}:{e.Kind}:{e.ActorId}:{e.TargetId}:{e.SkillId}:{e.Amount}"));
 
         internal static BattleSimulator Create(string race, int enemyHp = 1000000, int attack = 100,
-            IRandomSource rolls = null)
+            IRandomSource rolls = null, string encounter = "")
         {
             var manifest = new TacticsManifest();
             manifest.Skills.Add(new SkillDefinition { Id = "strike", Name = "打击" });
@@ -232,12 +301,12 @@ namespace ChoSiren.Tests
                 Attack = attack, Defense = 0, Speed = 100, CritPermille = 0, SkillIds = new List<string> { "strike" } });
             manifest.Units.Add(new UnitDefinition { Id = "enemy", Name = "测试敌人", MaxHp = enemyHp,
                 Attack = 1, Defense = 0, Speed = 50, CritPermille = 0, SkillIds = new List<string> { "strike" } });
-            var stage = new StageDefinition { Id = "realtime-test", Name = "计时测试", TurnLimit = 20,
+            var stage = new StageDefinition { Id = "realtime-test", Name = "计时测试", TurnLimit = 20, EncounterType = encounter,
                 Enemies = new List<EnemySpawn> { new EnemySpawn { UnitId = "enemy", Row = 0, Col = 0 } } };
             manifest.Stages.Add(stage);
             var battle = new BattleSimulator(manifest, stage,
                 new[] { new PlayerUnitSetup { UnitId = race, Level = 1 } }, rolls ?? new SeededRandom(847));
-            battle.EnableRealtime(Races, race);
+            battle.EnableRealtime(Races, race, stage.RerollLimit, encounter == "world");
             return battle;
         }
     }

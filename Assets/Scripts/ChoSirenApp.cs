@@ -1401,6 +1401,15 @@ namespace ChoSiren
         private void MemberSkillCopy(MemberDefinition member, out string firstName, out string firstEffect,
             out string secondName, out string secondEffect)
         {
+            if (model.Tactics.FindUnit(member.Id)?.GrowthModel == "idol-v1")
+            {
+                CombatRace race = BattleSimulator.ParseCombatRace(member.Race);
+                firstName = BattleSimulator.ActiveSkillName(race, false);
+                secondName = BattleSimulator.ActiveSkillName(race, true);
+                firstEffect = BattleSimulator.ActiveSkillDescription(race, false);
+                secondEffect = BattleSimulator.ActiveSkillDescription(race, true);
+                return;
+            }
             List<SkillDefinition> skills = MemberBattlePresentation.FeaturedSkills(model.Tactics, member.Id);
             SkillDefinition first = skills.Count > 0 ? skills[0] : null;
             SkillDefinition second = skills.Count > 1 ? skills[1] : null;
@@ -1431,9 +1440,7 @@ namespace ChoSiren
 
         private static string MemberAcquisitionCopy(MemberDefinition member)
         {
-            return member.Rarity == "SSR"
-                ? "可在限定签约或常驻签约中获取。签约后即可训练、加入编队并参与舞台战斗。"
-                : "可在常驻签约与章节奖励中获取。首次获得后会永久加入成员档案。";
+            return "在选秀的线上或线下面试查看候选；浏览免费，按报价签约后可培养、编队并出战。";
         }
 
         private void OpenProfile()

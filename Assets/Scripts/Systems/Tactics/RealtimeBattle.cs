@@ -17,7 +17,7 @@ namespace ChoSiren.Systems.Tactics
             public CombatRace Race;
             public int NextBasic, NextSmall, NextBig;
             public int HasteStacks, ExtraAttacks;
-            public int SilencedUntil, AntiHealUntil, ReductionUntil, AttackBuffUntil;
+            public int SilencedUntil, AntiHealUntil, ReductionUntil, AttackBuffUntil, HardenedUntil;
             public int TimedShieldUntil, TimedShield;
             public int PoisonStacks, PoisonSource;
         }
@@ -26,6 +26,7 @@ namespace ChoSiren.Systems.Tactics
         private readonly Dictionary<int, PerformerClock> performerClocks = new Dictionary<int, PerformerClock>();
         private int realtimeRemainder, diceRevision, leaderId, nextMeasure = MeasureMilliseconds;
         private bool elfRescueUsed;
+        private int encounterLeadId, nextEliteHarden = 8000;
         private CombatRace leaderRace;
 
         public bool IsRealtime { get; private set; }
@@ -34,6 +35,7 @@ namespace ChoSiren.Systems.Tactics
         public DiceTurn BattleDice { get; private set; }
         public long CharacterDamageDealt { get; private set; }
         public long PoisonDamageDealt { get; private set; }
+        public long BasicAndActiveDamageDealt { get; private set; }
         public bool WorldEncounter { get; private set; }
 
         public static CombatRace ParseCombatRace(string label)
@@ -65,6 +67,8 @@ namespace ChoSiren.Systems.Tactics
                 var clock = new PerformerClock { Race = unit.Side == BattleSide.Player
                     ? ParseCombatRace(label) : CombatRace.None };
                 performerClocks.Add(unit.Id, clock);
+                if (unit.Side == BattleSide.Enemy &&
+                    (encounterLeadId == 0 || unit.MaxHp > FindUnit(encounterLeadId).MaxHp)) encounterLeadId = unit.Id;
                 if (unit.Side == BattleSide.Player && (leaderId == 0 || unit.Definition.Id == captainUnitId))
                 {
                     leaderId = unit.Id;
@@ -99,6 +103,16 @@ namespace ChoSiren.Systems.Tactics
                     ApplyNewHand();
                 }
                 ExpireTimedEffects();
+                if (Stage.EncounterType == "elite" && ElapsedMilliseconds >= nextEliteHarden)
+                {
+                    BattleUnit elite = FindUnit(encounterLeadId);
+                    if (elite != null && elite.Alive)
+                    {
+                        performerClocks[elite.Id].HardenedUntil = ElapsedMilliseconds + 2000;
+                        Emit(BattleEventKind.Buff, elite.Id, elite.Id, "rt-elite-harden", 500, false);
+                    }
+                    nextEliteHarden += 8000;
+                }
                 foreach (BattleUnit actor in units)
                 {
                     if (!actor.Alive || Outcome != BattleOutcome.Ongoing) continue;
@@ -150,6 +164,7 @@ namespace ChoSiren.Systems.Tactics
             ? clock.Race : CombatRace.None;
 
         public string ActiveSkillId(BattleUnit unit, bool big) => SkillId(RaceOf(unit), big);
+        public static string ActiveSkillName(CombatRace race, bool big) => realtimeSkills[SkillId(race, big)].Name;
 
         public static string ActiveSkillDescription(CombatRace race, bool big)
         {
@@ -171,6 +186,19 @@ namespace ChoSiren.Systems.Tactics
         {
             if (unit == null || !performerClocks.TryGetValue(unit.Id, out var clock)) return 0;
             return Math.Max(0, (big ? clock.NextBig : clock.NextSmall) - ElapsedMilliseconds);
+        }
+
+        public string RealtimeStatus(BattleUnit unit)
+        {
+            if (unit == null || !unit.Alive || !performerClocks.TryGetValue(unit.Id, out var clock)) return string.Empty;
+            if (clock.SilencedUntil > ElapsedMilliseconds) return "封技";
+            if (clock.HardenedUntil > ElapsedMilliseconds) return "硬化";
+            if (clock.PoisonStacks > 0) return $"毒 {clock.PoisonStacks}";
+            if (clock.AntiHealUntil > ElapsedMilliseconds) return "禁疗30%";
+            if (clock.ReductionUntil > ElapsedMilliseconds) return "减伤15%";
+            if (clock.AttackBuffUntil > ElapsedMilliseconds) return "攻击+10%";
+            if (unit.Shield > 0) return "护盾";
+            return string.Empty;
         }
 
         private static int SmallCooldown(CombatRace race) => race == CombatRace.Charm ? 2500
@@ -291,6 +319,18 @@ namespace ChoSiren.Systems.Tactics
 
         private void EnemySpecial(BattleUnit actor)
         {
+            if (Stage.UsesRealtime)
+            {
+                BattleUnit target = SelectEnemy(actor);
+                if (target == null) return;
+                if (Stage.HasBossPhases && actor.Id == encounterLeadId && EnemyPhase >= 3)
+                {
+                    foreach (BattleUnit ally in units)
+                        if (ally.Alive && ally.Side == BattleSide.Player) Deal(actor, ally, "rt-enemy-finale", 1400);
+                }
+                else Deal(actor, target, "rt-enemy-heavy", 1600);
+                return;
+            }
             BattleAction chosen = EnemyAi.Choose(this, actor);
             SkillDefinition skill = chosen == null ? null : LookupSkill(chosen.SkillId);
             if (skill == null) return;
@@ -330,6 +370,7 @@ namespace ChoSiren.Systems.Tactics
             bool critical = random.NextPermille() < actor.Definition.CritPermille;
             if (critical) raw = raw * CritMultiplierPermille / 1000;
             if (performerClocks[target.Id].ReductionUntil > ElapsedMilliseconds) raw = raw * 850 / 1000;
+            if (performerClocks[target.Id].HardenedUntil > ElapsedMilliseconds) raw = raw * 500 / 1000;
             if (target.Side == BattleSide.Player && leaderRace == CombatRace.Mermaid &&
                 BattleDice.Hand.Pattern == DicePattern.FiveKind) raw = raw * 750 / 1000;
             ApplyActualDamage(actor, target, skill, (int)Math.Max(1, Math.Min(int.MaxValue, raw)), critical);
@@ -350,6 +391,7 @@ namespace ChoSiren.Systems.Tactics
             {
                 CharacterDamageDealt += applied;
                 if (skill == "rt-poison") PoisonDamageDealt += applied;
+                else BasicAndActiveDamageDealt += applied;
                 int gain = BattleDice.Hand.Pattern == DicePattern.ThreeKind ? 1300 : 1000;
                 if (WorldEncounter) gain = gain * 750 / 1000;
                 BattleDice.RecordDamage(applied, !target.Alive, gain);
@@ -506,6 +548,9 @@ namespace ChoSiren.Systems.Tactics
             Add("rt-none-small", "音浪冲击"); Add("rt-none-big", "舞台共鸣");
             Add("rt-charm-follow", "魅影追击"); Add("rt-poison", "终末毒爆");
             Add("rt-tide-hand", "深海壁垒", SkillEffect.Shield);
+            Add("rt-enemy-heavy", "重音蓄击"); Add("rt-enemy-finale", "终演震荡");
+            Add("rt-elite-harden", "静电硬化", SkillEffect.Shield);
+            Add("rt-boss-barrier", "首领屏障", SkillEffect.Shield);
             return result;
         }
     }

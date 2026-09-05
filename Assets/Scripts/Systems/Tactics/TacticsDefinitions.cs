@@ -86,6 +86,8 @@ namespace ChoSiren.Systems.Tactics
         public int Defense = 50;
         public int Speed = 100;
         public int CritPermille = 50;
+        // Empty preserves old replay fixtures. Authored current player rows use idol-v1.
+        public string GrowthModel = string.Empty;
         public List<string> SkillIds = new List<string>();
 
         public bool TryValidate(out string error)
@@ -96,7 +98,8 @@ namespace ChoSiren.Systems.Tactics
                 return false;
             }
 
-            if (MaxHp <= 0 || Attack <= 0 || Defense < 0 || Speed <= 0 || CritPermille < 0 || CritPermille > 1000)
+            if (MaxHp <= 0 || Attack <= 0 || Defense < 0 || Speed <= 0 || CritPermille < 0 || CritPermille > 1000 ||
+                (!string.IsNullOrEmpty(GrowthModel) && GrowthModel != "idol-v1"))
             {
                 error = $"单位 {Id} 的属性无效";
                 return false;
@@ -150,6 +153,14 @@ namespace ChoSiren.Systems.Tactics
         public string Id = string.Empty;
         public string Chapter = string.Empty;
         public string Name = string.Empty;
+        // Empty denotes old turn-based replay data, never a newly authored encounter.
+        public string EncounterType = string.Empty;
+        public bool UsesRealtime => !string.IsNullOrEmpty(EncounterType);
+        public bool HasBossPhases => EncounterType == "boss" || EncounterType == "world";
+        public int RerollLimit => EncounterType == "normal" ? 2 : EncounterType == "elite" ? 3
+            : EncounterType == "world" ? 5 : 4;
+        public string EncounterLabel => EncounterType == "normal" ? "普通战" : EncounterType == "elite" ? "精英战"
+            : EncounterType == "world" ? "世界首领" : "首领战";
         public int StaminaCost = 8;
         public int TurnLimit = 20;
         /// <summary>Finishing within this many rounds earns the third star.</summary>
@@ -167,7 +178,9 @@ namespace ChoSiren.Systems.Tactics
                 return false;
             }
 
-            if (StaminaCost < 0 || TurnLimit <= 0 || ThreeStarRounds <= 0 || GoldReward < 0 || DiamondFirstClear < 0)
+            if (StaminaCost < 0 || TurnLimit <= 0 || ThreeStarRounds <= 0 || GoldReward < 0 || DiamondFirstClear < 0 ||
+                (UsesRealtime && EncounterType != "normal" && EncounterType != "elite" &&
+                    EncounterType != "boss" && EncounterType != "world"))
             {
                 error = $"关卡 {Id} 的数值无效";
                 return false;

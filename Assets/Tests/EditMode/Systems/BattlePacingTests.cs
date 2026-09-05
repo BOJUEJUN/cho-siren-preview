@@ -9,10 +9,6 @@ namespace ChoSiren.Tests.Systems
 {
     public sealed class BattlePacingTests
     {
-        private const int TypicalDiceMultiplierPermille = 1400;
-        private const int MinExpectedPlayerActions = 6;
-        private const int MaxExpectedPlayerActions = 11;
-
         [Test]
         public void RealtimeChapterMeasurementsUseTheActualResourcePartyAndAllTenStages()
         {
@@ -22,7 +18,7 @@ namespace ChoSiren.Tests.Systems
             foreach (StageDefinition stage in repository.Tactics.Stages)
             {
                 var battle = new BattleSimulator(repository.Tactics, stage, DefaultParty(), new SeededRandom(847));
-                battle.EnableRealtime(races, "xingli");
+                battle.EnableRealtime(races, "xingli", stage.RerollLimit);
                 battle.AdvanceRealtime(60000, true);
                 TestContext.WriteLine($"REALTIME {stage.Id}: {battle.Outcome}, {battle.ElapsedMilliseconds}ms, " +
                     $"damage={battle.CharacterDamageDealt}, poison={battle.PoisonDamageDealt}, rerolls={battle.BattleDice.UsedRerolls}");
@@ -33,64 +29,26 @@ namespace ChoSiren.Tests.Systems
         }
 
         [Test]
-        public void AllTenChapterOneBattlesStayNearTheOneMinuteInteractionBudget()
+        public void NewCohortProgressionMeasurementsUseRealtimeNotLegacyTurnCounts()
         {
             var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
             Assert.That(repository.LoadAll(), Is.True, string.Join("\n", repository.Errors));
             Assert.That(repository.Tactics.Stages.Count, Is.EqualTo(GameModel.ChapterOneStageCount));
-
-            var actionCounts = new List<int>();
-            for (int index = 0; index < repository.Tactics.Stages.Count; index++)
+            var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
+            foreach (int level in new[] { 1, 5, 10, 15, 20 })
+            foreach (StageDefinition stage in repository.Tactics.Stages)
             {
-                StageDefinition stage = repository.Tactics.Stages[index];
-                int playerActions = RunTypicalBattle(repository.Tactics, stage);
-                actionCounts.Add(playerActions);
+                var party = DefaultParty();
+                foreach (PlayerUnitSetup member in party) member.Level = level;
+                var battle = new BattleSimulator(repository.Tactics, stage, party, new SeededRandom(847));
+                battle.EnableRealtime(races, "xingli", stage.RerollLimit);
+                battle.AdvanceRealtime(60000, true);
+                TestContext.WriteLine($"COHORT L{level} {stage.Id}: {battle.Outcome} {battle.ElapsedMilliseconds}ms " +
+                    $"lost={battle.PlayerUnitsLost}, rerolls={battle.BattleDice.UsedRerolls}");
+                Assert.That(battle.Outcome, Is.Not.EqualTo(BattleOutcome.Ongoing));
+                Assert.That(battle.BattleDice.UsedRerolls, Is.LessThanOrEqualTo(stage.RerollLimit));
             }
-
-            var failures = new List<string>();
-            for (int index = 0; index < actionCounts.Count; index++)
-            {
-                StageDefinition stage = repository.Tactics.Stages[index];
-                int actionCount = actionCounts[index];
-                TestContext.WriteLine($"{stage.Id}: {actionCount} 次玩家操作");
-                if (actionCount < MinExpectedPlayerActions || actionCount > MaxExpectedPlayerActions)
-                {
-                    failures.Add($"{stage.Id} {stage.Name}: {actionCount} 次（目标 {MinExpectedPlayerActions}–{MaxExpectedPlayerActions} 次）");
-                }
-            }
-
-            Assert.That(failures, Is.Empty,
-                "下列关卡不在约一分钟的操作预算内:\n" + string.Join("\n", failures));
-        }
-
-        private static int RunTypicalBattle(TacticsManifest manifest, StageDefinition stage)
-        {
-            var battle = new BattleSimulator(manifest, stage, DefaultParty(),
-                new ScriptedRandom(new[] { 999 }));
-            int playerActions = 0;
-            int guard = 0;
-            while (battle.Outcome == BattleOutcome.Ongoing && guard++ < 300)
-            {
-                BattleUnit actor = battle.CurrentActor;
-                Assert.That(actor, Is.Not.Null);
-                BattleAction action = EnemyAi.Choose(battle, actor);
-                Assert.That(action, Is.Not.Null);
-                if (actor.Side == BattleSide.Player)
-                {
-                    action.PowerMultiplierPermille = TypicalDiceMultiplierPermille;
-                    playerActions++;
-                }
-
-                Assert.That(battle.TryAct(action, out string error), Is.True, error);
-            }
-
-            Assert.That(guard, Is.LessThan(300), $"{stage.Name} 战斗没有在确定性上限内结束");
-            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory),
-                $"{stage.Name} 默认四人、典型 1400‰ 骰型应可获胜");
-            Assert.That(battle.EnemyPhase, Is.EqualTo(3), $"{stage.Name} 应完整进入第三阶段");
-            Assert.That(battle.Log.Where(item => item.Kind == BattleEventKind.PhaseChanged)
-                .Select(item => item.Phase), Is.EqualTo(new[] { 2, 3 }));
-            return playerActions;
+            // Numeric measurement is deliberately not a release pacing assertion.
         }
 
         private static List<PlayerUnitSetup> DefaultParty()

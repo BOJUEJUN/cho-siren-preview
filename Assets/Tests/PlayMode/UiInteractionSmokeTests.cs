@@ -265,11 +265,11 @@ namespace ChoSiren.Tests
             var manifest = ChoSiren.Systems.Data.GameData.Repository.Tactics;
             var definition = manifest.FindUnit("xingli");
             Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
-                Is.EqualTo(ChoSiren.Systems.Tactics.BattleSimulator.MemberStatAtLevel(definition.Attack, 68).ToString("N0")));
+                Is.EqualTo(BattleSimulator.PlayerStats(definition, 1).Attack.ToString("N0")));
             Assert.That(RequireActiveObject("MemberSkillPrimary").GetComponent<Text>().text,
-                Is.EqualTo(manifest.FindSkill("high-note").Name));
+                Is.EqualTo(BattleSimulator.ActiveSkillName(CombatRace.Charm, false)));
             Assert.That(RequireActiveObject("MemberSkillSecondary").GetComponent<Text>().text,
-                Is.EqualTo(manifest.FindSkill("finale").Name));
+                Is.EqualTo(BattleSimulator.ActiveSkillName(CombatRace.Charm, true)));
             RectTransform first = RequireActiveObject("MemberSkillPrimary").GetComponent<RectTransform>();
             RectTransform second = RequireActiveObject("MemberSkillSecondary").GetComponent<RectTransform>();
             Assert.That(first.anchoredPosition.x + first.rect.width, Is.LessThan(second.anchoredPosition.x),
@@ -287,24 +287,25 @@ namespace ChoSiren.Tests
             Click("Member-xingli");
             yield return null;
             GameSave before = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
-            int cost = 180 + before.MemberLevels[0] * 12;
+            int level = before.MemberLevels[0];
+            int cost = BattleSimulator.TrainingCostAtLevel(level);
             Assert.That(RequireActiveObject("MemberTrainingPreview").GetComponent<Text>().text,
-                Does.Contain("68 → 69"));
+                Does.Contain($"{level} → {level + 1}"));
             Assert.That(RequireActiveObject("MemberTrainingCost").GetComponent<Text>().text,
                 Does.Contain(cost.ToString("N0")));
             Click("Train");
             yield return null;
             RequireActiveObject("MemberModal");
             Assert.That(RequireActiveObject("MemberTrainingPreview").GetComponent<Text>().text,
-                Does.Contain("69 → 70"));
+                Does.Contain($"{level + 1} → {level + 2}"));
             Assert.That(RequireActiveObject("MemberPower").GetComponent<Text>().text,
-                Does.Contain("等级 69"));
+                Does.Contain($"等级 {level + 1}"));
             GameSave after = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
             Assert.That(after.Gold, Is.EqualTo(before.Gold - cost));
             Assert.That(after.MemberLevels.Skip(1), Is.EqualTo(before.MemberLevels.Skip(1)));
             var definition = ChoSiren.Systems.Data.GameData.Repository.Tactics.FindUnit("xingli");
             Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
-                Is.EqualTo(BattleSimulator.MemberStatAtLevel(definition.Attack, 69).ToString("N0")));
+                Is.EqualTo(BattleSimulator.PlayerStats(definition, level + 1).Attack.ToString("N0")));
             Text preview = RequireActiveObject("MemberTrainingPreview").GetComponent<Text>();
             Text price = RequireActiveObject("MemberTrainingCost").GetComponent<Text>();
             Canvas.ForceUpdateCanvases();
@@ -363,7 +364,7 @@ namespace ChoSiren.Tests
             Assert.That(button.transform.Find("Label").GetComponent<Text>().text, Is.EqualTo("金币不足"));
             GameSave saved = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
             Assert.That(saved.Gold, Is.GreaterThanOrEqualTo(0));
-            Assert.That(saved.Gold, Is.LessThan(180 + saved.MemberLevels[0] * 12));
+            Assert.That(saved.Gold, Is.LessThan(BattleSimulator.TrainingCostAtLevel(saved.MemberLevels[0])));
             Click("Close");
             yield return null;
         }

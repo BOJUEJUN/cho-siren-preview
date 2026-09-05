@@ -187,7 +187,8 @@ namespace ChoSiren.Panels
             var races = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (MemberDefinition member in GameModel.Members) races[member.Id] = member.Race;
             string captain = gameModel.Save.Team.Count > 0 ? GameModel.MemberIdAt(gameModel.Save.Team[0]) : null;
-            simulator.EnableRealtime(races, captain);
+            simulator.EnableRealtime(races, captain, simulator.Stage.RerollLimit,
+                simulator.Stage.EncounterType == "world");
             panel.diceTurn = simulator.BattleDice;
             panel.Build();
             panel.StartCoroutine(panel.MainLoop());
@@ -290,7 +291,7 @@ namespace ChoSiren.Panels
             hpFrame.type = Image.Type.Sliced;
             kit.AddOutline(hpFrame.gameObject, new Color32(255, 77, 193, 128), 1.5f);
 
-            kit.NewPlacedText(header.transform, "♥ 首领", 13, PanelKit.Pink, 18, 10, 130, 22,
+            kit.NewPlacedText(header.transform, stage.UsesRealtime ? stage.EncounterLabel : "♥ 首领", 13, PanelKit.Pink, 18, 10, 130, 22,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             Text stageTitle = kit.NewPlacedText(header.transform, stage.Name, 22, PanelKit.White,
                 18, 31, 252, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -314,7 +315,7 @@ namespace ChoSiren.Panels
             turnText = kit.NewPlacedText(header.transform, battle.IsRealtime ? "实时演出" : "第 1 回合", 14, PanelKit.Muted, 18, 60, 252, 22,
                 TextAnchor.MiddleLeft);
 
-            for (int marker = 1; marker <= 2; marker++)
+            for (int marker = 1; marker <= 2 && (!stage.UsesRealtime || stage.HasBossPhases); marker++)
             {
                 Image phaseMarker = kit.NewImage("BossPhaseMarker-" + marker, header.transform,
                     kit.RoundedSprite(2), new Color32(255, 224, 245, 210));
@@ -765,7 +766,7 @@ namespace ChoSiren.Panels
             overlay.raycastTarget = true;
             resultOverlay = overlay.gameObject;
 
-            GameObject card = kit.NewPanel("BattleResultCard", overlay.transform, new Color32(19, 14, 58, 156), 30);
+            GameObject card = kit.NewPanel("BattleResultCard", overlay.transform, new Color32(19, 14, 45, 255), 30);
             PanelKit.PlaceCentered(card.GetComponent<RectTransform>(), 610, 720);
             kit.AddOutline(card, new Color32(104, 220, 255, 184), 2);
             Image resultHalo = kit.NewImage("ResultHalo", card.transform, kit.RadialSprite(),
@@ -785,7 +786,7 @@ namespace ChoSiren.Panels
             resultStars.verticalOverflow = VerticalWrapMode.Overflow;
             resultStats = kit.NewPlacedText(card.transform, string.Empty, 18, PanelKit.White, 52, 272, 506, 70,
                 TextAnchor.UpperCenter, FontStyle.Bold);
-            GameObject reward = kit.NewPanel("BattleReward", card.transform, new Color32(31, 23, 82, 112), 22);
+            GameObject reward = kit.NewPanel("BattleReward", card.transform, new Color32(30, 25, 58, 255), 22);
             PanelKit.PlaceTop(reward.GetComponent<RectTransform>(), 48, 356, 514, 210);
             kit.NewPlacedText(reward.transform, "奖励", 14, new Color32(255, 174, 226, 255), 20, 12, 474, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -1461,7 +1462,8 @@ namespace ChoSiren.Panels
             bool shielded = unit.Shield > 0;
             cell.ShieldTrack.SetActive(shielded);
             if (shielded) cell.ShieldFill.fillAmount = Mathf.Clamp01(unit.Shield / (float)Mathf.Max(1, unit.MaxHp));
-            cell.Status.text = StatusSummary(unit);
+            string realtimeStatus = battle.IsRealtime ? battle.RealtimeStatus(unit) : string.Empty;
+            cell.Status.text = string.IsNullOrEmpty(realtimeStatus) ? StatusSummary(unit) : realtimeStatus;
             if (cell.Side == BattleSide.Player)
                 cell.HpText.gameObject.SetActive(string.IsNullOrEmpty(cell.Status.text));
             if (!unit.Alive)
@@ -1629,7 +1631,8 @@ namespace ChoSiren.Panels
             }
             if (bossPresentation != null) bossPresentation.SetHealthRatio(normalized);
             int phase = ResolveDisplayedEnemyPhase(battle.EnemyPhase, battle.Log, logCursor);
-            phaseText.text = $"阶段 {phase}/3";
+            phaseText.text = battle.Stage.UsesRealtime && !battle.Stage.HasBossPhases
+                ? battle.Stage.EncounterLabel : $"阶段 {phase}/3";
             timerText.text = FormatBattleTimer(battleElapsed);
         }
 

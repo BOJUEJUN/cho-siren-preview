@@ -404,6 +404,11 @@ namespace ChoSiren.Systems.Tactics
             CombatStatBonuses equipment = default)
         {
             if (unit == null) return default;
+            if (unit.GrowthModel == "idol-v1")
+                return new CombatStats(
+                    GrowthStat(unit.MaxHp, level, 1.085, equipment.Hp, 1),
+                    GrowthStat(unit.Attack, level, 1.065, equipment.Attack, 1),
+                    GrowthStat(unit.Defense, level, 1.05, equipment.Defense, 0), unit.Speed, unit.CritPermille);
             int scale = LevelMultiplierPermille(level);
             return new CombatStats(
                 Scale(unit.MaxHp, scale, 1000 + equipment.Hp, 1),
@@ -411,6 +416,13 @@ namespace ChoSiren.Systems.Tactics
                 Scale(unit.Defense, scale, 1000 + equipment.Defense, 0),
                 unit.Speed, unit.CritPermille);
         }
+
+        private static int GrowthStat(int basis, int level, double rate, int equipment, int minimum) =>
+            Math.Max(minimum, (int)Math.Min(int.MaxValue,
+                Math.Floor(basis * Math.Pow(rate, Math.Max(0, Math.Min(100, level) - 1))) * (1000 + equipment) / 1000));
+
+        public static int TrainingCostAtLevel(int level) => (int)Math.Min(int.MaxValue,
+            Math.Ceiling(50 * Math.Pow(1.15, Math.Max(0, Math.Min(100, level) - 1))));
 
         public static CombatStats EnemyStats(UnitDefinition unit, EnemySpawn spawn,
             int hpDifficultyPermille = 1000, int attackDifficultyPermille = 1000)
@@ -531,21 +543,30 @@ namespace ChoSiren.Systems.Tactics
 
         private void UpdateEnemyPhase()
         {
+            if (IsRealtime && Stage.UsesRealtime && !Stage.HasBossPhases) return;
             if (InitialEnemyHp <= 0 || EnemyPhase >= 3) return;
             int remaining = CurrentEnemyHp;
+            int phaseMaximum = InitialEnemyHp;
+            BattleUnit boss = IsRealtime && Stage.HasBossPhases ? FindUnit(encounterLeadId) : null;
+            if (boss != null)
+            {
+                if (!boss.Alive) return; // A lethal hit cannot revive the boss via a phase shield.
+                remaining = boss.Hp;
+                phaseMaximum = boss.MaxHp;
+            }
             while (EnemyPhase < 3)
             {
-                int threshold = EnemyPhase == 1
-                    ? PhaseTwoThresholdPermille
-                    : PhaseThreeThresholdPermille;
-                if ((long)remaining * 1000 > (long)InitialEnemyHp * threshold) break;
+                int threshold = IsRealtime && Stage.HasBossPhases ? (EnemyPhase == 1 ? 600 : 300)
+                    : EnemyPhase == 1 ? PhaseTwoThresholdPermille : PhaseThreeThresholdPermille;
+                if ((long)remaining * 1000 > (long)phaseMaximum * threshold) break;
 
                 EnemyPhase++;
                 int attackMultiplier = 1000 + (EnemyPhase - 1) * EnemyAttackGainPerPhasePermille;
+                if (boss != null) attackMultiplier = EnemyPhase == 3 ? 1500 : 1000;
                 for (int index = 0; index < units.Count; index++)
                 {
                     BattleUnit unit = units[index];
-                    if (unit.Side == BattleSide.Enemy)
+                    if (unit.Side == BattleSide.Enemy && (boss == null || unit.Id == boss.Id))
                         unit.PhaseAttackMultiplierPermille = attackMultiplier;
                 }
 
@@ -557,6 +578,8 @@ namespace ChoSiren.Systems.Tactics
                     Phase = EnemyPhase,
                     Amount = attackMultiplier
                 });
+                if (boss != null && EnemyPhase == 2)
+                    AddShield(boss, boss, "rt-boss-barrier", 150, false);
             }
         }
 
