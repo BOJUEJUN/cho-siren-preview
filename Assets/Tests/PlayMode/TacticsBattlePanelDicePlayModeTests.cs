@@ -185,7 +185,7 @@ namespace ChoSiren.Tests
 
                 Invoke(panel, "RefreshDiceUi");
 
-                Assert.That(summary.text, Is.EqualTo("一对 ×1.5\n总点 15 · 计分点 2"));
+                Assert.That(summary.text, Is.EqualTo("一对 ×1.15\n总点 15 · 计分点 2"));
                 Assert.That(statuses[0].text, Is.EqualTo("成型"));
                 Assert.That(statuses[1].text, Is.EqualTo("成型"));
                 Assert.That(statuses[2].text, Is.Empty);

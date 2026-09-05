@@ -1540,7 +1540,7 @@ namespace ChoSiren.Panels
         {
             if (diceTurn == null) return;
             ApplyAutoHolds();
-            while (diceTurn.RerollsRemaining > 0 && diceTurn.Hand.MultiplierPermille < 2500)
+            while (diceTurn.RerollsRemaining > 0 && diceTurn.Hand.MultiplierPermille < 1400)
             {
                 if (!diceTurn.RerollUnheld(out _)) break;
                 ApplyAutoHolds();
@@ -1633,7 +1633,7 @@ namespace ChoSiren.Panels
             if (diceEnergyText != null) diceEnergyText.text = $"能量 {energy}/100";
             if (diceHandText != null)
                 diceHandText.text = active
-                    ? $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.#}\n" +
+                    ? $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.##}\n" +
                       $"总点 {diceTurn.Hand.PipTotal} · 计分点 {diceTurn.Hand.ParticipatingPipTotal}"
                     : "等待骰子回合";
             if (rerollButton != null)
@@ -1879,7 +1879,7 @@ namespace ChoSiren.Panels
             CompleteDiceTurn();
             ClearSkillBar();
             previewText.text = diceTurn != null
-                ? $"行动已执行 · {diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.#}"
+                ? $"行动已执行 · {diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.##}"
                 : "行动已执行";
             awaitingInput = false;
             RefreshDiceUi();

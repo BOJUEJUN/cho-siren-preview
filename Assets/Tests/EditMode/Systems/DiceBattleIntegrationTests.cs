@@ -37,7 +37,7 @@ namespace ChoSiren.Tests.Systems
             var dice = new DiceTurn(new ScriptedRandom(new[] { 0 }, new[] { 0, 1, 2, 3, 4 }));
             dice.Begin();
             Assert.That(dice.Hand.Pattern, Is.EqualTo(DicePattern.Straight));
-            Assert.That(dice.Hand.MultiplierPermille, Is.EqualTo(3000));
+            Assert.That(dice.Hand.MultiplierPermille, Is.EqualTo(1450));
 
             BattleUnit actor = battle.CurrentActor;
             BattleUnit target = battle.UnitAt(BattleSide.Enemy, 1, 1);

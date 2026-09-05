@@ -36,7 +36,7 @@ namespace ChoSiren
         {
             Id = id;
             Name = name;
-            Role = role;
+            Role = MemberCareers.Normalize(role);
             Race = (race ?? string.Empty).Trim();
             Rarity = rarity;
             ResourcePath = resourcePath;
@@ -278,7 +278,7 @@ namespace ChoSiren
                 race: "魔族 · 恶魔"),
             new MemberDefinition("wubai", "雾白", "支援", "SSR", "Art/Members/member-wubai", 8340,
                 race: "海灵族 · 人鱼"),
-            new MemberDefinition("yeying", "夜莺", "主唱", "SR", "Art/Members/member-yeying", 7920,
+            new MemberDefinition("yeying", "夜莺", "Rapper", "SR", "Art/Members/member-yeying", 7920,
                 race: "血精灵"),
             new MemberDefinition("yaoguang", "瑶光", "舞者", "SR", "Art/Members/member-yaoguang", 7560,
                 race: "魅族"),
@@ -657,6 +657,12 @@ namespace ChoSiren
                 return;
             }
 
+            if (Save.Team.Any(index => Members[index].Career == Members[memberIndex].Career))
+            {
+                message = $"编队已有{Members[memberIndex].Career}，请先移除同职业成员";
+                return;
+            }
+
             Save.Team.Add(memberIndex);
             SaveState();
             message = $"{Members[memberIndex].Name} 已加入当前编队";
@@ -666,6 +672,8 @@ namespace ChoSiren
         {
             Save.Team = Save.UnlockedMembers
                 .OrderByDescending(PowerOf)
+                .GroupBy(index => Members[index].Career)
+                .Select(group => group.First())
                 .Take(TeamCapacity)
                 .ToList();
             SaveState();
@@ -1219,6 +1227,14 @@ namespace ChoSiren
             {
                 if (stateChanged) SaveState();
                 message = "部分编队成员暂时无法出战，请调整编队后重试";
+                return null;
+            }
+
+            if (Save.Team.Count != TeamCapacity ||
+                Save.Team.Select(index => Members[index].Career).Distinct().Count() != TeamCapacity)
+            {
+                if (stateChanged) SaveState();
+                message = "请配置主唱、主舞、Rapper、DJ 各一名，可在团队页一键编队";
                 return null;
             }
 

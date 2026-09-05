@@ -40,7 +40,7 @@ namespace ChoSiren.Tests
             var legacyCall = new MemberDefinition("legacy", "旧角色", "支援", "R",
                 "Art/Members/legacy/portrait", 6000);
             Assert.That(legacyCall.Race, Is.Empty);
-            Assert.That(legacyCall.Career, Is.EqualTo("支援"));
+            Assert.That(legacyCall.Career, Is.EqualTo("DJ"));
         }
 
         [Test]

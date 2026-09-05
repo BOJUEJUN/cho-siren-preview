@@ -637,7 +637,7 @@ namespace ChoSiren.Tests
             model.ToggleTeamMember(4, out _);
             Assert.That(model.IsInTeam(4), Is.False, "A full team must reject an additional member.");
 
-            model.ToggleTeamMember(3, out _);
+            model.ToggleTeamMember(1, out _);
             model.ToggleTeamMember(4, out _);
             Assert.That(model.Save.Team.Count, Is.EqualTo(4));
             Assert.That(model.IsInTeam(4), Is.True);
@@ -655,7 +655,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void AutoTeamSelectsFourHighestPowerUnlockedMembersAndPersists()
+        public void AutoTeamSelectsHighestPowerPerCareerAndPersists()
         {
             GameSave save = new GameSave
             {
@@ -670,8 +670,26 @@ namespace ChoSiren.Tests
 
             Assert.That(model.Save.Team.Count, Is.EqualTo(4));
             Assert.That(model.Save.Team, Does.Contain(4));
+            Assert.That(model.Save.Team.Select(index => GameModel.Members[index].Career).Distinct().Count(), Is.EqualTo(4));
             Assert.That(model.Save.Team, Is.All.Matches<int>(index => model.IsUnlocked(index)));
             Assert.That(CreateModel().Save.Team, Is.EqualTo(model.Save.Team));
+        }
+
+        [Test]
+        public void TeamRejectsDuplicateCareersAndIncompleteBattleWithoutSpendingStamina()
+        {
+            GameModel model = CreateModel();
+            Assert.That(model.Recruit(4, out _), Is.True);
+            model.ToggleTeamMember(3, out _);
+            model.ToggleTeamMember(4, out string duplicate);
+            Assert.That(model.IsInTeam(4), Is.False);
+            Assert.That(duplicate, Does.Contain("主舞"));
+            int stamina = model.Save.Stamina;
+            Assert.That(model.StartStageBattle(EasyStage, 9, out string incomplete), Is.Null);
+            Assert.That(incomplete, Does.Contain("各一名"));
+            Assert.That(model.Save.Stamina, Is.EqualTo(stamina));
+            model.AutoTeam();
+            Assert.That(model.StartStageBattle(EasyStage, 9, out _), Is.Not.Null);
         }
 
         [Test]

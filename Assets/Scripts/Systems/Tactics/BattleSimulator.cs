@@ -375,7 +375,7 @@ namespace ChoSiren.Systems.Tactics
         }
 
         private static int ClampActionMultiplier(int multiplierPermille) =>
-            Math.Max(1000, Math.Min(10000, multiplierPermille));
+            Math.Max(1000, Math.Min(ChoSiren.Systems.Dice.DiceRules.MaxMultiplierPermille, multiplierPermille));
 
         private void Resolve(BattleUnit actor, SkillDefinition skill, int row, int col, int powerMultiplierPermille)
         {

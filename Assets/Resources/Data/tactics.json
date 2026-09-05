@@ -16,69 +16,69 @@
   ],
   "Units": [
     { "Id": "xingli", "Name": "星璃", "Role": "主唱", "MaxHp": 1450, "Attack": 168, "Defense": 62, "Speed": 108, "CritPermille": 120, "SkillIds": ["strike", "high-note", "finale"] },
-    { "Id": "feiyin", "Name": "绯音", "Role": "舞者", "MaxHp": 1600, "Attack": 154, "Defense": 74, "Speed": 122, "CritPermille": 150, "SkillIds": ["strike", "spin-kick"] },
-    { "Id": "wubai", "Name": "雾白", "Role": "支援", "MaxHp": 1700, "Attack": 118, "Defense": 88, "Speed": 96, "CritPermille": 50, "SkillIds": ["strike", "encore", "chorus"] },
-    { "Id": "yeying", "Name": "夜莺", "Role": "主唱", "MaxHp": 1300, "Attack": 148, "Defense": 56, "Speed": 104, "CritPermille": 100, "SkillIds": ["strike", "high-note"] },
-    { "Id": "yaoguang", "Name": "瑶光", "Role": "舞者", "MaxHp": 1420, "Attack": 136, "Defense": 66, "Speed": 118, "CritPermille": 130, "SkillIds": ["strike", "spin-kick"] },
-    { "Id": "hupo", "Name": "琥珀", "Role": "支援", "MaxHp": 1520, "Attack": 104, "Defense": 80, "Speed": 92, "CritPermille": 50, "SkillIds": ["strike", "hype"] },
+    { "Id": "feiyin", "Name": "绯音", "Role": "主舞", "MaxHp": 1600, "Attack": 154, "Defense": 74, "Speed": 122, "CritPermille": 150, "SkillIds": ["strike", "spin-kick"] },
+    { "Id": "wubai", "Name": "雾白", "Role": "DJ", "MaxHp": 1700, "Attack": 118, "Defense": 88, "Speed": 96, "CritPermille": 50, "SkillIds": ["strike", "encore", "chorus"] },
+    { "Id": "yeying", "Name": "夜莺", "Role": "Rapper", "MaxHp": 1300, "Attack": 148, "Defense": 56, "Speed": 104, "CritPermille": 100, "SkillIds": ["strike", "high-note"] },
+    { "Id": "yaoguang", "Name": "瑶光", "Role": "主舞", "MaxHp": 1420, "Attack": 136, "Defense": 66, "Speed": 118, "CritPermille": 130, "SkillIds": ["strike", "spin-kick"] },
+    { "Id": "hupo", "Name": "琥珀", "Role": "DJ", "MaxHp": 1520, "Attack": 104, "Defense": 80, "Speed": 92, "CritPermille": 50, "SkillIds": ["strike", "hype"] },
     { "Id": "xianyue", "Name": "弦月", "Role": "主唱", "MaxHp": 1180, "Attack": 130, "Defense": 50, "Speed": 100, "CritPermille": 90, "SkillIds": ["strike", "stage-light"] },
-    { "Id": "chuxue", "Name": "初雪", "Role": "舞者", "MaxHp": 1260, "Attack": 122, "Defense": 60, "Speed": 112, "CritPermille": 110, "SkillIds": ["strike", "spin-kick"] },
-    { "Id": "chengxia", "Name": "澄夏", "Role": "支援", "MaxHp": 1360, "Attack": 96, "Defense": 72, "Speed": 90, "CritPermille": 50, "SkillIds": ["strike", "encore"] },
+    { "Id": "chuxue", "Name": "初雪", "Role": "主舞", "MaxHp": 1260, "Attack": 122, "Defense": 60, "Speed": 112, "CritPermille": 110, "SkillIds": ["strike", "spin-kick"] },
+    { "Id": "chengxia", "Name": "澄夏", "Role": "DJ", "MaxHp": 1360, "Attack": 96, "Defense": 72, "Speed": 90, "CritPermille": 50, "SkillIds": ["strike", "encore"] },
 
     {"Id":"hero-0002","Name":"霜华","Role":"主唱","MaxHp":1324,"Attack":153,"Defense":57,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
-    {"Id":"hero-0003","Name":"流萤","Role":"舞者","MaxHp":1551,"Attack":149,"Defense":72,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0005","Name":"星澜","Role":"支援","MaxHp":1746,"Attack":121,"Defense":90,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
-    {"Id":"hero-0007","Name":"月汐","Role":"主唱","MaxHp":1420,"Attack":162,"Defense":61,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
-    {"Id":"hero-0008","Name":"绮梦","Role":"舞者","MaxHp":1640,"Attack":157,"Defense":76,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0010","Name":"云歌","Role":"支援","MaxHp":1824,"Attack":125,"Defense":96,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
+    {"Id":"hero-0003","Name":"流萤","Role":"主舞","MaxHp":1551,"Attack":149,"Defense":72,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0005","Name":"星澜","Role":"DJ","MaxHp":1746,"Attack":121,"Defense":90,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
+    {"Id":"hero-0007","Name":"月汐","Role":"Rapper","MaxHp":1420,"Attack":162,"Defense":61,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
+    {"Id":"hero-0008","Name":"绮梦","Role":"主舞","MaxHp":1640,"Attack":157,"Defense":76,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0010","Name":"云歌","Role":"DJ","MaxHp":1824,"Attack":125,"Defense":96,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
     {"Id":"hero-0011","Name":"凌音","Role":"主唱","MaxHp":1416,"Attack":156,"Defense":60,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
-    {"Id":"hero-0012","Name":"紫苑","Role":"舞者","MaxHp":1512,"Attack":146,"Defense":72,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0024","Name":"夕颜","Role":"支援","MaxHp":1632,"Attack":115,"Defense":86,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
-    {"Id":"hero-0031","Name":"青璃","Role":"主唱","MaxHp":1442,"Attack":167,"Defense":62,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
-    {"Id":"hero-0032","Name":"洛羽","Role":"舞者","MaxHp":1688,"Attack":162,"Defense":78,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0033","Name":"眠星","Role":"支援","MaxHp":1898,"Attack":132,"Defense":98,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
+    {"Id":"hero-0012","Name":"紫苑","Role":"主舞","MaxHp":1512,"Attack":146,"Defense":72,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0024","Name":"夕颜","Role":"DJ","MaxHp":1632,"Attack":115,"Defense":86,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
+    {"Id":"hero-0031","Name":"青璃","Role":"Rapper","MaxHp":1442,"Attack":167,"Defense":62,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
+    {"Id":"hero-0032","Name":"洛羽","Role":"主舞","MaxHp":1688,"Attack":162,"Defense":78,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0033","Name":"眠星","Role":"DJ","MaxHp":1898,"Attack":132,"Defense":98,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
     {"Id":"hero-0034","Name":"雪见","Role":"主唱","MaxHp":1294,"Attack":147,"Defense":56,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
-    {"Id":"hero-0035","Name":"绫霜","Role":"舞者","MaxHp":1492,"Attack":143,"Defense":69,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0037","Name":"诗音","Role":"支援","MaxHp":1687,"Attack":115,"Defense":89,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
-    {"Id":"hero-0038","Name":"露华","Role":"主唱","MaxHp":1232,"Attack":136,"Defense":52,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
-    {"Id":"hero-0200","Name":"天音","Role":"舞者","MaxHp":1394,"Attack":135,"Defense":66,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0201","Name":"幻月","Role":"支援","MaxHp":1588,"Attack":112,"Defense":84,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
+    {"Id":"hero-0035","Name":"绫霜","Role":"主舞","MaxHp":1492,"Attack":143,"Defense":69,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0037","Name":"诗音","Role":"DJ","MaxHp":1687,"Attack":115,"Defense":89,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
+    {"Id":"hero-0038","Name":"露华","Role":"Rapper","MaxHp":1232,"Attack":136,"Defense":52,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
+    {"Id":"hero-0200","Name":"天音","Role":"主舞","MaxHp":1394,"Attack":135,"Defense":66,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0201","Name":"幻月","Role":"DJ","MaxHp":1588,"Attack":112,"Defense":84,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
     {"Id":"hero-0202","Name":"瑾歌","Role":"主唱","MaxHp":1160,"Attack":134,"Defense":50,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
-    {"Id":"hero-0203","Name":"澜心","Role":"舞者","MaxHp":1355,"Attack":130,"Defense":63,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0205","Name":"晴岚","Role":"支援","MaxHp":1523,"Attack":106,"Defense":79,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
-    {"Id":"hero-0207","Name":"千夜","Role":"主唱","MaxHp":1236,"Attack":141,"Defense":53,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
-    {"Id":"hero-0208","Name":"绯月","Role":"舞者","MaxHp":1426,"Attack":137,"Defense":66,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0209","Name":"琉光","Role":"支援","MaxHp":1613,"Attack":110,"Defense":85,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
+    {"Id":"hero-0203","Name":"澜心","Role":"主舞","MaxHp":1355,"Attack":130,"Defense":63,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0205","Name":"晴岚","Role":"DJ","MaxHp":1523,"Attack":106,"Defense":79,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
+    {"Id":"hero-0207","Name":"千夜","Role":"Rapper","MaxHp":1236,"Attack":141,"Defense":53,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
+    {"Id":"hero-0208","Name":"绯月","Role":"主舞","MaxHp":1426,"Attack":137,"Defense":66,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0209","Name":"琉光","Role":"DJ","MaxHp":1613,"Attack":110,"Defense":85,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
     {"Id":"hero-0604","Name":"雾凛","Role":"主唱","MaxHp":1327,"Attack":146,"Defense":56,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
-    {"Id":"hero-0605","Name":"若雪","Role":"舞者","MaxHp":1500,"Attack":145,"Defense":71,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0607","Name":"春弦","Role":"支援","MaxHp":1632,"Attack":115,"Defense":86,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
-    {"Id":"hero-0608","Name":"紫苏","Role":"主唱","MaxHp":1245,"Attack":144,"Defense":53,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
-    {"Id":"hero-0610","Name":"晨曦","Role":"舞者","MaxHp":1455,"Attack":140,"Defense":67,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0611","Name":"星遥","Role":"支援","MaxHp":1635,"Attack":113,"Defense":85,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
+    {"Id":"hero-0605","Name":"若雪","Role":"主舞","MaxHp":1500,"Attack":145,"Defense":71,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0607","Name":"春弦","Role":"DJ","MaxHp":1632,"Attack":115,"Defense":86,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
+    {"Id":"hero-0608","Name":"紫苏","Role":"Rapper","MaxHp":1245,"Attack":144,"Defense":53,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
+    {"Id":"hero-0610","Name":"晨曦","Role":"主舞","MaxHp":1455,"Attack":140,"Defense":67,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0611","Name":"星遥","Role":"DJ","MaxHp":1635,"Attack":113,"Defense":85,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
     {"Id":"hero-0613","Name":"月铃","Role":"主唱","MaxHp":1060,"Attack":121,"Defense":46,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
-    {"Id":"hero-0614","Name":"夜澜","Role":"舞者","MaxHp":1222,"Attack":117,"Defense":57,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0630","Name":"霁月","Role":"支援","MaxHp":1382,"Attack":95,"Defense":73,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
-    {"Id":"hero-0633","Name":"花音","Role":"主唱","MaxHp":1135,"Attack":125,"Defense":48,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
-    {"Id":"hero-0634","Name":"蓝羽","Role":"舞者","MaxHp":1283,"Attack":124,"Defense":61,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0651","Name":"晴歌","Role":"支援","MaxHp":1459,"Attack":103,"Defense":77,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
+    {"Id":"hero-0614","Name":"夜澜","Role":"主舞","MaxHp":1222,"Attack":117,"Defense":57,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0630","Name":"霁月","Role":"DJ","MaxHp":1382,"Attack":95,"Defense":73,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
+    {"Id":"hero-0633","Name":"花音","Role":"Rapper","MaxHp":1135,"Attack":125,"Defense":48,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
+    {"Id":"hero-0634","Name":"蓝羽","Role":"主舞","MaxHp":1283,"Attack":124,"Defense":61,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0651","Name":"晴歌","Role":"DJ","MaxHp":1459,"Attack":103,"Defense":77,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
     {"Id":"hero-0664","Name":"霜音","Role":"主唱","MaxHp":1160,"Attack":134,"Defense":50,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
-    {"Id":"hero-0668","Name":"星织","Role":"舞者","MaxHp":1280,"Attack":123,"Defense":59,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0670","Name":"夕璃","Role":"支援","MaxHp":1393,"Attack":97,"Defense":72,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
-    {"Id":"hero-0671","Name":"莲歌","Role":"主唱","MaxHp":1040,"Attack":118,"Defense":45,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
-    {"Id":"hero-0672","Name":"羽澄","Role":"舞者","MaxHp":1136,"Attack":109,"Defense":53,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0673","Name":"紫月","Role":"支援","MaxHp":1281,"Attack":88,"Defense":67,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
+    {"Id":"hero-0668","Name":"星织","Role":"主舞","MaxHp":1280,"Attack":123,"Defense":59,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0670","Name":"夕璃","Role":"DJ","MaxHp":1393,"Attack":97,"Defense":72,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
+    {"Id":"hero-0671","Name":"莲歌","Role":"Rapper","MaxHp":1040,"Attack":118,"Defense":45,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
+    {"Id":"hero-0672","Name":"羽澄","Role":"主舞","MaxHp":1136,"Attack":109,"Defense":53,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0673","Name":"紫月","Role":"DJ","MaxHp":1281,"Attack":88,"Defense":67,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
     {"Id":"hero-0674","Name":"晓星","Role":"主唱","MaxHp":1053,"Attack":116,"Defense":45,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
-    {"Id":"hero-0675","Name":"云裳","Role":"舞者","MaxHp":1191,"Attack":115,"Defense":57,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-0676","Name":"沧歌","Role":"支援","MaxHp":1355,"Attack":96,"Defense":72,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
-    {"Id":"hero-1006","Name":"雨音","Role":"主唱","MaxHp":1160,"Attack":134,"Defense":50,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
-    {"Id":"hero-1008","Name":"玲珑","Role":"舞者","MaxHp":1280,"Attack":123,"Defense":59,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-1011","Name":"初晴","Role":"支援","MaxHp":1360,"Attack":94,"Defense":70,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
+    {"Id":"hero-0675","Name":"云裳","Role":"主舞","MaxHp":1191,"Attack":115,"Defense":57,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-0676","Name":"沧歌","Role":"DJ","MaxHp":1355,"Attack":96,"Defense":72,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
+    {"Id":"hero-1006","Name":"雨音","Role":"Rapper","MaxHp":1160,"Attack":134,"Defense":50,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
+    {"Id":"hero-1008","Name":"玲珑","Role":"主舞","MaxHp":1280,"Attack":123,"Defense":59,"Speed":122,"CritPermille":150,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-1011","Name":"初晴","Role":"DJ","MaxHp":1360,"Attack":94,"Defense":70,"Speed":96,"CritPermille":50,"SkillIds":["strike","encore","chorus"]},
     {"Id":"hero-1013","Name":"墨染","Role":"主唱","MaxHp":1051,"Attack":120,"Defense":45,"Speed":104,"CritPermille":100,"SkillIds":["strike","high-note"]},
-    {"Id":"hero-1014","Name":"清歌","Role":"舞者","MaxHp":1212,"Attack":116,"Defense":56,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-1016","Name":"梦璃","Role":"支援","MaxHp":1370,"Attack":94,"Defense":72,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
-    {"Id":"hero-1034","Name":"星语","Role":"主唱","MaxHp":1126,"Attack":124,"Defense":48,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
-    {"Id":"hero-1035","Name":"月华","Role":"舞者","MaxHp":1272,"Attack":123,"Defense":61,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
-    {"Id":"hero-1036","Name":"雪歌","Role":"支援","MaxHp":1447,"Attack":102,"Defense":77,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
+    {"Id":"hero-1014","Name":"清歌","Role":"主舞","MaxHp":1212,"Attack":116,"Defense":56,"Speed":118,"CritPermille":130,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-1016","Name":"梦璃","Role":"DJ","MaxHp":1370,"Attack":94,"Defense":72,"Speed":92,"CritPermille":50,"SkillIds":["strike","hype"]},
+    {"Id":"hero-1034","Name":"星语","Role":"Rapper","MaxHp":1126,"Attack":124,"Defense":48,"Speed":100,"CritPermille":90,"SkillIds":["strike","stage-light"]},
+    {"Id":"hero-1035","Name":"月华","Role":"主舞","MaxHp":1272,"Attack":123,"Defense":61,"Speed":112,"CritPermille":110,"SkillIds":["strike","spin-kick"]},
+    {"Id":"hero-1036","Name":"雪歌","Role":"DJ","MaxHp":1447,"Attack":102,"Defense":77,"Speed":90,"CritPermille":50,"SkillIds":["strike","encore"]},
     {"Id":"hero-1037","Name":"灵音","Role":"主唱","MaxHp":1160,"Attack":134,"Defense":50,"Speed":108,"CritPermille":120,"SkillIds":["strike","high-note","finale"]},
 
     { "Id": "echo-drone", "Name": "回声无人机", "Role": "敌方", "MaxHp": 900, "Attack": 92, "Defense": 40, "Speed": 95, "CritPermille": 40, "SkillIds": ["static-burst"] },
@@ -91,9 +91,9 @@
       "Id": "stage-1-1", "Chapter": "第 01 章", "Name": "1-1 霓虹后巷", "StaminaCost": 8, "TurnLimit": 20, "ThreeStarRounds": 6,
       "GoldReward": 300, "DiamondFirstClear": 20,
       "Enemies": [
-        { "UnitId": "echo-drone", "Row": 0, "Col": 0, "ScalePermille": 1000, "HpScalePermille": 2400 },
-        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1000, "HpScalePermille": 2400 },
-        { "UnitId": "noise-wraith", "Row": 1, "Col": 1, "ScalePermille": 1000, "HpScalePermille": 2400 }
+        { "UnitId": "echo-drone", "Row": 0, "Col": 0, "ScalePermille": 1000, "HpScalePermille": 1440 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1000, "HpScalePermille": 1440 },
+        { "UnitId": "noise-wraith", "Row": 1, "Col": 1, "ScalePermille": 1000, "HpScalePermille": 1440 }
       ],
       "Drops": { "Rolls": 2, "Entries": [
         { "ItemId": "gold", "Weight": 6, "Min": 80, "Max": 160 },
@@ -105,10 +105,10 @@
       "Id": "stage-1-2", "Chapter": "第 01 章", "Name": "1-2 地下电台", "StaminaCost": 8, "TurnLimit": 20, "ThreeStarRounds": 6,
       "GoldReward": 320, "DiamondFirstClear": 20,
       "Enemies": [
-        { "UnitId": "echo-drone", "Row": 0, "Col": 0, "ScalePermille": 1050, "HpScalePermille": 2600 },
-        { "UnitId": "echo-drone", "Row": 1, "Col": 0, "ScalePermille": 1050, "HpScalePermille": 2600 },
-        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1050, "HpScalePermille": 2600 },
-        { "UnitId": "noise-wraith", "Row": 1, "Col": 2, "ScalePermille": 1080, "HpScalePermille": 2600 }
+        { "UnitId": "echo-drone", "Row": 0, "Col": 0, "ScalePermille": 1050, "HpScalePermille": 1560 },
+        { "UnitId": "echo-drone", "Row": 1, "Col": 0, "ScalePermille": 1050, "HpScalePermille": 1560 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1050, "HpScalePermille": 1560 },
+        { "UnitId": "noise-wraith", "Row": 1, "Col": 2, "ScalePermille": 1080, "HpScalePermille": 1560 }
       ],
       "Drops": { "Rolls": 2, "Entries": [
         { "ItemId": "gold", "Weight": 6, "Min": 100, "Max": 180 },
@@ -120,10 +120,10 @@
       "Id": "stage-1-3", "Chapter": "第 01 章", "Name": "1-3 天桥回响", "StaminaCost": 9, "TurnLimit": 20, "ThreeStarRounds": 7,
       "GoldReward": 350, "DiamondFirstClear": 25,
       "Enemies": [
-        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1100, "HpScalePermille": 2150 },
-        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1100, "HpScalePermille": 2150 },
-        { "UnitId": "echo-drone", "Row": 0, "Col": 2, "ScalePermille": 1100, "HpScalePermille": 2150 },
-        { "UnitId": "echo-drone", "Row": 2, "Col": 2, "ScalePermille": 1100, "HpScalePermille": 2150 }
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1100, "HpScalePermille": 1290 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1100, "HpScalePermille": 1290 },
+        { "UnitId": "echo-drone", "Row": 0, "Col": 2, "ScalePermille": 1100, "HpScalePermille": 1290 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 2, "ScalePermille": 1100, "HpScalePermille": 1290 }
       ],
       "Drops": { "Rolls": 3, "Entries": [
         { "ItemId": "gold", "Weight": 5, "Min": 120, "Max": 200 },
@@ -135,9 +135,9 @@
       "Id": "stage-1-4", "Chapter": "第 01 章", "Name": "1-4 静电之心", "StaminaCost": 9, "TurnLimit": 20, "ThreeStarRounds": 7,
       "GoldReward": 380, "DiamondFirstClear": 25,
       "Enemies": [
-        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1120, "HpScalePermille": 1500 },
-        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1120, "HpScalePermille": 1500 },
-        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1120, "HpScalePermille": 1500 }
+        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1120, "HpScalePermille": 900 },
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1120, "HpScalePermille": 900 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1120, "HpScalePermille": 900 }
       ],
       "Drops": { "Rolls": 3, "Entries": [
         { "ItemId": "gold", "Weight": 4, "Min": 160, "Max": 260 },
@@ -149,10 +149,10 @@
       "Id": "stage-1-5", "Chapter": "第 01 章", "Name": "1-5 午夜商圈", "StaminaCost": 10, "TurnLimit": 20, "ThreeStarRounds": 8,
       "GoldReward": 420, "DiamondFirstClear": 30,
       "Enemies": [
-        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1140, "HpScalePermille": 2380 },
-        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1140, "HpScalePermille": 2380 },
-        { "UnitId": "echo-drone", "Row": 0, "Col": 2, "ScalePermille": 1140, "HpScalePermille": 2380 },
-        { "UnitId": "echo-drone", "Row": 2, "Col": 2, "ScalePermille": 1140, "HpScalePermille": 2380 }
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1140, "HpScalePermille": 1428 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1140, "HpScalePermille": 1428 },
+        { "UnitId": "echo-drone", "Row": 0, "Col": 2, "ScalePermille": 1140, "HpScalePermille": 1428 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 2, "ScalePermille": 1140, "HpScalePermille": 1428 }
       ],
       "Drops": { "Rolls": 3, "Entries": [
         { "ItemId": "gold", "Weight": 5, "Min": 180, "Max": 280 },
@@ -164,9 +164,9 @@
       "Id": "stage-1-6", "Chapter": "第 01 章", "Name": "1-6 镜面廊桥", "StaminaCost": 10, "TurnLimit": 20, "ThreeStarRounds": 8,
       "GoldReward": 460, "DiamondFirstClear": 30,
       "Enemies": [
-        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1160, "HpScalePermille": 1600 },
-        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1160, "HpScalePermille": 1600 },
-        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1160, "HpScalePermille": 1600 }
+        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1160, "HpScalePermille": 960 },
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1160, "HpScalePermille": 960 },
+        { "UnitId": "echo-drone", "Row": 2, "Col": 0, "ScalePermille": 1160, "HpScalePermille": 960 }
       ],
       "Drops": { "Rolls": 3, "Entries": [
         { "ItemId": "gold", "Weight": 5, "Min": 200, "Max": 300 },
@@ -178,9 +178,9 @@
       "Id": "stage-1-7", "Chapter": "第 01 章", "Name": "1-7 欲望剧院", "StaminaCost": 11, "TurnLimit": 22, "ThreeStarRounds": 9,
       "GoldReward": 500, "DiamondFirstClear": 35,
       "Enemies": [
-        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1180, "HpScalePermille": 1575 },
-        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1180, "HpScalePermille": 1575 },
-        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1180, "HpScalePermille": 1575 }
+        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1180, "HpScalePermille": 875 },
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1180, "HpScalePermille": 875 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1180, "HpScalePermille": 875 }
       ],
       "Drops": { "Rolls": 3, "Entries": [
         { "ItemId": "gold", "Weight": 5, "Min": 220, "Max": 320 },
@@ -192,10 +192,10 @@
       "Id": "stage-1-8", "Chapter": "第 01 章", "Name": "1-8 心拍天台", "StaminaCost": 11, "TurnLimit": 22, "ThreeStarRounds": 9,
       "GoldReward": 550, "DiamondFirstClear": 35,
       "Enemies": [
-        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1200, "HpScalePermille": 1500 },
-        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1200, "HpScalePermille": 1500 },
-        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1200, "HpScalePermille": 1500 },
-        { "UnitId": "echo-drone", "Row": 1, "Col": 2, "ScalePermille": 1200, "HpScalePermille": 1500 }
+        { "UnitId": "static-golem", "Row": 1, "Col": 1, "ScalePermille": 1200, "HpScalePermille": 900 },
+        { "UnitId": "noise-wraith", "Row": 0, "Col": 0, "ScalePermille": 1200, "HpScalePermille": 900 },
+        { "UnitId": "noise-wraith", "Row": 2, "Col": 0, "ScalePermille": 1200, "HpScalePermille": 900 },
+        { "UnitId": "echo-drone", "Row": 1, "Col": 2, "ScalePermille": 1200, "HpScalePermille": 900 }
       ],
       "Drops": { "Rolls": 4, "Entries": [
         { "ItemId": "gold", "Weight": 5, "Min": 240, "Max": 360 },
@@ -207,9 +207,9 @@
       "Id": "stage-1-9", "Chapter": "第 01 章", "Name": "1-9 终演前夜", "StaminaCost": 12, "TurnLimit": 24, "ThreeStarRounds": 10,
       "GoldReward": 620, "DiamondFirstClear": 40,
       "Enemies": [
-        { "UnitId": "static-golem", "Row": 0, "Col": 0, "ScalePermille": 1220, "HpScalePermille": 1200 },
-        { "UnitId": "static-golem", "Row": 2, "Col": 0, "ScalePermille": 1220, "HpScalePermille": 1200 },
-        { "UnitId": "noise-wraith", "Row": 1, "Col": 2, "ScalePermille": 1220, "HpScalePermille": 1200 }
+        { "UnitId": "static-golem", "Row": 0, "Col": 0, "ScalePermille": 1220, "HpScalePermille": 720 },
+        { "UnitId": "static-golem", "Row": 2, "Col": 0, "ScalePermille": 1220, "HpScalePermille": 720 },
+        { "UnitId": "noise-wraith", "Row": 1, "Col": 2, "ScalePermille": 1220, "HpScalePermille": 720 }
       ],
       "Drops": { "Rolls": 4, "Entries": [
         { "ItemId": "gold", "Weight": 5, "Min": 280, "Max": 420 },
@@ -221,7 +221,7 @@
       "Id": "stage-1-10", "Chapter": "第 01 章", "Name": "1-10 魅声王座", "StaminaCost": 14, "TurnLimit": 24, "ThreeStarRounds": 10,
       "GoldReward": 800, "DiamondFirstClear": 50,
       "Enemies": [
-        { "UnitId": "siren-queen", "Row": 1, "Col": 1, "ScalePermille": 1250, "HpScalePermille": 1050 }
+        { "UnitId": "siren-queen", "Row": 1, "Col": 1, "ScalePermille": 1250, "HpScalePermille": 630 }
       ],
       "Drops": { "Rolls": 4, "Entries": [
         { "ItemId": "gold", "Weight": 4, "Min": 360, "Max": 520 },

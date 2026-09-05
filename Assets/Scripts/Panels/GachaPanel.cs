@@ -539,10 +539,7 @@ namespace ChoSiren.Panels
 
         private static string InterviewCareer(MemberDefinition member, int memberIndex)
         {
-            string career = member == null ? string.Empty : member.Career;
-            if (!string.IsNullOrWhiteSpace(career) && career.Contains("主唱")) return "主唱";
-            if (!string.IsNullOrWhiteSpace(career) && career.Contains("舞")) return "舞者";
-            return "支援";
+            return member == null ? "未指定" : member.Career;
         }
 
         private string InterviewPosition(string career, int memberIndex)
@@ -562,9 +559,9 @@ namespace ChoSiren.Panels
             string career = InterviewCareer(member, memberIndex);
             int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
             vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0), 55, 98);
-            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "舞者" ? 11 : 0), 55, 98);
-            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "舞者" ? 7 : 0), 55, 98);
-            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == "支援" ? 10 : 0), 55, 98);
+            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0), 55, 98);
+            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0), 55, 98);
+            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == "DJ" ? 10 : 0), 55, 98);
             charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias, 65, 96);
         }
 

@@ -74,6 +74,7 @@ namespace ChoSiren.Systems.Dice
     public static class DiceRules
     {
         public const int DiceCount = 5;
+        public const int MaxMultiplierPermille = 2000;
 
         public static DiceHand Evaluate(IReadOnlyList<int> values)
         {
@@ -191,13 +192,13 @@ namespace ChoSiren.Systems.Dice
         {
             switch (pattern)
             {
-                case DicePattern.Pair: return 1500;
-                case DicePattern.TwoPair: return 2000;
-                case DicePattern.ThreeKind: return 2500;
-                case DicePattern.Straight: return 3000;
-                case DicePattern.FullHouse: return 4900;
-                case DicePattern.FourKind: return 5000;
-                case DicePattern.FiveKind: return 10000;
+                case DicePattern.Pair: return 1150;
+                case DicePattern.TwoPair: return 1250;
+                case DicePattern.ThreeKind: return 1400;
+                case DicePattern.Straight: return 1450;
+                case DicePattern.FullHouse: return 1600;
+                case DicePattern.FourKind: return 1800;
+                case DicePattern.FiveKind: return MaxMultiplierPermille;
                 default: return 1000;
             }
         }

@@ -8,21 +8,21 @@ namespace ChoSiren.Tests.Systems
     {
         [TestCase(new[] { 1, 2, 3, 4, 6 }, DicePattern.HighPoint, 1000, 16, 6,
             new[] { false, false, false, false, true })]
-        [TestCase(new[] { 1, 1, 3, 4, 6 }, DicePattern.Pair, 1500, 15, 2,
+        [TestCase(new[] { 1, 1, 3, 4, 6 }, DicePattern.Pair, 1150, 15, 2,
             new[] { true, true, false, false, false })]
-        [TestCase(new[] { 1, 1, 3, 3, 6 }, DicePattern.TwoPair, 2000, 14, 8,
+        [TestCase(new[] { 1, 1, 3, 3, 6 }, DicePattern.TwoPair, 1250, 14, 8,
             new[] { true, true, true, true, false })]
-        [TestCase(new[] { 2, 2, 2, 4, 6 }, DicePattern.ThreeKind, 2500, 16, 6,
+        [TestCase(new[] { 2, 2, 2, 4, 6 }, DicePattern.ThreeKind, 1400, 16, 6,
             new[] { true, true, true, false, false })]
-        [TestCase(new[] { 1, 2, 3, 4, 5 }, DicePattern.Straight, 3000, 15, 15,
+        [TestCase(new[] { 1, 2, 3, 4, 5 }, DicePattern.Straight, 1450, 15, 15,
             new[] { true, true, true, true, true })]
-        [TestCase(new[] { 2, 3, 4, 5, 6 }, DicePattern.Straight, 3000, 20, 20,
+        [TestCase(new[] { 2, 3, 4, 5, 6 }, DicePattern.Straight, 1450, 20, 20,
             new[] { true, true, true, true, true })]
-        [TestCase(new[] { 2, 2, 2, 5, 5 }, DicePattern.FullHouse, 4900, 16, 16,
+        [TestCase(new[] { 2, 2, 2, 5, 5 }, DicePattern.FullHouse, 1600, 16, 16,
             new[] { true, true, true, true, true })]
-        [TestCase(new[] { 4, 4, 4, 4, 6 }, DicePattern.FourKind, 5000, 22, 16,
+        [TestCase(new[] { 4, 4, 4, 4, 6 }, DicePattern.FourKind, 1800, 22, 16,
             new[] { true, true, true, true, false })]
-        [TestCase(new[] { 6, 6, 6, 6, 6 }, DicePattern.FiveKind, 10000, 30, 30,
+        [TestCase(new[] { 6, 6, 6, 6, 6 }, DicePattern.FiveKind, 2000, 30, 30,
             new[] { true, true, true, true, true })]
         public void EvaluateRecognizesEveryPattern(int[] values, DicePattern expected, int multiplier,
             int pipTotal, int participatingPipTotal, bool[] participating)

@@ -16,7 +16,7 @@
     {
       "Id": "feiyin",
       "Name": "绯音",
-      "Role": "舞者",
+      "Role": "主舞",
       "Race": "魔族 · 恶魔",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/member-feiyin",
@@ -28,7 +28,7 @@
     {
       "Id": "wubai",
       "Name": "雾白",
-      "Role": "支援",
+      "Role": "DJ",
       "Race": "海灵族 · 人鱼",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/member-wubai",
@@ -40,7 +40,7 @@
     {
       "Id": "yeying",
       "Name": "夜莺",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Race": "血精灵",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/member-yeying",
@@ -52,7 +52,7 @@
     {
       "Id": "yaoguang",
       "Name": "瑶光",
-      "Role": "舞者",
+      "Role": "主舞",
       "Race": "魅族",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/member-yaoguang",
@@ -64,7 +64,7 @@
     {
       "Id": "hupo",
       "Name": "琥珀",
-      "Role": "支援",
+      "Role": "DJ",
       "Race": "魔族 · 恶魔",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/member-hupo",
@@ -88,7 +88,7 @@
     {
       "Id": "chuxue",
       "Name": "初雪",
-      "Role": "舞者",
+      "Role": "主舞",
       "Race": "血精灵",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/member-chuxue",
@@ -100,7 +100,7 @@
     {
       "Id": "chengxia",
       "Name": "澄夏",
-      "Role": "支援",
+      "Role": "DJ",
       "Race": "魅族",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/member-chengxia",
@@ -123,7 +123,7 @@
     {
       "Id": "hero-0003",
       "Name": "流萤",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0003/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0003/thumb",
@@ -134,7 +134,7 @@
     {
       "Id": "hero-0005",
       "Name": "星澜",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0005/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0005/thumb",
@@ -145,7 +145,7 @@
     {
       "Id": "hero-0007",
       "Name": "月汐",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0007/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0007/thumb",
@@ -156,7 +156,7 @@
     {
       "Id": "hero-0008",
       "Name": "绮梦",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0008/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0008/thumb",
@@ -167,7 +167,7 @@
     {
       "Id": "hero-0010",
       "Name": "云歌",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0010/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0010/thumb",
@@ -189,7 +189,7 @@
     {
       "Id": "hero-0012",
       "Name": "紫苑",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0012/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0012/thumb",
@@ -200,7 +200,7 @@
     {
       "Id": "hero-0024",
       "Name": "夕颜",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0024/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0024/thumb",
@@ -211,7 +211,7 @@
     {
       "Id": "hero-0031",
       "Name": "青璃",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0031/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0031/thumb",
@@ -222,7 +222,7 @@
     {
       "Id": "hero-0032",
       "Name": "洛羽",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0032/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0032/thumb",
@@ -233,7 +233,7 @@
     {
       "Id": "hero-0033",
       "Name": "眠星",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/hero-0033/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0033/thumb",
@@ -255,7 +255,7 @@
     {
       "Id": "hero-0035",
       "Name": "绫霜",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0035/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0035/thumb",
@@ -266,7 +266,7 @@
     {
       "Id": "hero-0037",
       "Name": "诗音",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0037/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0037/thumb",
@@ -277,7 +277,7 @@
     {
       "Id": "hero-0038",
       "Name": "露华",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0038/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0038/thumb",
@@ -288,7 +288,7 @@
     {
       "Id": "hero-0200",
       "Name": "天音",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0200/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0200/thumb",
@@ -299,7 +299,7 @@
     {
       "Id": "hero-0201",
       "Name": "幻月",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0201/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0201/thumb",
@@ -321,7 +321,7 @@
     {
       "Id": "hero-0203",
       "Name": "澜心",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0203/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0203/thumb",
@@ -332,7 +332,7 @@
     {
       "Id": "hero-0205",
       "Name": "晴岚",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0205/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0205/thumb",
@@ -343,7 +343,7 @@
     {
       "Id": "hero-0207",
       "Name": "千夜",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0207/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0207/thumb",
@@ -354,7 +354,7 @@
     {
       "Id": "hero-0208",
       "Name": "绯月",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0208/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0208/thumb",
@@ -365,7 +365,7 @@
     {
       "Id": "hero-0209",
       "Name": "琉光",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0209/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0209/thumb",
@@ -387,7 +387,7 @@
     {
       "Id": "hero-0605",
       "Name": "若雪",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0605/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0605/thumb",
@@ -398,7 +398,7 @@
     {
       "Id": "hero-0607",
       "Name": "春弦",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0607/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0607/thumb",
@@ -409,7 +409,7 @@
     {
       "Id": "hero-0608",
       "Name": "紫苏",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0608/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0608/thumb",
@@ -420,7 +420,7 @@
     {
       "Id": "hero-0610",
       "Name": "晨曦",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0610/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0610/thumb",
@@ -431,7 +431,7 @@
     {
       "Id": "hero-0611",
       "Name": "星遥",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/hero-0611/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0611/thumb",
@@ -453,7 +453,7 @@
     {
       "Id": "hero-0614",
       "Name": "夜澜",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0614/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0614/thumb",
@@ -464,7 +464,7 @@
     {
       "Id": "hero-0630",
       "Name": "霁月",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0630/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0630/thumb",
@@ -475,7 +475,7 @@
     {
       "Id": "hero-0633",
       "Name": "花音",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0633/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0633/thumb",
@@ -486,7 +486,7 @@
     {
       "Id": "hero-0634",
       "Name": "蓝羽",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0634/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0634/thumb",
@@ -497,7 +497,7 @@
     {
       "Id": "hero-0651",
       "Name": "晴歌",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0651/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0651/thumb",
@@ -519,7 +519,7 @@
     {
       "Id": "hero-0668",
       "Name": "星织",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0668/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0668/thumb",
@@ -530,7 +530,7 @@
     {
       "Id": "hero-0670",
       "Name": "夕璃",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0670/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0670/thumb",
@@ -541,7 +541,7 @@
     {
       "Id": "hero-0671",
       "Name": "莲歌",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0671/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0671/thumb",
@@ -552,7 +552,7 @@
     {
       "Id": "hero-0672",
       "Name": "羽澄",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0672/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0672/thumb",
@@ -563,7 +563,7 @@
     {
       "Id": "hero-0673",
       "Name": "紫月",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0673/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0673/thumb",
@@ -585,7 +585,7 @@
     {
       "Id": "hero-0675",
       "Name": "云裳",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0675/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0675/thumb",
@@ -596,7 +596,7 @@
     {
       "Id": "hero-0676",
       "Name": "沧歌",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-0676/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-0676/thumb",
@@ -607,7 +607,7 @@
     {
       "Id": "hero-1006",
       "Name": "雨音",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1006/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1006/thumb",
@@ -618,7 +618,7 @@
     {
       "Id": "hero-1008",
       "Name": "玲珑",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1008/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1008/thumb",
@@ -629,7 +629,7 @@
     {
       "Id": "hero-1011",
       "Name": "初晴",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1011/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1011/thumb",
@@ -651,7 +651,7 @@
     {
       "Id": "hero-1014",
       "Name": "清歌",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1014/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1014/thumb",
@@ -662,7 +662,7 @@
     {
       "Id": "hero-1016",
       "Name": "梦璃",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1016/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1016/thumb",
@@ -673,7 +673,7 @@
     {
       "Id": "hero-1034",
       "Name": "星语",
-      "Role": "主唱",
+      "Role": "Rapper",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1034/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1034/thumb",
@@ -684,7 +684,7 @@
     {
       "Id": "hero-1035",
       "Name": "月华",
-      "Role": "舞者",
+      "Role": "主舞",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1035/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1035/thumb",
@@ -695,7 +695,7 @@
     {
       "Id": "hero-1036",
       "Name": "雪歌",
-      "Role": "支援",
+      "Role": "DJ",
       "Rarity": "R",
       "PortraitResourcePath": "Art/Members/hero-1036/portrait",
       "ThumbnailResourcePath": "Art/Members/hero-1036/thumb",

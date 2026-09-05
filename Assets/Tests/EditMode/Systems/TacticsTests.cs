@@ -158,7 +158,7 @@ namespace ChoSiren.Tests.Systems
         {
             TacticsManifest manifest = Manifest();
             UnitDefinition drone = manifest.FindUnit("drone");
-            drone.MaxHp = 3000;
+            drone.MaxHp = 1100;
             StageDefinition stage = manifest.FindStage("test-stage");
             stage.TurnLimit = 10;
             stage.Enemies = new List<EnemySpawn>
@@ -171,15 +171,15 @@ namespace ChoSiren.Tests.Systems
             };
             var battle = new BattleSimulator(manifest, stage, party, new ScriptedRandom(new[] { 999 }));
             Assert.That(battle.EnemyPhase, Is.EqualTo(1));
-            Assert.That(battle.InitialEnemyHp, Is.EqualTo(3000));
+            Assert.That(battle.InitialEnemyHp, Is.EqualTo(1100));
 
-            ActCurrentPlayerStrike(battle, 5500);
+            ActCurrentPlayerStrike(battle, 2000);
             Assert.That(battle.EnemyPhase, Is.EqualTo(2));
             Assert.That(battle.UnitAt(BattleSide.Enemy, 0, 0).Attack, Is.EqualTo(64),
                 "第二阶段敌方攻击只小幅提升 8%");
 
             AdvanceEnemyTurns(battle);
-            ActCurrentPlayerStrike(battle, 5500);
+            ActCurrentPlayerStrike(battle, 2000);
             Assert.That(battle.EnemyPhase, Is.EqualTo(3));
             Assert.That(battle.UnitAt(BattleSide.Enemy, 0, 0).Attack, Is.EqualTo(69),
                 "第三阶段敌方攻击总增幅应为 16%");
@@ -189,7 +189,7 @@ namespace ChoSiren.Tests.Systems
             Assert.That(phases, Is.EqualTo(new[] { 2, 3 }));
 
             AdvanceEnemyTurns(battle);
-            ActCurrentPlayerStrike(battle, 5500);
+            ActCurrentPlayerStrike(battle, 2000);
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
         }
 
@@ -197,6 +197,7 @@ namespace ChoSiren.Tests.Systems
         public void FiveKindBurstEmitsBothPhaseBoundariesInsteadOfJumpingDirectlyToThree()
         {
             TacticsManifest manifest = Manifest();
+            manifest.FindUnit("drone").MaxHp = 250;
             StageDefinition stage = manifest.FindStage("test-stage");
             stage.Enemies = new List<EnemySpawn>
             {
@@ -208,7 +209,7 @@ namespace ChoSiren.Tests.Systems
             };
             var battle = new BattleSimulator(manifest, stage, party, new ScriptedRandom(new[] { 999 }));
 
-            ActCurrentPlayerStrike(battle, 10000);
+            ActCurrentPlayerStrike(battle, 2000);
 
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
             Assert.That(battle.EnemyPhase, Is.EqualTo(3));
@@ -234,12 +235,30 @@ namespace ChoSiren.Tests.Systems
                 SkillId = "strike",
                 Row = 2,
                 Col = 1,
-                PowerMultiplierPermille = 2500
+                PowerMultiplierPermille = 1400
             }, out string error), Is.True, error);
 
-            // Base result is 100 after defense; the three-of-a-kind multiplier makes it 250.
-            Assert.That(hpBefore - golem.Hp, Is.EqualTo(250));
-            Assert.That(battle.Log[battle.Log.Count - 1].Amount, Is.EqualTo(250));
+            // Base result is 100 after defense; the PDF three-of-a-kind multiplier is 1.4.
+            Assert.That(hpBefore - golem.Hp, Is.EqualTo(140));
+            Assert.That(battle.Log[battle.Log.Count - 1].Amount, Is.EqualTo(140));
+        }
+
+        [Test]
+        public void DiceMultiplierIsCappedInPreviewAndDamageNotOnlyInTheUi()
+        {
+            BattleSimulator battle = NewBattle();
+            BattleUnit actor = battle.CurrentActor;
+            BattleUnit target = battle.UnitAt(BattleSide.Enemy, 2, 1);
+            SkillDefinition strike = battle.LookupSkill("strike");
+            int expected = battle.PreviewDamage(actor, strike, target, false, 2000);
+            Assert.That(battle.PreviewDamage(actor, strike, target, false, int.MaxValue), Is.EqualTo(expected));
+            int before = target.Hp;
+            Assert.That(battle.TryAct(new BattleAction
+            {
+                ActorId = actor.Id, SkillId = strike.Id, Row = target.Row, Col = target.Col,
+                PowerMultiplierPermille = int.MaxValue
+            }, out string error), Is.True, error);
+            Assert.That(before - target.Hp, Is.EqualTo(expected));
         }
 
         [Test]

@@ -113,6 +113,13 @@ namespace ChoSiren.Tests
             Assert.That(memberCount.resizeTextForBestFit, Is.True,
                 "成员数量动态文案必须允许受控缩字号。");
             RectTransform synergy = RequireRect("TeamSynergy");
+            Assert.That(resonanceValue.text, Does.StartWith("职业齐备"));
+            for (int index = 0; index < MemberCareers.All.Count; index++)
+            {
+                RectTransform careerStatus = RequireRect("CareerStatus-" + index);
+                AssertContained(synergy, careerStatus, "职业就位提示");
+                Assert.That(careerStatus.GetComponent<Text>().text, Does.StartWith(MemberCareers.All[index]));
+            }
             Assert.That(power.GetComponent<Image>().sprite, Is.Not.Null,
                 "总战力必须装配完整美术框体，不能退回纯色卡片。");
             Assert.That(synergy.GetComponent<Image>().sprite, Is.Not.Null,
@@ -645,7 +652,7 @@ namespace ChoSiren.Tests
             if (string.IsNullOrWhiteSpace(value)) return false;
             bool hasRace = value.Contains("魅族") || value.Contains("魔族") ||
                            value.Contains("海灵族") || value.Contains("血精灵");
-            bool hasCareer = value.Contains("主唱") || value.Contains("舞者") || value.Contains("支援");
+            bool hasCareer = MemberCareers.All.Any(value.Contains);
             return hasRace && hasCareer;
         }
 

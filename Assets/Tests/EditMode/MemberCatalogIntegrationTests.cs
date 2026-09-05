@@ -43,7 +43,7 @@ namespace ChoSiren.Tests
             };
             string[] expectedCareers =
             {
-                "主唱", "舞者", "支援", "主唱", "舞者", "支援", "主唱", "舞者", "支援"
+                "主唱", "主舞", "DJ", "Rapper", "主舞", "DJ", "主唱", "主舞", "DJ"
             };
 
             for (int index = 0; index < expectedRaces.Length; index++)
@@ -62,7 +62,7 @@ namespace ChoSiren.Tests
             {
                 "魅族", "魔族 · 恶魔", "海灵族 · 人鱼", "血精灵"
             };
-            var careers = new HashSet<string> { "主唱", "舞者", "支援" };
+            var careers = new HashSet<string>(MemberCareers.All);
 
             foreach (MemberDefinition member in GameModel.Members)
             {

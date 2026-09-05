@@ -9,7 +9,7 @@ namespace ChoSiren.Tests.Systems
 {
     public sealed class BattlePacingTests
     {
-        private const int TypicalDiceMultiplierPermille = 2500;
+        private const int TypicalDiceMultiplierPermille = 1400;
         private const int MinExpectedPlayerActions = 6;
         private const int MaxExpectedPlayerActions = 11;
 
@@ -67,7 +67,7 @@ namespace ChoSiren.Tests.Systems
 
             Assert.That(guard, Is.LessThan(300), $"{stage.Name} 战斗没有在确定性上限内结束");
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory),
-                $"{stage.Name} 默认四人、典型 2500‰ 骰型应可获胜");
+                $"{stage.Name} 默认四人、典型 1400‰ 骰型应可获胜");
             Assert.That(battle.EnemyPhase, Is.EqualTo(3), $"{stage.Name} 应完整进入第三阶段");
             Assert.That(battle.Log.Where(item => item.Kind == BattleEventKind.PhaseChanged)
                 .Select(item => item.Phase), Is.EqualTo(new[] { 2, 3 }));

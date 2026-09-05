@@ -438,10 +438,6 @@ namespace ChoSiren
                 .Select(index => GameModel.Members[index].Role)
                 .Distinct()
                 .Count();
-            int resonance = teamCount * 2;
-            int harmony = roleCount * 2;
-            int focus = teamCount > 0 ? 4 : 0;
-            int resonanceScore = resonance + harmony + focus;
 
             GameObject powerCard = NewPanel("TeamPower", contentRoot, new Color32(8, 18, 55, 92), 20);
             PlaceTop(powerCard.GetComponent<RectTransform>(), 492, 16, 208, 130);
@@ -460,7 +456,7 @@ namespace ChoSiren
             teamPower.horizontalOverflow = HorizontalWrapMode.Wrap;
             teamPower.verticalOverflow = VerticalWrapMode.Overflow;
             teamPower.name = "TeamPowerValue";
-            Text resonanceText = NewPlacedText(powerCard.transform, $"阵容共鸣评分  {resonanceScore}", 14,
+            Text resonanceText = NewPlacedText(powerCard.transform, $"职业齐备  {roleCount}/4", 14,
                 new Color32(112, 242, 255, 255), 14, 74, 180, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             resonanceText.name = "TeamResonanceValue";
             PanelKit.EnableBestFit(resonanceText, 11);
@@ -507,15 +503,19 @@ namespace ChoSiren
                 synergyEdge.effectColor = new Color32(192, 118, 255, 94);
                 synergyEdge.effectDistance = new Vector2(1f, -1f);
             }
-            NewPlacedText(synergyBar.transform, "组合效果（展示）", 15, new Color32(255, 184, 232, 255),
+            NewPlacedText(synergyBar.transform, "职业配置", 15, new Color32(255, 184, 232, 255),
                 18, 9, 128, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(synergyBar.transform, $"星轨配合  {resonance}", 14, White,
-                18, 39, 205, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(synergyBar.transform, $"职业和声  {harmony}", 14, White,
-                236, 39, 205, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(synergyBar.transform, $"队长聚光  {focus}", 14, White,
-                454, 39, 205, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(synergyBar.transform, "阵容评价", 12, new Color32(132, 222, 255, 255),
+            for (int careerIndex = 0; careerIndex < MemberCareers.All.Count; careerIndex++)
+            {
+                string career = MemberCareers.All[careerIndex];
+                int count = model.Save.Team.Count(index => GameModel.Members[index].Career == career);
+                Text status = NewPlacedText(synergyBar.transform,
+                    $"{career} · {(count == 0 ? "缺位" : count > 1 ? "重复" : "就位")}",
+                    14, count == 1 ? White : Pink, 18 + careerIndex * 163, 39, 158, 28,
+                    TextAnchor.MiddleLeft, FontStyle.Bold);
+                status.name = "CareerStatus-" + careerIndex;
+            }
+            NewPlacedText(synergyBar.transform, "四职各一名", 12, new Color32(132, 222, 255, 255),
                 544, 11, 116, 22, TextAnchor.MiddleRight, FontStyle.Bold).name = "TeamAttributes";
 
             GameObject leader = NewButton("ChangeLeader", contentRoot, "更换队长", 16,
@@ -542,7 +542,7 @@ namespace ChoSiren
                 new Color32(74, 45, 132, 194), White, () =>
             {
                 model.AutoTeam();
-                Toast("已按战力自动完成编队");
+                Toast("已按四种职业择优编队");
                 ShowScreen("team");
             });
             PlaceTop(auto.GetComponent<RectTransform>(), 368, buttonY, 178, buttonHeight);
@@ -643,7 +643,7 @@ namespace ChoSiren
         private void BuildMembers()
         {
             BuildMemberGalleryBackdrop();
-            string[] roleFilters = { string.Empty, "主唱", "舞者", "支援" };
+            string[] roleFilters = { string.Empty, "主唱", "主舞", "Rapper", "DJ" };
             string[] raceFilters = { string.Empty, "魅族", "魔族", "海灵族", "血精灵" };
             memberRoleFilterIndex = Mathf.Clamp(memberRoleFilterIndex, 0, roleFilters.Length - 1);
             memberRaceFilterIndex = Mathf.Clamp(memberRaceFilterIndex, 0, raceFilters.Length - 1);
@@ -832,7 +832,7 @@ namespace ChoSiren
 
             Color glowColor = member.Career == "主唱"
                 ? new Color32(80, 224, 255, unlocked ? (byte)76 : (byte)24)
-                : member.Career == "舞者"
+                : member.Career == "主舞"
                     ? new Color32(181, 111, 255, unlocked ? (byte)70 : (byte)22)
                     : new Color32(255, 119, 202, unlocked ? (byte)66 : (byte)20);
             GameObject glow = NewImage("CareerGlow", card.transform, StageGlowSprite(), glowColor);

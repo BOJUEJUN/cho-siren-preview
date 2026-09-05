@@ -372,7 +372,7 @@ namespace ChoSiren.Tests
             Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
                 Does.Match("魅族|魔族|海灵族|血精灵"));
             Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
-                Does.Match("主唱|舞者|支援"), "候选资料只能使用统一的三种舞台职能。");
+                Does.Match("主唱|主舞|Rapper|DJ"), "候选资料必须使用新版四种偶像职业。");
             Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
                 Does.Match("治疗|增益|输出|共鸣|破甲|护盾"), "候选资料必须在职能之后给出阵容定位。");
 
@@ -467,7 +467,7 @@ namespace ChoSiren.Tests
                 Assert.That(portrait.enabled, Is.True,
                     $"{results[index].ItemId} 的抽卡结果立绘不能被禁用。");
                 Assert.That(result.GetComponentsInChildren<Text>(true).Any(text =>
-                        text.text.Contains("主唱") || text.text.Contains("舞者") || text.text.Contains("支援") ||
+                        text.text.Contains("主唱") || text.text.Contains("主舞") || text.text.Contains("Rapper") || text.text.Contains("DJ") ||
                         text.text.Contains("舞台饰品")),
                     Is.True, "结果卡应优先显示候选职能或物品定位，而不是稀有度。");
             }
@@ -539,6 +539,8 @@ namespace ChoSiren.Tests
             for (int labelIndex = 0; labelIndex < labels.Length; labelIndex++)
             {
                 string value = labels[labelIndex].text;
+                // These are authored idol-career names, not untranslated debug text.
+                value = value.Replace("Rapper", string.Empty).Replace("DJ", string.Empty);
                 for (int characterIndex = 0; characterIndex < value.Length; characterIndex++)
                 {
                     char character = value[characterIndex];

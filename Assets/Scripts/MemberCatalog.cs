@@ -5,6 +5,21 @@ using UnityEngine;
 
 namespace ChoSiren
 {
+    /// <summary>Idol careers are independent from race and from combat skill effects.</summary>
+    public static class MemberCareers
+    {
+        public static readonly IReadOnlyList<string> All = Array.AsReadOnly(new[] { "主唱", "主舞", "Rapper", "DJ" });
+
+        public static string Normalize(string role)
+        {
+            string value = (role ?? string.Empty).Trim();
+            // Read old manifests without bringing retired player-facing labels back.
+            if (value == "舞者") return "主舞";
+            if (value == "支援") return "DJ";
+            return value;
+        }
+    }
+
     [Serializable]
     public sealed class MemberCatalogEntry
     {
@@ -33,7 +48,7 @@ namespace ChoSiren
         {
             Id = source.Id.Trim();
             Name = source.Name.Trim();
-            Role = source.Role.Trim();
+            Role = MemberCareers.Normalize(source.Role);
             Race = source.Race.Trim();
             Rarity = source.Rarity.Trim();
             PortraitResourcePath = portraitPath;
@@ -75,7 +90,7 @@ namespace ChoSiren
 
         private static readonly HashSet<string> Roles = new HashSet<string>(StringComparer.Ordinal)
         {
-            "主唱", "舞者", "支援"
+            "主唱", "主舞", "Rapper", "DJ"
         };
 
         private static readonly HashSet<string> Rarities = new HashSet<string>(StringComparer.Ordinal)
@@ -195,7 +210,7 @@ namespace ChoSiren
 
                 string id = (source.Id ?? string.Empty).Trim();
                 string name = (source.Name ?? string.Empty).Trim();
-                string role = (source.Role ?? string.Empty).Trim();
+                string role = MemberCareers.Normalize(source.Role);
                 string race = (source.Race ?? string.Empty).Trim();
                 string rarity = (source.Rarity ?? string.Empty).Trim();
                 string portraitPath = NormalizeResourcePath(source.PortraitResourcePath);
