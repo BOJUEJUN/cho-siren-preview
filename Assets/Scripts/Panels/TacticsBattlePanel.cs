@@ -316,7 +316,6 @@ namespace ChoSiren.Panels
             kit.AddOutline(enemyHpText.gameObject, new Color32(24, 5, 40, 210), 1f);
             turnText = kit.NewPlacedText(header.transform, battle.IsRealtime ? "实时演出" : "第 1 回合", 14, PanelKit.Muted, 18, 60, 252, 22,
                 TextAnchor.MiddleLeft);
-            if (battle.RehearsalLevel > 0) turnText.text = $"适配试演 · {battle.RehearsalLevel}级档";
 
             // This bar sums ALL enemies. Boss phase thresholds use only the boss's own HP,
             // so dividing the aggregate bar into thirds would promise the wrong trigger points.

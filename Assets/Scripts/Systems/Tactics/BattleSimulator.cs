@@ -145,9 +145,7 @@ namespace ChoSiren.Systems.Tactics
         public const int PhaseTwoThresholdPermille = 660;
         public const int PhaseThreeThresholdPermille = 330;
         public const int EnemyAttackGainPerPhasePermille = 80;
-        // Includes optional high-level rehearsal (up to Lv95); authored base encounters stay unchanged.
-        public const int MaxEnemyDifficultyMultiplierPermille = 10000000;
-        public int RehearsalLevel { get; internal set; }
+        public const int MaxEnemyDifficultyMultiplierPermille = 10000;
 
         private readonly TacticsManifest manifest;
         private readonly IRandomSource random;

@@ -390,7 +390,6 @@ namespace ChoSiren
             // The stage itself is the menu. Each hotspot uses a complete transparent AI-rendered
             // holographic device; code only supplies localized labels and interaction.
             LobbyHotspot(cardLayer.transform, "闪耀舞台", 1, 8, 326, 270, 238, OpenActivity);
-            LobbyHotspot(cardLayer.transform, "冒险剧本", 2, 0, 676, 276, 244, OpenLevelMap);
             LobbyHotspot(cardLayer.transform, "任务", 3, 446, 520, 274, 242, OpenDailyTasks);
             BuildStageCallToAction(cardLayer.transform);
             cardLayer.transform.SetAsLastSibling();
@@ -1780,7 +1779,7 @@ namespace ChoSiren
             button.targetGraphic = hitImage;
             button.onClick.AddListener(() =>
             {
-                OpenPerformanceConfirm();
+                OpenLevelMap();
                 ResumeMediaAfterUserGesture();
             });
 

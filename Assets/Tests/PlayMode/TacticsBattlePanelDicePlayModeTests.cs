@@ -15,35 +15,33 @@ namespace ChoSiren.Tests
 {
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
-        [TestCase(false)]
-        [TestCase(true)]
-        public void HighLevelMapDisclosesRehearsalAndOriginalStrengthChoice(bool original)
+        [Test]
+        public void HighLevelMapOnlyStartsTheFixedEncounterWithoutRehearsal()
         {
             bool hadSave = PlayerPrefs.HasKey(GameModel.SaveKey), hadLegacy = PlayerPrefs.HasKey(GameModel.LegacySaveKey);
             string before = PlayerPrefs.GetString(GameModel.SaveKey), legacy = PlayerPrefs.GetString(GameModel.LegacySaveKey);
-            GameObject root = new GameObject("Rehearsal Map Test", typeof(RectTransform));
+            GameObject root = new GameObject("Fixed Encounter Map Test", typeof(RectTransform));
             root.GetComponent<RectTransform>().sizeDelta = new Vector2(720, 1536);
             try
             {
                 PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(new GameSave { StoryProgress = 100 }));
                 var model = new GameModel();
                 LevelMapPanel map = LevelMapPanel.Open(root.transform, model);
-                RectTransform choice = FindRect(map.transform, "RehearsalToggle");
-                Assert.That(choice.gameObject.activeInHierarchy, Is.True);
-                Assert.That(choice.GetComponentInChildren<Text>().text, Does.Contain("60级档"));
+                Assert.That(map.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "RehearsalToggle"), Is.False,
+                    "已取消适配试演，不能留下可见或隐藏的切换入口。");
+                Assert.That(map.GetComponentsInChildren<Text>(true)
+                    .Any(item => item.text.Contains("适配") || item.text.Contains("级档")), Is.False);
                 RectTransform start = FindRect(map.transform, "StartChallenge");
-                Assert.That(start.GetComponentInChildren<Text>().text, Is.EqualTo("适配试演"));
-                AssertNoOverlap(choice, start, "强度切换不能盖住开始按钮");
-                AssertNoOverlap(choice, FindRect(map.transform, "StaminaCost"), "强度提示不能盖住费用");
-                if (original)
-                {
-                    choice.GetComponent<Button>().onClick.Invoke();
-                    Assert.That(choice.GetComponentInChildren<Text>().text, Does.StartWith("原关强度"));
-                }
+                Assert.That(start.GetComponentInChildren<Text>().text,
+                    Is.EqualTo("开始挑战").Or.EqualTo("再次挑战"));
                 start.GetComponent<Button>().onClick.Invoke();
                 TacticsBattlePanel battlePanel = root.GetComponentInChildren<TacticsBattlePanel>();
                 Assert.That(battlePanel, Is.Not.Null);
-                Assert.That(battlePanel.Battle.RehearsalLevel, Is.EqualTo(original ? 0 : 60));
+                Assert.That(battlePanel.Battle.EnemyHpMultiplierPermille,
+                    Is.EqualTo(model.CurrentBattleDifficultyProfile.EnemyHpPermille));
+                Assert.That(battlePanel.GetComponentsInChildren<Text>(true)
+                    .Any(item => item.text.Contains("适配") || item.text.Contains("级档")), Is.False);
                 Assert.That(battlePanel.GetComponentsInChildren<RectTransform>(true)
                     .Any(rect => rect.name.StartsWith("BossPhaseMarker-")), Is.False,
                     "首领自身的阶段阈值不能错误标到所有敌人的总血条上");

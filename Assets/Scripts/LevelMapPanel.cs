@@ -64,9 +64,6 @@ namespace ChoSiren
         private bool built;
         private bool challengeOpen;
         private bool closing;
-        private bool preferOriginalStrength;
-        private GameObject rehearsalToggle;
-        private Text rehearsalLabel;
         private int selectedStage = 1;
 
         private Text staminaText;
@@ -432,12 +429,6 @@ namespace ChoSiren
             startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
                 12, 23, 160, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             startLabel.name = "Label";
-            rehearsalToggle = NewSpriteButton("RehearsalToggle", card.transform, null,
-                new Color32(38, 31, 79, 245), () => { preferOriginalStrength = !preferOriginalStrength; Refresh(); });
-            PlaceTop(rehearsalToggle.GetComponent<RectTransform>(), 28, 111, 432, 28);
-            rehearsalLabel = NewPlacedText(rehearsalToggle.transform, string.Empty, 14, Cyan,
-                6, 0, 420, 28, TextAnchor.MiddleLeft);
-            rehearsalToggle.SetActive(false);
         }
 
         private Text InfoChip(Transform parent, string name, string label, float x, float y, float width, Color accent)
@@ -718,8 +709,7 @@ namespace ChoSiren
 
             string stageId = $"stage-1-{selectedStage}";
             ulong seed = unchecked((ulong)DateTime.UtcNow.Ticks ^ (ulong)selectedStage);
-            bool rehearsal = !preferOriginalStrength && model.RehearsalOfStage(stageId).Available;
-            BattleSimulator battle = model.StartStageBattle(stageId, seed, out string message, rehearsal);
+            BattleSimulator battle = model.StartStageBattle(stageId, seed, out string message);
             if (battle == null)
             {
                 Notify(string.IsNullOrEmpty(message) ? "无法开始挑战" : message);
@@ -836,19 +826,13 @@ namespace ChoSiren
                 : state == LevelState.Cleared
                     ? $"已通关 · 最佳 {Mathf.Max(1, model.StarsOf(selectedStageId))} 星"
                     : "当前关卡";
-            StageRehearsalProfile rehearsalProfile = model.RehearsalOfStage(selectedStageId);
-            bool rehearsal = rehearsalProfile.Available && !preferOriginalStrength;
-            rehearsalToggle.SetActive(rehearsalProfile.Available);
-            rehearsalToggle.GetComponent<Button>().interactable = !challengeOpen;
-            rehearsalLabel.text = rehearsal ? $"适配试演 · {rehearsalProfile.Level}级档 · 点击切回原强度"
-                : "原关强度 · 高等级可碾压 · 点击切换适配试演";
-            progressText.text = rehearsal
-                ? $"等级与奖励不变 · 敌方战力 {model.EnemyPowerOfStage(selectedStageId, true):N0}"
-                : $"{(state == LevelState.Cleared ? "可重复挑战提升评价" : "严格顺序解锁")}  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}";
+            progressText.text = state == LevelState.Cleared
+                ? $"可重复挑战提升评价  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}"
+                : $"严格顺序解锁  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}";
             staminaCostText.text = $"体力 -{staminaCost}";
             diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";
             goldRewardText.text = $"星币 ×{goldReward}";
-            startLabel.text = rehearsal ? "适配试演" : state == LevelState.Cleared ? "再次挑战" : "开始挑战";
+            startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
             startBackground.color = model.Save.Stamina < staminaCost
                 ? new Color32(125, 135, 160, 175)

@@ -393,7 +393,6 @@ namespace ChoSiren.Tests
             RectTransform[] hotspots =
             {
                 RequireButtonRect("闪耀舞台"),
-                RequireButtonRect("冒险剧本"),
                 RequireButtonRect("任务"),
             };
 
@@ -430,6 +429,9 @@ namespace ChoSiren.Tests
             Assert.That(GameObject.Find("闪耀舞台计划"), Is.Null, "首页入口应使用短标签“闪耀舞台”。");
             Assert.That(GameObject.Find("每日签到"), Is.Null, "签到应合并进任务面板，不应重复占据首页入口。");
             Assert.That(GameObject.Find("直播间"), Is.Null, "演出只能保留一个主入口。");
+            Assert.That(Object.FindObjectsByType<Transform>(FindObjectsInactive.Include)
+                    .Any(item => item.name == "冒险剧本"), Is.False,
+                "冒险剧本已合并进开始演出，不得留下重复按钮或隐藏点击热区。");
             Assert.That(GameObject.Find("商城抽卡"), Is.Null, "底部导航功能不应在首页重复出现。");
             Assert.That(GameObject.Find("ClaimableDot"), Is.Null,
                 "首页不应出现悬空的纯色方块通知，任务状态统一在任务面板中呈现。");

@@ -89,7 +89,7 @@ namespace ChoSiren.Tests
             AssertInactiveOrMissing("SettingsModal");
 
             RequireActiveObject("闪耀舞台");
-            RequireActiveObject("冒险剧本");
+            AssertInactiveOrMissing("冒险剧本");
             RequireActiveObject("任务");
             Click("闪耀舞台");
             RequireActiveObject("InfoModal");
@@ -394,13 +394,14 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator StoryCardLevelSelectionBattleAndChapterRoute()
+        public IEnumerator StartPerformanceLevelSelectionBattleAndChapterRoute()
         {
-            Click("冒险剧本");
+            Click("LiveOnStage");
             yield return null;
 
             LevelMapPanel map = Object.FindAnyObjectByType<LevelMapPanel>();
-            Assert.That(map, Is.Not.Null, "The adventure card did not open the level map.");
+            Assert.That(map, Is.Not.Null, "开始演出必须直接进入原冒险剧本的章节地图。");
+            AssertInactiveOrMissing("PerformanceStagePanel");
             Assert.That(map.SelectedStage, Is.EqualTo(1));
 
             Click("Level-1-4");
@@ -531,9 +532,46 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator PerformanceCardSixTapButtonsShowResultAndReturnToLobby()
+        public IEnumerator StartPerformanceOnlyOpensAdventureWithoutSpendingStamina()
         {
-            Click("LiveOnStage");
+            var app = Object.FindAnyObjectByType<ChoSirenApp>();
+            var modelField = typeof(ChoSirenApp).GetField("model",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.That(modelField, Is.Not.Null);
+            var model = (GameModel)modelField.GetValue(app);
+
+            foreach (int stamina in new[] { 0, 120 })
+            {
+                model.Save.Stamina = stamina;
+                int gold = model.Save.Gold;
+                int diamonds = model.Save.Diamonds;
+                int progress = model.Save.StoryProgress;
+                AssertInactiveOrMissing("冒险剧本");
+                float entranceTimeout = Time.realtimeSinceStartup + 15f;
+                while (!IsInteractable("LiveOnStage") && Time.realtimeSinceStartup < entranceTimeout)
+                    yield return null;
+                Click("LiveOnStage");
+                yield return null;
+                RequireActiveObject("LevelMapPanel");
+                AssertInactiveOrMissing("PerformanceStagePanel");
+                AssertInactiveOrMissing("TacticsBattlePanel");
+                Assert.That(model.Save.Stamina, Is.EqualTo(stamina), "浏览冒险剧本不能扣体力。");
+                Assert.That(model.Save.Gold, Is.EqualTo(gold));
+                Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds));
+                Assert.That(model.Save.StoryProgress, Is.EqualTo(progress));
+                Click("Back");
+                yield return null;
+                RequireActiveObject("LiveOnStage");
+                AssertInactiveOrMissing("冒险剧本");
+                AssertInactiveOrMissing("LevelMapPanel");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator LegacyPerformancePanelSixTapButtonsStillShowResult()
+        {
+            // The legacy component is retained, but it is no longer the lobby CTA destination.
+            PerformanceStagePanel.Open(RequireActiveObject("SafeArea").transform, new GameModel());
             yield return null;
             RequireActiveObject("PerformanceStagePanel");
 
