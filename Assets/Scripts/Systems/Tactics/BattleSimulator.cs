@@ -91,6 +91,35 @@ namespace ChoSiren.Systems.Tactics
         public int Row;
         public int Col;
         public int Level = 1;
+        public CombatStatBonuses Equipment;
+    }
+
+    /// <summary>Equipment is additive to base stats, capped at +20% per stat (design p19).</summary>
+    public readonly struct CombatStatBonuses
+    {
+        public const int MaxPermille = 200;
+        public readonly int Hp, Attack, Defense;
+        public CombatStatBonuses(int hp, int attack, int defense)
+        {
+            Hp = Math.Max(0, Math.Min(MaxPermille, hp));
+            Attack = Math.Max(0, Math.Min(MaxPermille, attack));
+            Defense = Math.Max(0, Math.Min(MaxPermille, defense));
+        }
+    }
+
+    /// <summary>Immutable pre-battle snapshot shared by simulation and every stat preview.</summary>
+    public readonly struct CombatStats
+    {
+        public readonly int Hp, Attack, Defense, Speed, CritPermille;
+        public int Power => (int)Math.Min(int.MaxValue, (long)Hp / 10 + (long)Attack * 5 + Defense);
+        public CombatStats(int hp, int attack, int defense, int speed, int critPermille)
+        {
+            Hp = hp;
+            Attack = attack;
+            Defense = defense;
+            Speed = speed;
+            CritPermille = critPermille;
+        }
     }
 
     public sealed class BattleAction
@@ -162,7 +191,7 @@ namespace ChoSiren.Systems.Tactics
                 if (!BattleGrid.IsValid(setup.Row, setup.Col) || !occupied.Add(setup.Row * BattleGrid.Columns + setup.Col))
                     throw new ArgumentException($"成员 {setup.UnitId} 的站位无效或重复", nameof(party));
                 AddUnit(definition, BattleSide.Player, setup.Row, setup.Col, Math.Max(1, setup.Level),
-                    1000, 1000, 1000);
+                    PlayerStats(definition, setup.Level, setup.Equipment));
             }
 
             for (int index = 0; index < stage.Enemies.Count; index++)
@@ -170,13 +199,8 @@ namespace ChoSiren.Systems.Tactics
                 EnemySpawn spawn = stage.Enemies[index];
                 UnitDefinition definition = manifest.FindUnit(spawn.UnitId)
                     ?? throw new ArgumentException($"关卡引用了未知单位：{spawn.UnitId}", nameof(stage));
-                int hpScalePermille = spawn.HpScalePermille > 0
-                    ? spawn.HpScalePermille
-                    : spawn.ScalePermille;
-                hpScalePermille = CombinePermille(hpScalePermille, EnemyHpMultiplierPermille);
-                int attackScalePermille = CombinePermille(spawn.ScalePermille, EnemyAttackMultiplierPermille);
                 AddUnit(definition, BattleSide.Enemy, spawn.Row, spawn.Col, 1,
-                    attackScalePermille, spawn.ScalePermille, hpScalePermille);
+                    EnemyStats(definition, spawn, EnemyHpMultiplierPermille, EnemyAttackMultiplierPermille));
             }
 
             InitialEnemyHp = CurrentEnemyHp;
@@ -336,9 +360,8 @@ namespace ChoSiren.Systems.Tactics
         }
 
         private void AddUnit(UnitDefinition definition, BattleSide side, int row, int col, int level,
-            int attackScalePermille, int defenseScalePermille, int hpScalePermille)
+            CombatStats stats)
         {
-            int levelPermille = LevelMultiplierPermille(level);
             var unit = new BattleUnit
             {
                 Id = units.Count + 1,
@@ -347,10 +370,10 @@ namespace ChoSiren.Systems.Tactics
                 Row = row,
                 Col = col,
                 Level = level,
-                MaxHp = Scale(definition.MaxHp, levelPermille, hpScalePermille, 1),
-                BaseAttack = Scale(definition.Attack, levelPermille, attackScalePermille, 1),
-                BaseDefense = Scale(definition.Defense, levelPermille, defenseScalePermille, 0),
-                Speed = definition.Speed,
+                MaxHp = stats.Hp,
+                BaseAttack = stats.Attack,
+                BaseDefense = stats.Defense,
+                Speed = stats.Speed,
             };
             unit.Hp = unit.MaxHp;
             units.Add(unit);
@@ -363,6 +386,29 @@ namespace ChoSiren.Systems.Tactics
 
         public static int MemberStatAtLevel(int baseValue, int level, int minimum = 1) =>
             Scale(baseValue, LevelMultiplierPermille(level), 1000, minimum);
+
+        public static CombatStats PlayerStats(UnitDefinition unit, int level,
+            CombatStatBonuses equipment = default)
+        {
+            if (unit == null) return default;
+            int scale = LevelMultiplierPermille(level);
+            return new CombatStats(
+                Scale(unit.MaxHp, scale, 1000 + equipment.Hp, 1),
+                Scale(unit.Attack, scale, 1000 + equipment.Attack, 1),
+                Scale(unit.Defense, scale, 1000 + equipment.Defense, 0),
+                unit.Speed, unit.CritPermille);
+        }
+
+        public static CombatStats EnemyStats(UnitDefinition unit, EnemySpawn spawn,
+            int hpDifficultyPermille = 1000, int attackDifficultyPermille = 1000)
+        {
+            if (unit == null || spawn == null) return default;
+            int hpScale = spawn.HpScalePermille > 0 ? spawn.HpScalePermille : spawn.ScalePermille;
+            return new CombatStats(
+                Scale(unit.MaxHp, 1000, CombinePermille(hpScale, hpDifficultyPermille), 1),
+                Scale(unit.Attack, 1000, CombinePermille(spawn.ScalePermille, attackDifficultyPermille), 1),
+                Scale(unit.Defense, 1000, spawn.ScalePermille, 0), unit.Speed, unit.CritPermille);
+        }
 
         private static int CombinePermille(int authoredScalePermille, int difficultyMultiplierPermille) =>
             Math.Max(1, (int)((long)authoredScalePermille * difficultyMultiplierPermille / 1000));

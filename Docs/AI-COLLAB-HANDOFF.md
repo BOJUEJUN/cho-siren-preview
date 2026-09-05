@@ -7,7 +7,9 @@ Unity：`6000.6.0f1 (f7f8ed4d1e24)`
 
 新电脑接手先读：`Docs/GETTING_STARTED.md`、`Docs/CONTINUITY.md` 和本文的文件所有权、验收清单与当前事实。
 
-最新企划与实施边界：`Docs/LATEST-DESIGN-2026-09-05.md`。该 PDF 同时包含新旧方案，按记录中的用户优先约束与分批范围执行；四职业现为主唱、主舞、Rapper、DJ，骰型倍率上限 2.0。
+最新企划与实施边界：`Docs/PPTX-ALIGNMENT-2026-09-05.md`（固定路径最新 PPT 共 33 页）。`Docs/LATEST-DESIGN-2026-09-05.md` 是此前 PDF 的历史分析。四职业现为主唱、主舞、Rapper、DJ，骰型倍率上限 2.0。
+
+当前开发分支是 `ui/battle-layout-20260905`，而不是下文历史快照中的 master。最新已验证 Pages 为 `e0249fd`（源码 `483f38b`）；正在进行真实战力/饰品数据同源批次，详见最新企划对照文档。不能仅从旧 origin/master 重建覆盖官网；源码推送暂受限制，不把已发布网页等同于源码已远端同步。
 
 新电脑取得源码的权威命令：
 

@@ -300,7 +300,18 @@ namespace ChoSiren
         private static readonly Dictionary<string, int> MemberIndexById = BuildMemberIndex(Members);
 
         public static readonly string[] AccessoryNames = { "星轨耳返", "霓虹心链", "月桂舞鞋" };
-        public static readonly int[] AccessoryPower = { 1200, 1800, 2400 };
+        // Existing stage accessories are mutually exclusive shared party loadouts. The later
+        // four-slot inventory will feed the same capped bonuses, not a second combat formula.
+        public static CombatStatBonuses AccessoryBonuses(int index)
+        {
+            switch (index)
+            {
+                case 0: return new CombatStatBonuses(80, 0, 40); // ear monitor: survival
+                case 1: return new CombatStatBonuses(40, 80, 0); // heart pendant: offense
+                case 2: return new CombatStatBonuses(0, 40, 110); // dance shoes: armor
+                default: return default;
+            }
+        }
 
         public GameSave Save { get; private set; }
         public event Action Changed;
@@ -357,13 +368,30 @@ namespace ChoSiren
         public bool IsUnlocked(int index) => IsValidMemberIndex(index) && Save.UnlockedMembers.Contains(index);
         public bool IsInTeam(int index) => IsValidMemberIndex(index) && Save.Team.Contains(index);
         public int LevelOf(int index) => IsValidMemberIndex(index) ? Save.MemberLevels[index] : 0;
-        public int PowerOf(int index) => IsValidMemberIndex(index) ? Members[index].BasePower + LevelOf(index) * 135 : 0;
+        public CombatStats StatsOf(int index) => StatsOf(index, Save.EquippedAccessory);
+        public CombatStats StatsOf(int index, int accessoryIndex) => IsValidMemberIndex(index)
+            ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), AccessoryBonuses(accessoryIndex))
+            : default;
+        public int PowerOf(int index) => StatsOf(index).Power;
         public bool DailyTaskComplete => Save.DailyPerformances >= DailyPerformanceGoal;
         public bool HasCheckedInToday => Save.LastCheckInDate == DateKey(Today);
 
-        public int TeamPower => Save.Team
-            .Where(index => index >= 0 && index < Members.Length && IsUnlocked(index))
-            .Sum(PowerOf) + AccessoryBonus;
+        public int TeamPower => TeamPowerWithAccessory(Save.EquippedAccessory);
+        public IReadOnlyList<CombatStats> PartyStatsWithAccessory(int accessoryIndex) => Save.Team
+            .Where(index => IsValidMemberIndex(index) && IsUnlocked(index))
+            .Select(index => StatsOf(index, accessoryIndex)).ToArray();
+        public int TeamPowerWithAccessory(int accessoryIndex) => PartyStatsWithAccessory(accessoryIndex).Sum(stats => stats.Power);
+        public int AccessoryPowerChange(int accessoryIndex) => TeamPowerWithAccessory(accessoryIndex) - TeamPower;
+
+        // This is the enemy's actual opening power, not a guessed win recommendation.
+        public int EnemyPowerOfStage(string stageId)
+        {
+            StageDefinition stage = tactics.FindStage(stageId);
+            if (stage == null) return 0;
+            BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
+            return stage.Enemies.Sum(spawn => BattleSimulator.EnemyStats(tactics.FindUnit(spawn.UnitId), spawn,
+                difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille).Power);
+        }
 
         // ------------------------------------------------------------------ members (stable-id API)
 
@@ -682,6 +710,7 @@ namespace ChoSiren
         public void AutoTeam()
         {
             Save.Team = Save.UnlockedMembers
+                .Where(index => tactics.FindUnit(Members[index].Id) != null)
                 .OrderByDescending(PowerOf)
                 .GroupBy(index => Members[index].Career)
                 .Select(group => group.First())
@@ -1810,7 +1839,8 @@ namespace ChoSiren
                     UnitId = Members[index].Id,
                     Row = slot % BattleGrid.Rows,
                     Col = slot / BattleGrid.Rows,
-                    Level = LevelOf(index)
+                    Level = LevelOf(index),
+                    Equipment = AccessoryBonuses(Save.EquippedAccessory)
                 });
                 slot++;
             }
@@ -2124,10 +2154,6 @@ namespace ChoSiren
         private DateTime Today => nowProvider().Date;
 
         private long NowUnix => new DateTimeOffset(nowProvider()).ToUnixTimeSeconds();
-
-        private int AccessoryBonus => Save.EquippedAccessory >= 0 && Save.EquippedAccessory < AccessoryPower.Length
-            ? AccessoryPower[Save.EquippedAccessory]
-            : 0;
 
         private static bool IsValidMemberIndex(int index) => index >= 0 && index < Members.Length;
 

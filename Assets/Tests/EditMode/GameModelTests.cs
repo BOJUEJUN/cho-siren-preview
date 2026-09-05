@@ -743,17 +743,142 @@ namespace ChoSiren.Tests
         {
             GameModel model = CreateModel();
             int basePower = model.TeamPower;
+            int equippedPower = model.TeamPowerWithAccessory(1);
 
             Assert.That(model.EquipAccessory(-1, out _), Is.False);
             Assert.That(model.TeamPower, Is.EqualTo(basePower));
             Assert.That(model.EquipAccessory(1, out _), Is.True);
             Assert.That(model.Save.EquippedAccessory, Is.EqualTo(1));
-            Assert.That(model.TeamPower, Is.EqualTo(basePower + GameModel.AccessoryPower[1]));
+            Assert.That(model.TeamPower, Is.EqualTo(equippedPower));
+            Assert.That(model.TeamPower, Is.GreaterThan(basePower));
             Assert.That(CreateModel().Save.EquippedAccessory, Is.EqualTo(1));
 
             Assert.That(model.EquipAccessory(1, out _), Is.True);
             Assert.That(model.Save.EquippedAccessory, Is.EqualTo(-1));
             Assert.That(model.TeamPower, Is.EqualTo(basePower));
+        }
+
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void DisplayedStatsAndPowerExactlyMatchTheEquippedBattleSnapshot(int accessory)
+        {
+            GameModel model = CreateModel();
+            if (accessory >= 0) Assert.That(model.EquipAccessory(accessory, out _), Is.True);
+            BattleSimulator battle = model.StartStageBattle(EasyStage, 271UL, out string reason);
+            Assert.That(battle, Is.Not.Null, reason);
+            int totalPower = 0;
+            foreach (int index in model.Save.Team)
+            {
+                CombatStats stats = model.StatsOf(index);
+                BattleUnit unit = battle.Units.Single(item => item.Definition.Id == GameModel.Members[index].Id);
+                Assert.That(stats.Hp, Is.EqualTo(unit.MaxHp));
+                Assert.That(stats.Attack, Is.EqualTo(unit.BaseAttack));
+                Assert.That(stats.Defense, Is.EqualTo(unit.BaseDefense));
+                Assert.That(stats.Speed, Is.EqualTo(unit.Speed));
+                Assert.That(stats.CritPermille, Is.EqualTo(unit.Definition.CritPermille));
+                int expected = unit.MaxHp / 10 + unit.BaseAttack * 5 + unit.BaseDefense;
+                Assert.That(model.PowerOf(index), Is.EqualTo(expected));
+                totalPower += expected;
+            }
+            Assert.That(model.TeamPower, Is.EqualTo(totalPower));
+            Assert.That(model.PowerOf(-1), Is.Zero);
+            Assert.That(model.PowerOf(GameModel.Members.Length), Is.Zero);
+        }
+
+        [Test]
+        public void EquipmentPreviewIsReadOnlyAndOldBattleKeepsItsSnapshot()
+        {
+            GameModel model = CreateModel();
+            BattleSimulator oldBattle = model.StartStageBattle(EasyStage, 17UL, out _);
+            BattleUnit oldUnit = oldBattle.Units.First(unit => unit.Side == BattleSide.Player);
+            int hp = oldUnit.MaxHp, attack = oldUnit.BaseAttack;
+            string saved = PlayerPrefs.GetString(SaveKey);
+            int[] levels = model.Save.MemberLevels.ToArray();
+            int gold = model.Save.Gold, diamonds = model.Save.Diamonds;
+            int preview = model.TeamPowerWithAccessory(1);
+            Assert.That(model.AccessoryPowerChange(1), Is.EqualTo(preview - model.TeamPower));
+            Assert.That(model.PartyStatsWithAccessory(1).Count, Is.EqualTo(4));
+            Assert.That(PlayerPrefs.GetString(SaveKey), Is.EqualTo(saved));
+            Assert.That(model.Save.EquippedAccessory, Is.EqualTo(-1));
+
+            Assert.That(model.EquipAccessory(1, out _), Is.True);
+            GameModel reloaded = CreateModel();
+            Assert.That(reloaded.TeamPower, Is.EqualTo(preview));
+            Assert.That(reloaded.Save.MemberLevels, Is.EqualTo(levels));
+            Assert.That(reloaded.Save.Gold, Is.EqualTo(gold));
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(diamonds));
+            Assert.That(oldUnit.MaxHp, Is.EqualTo(hp));
+            Assert.That(oldUnit.BaseAttack, Is.EqualTo(attack));
+            BattleSimulator nextBattle = reloaded.StartStageBattle(EasyStage, 17UL, out _);
+            BattleUnit nextUnit = nextBattle.Units.First(unit => unit.Side == BattleSide.Player);
+            Assert.That(nextUnit.MaxHp, Is.GreaterThan(hp));
+            Assert.That(nextUnit.BaseAttack, Is.GreaterThan(attack));
+        }
+
+        [Test]
+        public void OffensiveEquipmentAndIndividualTrainingIncreaseActualDamage()
+        {
+            tactics.FindUnit("dummy").MaxHp = 100000;
+            tactics.FindUnit("dummy").Defense = 30;
+            foreach (UnitDefinition unit in tactics.Units) unit.CritPermille = 0;
+            GameModel model = CreateModel();
+            int baseline = FirstPlayerDamage(model);
+            Assert.That(model.EquipAccessory(1, out _), Is.True);
+            int equipped = FirstPlayerDamage(model);
+            Assert.That(equipped, Is.GreaterThan(baseline));
+            Assert.That(model.Train(0, out _), Is.True);
+            int trained = FirstPlayerDamage(model);
+            Assert.That(trained, Is.GreaterThan(equipped));
+        }
+
+        [TestCase(BattleDifficulty.Easy)]
+        [TestCase(BattleDifficulty.Normal)]
+        [TestCase(BattleDifficulty.Hard)]
+        public void StagePowerMatchesActualOpeningEnemiesAtTheSelectedDifficulty(BattleDifficulty difficulty)
+        {
+            tactics.FindUnit("dummy").MaxHp = 1300;
+            tactics.FindUnit("dummy").Attack = 150;
+            tactics.FindUnit("dummy").Defense = 30;
+            tactics.FindStage(EasyStage).Enemies[0].HpScalePermille = 1600;
+            GameModel model = CreateModel();
+            model.SetBattleDifficulty(difficulty);
+            BattleSimulator battle = model.StartStageBattle(EasyStage, 19UL, out _);
+            int expected = battle.Units.Where(unit => unit.Side == BattleSide.Enemy)
+                .Sum(unit => unit.MaxHp / 10 + unit.BaseAttack * 5 + unit.BaseDefense);
+            Assert.That(model.EnemyPowerOfStage(EasyStage), Is.EqualTo(expected));
+            Assert.That(model.EnemyPowerOfStage("missing"), Is.Zero);
+        }
+
+        [Test]
+        public void EquipmentBonusesRespectTheTwentyPercentCapAndDoNotInventSecondaryStats()
+        {
+            var bonuses = new CombatStatBonuses(-100, 1000, int.MaxValue);
+            Assert.That(bonuses.Hp, Is.Zero);
+            Assert.That(bonuses.Attack, Is.EqualTo(200));
+            Assert.That(bonuses.Defense, Is.EqualTo(200));
+            UnitDefinition definition = tactics.FindUnit("xingli");
+            CombatStats baseline = BattleSimulator.PlayerStats(definition, 1);
+            CombatStats boosted = BattleSimulator.PlayerStats(definition, 1, bonuses);
+            Assert.That(boosted.Hp, Is.EqualTo(baseline.Hp));
+            Assert.That(boosted.Attack, Is.EqualTo(baseline.Attack * 1200 / 1000));
+            Assert.That(boosted.Defense, Is.EqualTo(baseline.Defense * 1200 / 1000));
+            Assert.That(boosted.Speed, Is.EqualTo(baseline.Speed));
+            Assert.That(boosted.CritPermille, Is.EqualTo(baseline.CritPermille));
+            Assert.That(BattleSimulator.PlayerStats(null, 1).Power, Is.Zero);
+        }
+
+        private static int FirstPlayerDamage(GameModel model)
+        {
+            BattleSimulator battle = model.StartStageBattle(EasyStage, 223UL, out string reason);
+            Assert.That(battle, Is.Not.Null, reason);
+            BattleUnit actor = battle.Units.First(unit => unit.Side == BattleSide.Player);
+            BattleUnit enemy = battle.Units.Single(unit => unit.Side == BattleSide.Enemy);
+            int hp = enemy.Hp;
+            Assert.That(battle.TryAct(new BattleAction { ActorId = actor.Id, SkillId = "strike",
+                Row = enemy.Row, Col = enemy.Col }, out string error), Is.True, error);
+            return hp - enemy.Hp;
         }
 
         [Test]

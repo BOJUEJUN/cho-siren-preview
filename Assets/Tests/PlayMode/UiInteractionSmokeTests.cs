@@ -114,6 +114,52 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator AccessoryPreviewAndEquipShowRealStatsWithoutFakeEnhancementOrSaveChanges()
+        {
+            Click("Nav-accessory");
+            yield return null;
+            var model = new GameModel();
+            int gold = model.Save.Gold;
+            string saved = PlayerPrefs.GetString(SaveKey);
+            Click("Accessory-1");
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            Assert.That(PlayerPrefs.GetString(SaveKey), Is.EqualTo(saved),
+                "Browsing an accessory is not an equip or purchase operation.");
+            Assert.That(RequireActiveObject("AccessoryBefore-3").GetComponent<Text>().text,
+                Is.EqualTo(model.TeamPower.ToString("N0")));
+            Assert.That(RequireActiveObject("AccessoryAfter-3").GetComponent<Text>().text,
+                Is.EqualTo(model.TeamPowerWithAccessory(1).ToString("N0")));
+            Text effects = RequireActiveObject("AccessoryEffects").GetComponent<Text>();
+            Assert.That(effects.text, Is.EqualTo("生命 +4%\n攻击 +8%\n防御 +0%"));
+            Assert.That(effects.preferredHeight, Is.LessThanOrEqualTo(effects.rectTransform.rect.height));
+            foreach (Text text in RequireActiveObject("AccessoryDetail").GetComponentsInChildren<Text>())
+            {
+                Assert.That(text.text, Does.Not.Contain("强化 +"));
+                Assert.That(text.text, Does.Not.Contain("套装"));
+                Assert.That(text.text, Does.Not.Contain("暴击率"));
+            }
+            for (int row = 0; row < 4; row++)
+            {
+                Text before = RequireActiveObject("AccessoryBefore-" + row).GetComponent<Text>();
+                Text after = RequireActiveObject("AccessoryAfter-" + row).GetComponent<Text>();
+                Assert.That(before.preferredHeight, Is.LessThanOrEqualTo(before.rectTransform.rect.height));
+                Assert.That(after.preferredHeight, Is.LessThanOrEqualTo(after.rectTransform.rect.height));
+            }
+            Click("AccessoryEquip");
+            yield return null;
+            var equipped = new GameModel();
+            Assert.That(equipped.Save.EquippedAccessory, Is.EqualTo(1));
+            Assert.That(equipped.Save.Gold, Is.EqualTo(gold));
+            Assert.That(equipped.TeamPower, Is.EqualTo(model.TeamPowerWithAccessory(1)));
+            Assert.That(RequireActiveObject("AccessoryPowerChange").GetComponent<Text>().text,
+                Is.EqualTo("战力变化 0"));
+            Click("AccessoryEquip");
+            yield return null;
+            Assert.That(new GameModel().Save.EquippedAccessory, Is.EqualTo(-1));
+        }
+
+        [UnityTest]
         public IEnumerator BottomNavigationButtonsRenderEveryDestination()
         {
             Click("Nav-team");

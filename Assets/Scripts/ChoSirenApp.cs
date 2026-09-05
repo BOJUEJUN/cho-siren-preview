@@ -906,7 +906,7 @@ namespace ChoSiren
             NewPlacedText(card.transform, member.Name, 25, White, 14, 244, 186, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(card.transform, $"{MemberRaceFamily(member, memberIndex)} · {member.Career}", 14, Pink,
                 14, 282, 186, 25, TextAnchor.MiddleLeft);
-            NewPlacedText(card.transform, $"潜力战力\n{member.BasePower + model.LevelOf(memberIndex) * 135:N0}", 15, Cyan,
+            NewPlacedText(card.transform, $"入队战力\n{model.PowerOf(memberIndex):N0}", 15, Cyan,
                 14, 314, 186, 52, TextAnchor.MiddleLeft, FontStyle.Bold);
             GameObject recruit = NewButton("Recruit", card.transform, $"签约 ◇{GameModel.RecruitCost}", 16, Pink, White, () =>
             {
@@ -930,12 +930,12 @@ namespace ChoSiren
             }
 
             int selected = selectedAccessoryIndex;
-            int selectedPower = GameModel.AccessoryPower[selected];
+            int selectedPower = model.TeamPowerWithAccessory(selected);
             bool selectedEquipped = model.Save.EquippedAccessory == selected;
 
             NewPlacedText(contentRoot, $"队伍战力  {model.TeamPower:N0}", 17, White,
                 470, 34, 230, 36, TextAnchor.MiddleRight, FontStyle.Bold);
-            NewPlacedText(contentRoot, selectedEquipped ? "已同步当前装备" : $"装备后 +{selectedPower:N0}", 13,
+            NewPlacedText(contentRoot, selectedEquipped ? "已同步当前装备" : $"装备后战力 {selectedPower:N0}", 13,
                 selectedEquipped ? new Color32(112, 255, 196, 255) : Pink,
                 470, 70, 230, 24, TextAnchor.MiddleRight, FontStyle.Bold);
 
@@ -995,7 +995,7 @@ namespace ChoSiren
                 "Art/AccessoryAI/UI/accessory-preview-panel-ai-v1");
             PlaceTop(previewArt.GetComponent<RectTransform>(), 45, 4, 360, 700);
 
-            NewPlacedText(preview.transform, "角色佩戴预览", 15, new Color32(255, 181, 230, 255),
+            NewPlacedText(preview.transform, "舞台搭配 · 编队共用", 15, new Color32(255, 181, 230, 255),
                 132, 18, 186, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             GameObject character = NewImage("AccessoryPreviewCharacter", preview.transform,
@@ -1060,7 +1060,7 @@ namespace ChoSiren
                         5, 94, 90, 14, TextAnchor.MiddleCenter, FontStyle.Bold);
             }
 
-            NewPlacedText(preview.transform, "切换饰品可立即查看角色佩戴效果", 13, Muted,
+            NewPlacedText(preview.transform, "预览属性，装备后下场战斗生效", 13, Muted,
                 82, 668, 286, 26, TextAnchor.MiddleCenter);
         }
 
@@ -1077,28 +1077,35 @@ namespace ChoSiren
 
             NewPlacedText(detail.transform, GameModel.AccessoryNames[selected], 22, White,
                 18, 20, 154, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(detail.transform, "专属", 14,
+            NewPlacedText(detail.transform, "共享", 14,
                 selected == 2 ? Cyan : new Color32(255, 213, 97, 255),
                 172, 20, 48, 38, TextAnchor.MiddleRight, FontStyle.Bold);
-            NewPlacedText(detail.transform, $"强化 +{12 - selected * 2}", 15, new Color32(255, 202, 102, 255),
-                18, 62, 100, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(detail.transform, "编队搭配", 15, new Color32(255, 202, 102, 255),
+                18, 62, 80, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(detail.transform, equipped ? "已装备" : "可装备", 13,
                 equipped ? new Color32(112, 255, 196, 255) : Pink,
                 106, 66, 48, 26, TextAnchor.MiddleRight, FontStyle.Bold);
             GameObject detailArt = NewImage("AccessoryDetailArt", detail.transform, AccessoryItemSprite(selected), White);
             PlaceTop(detailArt.GetComponent<RectTransform>(), 158, 58, 58, 58);
             detailArt.GetComponent<Image>().preserveAspect = true;
-            NewPlacedText(detail.transform, $"组合战力  +{GameModel.AccessoryPower[selected]:N0}", 16, Pink,
-                18, 112, 132, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text powerChange = NewPlacedText(detail.transform,
+                $"战力变化 {model.AccessoryPowerChange(selected):+#,0;-#,0;0}", 16, Pink,
+                18, 112, 202, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            powerChange.name = "AccessoryPowerChange";
+            PanelKit.EnableBestFit(powerChange, 13);
 
             GameObject divider = NewImage("DetailDivider", detail.transform, null, new Color32(99, 213, 255, 92));
             PlaceTop(divider.GetComponent<RectTransform>(), 18, 142, 202, 2);
             NewPlacedText(detail.transform, "属性变化", 14, Muted,
                 18, 157, 202, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
 
-            string[] names = { "攻击", "暴击", "舞台", "生命" };
-            string[] before = { "360", "3.0%", "6.0%", "2.0%" };
-            string[] after = { "720", "6.0%", "12.0%", "4.0%" };
+            string[] names = { "生命", "攻击", "防御", "战力" };
+            IReadOnlyList<CombatStats> currentStats = model.PartyStatsWithAccessory(model.Save.EquippedAccessory);
+            IReadOnlyList<CombatStats> selectedStats = model.PartyStatsWithAccessory(selected);
+            int[] before = { currentStats.Sum(stat => stat.Hp), currentStats.Sum(stat => stat.Attack),
+                currentStats.Sum(stat => stat.Defense), currentStats.Sum(stat => stat.Power) };
+            int[] after = { selectedStats.Sum(stat => stat.Hp), selectedStats.Sum(stat => stat.Attack),
+                selectedStats.Sum(stat => stat.Defense), selectedStats.Sum(stat => stat.Power) };
             for (int row = 0; row < names.Length; row++)
             {
                 float y = 192 + row * 43;
@@ -1108,29 +1115,26 @@ namespace ChoSiren
                 reading.GetComponent<Image>().raycastTarget = false;
                 NewPlacedText(detail.transform, names[row], 13, White,
                     18, y, 46, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
-                NewPlacedText(detail.transform, before[row], 12, Muted,
+                Text beforeText = NewPlacedText(detail.transform, before[row].ToString("N0"), 12, Muted,
                     66, y, 50, 24, TextAnchor.MiddleRight);
+                beforeText.name = "AccessoryBefore-" + row;
+                PanelKit.EnableBestFit(beforeText, 10);
                 NewPlacedText(detail.transform, "→", 13, Cyan,
                     119, y, 23, 24, TextAnchor.MiddleCenter, FontStyle.Bold);
-                NewPlacedText(detail.transform, after[row], 12, new Color32(111, 255, 194, 255),
+                Text afterText = NewPlacedText(detail.transform, after[row].ToString("N0"), 12,
+                    after[row] >= before[row] ? new Color32(111, 255, 194, 255) : Pink,
                     144, y, 74, 24, TextAnchor.MiddleRight, FontStyle.Bold);
+                afterText.name = "AccessoryAfter-" + row;
+                PanelKit.EnableBestFit(afterText, 10);
             }
 
-            int setPieces = selected + 2;
-            NewPlacedText(detail.transform, $"星轨套装  {setPieces}/4", 15, Pink,
+            CombatStatBonuses bonuses = GameModel.AccessoryBonuses(selected);
+            NewPlacedText(detail.transform, "实际搭配效果", 15, Pink,
                 18, 382, 202, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            GameObject track = NewPanel("AccessorySetTrack", detail.transform, new Color32(63, 55, 113, 220), 12);
-            PlaceTop(track.GetComponent<RectTransform>(), 18, 418, 202, 12);
-            track.GetComponent<Image>().raycastTarget = false;
-            GameObject fill = NewPanel("AccessorySetFill", track.transform,
-                new Color32(102, 219, 255, 255), 12);
-            PlaceTop(fill.GetComponent<RectTransform>(), 0, 0, 202 * Mathf.Clamp01(setPieces / 4f), 12);
-            fill.GetComponent<Image>().raycastTarget = false;
-            NewPlacedText(detail.transform, "2件：暴击率 +8.0%", 12, White,
-                18, 440, 202, 24, TextAnchor.MiddleLeft);
-            NewPlacedText(detail.transform, "4件：技能伤害 +15.0%", 12,
-                setPieces >= 4 ? White : Muted,
-                18, 470, 202, 24, TextAnchor.MiddleLeft);
+            Text effects = NewPlacedText(detail.transform,
+                $"生命 +{bonuses.Hp / 10f:0.#}%\n攻击 +{bonuses.Attack / 10f:0.#}%\n防御 +{bonuses.Defense / 10f:0.#}%",
+                15, White, 18, 416, 202, 84, TextAnchor.UpperLeft);
+            effects.name = "AccessoryEffects";
 
             GameObject equip = NewButton("AccessoryEquip", detail.transform, equipped ? "卸下" : "装备", 17,
                 equipped ? new Color32(77, 70, 123, 255) : Pink, White, () =>
@@ -1215,7 +1219,7 @@ namespace ChoSiren
             }
 
             Text collectionSummary = NewPlacedText(collection.transform,
-                $"当前搭配加成  +{GameModel.AccessoryPower[selected]:N0}    ·    队伍战力  {model.TeamPower:N0}",
+                $"当前战力 {model.TeamPower:N0}    ·    该搭配战力 {model.TeamPowerWithAccessory(selected):N0}",
                 compact ? 13 : 15, White, 18, compact ? 166 : 248, 644,
                 compact ? 28 : 34, TextAnchor.MiddleCenter, FontStyle.Bold);
             collectionSummary.name = "AccessoryCollectionSummary";
@@ -1230,9 +1234,7 @@ namespace ChoSiren
             int level = model.LevelOf(memberIndex);
             bool canTrain = model.CanTrain(memberIndex, out int trainingCost, out _);
             bool atLevelCap = level >= GameModel.MaxMemberLevel;
-            int displayPower = unlocked
-                ? model.PowerOf(memberIndex)
-                : member.BasePower + level * 135;
+            int displayPower = model.PowerOf(memberIndex);
             MemberDisplayStats(member, memberIndex, out int attack, out int hp, out int critPercent,
                 out int speed);
             MemberSkillCopy(member, out string firstSkillName, out string firstSkillEffect,
@@ -1378,12 +1380,11 @@ namespace ChoSiren
         private void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,
             out int critPercent, out int speed)
         {
-            UnitDefinition unit = model.Tactics.FindUnit(member.Id);
-            int level = Mathf.Max(1, model.LevelOf(index));
-            attack = unit == null ? 0 : BattleSimulator.MemberStatAtLevel(unit.Attack, level);
-            hp = unit == null ? 0 : BattleSimulator.MemberStatAtLevel(unit.MaxHp, level);
-            critPercent = unit == null ? 0 : unit.CritPermille / 10;
-            speed = unit?.Speed ?? 0;
+            CombatStats stats = model.StatsOf(index);
+            attack = stats.Attack;
+            hp = stats.Hp;
+            critPercent = stats.CritPermille / 10;
+            speed = stats.Speed;
         }
 
         private void AddMemberStat(Transform parent, string name, string label, string value, float y)

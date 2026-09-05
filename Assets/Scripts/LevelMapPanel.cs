@@ -827,8 +827,8 @@ namespace ChoSiren
                     ? $"已通关 · 最佳 {Mathf.Max(1, model.StarsOf(selectedStageId))} 星"
                     : "当前关卡";
             progressText.text = state == LevelState.Cleared
-                ? $"可重复挑战提升评价  ·  推荐战力 {RecommendedPower(selectedStage):N0}"
-                : $"严格顺序解锁  ·  推荐战力 {RecommendedPower(selectedStage):N0}";
+                ? $"可重复挑战提升评价  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}"
+                : $"严格顺序解锁  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}";
             staminaCostText.text = $"体力 -{staminaCost}";
             diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";
             goldRewardText.text = $"星币 ×{goldReward}";
@@ -948,11 +948,6 @@ namespace ChoSiren
         private static string StateLabel(LevelState state)
         {
             return state == LevelState.Cleared ? "★★★" : state == LevelState.Current ? "当前" : "锁定";
-        }
-
-        private static int RecommendedPower(int stage)
-        {
-            return 38600 + Mathf.Max(0, stage - 1) * 2400;
         }
 
         private void AddRouteSegment(Transform parent, Vector2 from, Vector2 to, bool future)
