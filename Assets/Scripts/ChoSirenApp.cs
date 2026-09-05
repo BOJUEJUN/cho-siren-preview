@@ -1287,13 +1287,13 @@ namespace ChoSiren
             Text firstSkill = NewPlacedText(skillPanel.transform, firstSkillName, 17, White,
                 20, 54, 246, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
             firstSkill.name = "MemberSkillPrimary";
-            NewPlacedText(skillPanel.transform, firstSkillEffect, 14, Muted,
-                20, 98, 242, 132, TextAnchor.UpperLeft);
+            NewPlacedText(skillPanel.transform, firstSkillEffect, 16, Muted,
+                20, 144, 242, 96, TextAnchor.UpperLeft);
             Text secondSkill = NewPlacedText(skillPanel.transform, secondSkillName, 17, White,
                 302, 54, 240, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
             secondSkill.name = "MemberSkillSecondary";
-            NewPlacedText(skillPanel.transform, secondSkillEffect, 14, Muted,
-                302, 98, 238, 132, TextAnchor.UpperLeft);
+            NewPlacedText(skillPanel.transform, secondSkillEffect, 16, Muted,
+                302, 144, 238, 96, TextAnchor.UpperLeft);
             NewPlacedText(skillPanel.transform, MemberTeamBonus(member), 13,
                 new Color32(110, 225, 255, 255), 20, 248, 520, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
 
