@@ -34,3 +34,11 @@ node Tools/Stage-WebGL.mjs --build /absolute/verified-build --pages /absolute/pa
 - 截图 `Artifacts/qa-20260905/loader-stale-before.png`、`loader-legacy-success.png`、`loader-cached-guard-success.png`、`loader-friendly-error.png`、`loader-retry-success.png`。
 - PowerShell 包装入口未在 Windows 实跑；共享 Node 核心已在本机执行并真实准备发布。iPhone Safari 真机仍未验证。仅保留上一版，不保证无限旧版本可加载；更早错误入口应重新加载最新网页。
 - 线上部署和内容哈希须核对后追加，不以本地测试冒充已上线。
+
+## 正式部署确认
+
+- Pages `6693a9911f137aad2ef0e2166e28cd43668bb62c` 已推送并传播完成。源模板/工具 `f6a6a55`；游戏二进制仍为 `6e0f1a2`，无需为只改启动 HTML/发布脚本重复构建游戏。八个资源均由内容哈希校验，旧四件仅是兼容版。
+- 正式 HTML SHA-256 `ab1bdcdbc81d565abcd1828bbe62d9c258672e5fca9c3baa85a75ab874613120`；版本清单 SHA-256 `2c6102b88d7f9acc88e998773c609ad9f9a477c4599636af655a741caf7f452d`，与本地完全一致。
+- 原先 404 的上一版 WASM 现为 HTTP 200 / 8,984,688 字节；当前 WASM HTTP 200 / 8,979,865 字节。没有把旧包设为当前入口。
+- `Artifacts/qa-loader.cjs https://bojuejun.github.io/cho-siren-preview/?v=6693a99 after` 已在正式网址重复三条实际加载测试，进程退出 0：legacy 使用保留旧 WASM 成功；cached-guard 使用当前 WASM 成功，且没有请求旧 WASM；retry 人为中断后重新加载成功。正常路径无页面异常；强制中断路径的预期引擎异常详见上节。
+- 当前游戏保存数据、成员等级与已接受 UI 没有变更。本批没有 iPhone 真机或 Windows 包验证，不能声明所有手机兼容问题已经完成。
