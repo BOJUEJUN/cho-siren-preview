@@ -230,6 +230,67 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator MemberTrainingShowsCostAndKeepsUpdatedDossierOpen()
+        {
+            Click("Nav-members");
+            yield return null;
+            Click("Member-xingli");
+            yield return null;
+            GameSave before = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
+            int cost = 180 + before.MemberLevels[0] * 12;
+            Assert.That(RequireActiveObject("MemberTrainingPreview").GetComponent<Text>().text,
+                Does.Contain("68 → 69"));
+            Assert.That(RequireActiveObject("MemberTrainingCost").GetComponent<Text>().text,
+                Does.Contain(cost.ToString("N0")));
+            Click("Train");
+            yield return null;
+            RequireActiveObject("MemberModal");
+            Assert.That(RequireActiveObject("MemberTrainingPreview").GetComponent<Text>().text,
+                Does.Contain("69 → 70"));
+            Assert.That(RequireActiveObject("MemberPower").GetComponent<Text>().text,
+                Does.Contain("等级 69"));
+            GameSave after = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
+            Assert.That(after.Gold, Is.EqualTo(before.Gold - cost));
+            Assert.That(after.MemberLevels.Skip(1), Is.EqualTo(before.MemberLevels.Skip(1)));
+            var definition = ChoSiren.Systems.Data.GameData.Repository.Tactics.FindUnit("xingli");
+            Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
+                Is.EqualTo(BattleSimulator.MemberStatAtLevel(definition.Attack, 69).ToString("N0")));
+            Text preview = RequireActiveObject("MemberTrainingPreview").GetComponent<Text>();
+            Text price = RequireActiveObject("MemberTrainingCost").GetComponent<Text>();
+            Canvas.ForceUpdateCanvases();
+            Assert.That(preview.preferredHeight, Is.LessThanOrEqualTo(preview.rectTransform.rect.height));
+            Assert.That(price.preferredHeight, Is.LessThanOrEqualTo(price.rectTransform.rect.height));
+            Click("Close");
+            yield return null;
+            AssertInactiveOrMissing("MemberModal");
+        }
+
+        [UnityTest]
+        public IEnumerator TrainingBecomesUnavailableBeforeOverspending()
+        {
+            Click("Nav-members");
+            yield return null;
+            Click("Member-xingli");
+            yield return null;
+            int attempts = 0;
+            while (RequireActiveObject("Train").GetComponent<Button>().interactable && attempts++ < 30)
+            {
+                Click("Train");
+                yield return null;
+            }
+            Assert.That(attempts, Is.LessThan(30));
+            RequireActiveObject("MemberModal");
+            Button button = RequireActiveObject("Train").GetComponent<Button>();
+            Assert.That(button.interactable, Is.False);
+            Assert.That(button.transform.Find("Label").GetComponent<Text>().text, Is.EqualTo("金币不足"));
+            GameSave saved = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
+            Assert.That(saved.Gold, Is.GreaterThanOrEqualTo(0));
+            Assert.That(saved.Gold, Is.LessThan(180 + saved.MemberLevels[0] * 12));
+            Click("Close");
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator AuditionCandidateUsesLocalArtAndOneHighlightedStrongestStat()
         {
             Click("Nav-audition");

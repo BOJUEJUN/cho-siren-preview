@@ -600,6 +600,52 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void TrainingQuoteIsReadOnlyAndPreservesUnaffordableCost()
+        {
+            GameModel model = CreateModel();
+            string before = PlayerPrefs.GetString(SaveKey);
+            int changed = 0;
+            model.Changed += () => changed++;
+            Assert.That(model.CanTrain(0, out int cost, out _), Is.True);
+            Assert.That(cost, Is.EqualTo(180 + model.LevelOf(0) * 12));
+            Assert.That(model.CanTrain(-1, out cost, out _), Is.False);
+            Assert.That(cost, Is.Zero);
+            Assert.That(model.CanTrain(4, out cost, out _), Is.False);
+            Assert.That(cost, Is.Zero);
+            Assert.That(PlayerPrefs.GetString(SaveKey), Is.EqualTo(before));
+            Assert.That(changed, Is.Zero);
+
+            SaveRaw(new GameSave { Gold = 0 });
+            model = CreateModel();
+            Assert.That(model.CanTrain(0, out cost, out string reason), Is.False);
+            Assert.That(cost, Is.EqualTo(996), "费用不足时仍显示真实报价，而不是免费。");
+            Assert.That(reason, Does.Contain("金币不足"));
+
+            var capped = new GameSave();
+            capped.MemberLevels[0] = GameModel.MaxMemberLevel;
+            SaveRaw(capped);
+            Assert.That(CreateModel().CanTrain(0, out cost, out _), Is.False);
+            Assert.That(cost, Is.Zero);
+        }
+
+        [Test]
+        public void TrainingOnlyRaisesSelectedMemberAndNeverSynchronizesOtherLevels()
+        {
+            GameModel model = CreateModel();
+            int[] levels = model.Save.MemberLevels.ToArray();
+            int[] team = model.Save.Team.ToArray();
+            int diamonds = model.Save.Diamonds;
+            int stamina = model.Save.Stamina;
+            Assert.That(model.Train(1, out _), Is.True);
+            levels[1]++;
+            Assert.That(model.Save.MemberLevels, Is.EqualTo(levels));
+            Assert.That(CreateModel().Save.MemberLevels, Is.EqualTo(levels));
+            Assert.That(model.Save.Team, Is.EqualTo(team));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds));
+            Assert.That(model.Save.Stamina, Is.EqualTo(stamina));
+        }
+
+        [Test]
         public void TrainValidatesOwnershipFundsAndLevelCapAndPersistsSuccess()
         {
             GameModel model = CreateModel();

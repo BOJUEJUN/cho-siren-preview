@@ -1226,6 +1226,8 @@ namespace ChoSiren
             MemberDefinition member = GameModel.Members[memberIndex];
             bool unlocked = model.IsUnlocked(memberIndex);
             int level = model.LevelOf(memberIndex);
+            bool canTrain = model.CanTrain(memberIndex, out int trainingCost, out _);
+            bool atLevelCap = level >= GameModel.MaxMemberLevel;
             int displayPower = unlocked
                 ? model.PowerOf(memberIndex)
                 : member.BasePower + level * 135;
@@ -1303,23 +1305,43 @@ namespace ChoSiren
             ApplyAiUiSprite(guidePanel, unlocked
                 ? "Art/MemberAI/UI/member-stat-panel-ai-v1"
                 : "Art/MemberAI/UI/member-locked-panel-ai-v1");
-            NewPlacedText(guidePanel.transform, unlocked ? "培养建议" : "获取方式", 15,
+            NewPlacedText(guidePanel.transform, unlocked ? "本次培养" : "获取方式", 15,
                 new Color32(255, 188, 231, 255), 18, 12, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(guidePanel.transform,
-                unlocked
-                    ? "训练提升等级与战斗属性；装备饰品可提高编队战力。"
-                    : MemberAcquisitionCopy(member),
-                14, White, 18, 42, 520, 66, TextAnchor.UpperLeft);
+            if (unlocked)
+            {
+                Text preview = NewPlacedText(guidePanel.transform, atLevelCap
+                        ? $"等级 {level} · 已达到当前等级上限"
+                        : $"等级 {level} → {level + 1} · 仅提升当前成员",
+                    16, White, 18, 42, 520, 30, TextAnchor.MiddleLeft);
+                preview.name = "MemberTrainingPreview";
+                PanelKit.EnableBestFit(preview, 14);
+                Text cost = NewPlacedText(guidePanel.transform, atLevelCap
+                        ? "已满级 · 无需继续训练"
+                        : $"消耗金币 {trainingCost:N0} · 持有 {model.Save.Gold:N0}",
+                    16, canTrain || atLevelCap ? Cyan : Pink, 18, 78, 520, 30, TextAnchor.MiddleLeft);
+                cost.name = "MemberTrainingCost";
+                PanelKit.EnableBestFit(cost, 14);
+            }
+            else
+                NewPlacedText(guidePanel.transform, MemberAcquisitionCopy(member),
+                    14, White, 18, 42, 520, 66, TextAnchor.UpperLeft);
 
             if (unlocked)
             {
-                GameObject train = NewButton("Train", panel.transform, "训练升级", 18, Pink, White, () =>
+                Button trainButton = null;
+                GameObject train = NewButton("Train", panel.transform,
+                    atLevelCap ? "已满级" : canTrain ? "训练升级" : "金币不足", 18, Pink, White, () =>
                 {
+                    // Retire the old action immediately; rebuild from the saved result so
+                    // a second pointer event cannot spend a stale displayed quote.
+                    trainButton.interactable = false;
                     model.Train(memberIndex, out string message);
-                    Toast(message);
-                    CloseModal();
                     ShowScreen(currentScreen);
+                    OpenMember(memberIndex);
+                    Toast(message);
                 });
+                trainButton = train.GetComponent<Button>();
+                trainButton.interactable = canTrain;
                 PlaceTop(train.GetComponent<RectTransform>(), 34, 930, 258, 60);
                 ApplyAiUiSprite(train, "Art/MemberAI/UI/member-action-pink-ai-v1");
 

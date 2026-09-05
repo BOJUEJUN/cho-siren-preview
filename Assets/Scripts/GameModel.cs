@@ -587,8 +587,11 @@ namespace ChoSiren
             return true;
         }
 
-        public bool Train(int memberIndex, out string message)
+        // A read-only quote shared by the dossier and the purchase boundary. Keep the
+        // existing economy until the latest design's growth/economy migration is validated.
+        public bool CanTrain(int memberIndex, out int cost, out string message)
         {
+            cost = 0;
             if (!IsValidMemberIndex(memberIndex))
             {
                 message = "成员不存在";
@@ -608,13 +611,21 @@ namespace ChoSiren
                 return false;
             }
 
-            int cost = 180 + level * 12;
+            cost = 180 + level * 12;
             if (Save.Gold < cost)
             {
                 message = $"金币不足，本次训练需要 {cost:N0}";
                 return false;
             }
 
+            message = string.Empty;
+            return true;
+        }
+
+        public bool Train(int memberIndex, out string message)
+        {
+            if (!CanTrain(memberIndex, out int cost, out message)) return false;
+            int level = LevelOf(memberIndex);
             Save.Gold -= cost;
             Save.MemberLevels[memberIndex] = level + 1;
             Report(TaskTriggers.Train);
