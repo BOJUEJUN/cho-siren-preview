@@ -32,6 +32,12 @@ namespace ChoSiren.Systems.Tactics
         public bool IsRealtime { get; private set; }
         public int ElapsedMilliseconds { get; private set; }
         public int FocusTargetId { get; private set; } = -1;
+        public int TimeLimitMilliseconds => Stage.TimeLimitSeconds * 1000;
+        public int CurrentWave { get; private set; } = 1;
+        public int TotalWaves
+        {
+            get { int count = 1; foreach (var unit in units) count = Math.Max(count, unit.Wave + 1); return count; }
+        }
         public DiceTurn BattleDice { get; private set; }
         public long CharacterDamageDealt { get; private set; }
         public long PoisonDamageDealt { get; private set; }
@@ -62,6 +68,7 @@ namespace ChoSiren.Systems.Tactics
             WorldEncounter = worldEncounter;
             foreach (BattleUnit unit in units)
             {
+                if (unit.Side == BattleSide.Enemy) unit.Spawned = unit.Wave == 0;
                 string label = null;
                 races?.TryGetValue(unit.Definition.Id, out label);
                 var clock = new PerformerClock { Race = unit.Side == BattleSide.Player
@@ -88,7 +95,7 @@ namespace ChoSiren.Systems.Tactics
         public void AdvanceRealtime(int milliseconds, bool autoDice = false)
         {
             if (!IsRealtime) throw new InvalidOperationException("尚未初始化实时战斗");
-            if (milliseconds < 0 || milliseconds > BattleTimeLimitMilliseconds)
+            if (milliseconds < 0 || milliseconds > Math.Max(BattleTimeLimitMilliseconds, TimeLimitMilliseconds))
                 throw new ArgumentOutOfRangeException(nameof(milliseconds));
             if (Outcome != BattleOutcome.Ongoing || milliseconds == 0) return;
             realtimeRemainder += milliseconds;
@@ -146,9 +153,37 @@ namespace ChoSiren.Systems.Tactics
                     nextMeasure += MeasureMilliseconds;
                     ResetComboBudget();
                 }
-                if (Outcome == BattleOutcome.Ongoing && ElapsedMilliseconds >= BattleTimeLimitMilliseconds)
+                if (Outcome == BattleOutcome.Ongoing && ElapsedMilliseconds >= TimeLimitMilliseconds)
                     Finish(BattleOutcome.Defeat);
             }
+        }
+
+        private void ActivateEnemy(BattleUnit unit)
+        {
+            unit.Spawned = true;
+            var clock = performerClocks[unit.Id];
+            clock.NextBasic = ElapsedMilliseconds + BasicInterval(unit, clock);
+            clock.NextSmall = ElapsedMilliseconds + 4000;
+            CurrentWave = Math.Max(CurrentWave, unit.Wave + 1);
+            Emit(BattleEventKind.Spawned, unit.Id, unit.Id, "reinforcement", CurrentWave, false);
+        }
+
+        private bool SpawnNextWave()
+        {
+            int next = int.MaxValue;
+            foreach (var unit in units)
+                if (unit.Side == BattleSide.Enemy && !unit.Spawned) next = Math.Min(next, unit.Wave);
+            if (next == int.MaxValue) return false;
+            foreach (var unit in units)
+                if (unit.Side == BattleSide.Enemy && !unit.Spawned && unit.Wave == next) ActivateEnemy(unit);
+            return true;
+        }
+
+        private void SpawnPhaseReinforcements(int phase)
+        {
+            foreach (var unit in units)
+                if (unit.Side == BattleSide.Enemy && !unit.Spawned && unit.SpawnAtBossPhase == phase)
+                    ActivateEnemy(unit);
         }
 
         public bool FocusEnemy(int id)
@@ -258,7 +293,7 @@ namespace ChoSiren.Systems.Tactics
                         Deal(actor, target, skill, 1100);
                         if (target.Alive) AddPoison(target, actor, 2);
                     }
-                    else foreach (BattleUnit enemy in units)
+                    else foreach (BattleUnit enemy in LivingOpponents(actor))
                     {
                         if (!enemy.Alive || enemy.Side == actor.Side) continue;
                         Deal(actor, enemy, skill, 1600);
@@ -278,7 +313,7 @@ namespace ChoSiren.Systems.Tactics
                     else
                     {
                         int frontRow = target.Row;
-                        foreach (BattleUnit enemy in units)
+                        foreach (BattleUnit enemy in LivingOpponents(actor))
                         {
                             if (!enemy.Alive || enemy.Side == actor.Side || enemy.Row != frontRow) continue;
                             Deal(actor, enemy, skill, 1750);
@@ -315,6 +350,15 @@ namespace ChoSiren.Systems.Tactics
                     if (target != null) Deal(actor, target, skill, big ? 1600 : 1100);
                     break;
             }
+        }
+
+        // AOE targets are selected when the cast starts. Reinforcements cannot be hit by
+        // the same cast that cleared the previous wave or triggered their arrival.
+        private List<BattleUnit> LivingOpponents(BattleUnit actor)
+        {
+            var targets = new List<BattleUnit>();
+            foreach (var unit in units) if (unit.Alive && unit.Side != actor.Side) targets.Add(unit);
+            return targets;
         }
 
         private void EnemySpecial(BattleUnit actor)

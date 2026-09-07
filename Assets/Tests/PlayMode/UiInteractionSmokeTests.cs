@@ -65,6 +65,57 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator ClearSaveHasVisibleConfirmationAndReturnsToUnclearedChapter()
+        {
+            var saved = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
+            saved.StoryProgress = 83;
+            saved.ClearedStages = new List<StageClear>
+            {
+                new StageClear { Id = "stage-1-1", Stars = 3 },
+                new StageClear { Id = "stage-1-2", Stars = 2 }
+            };
+            saved.MemberLevels = saved.MemberLevels.Select(_ => 68).ToList();
+            foreach (var member in saved.Roster.Members) member.Level = 68;
+            PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(saved));
+            DestroyAll<ChoSirenApp>();
+            yield return null;
+            new GameObject("CHO-SIREN Reset Smoke App").AddComponent<ChoSirenApp>();
+            yield return null;
+            float timeout = Time.realtimeSinceStartup + 15f;
+            while (GameObject.Find("StartupLoading") != null && Time.realtimeSinceStartup < timeout)
+                yield return null;
+            Assert.That(RequireActiveObject("PlayerLevel").GetComponent<Text>().text, Is.EqualTo("队均 68 级"));
+
+            Click("Settings");
+            Click("Reset");
+            yield return null;
+            RequireActiveObject("InfoModal");
+            Assert.That(new GameModel().IsStageCleared("stage-1-2"), Is.True,
+                "Opening the confirmation must not erase progress.");
+            Click("Close");
+            yield return null;
+            Assert.That(new GameModel().IsStageCleared("stage-1-2"), Is.True);
+            Click("Settings");
+            Click("Reset");
+            yield return null;
+            Click("Primary");
+            yield return null;
+            Assert.That(RequireActiveObject("PlayerLevel").GetComponent<Text>().text, Is.EqualTo("队均 1 级"));
+            var fresh = new GameModel();
+            Assert.That(fresh.Save.ClearedStages, Is.Empty);
+            Assert.That(fresh.CurrentChapterOneStage, Is.EqualTo(1));
+            Assert.That(fresh.IsStageUnlocked("stage-1-2"), Is.False);
+            timeout = Time.realtimeSinceStartup + 15f;
+            while (!IsInteractable("LiveOnStage") && Time.realtimeSinceStartup < timeout)
+                yield return null;
+            Click("LiveOnStage");
+            yield return null;
+            RequireActiveObject("LevelMapPanel");
+            Assert.That(Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude)
+                .Any(text => text.text.Contains("已通关")), Is.False);
+        }
+
+        [UnityTest]
         public IEnumerator HeaderAndLobbyModalButtonsCompleteTheirClickChains()
         {
             Click("Profile");
@@ -479,7 +530,8 @@ namespace ChoSiren.Tests
             RequireActiveObject("TacticsBattlePanel");
 
             Click("AutoToggle");
-            float battleTimeout = Time.realtimeSinceStartup + 90f;
+            tactics = Object.FindAnyObjectByType<TacticsBattlePanel>();
+            float battleTimeout = Time.realtimeSinceStartup + tactics.Battle.TimeLimitMilliseconds / 1000f + 30f;
             while (GameObject.Find("BattleResult") == null && Time.realtimeSinceStartup < battleTimeout)
                 yield return null;
 

@@ -46,6 +46,7 @@ namespace ChoSiren
         private Text diamondText;
         private Text goldText;
         private Text staminaText;
+        private Text teamLevelText;
         private Text toastText;
         private GameObject toastObject;
         private GameObject modalObject;
@@ -234,10 +235,10 @@ namespace ChoSiren
             Text name = NewText("PlayerName", bar.transform, "音律少女", 19, White, FontStyle.Bold, TextAnchor.UpperLeft);
             PlaceTop(name.rectTransform, 86, 14, 104, 29);
             AddReadableShadow(name);
-            Text level = NewText("PlayerLevel", bar.transform, "等级 68", 14,
+            teamLevelText = NewText("PlayerLevel", bar.transform, string.Empty, 14,
                 new Color32(225, 215, 242, 255), FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(level.rectTransform, 86, 43, 82, 22);
-            AddReadableShadow(level);
+            PlaceTop(teamLevelText.rectTransform, 86, 43, 112, 22);
+            AddReadableShadow(teamLevelText);
 
             GameObject profileHit = NewButton("Profile", bar.transform, string.Empty, 1, Color.clear, Color.clear, OpenProfile);
             PlaceTop(profileHit.GetComponent<RectTransform>(), 16, 8, 190, 70);
@@ -1445,7 +1446,7 @@ namespace ChoSiren
         private void OpenProfile()
         {
             OpenInfoModal("制作人档案",
-                $"音律少女  ·  等级 68\n当前编队 {model.Save.Team.Count}/4 人\n组合战力 {model.TeamPower:N0}\n已签约 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} 名成员",
+                $"音律少女  ·  队伍均级 {TeamAverageLevel}\n当前编队 {model.Save.Team.Count}/4 人\n组合战力 {model.TeamPower:N0}\n已签约 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} 名成员",
                 "返回大厅", null);
         }
 
@@ -1588,22 +1589,18 @@ namespace ChoSiren
             NewPlacedText(panel.transform, "画面采用固定比例与安全区适配，电脑、网页和安卓设备共用同一布局。",
                 15, Muted, 45, 405, 510, 72, TextAnchor.UpperLeft);
 
-            float confirmUntil = -1f;
             GameObject reset = NewButton("Reset", panel.transform, "清除本机存档", 16,
                 new Color32(108, 49, 89, 255), White, () =>
             {
-                if (Time.unscaledTime > confirmUntil)
+                OpenInfoModal("确认清除本机存档？",
+                    "这会删除本机的培养、资源和通关记录，无法撤销。\n\n确认后从 1-1 重新开始，成员回到 1 级，后续关卡锁定，通关星级清零。\n\n不想清除，请点右上角 ×。",
+                    "确认清除并重新开始", () =>
                 {
-                    confirmUntil = Time.unscaledTime + 4f;
-                    Toast("请在 4 秒内再次点击，确认清除本机存档");
-                    return;
-                }
-
-                model.Reset();
-                ApplyMusicRouting();
-                CloseModal();
-                ShowScreen("lobby");
-                Toast("本机存档已重置");
+                    model.Reset();
+                    ApplyMusicRouting();
+                    ShowScreen("lobby");
+                    Toast("已重新开始：成员 1 级，仅开放 1-1");
+                });
             });
             PlaceTop(reset.GetComponent<RectTransform>(), 150, 525, 300, 58);
 
@@ -2029,9 +2026,14 @@ namespace ChoSiren
             return sprite;
         }
 
+        // There is no producer XP system. Show actual party levels, not a demo account level.
+        private int TeamAverageLevel => model.Save.Team.Count == 0 ? 0
+            : Mathf.FloorToInt((float)model.Save.Team.Average(index => model.LevelOf(index)));
+
         private void UpdateTopBar()
         {
             if (diamondText == null) return;
+            teamLevelText.text = model.Save.Team.Count == 0 ? "尚未编队" : $"队均 {TeamAverageLevel} 级";
             diamondText.text = $"{model.Save.Diamonds:N0}";
             goldText.text = $"{model.Save.Gold:N0}";
             int cap = model.StaminaCap;

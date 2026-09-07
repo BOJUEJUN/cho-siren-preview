@@ -19,11 +19,11 @@ namespace ChoSiren.Tests.Systems
             {
                 var battle = new BattleSimulator(repository.Tactics, stage, DefaultParty(), new SeededRandom(847));
                 battle.EnableRealtime(races, "xingli", stage.RerollLimit);
-                battle.AdvanceRealtime(60000, true);
+                battle.AdvanceRealtime(battle.TimeLimitMilliseconds, true);
                 TestContext.WriteLine($"REALTIME {stage.Id}: {battle.Outcome}, {battle.ElapsedMilliseconds}ms, " +
                     $"damage={battle.CharacterDamageDealt}, poison={battle.PoisonDamageDealt}, rerolls={battle.BattleDice.UsedRerolls}");
                 Assert.That(battle.Outcome, Is.Not.EqualTo(BattleOutcome.Ongoing));
-                Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(60000));
+                Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(battle.TimeLimitMilliseconds));
             }
             // These are measurements, not a claim that chapter pacing/balance has passed.
         }
@@ -42,13 +42,67 @@ namespace ChoSiren.Tests.Systems
                 foreach (PlayerUnitSetup member in party) member.Level = level;
                 var battle = new BattleSimulator(repository.Tactics, stage, party, new SeededRandom(847));
                 battle.EnableRealtime(races, "xingli", stage.RerollLimit);
-                battle.AdvanceRealtime(60000, true);
+                battle.AdvanceRealtime(battle.TimeLimitMilliseconds, true);
                 TestContext.WriteLine($"COHORT L{level} {stage.Id}: {battle.Outcome} {battle.ElapsedMilliseconds}ms " +
                     $"lost={battle.PlayerUnitsLost}, rerolls={battle.BattleDice.UsedRerolls}");
                 Assert.That(battle.Outcome, Is.Not.EqualTo(BattleOutcome.Ongoing));
                 Assert.That(battle.BattleDice.UsedRerolls, Is.LessThanOrEqualTo(stage.RerollLimit));
             }
             // Numeric measurement is deliberately not a release pacing assertion.
+        }
+
+        [Test]
+        public void AuthoredLevelPacingMeasurementsCoverMultipleSeeds()
+        {
+            var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
+            Assert.That(repository.LoadAll(), Is.True);
+            var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
+            foreach (StageDefinition stage in repository.Tactics.Stages)
+            {
+                var times = new List<int>();
+                int wins = 0, lost = 0, rerolls = 0;
+                for (ulong seed = 1; seed <= 20; seed++)
+                {
+                    var party = DefaultParty();
+                    foreach (var member in party) member.Level = stage.RecommendedLevel;
+                    var battle = new BattleSimulator(repository.Tactics, stage, party, new SeededRandom(seed));
+                    battle.EnableRealtime(races, "xingli", stage.RerollLimit);
+                    battle.AdvanceRealtime(battle.TimeLimitMilliseconds, true);
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
+                    times.Add(battle.ElapsedMilliseconds);
+                    lost += battle.PlayerUnitsLost;
+                    rerolls += battle.BattleDice.UsedRerolls;
+                }
+                times.Sort();
+                TestContext.WriteLine($"AUTHORED {stage.Id} L{stage.RecommendedLevel}: wins={wins}/20 " +
+                    $"min={times.First()} median={times[10]} max={times.Last()} lost={lost} rerolls={rerolls}");
+            }
+        }
+
+        [Test]
+        public void AllCaptainsHaveMeasuredAuthoredStageDurations()
+        {
+            var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
+            Assert.That(repository.LoadAll(), Is.True);
+            var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
+            foreach (var stage in repository.Tactics.Stages)
+            foreach (string captain in new[] { "feiyin", "wubai", "yeying" })
+            {
+                var times = new List<int>();
+                int wins = 0;
+                for (ulong seed = 1; seed <= 16; seed++)
+                {
+                    var party = DefaultParty();
+                    foreach (var member in party) member.Level = stage.RecommendedLevel;
+                    var battle = new BattleSimulator(repository.Tactics, stage, party, new SeededRandom(seed));
+                    battle.EnableRealtime(races, captain, stage.RerollLimit);
+                    battle.AdvanceRealtime(battle.TimeLimitMilliseconds, true);
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
+                    times.Add(battle.ElapsedMilliseconds);
+                }
+                times.Sort();
+                TestContext.WriteLine($"CAPTAIN {stage.Id} {captain}: wins={wins}/16 min={times.First()} median={times[8]} max={times.Last()}");
+            }
         }
 
         private static List<PlayerUnitSetup> DefaultParty()

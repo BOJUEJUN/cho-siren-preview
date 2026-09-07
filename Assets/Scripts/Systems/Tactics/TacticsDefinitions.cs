@@ -129,6 +129,8 @@ namespace ChoSiren.Systems.Tactics
         /// to <see cref="ScalePermille"/>.
         /// </summary>
         public int HpScalePermille;
+        public int Wave;
+        public int BossPhase;
     }
 
     [Serializable]
@@ -165,6 +167,9 @@ namespace ChoSiren.Systems.Tactics
         public int TurnLimit = 20;
         /// <summary>Finishing within this many rounds earns the third star.</summary>
         public int ThreeStarRounds = 8;
+        public int TimeLimitSeconds = 60;
+        public int ThreeStarSeconds = 45;
+        public int RecommendedLevel = 1;
         public int GoldReward = 300;
         public int DiamondFirstClear = 20;
         public List<EnemySpawn> Enemies = new List<EnemySpawn>();
@@ -179,6 +184,8 @@ namespace ChoSiren.Systems.Tactics
             }
 
             if (StaminaCost < 0 || TurnLimit <= 0 || ThreeStarRounds <= 0 || GoldReward < 0 || DiamondFirstClear < 0 ||
+                TimeLimitSeconds < 30 || TimeLimitSeconds > 120 || ThreeStarSeconds <= 0 ||
+                ThreeStarSeconds > TimeLimitSeconds || RecommendedLevel < 1 ||
                 (UsesRealtime && EncounterType != "normal" && EncounterType != "elite" &&
                     EncounterType != "boss" && EncounterType != "world"))
             {
@@ -197,7 +204,9 @@ namespace ChoSiren.Systems.Tactics
             {
                 EnemySpawn spawn = Enemies[index];
                 if (spawn == null || !BattleGrid.IsValid(spawn.Row, spawn.Col) ||
-                    spawn.ScalePermille <= 0 || spawn.HpScalePermille < 0)
+                    spawn.ScalePermille <= 0 || spawn.HpScalePermille < 0 || spawn.Wave < 0 || spawn.Wave > 8 ||
+                    spawn.BossPhase < 0 || spawn.BossPhase == 1 || spawn.BossPhase > 3 ||
+                    (spawn.BossPhase > 0 && (!HasBossPhases || spawn.Wave == 0)))
                 {
                     error = $"关卡 {Id} 第 {index + 1} 个敌人的位置或缩放无效";
                     return false;
@@ -208,6 +217,12 @@ namespace ChoSiren.Systems.Tactics
                     error = $"关卡 {Id} 有两个敌人占用同一格";
                     return false;
                 }
+            }
+
+            if (!Enemies.Exists(spawn => spawn.Wave == 0))
+            {
+                error = $"关卡 {Id} 缺少首波敌人";
+                return false;
             }
 
             if (Drops == null || Drops.Rolls < 0)

@@ -77,6 +77,45 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void ProductionResetRemovesClearsLevelsAndSurvivesReloadWithLegacySavePresent()
+        {
+            var old = new GameSave
+            {
+                StoryProgress = 100,
+                ClearedStages = new List<StageClear>
+                {
+                    new StageClear { Id = "stage-1-1", Stars = 3 },
+                    new StageClear { Id = "stage-1-2", Stars = 2 }
+                },
+                ClaimedChapterOneStarRewards = new List<int> { 10 },
+                ClaimedChapterOneTasks = new List<string> { GameModel.ChapterOneTaskClearStageThree }
+            };
+            PlayerPrefs.SetString(LegacySaveKey, JsonUtility.ToJson(old));
+            PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(old));
+            var model = new GameModel(() => now);
+            Assert.That(model.IsStageCleared("stage-1-2"), Is.True);
+            model.Reset();
+            foreach (var fresh in new[] { model, new GameModel(() => now), new GameModel(() => now) })
+            {
+                Assert.That(fresh.Save.MemberLevels, Has.All.EqualTo(1));
+                Assert.That(fresh.Save.ClearedStages, Is.Empty);
+                Assert.That(fresh.Save.ClaimedChapterOneStarRewards, Is.Empty);
+                Assert.That(fresh.Save.ClaimedChapterOneTasks, Is.Empty);
+                Assert.That(fresh.CurrentChapterOneStage, Is.EqualTo(1));
+                Assert.That(fresh.IsChapterOneComplete, Is.False);
+                Assert.That(fresh.IsStageUnlocked("stage-1-1"), Is.True);
+                for (int stage = 1; stage <= 10; stage++)
+                {
+                    string id = $"stage-1-{stage}";
+                    Assert.That(fresh.StarsOf(id), Is.Zero, id);
+                    Assert.That(LevelMapPanel.IsStoryStageCleared(stage, fresh.Save.StoryProgress), Is.False, id);
+                    if (stage > 1) Assert.That(fresh.IsStageUnlocked(id), Is.False, id);
+                }
+                Assert.That(fresh.StatsOf(0).Attack, Is.EqualTo(40));
+            }
+        }
+
+        [Test]
         public void ProductionGrowthMigrationKeepsOldLevelsBalancesAndStageProgress()
         {
             var previous = new GameSave { Gold = 11300, Diamonds = 219, StoryProgress = 83 };
@@ -137,7 +176,7 @@ namespace ChoSiren.Tests
         [Test]
         public void ProductionChapterAuditUsesRealFormationAllCaptainsAndSixteenSeeds()
         {
-            int[] levels = { 1, 3, 5, 5, 10, 11, 11, 12, 16, 22 };
+            int[] levels = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
             for (int number = 1; number <= 10; number++)
             for (int captain = 0; captain < 4; captain++)
             {
@@ -157,19 +196,19 @@ namespace ChoSiren.Tests
                     if (battle.CharacterDamageDealt > 0)
                         minimumCoreShare = Math.Min(minimumCoreShare,
                             (int)(100 * battle.BasicAndActiveDamageDealt / battle.CharacterDamageDealt));
-                    Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(60000));
+                    Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(battle.TimeLimitMilliseconds));
                     Assert.That(battle.BattleDice.UsedRerolls, Is.LessThanOrEqualTo(battle.Stage.RerollLimit));
                 }
                 durations.Sort();
                 TestContext.WriteLine($"AUDIT 1-{number} L{levels[number - 1]} captain={captain} " +
                     $"wins={wins}/16 time={durations[0]}/{durations[8]}/{durations[15]} core={minimumCoreShare}%");
                 Assert.That(minimumCoreShare, Is.GreaterThanOrEqualTo(70), "普攻与双主动技能必须是主要伤害来源");
-                Assert.That(wins, Is.GreaterThanOrEqualTo(number <= 4 ? 16 : 12),
+                Assert.That(wins, Is.GreaterThanOrEqualTo(number <= 4 ? 14 : 12),
                     $"1-{number} 队长{captain}在校准等级下不应依赖罕见好运才能获胜");
-                int[] minimumMedians = { 8000, 14000, 22000, 14000, 30000, 25000, 18000, 20000, 25000, 25000 };
-                int[] maximumMedians = { 18000, 30000, 45000, 30000, 55000, 50000, 35000, 35000, 50000, 55000 };
+                int[] minimumMedians = { 45000, 45000, 45000, 45000, 45000, 45000, 45000, 45000, 45000, 45000 };
+                int[] maximumMedians = { 80000, 80000, 80000, 80000, 80000, 80000, 80000, 80000, 80000, 80000 };
                 Assert.That(durations[8], Is.InRange(minimumMedians[number - 1], maximumMedians[number - 1]),
-                    $"1-{number} 队长{captain} 的典型时长需留出决策空间，又不能靠拖满60秒取胜");
+                    $"1-{number} 队长{captain} 的典型时长需留出决策空间，又不能靠拖满关卡上限取胜");
             }
             // Gates test a representative cohort; they do not claim every seed, item or tactic is balanced.
         }

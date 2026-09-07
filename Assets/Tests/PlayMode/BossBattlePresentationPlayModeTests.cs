@@ -15,6 +15,61 @@ namespace ChoSiren.Tests
     public sealed class BossBattlePresentationPlayModeTests
     {
         [UnityTest]
+        public IEnumerator OrdinaryEncounterUsesEnemyArtAndOnlyRevealsReinforcementsWhenTheySpawn()
+        {
+            GameObject root = new GameObject("Ordinary encounter art test", typeof(RectTransform));
+            try
+            {
+                BattleSimulator battle = CreateWaveBattle();
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform,
+                    new GameModel(), battle, _ => { });
+                // Drive logical time explicitly so this is deterministic even on a slow runner.
+                panel.StopAllCoroutines();
+                Assert.That(panel.GetComponentInChildren<BossBattlePresentation>(true), Is.Null,
+                    "普通关不能把所有小怪统一画成同一个 Boss。");
+                Assert.That(Find(panel.transform, "BossPortrait").gameObject.activeInHierarchy, Is.False);
+
+                BattleUnit reserve = null;
+                int visible = 0;
+                foreach (BattleUnit unit in battle.Units)
+                {
+                    if (unit.Side != BattleSide.Enemy) continue;
+                    Image figure = Find(panel.transform, "EnemyFigure-" + unit.Id).GetComponent<Image>();
+                    Assert.That(figure.sprite, Is.Not.Null,
+                        "每种已接入的小怪必须加载真实素材，不能是空白矩形：" + unit.Definition.Id);
+                    Assert.That(figure.preserveAspect, Is.True);
+                    Assert.That(figure.GetComponent<Button>(), Is.Not.Null,
+                        "场景中的小怪应支持点击集火。");
+                    Assert.That(figure.gameObject.activeInHierarchy, Is.EqualTo(unit.Spawned));
+                    if (figure.gameObject.activeInHierarchy) visible++;
+                    if (!unit.Spawned) reserve = unit;
+                }
+                Assert.That(visible, Is.EqualTo(2));
+                Assert.That(reserve, Is.Not.Null);
+                Assert.That(battle.FocusEnemy(reserve.Id), Is.False,
+                    "未出场的后续波次不能提前选中或受击。");
+                foreach (Text text in panel.GetComponentsInChildren<Text>())
+                    Assert.That(text.text, Is.Not.EqualTo("后续波敌人"),
+                        "未出场单位的血条卡和名字也必须隐藏。");
+
+                while (battle.CurrentWave == 1 && battle.ElapsedMilliseconds < 10000)
+                    battle.AdvanceRealtime(BattleSimulator.RealtimeStepMilliseconds);
+                Assert.That(battle.CurrentWave, Is.EqualTo(2));
+                Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
+                typeof(TacticsBattlePanel).GetMethod("RefreshAllCells", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(panel, null);
+                yield return null;
+                Assert.That(Find(panel.transform, "EnemyFigure-" + reserve.Id).gameObject.activeInHierarchy, Is.True,
+                    "清完首波后，下一波的小怪图必须真正出现。");
+                foreach (BattleUnit unit in battle.Units)
+                    if (unit.Side == BattleSide.Enemy && unit.Wave == 0)
+                        Assert.That(Find(panel.transform, "EnemyFigure-" + unit.Id).gameObject.activeInHierarchy, Is.False,
+                            "已经击败的小怪不能残留在舞台上。");
+            }
+            finally { UnityEngine.Object.Destroy(root); }
+        }
+
+        [UnityTest]
         public IEnumerator SimultaneousDamageUsesSeparatedLanesAndPortraitFeedbackCannotPileUp()
         {
             GameObject root = new GameObject("Simultaneous feedback test");
@@ -274,6 +329,43 @@ namespace ChoSiren.Tests
                 Enemies = new List<EnemySpawn>
                 {
                     new EnemySpawn { UnitId = "enemy", Row = 0, Col = 0, ScalePermille = 1000 },
+                },
+            };
+            manifest.Stages.Add(stage);
+            return new BattleSimulator(manifest, stage, new List<PlayerUnitSetup>
+            {
+                new PlayerUnitSetup { UnitId = "player", Row = 0, Col = 0 },
+            }, new ScriptedRandom(new[] { 999 }));
+        }
+
+        private static BattleSimulator CreateWaveBattle()
+        {
+            var manifest = new TacticsManifest();
+            manifest.Skills.Add(new SkillDefinition
+            {
+                Id = "strike", Name = "音击", Effect = SkillEffect.Damage,
+                Pattern = SkillPattern.Single, PowerPermille = 1000,
+            });
+            manifest.Units.Add(new UnitDefinition
+            {
+                Id = "player", Name = "测试队员", MaxHp = 100000, Attack = 1000,
+                Defense = 100, Speed = 100, SkillIds = new List<string> { "strike" },
+            });
+            foreach (string id in new[] { "echo-drone", "noise-wraith", "static-golem" })
+                manifest.Units.Add(new UnitDefinition
+                {
+                    Id = id, Name = id == "static-golem" ? "后续波敌人" : "首波敌人",
+                    MaxHp = id == "static-golem" ? 100000 : 100, Attack = 1,
+                    Defense = 0, Speed = 100, SkillIds = new List<string> { "strike" },
+                });
+            var stage = new StageDefinition
+            {
+                Id = "ordinary-art-test", Name = "普通关素材测试", EncounterType = "normal",
+                Enemies = new List<EnemySpawn>
+                {
+                    new EnemySpawn { UnitId = "echo-drone", Row = 0, Col = 0 },
+                    new EnemySpawn { UnitId = "noise-wraith", Row = 1, Col = 0 },
+                    new EnemySpawn { UnitId = "static-golem", Row = 0, Col = 1, Wave = 1 },
                 },
             };
             manifest.Stages.Add(stage);

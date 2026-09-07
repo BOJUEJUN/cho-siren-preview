@@ -37,11 +37,14 @@ namespace ChoSiren.Systems.Tactics
         public int BaseDefense;
         public int Speed;
         public int Shield;
+        public bool Spawned = true;
+        public int Wave;
+        public int SpawnAtBossPhase;
         public int PhaseAttackMultiplierPermille = 1000;
         public readonly Dictionary<string, int> Cooldowns = new Dictionary<string, int>(StringComparer.Ordinal);
         public readonly List<StatusEffect> Statuses = new List<StatusEffect>();
 
-        public bool Alive => Hp > 0;
+        public bool Alive => Spawned && Hp > 0;
 
         public int Attack => Math.Max(0,
             (int)((long)ApplyStatus(BaseAttack, SkillEffect.BuffAttack) * PhaseAttackMultiplierPermille / 1000));
@@ -69,7 +72,8 @@ namespace ChoSiren.Systems.Tactics
         Shield,
         Defeated,
         Finished,
-        PhaseChanged
+        PhaseChanged,
+        Spawned
     }
 
     public sealed class BattleEvent
@@ -202,6 +206,11 @@ namespace ChoSiren.Systems.Tactics
                     ?? throw new ArgumentException($"关卡引用了未知单位：{spawn.UnitId}", nameof(stage));
                 AddUnit(definition, BattleSide.Enemy, spawn.Row, spawn.Col, 1,
                     EnemyStats(definition, spawn, EnemyHpMultiplierPermille, EnemyAttackMultiplierPermille));
+                BattleUnit enemy = units[units.Count - 1];
+                enemy.Wave = spawn.Wave;
+                enemy.SpawnAtBossPhase = spawn.BossPhase;
+                // Old turn-based replays keep their complete roster until realtime is enabled.
+                enemy.Spawned = true;
             }
 
             InitialEnemyHp = CurrentEnemyHp;
@@ -368,7 +377,7 @@ namespace ChoSiren.Systems.Tactics
             if (Outcome != BattleOutcome.Victory) return 0;
             int stars = 1;
             if (PlayerUnitsLost == 0) stars++;
-            if (IsRealtime ? ElapsedMilliseconds <= 45000 : Round <= Stage.ThreeStarRounds) stars++;
+            if (IsRealtime ? ElapsedMilliseconds <= Stage.ThreeStarSeconds * 1000 : Round <= Stage.ThreeStarRounds) stars++;
             return stars;
         }
 
@@ -522,8 +531,9 @@ namespace ChoSiren.Systems.Tactics
 
         private void EvaluateOutcome()
         {
-            if (!AnyAlive(BattleSide.Enemy)) Finish(BattleOutcome.Victory);
-            else if (!AnyAlive(BattleSide.Player)) Finish(BattleOutcome.Defeat);
+            if (!AnyAlive(BattleSide.Player)) Finish(BattleOutcome.Defeat);
+            else if (!AnyAlive(BattleSide.Enemy) && !(IsRealtime && SpawnNextWave()))
+                Finish(BattleOutcome.Victory);
         }
 
         private bool AnyAlive(BattleSide side)
@@ -579,7 +589,10 @@ namespace ChoSiren.Systems.Tactics
                     Amount = attackMultiplier
                 });
                 if (boss != null && EnemyPhase == 2)
+                {
                     AddShield(boss, boss, "rt-boss-barrier", 150, false);
+                }
+                if (boss != null) SpawnPhaseReinforcements(EnemyPhase);
             }
         }
 

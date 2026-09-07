@@ -826,8 +826,8 @@ namespace ChoSiren
                 : state == LevelState.Cleared
                     ? $"已通关 · 最佳 {Mathf.Max(1, model.StarsOf(selectedStageId))} 星"
                     : "当前关卡";
-            progressText.text = state == LevelState.Cleared
-                ? $"可重复挑战提升评价  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}"
+            progressText.text = selectedDefinition != null && selectedDefinition.UsesRealtime
+                ? $"{selectedDefinition.EncounterLabel} · 建议队均 {selectedDefinition.RecommendedLevel} 级 · 约 1 分钟"
                 : $"严格顺序解锁  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}";
             staminaCostText.text = $"体力 -{staminaCost}";
             diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";

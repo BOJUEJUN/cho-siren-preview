@@ -155,6 +155,8 @@ namespace ChoSiren.Panels
         private Sprite battleStageSprite;
         private readonly Sprite[] userDiceFaceSprites = new Sprite[6];
         private Sprite userBossSprite;
+        private readonly Dictionary<string, Sprite> enemyArt = new Dictionary<string, Sprite>();
+        private readonly Dictionary<int, Image> enemyFigures = new Dictionary<int, Image>();
         private Sprite rerollRingSprite;
         private Sprite memberFrameSprite;
         private Sprite skillButtonFrameSprite;
@@ -470,10 +472,64 @@ namespace ChoSiren.Panels
                 damageTexts[index] = damage;
             }
 
-            bossPresentation = stage.gameObject.AddComponent<BossBattlePresentation>();
-            bossPresentation.Configure(rig, portrait, echo, rearAura, coreAura, shadow, stagePulse,
-                lowHealthFrame, hitSlash, heartImpact, chargeArt, bossState, effectRings, slashTrails,
-                damageTexts, () => paused, () => speed);
+            if (!battle.Stage.UsesRealtime || battle.Stage.HasBossPhases)
+            {
+                bossPresentation = stage.gameObject.AddComponent<BossBattlePresentation>();
+                bossPresentation.Configure(rig, portrait, echo, rearAura, coreAura, shadow, stagePulse,
+                    lowHealthFrame, hitSlash, heartImpact, chargeArt, bossState, effectRings, slashTrails,
+                    damageTexts, () => paused, () => speed);
+            }
+            else
+            {
+                rig.gameObject.SetActive(false);
+                rearAura.gameObject.SetActive(false);
+                coreAura.gameObject.SetActive(false);
+            }
+            foreach (BattleUnit unit in battle.Units)
+            {
+                if (unit.Side != BattleSide.Enemy || unit.Definition.Id == "siren-queen") continue;
+                Image figure = kit.NewImage("EnemyFigure-" + unit.Id, stage.transform,
+                    EnemySprite(unit.Definition.Id), PanelKit.White);
+                figure.preserveAspect = true;
+                figure.raycastTarget = true;
+                int id = unit.Id;
+                Button focus = figure.gameObject.AddComponent<Button>();
+                focus.targetGraphic = figure;
+                focus.onClick.AddListener(() => { if (battle.FocusEnemy(id)) RefreshRealtimeCommands(); });
+                enemyFigures.Add(unit.Id, figure);
+            }
+            damageLayer.SetAsLastSibling();
+        }
+
+        private Sprite EnemySprite(string id)
+        {
+            if (id == "siren-queen") return userBossSprite;
+            if (!enemyArt.TryGetValue(id, out Sprite sprite))
+            {
+                sprite = LoadRuntimeSprite("Art/Enemies/" + id + "-ai-v1");
+                enemyArt[id] = sprite;
+            }
+            return sprite;
+        }
+
+        private void RefreshEnemyFigures()
+        {
+            var active = new List<BattleUnit>();
+            foreach (var unit in battle.Units)
+                if (unit.Side == BattleSide.Enemy && unit.Alive && enemyFigures.ContainsKey(unit.Id)) active.Add(unit);
+            foreach (var entry in enemyFigures) entry.Value.gameObject.SetActive(false);
+            for (int index = 0; index < active.Count; index++)
+            {
+                BattleUnit unit = active[index];
+                Image figure = enemyFigures[unit.Id];
+                figure.gameObject.SetActive(true);
+                bool bossAdds = battle.Stage.HasBossPhases;
+                float width = bossAdds ? 132 : active.Count > 2 ? 165 : 225;
+                float height = bossAdds ? 225 : active.Count > 2 ? 340 : 440;
+                float left = 360 - active.Count * width / 2 + index * width;
+                PanelKit.PlaceTop(figure.rectTransform, left, bossAdds ? 410 : 150, width, height);
+                figure.color = battle.FocusTargetId == unit.Id ? PanelKit.White : new Color32(220, 225, 245, 255);
+            }
         }
 
         private void BuildGrids()
@@ -528,7 +584,9 @@ namespace ChoSiren.Panels
             }
             else
             {
-                portrait.enabled = false;
+                PanelKit.PlaceTop(portrait.rectTransform, width - 38, 2, 32, 30);
+                portrait.preserveAspect = true;
+                portrait.raycastTarget = false;
             }
 
             Image ornament = kit.NewImage("BattleFrame", root.transform, null, Color.clear);
@@ -1096,6 +1154,11 @@ namespace ChoSiren.Panels
 
             switch (battleEvent.Kind)
             {
+                case BattleEventKind.Spawned:
+                    RefreshAllCells();
+                    Notify($"第 {battle.CurrentWave}/{battle.TotalWaves} 波 · {targetName} 加入战斗");
+                    AppendLog($"增援：{targetName}");
+                    return 0f;
                 case BattleEventKind.RoundStart:
                     turnText.text = $"第 {battleEvent.Amount} 回合";
                     AppendLog($"—— 第 {battleEvent.Amount} 回合 ——");
@@ -1167,7 +1230,7 @@ namespace ChoSiren.Panels
                 case BattleEventKind.Finished:
                     AppendLog(battleEvent.Outcome == BattleOutcome.Victory ? "战斗胜利" : "战斗失败");
                     eventText.text = battleEvent.Outcome == BattleOutcome.Victory ? "敌方全灭，演出成功"
-                        : battle.IsRealtime ? "我方全灭或已达到60秒时限" : "我方全灭或超出回合上限";
+                        : battle.IsRealtime ? $"我方全灭或已达到{battle.Stage.TimeLimitSeconds}秒时限" : "我方全灭或超出回合上限";
                     RefreshAllCells();
                     return 0.4f;
                 default:
@@ -1409,10 +1472,12 @@ namespace ChoSiren.Panels
 
         private void RefreshAllCells()
         {
+            RefreshEnemyFigures();
             for (int index = 0; index < cells.Count; index++) cells[index].Unit = null;
             IReadOnlyList<BattleUnit> units = battle.Units;
             for (int index = 0; index < units.Count; index++)
             {
+                if (!units[index].Spawned) continue;
                 CellView cell = FindCell(units[index]);
                 if (cell != null) cell.Unit = units[index];
             }
@@ -1469,7 +1534,7 @@ namespace ChoSiren.Panels
             {
                 Sprite portrait = cell.Side == BattleSide.Player
                     ? BattlePortrait(unit.Definition.Id)
-                    : null;
+                    : EnemySprite(unit.Definition.Id);
                 cell.Portrait.sprite = portrait;
                 cell.Portrait.enabled = portrait != null;
             }
@@ -1648,8 +1713,10 @@ namespace ChoSiren.Panels
             if (bossPresentation != null) bossPresentation.SetHealthRatio(normalized);
             int phase = ResolveDisplayedEnemyPhase(battle.EnemyPhase, battle.Log, logCursor);
             phaseText.text = battle.Stage.UsesRealtime && !battle.Stage.HasBossPhases
-                ? battle.Stage.EncounterLabel : $"阶段 {phase}/3";
-            timerText.text = FormatBattleTimer(battleElapsed);
+                ? $"第 {battle.CurrentWave}/{battle.TotalWaves} 波" : $"阶段 {phase}/3";
+            timerText.text = battle.IsRealtime
+                ? $"剩余 {Mathf.Max(0, battle.Stage.TimeLimitSeconds - Mathf.CeilToInt(battleElapsed)) / 60:00}:{Mathf.Max(0, battle.Stage.TimeLimitSeconds - Mathf.CeilToInt(battleElapsed)) % 60:00}"
+                : FormatBattleTimer(battleElapsed);
         }
 
         private void PrepareDiceTurn()

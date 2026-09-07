@@ -292,6 +292,155 @@ namespace ChoSiren.Tests
         private static string Signature(BattleSimulator battle) => string.Join(";", battle.Log.Select(e =>
             $"{e.TimeMilliseconds}:{e.Kind}:{e.ActorId}:{e.TargetId}:{e.SkillId}:{e.Amount}"));
 
+        [Test]
+        public void PendingWaveCannotBeFocusedAttackedOrActBeforeSpawning()
+        {
+            BattleSimulator battle = CreateWaves();
+            BattleUnit reserve = battle.FindUnit(3);
+            Assert.That(reserve.Spawned, Is.False);
+            Assert.That(reserve.Alive, Is.False);
+            Assert.That(battle.FocusEnemy(reserve.Id), Is.False);
+            Assert.That(battle.UnitAt(BattleSide.Enemy, reserve.Row, reserve.Col), Is.Null);
+            battle.AdvanceRealtime(10000);
+            Assert.That(reserve.Hp, Is.EqualTo(reserve.MaxHp));
+            Assert.That(battle.Log.Any(e => e.Kind == BattleEventKind.Damage &&
+                (e.TargetId == reserve.Id || e.ActorId == reserve.Id)), Is.False);
+        }
+
+        [Test]
+        public void ClearingOpeningWaveSpawnsReserveInsteadOfFinishingBattle()
+        {
+            BattleSimulator battle = CreateWaves();
+            battle.FindUnit(2).Hp = 1;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
+            Assert.That(battle.FindUnit(3).Spawned, Is.True);
+            Assert.That(battle.CurrentWave, Is.EqualTo(2));
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Spawned), Is.EqualTo(1));
+            Assert.That(battle.Log.Any(e => e.Kind == BattleEventKind.Finished), Is.False);
+            Assert.That(battle.FindUnit(3).Hp, Is.EqualTo(battle.FindUnit(3).MaxHp));
+        }
+
+        [Test]
+        public void BossSixtyPercentPhaseSpawnsAuthoredReinforcementOnce()
+        {
+            BattleSimulator battle = CreateWaves(encounter: "boss");
+            BattleUnit boss = battle.FindUnit(2);
+            boss.Hp = 600000;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.EnemyPhase, Is.EqualTo(2));
+            Assert.That(boss.Alive, Is.True);
+            Assert.That(battle.FindUnit(3).Spawned, Is.True);
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Spawned), Is.EqualTo(1));
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Spawned), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void LethalBossHitDoesNotSkipUnspawnedReinforcements()
+        {
+            BattleSimulator battle = CreateWaves(encounter: "boss");
+            battle.FindUnit(2).Hp = 1;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.FindUnit(2).Alive, Is.False);
+            Assert.That(battle.FindUnit(2).Shield, Is.Zero);
+            Assert.That(battle.FindUnit(3).Spawned, Is.True);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
+            battle.FindUnit(3).Hp = 1;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+        }
+
+        [Test]
+        public void OneAreaSkillCannotHitTheNextWaveItJustSpawned()
+        {
+            BattleSimulator battle = CreateWaves("demon");
+            battle.AdvanceRealtime(11975);
+            battle.FindUnit(2).Hp = 250;
+            battle.AdvanceRealtime(25);
+            Assert.That(battle.FindUnit(2).Alive, Is.False);
+            Assert.That(battle.FindUnit(3).Spawned, Is.True);
+            Assert.That(battle.Log.Any(e => e.Kind == BattleEventKind.Damage &&
+                e.SkillId == "rt-demon-big" && e.TargetId == 3), Is.False,
+                "范围技能只能命中释放时在场的敌人，不能跨波扫到刚刷新的增援");
+        }
+
+        [Test]
+        public void NinetySecondStageDoesNotStopAtLegacySixtySecondLimit()
+        {
+            BattleSimulator battle = CreateWaves();
+            battle.AdvanceRealtime(60000);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
+            battle.AdvanceRealtime(30000);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Defeat));
+            Assert.That(battle.ElapsedMilliseconds, Is.EqualTo(90000));
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Finished), Is.EqualTo(1));
+        }
+
+        [TestCase(75000, 3)]
+        [TestCase(76000, 2)]
+        public void ThreeStarTimeUsesStageSeventyFiveSecondBoundary(int victoryTime, int expectedStars)
+        {
+            BattleSimulator battle = Create("none");
+            battle.Stage.TimeLimitSeconds = 90;
+            battle.Stage.ThreeStarSeconds = 75;
+            battle.AdvanceRealtime(victoryTime - 1000);
+            battle.FindUnit(2).Hp = 1;
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+            Assert.That(battle.ElapsedMilliseconds, Is.EqualTo(victoryTime));
+            Assert.That(battle.StarRating(), Is.EqualTo(expectedStars));
+        }
+
+        [Test]
+        public void WaveAndPhaseEventsRemainIdenticalAcrossTimeStepPartitions()
+        {
+            BattleSimulator one = CreateWaves(encounter: "boss");
+            BattleSimulator many = CreateWaves(encounter: "boss");
+            one.FindUnit(2).Hp = 600000;
+            many.FindUnit(2).Hp = 600000;
+            one.AdvanceRealtime(90000, true);
+            for (int i = 0; i < 9000; i++) many.AdvanceRealtime(10, true);
+            Assert.That(Signature(one), Is.EqualTo(Signature(many)));
+            Assert.That(one.Units.Select(unit => unit.Hp), Is.EqualTo(many.Units.Select(unit => unit.Hp)));
+            Assert.That(one.Outcome, Is.EqualTo(many.Outcome));
+        }
+
+        [Test]
+        public void TurnModeKeepsAuthoredEnemiesPresentUntilRealtimeIsExplicitlyEnabled()
+        {
+            BattleSimulator battle = CreateWaves(enableRealtime: false);
+            Assert.That(battle.IsRealtime, Is.False);
+            Assert.That(battle.Units.Where(unit => unit.Side == BattleSide.Enemy).All(unit => unit.Alive),
+                Is.True, "旧回合接口不能因为关卡写了实时分波，就漏掉后续敌人并提前结算");
+        }
+
+        private static BattleSimulator CreateWaves(string race = "none", string encounter = "normal",
+            bool enableRealtime = true)
+        {
+            var manifest = new TacticsManifest();
+            manifest.Skills.Add(new SkillDefinition { Id = "strike", Name = "打击" });
+            manifest.Units.Add(new UnitDefinition { Id = race, Name = "测试成员", MaxHp = 100000,
+                Attack = 100, Defense = 0, Speed = 100, CritPermille = 0,
+                SkillIds = new List<string> { "strike" } });
+            manifest.Units.Add(new UnitDefinition { Id = "enemy", Name = "测试敌人", MaxHp = 1000000,
+                Attack = 1, Defense = 0, Speed = 50, CritPermille = 0,
+                SkillIds = new List<string> { "strike" } });
+            var stage = new StageDefinition { Id = "wave-test", Name = "分波测试", EncounterType = encounter,
+                TimeLimitSeconds = 90, ThreeStarSeconds = 75,
+                Enemies = new List<EnemySpawn> {
+                    new EnemySpawn { UnitId = "enemy", Row = 0, Col = 0, Wave = 0 },
+                    new EnemySpawn { UnitId = "enemy", Row = 1, Col = 0, Wave = 1,
+                        BossPhase = encounter == "boss" ? 2 : 0 }
+                } };
+            manifest.Stages.Add(stage);
+            var battle = new BattleSimulator(manifest, stage,
+                new[] { new PlayerUnitSetup { UnitId = race, Level = 1 } },
+                new ScriptedRandom(new[] { 999 }, new[] { 0, 1, 2, 3, 5 }));
+            if (enableRealtime) battle.EnableRealtime(Races, race, stage.RerollLimit);
+            return battle;
+        }
+
         internal static BattleSimulator Create(string race, int enemyHp = 1000000, int attack = 100,
             IRandomSource rolls = null, string encounter = "")
         {
