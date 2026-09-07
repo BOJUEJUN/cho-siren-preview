@@ -11,6 +11,30 @@ namespace ChoSiren.Tests
         private readonly DateTime now = new DateTime(2026, 9, 7, 12, 0, 0);
         [SetUp] public void Setup() { PlayerPrefs.DeleteKey(GameModel.SaveKey); PlayerPrefs.DeleteKey(GameModel.LegacySaveKey); }
         [TearDown] public void Teardown() { Setup(); }
+        [Test] public void MultipleSlotsPersistAndPreviewMatchesReplacementTransferAndRemoval()
+        {
+            var model = new GameModel(() => now);
+            model.Save.OwnedAccessories.Add(6);
+            foreach (int item in new[] { 0, 1, 2 }) Assert.True(model.EquipAccessoryForMember(0, item, out _));
+            CollectionAssert.AreEquivalent(new[] { 0, 1, 2 }, model.EquippedAccessoriesFor(0));
+            int preview = model.PreviewEquipmentTeamPower(0, 6);
+            model.EquipAccessoryForMember(0, 6, out _);
+            CollectionAssert.AreEquivalent(new[] { 6, 1, 2 }, model.EquippedAccessoriesFor(0));
+            Assert.AreEqual(preview, model.TeamPower);
+            preview = model.PreviewEquipmentTeamPower(1, 1);
+            model.EquipAccessoryForMember(1, 1, out _);
+            Assert.AreEqual(preview, model.TeamPower);
+            CollectionAssert.AreEquivalent(new[] { 6, 2 }, model.EquippedAccessoriesFor(0));
+            var reloaded = new GameModel(() => now);
+            CollectionAssert.AreEquivalent(new[] { 6, 2 }, reloaded.EquippedAccessoriesFor(0));
+            Assert.AreEqual(model.TeamPower, reloaded.TeamPower);
+            preview = reloaded.PreviewEquipmentTeamPower(0, 6, true);
+            reloaded.EquipAccessoryForMember(0, 6, out _);
+            Assert.AreEqual(preview, reloaded.TeamPower);
+            CollectionAssert.AreEquivalent(new[] { 2 }, reloaded.EquippedAccessoriesFor(0));
+            var battle = reloaded.StartStageBattle("stage-1-1", 91, out _);
+            Assert.AreEqual(reloaded.StatsOf(0).Hp, battle.Units.First(u => u.Side == BattleSide.Player && u.Definition.Id == GameModel.Members[0].Id).MaxHp);
+        }
         [Test] public void EquippingOnlyAffectsWearerAndTransferRemovesPreviousBonus()
         {
             var model = new GameModel(() => now);

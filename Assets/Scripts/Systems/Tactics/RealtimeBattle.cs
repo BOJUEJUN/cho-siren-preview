@@ -20,6 +20,8 @@ namespace ChoSiren.Systems.Tactics
             public int SilencedUntil, AntiHealUntil, ReductionUntil, AttackBuffUntil, HardenedUntil;
             public int TimedShieldUntil, TimedShield;
             public int PoisonStacks, PoisonSource;
+            public int StunnedUntil, SlowUntil, ArmorBrokenUntil, ControlWardUntil, ControlRecoveryUntil;
+            public int CastUntil, CastTargetId;
         }
 
         private static readonly Dictionary<string, SkillDefinition> realtimeSkills = CreateRealtimeSkills();
@@ -126,6 +128,18 @@ namespace ChoSiren.Systems.Tactics
                 {
                     if (!actor.Alive || Outcome != BattleOutcome.Ongoing) continue;
                     PerformerClock clock = performerClocks[actor.Id];
+                    if (clock.StunnedUntil > ElapsedMilliseconds) continue;
+                    if (clock.CastUntil > 0)
+                    {
+                        if (ElapsedMilliseconds >= clock.CastUntil)
+                        {
+                            clock.CastUntil = 0;
+                            ResolveTelegraphedSpecial(actor);
+                            clock.NextSmall = ElapsedMilliseconds + 6000;
+                            clock.NextBasic = Math.Max(clock.NextBasic, ElapsedMilliseconds + 350);
+                        }
+                        continue;
+                    }
                     if (ElapsedMilliseconds >= clock.NextBasic)
                     {
                         BasicAttack(actor);
@@ -136,7 +150,8 @@ namespace ChoSiren.Systems.Tactics
                     if (clock.SilencedUntil > ElapsedMilliseconds) continue;
                     if (ElapsedMilliseconds >= clock.NextSmall)
                     {
-                        if (actor.Side == BattleSide.Enemy) EnemySpecial(actor);
+                        if (actor.Side == BattleSide.Enemy && Stage.UsesRealtime) BeginTelegraphedSpecial(actor);
+                        else if (actor.Side == BattleSide.Enemy) EnemySpecial(actor);
                         else CastRaceSkill(actor, false);
                         clock.NextSmall = ElapsedMilliseconds +
                             (actor.Side == BattleSide.Enemy ? 4000 : SmallCooldown(clock.Race));
@@ -208,13 +223,13 @@ namespace ChoSiren.Systems.Tactics
             switch (race)
             {
                 case CombatRace.Demon: return big ? "全体160%伤害，禁疗30%，持续3秒"
-                    : "单体110%伤害，附加2层毒素";
-                case CombatRace.Charm: return big ? "前排175%伤害，封技能2秒"
+                    : "单体110%伤害，附加2层毒；迟缓3秒，普攻间隔+35%";
+                case CombatRace.Charm: return big ? "前排175%伤害，眩晕1.2秒并打断蓄力，封技2秒；首领控时减半"
                     : "两段共120%伤害，自身攻速叠加5%";
-                case CombatRace.Mermaid: return big ? "全队18%生命护盾，减伤15%，持续4秒"
-                    : "恢复全队8%最大生命，不复活倒下成员";
+                case CombatRace.Mermaid: return big ? "全队18%护盾、减伤15%持续4秒；免疫眩晕2秒"
+                    : "每人净化1个负面状态并恢复8%生命，不复活阵亡成员";
                 case CombatRace.BloodElf: return big ? "敌人生命低于35%时造成200%伤害，击杀增攻10%"
-                    : "单体115%伤害，固定无视15%防御";
+                    : "单体115%伤害，无视15%防御；破甲30%持续4秒，供全队集火";
                 default: return big ? "单体160%伤害，自动释放" : "单体110%伤害，自动释放";
             }
         }
@@ -228,6 +243,8 @@ namespace ChoSiren.Systems.Tactics
         public string RealtimeStatus(BattleUnit unit)
         {
             if (unit == null || !unit.Alive || !performerClocks.TryGetValue(unit.Id, out var clock)) return string.Empty;
+            string tactical = TacticalStatus(unit);
+            if (!string.IsNullOrEmpty(tactical)) return tactical;
             if (clock.SilencedUntil > ElapsedMilliseconds) return "封技";
             if (clock.HardenedUntil > ElapsedMilliseconds) return "硬化";
             if (clock.PoisonStacks > 0) return $"毒 {clock.PoisonStacks}";
@@ -243,8 +260,9 @@ namespace ChoSiren.Systems.Tactics
         private static int BigCooldown(CombatRace race) => race == CombatRace.Demon ? 12000
             : race == CombatRace.Charm ? 11000 : race == CombatRace.Mermaid ? 13000 : 10000;
 
-        private static int BasicInterval(BattleUnit actor, PerformerClock clock) =>
-            (int)Math.Max(250, 100000000L / ((long)Math.Max(1, actor.Speed) * (1000 + clock.HasteStacks * 50)));
+        private int BasicInterval(BattleUnit actor, PerformerClock clock) =>
+            (int)Math.Max(250, 100000000L / ((long)Math.Max(1, actor.Speed) * (1000 + clock.HasteStacks * 50)))
+            * (clock.SlowUntil > ElapsedMilliseconds ? 135 : 100) / 100;
 
         private BattleUnit SelectEnemy(BattleUnit actor)
         {
@@ -297,6 +315,7 @@ namespace ChoSiren.Systems.Tactics
                         if (target == null) return;
                         Deal(actor, target, skill, 1100);
                         if (target.Alive) AddPoison(target, actor, 2);
+                        ApplyCondition(actor, target, CombatCondition.Slow, 3000);
                     }
                     else foreach (BattleUnit enemy in LivingOpponents(actor))
                     {
@@ -323,6 +342,7 @@ namespace ChoSiren.Systems.Tactics
                             if (!enemy.Alive || enemy.Side == actor.Side || enemy.Row != frontRow) continue;
                             Deal(actor, enemy, skill, 1750);
                             performerClocks[enemy.Id].SilencedUntil = ElapsedMilliseconds + 2000;
+                            ApplyCondition(actor, enemy, CombatCondition.Stun, 1200);
                         }
                     }
                     break;
@@ -330,11 +350,16 @@ namespace ChoSiren.Systems.Tactics
                     foreach (BattleUnit ally in units)
                     {
                         if (!ally.Alive || ally.Side != actor.Side) continue;
-                        if (!big) HealPercent(actor, ally, skill, 80 * utilityMultiplier / 1000);
+                        if (!big)
+                        {
+                            CleanseOne(actor, ally);
+                            HealPercent(actor, ally, skill, 80 * utilityMultiplier / 1000);
+                        }
                         else
                         {
                             AddShield(actor, ally, skill, 180 * utilityMultiplier / 1000, true);
                             performerClocks[ally.Id].ReductionUntil = ElapsedMilliseconds + 4000;
+                            ApplyCondition(actor, ally, CombatCondition.ControlWard, 2000);
                         }
                     }
                     break;
@@ -349,6 +374,7 @@ namespace ChoSiren.Systems.Tactics
                     if (target == null) return;
                     int power = big ? ((long)target.Hp * 100 < (long)target.MaxHp * 35 ? 2000 : 1150) : 1150;
                     Deal(actor, target, skill, power, big ? 0 : 150);
+                    if (!big) ApplyCondition(actor, target, CombatCondition.ArmorBreak, 4000);
                     if (big && !target.Alive) clock.AttackBuffUntil = ElapsedMilliseconds + 3000;
                     break;
                 default:
@@ -422,7 +448,7 @@ namespace ChoSiren.Systems.Tactics
                 if (BattleDice.Hand.Pattern == DicePattern.TwoPair) raw = raw * 1080 / 1000;
                 if (BattleDice.Hand.Pattern == DicePattern.Pair && actor.Id == leaderId) raw = raw * 1100 / 1000;
             }
-            int defense = (int)((long)target.Defense * (1000 - Math.Min(500, ignoreDefense)) / 1000);
+            int defense = (int)((long)EffectiveRealtimeDefense(target) * (1000 - Math.Min(500, ignoreDefense)) / 1000);
             raw = raw * 1000 / (1000 + (long)defense * DefenseWeight);
             bool critical = random.NextPermille() < actor.Definition.CritPermille;
             if (critical) raw = raw * CritMultiplierPermille / 1000;
@@ -629,6 +655,10 @@ namespace ChoSiren.Systems.Tactics
             Add("rt-enemy-heavy", "重音蓄击"); Add("rt-enemy-finale", "终演震荡");
             Add("rt-elite-harden", "静电硬化", SkillEffect.Shield);
             Add("rt-boss-barrier", "首领屏障", SkillEffect.Shield);
+            Add("rt-stun", "眩晕"); Add("rt-slow", "迟缓"); Add("rt-armor-break", "破甲");
+            Add("rt-control-ward", "控场免疫", SkillEffect.Shield);
+            Add("rt-cleanse", "净化", SkillEffect.Heal); Add("rt-interrupt", "打断");
+            Add("rt-resist", "抵抗"); Add("rt-cast", "蓄力预警");
             return result;
         }
     }

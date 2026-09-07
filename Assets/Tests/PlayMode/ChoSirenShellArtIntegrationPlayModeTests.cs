@@ -124,7 +124,9 @@ namespace ChoSiren.Tests
             }
 
             AssertSpriteTexture("EquipmentSelectedArt", itemPaths[0]);
-            Click("EquipmentNextMember");
+            Click("EquipmentChooseMember");
+            yield return null;
+            Click("PickMember-1");
             yield return null;
             int next = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(selectedMember) + 1)
                 % model.Save.UnlockedMembers.Count];

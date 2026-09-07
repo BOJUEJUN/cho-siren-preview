@@ -112,14 +112,18 @@ namespace ChoSiren.Tests
             Assert.That(Require("EquipmentNextPage").GetComponent<Button>().interactable, Is.False);
             int original = model.Save.Team[0];
             int next = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(original)+1) % model.Save.UnlockedMembers.Count];
-            Click("EquipmentNextMember");
+            Click("EquipmentChooseMember");
+            yield return null;
+            Click("PickMember-" + next);
             yield return null;
             Assert.That(VisibleIds(), Is.Empty);
             Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[next].Name));
             Assert.That(Require("EquipmentPortrait").GetComponent<Image>().sprite,
                 Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[next].ResourcePath)));
             Assert.That(Require("EquipmentSelectedArt").GetComponent<Image>().sprite, Is.Not.Null);
-            Click("EquipmentPreviousMember");
+            Click("EquipmentChooseMember");
+            yield return null;
+            Click("PickMember-" + original);
             yield return null;
             Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[original].Name));
             Assert.That(model.Save.MemberAccessories, Is.Empty, "浏览筛选和切换角色不得自动装备或转移饰品");

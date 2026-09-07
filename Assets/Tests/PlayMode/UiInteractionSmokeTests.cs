@@ -218,7 +218,9 @@ namespace ChoSiren.Tests
                 Is.EqualTo($"已生效 · 战力 +{equipped.TeamPower - model.TeamPower:N0}"),
                 "装备成功后展示已生效加成，不要默认用卸下损失误导玩家。");
 
-            Click("EquipmentNextMember");
+            Click("EquipmentChooseMember");
+            yield return null;
+            Click("PickMember-1");
             yield return null;
             Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[1].Name));

@@ -422,7 +422,7 @@ namespace ChoSiren
                 20, 32, 408, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
             formationTitle.name = "TeamTitleName";
             formationTitle.verticalOverflow = VerticalWrapMode.Overflow;
-            NewPlacedText(titlePlaque.transform, "点击角色可换人 · 自由组合职业", 14, Muted,
+            NewPlacedText(titlePlaque.transform, "点击角色培养 / 装备 / 换人", 14, Muted,
                 20, 82, 408, 22, TextAnchor.MiddleLeft).name = "TeamTitleHint";
             Text teamIndexLabel = NewPlacedText(titlePlaque.transform, "编队 1", 12,
                 new Color32(185, 222, 255, 255),
@@ -588,7 +588,8 @@ namespace ChoSiren
             orbitButton.targetGraphic = orbitImage;
             orbitButton.onClick.AddListener(() =>
             {
-                OpenTeamSlotPicker(Math.Min(slot, model.Save.Team.Count));
+                if (hasMember) OpenTeamMember(memberIndex, slot);
+                else OpenTeamSlotPicker(Math.Min(slot, model.Save.Team.Count));
                 ResumeMediaAfterUserGesture();
             });
 
@@ -835,6 +836,20 @@ namespace ChoSiren
                 7, 160, width - 14, 27, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(card.transform, unlocked ? $"等级 {model.LevelOf(index)}" : "未签约",
                 12, unlocked ? Cyan : Muted, 7, 185, width - 14, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+            if (unlocked)
+            {
+                bool deployed = model.IsInTeam(index);
+                GameObject badge = NewPanel("DeploymentBadge", card.transform,
+                    deployed ? new Color32(12, 66, 76, 245) : new Color32(25, 30, 52, 235), 8);
+                PlaceTop(badge.GetComponent<RectTransform>(), 5, 5, width - 10, 24);
+                badge.GetComponent<Image>().raycastTarget = false;
+                Text label = NewPlacedText(badge.transform, MemberDeploymentLabel(index), 12,
+                    model.Save.Team.IndexOf(index) == 0 ? new Color32(255, 215, 112, 255) : deployed ? Cyan : Muted,
+                    0, 0, width - 10, 24, TextAnchor.MiddleCenter, FontStyle.Bold);
+                label.name = "DeploymentLabel";
+                label.raycastTarget = false;
+            }
 
             Outline edge = card.AddComponent<Outline>();
             edge.effectColor = unlocked ? new Color32(120, 190, 255, 112) : new Color32(95, 111, 165, 58);
@@ -1191,7 +1206,8 @@ namespace ChoSiren
             PanelKit.EnableBestFit(collectionSummary, 10);
         }
 
-        private void OpenMember(int memberIndex)
+        private void OpenMember(int memberIndex) => OpenTeamMember(memberIndex, -1);
+        private void OpenTeamMember(int memberIndex, int teamSlot)
         {
             CloseModal();
             MemberDefinition member = GameModel.Members[memberIndex];
@@ -1294,7 +1310,7 @@ namespace ChoSiren
                     trainButton.interactable = false;
                     model.Train(memberIndex, out string message);
                     ShowScreen(currentScreen);
-                    OpenMember(memberIndex);
+                    OpenTeamMember(memberIndex, teamSlot);
                     Toast(message);
                 });
                 trainButton = train.GetComponent<Button>();
@@ -1303,8 +1319,9 @@ namespace ChoSiren
                 AddQuietPanelEdge(train);
 
                 GameObject team = NewButton("Team", panel.transform,
-                    model.IsInTeam(memberIndex) ? "移出编队" : "加入 / 替换", 18, Purple, White, () =>
+                    teamSlot >= 0 ? "更换成员" : model.IsInTeam(memberIndex) ? "移出编队" : "加入 / 替换", 18, Purple, White, () =>
                 {
+                    if (teamSlot >= 0) { OpenTeamSlotPicker(teamSlot); return; }
                     if (!model.IsInTeam(memberIndex) && model.Save.Team.Count >= GameModel.TeamCapacity)
                     { OpenTeamReplacement(memberIndex); return; }
                     model.ToggleTeamMember(memberIndex, out string message);

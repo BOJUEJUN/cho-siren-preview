@@ -28,6 +28,8 @@ namespace ChoSiren
         private bool heavy;
         private bool critical;
         private bool configured;
+        private bool controlled;
+        public void SetControlled(bool value) => controlled = value;
 
         public bool IsAttacking => attackTime >= 0f && defeatTime < 0f;
         public bool IsDefeating => defeatTime >= 0f && defeatTime < DefeatDuration;
@@ -107,6 +109,16 @@ namespace ChoSiren
                 return;
             }
 
+            if (controlled)
+            {
+                attackTime = -1f;
+                motionRoot.anchoredPosition = origin;
+                motionRoot.localRotation = originalRotation;
+                motionRoot.localScale = originalScale;
+                portrait.color = Color.Lerp(originalColor, CombatFeedbackPalette.Control, .2f);
+                SetEffects(0f, 0f);
+                return;
+            }
             bool drone = enemyType.IndexOf("drone", StringComparison.OrdinalIgnoreCase) >= 0;
             bool wraith = enemyType.IndexOf("wraith", StringComparison.OrdinalIgnoreCase) >= 0;
             bool performer = enemyType.StartsWith("performer-", StringComparison.OrdinalIgnoreCase);

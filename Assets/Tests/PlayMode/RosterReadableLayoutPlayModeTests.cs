@@ -34,6 +34,33 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator TeamPortraitOpensTrainingAndExplicitReplacementWhileRosterShowsDeployment()
+        {
+            Require("Nav-team").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Require("TeamOrbit-0").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(GameObject.Find("MemberModal"), Is.Not.Null);
+            Assert.That(Require("Train").GetComponent<Button>(), Is.Not.Null);
+            Assert.That(Require("MemberEquipment").GetComponent<Button>(), Is.Not.Null);
+            Assert.That(Require("Team").GetComponentInChildren<Text>().text, Is.EqualTo("更换成员"));
+            Require("Team").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(GameObject.Find("TeamMemberPicker"), Is.Not.Null);
+            Require("CloseProgression").GetComponent<Button>().onClick.Invoke();
+            Require("Nav-members").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            var model = new GameModel();
+            foreach (int member in model.Save.Team)
+            {
+                var card = Require("Member-" + GameModel.Members[member].Id);
+                var badge = card.transform.Find("DeploymentBadge/DeploymentLabel");
+                Assert.That(badge, Is.Not.Null);
+                Assert.That(badge.GetComponent<Text>().text, Is.EqualTo(member == model.Save.Team[0] ? "队长" : "出战中"));
+            }
+        }
+
+        [UnityTest]
         public IEnumerator TeamInformationContainersKeepEveryTextRowApart()
         {
             Require("Nav-team").GetComponent<Button>().onClick.Invoke();

@@ -70,7 +70,7 @@ namespace ChoSiren
             flight.Start = VisualPoint(sourceRect);
             flight.End = VisualPoint(targetRect);
             flight.PlayerIndex = playerIndex;
-            flight.Color = enemyAttack ? Color.Lerp(color, new Color(1f, .3f, .35f, 1f), .45f) : color;
+            flight.Color = enemyAttack ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Attack;
             flight.Color.a = 1f;
             flight.Heavy = heavy;
             flight.Elapsed = 0f;

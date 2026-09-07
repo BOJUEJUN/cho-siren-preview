@@ -33,17 +33,42 @@ namespace ChoSiren
             .FirstOrDefault(b => b.MemberId == MemberIdAt(member))?.Accessory ?? -1;
         public int AccessoryOwner(int item) => IndexOfMember(Save.MemberAccessories?
             .FirstOrDefault(b => b.Accessory == item)?.MemberId);
+        public int[] EquippedAccessoriesFor(int member) => Save.MemberAccessories
+            .Where(b => b.MemberId == MemberIdAt(member)).Select(b => b.Accessory).ToArray();
+        public int EquippedAccessoryInSlot(int member, string category) => EquippedAccessoriesFor(member)
+            .Where(i => AccessoryCategory(i) == category).DefaultIfEmpty(-1).First();
+        public CombatStatBonuses MemberEquipmentBonuses(int member) => SumEquipmentBonuses(EquippedAccessoriesFor(member));
+        private CombatStatBonuses SumEquipmentBonuses(IEnumerable<int> items)
+        {
+            var bonuses = items.Select(EffectiveAccessoryBonuses).ToArray();
+            return new CombatStatBonuses(bonuses.Sum(b => b.Hp), bonuses.Sum(b => b.Attack), bonuses.Sum(b => b.Defense));
+        }
+        public CombatStats PreviewEquipmentStats(int member, int target, int item, bool remove = false)
+        {
+            var items = EquippedAccessoriesFor(member).ToList();
+            if (member == target)
+            {
+                items.RemoveAll(i => i == item || (!remove && AccessoryCategory(i) == AccessoryCategory(item)));
+                if (!remove && item >= 0) items.Add(item);
+            }
+            else if (!remove) items.Remove(item);
+            return BattleSimulator.PlayerStats(tactics.FindUnit(Members[member].Id), LevelOf(member), SumEquipmentBonuses(items));
+        }
+        public int PreviewEquipmentTeamPower(int member, int item, bool remove = false) => Save.Team.Where(IsUnlocked)
+            .Sum(i => PreviewEquipmentStats(i, member, item, remove).Power);
         private int PreviewAccessoryFor(int member, int target, int item) => member == target ? item
             : EquippedAccessoryFor(member) == item ? -1 : EquippedAccessoryFor(member);
-        public int TeamPowerWithMemberAccessory(int member, int item) => Save.Team.Where(IsUnlocked)
-            .Sum(i => StatsOf(i, PreviewAccessoryFor(i, member, item)).Power);
+        public int TeamPowerWithMemberAccessory(int member, int item) => item < 0
+            ? Save.Team.Where(IsUnlocked).Sum(i => i == member ? StatsOf(i, -1).Power : PowerOf(i))
+            : PreviewEquipmentTeamPower(member, item);
         public bool EquipAccessoryForMember(int member, int item, out string message)
         {
             if (!IsUnlocked(member)) { message = "请先签约该成员"; return false; }
             if (!OwnsAccessory(item)) { message = "尚未获得该饰品，请查看掉落来源"; return false; }
             string id = MemberIdAt(member);
-            bool remove = EquippedAccessoryFor(member) == item;
-            Save.MemberAccessories.RemoveAll(b => b.MemberId == id || b.Accessory == item);
+            bool remove = AccessoryOwner(item) == member;
+            Save.MemberAccessories.RemoveAll(b => b.Accessory == item ||
+                (!remove && b.MemberId == id && AccessoryCategory(b.Accessory) == AccessoryCategory(item)));
             if (!remove) Save.MemberAccessories.Add(new MemberAccessoryBinding { MemberId = id, Accessory = item });
             SaveState();
             message = $"{Members[member].Name} 已{(remove ? "卸下" : "装备")}{AccessoryNames[item]}，下场战斗生效";
@@ -73,8 +98,7 @@ namespace ChoSiren
         private static CombatStatBonuses CollectionAccessoryBonuses(int index)
         {
             if (index < 12 || index >= AccessoryNames.Length) return default;
-            // All collections share one slot. Specialisation, rather than exponential rarity
-            // inflation, makes an offensive item compete with a survival or armour item.
+            // Bonuses add across slots; an item competes only with its own equipment category.
             int[,] patterns = { { 100, 40, 40 }, { 130, 20, 30 }, { 90, 70, 20 },
                 { 110, 0, 80 }, { 70, 80, 50 }, { 140, 40, 0 },
                 { 60, 60, 110 }, { 100, 80, 30 }, { 80, 70, 100 } };
@@ -201,7 +225,7 @@ namespace ChoSiren
             var items = new HashSet<int>();
             Save.MemberAccessories = Save.MemberAccessories.Where(b => b != null &&
                 IsUnlocked(IndexOfMember(b.MemberId)) && OwnsAccessory(b.Accessory) &&
-                members.Add(b.MemberId) && items.Add(b.Accessory)).ToList();
+                !items.Contains(b.Accessory) && members.Add(b.MemberId + ":" + AccessoryCategory(b.Accessory)) && items.Add(b.Accessory)).ToList();
             // Compatibility projection only; changing captain must never move her equipment.
             Save.EquippedAccessory = EquippedAccessoryFor(Save.Team[0]);
         }

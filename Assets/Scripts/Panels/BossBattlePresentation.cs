@@ -277,7 +277,7 @@ namespace ChoSiren.Panels
         private IEnumerator HitRoutine(bool critical)
         {
             State = BossVisualState.Hit;
-            SetStateLabel(critical ? "暴击 · 失衡" : "受击", new Color32(255, 188, 232, 255), 1f);
+            SetStateLabel(critical ? "暴击 · 失衡" : "命中", critical ? CombatFeedbackPalette.Critical : CombatFeedbackPalette.Attack, 1f);
             float strength = critical ? 1.35f : 1f;
             ShowSlashTrails(strength);
             ShowRings(new Color32(255, 73, 205, 220), 0.55f);
@@ -315,7 +315,7 @@ namespace ChoSiren.Panels
         private IEnumerator ChargeRoutine(string skillName)
         {
             State = BossVisualState.Charging;
-            SetStateLabel("蓄力 · " + skillName, new Color32(255, 153, 226, 255), 1f);
+            SetStateLabel("蓄力 · " + skillName, CombatFeedbackPalette.Control, 1f);
             ShowRings(new Color32(116, 198, 255, 210), 0.42f);
             ShowChargeArt();
             float elapsed = 0f;
@@ -583,7 +583,7 @@ namespace ChoSiren.Panels
             text.resizeTextMaxSize = text.fontSize;
             text.horizontalOverflow = HorizontalWrapMode.Wrap;
             text.verticalOverflow = VerticalWrapMode.Truncate;
-            text.color = critical ? new Color32(255, 221, 103, 255) : new Color32(255, 128, 213, 255);
+            text.color = critical ? CombatFeedbackPalette.Critical : CombatFeedbackPalette.Attack;
             text.gameObject.SetActive(true);
             text.transform.SetAsLastSibling();
             float elapsed = 0f;

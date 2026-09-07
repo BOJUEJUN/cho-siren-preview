@@ -390,7 +390,8 @@ namespace ChoSiren
         public bool IsUnlocked(int index) => IsValidMemberIndex(index) && Save.UnlockedMembers.Contains(index);
         public bool IsInTeam(int index) => IsValidMemberIndex(index) && Save.Team.Contains(index);
         public int LevelOf(int index) => IsValidMemberIndex(index) ? Save.MemberLevels[index] : 0;
-        public CombatStats StatsOf(int index) => StatsOf(index, EquippedAccessoryFor(index));
+        public CombatStats StatsOf(int index) => IsValidMemberIndex(index)
+            ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), MemberEquipmentBonuses(index)) : default;
         public CombatStats StatsOf(int index, int accessoryIndex) => IsValidMemberIndex(index)
             ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), EffectiveAccessoryBonuses(accessoryIndex))
             : default;
@@ -401,7 +402,8 @@ namespace ChoSiren
         public int TeamPower => Save.Team.Where(IsUnlocked).Sum(PowerOf);
         public IReadOnlyList<CombatStats> PartyStatsWithAccessory(int accessoryIndex) => Save.Team
             .Where(index => IsValidMemberIndex(index) && IsUnlocked(index))
-            .Select(index => StatsOf(index, PreviewAccessoryFor(index, Save.Team[0], accessoryIndex))).ToArray();
+            .Select(index => accessoryIndex < 0 ? (index == Save.Team[0] ? StatsOf(index, -1) : StatsOf(index))
+                : PreviewEquipmentStats(index, Save.Team[0], accessoryIndex)).ToArray();
         public int TeamPowerWithAccessory(int accessoryIndex) => PartyStatsWithAccessory(accessoryIndex).Sum(stats => stats.Power);
         public int AccessoryPowerChange(int accessoryIndex) => TeamPowerWithAccessory(accessoryIndex) - TeamPower;
 
@@ -1887,7 +1889,7 @@ namespace ChoSiren
                     Row = slot % BattleGrid.Rows,
                     Col = slot / BattleGrid.Rows,
                     Level = LevelOf(index),
-                    Equipment = EffectiveAccessoryBonuses(EquippedAccessoryFor(index))
+                    Equipment = MemberEquipmentBonuses(index)
                 });
                 slot++;
             }

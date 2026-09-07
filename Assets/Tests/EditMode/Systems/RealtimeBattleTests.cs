@@ -77,7 +77,7 @@ namespace ChoSiren.Tests
             battle.AdvanceRealtime(1000);
             Assert.That(battle.EnemyPhase, Is.EqualTo(3));
             Assert.That(boss.PhaseAttackMultiplierPermille, Is.EqualTo(1500));
-            battle.AdvanceRealtime(2000);
+            battle.AdvanceRealtime(4000);
             Assert.That(battle.Log.Any(e => e.ActorId == boss.Id && e.SkillId == "rt-enemy-finale"), Is.True);
             BattleSimulator lethal = Create("none", enemyHp: 10, attack: 10000, encounter: "boss");
             lethal.AdvanceRealtime(1000);
@@ -249,7 +249,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void CharmSilenceDelaysEnemySkillButNotBasicAttacks()
+        public void CharmStunsBrieflyThenSilenceContinuesSuppressingSkills()
         {
             BattleSimulator battle = Create("charm");
             battle.AdvanceRealtime(14000);
@@ -257,7 +257,9 @@ namespace ChoSiren.Tests
                 .Select(e => e.TimeMilliseconds).ToArray();
             Assert.That(specials, Is.EqualTo(new[] { 4000, 8000, 13000 }));
             Assert.That(battle.Log.Any(e => e.ActorId == 2 && e.SkillId == "rt-basic" &&
-                e.TimeMilliseconds == 12000), Is.True, "封技能时普攻仍继续");
+                e.TimeMilliseconds == 12000), Is.False, "眩晕期间不能继续普攻");
+            Assert.That(battle.Log.Any(e => e.ActorId == 2 && e.SkillId == "rt-basic" &&
+                e.TimeMilliseconds == 12400), Is.True, "眩晕结束后即使仍封技，也恢复普攻");
         }
 
         [Test]

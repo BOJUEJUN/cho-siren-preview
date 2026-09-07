@@ -55,6 +55,9 @@ namespace ChoSiren.Panels
             public EnemyUnitPresentation Motion;
             public Text ActionLabel;
             public float ActionLabelUntil;
+            public Text HurtLabel;
+            public float HurtLabelUntil;
+            public Image CastFill;
             public int MotionBoundId = -1;
         }
 
@@ -182,6 +185,7 @@ namespace ChoSiren.Panels
         private float presentationClock;
         private SkillEffectPresentation skillEffects;
         private AttackTrajectoryPresentation attackTrajectories;
+        private GameObject interruptButton;
         private Sprite crystalBurstSprite, tideSpellSprite, lanceSpellSprite;
         private readonly Dictionary<int, string> lastPresentedActions = new Dictionary<int, string>();
         private Sprite rerollRingSprite;
@@ -727,6 +731,12 @@ namespace ChoSiren.Panels
                 Status = status,
                 Fallen = fallen,
             };
+            if (!player)
+            {
+                view.CastFill = kit.NewBar("EnemyCast", root.transform, 8, 81, width - 16, 3,
+                    new Color32(70, 53, 25, 200), CombatFeedbackPalette.Control, 2);
+                view.CastFill.transform.parent.gameObject.SetActive(false);
+            }
             if (player)
             {
                 view.Motion = playerMotionRoot.gameObject.AddComponent<EnemyUnitPresentation>();
@@ -735,6 +745,11 @@ namespace ChoSiren.Panels
                 view.ActionLabel.gameObject.name = "PerformerAction";
                 kit.AddOutline(view.ActionLabel.gameObject, new Color32(8, 9, 27, 255), 2);
                 view.ActionLabel.gameObject.SetActive(false);
+                view.HurtLabel = kit.NewPlacedText(root.transform, string.Empty, 12, CombatFeedbackPalette.Hurt,
+                    4, 44, width - 8, 24, TextAnchor.MiddleCenter, FontStyle.Bold);
+                view.HurtLabel.gameObject.name = "PerformerHurt";
+                kit.AddOutline(view.HurtLabel.gameObject, new Color32(8, 9, 27, 255), 2);
+                view.HurtLabel.gameObject.SetActive(false);
             }
             return view;
         }
@@ -743,10 +758,22 @@ namespace ChoSiren.Panels
         {
             GameObject strip = kit.NewPanel("TurnStrip", transform, new Color32(12, 11, 47, 78), 12);
             PanelKit.PlaceTop(strip.GetComponent<RectTransform>(), 20, 840, 680, 54);
-            actorText = kit.NewPlacedText(strip.transform, string.Empty, 18, PanelKit.White, 14, 3, 652, 25,
+            actorText = kit.NewPlacedText(strip.transform, string.Empty, 18, PanelKit.White, 14, 3, battle.IsRealtime ? 464 : 652, 25,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             eventText = kit.NewPlacedText(strip.transform, "战斗开始", 16, PanelKit.Muted, 14, 27, 652, 22,
                 TextAnchor.MiddleLeft);
+            if (battle.IsRealtime)
+            {
+                PanelKit.PlaceTop(eventText.rectTransform, 14, 27, 464, 22);
+                interruptButton = kit.NewButton("TacticalInterrupt", strip.transform, "等待敌人蓄力", 16,
+                    new Color32(77, 58, 26, 255), CombatFeedbackPalette.Control, () =>
+                    {
+                        if (!paused && !closing) battle.TryTacticalInterrupt();
+                        RefreshRealtimeCommands();
+                    }, 10);
+                PanelKit.PlaceTop(interruptButton.GetComponent<RectTransform>(), 492, 4, 174, 46);
+                PanelKit.EnableBestFit(PanelKit.LabelOf(interruptButton), 12);
+            }
             PanelKit.EnableBestFit(actorText, 16);
             PanelKit.EnableBestFit(eventText, 14);
 
@@ -1170,6 +1197,16 @@ namespace ChoSiren.Panels
 
         private void RefreshRealtimeCommands()
         {
+            if (interruptButton != null)
+            {
+                BattleUnit threat = battle.InterruptTarget;
+                float cooldown = battle.InterruptCooldownRemaining / 1000f;
+                bool ready = !paused && battle.Outcome == BattleOutcome.Ongoing && cooldown <= 0 && threat != null;
+                PanelKit.SetButtonState(interruptButton, ready, new Color32(77, 58, 26, 255));
+                PanelKit.LabelOf(interruptButton).text = ready ? "打断蓄力" : cooldown > 0 ? $"打断 · {cooldown:0.0}s" : "等待敌人蓄力";
+                if (threat != null) eventText.text = $"{threat.Definition.Name}：{battle.EnemyThreatName(threat)}";
+                else eventText.text = "点击敌人集火 · 金色蓄力可手动打断";
+            }
             if (inputActor == null || !inputActor.Alive)
             {
                 inputActor = null;
@@ -1337,7 +1374,7 @@ namespace ChoSiren.Panels
                     else
                     {
                         SpawnPopup(target, battleEvent.Critical ? $"暴击 -{battleEvent.Amount}" : $"-{battleEvent.Amount}",
-                            battleEvent.Critical ? new Color32(255, 170, 80, 255) : new Color32(255, 120, 150, 255),
+                            battleEvent.SkillId == "rt-poison" ? CombatFeedbackPalette.Debuff : battleEvent.Critical ? CombatFeedbackPalette.Critical : target != null && target.Side == BattleSide.Player ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Attack,
                             battleEvent.Critical ? 26 : 22);
                     }
                     string damageLine = $"{actorName} 使用「{skillName}」对 {targetName} 造成 {battleEvent.Amount} 伤害" +
@@ -1347,26 +1384,33 @@ namespace ChoSiren.Panels
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Heal:
                     if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal,
-                        new Color32(106, 255, 189, 255), true);
+                        CombatFeedbackPalette.Heal, true);
                     RefreshCell(target);
-                    SpawnPopup(target, $"+{battleEvent.Amount}", new Color32(120, 255, 170, 255), 22);
+                    SpawnPopup(target, $"治疗 +{battleEvent.Amount}", CombatFeedbackPalette.Heal, 22);
                     string healLine = $"{actorName} 使用「{skillName}」为 {targetName} 恢复 {battleEvent.Amount}";
                     if (!battle.IsRealtime) eventText.text = healLine;
                     AppendLog(healLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Shield:
                     if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Shield,
-                        new Color32(100, 224, 255, 255), true);
+                        CombatFeedbackPalette.Shield, true);
                     RefreshCell(target);
-                    SpawnPopup(target, $"护盾 +{battleEvent.Amount}", new Color32(150, 230, 255, 255), 20);
+                    SpawnPopup(target, $"护盾 +{battleEvent.Amount}", CombatFeedbackPalette.Shield, 20);
                     string shieldLine = $"{actorName} 使用「{skillName}」为 {targetName} 施加 {battleEvent.Amount} 护盾";
                     if (!battle.IsRealtime) eventText.text = shieldLine;
                     AppendLog(shieldLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Buff:
                     RefreshCell(target);
-                    string effectLabel = skill != null ? EffectShort(skill.Effect) : "状态";
-                    SpawnPopup(target, effectLabel, PanelKit.Gold, 20);
+                    string effectLabel = battleEvent.SkillId.StartsWith("rt-") ? skillName : skill != null ? EffectShort(skill.Effect) : "状态";
+                    Color effectColor = CombatFeedbackPalette.Skill(battleEvent.SkillId);
+                    SpawnPopup(target, effectLabel, effectColor, 20);
+                    if (battleEvent.SkillId == "rt-stun" || battleEvent.SkillId == "rt-interrupt")
+                        skillEffects?.Play(UnitVisual(target), SkillVisualKind.Hex, effectColor, true);
+                    else if (battleEvent.SkillId == "rt-armor-break")
+                        skillEffects?.Play(UnitVisual(target), SkillVisualKind.Pierce, effectColor, true);
+                    else if (battleEvent.SkillId == "rt-cleanse")
+                        skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal, effectColor, true);
                     string buffLine = $"{actorName} 使用「{skillName}」：{targetName} {effectLabel}";
                     if (!battle.IsRealtime) eventText.text = buffLine;
                     AppendLog(buffLine);
@@ -1460,12 +1504,12 @@ namespace ChoSiren.Panels
                 if (caster.ActionLabel != null)
                 {
                     caster.ActionLabel.text = heavy ? title : "普攻 → " + (target?.Definition.Name ?? "目标");
-                    caster.ActionLabel.color = PerformerColor(battle.RaceOf(actor));
+                    caster.ActionLabel.color = CombatFeedbackPalette.Skill(entry.SkillId, actor.Side);
                     caster.ActionLabelUntil = presentationClock + (heavy ? 1.05f : .4f);
                     caster.ActionLabel.gameObject.SetActive(true);
                 }
                 if (entry.SkillId == battle.ActiveSkillId(actor, true))
-                    skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title, PerformerColor(battle.RaceOf(actor)));
+                    skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title, CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
             }
             else if (enemyMotions.TryGetValue(actor.Id, out var motion)) motion.PlayAttack(heavy);
             else if (actor.Id == bossUnitId && heavy) bossPresentation?.PlayCharge(title);
@@ -1487,6 +1531,11 @@ namespace ChoSiren.Panels
         private void PresentHitEffect(BattleUnit actor, BattleUnit target, BattleEvent entry)
         {
             if (actor == null || target == null || entry.Amount <= 0) return;
+            if (entry.SkillId == "rt-poison")
+            {
+                skillEffects?.Play(UnitVisual(target), SkillVisualKind.Thorn, CombatFeedbackPalette.Debuff, false);
+                return;
+            }
             bool player = actor.Side == BattleSide.Player;
             bool special = player
                 ? entry.SkillId == battle.ActiveSkillId(actor, false) || entry.SkillId == battle.ActiveSkillId(actor, true)
@@ -1515,14 +1564,14 @@ namespace ChoSiren.Panels
                     Sprite actorPortrait = player ? FindCell(actor)?.Portrait.sprite
                         : enemyFigures.TryGetValue(actor.Id, out Image figure) ? figure.sprite : userBossSprite;
                     attackTrajectories?.Play(UnitVisual(actor), UnitVisual(target), actorPortrait,
-                        actor.Definition.Name, target.Definition.Name, player ? PerformerColor(race) : PanelKit.Pink,
+                        actor.Definition.Name, target.Definition.Name, player ? CombatFeedbackPalette.Attack : CombatFeedbackPalette.Hurt,
                         !player, special, slot);
-                    if (!player && view?.ActionLabel != null)
+                    if (!player && view?.HurtLabel != null)
                     {
-                        view.ActionLabel.text = "受击 ← " + actor.Definition.Name;
-                        view.ActionLabel.color = PanelKit.Pink;
-                        view.ActionLabelUntil = presentationClock + .75f;
-                        view.ActionLabel.gameObject.SetActive(true);
+                        view.HurtLabel.text = "受击 ← " + actor.Definition.Name;
+                        view.HurtLabel.color = CombatFeedbackPalette.Hurt;
+                        view.HurtLabelUntil = presentationClock + .75f;
+                        view.HurtLabel.gameObject.SetActive(true);
                     }
                 }
                 slot++;
@@ -1830,6 +1879,16 @@ namespace ChoSiren.Panels
             if (shielded) cell.ShieldFill.fillAmount = Mathf.Clamp01(unit.Shield / (float)Mathf.Max(1, unit.MaxHp));
             string realtimeStatus = battle.IsRealtime ? battle.RealtimeStatus(unit) : string.Empty;
             cell.Status.text = string.IsNullOrEmpty(realtimeStatus) ? StatusSummary(unit) : realtimeStatus;
+            cell.Status.color = CombatFeedbackPalette.Status(cell.Status.text);
+            if (cell.CastFill != null)
+            {
+                int remaining = battle.IsRealtime ? battle.CastRemaining(unit) : 0;
+                cell.CastFill.transform.parent.gameObject.SetActive(remaining > 0);
+                cell.CastFill.fillAmount = 1f - Mathf.Clamp01(remaining / 2000f);
+            }
+            bool stunned = battle.IsRealtime && battle.ConditionRemaining(unit, CombatCondition.Stun) > 0;
+            cell.Motion?.SetControlled(stunned);
+            if (enemyMotions.TryGetValue(unit.Id, out var controlledMotion)) controlledMotion.SetControlled(stunned);
             if (cell.Side == BattleSide.Player)
             {
                 // Health must remain readable when a shield/buff is present.
@@ -1965,8 +2024,12 @@ namespace ChoSiren.Panels
             if (paused || closing) return;
             presentationClock += BattleAnimationDelta();
             foreach (CellView view in cells)
+            {
                 if (view.ActionLabel != null && view.ActionLabel.gameObject.activeSelf &&
                     presentationClock >= view.ActionLabelUntil) view.ActionLabel.gameObject.SetActive(false);
+                if (view.HurtLabel != null && view.HurtLabel.gameObject.activeSelf &&
+                    presentationClock >= view.HurtLabelUntil) view.HurtLabel.gameObject.SetActive(false);
+            }
             if (awaitingDiceLanding && dicePresentations.Count > 0 && !dicePresentations.Exists(item => item.IsRolling))
             {
                 awaitingDiceLanding = false;
