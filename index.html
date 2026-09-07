@@ -232,9 +232,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("8d57a035d145c29b5b94ab2a382872b6.data.unityweb"),
-        frameworkUrl: buildAssetUrl("c45f542239d3e877ff6155c6e62ee899.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("a43f84e754a14ea23c128e7d6173dc81.wasm.unityweb"),
+        dataUrl: buildAssetUrl("2b9b1e801c5550207b83e74bab5cd2c9.data.unityweb"),
+        frameworkUrl: buildAssetUrl("144e580a6b4b06aa52d3667997f290b3.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("73e66ae4670a16b953831e1f2d87acfd.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -245,7 +245,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("936167538152bc1f8782cb5d9a006a40.loader.js");
+      loader.src = buildAssetUrl("3f53442eb83298fb16bba22207f731b4.loader.js");
       loader.onload = async () => {
         try {
           await createUnityInstance(canvas, config, value => {
