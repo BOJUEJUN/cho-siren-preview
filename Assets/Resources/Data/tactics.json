@@ -83,6 +83,9 @@
 
     {"Id":"echo-drone","Name":"回声无人机","Role":"敌方","MaxHp":180,"Attack":12,"Defense":3,"Speed":100,"CritPermille":40,"SkillIds":["static-burst"]},
     {"Id":"noise-wraith","Name":"噪声幽影","Role":"敌方","MaxHp":180,"Attack":12,"Defense":3,"Speed":100,"CritPermille":80,"SkillIds":["static-burst","feedback-wave"]},
+    {"Id":"neon-scout","Name":"霓虹巡游","Role":"敌方","MaxHp":180,"Attack":11,"Defense":2,"Speed":110,"CritPermille":40,"SkillIds":["static-burst"]},
+    {"Id":"pulse-guard","Name":"脉冲女卫","Role":"敌方","MaxHp":180,"Attack":12,"Defense":8,"Speed":90,"CritPermille":30,"SkillIds":["static-burst","feedback-wave"]},
+    {"Id":"velvet-hexer","Name":"绯幕咒歌","Role":"敌方","MaxHp":180,"Attack":14,"Defense":2,"Speed":80,"CritPermille":40,"SkillIds":["static-burst","feedback-wave"]},
     {"Id":"static-golem","Name":"静电魔像","Role":"敌方","MaxHp":576,"Attack":20,"Defense":6,"Speed":80,"CritPermille":30,"SkillIds":["static-burst","jam-signal","feedback-wave"]},
     {"Id":"siren-queen","Name":"魅声女王","Role":"敌方","MaxHp":1620,"Attack":25,"Defense":8,"Speed":100,"CritPermille":100,"SkillIds":["static-burst","feedback-wave","jam-signal"]}
   ],
@@ -101,12 +104,12 @@
       "ThreeStarSeconds": 75,
       "RecommendedLevel": 1,
       "Enemies": [
-        {"UnitId":"echo-drone","Row":0,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":0},
+        {"UnitId":"neon-scout","Row":0,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":0},
         {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":0},
-        {"UnitId":"echo-drone","Row":2,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":1},
-        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":1},
+        {"UnitId":"neon-scout","Row":2,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":1},
+        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":1},
         {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":2},
-        {"UnitId":"echo-drone","Row":2,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":2}
+        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":2}
       ],
       "Drops": { "Rolls": 2, "Entries": [
         {"ItemId":"gold","Weight":6,"Min":80,"Max":160},
@@ -129,11 +132,11 @@
       "RecommendedLevel": 2,
       "Enemies": [
         {"UnitId":"noise-wraith","Row":0,"Col":0,"ScalePermille":650,"HpScalePermille":28889,"Wave":0},
-        {"UnitId":"echo-drone","Row":1,"Col":0,"ScalePermille":650,"HpScalePermille":27778,"Wave":0},
+        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":650,"HpScalePermille":27778,"Wave":0},
         {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":650,"HpScalePermille":28889,"Wave":1},
         {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":650,"HpScalePermille":27778,"Wave":1},
         {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":650,"HpScalePermille":28889,"Wave":2},
-        {"UnitId":"echo-drone","Row":2,"Col":1,"ScalePermille":650,"HpScalePermille":27778,"Wave":2}
+        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":650,"HpScalePermille":27778,"Wave":2}
       ],
       "Drops": { "Rolls": 2, "Entries": [
         {"ItemId":"gold","Weight":6,"Min":100,"Max":180},
@@ -156,9 +159,9 @@
       "RecommendedLevel": 3,
       "Enemies": [
         {"UnitId":"static-golem","Row":0,"Col":0,"ScalePermille":456,"HpScalePermille":25521,"Wave":0},
-        {"UnitId":"echo-drone","Row":1,"Col":0,"ScalePermille":456,"HpScalePermille":22222,"Wave":0},
+        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":456,"HpScalePermille":22222,"Wave":0},
         {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":456,"HpScalePermille":22222,"Wave":1},
-        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":456,"HpScalePermille":25000,"Wave":1}
+        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":456,"HpScalePermille":25000,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":120,"Max":200},
@@ -180,11 +183,11 @@
       "ThreeStarSeconds": 75,
       "RecommendedLevel": 4,
       "Enemies": [
-        {"UnitId":"echo-drone","Row":0,"Col":0,"ScalePermille":720,"HpScalePermille":32778,"Wave":0},
-        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":720,"HpScalePermille":30556,"Wave":0},
-        {"UnitId":"echo-drone","Row":2,"Col":0,"ScalePermille":720,"HpScalePermille":32778,"Wave":1},
-        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":720,"HpScalePermille":30556,"Wave":1},
-        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":720,"HpScalePermille":32778,"Wave":2},
+        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":720,"HpScalePermille":32778,"Wave":0},
+        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":720,"HpScalePermille":30556,"Wave":0},
+        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":720,"HpScalePermille":32778,"Wave":1},
+        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":720,"HpScalePermille":30556,"Wave":1},
+        {"UnitId":"neon-scout","Row":1,"Col":1,"ScalePermille":720,"HpScalePermille":32778,"Wave":2},
         {"UnitId":"noise-wraith","Row":2,"Col":1,"ScalePermille":720,"HpScalePermille":30556,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
@@ -208,9 +211,9 @@
       "RecommendedLevel": 5,
       "Enemies": [
         {"UnitId":"siren-queen","Row":0,"Col":0,"ScalePermille":434,"HpScalePermille":11001,"Wave":0},
-        {"UnitId":"echo-drone","Row":1,"Col":0,"ScalePermille":482,"HpScalePermille":16667,"Wave":0},
+        {"UnitId":"pulse-guard","Row":1,"Col":0,"ScalePermille":482,"HpScalePermille":16667,"Wave":0},
         {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":482,"HpScalePermille":19444,"Wave":1,"BossPhase":2},
-        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":482,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
+        {"UnitId":"pulse-guard","Row":0,"Col":1,"ScalePermille":482,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":180,"Max":280},
@@ -232,10 +235,10 @@
       "ThreeStarSeconds": 75,
       "RecommendedLevel": 6,
       "Enemies": [
-        {"UnitId":"static-golem","Row":0,"Col":0,"ScalePermille":549,"HpScalePermille":30382,"Wave":0},
+        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":824,"HpScalePermille":97222,"Wave":0},
         {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":549,"HpScalePermille":25000,"Wave":0},
-        {"UnitId":"echo-drone","Row":2,"Col":0,"ScalePermille":549,"HpScalePermille":25000,"Wave":1},
-        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":549,"HpScalePermille":25000,"Wave":1}
+        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":549,"HpScalePermille":25000,"Wave":1},
+        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":549,"HpScalePermille":25000,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":200,"Max":300},
@@ -257,12 +260,12 @@
       "ThreeStarSeconds": 75,
       "RecommendedLevel": 7,
       "Enemies": [
-        {"UnitId":"noise-wraith","Row":0,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":0},
-        {"UnitId":"echo-drone","Row":1,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":0},
-        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":1},
-        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":0,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":0},
+        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":0},
+        {"UnitId":"neon-scout","Row":2,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":1},
         {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":2},
-        {"UnitId":"echo-drone","Row":2,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":2}
+        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":220,"Max":320},
@@ -284,12 +287,12 @@
       "ThreeStarSeconds": 75,
       "RecommendedLevel": 8,
       "Enemies": [
-        {"UnitId":"echo-drone","Row":0,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":0},
-        {"UnitId":"echo-drone","Row":1,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":0},
-        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":1},
-        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":1},
-        {"UnitId":"echo-drone","Row":1,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2},
-        {"UnitId":"noise-wraith","Row":2,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2}
+        {"UnitId":"neon-scout","Row":0,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":1,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":0},
+        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":1},
+        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":1,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2},
+        {"UnitId":"pulse-guard","Row":2,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2}
       ],
       "Drops": { "Rolls": 4, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":240,"Max":360},
@@ -311,11 +314,11 @@
       "ThreeStarSeconds": 75,
       "RecommendedLevel": 9,
       "Enemies": [
-        {"UnitId":"static-golem","Row":0,"Col":0,"ScalePermille":623,"HpScalePermille":37673,"Wave":0},
-        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":623,"HpScalePermille":25000,"Wave":0},
-        {"UnitId":"echo-drone","Row":2,"Col":0,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
-        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
-        {"UnitId":"echo-drone","Row":1,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1}
+        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":935,"HpScalePermille":120554,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":1,"Col":0,"ScalePermille":623,"HpScalePermille":25000,"Wave":0},
+        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
+        {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1}
       ],
       "Drops": { "Rolls": 4, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":280,"Max":420},
@@ -338,10 +341,10 @@
       "RecommendedLevel": 10,
       "Enemies": [
         {"UnitId":"siren-queen","Row":0,"Col":0,"ScalePermille":543,"HpScalePermille":14666,"Wave":0},
-        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":603,"HpScalePermille":16667,"Wave":0},
-        {"UnitId":"echo-drone","Row":2,"Col":0,"ScalePermille":603,"HpScalePermille":16667,"Wave":0},
-        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2},
-        {"UnitId":"echo-drone","Row":1,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
+        {"UnitId":"pulse-guard","Row":1,"Col":0,"ScalePermille":603,"HpScalePermille":16667,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":2,"Col":0,"ScalePermille":603,"HpScalePermille":16667,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2},
+        {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
       ],
       "Drops": { "Rolls": 4, "Entries": [
         {"ItemId":"gold","Weight":4,"Min":360,"Max":520},

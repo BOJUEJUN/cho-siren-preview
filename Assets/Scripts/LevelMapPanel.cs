@@ -59,6 +59,7 @@ namespace ChoSiren
 
         private GameModel model;
         private Action onBack;
+        private Action<string> onGrowth;
         private Action<string> onMessage;
         private Font font;
         private bool built;
@@ -97,7 +98,7 @@ namespace ChoSiren
         /// panel instead of stacking overlays. The host is normally ChoSirenApp's safeRoot.
         /// </summary>
         public static LevelMapPanel Open(Transform host, GameModel gameModel, Action back = null,
-            Action<string> message = null)
+            Action<string> message = null, Action<string> growth = null)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (gameModel == null) throw new ArgumentNullException(nameof(gameModel));
@@ -108,6 +109,7 @@ namespace ChoSiren
                 existing.gameObject.SetActive(true);
                 existing.transform.SetAsLastSibling();
                 existing.Bind(gameModel, back, message);
+                existing.onGrowth = growth;
                 return existing;
             }
 
@@ -123,6 +125,7 @@ namespace ChoSiren
 
             LevelMapPanel panel = panelObject.AddComponent<LevelMapPanel>();
             panel.Bind(gameModel, back, message);
+            panel.onGrowth = growth;
             return panel;
         }
 
@@ -727,6 +730,26 @@ namespace ChoSiren
                     if (!string.IsNullOrEmpty(lastSettleMessage)) Notify(lastSettleMessage);
                 },
                 rewards: BuildBattleRewardLines,
+                growth: destination =>
+                {
+                    challengeOpen = false;
+                    if (destination == "farm")
+                    {
+                        while (selectedStage > 1 && StateFor(selectedStage) != LevelState.Cleared) selectedStage--;
+                        gameObject.SetActive(true);
+                        Refresh();
+                        Notify(StateFor(selectedStage) == LevelState.Cleared
+                            ? "重刷已通关关卡可获得基础资源，首通奖励不重复发放"
+                            : "尚无已通关关卡，可先训练成员、检查装备后挑战 1-1");
+                    }
+                    else if (onGrowth != null)
+                    {
+                        gameObject.SetActive(false);
+                        Destroy(gameObject);
+                        onGrowth(destination);
+                    }
+                    else Close();
+                },
                 back: () =>
                 {
                     challengeOpen = false;

@@ -1516,7 +1516,20 @@ namespace ChoSiren
             // The chapter map owns a dedicated in-context toast positioned above its dock.
             // Forwarding the same message to the app toast creates two simultaneous notices,
             // with the global one covering chapter rewards and tasks.
-            LevelMapPanel.Open(safeRoot, model, () => ShowScreen("lobby"));
+            LevelMapPanel.Open(safeRoot, model, () => ShowScreen("lobby"), growth: OpenBattleGrowth);
+        }
+
+        private void OpenBattleGrowth(string destination)
+        {
+            if (destination == "training")
+            {
+                ShowScreen("members");
+                int lowest = -1;
+                foreach (int index in model.Save.Team)
+                    if (model.IsUnlocked(index) && (lowest < 0 || model.LevelOf(index) < model.LevelOf(lowest))) lowest = index;
+                if (lowest >= 0) OpenMember(lowest);
+            }
+            else ShowScreen(destination == "accessory" ? "accessory" : "team");
         }
 
         private void OpenInfoModal(string title, string body, string primaryLabel,

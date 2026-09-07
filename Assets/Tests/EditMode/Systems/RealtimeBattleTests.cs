@@ -58,7 +58,7 @@ namespace ChoSiren.Tests
             BattleSimulator elite = Create("none", encounter: "elite",
                 rolls: new ScriptedRandom(new[] { 999 }, new[] { 0, 1, 2, 3, 5 }));
             elite.AdvanceRealtime(10000);
-            int At(int ms) => elite.Log.Single(e => e.ActorId == 1 && e.SkillId == "rt-basic" && e.TimeMilliseconds == ms).Amount;
+            int At(int ms) => elite.Log.Single(e => e.Kind == BattleEventKind.Damage && e.ActorId == 1 && e.SkillId == "rt-basic" && e.TimeMilliseconds == ms).Amount;
             Assert.That(At(8000), Is.EqualTo(At(7000) / 2));
             Assert.That(At(9000), Is.EqualTo(At(8000)));
             Assert.That(At(10000), Is.EqualTo(At(7000)));
@@ -149,9 +149,9 @@ namespace ChoSiren.Tests
         {
             BattleSimulator battle = Create("demon");
             battle.AdvanceRealtime(12000);
-            Assert.That(battle.Log.Count(e => e.ActorId == 1 && e.SkillId == "rt-basic"), Is.EqualTo(12));
-            Assert.That(battle.Log.Count(e => e.ActorId == 1 && e.SkillId == "rt-demon-small"), Is.EqualTo(4));
-            Assert.That(battle.Log.Count(e => e.ActorId == 1 && e.SkillId == "rt-demon-big"), Is.EqualTo(1));
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 1 && e.SkillId == "rt-basic"), Is.EqualTo(12));
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 1 && e.SkillId == "rt-demon-small"), Is.EqualTo(4));
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 1 && e.SkillId == "rt-demon-big"), Is.EqualTo(1));
             Assert.That(battle.Log.First(e => e.SkillId == "rt-demon-small").TimeMilliseconds, Is.EqualTo(3000));
             Assert.That(battle.TryAct(new BattleAction(), out string message), Is.False);
             Assert.That(message, Does.Contain("自动"));
@@ -240,7 +240,7 @@ namespace ChoSiren.Tests
             enemy.BaseDefense = 100;
             Assert.That(battle.BattleDice.Hand.Pattern, Is.EqualTo(DicePattern.HighPoint));
             battle.AdvanceRealtime(2800);
-            BattleEvent hit = battle.Log.Single(e => e.SkillId == "rt-bloodelf-small");
+            BattleEvent hit = battle.Log.Single(e => e.Kind == BattleEventKind.Damage && e.SkillId == "rt-bloodelf-small");
             Assert.That(hit.Amount, Is.EqualTo(85), "115伤害按85防御结算，技能本身固定穿甲15%");
             Assert.That(battle.BattleDice.FreeRerolls, Is.EqualTo(1));
             Assert.That(battle.BattleDice.EnergyRerollAll(out _), Is.True);
@@ -253,7 +253,7 @@ namespace ChoSiren.Tests
         {
             BattleSimulator battle = Create("charm");
             battle.AdvanceRealtime(14000);
-            int[] specials = battle.Log.Where(e => e.ActorId == 2 && e.SkillId == "strike")
+            int[] specials = battle.Log.Where(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 2 && e.SkillId == "strike")
                 .Select(e => e.TimeMilliseconds).ToArray();
             Assert.That(specials, Is.EqualTo(new[] { 4000, 8000, 13000 }));
             Assert.That(battle.Log.Any(e => e.ActorId == 2 && e.SkillId == "rt-basic" &&
@@ -413,6 +413,18 @@ namespace ChoSiren.Tests
             Assert.That(battle.IsRealtime, Is.False);
             Assert.That(battle.Units.Where(unit => unit.Side == BattleSide.Enemy).All(unit => unit.Alive),
                 Is.True, "旧回合接口不能因为关卡写了实时分波，就漏掉后续敌人并提前结算");
+        }
+
+        [Test]
+        public void AreaSkillEmitsOneActionStartAndSeparateDamageEventsForEveryTarget()
+        {
+            BattleSimulator battle = CreateWaves("demon");
+            battle.FindUnit(3).Spawned = true;
+            battle.AdvanceRealtime(12000);
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted &&
+                e.ActorId == 1 && e.SkillId == "rt-demon-big"), Is.EqualTo(1));
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Damage &&
+                e.ActorId == 1 && e.SkillId == "rt-demon-big"), Is.EqualTo(2));
         }
 
         private static BattleSimulator CreateWaves(string race = "none", string encounter = "normal",

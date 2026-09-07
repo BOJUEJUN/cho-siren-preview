@@ -73,7 +73,9 @@ namespace ChoSiren.Systems.Tactics
         Defeated,
         Finished,
         PhaseChanged,
-        Spawned
+        Spawned,
+        LeaderChanged,
+        ActionStarted
     }
 
     public sealed class BattleEvent

@@ -154,6 +154,14 @@ namespace ChoSiren.Systems.Dice
             if (IsBattleSession && RerollsRemaining > 0) FreeRerolls = Math.Min(1, FreeRerolls + 1);
         }
 
+        /// <summary>Changes command capability without rerolling or refilling any battle budget.</summary>
+        public void SetBattleSelectiveReroll(bool enabled)
+        {
+            if (!IsBattleSession) throw new InvalidOperationException("需要局内骰子状态");
+            SelectiveReroll = enabled;
+            if (!enabled) Array.Clear(held, 0, held.Length);
+        }
+
         private void AddEnergyMicros(long amount)
         {
             if (RerollsRemaining <= 0) return;

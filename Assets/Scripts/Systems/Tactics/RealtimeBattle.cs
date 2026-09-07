@@ -30,6 +30,8 @@ namespace ChoSiren.Systems.Tactics
         private CombatRace leaderRace;
 
         public bool IsRealtime { get; private set; }
+        public int CurrentLeaderId => IsRealtime ? leaderId : -1;
+        public CombatRace CurrentLeaderRace => IsRealtime ? leaderRace : CombatRace.None;
         public int ElapsedMilliseconds { get; private set; }
         public int FocusTargetId { get; private set; } = -1;
         public int TimeLimitMilliseconds => Stage.TimeLimitSeconds * 1000;
@@ -265,6 +267,7 @@ namespace ChoSiren.Systems.Tactics
         {
             BattleUnit target = SelectEnemy(actor);
             if (target == null) return;
+            Emit(BattleEventKind.ActionStarted, actor.Id, target.Id, "rt-basic", 0, false);
             Deal(actor, target, "rt-basic", 1000);
             if (actor.Side != BattleSide.Player || Outcome != BattleOutcome.Ongoing) return;
             if (leaderRace == CombatRace.Demon && target.Alive)
@@ -283,6 +286,8 @@ namespace ChoSiren.Systems.Tactics
             PerformerClock clock = performerClocks[actor.Id];
             string skill = SkillId(clock.Race, big);
             BattleUnit target = SelectEnemy(actor);
+            Emit(BattleEventKind.ActionStarted, actor.Id,
+                clock.Race == CombatRace.Mermaid || target == null ? actor.Id : target.Id, skill, 0, false);
             int utilityMultiplier = BattleDice.Hand.Pattern == DicePattern.FiveKind ? 1500 : 1000;
             switch (clock.Race)
             {
@@ -369,16 +374,24 @@ namespace ChoSiren.Systems.Tactics
                 if (target == null) return;
                 if (Stage.HasBossPhases && actor.Id == encounterLeadId && EnemyPhase >= 3)
                 {
+                    Emit(BattleEventKind.ActionStarted, actor.Id, target.Id, "rt-enemy-finale", 0, false);
                     foreach (BattleUnit ally in units)
                         if (ally.Alive && ally.Side == BattleSide.Player) Deal(actor, ally, "rt-enemy-finale", 1400);
                 }
-                else Deal(actor, target, "rt-enemy-heavy", 1600);
+                else
+                {
+                    Emit(BattleEventKind.ActionStarted, actor.Id, target.Id, "rt-enemy-heavy", 0, false);
+                    Deal(actor, target, "rt-enemy-heavy", 1600);
+                }
                 return;
             }
             BattleAction chosen = EnemyAi.Choose(this, actor);
             SkillDefinition skill = chosen == null ? null : LookupSkill(chosen.SkillId);
             if (skill == null) return;
-            foreach (BattleUnit target in AffectedUnits(actor, skill, chosen.Row, chosen.Col))
+            List<BattleUnit> targets = AffectedUnits(actor, skill, chosen.Row, chosen.Col);
+            Emit(BattleEventKind.ActionStarted, actor.Id, targets.Count > 0 ? targets[0].Id : actor.Id,
+                skill.Id, 0, false);
+            foreach (BattleUnit target in targets)
             {
                 if (skill.Effect == SkillEffect.Damage)
                     Deal(actor, target, skill.Id, Math.Max(1400, skill.PowerPermille));
@@ -444,9 +457,30 @@ namespace ChoSiren.Systems.Tactics
             {
                 if (target.Side == BattleSide.Player) PlayerUnitsLost++;
                 Emit(BattleEventKind.Defeated, actor.Id, target.Id, skill, 0, false);
+                if (target.Side == BattleSide.Player && target.Id == leaderId) TransferBattleCommand();
             }
             UpdateEnemyPhase();
             EvaluateOutcome();
+        }
+
+        private void TransferBattleCommand()
+        {
+            int previousLeaderId = leaderId;
+            leaderId = -1;
+            leaderRace = CombatRace.None;
+            // Creation order is the initial formation order, independent of later HP or speed.
+            foreach (BattleUnit candidate in units)
+            {
+                if (candidate.Side != BattleSide.Player || !candidate.Alive) continue;
+                leaderId = candidate.Id;
+                leaderRace = performerClocks[candidate.Id].Race;
+                break;
+            }
+            BattleDice.SetBattleSelectiveReroll(leaderRace == CombatRace.Mermaid);
+            // Do not refresh the hand/revision, combo budgets, cooldowns, energy or rescue flag.
+            // Applied poison/shields also remain; only subsequent commander-dependent effects change.
+            Emit(BattleEventKind.LeaderChanged, previousLeaderId, leaderId, "command-transfer",
+                (int)leaderRace, false);
         }
 
         private void HealPercent(BattleUnit actor, BattleUnit target, string skill, int permille) =>

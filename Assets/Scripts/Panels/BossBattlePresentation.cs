@@ -51,6 +51,10 @@ namespace ChoSiren.Panels
         private int reactionVersion;
         private int damageCursor;
         private Coroutine reactionRoutine;
+        private Coroutine minorHitRoutine;
+        // Hit < attack anticipation < phase transition < outcome. Receiving damage must
+        // remain visible without cancelling the telegraph the player is trying to read.
+        private int reactionPriority;
         private readonly Coroutine[] damageRoutines = new Coroutine[6];
 
         public BossVisualState State { get; private set; } = BossVisualState.Idle;
@@ -107,7 +111,12 @@ namespace ChoSiren.Panels
         {
             if (!configured || outcomeLocked) return;
             HitReactionCount++;
-            StartReaction(HitRoutine(critical));
+            if (reactionPriority >= 2)
+            {
+                if (minorHitRoutine != null) StopCoroutine(minorHitRoutine);
+                minorHitRoutine = StartCoroutine(MinorHitRoutine(critical));
+            }
+            else StartReaction(HitRoutine(critical), 1);
             SpawnDamageNumber(amount, critical);
         }
 
@@ -115,14 +124,14 @@ namespace ChoSiren.Panels
         {
             if (!configured || outcomeLocked) return;
             ChargeReactionCount++;
-            StartReaction(ChargeRoutine(string.IsNullOrEmpty(skillName) ? "终曲" : skillName));
+            StartReaction(ChargeRoutine(string.IsNullOrEmpty(skillName) ? "终曲" : skillName), 2);
         }
 
         public void PlayPhaseSurge(int phase)
         {
             if (!configured || outcomeLocked) return;
             PhaseReactionCount++;
-            StartReaction(PhaseRoutine(Mathf.Clamp(phase, 2, 3)));
+            StartReaction(PhaseRoutine(Mathf.Clamp(phase, 2, 3)), 3);
         }
 
         public void PlayOutcome(bool playerVictory)
@@ -131,6 +140,7 @@ namespace ChoSiren.Panels
             outcomeLocked = true;
             OutcomeReactionCount++;
             StopReaction();
+            reactionPriority = 4;
             reactionVersion++;
             reactionRoutine = StartCoroutine(playerVictory ? DefeatRoutine() : VictoryRoutine());
         }
@@ -138,7 +148,7 @@ namespace ChoSiren.Panels
         private void Update()
         {
             if (!configured || IsPaused()) return;
-            animationClock += Time.unscaledDeltaTime;
+            animationClock += AnimationDelta();
             ApplyCompositePose();
         }
 
@@ -205,9 +215,11 @@ namespace ChoSiren.Panels
             }
         }
 
-        private void StartReaction(IEnumerator routine)
+        private void StartReaction(IEnumerator routine, int priority)
         {
+            if (priority < reactionPriority) return;
             StopReaction();
+            reactionPriority = priority;
             int version = ++reactionVersion;
             reactionRoutine = StartCoroutine(RunReaction(version, routine));
         }
@@ -217,6 +229,7 @@ namespace ChoSiren.Panels
             while (version == reactionVersion && routine.MoveNext()) yield return routine.Current;
             if (version != reactionVersion) yield break;
             reactionRoutine = null;
+            reactionPriority = 0;
             ResetActionPose();
             State = LowHealth ? BossVisualState.LowHealth : BossVisualState.Idle;
             SetStateLabel(LowHealth ? "危险 · 终曲暴走" : string.Empty,
@@ -227,7 +240,38 @@ namespace ChoSiren.Panels
         {
             if (reactionRoutine != null) StopCoroutine(reactionRoutine);
             reactionRoutine = null;
+            reactionPriority = 0;
+            if (minorHitRoutine != null) StopCoroutine(minorHitRoutine);
+            minorHitRoutine = null;
             ResetActionPose();
+        }
+
+        private IEnumerator MinorHitRoutine(bool critical)
+        {
+            // This independent echo does not write the primary pose, label, charge rings
+            // or portrait tint, so simultaneous hits cannot erase an attack/phase cue.
+            float elapsed = 0f;
+            const float duration = 0.2f;
+            while (elapsed < duration)
+            {
+                elapsed += AnimationDelta();
+                float fade = 1f - Mathf.Clamp01(elapsed / duration);
+                if (echo != null)
+                {
+                    echo.rectTransform.localPosition = new Vector3(-6f * fade, 2f * fade, 0f);
+                    echo.rectTransform.localScale = Vector3.one * (1f + fade * 0.025f);
+                    echo.color = new Color32(255, critical ? (byte)174 : (byte)80, 218,
+                        (byte)Mathf.RoundToInt((critical ? 165f : 115f) * fade));
+                }
+                yield return null;
+            }
+            if (echo != null)
+            {
+                echo.color = Color.clear;
+                echo.rectTransform.localPosition = Vector3.zero;
+                echo.rectTransform.localScale = Vector3.one;
+            }
+            minorHitRoutine = null;
         }
 
         private IEnumerator HitRoutine(bool critical)
@@ -615,6 +659,8 @@ namespace ChoSiren.Panels
             if (!configured) return;
             StopAllCoroutines();
             reactionRoutine = null;
+            minorHitRoutine = null;
+            reactionPriority = 0;
         }
     }
 }

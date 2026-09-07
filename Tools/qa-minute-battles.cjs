@@ -9,7 +9,8 @@ const readline = require('node:readline');
   const out = path.resolve(__dirname, '../Artifacts/qa-minute-' + Date.now());
   fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch({ headless: true, executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
-  const context = await browser.newContext({ viewport: { width: 480, height: 1024 }, deviceScaleFactor: 1 });
+  const context = await browser.newContext({ viewport: { width: 480, height: 1024 }, deviceScaleFactor: 1,
+    recordVideo: { dir: out, size: { width: 480, height: 1024 } } });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -74,5 +75,8 @@ const readline = require('node:readline');
       await capture(action.name || 'capture');
     } catch (error) { console.log(JSON.stringify({ error: error.message })); }
   }
+  const video = page.video();
+  await context.close();
+  if (video) console.log(JSON.stringify({ video: await video.path() }));
   await browser.close();
 })().catch(error => { console.error(error); process.exitCode = 1; });

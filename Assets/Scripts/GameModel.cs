@@ -776,9 +776,7 @@ namespace ChoSiren
             }
 
             Save.Gold += PerformanceGoldReward;
-            Save.DailyPerformances++;
-            Report(TaskTriggers.Perform);
-            if (Save.DailyPerformances == DailyPerformanceGoal)
+            if (RecordSuccessfulPerformance())
             {
                 Save.Diamonds += DailyPerformanceDiamondReward;
                 message = $"演出完成！金币 +{PerformanceGoldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
@@ -790,6 +788,15 @@ namespace ChoSiren
 
             SaveState();
             return true;
+        }
+
+        // Both the legacy stage and the current chapter entry complete the same daily loop.
+        // Caller owns the reward payout and persistence so one completion has one save boundary.
+        private bool RecordSuccessfulPerformance()
+        {
+            Save.DailyPerformances++;
+            Report(TaskTriggers.Perform);
+            return Save.DailyPerformances == DailyPerformanceGoal;
         }
 
         /// <summary>
@@ -1334,6 +1341,8 @@ namespace ChoSiren
                 return;
             }
 
+            // A fight can finish after a day/week boundary; count it in its settlement period.
+            Tick();
             StageDefinition stage = battle.Stage;
             var rewards = new List<(string ItemId, int Amount)>();
 
@@ -1349,6 +1358,8 @@ namespace ChoSiren
 
             bool firstClear = !IsStageCleared(stage.Id);
             if (firstClear && stage.DiamondFirstClear > 0) rewards.Add((CurrencyIds.Diamond, stage.DiamondFirstClear));
+            bool dailyPerformanceGoalReached = RecordSuccessfulPerformance();
+            if (dailyPerformanceGoalReached) rewards.Add((CurrencyIds.Diamond, DailyPerformanceDiamondReward));
 
             rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
 
@@ -1366,6 +1377,7 @@ namespace ChoSiren
             string difficultyName = DifficultyProfileFor(context.Difficulty).Name;
             message = $"战斗胜利 {new string('★', stars)}（{difficultyName}）：{FormatRewards(rewards)}";
             if (firstClear) message += "（首次通关）";
+            if (dailyPerformanceGoalReached) message += "（每日演出目标达成）";
         }
 
         // ------------------------------------------------------------------ story

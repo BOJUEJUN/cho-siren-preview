@@ -188,9 +188,13 @@ namespace ChoSiren.Tests
                 Assert.That(Top(skillBar) + skillBar.rect.height, Is.LessThanOrEqualTo(Top(previewBoard)),
                     "技能按钮容器不能进入目标预览区。 ");
 
-                Text preview = previewBoard.GetComponentInChildren<Text>(true);
+                Text preview = FindRect(previewBoard, "TargetPreview").GetComponent<Text>();
                 Assert.That(preview.resizeTextForBestFit, Is.True,
                     "目标预览会拼接技能名和多个单位名，必须允许受控缩字号。 ");
+                RectTransform teamHealth = FindRect(previewBoard, "TeamHealthSummary");
+                AssertNoOverlap(teamHealth, preview.rectTransform,
+                    "队伍总生命摘要不能覆盖目标预览说明。");
+                Assert.That(teamHealth.gameObject.activeInHierarchy, Is.True);
 
                 RectTransform reroll = FindRect(panel.transform, "DiceReroll");
                 RectTransform energyReroll = FindRect(panel.transform, "EnergyReroll");
@@ -340,6 +344,7 @@ namespace ChoSiren.Tests
                 SetField(panel, "diceHandText", summary);
                 List<GameObject> buttons = GetField<List<GameObject>>(panel, "diceButtons");
                 List<Image> faceImages = GetField<List<Image>>(panel, "diceFaceImages");
+                List<DiceRollPresentation> rolls = GetField<List<DiceRollPresentation>>(panel, "dicePresentations");
                 List<Text> statuses = GetField<List<Text>>(panel, "diceHoldLabels");
                 List<Outline> outlines = GetField<List<Outline>>(panel, "diceOutlines");
                 var images = new List<Image>();
@@ -351,12 +356,18 @@ namespace ChoSiren.Tests
                     Image image = button.AddComponent<Image>();
                     button.AddComponent<Button>();
                     Text label = NewText("Label", button.transform);
+                    RectTransform rollRig = new GameObject("DiceRollRig-" + index, typeof(RectTransform))
+                        .GetComponent<RectTransform>();
+                    rollRig.SetParent(button.transform, false);
                     Image faceImage = new GameObject("DiceFace-" + index).AddComponent<Image>();
-                    faceImage.transform.SetParent(button.transform, false);
+                    faceImage.transform.SetParent(rollRig, false);
+                    DiceRollPresentation roll = rollRig.gameObject.AddComponent<DiceRollPresentation>();
+                    roll.Configure(faceImage, rollRig, () => false, () => 1);
                     Text status = NewText("DiceStatus-" + index, button.transform);
                     Outline outline = button.AddComponent<Outline>();
                     buttons.Add(button);
                     faceImages.Add(faceImage);
+                    rolls.Add(roll);
                     statuses.Add(status);
                     outlines.Add(outline);
                     images.Add(image);
@@ -365,7 +376,20 @@ namespace ChoSiren.Tests
 
                 Invoke(panel, "RefreshDiceUi");
 
-                Assert.That(summary.text, Is.EqualTo("一对 ×1.15\n总点 15 · 计分点 2"));
+                Assert.That(rolls.All(roll => roll.IsRolling), Is.True,
+                    "新骰型必须先进入真实投掷过程，不能直接显示静态结果。");
+                Assert.That(statuses.All(status => status.text == "投掷中"), Is.True);
+                Assert.That(buttons.All(button => !button.GetComponent<Button>().interactable), Is.True,
+                    "未落定时不得再次点击重投或保留。");
+                foreach (DiceRollPresentation roll in rolls) roll.AdvancePresentation(.2f);
+                Assert.That(rolls.All(roll => roll.IsRolling), Is.True);
+                Assert.That(rolls[0].GetComponent<RectTransform>().anchoredPosition, Is.Not.EqualTo(Vector2.zero),
+                    "投掷中间态应该有位移，而不仅是状态文字变化。");
+                foreach (DiceRollPresentation roll in rolls) roll.AdvancePresentation(1f);
+                Invoke(panel, "Update");
+                Assert.That(rolls.All(roll => !roll.IsRolling), Is.True);
+                Assert.That(buttons.All(button => button.GetComponent<Button>().interactable), Is.True);
+                Assert.That(summary.text, Is.EqualTo("一对 ×1.15"));
                 Assert.That(statuses[0].text, Is.EqualTo("成型"));
                 Assert.That(statuses[1].text, Is.EqualTo("成型"));
                 Assert.That(statuses[2].text, Is.Empty);
