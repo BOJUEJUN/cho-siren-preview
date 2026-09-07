@@ -45,3 +45,13 @@
 证据：`TestResults/editmode-pacing-final-20260907.xml`、`TestResults/playmode-pacing-20260907.xml`、`TestResults/playmode-reset-final-20260907.xml`。隔离浏览器工具 `Tools/qa-minute-battles.cjs` 只创建独立测试 profile，禁止连接用户实际存档。
 
 发布基线 Pages：`5a8d99d6079db87bdd995bd8d52d90a735797855`。通过 `Tools/Stage-WebGL.mjs` 保留该版完整资源作为 previous；不从过期 `origin/master` 构建。
+
+## 发布验收
+
+- 二进制源码 `19d24a4`，源码分支已推送；Pages `d060af7ee5e632877928312bea75c8ae1f9be67b` 已推送 main。WebGL 构建成功，预览仓库 `npm run check` 通过。
+- 线上四个 current 资源均 HTTP 200，大小与本地一致；`build-versions.json` 同时保留上一版四个资源。
+- 隔离浏览器本地新档 1-1 实打 67.5 秒、三星、0 倒下；线上独立新档另一场 47.1 秒、三星、0 倒下。随机骰子与操作会影响时长，不能宣传每场至少 60 秒。
+- 线上新档地图仅 1-1 开放；战斗出现原创无人机、幽影，分三波；结算保存仅 1-1 三星，体力 120→112，`pageerror` 为空。
+- 本地隔离档注入 68 级和 1-1/1-2 三星后，点清档先出现确认框，未确认前旧档仍在；确认后及刷新后全员 1 级、通关列表为空，地图仅开放 1-1。没有读取或修改用户实际浏览器存档。
+- 截图证据目录：`Artifacts/qa-minute-1788768414222`（本地战斗和清档）、`Artifacts/qa-minute-1788768877839`（线上）。
+- 视觉验收另发现侧边敌人状态卡与中央立绘的左右排序不一致，需在下一批战斗 UI 调整中统一为逐单位绑定；当前状态卡自身名字、血量、头像及点选 ID 一致。
