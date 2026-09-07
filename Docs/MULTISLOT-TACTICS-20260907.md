@@ -22,4 +22,6 @@
 - EditMode: 361/361 passed (`TestResults/editmode-multislot-20260907.xml`). Includes multi-slot persistence, transfer/replacement/removal preview and battle stat agreement, tactical conditions, 10 stages across all captains and 16 seeds.
 - PlayMode: 112/112 passed (`TestResults/playmode-multislot-final-20260907.xml`). Includes picker navigation, team profile flow, deployment badges, short/standard layout containment and text overlap checks.
 - Previous production: Pages `cffde5a`, source `a0f8911`. Retain as rollback; do not remove user saves.
-- Browser and deployed verification are recorded after the build; tests alone are not live acceptance.
+- WebGL build succeeded: `Builds/WebGL-multislot-tactics-20260907`. Hashed staging dry-run passed, retaining all four assets from `cffde5a` as previous version.
+- Isolated real Chrome, 480×1024: `Artifacts/qa-minute-1788790210376/`. `two-equipped.png` shows two simultaneous slots, additive stats and two persisted bindings. `hero-picker.png` / `selected-wubai.png` verify direct selection. `team-trained.png` and `deployment-badges.png` verify upgrade from team portrait and updated roster labels. `battle-interrupt.png` shows a successful interrupt, 1.1s stun and 11.9s cooldown. Browser reported no page errors.
+- Source implementation commit: `124d53a`. GitHub push was denied by permission review, asking for explicit authorization to send source/documentation to this repository and branch. No workaround or alternate push was attempted; Pages remains `cffde5a`. Remote branch readback before push was `a0f8911`.
