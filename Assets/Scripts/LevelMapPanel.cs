@@ -272,23 +272,32 @@ namespace ChoSiren
             Image header = NewImage("HeaderGlass", transform, null, new Color32(2, 8, 25, 236));
             PlaceTop(header.rectTransform, 0, 0, 720, 116);
 
-            GameObject back = NewButton("Back", header.transform, "〈", 38,
-                new Color32(11, 22, 54, 226), White, Close, 17);
-            PlaceTop(back.GetComponent<RectTransform>(), 22, 21, 76, 66);
-            AddGlassOutline(back, new Color32(134, 169, 246, 112), 1f);
+            GameObject back = NewButton("Back", header.transform, string.Empty, 20,
+                new Color32(11, 22, 54, 120), White, Close, 12);
+            PlaceTop(back.GetComponent<RectTransform>(), 24, 28, 48, 48);
+            AddGlassOutline(back, new Color32(134, 169, 246, 64), 1f);
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Image stroke = NewImage("BackChevron-" + side, back.transform, RoundedSprite(2), White);
+                PlaceTop(stroke.rectTransform, 17, 23 + side * 6, 18, 2.5f);
+                stroke.rectTransform.pivot = new Vector2(.5f, .5f);
+                stroke.rectTransform.anchoredPosition += new Vector2(9, -1.25f);
+                stroke.rectTransform.localRotation = Quaternion.Euler(0, 0, -side * 45);
+                stroke.raycastTarget = false;
+            }
 
             NewPlacedText(header.transform, "第01章", 16, new Color32(220, 202, 255, 255),
-                122, 14, 142, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(header.transform, "踏梦迷踪", 31, White,
-                122, 39, 254, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
+                90, 16, 142, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(header.transform, "踏梦迷踪", 28, White,
+                90, 42, 254, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
 
             GameObject stamina = NewPanel("Stamina", header.transform, new Color32(12, 21, 54, 220), 23);
-            PlaceTop(stamina.GetComponent<RectTransform>(), 508, 24, 190, 60);
+            PlaceTop(stamina.GetComponent<RectTransform>(), 530, 28, 166, 48);
             AddGlassOutline(stamina, new Color32(135, 147, 232, 70), 1f);
             NewPlacedText(stamina.transform, "体力", 15, new Color32(255, 166, 225, 255),
-                16, 10, 52, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
+                14, 4, 44, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
             staminaText = NewPlacedText(stamina.transform, string.Empty, 20, White,
-                63, 10, 110, 40, TextAnchor.MiddleRight, FontStyle.Bold);
+                56, 4, 96, 40, TextAnchor.MiddleRight, FontStyle.Bold);
 
             Image divider = NewImage("Divider", header.transform, null, new Color32(133, 163, 240, 78));
             PlaceTop(divider.rectTransform, 24, 112, 672, 1.5f);
@@ -405,7 +414,7 @@ namespace ChoSiren
         private void BuildDetails()
         {
             GameObject card = NewPanel("SelectedLevel", transform, Glass, 28);
-            PlaceTop(card.GetComponent<RectTransform>(), 20, 1100, 680, 230);
+            PlaceTop(card.GetComponent<RectTransform>(), 20, 1100, 680, 318);
             AddGlassOutline(card, new Color32(132, 164, 238, 126), 1.5f);
 
             Image topAccent = NewImage("SelectedLevelAccent", card.transform, null,
@@ -418,30 +427,30 @@ namespace ChoSiren
                 140, 16, 292, 31, TextAnchor.MiddleLeft, FontStyle.Bold);
             stageStatusText = NewPlacedText(card.transform, "当前关卡", 14,
                 new Color32(255, 142, 217, 255), 140, 48, 292, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
-            progressText = NewPlacedText(card.transform, string.Empty, 13, Muted,
-                28, 72, 414, 20, TextAnchor.MiddleLeft);
+            progressText = NewPlacedText(card.transform, string.Empty, 14, Muted,
+                28, 72, 624, 24, TextAnchor.MiddleLeft);
 
             GameObject drops = NewPanelButton("StageDropPreview", card.transform, new Color32(11, 29, 55, 180), 8, OpenDropPreview);
-            PlaceTop(drops.GetComponent<RectTransform>(), 28, 110, 430, 54);
+            PlaceTop(drops.GetComponent<RectTransform>(), 24, 124, 632, 100);
             dropPreviewIcons = drops.transform;
-            equipmentDropText = NewPlacedText(card.transform, string.Empty, 11, Cyan,
-                28, 92, 430, 18, TextAnchor.MiddleLeft);
+            equipmentDropText = NewPlacedText(card.transform, string.Empty, 14, Cyan,
+                28, 96, 624, 26, TextAnchor.MiddleLeft);
             equipmentDropText.gameObject.name = "StageDropSummary";
 
             staminaCostText = InfoChip(card.transform, "StaminaCost", "体力 -8",
-                28, 170, 126, new Color32(255, 157, 220, 255));
+                24, 244, 122, new Color32(255, 157, 220, 255));
             diamondRewardText = InfoChip(card.transform, "DiamondReward", "星钻 ×20",
-                164, 170, 140, Cyan);
+                154, 244, 142, Cyan);
             goldRewardText = InfoChip(card.transform, "GoldReward", "星币 ×300",
-                314, 170, 146, new Color32(255, 215, 111, 255));
+                304, 244, 146, new Color32(255, 215, 111, 255));
 
             GameObject start = NewSpriteButton("StartChallenge", card.transform,
                 actionFrameSprite, White, StartChallenge);
-            PlaceTop(start.GetComponent<RectTransform>(), 474, 105, 184, 92);
+            PlaceTop(start.GetComponent<RectTransform>(), 466, 230, 190, 78);
             startButton = start.GetComponent<Button>();
             startBackground = start.GetComponent<Image>();
             startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
-                12, 23, 160, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
+                12, 16, 166, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             startLabel.name = "Label";
         }
 
@@ -517,15 +526,15 @@ namespace ChoSiren
             }
             IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
             int count = Mathf.Min(5, candidates.Count);
-            float width = 430f / Mathf.Max(1, count);
+            float width = 632f / Mathf.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 int candidateIndex = candidates.Count > 5 && i >= 3 ? candidates.Count - 5 + i : i;
                 StageLootCandidate reward = candidates[candidateIndex];
                 RewardItemVisuals.CreateIcon(dropPreviewIcons, reward.ItemId, "DropIcon-" + reward.ItemId,
-                    i * width + (width - 32) * .5f, 0, 32);
+                    i * width + (width - 68) * .5f, 2, 68);
                 string shortName = reward.Name.Length > 7 ? reward.Name.Substring(0, 7) + "…" : reward.Name;
-                NewPlacedText(dropPreviewIcons, shortName, 10, White, i * width, 33, width, 20, TextAnchor.MiddleCenter);
+                NewPlacedText(dropPreviewIcons, shortName, 13, White, i * width + 2, 72, width - 4, 26, TextAnchor.MiddleCenter);
             }
         }
 
@@ -543,30 +552,30 @@ namespace ChoSiren
         private void BuildChapterDock()
         {
             GameObject dock = NewPanel("ChapterControlDock", transform, new Color32(4, 12, 36, 236), 24);
-            PlaceTop(dock.GetComponent<RectTransform>(), 20, 1348, 680, 168);
+            PlaceTop(dock.GetComponent<RectTransform>(), 20, 1430, 680, 88);
             AddGlassOutline(dock, new Color32(122, 157, 231, 98), 1.25f);
 
             GameObject rewards = NewPanelButton("ChapterRewards", dock.transform,
                 new Color32(10, 23, 55, 228), 20, OpenChapterRewards);
-            PlaceTop(rewards.GetComponent<RectTransform>(), 14, 18, 319, 122);
+            PlaceTop(rewards.GetComponent<RectTransform>(), 12, 10, 322, 68);
             AddGlassOutline(rewards, new Color32(119, 158, 235, 80), 1f);
             Image rewardIcon = NewImage("ChapterRewardsIcon", rewards.transform, rewardChestSprite, Color.white);
-            PlaceTop(rewardIcon.rectTransform, 18, 20, 76, 76);
+            PlaceTop(rewardIcon.rectTransform, 14, 8, 52, 52);
             rewardIcon.preserveAspect = true;
             NewPlacedText(rewards.transform, "章节奖励", 18, White,
-                106, 23, 176, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+                78, 4, 196, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
             rewardSummaryText = NewPlacedText(rewards.transform, "章节奖励", 11, Muted,
-                106, 62, 176, 28, TextAnchor.MiddleLeft, FontStyle.Normal);
+                78, 36, 196, 24, TextAnchor.MiddleLeft, FontStyle.Normal);
             rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 278, 8);
 
             GameObject tasks = NewPanelButton("ChapterTasks", dock.transform,
                 new Color32(10, 23, 55, 228), 20, OpenChapterTasks);
-            PlaceTop(tasks.GetComponent<RectTransform>(), 347, 18, 319, 122);
+            PlaceTop(tasks.GetComponent<RectTransform>(), 346, 10, 322, 68);
             AddGlassOutline(tasks, new Color32(119, 158, 235, 80), 1f);
             NewPlacedText(tasks.transform, "章节任务", 18, White,
-                28, 27, 230, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+                22, 4, 230, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
             taskSummaryText = NewPlacedText(tasks.transform, "0/3 已完成", 11, Muted,
-                28, 66, 230, 28, TextAnchor.MiddleLeft, FontStyle.Normal);
+                22, 36, 230, 24, TextAnchor.MiddleLeft, FontStyle.Normal);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 278, 8);
         }
 

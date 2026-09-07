@@ -147,7 +147,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void PlayerRosterStaysBetweenDiceConsoleAndSkillDeck()
+        public void SinglePlayerRosterStaysAboveDiceConsoleAndSkillDeck()
         {
             GameObject root = new GameObject("Tactics Layout Test", typeof(RectTransform));
             try
@@ -169,8 +169,14 @@ namespace ChoSiren.Tests
 
                 Assert.That(labelBottom, Is.LessThanOrEqualTo(cardTop),
                     "出战成员标题不能压在第一排成员卡上。 ");
-                Assert.That(diceBottom, Is.LessThanOrEqualTo(cardTop),
-                    "成员卡不能覆盖骰子台底部的重投操作。 ");
+                Assert.That(cardBottom, Is.LessThanOrEqualTo(Top(dice)),
+                    "成员头像必须在骰子上方，不能覆盖骰子。 ");
+                Assert.That(diceBottom, Is.LessThanOrEqualTo(deckTop));
+                RectTransform cueArea = FindRect(panel.transform, "CombatCueArea");
+                Assert.That(Top(cueArea) + cueArea.rect.height, Is.LessThanOrEqualTo(Top(dice)),
+                    "攻击连线裁切范围不能进入骰子操作区。");
+                Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item =>
+                    item.name.StartsWith("AttackPlayerProxy") || item.name == "AttackSourcePortrait"), Is.False);
                 Assert.That(cardBottom, Is.LessThanOrEqualTo(deckTop),
                     "成员卡不能覆盖技能指令栏。 ");
                 RectTransform[] activePlayerCards = panel.GetComponentsInChildren<RectTransform>(true)

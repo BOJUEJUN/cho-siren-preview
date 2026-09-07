@@ -8,7 +8,7 @@ namespace ChoSiren.Tests
     public sealed class AttackTrajectoryPresentationPlayModeTests
     {
         [Test]
-        public void PlayerAttackUsesRegisteredStageProxyThenTravelsToTheActualEnemy()
+        public void PlayerAttackUsesOnlyTheRealRosterPortraitThenTravelsToTheActualEnemy()
         {
             GameObject owner = new GameObject("Trajectory stage", typeof(RectTransform));
             Texture2D texture = new Texture2D(2, 2);
@@ -19,27 +19,26 @@ namespace ChoSiren.Tests
                 var cues = owner.AddComponent<AttackTrajectoryPresentation>();
                 cues.Configure(stage, () => false, () => 1);
                 RectTransform enemy = NewRect("Enemy", stage, new Vector2(320, -240));
-                RectTransform remoteCard = NewRect("PlayerCardBelowDice", stage, new Vector2(430, -1200));
-                cues.SetPlayerProxy(2, sprite, "雾白");
+                RectTransform remoteCard = NewRect("PlayerCardAboveDice", stage, new Vector2(430, -600));
                 Assert.That(cues.Play(remoteCard, enemy, sprite, "雾白", "噪声幽灵", Color.cyan, false, false, 2), Is.True);
                 Transform flight = stage.Find("AttackTrajectoryLayer/AttackTrajectory-0");
                 RectTransform launch = flight.Find("AttackLaunch").GetComponent<RectTransform>();
-                Assert.That(launch.anchoredPosition, Is.EqualTo(new Vector2(450, -624)),
-                    "我方出手必须从舞台内对应阵位出发，不能从骰子下方真实卡片连长线。");
+                Assert.That(launch.anchoredPosition, Is.EqualTo(new Vector2(430, -600)),
+                    "出手必须从实际成员头像出发，不能另造舞台代理头像。");
                 Assert.That(flight.Find("AttackArrow").gameObject.activeSelf, Is.False);
                 cues.AdvancePresentation(.2f);
                 RectTransform arrow = flight.Find("AttackArrow").GetComponent<RectTransform>();
                 Assert.That(arrow.gameObject.activeSelf, Is.True);
-                Assert.That(arrow.anchoredPosition.x, Is.InRange(320f, 450f));
-                Assert.That(arrow.anchoredPosition.y, Is.InRange(-624f, -240f));
+                Assert.That(arrow.anchoredPosition.x, Is.InRange(320f, 430f));
+                Assert.That(arrow.anchoredPosition.y, Is.InRange(-600f, -240f));
                 cues.AdvancePresentation(.25f);
                 RectTransform impact = flight.Find("AttackImpact").GetComponent<RectTransform>();
                 Assert.That(impact.gameObject.activeSelf, Is.True);
                 Assert.That(impact.anchoredPosition, Is.EqualTo(new Vector2(320, -240)));
                 Assert.That(flight.Find("AttackCausalLabel").GetComponent<Text>().text, Is.EqualTo("雾白 攻击 噪声幽灵"));
-                Image proxy = stage.Find("AttackTrajectoryLayer/AttackPlayerProxy-2/AttackProxyPortrait").GetComponent<Image>();
-                Assert.That(proxy.sprite, Is.SameAs(sprite));
-                Assert.That(proxy.sprite.texture, Is.SameAs(texture), "代理头像只引用传入素材，不改原图。");
+                Assert.That(stage.GetComponentsInChildren<Transform>(true).Any(item =>
+                    item.name.StartsWith("AttackPlayerProxy") || item.name == "AttackSourcePortrait"), Is.False,
+                    "常驻和出手瞬间都不应生成重复角色头像。");
                 Assert.That(stage.Find("AttackTrajectoryLayer").GetComponent<RectMask2D>(), Is.Not.Null);
                 Assert.That(stage.Find("AttackTrajectoryLayer").GetComponentsInChildren<Graphic>(true)
                     .All(graphic => !graphic.raycastTarget), Is.True);
@@ -63,9 +62,8 @@ namespace ChoSiren.Tests
                 RectTransform stage = ConfigureStage(owner);
                 var cues = owner.AddComponent<AttackTrajectoryPresentation>();
                 cues.Configure(stage, () => paused, () => speed);
-                cues.SetPlayerProxy(3, null, "夜莺");
                 RectTransform enemy = NewRect("Enemy", stage, new Vector2(200, -220));
-                RectTransform card = NewRect("PlayerCard", stage, new Vector2(550, -1300));
+                RectTransform card = NewRect("PlayerCard", stage, new Vector2(550, -610));
                 cues.Play(enemy, card, null, "回响无人机", "夜莺", Color.red, true, false, 3);
                 cues.AdvancePresentation(.2f);
                 Transform flight = stage.Find("AttackTrajectoryLayer/AttackTrajectory-0");
@@ -80,9 +78,9 @@ namespace ChoSiren.Tests
                 cues.AdvancePresentation(.12f);
                 RectTransform impact = flight.Find("AttackImpact").GetComponent<RectTransform>();
                 Assert.That(impact.gameObject.activeSelf, Is.True);
-                Assert.That(impact.anchoredPosition, Is.EqualTo(new Vector2(630, -624)),
+                Assert.That(impact.anchoredPosition, Is.EqualTo(new Vector2(550, -610)),
                     "敌人的命中应落到实际受击队员的第四阵位，而不是固定首位。");
-                Assert.That(card.anchoredPosition, Is.EqualTo(new Vector2(550, -1300)),
+                Assert.That(card.anchoredPosition, Is.EqualTo(new Vector2(550, -610)),
                     "表现组件不能移动原始玩家卡片或战斗布局。");
                 cues.AdvancePresentation(.2f);
                 Assert.That(cues.ActiveCount, Is.Zero);

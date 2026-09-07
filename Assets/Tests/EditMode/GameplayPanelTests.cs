@@ -146,8 +146,20 @@ namespace ChoSiren.Tests
 
             Assert.That(FindNamed<Transform>(map.transform, "ChapterControlDock"), Is.Not.Null);
             RectTransform dock = FindNamed<RectTransform>(map.transform, "ChapterControlDock");
-            Assert.That(dock.sizeDelta.y, Is.EqualTo(168f).Within(0.01f),
+            Assert.That(dock.sizeDelta.y, Is.EqualTo(88f).Within(0.01f),
                 "章节底栏应保持为紧凑的奖励与任务双入口。 ");
+            RectTransform detail = FindNamed<RectTransform>(map.transform, "SelectedLevel");
+            RectTransform drops = FindNamed<RectTransform>(map.transform, "StageDropPreview");
+            RectTransform start = FindNamed<RectTransform>(map.transform, "StartChallenge");
+            Assert.That(-detail.anchoredPosition.y + detail.rect.height, Is.LessThan(-dock.anchoredPosition.y));
+            Assert.That(-drops.anchoredPosition.y + drops.rect.height, Is.LessThan(-start.anchoredPosition.y));
+            Image[] previewIcons = drops.GetComponentsInChildren<Image>().Where(image => image.name.StartsWith("DropIcon-")).ToArray();
+            Assert.That(previewIcons.Length, Is.EqualTo(5));
+            Assert.That(previewIcons.All(image => image.rectTransform.rect.width >= 64), Is.True,
+                "奖励图标需至少64设计像素，不能退回32像素缩略图。");
+            RectTransform backButton = FindNamed<RectTransform>(map.transform, "Back");
+            Assert.That(backButton.sizeDelta, Is.EqualTo(new Vector2(48, 48)));
+            Assert.That(FindNamed<Image>(map.transform, "BackChevron-1"), Is.Not.Null);
             string[] hiddenControls = { "ChapterProgressAIFrame", "ChapterDifficulty", "StarMilestones" };
             Transform[] descendants = map.GetComponentsInChildren<Transform>(true);
             for (int index = 0; index < hiddenControls.Length; index++)

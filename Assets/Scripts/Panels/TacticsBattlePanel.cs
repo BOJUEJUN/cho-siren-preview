@@ -22,10 +22,10 @@ namespace ChoSiren.Panels
         private const float EnemyCellWidth = 152f;
         private const float EnemyCellHeight = 84f;
         private const float PlayerCellWidth = 158f;
-        // The roster lives in the band between the dice console and command deck.
+        // One real roster, directly above the dice. No duplicate portraits on the stage.
         private const float PlayerCellHeight = 172f;
-        private const float PlayerRosterLabelTop = 1170f;
-        private const float PlayerRosterTop = 1204f;
+        private const float PlayerRosterLabelTop = 900f;
+        private const float PlayerRosterTop = 934f;
         private const float BeatSeconds = 2f;
         private const float BattleIntroSeconds = 2f;
         private const int LogLines = 5;
@@ -260,7 +260,9 @@ namespace ChoSiren.Panels
             skillEffects = gameObject.AddComponent<SkillEffectPresentation>();
             skillEffects.Configure(effectsLayer, () => paused || closing, () => speed);
             attackTrajectories = gameObject.AddComponent<AttackTrajectoryPresentation>();
-            attackTrajectories.Configure(enemyStageRoot, () => paused || closing, () => speed);
+            RectTransform combatCueArea = kit.NewRect("CombatCueArea", transform);
+            PanelKit.PlaceTop(combatCueArea, 0, 132, 720, PlayerRosterTop + PlayerCellHeight - 132);
+            attackTrajectories.Configure(combatCueArea, () => paused || closing, () => speed);
             BuildPopups();
             skillCutIn = gameObject.AddComponent<SkillCutInPresentation>();
             skillCutIn.Configure(transform, () => paused || closing, () => speed);
@@ -758,7 +760,7 @@ namespace ChoSiren.Panels
         private void BuildDiceConsole()
         {
             GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(12, 14, 35, 255), 24);
-            PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 900, 680, 264);
+            PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 1116, 680, 264);
             kit.AddOutline(console, new Color32(102, 218, 255, 92), 1.25f);
             Image consoleGlow = kit.NewImage("DiceConsoleGlow", console.transform, kit.RadialSprite(),
                 new Color32(120, 79, 255, 16));
@@ -1508,7 +1510,6 @@ namespace ChoSiren.Panels
             {
                 if (unit.Side != BattleSide.Player) continue;
                 CellView view = FindCell(unit);
-                attackTrajectories?.SetPlayerProxy(slot, view?.Portrait.sprite, unit.Definition.Name);
                 if (unit.Id == playerUnit.Id)
                 {
                     Sprite actorPortrait = player ? FindCell(actor)?.Portrait.sprite

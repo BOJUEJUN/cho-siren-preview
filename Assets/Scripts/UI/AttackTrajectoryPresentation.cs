@@ -14,7 +14,7 @@ namespace ChoSiren
         private sealed class Flight
         {
             public GameObject Root;
-            public Image Line, SourcePortrait, SourcePulse, Impact;
+            public Image Line, SourcePulse, Impact;
             public RectTransform Arrow;
             public Text Caption;
             public Vector2 Start, End;
@@ -24,15 +24,7 @@ namespace ChoSiren
             public int PlayerIndex, Lane;
         }
 
-        private sealed class Proxy
-        {
-            public GameObject Root;
-            public Image Portrait, Frame;
-            public Text Name;
-        }
-
         private readonly List<Flight> flights = new List<Flight>();
-        private readonly Proxy[] proxies = new Proxy[4];
         private PanelKit kit;
         private RectTransform stage, layer;
         private Func<bool> pauseProbe;
@@ -55,22 +47,10 @@ namespace ChoSiren
             configured = true;
         }
 
-        /// <summary>Register the original portrait for each of the four actual formation slots.</summary>
-        public void SetPlayerProxy(int index, Sprite portrait, string name)
-        {
-            if (!configured || index < 0 || index >= proxies.Length) return;
-            Proxy proxy = proxies[index];
-            if (portrait != null) proxy.Portrait.sprite = portrait;
-            proxy.Portrait.enabled = proxy.Portrait.sprite != null;
-            proxy.Name.text = name ?? string.Empty;
-            proxy.Root.SetActive(true);
-            layer.gameObject.SetActive(true);
-        }
-
         /// <summary>
         /// playerIndex identifies the attacking player (enemyAttack=false) or targeted player
-        /// (enemyAttack=true). Only the enemy endpoint is read from source/targetRect; the player
-        /// endpoint is always the corresponding proxy inside this stage, never the card below dice.
+        /// (enemyAttack=true). Both endpoints use the actual visible portraits. The cue area ends
+        /// above the dice, and no additional player portrait is created for the presentation.
         /// Returns false for capacity drops; attacks are never queued and replayed late.
         /// </summary>
         public bool Play(RectTransform sourceRect, RectTransform targetRect, Sprite sourcePortrait,
@@ -87,19 +67,14 @@ namespace ChoSiren
                 break;
             }
             if (flight == null) return false;
-            if (!enemyAttack) SetPlayerProxy(playerIndex, sourcePortrait, sourceName);
-            else if (!proxies[playerIndex].Root.activeSelf)
-                SetPlayerProxy(playerIndex, null, targetName);
-            flight.Start = enemyAttack ? EnemyPoint(sourceRect) : PlayerPoint(playerIndex);
-            flight.End = enemyAttack ? PlayerPoint(playerIndex) : EnemyPoint(targetRect);
+            flight.Start = VisualPoint(sourceRect);
+            flight.End = VisualPoint(targetRect);
             flight.PlayerIndex = playerIndex;
             flight.Color = enemyAttack ? Color.Lerp(color, new Color(1f, .3f, .35f, 1f), .45f) : color;
             flight.Color.a = 1f;
             flight.Heavy = heavy;
             flight.Elapsed = 0f;
             flight.Active = true;
-            flight.SourcePortrait.sprite = sourcePortrait;
-            flight.SourcePortrait.enabled = sourcePortrait != null;
             flight.Caption.text = (sourceName ?? string.Empty) + " 攻击 " + (targetName ?? string.Empty);
             flight.Caption.color = flight.Color;
             flight.Root.SetActive(true);
@@ -125,8 +100,6 @@ namespace ChoSiren
             if (!configured || !isActiveAndEnabled || (pauseProbe != null && pauseProbe()) ||
                 unscaledSeconds <= 0f || float.IsNaN(unscaledSeconds) || float.IsInfinity(unscaledSeconds)) return;
             float delta = unscaledSeconds * Mathf.Clamp(speedProbe != null ? speedProbe() : 1, 1, 2);
-            foreach (Proxy proxy in proxies)
-                proxy.Frame.color = new Color32(54, 74, 108, 170);
             foreach (Flight flight in flights)
             {
                 if (!flight.Active) continue;
@@ -155,9 +128,7 @@ namespace ChoSiren
             flight.Line.gameObject.SetActive(flying);
             flight.Arrow.gameObject.SetActive(flying);
             flight.SourcePulse.gameObject.SetActive(!hit);
-            flight.SourcePortrait.gameObject.SetActive(flight.Elapsed < launch);
             flight.Impact.gameObject.SetActive(hit);
-            Place(flight.SourcePortrait.rectTransform, flight.Start, new Vector2(32, 32));
             Place(flight.SourcePulse.rectTransform, flight.Start, Vector2.one * (flight.Heavy ? 64 : 48));
             flight.SourcePulse.color = WithAlpha(flight.Color, flight.Elapsed < launch ? .7f : .18f);
             if (flying)
@@ -184,17 +155,14 @@ namespace ChoSiren
             caption.y = Mathf.Clamp(caption.y, 22, Height - 24);
             Place(flight.Caption.rectTransform, caption, new Vector2(216, 28));
             flight.Caption.color = WithAlpha(flight.Color, hit ? 1f - impact : 1f);
-            proxies[flight.PlayerIndex].Frame.color = WithAlpha(flight.Color, .9f);
         }
 
-        private Vector2 PlayerPoint(int index) => new Vector2(Width * (.125f + index * .25f), Height - 76f);
-
-        private Vector2 EnemyPoint(RectTransform rect)
+        private Vector2 VisualPoint(RectTransform rect)
         {
             if (rect == null) return new Vector2(Width * .5f, Height * .35f);
             Vector3 local = stage.InverseTransformPoint(rect.TransformPoint(rect.rect.center));
-            return new Vector2(Mathf.Clamp(local.x - stage.rect.xMin, 52, Width - 52),
-                Mathf.Clamp(stage.rect.yMax - local.y, 52, Height - 145));
+            return new Vector2(Mathf.Clamp(local.x - stage.rect.xMin, 16, Width - 16),
+                Mathf.Clamp(stage.rect.yMax - local.y, 16, Height - 16));
         }
 
         private static Color WithAlpha(Color color, float alpha) { color.a = alpha; return color; }
@@ -216,21 +184,6 @@ namespace ChoSiren
             var group = layer.gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false;
             group.interactable = false;
-            for (int index = 0; index < proxies.Length; index++)
-            {
-                GameObject root = kit.NewPanel("AttackPlayerProxy-" + index, layer, new Color32(54, 74, 108, 170), 12);
-                Vector2 point = PlayerPoint(index);
-                PanelKit.PlaceTop(root.GetComponent<RectTransform>(), point.x - 48, Height - 106, 96, 92);
-                Image portrait = kit.NewImage("AttackProxyPortrait", root.transform, null, PanelKit.White);
-                PanelKit.PlaceTop(portrait.rectTransform, 24, 6, 48, 48);
-                portrait.preserveAspect = true;
-                Text name = kit.NewPlacedText(root.transform, string.Empty, 14, PanelKit.White,
-                    2, 59, 92, 25, TextAnchor.MiddleCenter, FontStyle.Bold);
-                name.gameObject.name = "AttackProxyName";
-                PanelKit.EnableBestFit(name, 12);
-                proxies[index] = new Proxy { Root = root, Portrait = portrait, Frame = root.GetComponent<Image>(), Name = name };
-                root.SetActive(false);
-            }
             for (int index = 0; index < Capacity; index++)
             {
                 RectTransform root = kit.NewRect("AttackTrajectory-" + index, layer);
@@ -238,8 +191,6 @@ namespace ChoSiren
                 var flight = new Flight { Root = root.gameObject, Lane = index };
                 flight.Line = kit.NewImage("AttackTrail", root, null, Color.clear);
                 flight.SourcePulse = kit.NewImage("AttackLaunch", root, kit.RadialSprite(), Color.clear);
-                flight.SourcePortrait = kit.NewImage("AttackSourcePortrait", root, null, PanelKit.White);
-                flight.SourcePortrait.preserveAspect = true;
                 flight.Arrow = kit.NewRect("AttackArrow", root);
                 for (int side = -1; side <= 1; side += 2)
                 {
