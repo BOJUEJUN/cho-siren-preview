@@ -447,11 +447,18 @@ namespace ChoSiren
             GameObject start = NewSpriteButton("StartChallenge", card.transform,
                 actionFrameSprite, White, StartChallenge);
             PlaceTop(start.GetComponent<RectTransform>(), 466, 230, 190, 78);
+            // Image.preserveAspect aligns its drawing using the RectTransform pivot.
+            // Center the authored frame as well as the label, including hover/press scaling.
+            CenterPivot(start.GetComponent<RectTransform>());
             startButton = start.GetComponent<Button>();
             startBackground = start.GetComponent<Image>();
-            startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
-                12, 16, 166, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
+            startLabel = NewPlacedText(start.transform, "开始挑战", 20, White,
+                43, 21, 104, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
             startLabel.name = "Label";
+            startLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+            startLabel.resizeTextForBestFit = true;
+            startLabel.resizeTextMinSize = 17;
+            startLabel.resizeTextMaxSize = 20;
         }
 
         private void OpenDropPreview()

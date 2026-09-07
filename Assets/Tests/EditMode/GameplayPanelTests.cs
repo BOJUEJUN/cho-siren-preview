@@ -33,6 +33,28 @@ namespace ChoSiren.Tests
             PlayerPrefs.DeleteKey(LegacySaveKey);
         }
 
+        [TestCase("开始挑战")]
+        [TestCase("再次挑战")]
+        public void ChallengeLabelFitsCenteredAuthoredFrame(string caption)
+        {
+            LevelMapPanel map = LevelMapPanel.Open(host.transform, CreateModel());
+            RectTransform button = FindNamed<RectTransform>(map.transform, "StartChallenge");
+            Text label = button.Find("Label").GetComponent<Text>();
+            label.text = caption;
+            Assert.That(button.pivot, Is.EqualTo(Vector2.one * .5f),
+                "等比图片必须使用中心pivot，否则背景靠左而文字居中。");
+            Assert.That(label.rectTransform.anchoredPosition.x + label.rectTransform.rect.width * .5f,
+                Is.EqualTo(button.rect.width * .5f));
+            Assert.That(-label.rectTransform.anchoredPosition.y + label.rectTransform.rect.height * .5f,
+                Is.EqualTo(button.rect.height * .5f));
+            Sprite frame = button.GetComponent<Image>().sprite;
+            float renderedWidth = Mathf.Min(button.rect.width, button.rect.height * frame.rect.width / frame.rect.height);
+            Assert.That(label.preferredWidth, Is.LessThan(renderedWidth * .66f),
+                "实际字形必须留在宝石与发光边框内侧，不能仅检查按钮矩形。");
+            Assert.That(label.preferredHeight, Is.LessThanOrEqualTo(label.rectTransform.rect.height));
+            Assert.That(label.resizeTextForBestFit, Is.True);
+        }
+
         [TestCase(0, 1)]
         [TestCase(80, 1)]
         [TestCase(81, 2)]
