@@ -469,6 +469,7 @@ namespace ChoSiren
             Image body = NewImage("LootScrollContent", viewport.transform, null, Color.clear);
             PlaceTop(body.rectTransform, 0, 0, 604, Mathf.Max(516, ((candidates.Count + 1) / 2) * 170 - 14));
             ScrollRect scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.scrollSensitivity = 48f;
             scroll.viewport = viewport.rectTransform;
             scroll.content = body.rectTransform;
             scroll.horizontal = false;

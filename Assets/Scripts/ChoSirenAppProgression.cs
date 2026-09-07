@@ -127,6 +127,7 @@ namespace ChoSiren
             scroll.viewport = vr;
             scroll.content = body.GetComponent<RectTransform>();
             scroll.horizontal = false;
+            scroll.scrollSensitivity = 48f;
             scroll.movementType = ScrollRect.MovementType.Clamped;
             Transform root = body.transform;
 
@@ -212,10 +213,10 @@ namespace ChoSiren
             if (visibleItems.Length == 0)
                 FlowText(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 18, 16, inventoryBottom, 648, 36, Muted);
             FlowButton(root, "EquipmentPreviousPage", "上一页", 12, inventoryBottom + 40, 180, 42,
-                () => { equipmentPage = Math.Max(0, equipmentPage - 1); ShowScreen("accessory"); }).GetComponent<Button>().interactable = equipmentPage > 0;
+                () => { equipmentPage = Math.Max(0, equipmentPage - 1); RefreshEquipmentCollection(); }).GetComponent<Button>().interactable = equipmentPage > 0;
             FlowText(root, "EquipmentPageCount", $"{equipmentPage + 1} / {pageCount} · 共 {inventory.Length} 件", 17, 202, inventoryBottom + 40, 270, 42, Muted);
             FlowButton(root, "EquipmentNextPage", "下一页", 484, inventoryBottom + 40, 180, 42,
-                () => { equipmentPage = Math.Min(pageCount - 1, equipmentPage + 1); ShowScreen("accessory"); }).GetComponent<Button>().interactable = equipmentPage + 1 < pageCount;
+                () => { equipmentPage = Math.Min(pageCount - 1, equipmentPage + 1); RefreshEquipmentCollection(); }).GetComponent<Button>().interactable = equipmentPage + 1 < pageCount;
             FlowText(root, "EquipmentRules", "只有穿戴者获得属性；同一饰品转移后原角色会卸下。\n不同类别是收藏分类，当前每位角色仍使用一个饰品位。", 15, 12, inventoryBottom + 88, 654, 54, Muted);
         }
 
@@ -225,6 +226,16 @@ namespace ChoSiren
             equipmentMember = owned[(owned.IndexOf(equipmentMember) + direction + owned.Count) % owned.Count];
             selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(equipmentMember));
             ShowScreen("accessory");
+        }
+
+        private void RefreshEquipmentCollection()
+        {
+            ScrollRect oldScroll = contentRoot.GetComponentInChildren<ScrollRect>();
+            float position = oldScroll != null ? oldScroll.verticalNormalizedPosition : 1f;
+            ShowScreen("accessory");
+            Canvas.ForceUpdateCanvases();
+            ScrollRect newScroll = contentRoot.GetComponentInChildren<ScrollRect>();
+            if (newScroll != null) newScroll.verticalNormalizedPosition = Mathf.Clamp01(position);
         }
         private Text FlowText(Transform parent, string name, string value, int size, float x, float y, float width, float height, Color? color = null)
         {

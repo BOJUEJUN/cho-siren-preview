@@ -66,6 +66,10 @@ const readline = require('node:readline');
       const action = JSON.parse(line);
       if (action.close) break;
       if (action.click) await page.mouse.click(...action.click);
+      if (action.drag) {
+        await page.mouse.move(...action.drag[0]); await page.mouse.down();
+        await page.mouse.move(...action.drag[1], { steps: 20 }); await page.mouse.up();
+      }
       if (action.wheel) { await page.mouse.move(280, 640); await page.mouse.wheel(0, action.wheel); }
       if (action.reload) await open();
       if (action.fixture) {

@@ -40,6 +40,7 @@ namespace ChoSiren.Tests
         public IEnumerator AllSixtySixItemsHaveImagesAndAreReachableAcrossSixTwelveItemPages()
         {
             Assert.That(GameModel.AccessoryNames.Length, Is.EqualTo(66));
+            Assert.That(Require("EquipmentScroll").GetComponent<ScrollRect>().scrollSensitivity, Is.GreaterThanOrEqualTo(32));
             for (int page = 0; page < 6; page++)
             {
                 int[] expected = Enumerable.Range(page * 12, Mathf.Min(12, 66 - page * 12)).ToArray();

@@ -418,10 +418,12 @@ namespace ChoSiren
             AddQuietPanelEdge(titlePlaque);
             NewPlacedText(titlePlaque.transform, "当前编队", 13, new Color32(255, 174, 225, 255),
                 20, 10, 408, 22, TextAnchor.MiddleLeft, FontStyle.Bold).name = "TeamTitleEyebrow";
-            NewPlacedText(titlePlaque.transform, "星环编队", 30, White,
-                20, 34, 408, 42, TextAnchor.MiddleLeft, FontStyle.Bold).name = "TeamTitleName";
+            Text formationTitle = NewPlacedText(titlePlaque.transform, "星环编队", 28, White,
+                20, 32, 408, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
+            formationTitle.name = "TeamTitleName";
+            formationTitle.verticalOverflow = VerticalWrapMode.Overflow;
             NewPlacedText(titlePlaque.transform, "点击角色可换人 · 自由组合职业", 14, Muted,
-                20, 79, 408, 24, TextAnchor.MiddleLeft).name = "TeamTitleHint";
+                20, 82, 408, 22, TextAnchor.MiddleLeft).name = "TeamTitleHint";
             Text teamIndexLabel = NewPlacedText(titlePlaque.transform, "编队 1", 12,
                 new Color32(185, 222, 255, 255),
                 20, 105, 408, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
