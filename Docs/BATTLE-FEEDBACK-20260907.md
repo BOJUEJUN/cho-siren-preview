@@ -34,3 +34,13 @@ Initial candidate: `Artifacts/qa-minute-1788772438186/` (screenshots and recorde
 - This pass caught clipped player names and a two-line dice caption crossing its charge bar. The release candidate was subsequently corrected to a fitting name label and one-line hand caption, with a regression test. Final visual/release evidence follows after rebuilding.
 
 Final candidate: `Artifacts/qa-minute-1788773114056/fixed-battle.png` confirms all four player names, the single-line dice hand and its separated charge bar render correctly. Final WebGL build exited 0; Pages staging and `npm run check` passed, including all 12 loader tests. The immediately previous d060af7 asset set is retained; only the older grandparent's four hashed build files are removed by the validated staging helper and remain recoverable from Git.
+
+## Live release acceptance
+
+- User explicitly authorized uploading source and the WebGL bundle. Source `1eedc6b` is pushed to `ui/battle-layout-20260905`; Pages `b7607fc` is pushed to `main`.
+- Live URL: https://bojuejun.github.io/cho-siren-preview/?deploy=b7607fc
+- All four current hashed assets returned HTTP 200 with sizes matching the staged bundle (78,570,639 / 78,094 / 9,009,724 / 41,128 bytes); the live version manifest matches.
+- Isolated online browser evidence: `Artifacts/qa-minute-1788773640526/`. Fresh 1-1 completed in **68.2 seconds**, three stars, zero deaths, stamina 120→112, clear list containing only 1-1. Individual names, dice summary, caster cut-in and later waves were visibly checked. Page error list remained empty.
+- GitHub accepted the build but warned that the 74.93 MiB data file exceeds its recommended 50 MiB size; it is below the enforced 100 MiB limit. First-load download remains substantial.
+- No real user save was reset, and unrelated local files were not committed. Mobile hardware performance was not separately tested in this release.
+- Online post-result map showed 1-1 with three stars and 1-2 newly available. Return to lobby and the audition page also rendered normally, including the top HUD and bottom navigation. The isolated browser recording was closed after acceptance.
