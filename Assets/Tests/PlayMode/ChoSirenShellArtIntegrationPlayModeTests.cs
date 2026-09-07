@@ -36,25 +36,30 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator HeaderUsesUserAvatarAndEvenResourceRhythm()
+        public IEnumerator HeaderUsesUserAvatarAndNonOverlappingResourceActions()
         {
             AssertSpriteTexture("Avatar", "Art/ProfileAvatarUser");
 
-            float[] centers =
+            string[] groups = { "Currency-diamond", "Currency-gold", "Currency-stamina", "Mail", "Settings" };
+            float previousRight = 0;
+            foreach (string name in groups)
             {
-                LeftInParent(Require("DiamondIcon")) + 12.5f,
-                LeftInParent(Require("GoldIcon")) + 12.5f,
-                LeftInParent(Require("StaminaIcon")) + 13f,
-                LeftInParent(Require("Mail")) + 20f,
-            };
-            for (int index = 1; index < centers.Length; index++)
-                Assert.That(centers[index] - centers[index - 1], Is.InRange(112f, 132f),
-                    "顶部资源与邮件应保持一致的视觉节拍，不能在体力后留出一个空按钮位。");
-
-            Assert.That(Require("Mail").GetComponent<RectTransform>().anchoredPosition.x,
-                Is.EqualTo(-83f).Within(0.1f));
-            Assert.That(Require("Settings").GetComponent<RectTransform>().anchoredPosition.x,
-                Is.EqualTo(-37f).Within(0.1f));
+                GameObject group = Require(name);
+                RectTransform rect = group.GetComponent<RectTransform>();
+                float left = LeftInParent(group);
+                Assert.That(left, Is.GreaterThanOrEqualTo(previousRight - 0.5f),
+                    "顶部完整资源点击区（含加号）、邮件与设置不得重叠。");
+                previousRight = left + rect.rect.width;
+                Assert.That(group.GetComponent<Button>()?.IsInteractable(), Is.True);
+                if (!name.StartsWith("Currency-")) continue;
+                GameObject plus = Require(name.Replace("Currency-", "CurrencyPlus-"));
+                float plusLeft = LeftInParent(plus);
+                Assert.That(plus.GetComponent<Text>().text, Is.EqualTo("+"));
+                Assert.That(plusLeft, Is.GreaterThanOrEqualTo(left));
+                Assert.That(plusLeft + plus.GetComponent<RectTransform>().rect.width,
+                    Is.LessThanOrEqualTo(previousRight + 0.5f), "加号必须位于对应资源的可点击范围内。");
+            }
+            Assert.That(previousRight, Is.LessThan(Require("TopBar").GetComponent<RectTransform>().rect.width));
             yield return null;
         }
 
@@ -78,15 +83,18 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator AccessoryPreviewUsesOneAlignedRealAssetPerSlot()
+        public IEnumerator PersonalEquipmentUsesSelectedCharacterAndAlignedSuppliedItemArt()
         {
             Click("Nav-accessory");
             yield return null;
 
-            AssertSpriteTexture("AccessoryPreviewCharacter", "Art/Members/member-feiyin");
-            AssertSpriteTexture("AccessoryPreviewArt", "Art/AccessoryAI/UI/accessory-preview-panel-ai-v1");
-            AssertSpriteTexture("AccessoryDetail", "Art/AccessoryAI/UI/accessory-detail-panel-ai-v1");
-            AssertSpriteTexture("AccessoryCollection", "Art/AccessoryAI/UI/accessory-collection-panel-ai-v1");
+            var model = new GameModel();
+            int selectedMember = model.Save.Team[0];
+            AssertSpriteTexture("EquipmentPortrait", GameModel.Members[selectedMember].ResourcePath);
+            Assert.That(Require("EquipmentPortrait").GetComponent<Image>().preserveAspect, Is.True);
+            Assert.That(GameObject.Find("AccessoryPreviewArt"), Is.Null,
+                "新角色装备页不再叠加自带槽位/文字的旧美术面板。");
+            Assert.That(GameObject.Find("AccessoryCollection"), Is.Null);
             Assert.That(GameObject.Find("WornAccessoryGlow"), Is.Null,
                 "旧悬浮佩戴层会把一个饰品重复显示两次，必须彻底移除。");
             Assert.That(GameObject.Find("WornAccessory"), Is.Null);
@@ -102,12 +110,9 @@ namespace ChoSiren.Tests
             };
             for (int index = 0; index < itemPaths.Length; index++)
             {
-                string slotName = index < GameModel.AccessoryNames.Length
-                    ? "Accessory-" + index
-                    : "AccessorySlot-" + index;
+                string slotName = "Accessory-" + index;
                 GameObject slot = Require(slotName);
-                AssertSpriteTexture(slot, "Art/AccessoryAI/UI/accessory-slot-ring-ai-v1");
-                Transform art = slot.transform.Find("Art");
+                Transform art = slot.transform.Find("ItemArt");
                 Assert.That(art, Is.Not.Null, slotName + " 缺少饰品图标节点。");
                 AssertSpriteTexture(art.gameObject, itemPaths[index]);
 
@@ -115,13 +120,22 @@ namespace ChoSiren.Tests
                 RectTransform artRect = art.GetComponent<RectTransform>();
                 Assert.That(artRect.anchoredPosition.x + artRect.rect.width * 0.5f,
                     Is.EqualTo(slotRect.rect.width * 0.5f).Within(0.5f),
-                    slotName + " 的图标必须和 AI 槽环水平同心。");
+                    slotName + " 的图标必须和收藏卡水平同心。");
+                Assert.That(art.GetComponent<Image>().preserveAspect, Is.True);
             }
 
-            AssertSpriteTexture("AccessoryDetailArt", itemPaths[0]);
-            Transform collectionArt = Require("AccessoryCollection-0").transform.Find("Art");
-            Assert.That(collectionArt, Is.Not.Null);
-            AssertSpriteTexture(collectionArt.gameObject, itemPaths[0]);
+            AssertSpriteTexture("EquipmentSelectedArt", itemPaths[0]);
+            Click("EquipmentNextMember");
+            yield return null;
+            int next = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(selectedMember) + 1)
+                % model.Save.UnlockedMembers.Count];
+            AssertSpriteTexture("EquipmentPortrait", GameModel.Members[next].ResourcePath);
+            Assert.That(Require("EquipmentMemberName").GetComponent<Text>().text,
+                Does.StartWith(GameModel.Members[next].Name));
+            Click("Accessory-2");
+            yield return null;
+            AssertSpriteTexture("EquipmentSelectedArt", itemPaths[2]);
+            AssertSpriteTexture("EquipmentPortrait", GameModel.Members[next].ResourcePath);
         }
 
         [UnityTest]

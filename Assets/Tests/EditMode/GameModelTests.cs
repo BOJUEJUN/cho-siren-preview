@@ -886,21 +886,20 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void TeamRejectsDuplicateCareersAndIncompleteBattleWithoutSpendingStamina()
+        public void TeamAcceptsDuplicateCareersAndSmallerPartiesWithNormalStaminaCost()
         {
             GameModel model = CreateModel();
             Assert.That(model.Recruit(4, out _), Is.True);
             model.ToggleTeamMember(3, out _);
-            model.ToggleTeamMember(4, out string duplicate);
-            Assert.That(model.IsInTeam(4), Is.False);
-            Assert.That(duplicate, Does.Contain("主舞"));
+            model.ToggleTeamMember(4, out _);
+            Assert.That(model.IsInTeam(4), Is.True);
             int stamina = model.Save.Stamina;
-            Assert.That(model.StartStageBattle(EasyStage, 9, out string incomplete), Is.Null);
-            Assert.That(incomplete, Does.Contain("各一名"));
-            Assert.That(incomplete, Does.Contain("门面").And.Not.Contain("DJ"));
-            Assert.That(model.Save.Stamina, Is.EqualTo(stamina));
-            model.AutoTeam();
             Assert.That(model.StartStageBattle(EasyStage, 9, out _), Is.Not.Null);
+            Assert.That(model.Save.Stamina, Is.EqualTo(stamina - StageStamina));
+            while (model.Save.Team.Count > 1)
+                model.ToggleTeamMember(model.Save.Team[model.Save.Team.Count - 1], out _);
+            Assert.That(model.StartStageBattle(EasyStage, 9, out _), Is.Not.Null);
+            Assert.That(model.Save.Stamina, Is.EqualTo(stamina - StageStamina * 2));
         }
 
         [Test]

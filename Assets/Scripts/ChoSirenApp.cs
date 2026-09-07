@@ -12,7 +12,7 @@ using UnityEngine.UI;
 
 namespace ChoSiren
 {
-    public sealed class ChoSirenApp : MonoBehaviour
+    public sealed partial class ChoSirenApp : MonoBehaviour
     {
         private static readonly Color Ink = new Color32(8, 12, 42, 255);
         private static readonly Color White = new Color32(248, 246, 255, 255);
@@ -246,20 +246,30 @@ namespace ChoSiren
 
             // 在 720 设计宽度内主动利用两侧空间；资源组保持约 128 像素节拍，
             // 邮件紧跟体力，设置贴近右侧但保留可靠点击边距。
-            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 220, 28, 25);
+            AddResourceIcon(bar.transform, "DiamondIcon", "Art/UI/ResourceDiamond-C", 210, 28, 25);
             diamondText = NewText("Diamonds", bar.transform, string.Empty, 17, Cyan, FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(diamondText.rectTransform, 248, 18, 92, 44);
+            PlaceTop(diamondText.rectTransform, 238, 18, 66, 44);
             ConfigureHudNumber(diamondText);
 
-            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 348, 28, 25);
+            AddResourceIcon(bar.transform, "GoldIcon", "Art/UI/ResourceGold-C", 336, 28, 25);
             goldText = NewText("Gold", bar.transform, string.Empty, 17, new Color32(255, 219, 126, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(goldText.rectTransform, 376, 18, 92, 44);
+            PlaceTop(goldText.rectTransform, 364, 18, 66, 44);
             ConfigureHudNumber(goldText);
 
-            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 476, 27, 26);
+            AddResourceIcon(bar.transform, "StaminaIcon", "Art/UI/ResourceStamina-C", 462, 27, 26);
             staminaText = NewText("Stamina", bar.transform, string.Empty, 17, new Color32(255, 151, 211, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(staminaText.rectTransform, 504, 18, 85, 44);
+            PlaceTop(staminaText.rectTransform, 490, 18, 82, 44);
             ConfigureHudNumber(staminaText);
+            string[] currencies = { CurrencyIds.Diamond, CurrencyIds.Gold, CurrencyIds.Stamina };
+            float[] positions = { 208, 334, 460 };
+            float[] plusPositions = { 306, 432, 574 };
+            for (int i = 0; i < currencies.Length; i++)
+            {
+                string currency = currencies[i];
+                FlowText(bar.transform, "CurrencyPlus-" + currency, "+", 21, plusPositions[i], 18, 20, 44, Cyan);
+                GameObject hit = NewButton("Currency-" + currency, bar.transform, string.Empty, 1, Color.clear, Color.clear, () => OpenCurrency(currency));
+                PlaceTop(hit.GetComponent<RectTransform>(), positions[i], 12, i == 2 ? 134 : 122, 56);
+            }
 
             AddSpriteIconButton(bar.transform, "Mail",
                 Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 83, OpenInbox);
@@ -544,7 +554,7 @@ namespace ChoSiren
                 new Color32(74, 45, 132, 194), White, () =>
             {
                 model.AutoTeam();
-                Toast("已按四种职业择优编队");
+                Toast("已优先兼顾职业并补齐阵容");
                 ShowScreen("team");
             });
             PlaceTop(auto.GetComponent<RectTransform>(), 368, buttonY, 178, buttonHeight);
@@ -603,8 +613,7 @@ namespace ChoSiren
             orbitButton.targetGraphic = orbitImage;
             orbitButton.onClick.AddListener(() =>
             {
-                if (hasMember) OpenMember(memberIndex);
-                else ShowScreen("members");
+                OpenTeamSlotPicker(Math.Min(slot, model.Save.Team.Count));
                 ResumeMediaAfterUserGesture();
             });
 
@@ -667,7 +676,7 @@ namespace ChoSiren
                 if (!string.IsNullOrEmpty(raceFilter) && MemberRaceFamily(member, index) != raceFilter) return false;
                 return string.IsNullOrEmpty(memberSearchQuery) ||
                        member.Name.IndexOf(memberSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0;
-            }, dynamicPageSize);
+            }, dynamicPageSize, index => model.IsUnlocked(index) ? 0 : 1);
             memberPageIndex = page.PageIndex;
             int visiblePageNumber = page.PageCount == 0 ? 0 : page.PageIndex + 1;
             ScreenTitle("成员档案", "全部成员",
@@ -919,29 +928,7 @@ namespace ChoSiren
 
         private void BuildAccessories()
         {
-            BuildAccessoryStageBackdrop();
-            ScreenTitle("舞台饰品", "星环试衣舱", "选择饰品，实时预览舞台搭配与战力变化");
-
-            if (selectedAccessoryIndex < 0 || selectedAccessoryIndex >= GameModel.AccessoryNames.Length)
-            {
-                selectedAccessoryIndex = model.Save.EquippedAccessory >= 0
-                    ? model.Save.EquippedAccessory
-                    : 0;
-            }
-
-            int selected = selectedAccessoryIndex;
-            int selectedPower = model.TeamPowerWithAccessory(selected);
-            bool selectedEquipped = model.Save.EquippedAccessory == selected;
-
-            NewPlacedText(contentRoot, $"队伍战力  {model.TeamPower:N0}", 17, White,
-                470, 34, 230, 36, TextAnchor.MiddleRight, FontStyle.Bold);
-            NewPlacedText(contentRoot, selectedEquipped ? "已同步当前装备" : $"装备后战力 {selectedPower:N0}", 13,
-                selectedEquipped ? new Color32(112, 255, 196, 255) : Pink,
-                470, 70, 230, 24, TextAnchor.MiddleRight, FontStyle.Bold);
-
-            BuildAccessoryPreview(selected);
-            BuildAccessoryDetail(selected, selectedEquipped);
-            BuildAccessoryCollection(selected);
+            BuildPersonalEquipment();
         }
 
         private void BuildAccessoryStageBackdrop()
@@ -1082,7 +1069,7 @@ namespace ChoSiren
                 172, 20, 48, 38, TextAnchor.MiddleRight, FontStyle.Bold);
             NewPlacedText(detail.transform, "编队搭配", 15, new Color32(255, 202, 102, 255),
                 18, 62, 80, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(detail.transform, equipped ? "已装备" : "可装备", 13,
+            NewPlacedText(detail.transform, equipped ? "已装备" : model.OwnsAccessory(selected) ? "可装备" : "未获得", 13,
                 equipped ? new Color32(112, 255, 196, 255) : Pink,
                 106, 66, 48, 26, TextAnchor.MiddleRight, FontStyle.Bold);
             GameObject detailArt = NewImage("AccessoryDetailArt", detail.transform, AccessoryItemSprite(selected), White);
@@ -1129,8 +1116,8 @@ namespace ChoSiren
                 PanelKit.EnableBestFit(afterText, 16);
             }
 
-            CombatStatBonuses bonuses = GameModel.AccessoryBonuses(selected);
-            NewPlacedText(detail.transform, "实际搭配效果", 16, Pink,
+            CombatStatBonuses bonuses = model.EffectiveAccessoryBonuses(selected);
+            NewPlacedText(detail.transform, $"搭配效果 · 强化 +{model.AccessoryUpgradeLevel(selected)}", 14, Pink,
                 18, 408, 202, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text effects = NewPlacedText(detail.transform,
                 $"生命 +{bonuses.Hp / 10f:0.#}%\n攻击 +{bonuses.Attack / 10f:0.#}%\n防御 +{bonuses.Defense / 10f:0.#}%",
@@ -1140,17 +1127,24 @@ namespace ChoSiren
             GameObject equip = NewButton("AccessoryEquip", detail.transform, equipped ? "卸下" : "装备", 17,
                 equipped ? new Color32(77, 70, 123, 255) : Pink, White, () =>
                 {
-                    model.EquipAccessory(selected);
-                    Toast(model.Save.EquippedAccessory == selected ? "饰品已装备" : "饰品已卸下");
+                    model.EquipAccessory(selected, out string equipMessage);
+                    Toast(equipMessage);
                     ShowScreen("accessory");
             });
             PlaceTop(equip.GetComponent<RectTransform>(), 18, 548, 202, 56);
             ApplyAiUiSprite(equip, "Art/AccessoryAI/UI/accessory-action-pink-ai-v1");
+            equip.GetComponent<Button>().interactable = model.OwnsAccessory(selected);
+            if (!model.OwnsAccessory(selected)) PanelKit.LabelOf(equip).text = "未获得";
 
-            GameObject settings = NewButton("AccessorySettings", detail.transform, "游戏设置", 15,
-                new Color32(45, 52, 105, 220), White, OpenSettings);
+            bool canUpgrade = model.CanUpgradeAccessory(selected, out int pieces, out int gold);
+            string upgradeLabel = model.AccessoryUpgradeLevel(selected) >= 3 ? "已强化至 +3" :
+                $"强化：{pieces}碎片 + {gold}金币\n持有碎片 {model.Save.EquipmentFragments}";
+            GameObject settings = NewButton("AccessoryUpgrade", detail.transform, upgradeLabel, 12,
+                canUpgrade ? new Color32(45, 90, 125, 255) : new Color32(45, 52, 105, 220), White,
+                () => { model.UpgradeAccessory(selected, out string upgradeMessage); ShowScreen("accessory"); Toast(upgradeMessage); });
             PlaceTop(settings.GetComponent<RectTransform>(), 18, 618, 202, 50);
             ApplyAiUiSprite(settings, "Art/AccessoryAI/UI/accessory-action-blue-ai-v1");
+            settings.GetComponent<Button>().interactable = canUpgrade;
         }
 
         private void BuildAccessoryCollection(int selected)
@@ -1171,26 +1165,21 @@ namespace ChoSiren
             NewPlacedText(collection.transform, "饰品图鉴", compact ? 18 : 20, White,
                 18, compact ? 8 : 14, 180, compact ? 28 : 34,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(collection.transform, "已收集 3/6", 13, Muted,
+            NewPlacedText(collection.transform, $"已收集 {model.Save.OwnedAccessories.Count}/6", 13, Muted,
                 198, compact ? 10 : 18, 120, 28, TextAnchor.MiddleLeft);
-            NewPlacedText(collection.transform, "选中饰品会同步至上方佩戴预览", 13, Cyan,
+            NewPlacedText(collection.transform, $"来源：{GameModel.AccessorySource(selected)} · 首通必得/重复强化", 12, Cyan,
                 338, compact ? 10 : 18, 324, 28, TextAnchor.MiddleRight);
 
             string[] names = { "星轨耳返", "霓虹心链", "月桂舞鞋", "麦克风挂饰", "星辉手环", "舞台冠冕" };
             for (int index = 0; index < names.Length; index++)
             {
                 int captured = index;
-                bool owned = index < GameModel.AccessoryNames.Length;
-                bool active = owned && selected == index;
+                bool owned = model.OwnsAccessory(index);
+                bool active = selected == index;
                 GameObject item = NewButton($"AccessoryCollection-{index}", collection.transform, string.Empty, 1,
                     active ? new Color32(74, 39, 126, 122) : new Color32(18, 25, 69, 30), White,
                     () =>
                     {
-                        if (!owned)
-                        {
-                            Toast("该饰品将在后续舞台活动中开放");
-                            return;
-                        }
                         selectedAccessoryIndex = captured;
                         ShowScreen("accessory");
                     });
@@ -1209,7 +1198,7 @@ namespace ChoSiren
                 NewPlacedText(item.transform, names[index], 12, owned ? White : Muted,
                     5, compact ? 58 : 105, 92, compact ? 28 : 34,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
-                NewPlacedText(item.transform, owned ? "已收集" : "待收集", 11,
+                NewPlacedText(item.transform, owned ? $"强化 +{model.AccessoryUpgradeLevel(index)}" : "查看来源", 11,
                     owned ? (index == 2 ? Cyan : new Color32(255, 211, 102, 255)) : Muted,
                     5, compact ? 86 : 140, 92, compact ? 17 : 20,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -1351,8 +1340,10 @@ namespace ChoSiren
                 ApplyAiUiSprite(train, "Art/MemberAI/UI/member-action-pink-ai-v1");
 
                 GameObject team = NewButton("Team", panel.transform,
-                    model.IsInTeam(memberIndex) ? "移出编队" : "加入编队", 18, Purple, White, () =>
+                    model.IsInTeam(memberIndex) ? "移出编队" : "加入 / 替换", 18, Purple, White, () =>
                 {
+                    if (!model.IsInTeam(memberIndex) && model.Save.Team.Count >= GameModel.TeamCapacity)
+                    { OpenTeamReplacement(memberIndex); return; }
                     model.ToggleTeamMember(memberIndex, out string message);
                     Toast(message);
                     CloseModal();
@@ -1375,7 +1366,10 @@ namespace ChoSiren
 
             GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
                 new Color32(63, 57, 108, 245), White, CloseModal);
-            PlaceTop(close.GetComponent<RectTransform>(), 185, 1012, 250, 56);
+            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 328 : 185, 1012, 250, 56);
+            if (unlocked)
+                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 34, 1012, 258, 56, () =>
+                { equipmentMember = memberIndex; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(memberIndex)); ShowScreen("accessory"); });
         }
 
         private void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,
@@ -1488,7 +1482,14 @@ namespace ChoSiren
         private void OpenGacha()
         {
             CloseModal();
-            GachaPanel.OpenEmbedded(contentRoot, model, model, Toast);
+            GachaPanel.OpenEmbedded(contentRoot, model, model, Toast, member =>
+            {
+                memberOwnedOnly = true;
+                memberRoleFilterIndex = memberRaceFilterIndex = memberPageIndex = 0;
+                memberSearchQuery = string.Empty;
+                ShowScreen("members");
+                OpenMember(member);
+            });
         }
 
         private void OpenPerformanceConfirm()
@@ -1529,7 +1530,12 @@ namespace ChoSiren
                     if (model.IsUnlocked(index) && (lowest < 0 || model.LevelOf(index) < model.LevelOf(lowest))) lowest = index;
                 if (lowest >= 0) OpenMember(lowest);
             }
-            else ShowScreen(destination == "accessory" ? "accessory" : "team");
+            else
+            {
+                if (destination == "accessory" && model.LastAwardedAccessory >= 0)
+                    selectedAccessoryIndex = model.LastAwardedAccessory;
+                ShowScreen(destination == "accessory" ? "accessory" : "team");
+            }
         }
 
         private void OpenInfoModal(string title, string body, string primaryLabel,

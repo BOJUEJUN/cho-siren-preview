@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ChoSiren
 {
@@ -96,18 +97,34 @@ namespace ChoSiren
             int sourceCount,
             int requestedPageIndex,
             Predicate<int> include = null,
-            int pageSize = DefaultPageSize)
+            int pageSize = DefaultPageSize,
+            Func<int, int> priority = null)
         {
             if (sourceCount < 0)
                 throw new ArgumentOutOfRangeException(nameof(sourceCount));
             if (pageSize <= 0)
                 throw new ArgumentOutOfRangeException(nameof(pageSize));
 
-            int totalMatches = 0;
+            var matches = new List<int>(sourceCount);
             for (int sourceIndex = 0; sourceIndex < sourceCount; sourceIndex++)
             {
-                if (include == null || include(sourceIndex)) totalMatches++;
+                if (include == null || include(sourceIndex)) matches.Add(sourceIndex);
             }
+
+            // Smaller priority appears first; catalog order breaks ties deterministically.
+            // Filter before sorting so a signed member remains discoverable with the same
+            // pagination rules as every other owned member.
+            if (priority != null)
+            {
+                var priorities = new Dictionary<int, int>();
+                foreach (int index in matches) priorities[index] = priority(index);
+                matches.Sort((left, right) =>
+                {
+                    int comparison = priorities[left].CompareTo(priorities[right]);
+                    return comparison != 0 ? comparison : left.CompareTo(right);
+                });
+            }
+            int totalMatches = matches.Count;
 
             int pageCount = totalMatches == 0 ? 0 : (totalMatches + pageSize - 1) / pageSize;
             int pageIndex = ClampPageIndex(requestedPageIndex, pageCount);
@@ -115,17 +132,8 @@ namespace ChoSiren
             int visibleCount = Math.Min(pageSize, Math.Max(0, totalMatches - pageStart));
             int[] sourceIndices = new int[visibleCount];
 
-            int matchIndex = 0;
-            int visibleIndex = 0;
-            for (int sourceIndex = 0; sourceIndex < sourceCount && visibleIndex < visibleCount; sourceIndex++)
-            {
-                if (include != null && !include(sourceIndex)) continue;
-
-                if (matchIndex >= pageStart)
-                    sourceIndices[visibleIndex++] = sourceIndex;
-
-                matchIndex++;
-            }
+            for (int visibleIndex = 0; visibleIndex < visibleCount; visibleIndex++)
+                sourceIndices[visibleIndex] = matches[pageStart + visibleIndex];
 
             return new MemberRosterPage(totalMatches, pageSize, pageIndex, pageCount, sourceIndices);
         }

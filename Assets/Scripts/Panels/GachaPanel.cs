@@ -70,6 +70,7 @@ namespace ChoSiren.Panels
         private IGachaService service;
         private Action onBack;
         private Action<string> onMessage;
+        private Action<int> onSigned;
         private bool embeddedMode;
         private bool closing;
         private int bannerIndex;
@@ -127,9 +128,11 @@ namespace ChoSiren.Panels
         /// a modal screen with a duplicate header.
         /// </summary>
         public static GachaPanel OpenEmbedded(Transform contentHost, GameModel gameModel,
-            IGachaService gachaService, Action<string> message = null)
+            IGachaService gachaService, Action<string> message = null, Action<int> signed = null)
         {
-            return Create(contentHost, gameModel, gachaService, true, null, message);
+            GachaPanel panel = Create(contentHost, gameModel, gachaService, true, null, message);
+            panel.onSigned = signed;
+            return panel;
         }
 
         private static GachaPanel Create(Transform host, GameModel gameModel, IGachaService gachaService,
@@ -492,6 +495,7 @@ namespace ChoSiren.Panels
                 ? 0
                 : Mathf.Clamp(interviewCandidateIndex, 0, remaining.Count - 1);
             RebuildInterview();
+            onSigned?.Invoke(memberIndex);
         }
 
         private void RebuildInterview()

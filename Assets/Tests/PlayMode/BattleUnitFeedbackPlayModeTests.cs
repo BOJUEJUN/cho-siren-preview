@@ -34,6 +34,30 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void SkillEffectsUseActualRecipientsAndReplaceCrossScreenTrails()
+        {
+            using (var fixture = new Fixture(false))
+            {
+                var caster = fixture.Battle.Units.First(u => u.Side == BattleSide.Player);
+                var enemy = fixture.Battle.Units.First(u => u.Side == BattleSide.Enemy);
+                int hp = enemy.Hp;
+                Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Damage, ActorId = caster.Id,
+                    TargetId = enemy.Id, SkillId = fixture.Battle.ActiveSkillId(caster, true), Amount = 20 });
+                var fx = fixture.Panel.GetComponent<SkillEffectPresentation>();
+                Assert.That(fx.ActiveCount, Is.EqualTo(1));
+                Assert.That(enemy.Hp, Is.EqualTo(hp), "特效不能重复执行伤害。");
+                Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Heal, ActorId = caster.Id,
+                    TargetId = caster.Id, Amount = 10 });
+                Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Shield, ActorId = caster.Id,
+                    TargetId = caster.Id, Amount = 10 });
+                var graphics = fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>();
+                Assert.That(graphics.Any(g => g.Kind == SkillVisualKind.Heal), Is.True);
+                Assert.That(graphics.Any(g => g.Kind == SkillVisualKind.Shield), Is.True);
+                Assert.That(fixture.Panel.GetComponentsInChildren<Transform>().Any(t => t.name.StartsWith("ActionTrail-")), Is.False);
+            }
+        }
+
+        [Test]
         public void PerformerNamesAndDiceSummaryHaveRoomToRenderAboveTheirBars()
         {
             using (var fixture = new Fixture(false))

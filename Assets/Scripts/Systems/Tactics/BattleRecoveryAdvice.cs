@@ -44,10 +44,11 @@ namespace ChoSiren.Systems.Tactics
             }
 
             int bestAccessory = -1, improvement = 0;
-            // These three shared loadouts are currently all available in the accessory screen.
-            // Do not infer ownership or stat gains from decorative inventory/drop items.
+            // Only owned items are actionable. Preview includes removing the item from
+            // its previous wearer if the player chooses to transfer it to the captain.
             for (int index = 0; index < GameModel.AccessoryNames.Length; index++)
             {
+                if (!model.OwnsAccessory(index)) continue;
                 int delta = model.AccessoryPowerChange(index);
                 if (delta <= improvement) continue;
                 improvement = delta;

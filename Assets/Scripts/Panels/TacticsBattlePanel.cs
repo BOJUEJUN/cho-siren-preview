@@ -179,7 +179,7 @@ namespace ChoSiren.Panels
         private Text captainEffectText;
         private SkillCutInPresentation skillCutIn;
         private float presentationClock;
-        private readonly List<Image> actionTrails = new List<Image>();
+        private SkillEffectPresentation skillEffects;
         private readonly Dictionary<int, string> lastPresentedActions = new Dictionary<int, string>();
         private Sprite rerollRingSprite;
         private Sprite memberFrameSprite;
@@ -251,6 +251,11 @@ namespace ChoSiren.Panels
             BuildControls();
             BuildPreview();
             BuildLog();
+            RectTransform effectsLayer = kit.NewRect("SkillEffects", transform);
+            PanelKit.Stretch(effectsLayer);
+            effectsLayer.SetSiblingIndex(pauseOverlay.transform.GetSiblingIndex());
+            skillEffects = gameObject.AddComponent<SkillEffectPresentation>();
+            skillEffects.Configure(effectsLayer, () => paused || closing, () => speed);
             BuildPopups();
             skillCutIn = gameObject.AddComponent<SkillCutInPresentation>();
             skillCutIn.Configure(transform, () => paused || closing, () => speed);
@@ -975,6 +980,10 @@ namespace ChoSiren.Panels
                 PanelKit.PlaceTop(action.GetComponent<RectTransform>(), i % 2 * 264, i / 2 * 58, 250, 50);
             }
             recoveryActions.SetActive(false);
+            GameObject lootButton = kit.NewButton("VictoryEquipment", card.transform, "查看获得的装备", 16,
+                PanelKit.ButtonDark, PanelKit.Cyan, () => OpenRecovery("accessory"), 10);
+            PanelKit.PlaceTop(lootButton.GetComponent<RectTransform>(), 140, 568, 330, 36);
+            lootButton.SetActive(false);
             resultOverlay.SetActive(false);
         }
 
@@ -1297,6 +1306,7 @@ namespace ChoSiren.Panels
                     RefreshAllCells();
                     return 0.35f;
                 case BattleEventKind.Damage:
+                    PresentHitEffect(actor, target, battleEvent);
                     RefreshCell(target);
                     CellView damagedCell = FindCell(target);
                     if (damagedCell != null && damagedCell.Motion != null) damagedCell.Motion.PlayHit(battleEvent.Critical);
@@ -1321,6 +1331,8 @@ namespace ChoSiren.Panels
                     AppendLog(damageLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Heal:
+                    if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal,
+                        new Color32(106, 255, 189, 255), true);
                     RefreshCell(target);
                     SpawnPopup(target, $"+{battleEvent.Amount}", new Color32(120, 255, 170, 255), 22);
                     string healLine = $"{actorName} 使用「{skillName}」为 {targetName} 恢复 {battleEvent.Amount}";
@@ -1328,6 +1340,8 @@ namespace ChoSiren.Panels
                     AppendLog(healLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Shield:
+                    if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Shield,
+                        new Color32(100, 224, 255, 255), true);
                     RefreshCell(target);
                     SpawnPopup(target, $"护盾 +{battleEvent.Amount}", new Color32(150, 230, 255, 255), 20);
                     string shieldLine = $"{actorName} 使用「{skillName}」为 {targetName} 施加 {battleEvent.Amount} 护盾";
@@ -1440,8 +1454,8 @@ namespace ChoSiren.Panels
             }
             else if (enemyMotions.TryGetValue(actor.Id, out var motion)) motion.PlayAttack(heavy);
             else if (actor.Id == bossUnitId && heavy) bossPresentation?.PlayCharge(title);
-            if (target != null && target.Id != actor.Id)
-                StartCoroutine(AnimateActionTrail(actor, target, heavy));
+            if (heavy && actor.Side == BattleSide.Player)
+                skillEffects?.Play(UnitVisual(actor), SkillVisualKind.Cast, PerformerColor(battle.RaceOf(actor)));
             // The shared strip is reserved for encounter milestones, not a rapidly overwritten combat feed.
             AppendLog($"{actor.Definition.Name} · {title}");
         }
@@ -1455,43 +1469,19 @@ namespace ChoSiren.Panels
             return FindCell(unit)?.Portrait.rectTransform;
         }
 
-        private IEnumerator AnimateActionTrail(BattleUnit actor, BattleUnit target, bool heavy)
+        private void PresentHitEffect(BattleUnit actor, BattleUnit target, BattleEvent entry)
         {
-            RectTransform source = UnitVisual(actor), destination = UnitVisual(target);
-            if (source == null || destination == null) yield break;
-            Image trail = actionTrails.Find(item => !item.gameObject.activeSelf);
-            if (trail == null)
-            {
-                if (actionTrails.Count >= 16) yield break;
-                trail = kit.NewImage("ActionTrail-" + actionTrails.Count, transform, kit.RoundedSprite(4), PanelKit.Cyan);
-                trail.raycastTarget = false;
-                trail.rectTransform.anchorMin = trail.rectTransform.anchorMax = new Vector2(.5f, .5f);
-                trail.rectTransform.pivot = new Vector2(.5f, .5f);
-                actionTrails.Add(trail);
-            }
-            trail.gameObject.SetActive(true);
-            // Effects stay below the modal result and never consume pointer input.
-            trail.transform.SetSiblingIndex(resultOverlay.transform.GetSiblingIndex());
-            Vector2 start = transform.InverseTransformPoint(source.TransformPoint(source.rect.center));
-            Vector2 end = transform.InverseTransformPoint(destination.TransformPoint(destination.rect.center));
-            Color accent = actor.Side == BattleSide.Player ? PerformerColor(battle.RaceOf(actor)) : PanelKit.Pink;
-            float elapsed = 0, duration = heavy ? .44f : .27f;
-            while (elapsed < duration && !closing)
-            {
-                if (paused) { yield return null; continue; }
-                elapsed += BattleAnimationDelta();
-                float t = Mathf.Clamp01(elapsed / duration);
-                Vector2 head = Vector2.Lerp(start, end, Mathf.Min(1, t * 1.5f));
-                Vector2 tail = Vector2.Lerp(start, end, Mathf.Clamp01((t - .2f) * 1.5f));
-                Vector2 delta = head - tail;
-                trail.rectTransform.anchoredPosition = (head + tail) * .5f;
-                trail.rectTransform.sizeDelta = new Vector2(Mathf.Max(2, delta.magnitude), heavy ? 5 : 3);
-                trail.rectTransform.localEulerAngles = new Vector3(0, 0, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
-                accent.a = Mathf.Sin(t * Mathf.PI) * .72f;
-                trail.color = accent;
-                yield return null;
-            }
-            trail.gameObject.SetActive(false);
+            if (actor == null || target == null || entry.Amount <= 0) return;
+            bool player = actor.Side == BattleSide.Player;
+            bool special = player
+                ? entry.SkillId == battle.ActiveSkillId(actor, false) || entry.SkillId == battle.ActiveSkillId(actor, true)
+                : entry.SkillId == "rt-enemy-heavy" || entry.SkillId == "rt-enemy-finale";
+            bool strong = entry.Critical || special && player && entry.SkillId == battle.ActiveSkillId(actor, true);
+            CombatRace race = battle.RaceOf(actor);
+            SkillVisualKind kind = !special ? SkillVisualKind.Impact : race == CombatRace.Demon
+                ? SkillVisualKind.Hex : race == CombatRace.BloodElf ? SkillVisualKind.Pierce : SkillVisualKind.Slash;
+            Sprite art = kind == SkillVisualKind.Slash && strong ? bossHitSlashSprite : null;
+            skillEffects?.Play(UnitVisual(target), kind, player ? PerformerColor(race) : PanelKit.Pink, strong, art);
         }
 
         private void BeginEnemyActionPresentation(BattleUnit actor, BattleAction action)
@@ -2508,6 +2498,7 @@ namespace ChoSiren.Panels
         private void ShowResult()
         {
             skillCutIn?.Cancel();
+            skillEffects?.Clear();
             foreach (DiceRollPresentation roll in dicePresentations) roll.CancelRoll();
             awaitingDiceLanding = false;
             awaitingInput = false;
@@ -2520,6 +2511,7 @@ namespace ChoSiren.Panels
             bool victory = battle.Outcome == BattleOutcome.Victory;
             PanelKit.PlaceCentered(resultCardRect, 610, victory ? 720 : 810);
             recoveryActions.SetActive(!victory);
+            resultCardRect.Find("VictoryEquipment").gameObject.SetActive(victory && model.LastAwardedAccessory >= 0 && onGrowth != null);
             RectTransform continueRect = resultCardRect.Find("ResultContinue") as RectTransform;
             PanelKit.PlaceTop(continueRect, 140, victory ? 604 : 720, 330, 70);
             resultRewardTitle.text = victory ? "奖励" : "下一步怎么变强";

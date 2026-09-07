@@ -141,7 +141,7 @@
       "Drops": { "Rolls": 2, "Entries": [
         {"ItemId":"gold","Weight":6,"Min":100,"Max":180},
         {"ItemId":"shard","Weight":3,"Min":1,"Max":3},
-        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -166,7 +166,8 @@
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":120,"Max":200},
         {"ItemId":"shard","Weight":4,"Min":2,"Max":4},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -193,7 +194,8 @@
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":4,"Min":160,"Max":260},
         {"ItemId":"shard","Weight":4,"Min":2,"Max":5},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -218,7 +220,8 @@
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":180,"Max":280},
         {"ItemId":"shard","Weight":4,"Min":3,"Max":5},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -243,7 +246,7 @@
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":200,"Max":300},
         {"ItemId":"shard","Weight":4,"Min":3,"Max":6},
-        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -270,7 +273,8 @@
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":220,"Max":320},
         {"ItemId":"shard","Weight":4,"Min":4,"Max":7},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -297,7 +301,8 @@
       "Drops": { "Rolls": 4, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":240,"Max":360},
         {"ItemId":"shard","Weight":4,"Min":4,"Max":8},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -323,7 +328,8 @@
       "Drops": { "Rolls": 4, "Entries": [
         {"ItemId":"gold","Weight":5,"Min":280,"Max":420},
         {"ItemId":"shard","Weight":4,"Min":5,"Max":9},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
       ] }
     },
     {
@@ -350,7 +356,8 @@
         {"ItemId":"gold","Weight":4,"Min":360,"Max":520},
         {"ItemId":"shard","Weight":4,"Min":6,"Max":10},
         {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
+        {"ItemId":"accessory-stage-crown","Weight":1,"Min":1,"Max":1}
       ] }
     }
   ]

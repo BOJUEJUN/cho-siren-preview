@@ -74,6 +74,7 @@ namespace ChoSiren
         private Text staminaCostText;
         private Text diamondRewardText;
         private Text goldRewardText;
+        private Text equipmentDropText;
         private Text startLabel;
         private Text stageTitleText;
         private Text storyChapterLabel;
@@ -417,6 +418,12 @@ namespace ChoSiren
             progressText = NewPlacedText(card.transform, string.Empty, 13, Muted,
                 28, 79, 414, 28, TextAnchor.MiddleLeft);
 
+            GameObject drops = NewPanelButton("StageDropPreview", card.transform, new Color32(11, 29, 55, 180), 8, OpenDropPreview);
+            PlaceTop(drops.GetComponent<RectTransform>(), 28, 106, 430, 37);
+            equipmentDropText = NewPlacedText(drops.transform, string.Empty, 11, Cyan,
+                7, 0, 416, 37, TextAnchor.MiddleLeft);
+            equipmentDropText.gameObject.name = "StageDropSummary";
+
             staminaCostText = InfoChip(card.transform, "StaminaCost", "体力 -8",
                 28, 145, 126, new Color32(255, 157, 220, 255));
             diamondRewardText = InfoChip(card.transform, "DiamondReward", "星钻 ×20",
@@ -432,6 +439,14 @@ namespace ChoSiren
             startLabel = NewPlacedText(start.transform, "开始挑战", 23, White,
                 12, 23, 160, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             startLabel.name = "Label";
+        }
+
+        private void OpenDropPreview()
+        {
+            GameObject card = OpenModalShell("StageLootModal", 280, 880);
+            NewPlacedText(card.transform, "关卡奖励与掉落", 25, White, 40, 60, 580, 48, TextAnchor.MiddleCenter, FontStyle.Bold);
+            NewPlacedText(card.transform, model.StageLootDescription($"stage-1-{selectedStage}"), 18, White,
+                44, 142, 572, 644, TextAnchor.UpperLeft);
         }
 
         private Text InfoChip(Transform parent, string name, string label, float x, float y, float width, Color accent)
@@ -855,6 +870,7 @@ namespace ChoSiren
             staminaCostText.text = $"体力 -{staminaCost}";
             diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";
             goldRewardText.text = $"星币 ×{goldReward}";
+            equipmentDropText.text = model.StageEquipmentPreview(selectedStageId);
             startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
             startBackground.color = model.Save.Stamina < staminaCost

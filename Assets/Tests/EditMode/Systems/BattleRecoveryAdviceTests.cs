@@ -81,6 +81,7 @@ namespace ChoSiren.Tests.Systems
         {
             BattleSimulator battle = CreateBattle();
             int best = Enumerable.Range(0, GameModel.AccessoryNames.Length)
+                .Where(model.OwnsAccessory)
                 .OrderByDescending(model.AccessoryPowerChange).First();
             string before = JsonUtility.ToJson(model.Save);
             string persistedBefore = PlayerPrefs.GetString(GameModel.SaveKey);

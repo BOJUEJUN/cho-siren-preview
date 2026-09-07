@@ -130,6 +130,12 @@ namespace ChoSiren
         public List<int> MemberLevels = new List<int> { 68, 64, 59, 57, 52, 49, 46, 43, 40 };
         public List<int> Team = new List<int> { 0, 1, 2, 3 };
         public int EquippedAccessory = -1;
+        public List<int> OwnedAccessories = new List<int> { 0, 1, 2 };
+        public List<int> AccessoryUpgradeLevels = new List<int>();
+        public int EquipmentFragments;
+        public List<string> EquipmentFirstClearClaims = new List<string>();
+        public List<MemberAccessoryBinding> MemberAccessories = new List<MemberAccessoryBinding>();
+        public bool PersonalEquipmentMigrated;
         public bool MusicEnabled = true;
         public bool SfxEnabled = true;
         public int QualityLevel = 1;
@@ -159,9 +165,9 @@ namespace ChoSiren
         public List<string> OfflineCandidateIds = new List<string>();
     }
 
-    public sealed class GameModel : IGachaService, ITaskBoardService
+    public sealed partial class GameModel : IGachaService, ITaskBoardService
     {
-        public const int SaveSchemaVersion = 4;
+        public const int SaveSchemaVersion = 5;
         public const string SaveKey = "ChoSiren.Save.v2";
         /// <summary>v1 index-based save. Read for migration, never deleted (kept for at least two releases).</summary>
         public const string LegacySaveKey = "ChoSiren.Save.v1";
@@ -299,7 +305,7 @@ namespace ChoSiren
         public static readonly MemberDefinition[] Members = LoadMemberDefinitions();
         private static readonly Dictionary<string, int> MemberIndexById = BuildMemberIndex(Members);
 
-        public static readonly string[] AccessoryNames = { "星轨耳返", "霓虹心链", "月桂舞鞋" };
+        public static readonly string[] AccessoryNames = { "星轨耳返", "霓虹心链", "月桂舞鞋", "麦克风挂饰", "星辉手环", "舞台冠冕" };
         // Existing stage accessories are mutually exclusive shared party loadouts. The later
         // four-slot inventory will feed the same capped bonuses, not a second combat formula.
         public static CombatStatBonuses AccessoryBonuses(int index)
@@ -309,6 +315,9 @@ namespace ChoSiren
                 case 0: return new CombatStatBonuses(80, 0, 40); // ear monitor: survival
                 case 1: return new CombatStatBonuses(40, 80, 0); // heart pendant: offense
                 case 2: return new CombatStatBonuses(0, 40, 110); // dance shoes: armor
+                case 3: return new CombatStatBonuses(0, 100, 0);
+                case 4: return new CombatStatBonuses(120, 0, 60);
+                case 5: return new CombatStatBonuses(50, 70, 70);
                 default: return default;
             }
         }
@@ -368,18 +377,18 @@ namespace ChoSiren
         public bool IsUnlocked(int index) => IsValidMemberIndex(index) && Save.UnlockedMembers.Contains(index);
         public bool IsInTeam(int index) => IsValidMemberIndex(index) && Save.Team.Contains(index);
         public int LevelOf(int index) => IsValidMemberIndex(index) ? Save.MemberLevels[index] : 0;
-        public CombatStats StatsOf(int index) => StatsOf(index, Save.EquippedAccessory);
+        public CombatStats StatsOf(int index) => StatsOf(index, EquippedAccessoryFor(index));
         public CombatStats StatsOf(int index, int accessoryIndex) => IsValidMemberIndex(index)
-            ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), AccessoryBonuses(accessoryIndex))
+            ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), EffectiveAccessoryBonuses(accessoryIndex))
             : default;
         public int PowerOf(int index) => StatsOf(index).Power;
         public bool DailyTaskComplete => Save.DailyPerformances >= DailyPerformanceGoal;
         public bool HasCheckedInToday => Save.LastCheckInDate == DateKey(Today);
 
-        public int TeamPower => TeamPowerWithAccessory(Save.EquippedAccessory);
+        public int TeamPower => Save.Team.Where(IsUnlocked).Sum(PowerOf);
         public IReadOnlyList<CombatStats> PartyStatsWithAccessory(int accessoryIndex) => Save.Team
             .Where(index => IsValidMemberIndex(index) && IsUnlocked(index))
-            .Select(index => StatsOf(index, accessoryIndex)).ToArray();
+            .Select(index => StatsOf(index, PreviewAccessoryFor(index, Save.Team[0], accessoryIndex))).ToArray();
         public int TeamPowerWithAccessory(int accessoryIndex) => PartyStatsWithAccessory(accessoryIndex).Sum(stats => stats.Power);
         public int AccessoryPowerChange(int accessoryIndex) => TeamPowerWithAccessory(accessoryIndex) - TeamPower;
 
@@ -696,12 +705,6 @@ namespace ChoSiren
                 return;
             }
 
-            if (Save.Team.Any(index => Members[index].Career == Members[memberIndex].Career))
-            {
-                message = $"编队已有{Members[memberIndex].Career}，请先移除同职业成员";
-                return;
-            }
-
             Save.Team.Add(memberIndex);
             SaveState();
             message = $"{Members[memberIndex].Name} 已加入当前编队";
@@ -716,6 +719,8 @@ namespace ChoSiren
                 .Select(group => group.First())
                 .Take(TeamCapacity)
                 .ToList();
+            foreach (int index in Save.UnlockedMembers.Where(i => tactics.FindUnit(Members[i].Id) != null).OrderByDescending(PowerOf))
+                if (Save.Team.Count < TeamCapacity && !Save.Team.Contains(index)) Save.Team.Add(index);
             SaveState();
         }
 
@@ -1277,14 +1282,6 @@ namespace ChoSiren
                 return null;
             }
 
-            if (Save.Team.Count != TeamCapacity ||
-                Save.Team.Select(index => Members[index].Career).Distinct().Count() != TeamCapacity)
-            {
-                if (stateChanged) SaveState();
-                message = $"请配置{string.Join("、", MemberCareers.All)}各一名，可在团队页一键编队";
-                return null;
-            }
-
             BattleSimulator battle;
             BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
             try
@@ -1358,12 +1355,31 @@ namespace ChoSiren
 
             bool firstClear = !IsStageCleared(stage.Id);
             if (firstClear && stage.DiamondFirstClear > 0) rewards.Add((CurrencyIds.Diamond, stage.DiamondFirstClear));
+            if (firstClear && FirstClearAccessory(stage.Id) >= 0 && !Save.EquipmentFirstClearClaims.Contains(stage.Id))
+            {
+                Save.EquipmentFirstClearClaims.Add(stage.Id);
+                rewards.Add((AccessoryItemIds[FirstClearAccessory(stage.Id)], 1));
+            }
             bool dailyPerformanceGoalReached = RecordSuccessfulPerformance();
             if (dailyPerformanceGoalReached) rewards.Add((CurrencyIds.Diamond, DailyPerformanceDiamondReward));
 
             rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
 
-            foreach ((string itemId, int amount) in rewards) GrantItemInternal(itemId, amount);
+            LastAwardedAccessory = -1;
+            var equipmentNotes = new List<string>();
+            foreach ((string itemId, int amount) in rewards)
+            {
+                int equipment = AccessoryIndexForItem(itemId);
+                if (equipment >= 0)
+                {
+                    bool owned = OwnsAccessory(equipment);
+                    int duplicates = owned ? amount : Math.Max(0, amount - 1);
+                    if (!owned) equipmentNotes.Add($"新装备：{AccessoryNames[equipment]}");
+                    if (duplicates > 0) equipmentNotes.Add($"{AccessoryNames[equipment]}重复 → 强化碎片 +{duplicates * 3}");
+                    LastAwardedAccessory = equipment;
+                }
+                GrantItemInternal(itemId, amount);
+            }
 
             int stars = battle.StarRating();
             RecordStageClear(stage.Id, stars);
@@ -1375,7 +1391,8 @@ namespace ChoSiren
             SaveState();
 
             string difficultyName = DifficultyProfileFor(context.Difficulty).Name;
-            message = $"战斗胜利 {new string('★', stars)}（{difficultyName}）：{FormatRewards(rewards)}";
+            message = $"战斗胜利 {new string('★', stars)}（{difficultyName}）：{FormatRewards(rewards.Where(r => AccessoryIndexForItem(r.ItemId) < 0))}";
+            if (equipmentNotes.Count > 0) message += "\n" + string.Join("\n", equipmentNotes);
             if (firstClear) message += "（首次通关）";
             if (dailyPerformanceGoalReached) message += "（每日演出目标达成）";
         }
@@ -1448,16 +1465,7 @@ namespace ChoSiren
 
         public bool EquipAccessory(int index, out string message)
         {
-            if (index < 0 || index >= AccessoryNames.Length)
-            {
-                message = "饰品不存在";
-                return false;
-            }
-
-            Save.EquippedAccessory = Save.EquippedAccessory == index ? -1 : index;
-            SaveState();
-            message = Save.EquippedAccessory == index ? "饰品已装备" : "饰品已卸下";
-            return true;
+            return EquipAccessoryForMember(Save.Team[0], index, out message);
         }
 
         public void ToggleMusic()
@@ -1710,6 +1718,8 @@ namespace ChoSiren
         private void GrantItemInternal(string itemId, int amount)
         {
             if (string.IsNullOrEmpty(itemId) || amount <= 0) return;
+            int accessory = AccessoryIndexForItem(itemId);
+            if (accessory >= 0) { GrantAccessory(accessory, amount); return; }
             switch (itemId)
             {
                 case CurrencyIds.Diamond: Save.Diamonds += amount; break;
@@ -1855,7 +1865,7 @@ namespace ChoSiren
                     Row = slot % BattleGrid.Rows,
                     Col = slot / BattleGrid.Rows,
                     Level = LevelOf(index),
-                    Equipment = AccessoryBonuses(Save.EquippedAccessory)
+                    Equipment = EffectiveAccessoryBonuses(EquippedAccessoryFor(index))
                 });
                 slot++;
             }
@@ -2058,6 +2068,8 @@ namespace ChoSiren
 
             if (Save.EquippedAccessory < -1 || Save.EquippedAccessory >= AccessoryNames.Length)
                 Save.EquippedAccessory = -1;
+
+            NormalizeEquipment();
 
             SyncRosterFromIndices();
             Save.SchemaVersion = SaveSchemaVersion;

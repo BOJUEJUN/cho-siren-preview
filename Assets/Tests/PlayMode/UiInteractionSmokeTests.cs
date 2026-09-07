@@ -165,7 +165,7 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator AccessoryPreviewAndEquipShowRealStatsWithoutFakeEnhancementOrSaveChanges()
+        public IEnumerator PersonalEquipmentPreviewTransferAndUnequipPersistCorrectCharacterStats()
         {
             Click("Nav-accessory");
             yield return null;
@@ -180,13 +180,17 @@ namespace ChoSiren.Tests
             Assert.That(RequireActiveObject("AccessoryBefore-3").GetComponent<Text>().text,
                 Is.EqualTo(model.TeamPower.ToString("N0")));
             Assert.That(RequireActiveObject("AccessoryAfter-3").GetComponent<Text>().text,
-                Is.EqualTo(model.TeamPowerWithAccessory(1).ToString("N0")));
+                Is.EqualTo(model.TeamPowerWithMemberAccessory(0, 1).ToString("N0")));
+            Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
+                Does.StartWith(GameModel.Members[0].Name));
+            int originalFirstAttack = model.StatsOf(0).Attack;
+            int originalSecondAttack = model.StatsOf(1).Attack;
+            int originalSecondHp = model.StatsOf(1).Hp;
             Text effects = RequireActiveObject("AccessoryEffects").GetComponent<Text>();
             Assert.That(effects.text, Is.EqualTo("生命 +4%\n攻击 +8%\n防御 +0%"));
             Assert.That(effects.preferredHeight, Is.LessThanOrEqualTo(effects.rectTransform.rect.height));
             foreach (Text text in RequireActiveObject("AccessoryDetail").GetComponentsInChildren<Text>())
             {
-                Assert.That(text.text, Does.Not.Contain("强化 +"));
                 Assert.That(text.text, Does.Not.Contain("套装"));
                 Assert.That(text.text, Does.Not.Contain("暴击率"));
             }
@@ -204,14 +208,79 @@ namespace ChoSiren.Tests
             Click("AccessoryEquip");
             yield return null;
             var equipped = new GameModel();
-            Assert.That(equipped.Save.EquippedAccessory, Is.EqualTo(1));
+            Assert.That(equipped.EquippedAccessoryFor(0), Is.EqualTo(1));
+            Assert.That(equipped.StatsOf(0).Attack, Is.GreaterThan(originalFirstAttack));
+            Assert.That(equipped.StatsOf(1).Attack, Is.EqualTo(originalSecondAttack),
+                "装备只影响穿戴者，不能给所有队员加上同一份属性。");
             Assert.That(equipped.Save.Gold, Is.EqualTo(gold));
-            Assert.That(equipped.TeamPower, Is.EqualTo(model.TeamPowerWithAccessory(1)));
+            Assert.That(equipped.TeamPower, Is.EqualTo(model.TeamPowerWithMemberAccessory(0, 1)));
             Assert.That(RequireActiveObject("AccessoryPowerChange").GetComponent<Text>().text,
-                Is.EqualTo("战力变化 0"));
+                Is.EqualTo($"战力变化 {model.TeamPower - equipped.TeamPower:N0}"),
+                "当前选中已装备饰品时，主操作是卸下，对比应展示卸下后的战力损失。");
+
+            Click("EquipmentNextMember");
+            yield return null;
+            Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
+                Does.StartWith(GameModel.Members[1].Name));
+            Assert.That(RequireActiveObject("EquipmentPortrait").GetComponent<Image>().sprite.texture,
+                Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[1].ResourcePath).texture));
+            Assert.That(new GameModel().EquippedAccessoryFor(0), Is.EqualTo(1),
+                "浏览另一角色不能自动移动已装备饰品。");
+            Click("Accessory-1");
+            yield return null;
+            Assert.That(RequireActiveObject("AccessoryBefore-0").GetComponent<Text>().text,
+                Is.EqualTo(originalSecondHp.ToString("N0")));
+            Assert.That(RequireActiveObject("AccessoryAfter-1").GetComponent<Text>().text,
+                Is.EqualTo(equipped.StatsOf(1, 1).Attack.ToString("N0")));
+            Assert.That(RequireActiveObject("AccessoryEquip").GetComponentInChildren<Text>().text,
+                Does.Contain("从" + GameModel.Members[0].Name + "转移"));
             Click("AccessoryEquip");
             yield return null;
-            Assert.That(new GameModel().Save.EquippedAccessory, Is.EqualTo(-1));
+            var transferred = new GameModel();
+            Assert.That(transferred.EquippedAccessoryFor(0), Is.EqualTo(-1));
+            Assert.That(transferred.EquippedAccessoryFor(1), Is.EqualTo(1));
+            Assert.That(transferred.AccessoryOwner(1), Is.EqualTo(1));
+            Assert.That(transferred.StatsOf(0).Attack, Is.EqualTo(originalFirstAttack));
+            Assert.That(transferred.StatsOf(1).Attack, Is.GreaterThan(originalSecondAttack));
+            Assert.That(transferred.TeamPower, Is.EqualTo(equipped.TeamPowerWithMemberAccessory(1, 1)));
+            Click("AccessoryEquip");
+            yield return null;
+            var unequipped = new GameModel();
+            Assert.That(unequipped.EquippedAccessoryFor(1), Is.EqualTo(-1));
+            Assert.That(unequipped.StatsOf(1).Attack, Is.EqualTo(originalSecondAttack));
+            Assert.That(unequipped.TeamPower, Is.EqualTo(model.TeamPower));
+        }
+
+        [UnityTest]
+        public IEnumerator CurrencyPlusExplainsUseAndGoldExchangeRequiresOneConfirmedPayment()
+        {
+            var before = new GameModel();
+            int gold = before.Save.Gold, diamonds = before.Save.Diamonds;
+            Click("Currency-gold");
+            yield return null;
+            Assert.That(RequireActiveObject("CurrencyHelp").GetComponent<Text>().text,
+                Does.Contain("训练成员"));
+            Click("CurrencyExchange");
+            yield return null;
+            RequireActiveObject("CurrencyConfirmation");
+            Assert.That(new GameModel().Save.Diamonds, Is.EqualTo(diamonds),
+                "打开报价确认窗不能扣费。");
+            Click("CancelExchange");
+            yield return null;
+            Assert.That(new GameModel().Save.Gold, Is.EqualTo(gold));
+            Assert.That(new GameModel().Save.Diamonds, Is.EqualTo(diamonds));
+            Click("CurrencyExchange");
+            yield return null;
+            Button submit = RequireActiveObject("ConfirmExchange").GetComponent<Button>();
+            Click("ConfirmExchange");
+            // A second queued event on the same dialog cannot repeat the purchase.
+            submit.onClick.Invoke();
+            yield return null;
+            var after = new GameModel();
+            Assert.That(after.Save.Gold, Is.EqualTo(gold + GameModel.GoldExchangeAmount));
+            Assert.That(after.Save.Diamonds, Is.EqualTo(diamonds - GameModel.GoldExchangeDiamondCost));
+            Assert.That(RequireActiveObject("CurrencyBalance").GetComponent<Text>().text,
+                Does.Contain(after.Save.Gold.ToString("N0")));
         }
 
         [UnityTest]
@@ -230,10 +299,11 @@ namespace ChoSiren.Tests
             Click("Nav-accessory");
             yield return null;
             RequireActiveObject("Accessory-0");
-            RequireActiveObject("AccessorySlot-5");
-            RequireActiveObject("AccessoryPreviewCharacter");
+            RequireActiveObject("Accessory-5");
+            RequireActiveObject("EquipmentPortrait");
             RequireActiveObject("AccessoryDetail");
-            RequireActiveObject("AccessoryCollection");
+            RequireActiveObject("EquipmentScroll");
+            RequireActiveObject("EquipmentInventoryTitle");
             AssertActiveUiUsesChineseOnly();
 
             Click("Nav-audition");
@@ -289,6 +359,24 @@ namespace ChoSiren.Tests
             int beforeCount = int.Parse(beforeCounter.Split('/')[1].Trim());
 
             Click("SignCandidate");
+            yield return null;
+            RequireActiveObject("MemberModal");
+            Assert.That(RequireActiveObject("MemberOwnershipStatus").GetComponent<Text>().text,
+                Is.EqualTo("已签约成员"));
+            Assert.That(RequireActiveObject("MemberModal").GetComponentsInChildren<Text>()
+                .Any(text => text.text == offlineName), Is.True,
+                "签约后必须直接展示刚获得的角色，而不是留在另一个未同步页面。");
+            int signedIndex = System.Array.FindIndex(GameModel.Members, member => member.Name == offlineName);
+            Assert.That(signedIndex, Is.GreaterThanOrEqualTo(0));
+            Assert.That(new GameModel().IsUnlocked(signedIndex), Is.True);
+            Click("Close");
+            yield return null;
+            RequireActiveObject("Member-" + GameModel.Members[signedIndex].Id);
+            Assert.That(RequireActiveObject("MemberOwnedFilter").GetComponentInChildren<Text>().text,
+                Does.Contain("开"));
+            Click("Nav-audition");
+            yield return null;
+            Click("InterviewPool-1");
             yield return null;
             string nextOfflineName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
             Assert.That(nextOfflineName, Is.Not.EqualTo(offlineName), "签约成功后应从当前候选池移除该成员。");

@@ -158,8 +158,11 @@ namespace ChoSiren.Tests
                 "饰品页眉应准确描述当前功能。");
             Assert.That(accessoryLabels, Does.Not.Contain("饰品与设置"),
                 "设置已经统一到顶部齿轮，饰品页不能继续使用旧的混合页标题。");
-            Assert.That(RequireRect("AccessoryPreview").GetComponent<Image>().color.a,
-                Is.LessThan(0.2f), "饰品角色预览不应恢复为大块实色底卡。");
+            Assert.That(RequireRect("EquipmentPortrait").GetComponent<Image>().preserveAspect,
+                Is.True, "角色装备立绘必须保持素材比例。");
+            Assert.That(GameObject.Find("AccessoryPreviewArt"), Is.Null,
+                "新装备页不可叠回自带栏位与字样的旧预览框体。");
+            Assert.That(RequireRect("EquipmentScroll").GetComponent<RectMask2D>(), Is.Not.Null);
         }
 
         [UnityTest]
@@ -324,19 +327,31 @@ namespace ChoSiren.Tests
                 RequireButtonRect("Nav-accessory").GetComponent<Button>().onClick.Invoke();
                 yield return null;
                 content = RequireRect("Content");
-                RectTransform collection = RequireRect("AccessoryCollection");
-                AssertContained(content, RequireRect("AccessoryPreview"),
-                    $"{targetHeight} 高度下的饰品预览");
-                AssertContained(content, RequireRect("AccessoryDetail"),
-                    $"{targetHeight} 高度下的饰品详情");
-                AssertContained(content, collection,
-                    $"{targetHeight} 高度下的饰品图鉴");
+                RectTransform viewport = RequireRect("EquipmentScroll");
+                RectTransform equipmentBody = RequireRect("EquipmentBody");
+                ScrollRect scroll = viewport.GetComponent<ScrollRect>();
+                Assert.That(scroll, Is.Not.Null);
+                Assert.That(scroll.viewport, Is.EqualTo(viewport));
+                Assert.That(scroll.content, Is.EqualTo(equipmentBody));
+                Assert.That(scroll.vertical, Is.True);
+                Assert.That(scroll.horizontal, Is.False);
+                Assert.That(scroll.movementType, Is.EqualTo(ScrollRect.MovementType.Clamped));
+                Assert.That(viewport.GetComponent<RectMask2D>(), Is.Not.Null,
+                    "短屏必须裁剪滚动区，不能让饰品内容压住底部导航。");
+                AssertContained(content, viewport, $"{targetHeight} 高度下的装备滚动视口");
+                AssertContained(equipmentBody, RequireRect("EquipmentMemberSelector"), "装备角色切换");
+                AssertContained(equipmentBody, RequireRect("AccessoryDetail"), "角色装备详情");
                 for (int index = 0; index < 6; index++)
-                    AssertContained(collection, RequireButtonRect($"AccessoryCollection-{index}"),
+                    AssertContained(equipmentBody, RequireButtonRect($"Accessory-{index}"),
                         $"{targetHeight} 高度下的饰品图鉴卡 {index + 1}");
-                Text collectionSummary = RequireRect("AccessoryCollectionSummary").GetComponent<Text>();
-                Assert.That(collectionSummary.resizeTextForBestFit, Is.True,
-                    "饰品图鉴摘要包含动态战力，必须允许受控缩字号。");
+                AssertEquipmentTextFitsWithoutOverlap(equipmentBody);
+                scroll.verticalNormalizedPosition = 0f;
+                Canvas.ForceUpdateCanvases();
+                yield return null;
+                AssertContained(viewport, RequireRect("EquipmentRules"),
+                    "滚动到底部后必须能完整阅读装备归属说明");
+                AssertContained(viewport, RequireButtonRect("Accessory-5"),
+                    "滚动到底部后必须能完整点击最后一件饰品");
 
                 RequireButtonRect("Nav-audition").GetComponent<Button>().onClick.Invoke();
                 yield return null;
@@ -519,14 +534,29 @@ namespace ChoSiren.Tests
                 "体力文本不应为已删除的倒计时保留空白宽度。");
             Assert.That(diamondValueRect.xMin - diamondIconRect.xMax,
                 Is.InRange(-PositionTolerance, 4f + PositionTolerance));
-            Assert.That(goldIconRect.xMin - diamondValueRect.xMax,
-                Is.InRange(-PositionTolerance, 8f + PositionTolerance));
             Assert.That(goldValueRect.xMin - goldIconRect.xMax,
                 Is.InRange(-PositionTolerance, 4f + PositionTolerance));
-            Assert.That(staminaIconRect.xMin - goldValueRect.xMax,
-                Is.InRange(-PositionTolerance, 8f + PositionTolerance));
             Assert.That(staminaValueRect.xMin - staminaIconRect.xMax,
                 Is.InRange(-PositionTolerance, 4f + PositionTolerance));
+            Rect previousResource = default;
+            foreach (string currency in new[] { "diamond", "gold", "stamina" })
+            {
+                RectTransform group = RequireButtonRect("Currency-" + currency);
+                RectTransform plus = RequireRect("CurrencyPlus-" + currency);
+                AssertContained(group, plus, currency + " 加号点击区域");
+                Assert.That(group.GetComponent<Button>().IsInteractable(), Is.True);
+                Rect groupRect = RectInParent(group);
+                Assert.That(groupRect.height, Is.GreaterThanOrEqualTo(44f));
+                if (currency != "diamond")
+                    Assert.That(groupRect.Overlaps(previousResource), Is.False,
+                        "资源完整点击区域含加号，不得侵入下一组。");
+                previousResource = groupRect;
+                string valueName = currency == "diamond" ? "Diamonds" : currency == "gold" ? "Gold" : "Stamina";
+                Assert.That(RectInParent(RequireRect(valueName)).Overlaps(RectInParent(plus)), Is.False,
+                    "资源余额文字不得压住加号。");
+            }
+            Assert.That(mailRect.xMin - previousResource.xMax, Is.InRange(-PositionTolerance, 24f),
+                "邮件应紧跟完整体力点击区，而不是挤入加号或保留旧按钮空槽。");
 
             settings.GetComponent<Button>().onClick.Invoke();
             yield return null;
@@ -616,6 +646,23 @@ namespace ChoSiren.Tests
                 "Pointer exit should restore the scale even when it follows pointer down.");
 
             yield return null;
+        }
+
+        private static void AssertEquipmentTextFitsWithoutOverlap(RectTransform body)
+        {
+            Text[] labels = body.GetComponentsInChildren<Text>()
+                .Where(text => !string.IsNullOrWhiteSpace(text.text)).ToArray();
+            foreach (Text label in labels)
+            {
+                AssertContained(label.rectTransform.parent as RectTransform, label.rectTransform, label.name);
+                Assert.That(label.preferredHeight, Is.LessThanOrEqualTo(label.rectTransform.rect.height + 1f),
+                    $"装备文字 {label.name} 被行高裁切：{label.text}");
+            }
+            for (int first = 0; first < labels.Length; first++)
+            for (int second = first + 1; second < labels.Length; second++)
+                Assert.That(RectRelativeTo(body, labels[first].rectTransform)
+                    .Overlaps(RectRelativeTo(body, labels[second].rectTransform)), Is.False,
+                    $"装备页文字 {labels[first].name} 与 {labels[second].name} 不应重叠。");
         }
 
         private static void AssertContained(RectTransform parent, RectTransform child, string label)

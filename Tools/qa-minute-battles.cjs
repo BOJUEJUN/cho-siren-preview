@@ -56,7 +56,9 @@ const readline = require('node:readline');
       await new Promise((resolve, reject) => { tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.objectStore('FILE_DATA').put(record, key); });
     }
     db.close();
-    return { levels: value.MemberLevels.slice(0, 4), progress: value.StoryProgress, clears: value.ClearedStages, stamina: value.Stamina };
+    return { levels: value.MemberLevels.slice(0, 4), progress: value.StoryProgress, clears: value.ClearedStages, stamina: value.Stamina,
+      gold: value.Gold, diamonds: value.Diamonds, team: value.Team, ownedMembers: value.UnlockedMembers,
+      equipment: value.MemberAccessories, ownedAccessories: value.OwnedAccessories, fragments: value.EquipmentFragments };
   }, fixture);
   await open(); await capture('home'); console.log('READY');
   for await (const line of readline.createInterface({ input: process.stdin })) {
@@ -64,6 +66,7 @@ const readline = require('node:readline');
       const action = JSON.parse(line);
       if (action.close) break;
       if (action.click) await page.mouse.click(...action.click);
+      if (action.wheel) { await page.mouse.move(280, 640); await page.mouse.wheel(0, action.wheel); }
       if (action.reload) await open();
       if (action.fixture) {
         await page.goto(new URL('qa-empty', url).href);
