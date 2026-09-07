@@ -111,10 +111,12 @@ namespace ChoSiren
             bool wraith = enemyType.IndexOf("wraith", StringComparison.OrdinalIgnoreCase) >= 0;
             bool performer = enemyType.StartsWith("performer-", StringComparison.OrdinalIgnoreCase);
             float rhythm = visualTime * (drone ? 2.8f : wraith ? 1.65f : 1.4f);
-            Vector2 offset = new Vector2(Mathf.Sin(rhythm * .63f) * (wraith ? 2.5f : .8f),
-                Mathf.Sin(rhythm) * (drone ? 5f : wraith ? 7f : 1.5f));
-            float rotation = Mathf.Sin(rhythm * .8f) * (drone ? 2.6f : wraith ? 1.4f : .5f);
-            float scale = 1f + Mathf.Sin(rhythm) * (wraith ? .015f : .005f);
+            // Idle cannot look like everyone is attacking. Player portraits stay still;
+            // floating enemies retain only a sub-pixel ambient drift.
+            Vector2 offset = performer ? Vector2.zero : new Vector2(Mathf.Sin(rhythm * .63f) * .18f,
+                Mathf.Sin(rhythm) * (drone ? .6f : wraith ? .8f : .2f));
+            float rotation = performer ? 0f : Mathf.Sin(rhythm * .8f) * .12f;
+            float scale = 1f + (performer ? 0f : Mathf.Sin(rhythm) * .0015f);
             float charge = 0f;
             float slashAlpha = 0f;
             Color tint = originalColor;
@@ -127,17 +129,17 @@ namespace ChoSiren
                 if (t < .42f)
                 {
                     float windup = t / .42f;
-                    offset += Vector2.up * (4f * windup);
-                    rotation -= 3f * windup;
-                    scale += .035f * windup;
+                    offset += Vector2.up * (7f * windup);
+                    rotation -= 4f * windup;
+                    scale += .045f * windup;
                     charge = windup * (heavy ? .8f : .5f);
                 }
                 else
                 {
                     float strike = Mathf.Sin((t - .42f) / .58f * Mathf.PI);
-                    offset += (performer ? new Vector2(.2f, 1f) : new Vector2(-3f, -1f)) *
-                        (strike * (heavy ? 6f : 4f));
-                    if (performer) scale += strike * (heavy ? .06f : .035f);
+                    offset += (performer ? new Vector2(.4f, 2.6f) : new Vector2(-3.6f, -1.5f)) *
+                        (strike * (heavy ? 8f : 6f));
+                    if (performer) scale += strike * (heavy ? .08f : .05f);
                     rotation += strike * (performer ? 1.5f : heavy ? 7f : 4f);
                     slashAlpha = strike * (heavy ? .85f : .6f);
                     charge = (1f - t) * .35f;
@@ -150,8 +152,10 @@ namespace ChoSiren
                 hitTime += delta;
                 float t = Mathf.Clamp01(hitTime / .24f);
                 float strength = 1f - t;
-                offset.x += Mathf.Sin(t * Mathf.PI * 5f) * strength * (critical ? 6f : 3f);
-                tint = Color.Lerp(originalColor, new Color(.65f, .94f, 1f, originalColor.a), strength * .72f);
+                offset.x += Mathf.Sin(t * Mathf.PI * 5f) * strength * (critical ? 9f : 6f);
+                offset.y -= Mathf.Sin(t * Mathf.PI) * (critical ? 6f : 4f);
+                scale -= Mathf.Sin(t * Mathf.PI) * .025f;
+                tint = Color.Lerp(originalColor, new Color(1f, .53f, .68f, originalColor.a), strength * .82f);
                 if (t >= 1f) hitTime = -1f;
             }
             motionRoot.anchoredPosition = origin + offset;

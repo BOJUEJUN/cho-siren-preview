@@ -1,11 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChoSiren.Systems.Economy;
 using ChoSiren.Systems.Tactics;
 using UnityEngine;
 
 namespace ChoSiren
 {
+    public readonly struct StageLootCandidate
+    {
+        public StageLootCandidate(string itemId, int minimum, int maximum, float chance)
+        { ItemId = itemId; Minimum = minimum; Maximum = maximum; Chance = chance; }
+        public string ItemId { get; }
+        public int Minimum { get; }
+        public int Maximum { get; }
+        public float Chance { get; }
+        public string Name => GameModel.RewardItemName(ItemId);
+        public string Use => GameModel.RewardItemUse(ItemId);
+        public string AmountLabel => Minimum == Maximum ? $"×{Minimum}" : $"×{Minimum}–{Maximum}";
+    }
+
     [Serializable]
     public sealed class MemberAccessoryBinding
     {
@@ -36,18 +50,91 @@ namespace ChoSiren
             return true;
         }
         // Legacy drop IDs remain stable so existing cosmetic-only records can be recovered.
-        public static readonly string[] AccessoryItemIds = { "accessory-ear-monitor", "accessory-heart-necklace", "accessory-dance-boots",
-            "accessory-neon-clip", "accessory-neon-earring", "accessory-stage-crown" };
+        public static readonly string[] AccessoryItemIds = new[] { "accessory-ear-monitor", "accessory-heart-necklace", "accessory-dance-boots",
+            "accessory-neon-clip", "accessory-neon-earring", "accessory-stage-crown", "accessory-prism-monitor",
+            "accessory-pulse-necklace", "accessory-spotlight-boots", "accessory-echo-note", "accessory-moon-bracelet", "accessory-starlit-crown" }
+            .Concat(new[] { "ear", "neck", "wrist", "ring", "hair", "charm" }.SelectMany(group =>
+                Enumerable.Range(1, 9).Select(number => $"accessory-collection-{group}-{number:00}"))).ToArray();
+        public const string EquipmentFragmentItemId = "equipment-fragment";
+        public static readonly string[] AccessoryCategories = { "全部", "耳饰", "项链", "手环", "戒指", "发饰", "挂饰", "舞台" };
+        public static string AccessoryCategory(int index)
+        {
+            if (index < 0 || index >= AccessoryNames.Length) return "未知";
+            if (index >= 12) return AccessoryCategories[1 + (index - 12) / 9];
+            string[] legacy = { "耳饰", "项链", "舞台", "挂饰", "手环", "发饰" };
+            return legacy[index % 6];
+        }
+        public static string AccessoryCollectionResourcePath(int index)
+        {
+            if (index < 12 || index >= AccessoryNames.Length) return null;
+            string[] groups = { "ear", "neck", "wrist", "ring", "hair", "charm" };
+            return $"Art/AccessoryAI/Collection54/accessory-{groups[(index - 12) / 9]}-{(index - 12) % 9 + 1:00}-v1";
+        }
+        private static CombatStatBonuses CollectionAccessoryBonuses(int index)
+        {
+            if (index < 12 || index >= AccessoryNames.Length) return default;
+            // All collections share one slot. Specialisation, rather than exponential rarity
+            // inflation, makes an offensive item compete with a survival or armour item.
+            int[,] patterns = { { 100, 40, 40 }, { 130, 20, 30 }, { 90, 70, 20 },
+                { 110, 0, 80 }, { 70, 80, 50 }, { 140, 40, 0 },
+                { 60, 60, 110 }, { 100, 80, 30 }, { 80, 70, 100 } };
+            int group = (index - 12) / 9, variant = (index - 12) % 9;
+            int hp = patterns[variant, (3 - group % 3) % 3];
+            int attack = patterns[variant, (4 - group % 3) % 3];
+            int defense = patterns[variant, (5 - group % 3) % 3];
+            if (group % 3 == 0) hp += group * 5;
+            else if (group % 3 == 1) attack += group * 5;
+            else defense += group * 5;
+            return new CombatStatBonuses(hp, attack, defense);
+        }
         public int LastAwardedAccessory { get; private set; } = -1;
+        private readonly List<(string ItemId, int Amount)> lastBattleRewards = new List<(string ItemId, int Amount)>();
+        public IReadOnlyList<(string ItemId, int Amount)> LastBattleRewards => lastBattleRewards;
         public bool OwnsAccessory(int index) => index >= 0 && index < AccessoryNames.Length && Save.OwnedAccessories.Contains(index);
         public int AccessoryUpgradeLevel(int index) => index >= 0 && index < Save.AccessoryUpgradeLevels.Count ? Save.AccessoryUpgradeLevels[index] : 0;
         public static int AccessoryIndexForItem(string id) => Array.IndexOf(AccessoryItemIds, id);
         public static int FirstClearAccessory(string stageId)
         {
             if (!TryGetChapterOneStageNumber(stageId, out int stage)) return -1;
-            return stage < 5 ? 3 : stage < 10 ? 4 : 5;
+            int[] firstClearItems = { 3, 6, 7, 8, 4, 9, 10, 6, 11, 5 };
+            return firstClearItems[stage - 1];
         }
-        public static string AccessorySource(int index) => index < 3 ? "初始赠送" : index == 3 ? "1-1 至 1-4" : index == 4 ? "1-5 至 1-9" : "1-10";
+        public static string AccessorySource(int index)
+        {
+            if (index < 0 || index >= AccessoryItemIds.Length) return "暂无来源";
+            var stages = ChoSiren.Systems.Data.GameData.Repository.Tactics.Stages;
+            string[] sources = stages.Where(stage => stage.Drops?.Entries != null && stage.Drops.Rolls > 0 &&
+                stage.Drops.Entries.Any(entry => entry.ItemId == AccessoryItemIds[index] && entry.Weight > 0 && entry.Max > 0))
+                .Select(stage => stage.Id.Replace("stage-", string.Empty)).ToArray();
+            return (index < 3 ? "初始赠送 / " : string.Empty) + (sources.Length > 0 ? string.Join("、", sources) : "暂无来源");
+        }
+        public static string RewardItemName(string itemId)
+        {
+            int item = AccessoryIndexForItem(itemId);
+            return item >= 0 ? AccessoryNames[item] : itemId == EquipmentFragmentItemId ? "强化碎片" : CurrencyName(itemId);
+        }
+        public static string RewardItemUse(string itemId)
+        {
+            int index = AccessoryIndexForItem(itemId);
+            if (index >= 0)
+            {
+                CombatStatBonuses bonus = AccessoryBonuses(index);
+                var stats = new List<string>();
+                if (bonus.Hp > 0) stats.Add($"生命 +{bonus.Hp / 10f:0.#}%");
+                if (bonus.Attack > 0) stats.Add($"攻击 +{bonus.Attack / 10f:0.#}%");
+                if (bonus.Defense > 0) stats.Add($"防御 +{bonus.Defense / 10f:0.#}%");
+                return string.Join(" · ", stats);
+            }
+            switch (itemId)
+            {
+                case EquipmentFragmentItemId: return "饰品强化材料";
+                case CurrencyIds.Gold: return "成员训练 / 饰品强化";
+                case CurrencyIds.Diamond: return "选秀 / 补体力 / 换金币";
+                case CurrencyIds.RecruitTicket: return "选秀招募抵扣星钻";
+                case CurrencyIds.CostumeTicket: return "服装招募使用";
+                default: return "收藏资源";
+            }
+        }
         public CombatStatBonuses EffectiveAccessoryBonuses(int index)
         {
             CombatStatBonuses b = AccessoryBonuses(index);
@@ -123,15 +210,25 @@ namespace ChoSiren
             DropTable table = tactics.FindStage(stageId)?.Drops;
             if (table?.Entries == null || table.Rolls <= 0) return 0;
             long total = table.Entries.Where(e => e != null && e.Weight > 0).Sum(e => (long)e.Weight);
-            long weight = table.Entries.Where(e => e != null && e.Weight > 0 && e.ItemId == itemId && e.Min > 0).Sum(e => (long)e.Weight);
-            return total == 0 ? 0 : (float)(1 - Math.Pow(1 - weight / (double)total, table.Rolls));
+            double positiveWeight = table.Entries.Where(e => e != null && e.Weight > 0 && e.ItemId == itemId)
+                .Sum(e => e.Weight * (e.Max <= 0 ? 0d : e.Min > 0 ? 1d : e.Max / ((double)e.Max - e.Min + 1)));
+            return total == 0 ? 0 : (float)(1 - Math.Pow(1 - positiveWeight / total, table.Rolls));
+        }
+        public IReadOnlyList<StageLootCandidate> StageLootCandidates(string stageId)
+        {
+            DropTable table = tactics.FindStage(stageId)?.Drops;
+            if (table?.Entries == null || table.Rolls <= 0) return Array.Empty<StageLootCandidate>();
+            return table.Entries.Where(e => e != null && e.Weight > 0 && e.Max > 0)
+                .GroupBy(e => e.ItemId).Select(group => new StageLootCandidate(group.Key,
+                    Math.Max(1, group.Min(e => e.Min)), group.Max(e => e.Max), StageItemDropChance(stageId, group.Key)))
+                .ToArray();
         }
         public string StageEquipmentPreview(string stageId)
         {
             int index = FirstClearAccessory(stageId);
             if (index < 0) return "本关无装备掉落";
             string first = IsStageCleared(stageId) ? "首通已领取" : $"首通必得：{AccessoryNames[index]}";
-            return $"{first}\n每次掉落：{AccessoryNames[index]} {StageItemDropChance(stageId, AccessoryItemIds[index]):P0} · 详情";
+            return $"{first}\n随机池 {StageLootCandidates(stageId).Count} 种 · 点击查看概率";
         }
         public string StageLootDescription(string stageId)
         {
@@ -141,11 +238,9 @@ namespace ChoSiren
             string first = IsStageCleared(stageId) ? "首通奖励已领取，不重复发放。" : $"首通额外：星钻 {stage.DiamondFirstClear}" +
                 (item >= 0 ? $" + {AccessoryNames[item]} ×1（必得）" : string.Empty);
             var lines = new List<string> { first, $"每次胜利：基础金币 {PreviewStageGoldReward(stageId)}", "", "随机奖励（每场至少获得一次的概率）：" };
-            foreach (var group in stage.Drops.Entries.GroupBy(e => e.ItemId))
+            foreach (StageLootCandidate candidate in StageLootCandidates(stageId))
             {
-                int index = AccessoryIndexForItem(group.Key);
-                string name = index >= 0 ? AccessoryNames[index] : CurrencyName(group.Key);
-                lines.Add($"{name}  {StageItemDropChance(stageId, group.Key):P1}");
+                lines.Add($"{candidate.Name} {candidate.AmountLabel}  {candidate.Chance:P1}");
             }
             lines.Add("\n每场多次抽取，以上概率不能直接相加。\n新装备进入饰品页；每件重复装备转为3强化碎片。\n再次挑战不保证掉装备；失败不发通关奖励。\n三星提升章节星数，不重复发首通奖励。");
             return string.Join("\n", lines);

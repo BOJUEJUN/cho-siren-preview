@@ -112,9 +112,15 @@
         {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":2}
       ],
       "Drops": { "Rolls": 2, "Entries": [
-        {"ItemId":"gold","Weight":6,"Min":80,"Max":160},
-        {"ItemId":"shard","Weight":3,"Min":1,"Max":3},
-        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-neon-clip","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-ear-monitor","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-01","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-01","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-01","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-01","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-01","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":1,"Max":3},
+        {"ItemId":"gold","Weight":20,"Min":80,"Max":160}
       ] }
     },
     {
@@ -139,9 +145,15 @@
         {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":650,"HpScalePermille":27778,"Wave":2}
       ],
       "Drops": { "Rolls": 2, "Entries": [
-        {"ItemId":"gold","Weight":6,"Min":100,"Max":180},
-        {"ItemId":"shard","Weight":3,"Min":1,"Max":3},
-        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-prism-monitor","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-heart-necklace","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-01","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-02","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-02","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-02","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-02","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":1,"Max":3},
+        {"ItemId":"gold","Weight":20,"Min":95,"Max":180}
       ] }
     },
     {
@@ -164,10 +176,15 @@
         {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":456,"HpScalePermille":25000,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
-        {"ItemId":"gold","Weight":5,"Min":120,"Max":200},
-        {"ItemId":"shard","Weight":4,"Min":2,"Max":4},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-pulse-necklace","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-dance-boots","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-02","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-02","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-03","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-03","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-03","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":1,"Max":3},
+        {"ItemId":"gold","Weight":20,"Min":110,"Max":200}
       ] }
     },
     {
@@ -192,10 +209,15 @@
         {"UnitId":"noise-wraith","Row":2,"Col":1,"ScalePermille":720,"HpScalePermille":30556,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
-        {"ItemId":"gold","Weight":4,"Min":160,"Max":260},
-        {"ItemId":"shard","Weight":4,"Min":2,"Max":5},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-neon-clip","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-spotlight-boots","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-03","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-03","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-03","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-04","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-04","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-04","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":1,"Max":4},
+        {"ItemId":"gold","Weight":20,"Min":125,"Max":220}
       ] }
     },
     {
@@ -218,10 +240,15 @@
         {"UnitId":"pulse-guard","Row":0,"Col":1,"ScalePermille":482,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
-        {"ItemId":"gold","Weight":5,"Min":180,"Max":280},
-        {"ItemId":"shard","Weight":4,"Min":3,"Max":5},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-neon-earring","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-04","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-04","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-04","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-05","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-05","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-05","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":2,"Max":4},
+        {"ItemId":"gold","Weight":20,"Min":140,"Max":240}
       ] }
     },
     {
@@ -244,9 +271,15 @@
         {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":549,"HpScalePermille":25000,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
-        {"ItemId":"gold","Weight":5,"Min":200,"Max":300},
-        {"ItemId":"shard","Weight":4,"Min":3,"Max":6},
-        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-echo-note","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-05","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-05","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-05","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-06","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-06","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-06","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":2,"Max":4},
+        {"ItemId":"gold","Weight":20,"Min":155,"Max":260}
       ] }
     },
     {
@@ -271,10 +304,15 @@
         {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
-        {"ItemId":"gold","Weight":5,"Min":220,"Max":320},
-        {"ItemId":"shard","Weight":4,"Min":4,"Max":7},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-moon-bracelet","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-06","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-06","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-06","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-07","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-07","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-07","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":2,"Max":5},
+        {"ItemId":"gold","Weight":20,"Min":170,"Max":280}
       ] }
     },
     {
@@ -298,11 +336,16 @@
         {"UnitId":"velvet-hexer","Row":1,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2},
         {"UnitId":"pulse-guard","Row":2,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2}
       ],
-      "Drops": { "Rolls": 4, "Entries": [
-        {"ItemId":"gold","Weight":5,"Min":240,"Max":360},
-        {"ItemId":"shard","Weight":4,"Min":4,"Max":8},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
+      "Drops": { "Rolls": 3, "Entries": [
+        {"ItemId":"accessory-prism-monitor","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-07","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-07","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-07","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-08","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-08","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-08","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":2,"Max":5},
+        {"ItemId":"gold","Weight":20,"Min":185,"Max":300}
       ] }
     },
     {
@@ -325,11 +368,16 @@
         {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
         {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1}
       ],
-      "Drops": { "Rolls": 4, "Entries": [
-        {"ItemId":"gold","Weight":5,"Min":280,"Max":420},
-        {"ItemId":"shard","Weight":4,"Min":5,"Max":9},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-neon-earring","Weight":1,"Min":1,"Max":1}
+      "Drops": { "Rolls": 3, "Entries": [
+        {"ItemId":"accessory-starlit-crown","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-08","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-08","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-08","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ear-09","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-neck-09","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-wrist-09","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":3,"Max":5},
+        {"ItemId":"gold","Weight":20,"Min":200,"Max":320}
       ] }
     },
     {
@@ -353,11 +401,15 @@
         {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
       ],
       "Drops": { "Rolls": 4, "Entries": [
-        {"ItemId":"gold","Weight":4,"Min":360,"Max":520},
-        {"ItemId":"shard","Weight":4,"Min":6,"Max":10},
-        {"ItemId":"recruit-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"costume-ticket","Weight":1,"Min":1,"Max":1},
-        {"ItemId":"accessory-stage-crown","Weight":1,"Min":1,"Max":1}
+        {"ItemId":"accessory-stage-crown","Weight":10,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-ring-09","Weight":8,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-hair-09","Weight":6,"Min":1,"Max":1},
+        {"ItemId":"accessory-collection-charm-09","Weight":5,"Min":1,"Max":1},
+        {"ItemId":"accessory-echo-note","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-moon-bracelet","Weight":4,"Min":1,"Max":1},
+        {"ItemId":"accessory-starlit-crown","Weight":3,"Min":1,"Max":1},
+        {"ItemId":"equipment-fragment","Weight":40,"Min":3,"Max":6},
+        {"ItemId":"gold","Weight":20,"Min":215,"Max":340}
       ] }
     }
   ]

@@ -92,11 +92,11 @@ namespace ChoSiren.Tests
             RectTransform power = RequireRect("TeamPower");
             AssertContained(titlePlaque, teamIndex, "编队编号");
             Rect titlePlaqueRect = RectInParent(titlePlaque);
-            Rect teamIndexRect = RectInParent(teamIndex);
+            Rect teamIndexRect = RectRelativeTo(titlePlaque.parent as RectTransform, teamIndex);
             Rect powerRect = RectInParent(power);
             Assert.That(teamIndexRect.xMin - titlePlaqueRect.xMin,
-                Is.GreaterThanOrEqualTo(100f - PositionTolerance),
-                "编队编号必须避开标题牌左侧的大音符装饰。");
+                Is.GreaterThanOrEqualTo(20f - PositionTolerance),
+                "编队编号必须保留清晰的20px内边距。");
             Assert.That(teamIndexRect.Overlaps(powerRect), Is.False,
                 "编队编号不能侵入右侧总战力卡。");
             Text powerValue = RequireRect("TeamPowerValue").GetComponent<Text>();
@@ -104,8 +104,10 @@ namespace ChoSiren.Tests
             Assert.That(powerValue.text, Is.Not.Empty, "编队总战力数字不能为空。");
             Assert.That(powerValue.resizeTextForBestFit, Is.True,
                 "总战力数字必须在数值增长后仍受控缩放，不能溢出美术框。");
-            Assert.That(powerValue.verticalOverflow, Is.EqualTo(VerticalWrapMode.Overflow),
-                "总战力大号数字不能被字体行高裁掉。");
+            Assert.That(powerValue.verticalOverflow, Is.EqualTo(VerticalWrapMode.Truncate),
+                "总战力必须受内容框约束，不能侵入下一行。");
+            Assert.That(powerValue.preferredHeight, Is.LessThanOrEqualTo(powerValue.rectTransform.rect.height + 1f),
+                "总战力大号数字仍需有足够行高，不得靠截断隐藏数字。");
             Text resonanceValue = RequireRect("TeamResonanceValue").GetComponent<Text>();
             Text memberCount = RequireRect("TeamMemberCount").GetComponent<Text>();
             Assert.That(resonanceValue.resizeTextForBestFit, Is.True,
@@ -113,17 +115,27 @@ namespace ChoSiren.Tests
             Assert.That(memberCount.resizeTextForBestFit, Is.True,
                 "成员数量动态文案必须允许受控缩字号。");
             RectTransform synergy = RequireRect("TeamSynergy");
-            Assert.That(resonanceValue.text, Does.StartWith("职业齐备"));
+            Assert.That(resonanceValue.text, Does.StartWith("职业种类"));
             for (int index = 0; index < MemberCareers.All.Count; index++)
             {
                 RectTransform careerStatus = RequireRect("CareerStatus-" + index);
                 AssertContained(synergy, careerStatus, "职业就位提示");
                 Assert.That(careerStatus.GetComponent<Text>().text, Does.StartWith(MemberCareers.All[index]));
             }
-            Assert.That(power.GetComponent<Image>().sprite, Is.Not.Null,
-                "总战力必须装配完整美术框体，不能退回纯色卡片。");
-            Assert.That(synergy.GetComponent<Image>().sprite, Is.Not.Null,
-                "协同效果必须装配完整美术框体，不能退回纯色卡片。");
+            Assert.That(power.GetComponent<Outline>(), Is.Not.Null, "总战力保持精细边界。");
+            Assert.That(synergy.GetComponent<Outline>(), Is.Not.Null, "职业配置保持精细边界。");
+            Assert.That(power.GetComponent<Image>().color.a, Is.GreaterThan(.8f));
+            Assert.That(synergy.GetComponent<Image>().color.a, Is.GreaterThan(.8f));
+            foreach (RectTransform container in new[] { titlePlaque, power, synergy })
+            {
+                Text[] information = container.GetComponentsInChildren<Text>().Where(t => !string.IsNullOrWhiteSpace(t.text)).ToArray();
+                foreach (Text label in information) AssertContained(container, label.rectTransform, label.name);
+                for (int a = 0; a < information.Length; a++)
+                for (int b = a + 1; b < information.Length; b++)
+                    Assert.That(RectRelativeTo(container, information[a].rectTransform)
+                        .Overlaps(RectRelativeTo(container, information[b].rectTransform)), Is.False,
+                        $"团队信息 {information[a].name} 与 {information[b].name} 不得重叠。");
+            }
             RequireButtonRect("ChangeLeader");
             RequireButtonRect("AutoTeam");
             AssertContained(RequireRect("Content"), synergy, "协同效果");
@@ -542,21 +554,20 @@ namespace ChoSiren.Tests
             foreach (string currency in new[] { "diamond", "gold", "stamina" })
             {
                 RectTransform group = RequireButtonRect("Currency-" + currency);
-                RectTransform plus = RequireRect("CurrencyPlus-" + currency);
-                AssertContained(group, plus, currency + " 加号点击区域");
+                Assert.That(GameObject.Find("CurrencyPlus-" + currency), Is.Null);
                 Assert.That(group.GetComponent<Button>().IsInteractable(), Is.True);
                 Rect groupRect = RectInParent(group);
                 Assert.That(groupRect.height, Is.GreaterThanOrEqualTo(44f));
                 if (currency != "diamond")
                     Assert.That(groupRect.Overlaps(previousResource), Is.False,
-                        "资源完整点击区域含加号，不得侵入下一组。");
+                        "资源信息块不得侵入下一组。");
                 previousResource = groupRect;
                 string valueName = currency == "diamond" ? "Diamonds" : currency == "gold" ? "Gold" : "Stamina";
-                Assert.That(RectInParent(RequireRect(valueName)).Overlaps(RectInParent(plus)), Is.False,
-                    "资源余额文字不得压住加号。");
+                AssertContained(group, RequireRect(valueName), "数字必须完整落在所属资源信息块内");
+                Assert.That(RequireRect(valueName).GetComponent<Text>().raycastTarget, Is.False);
             }
             Assert.That(mailRect.xMin - previousResource.xMax, Is.InRange(-PositionTolerance, 24f),
-                "邮件应紧跟完整体力点击区，而不是挤入加号或保留旧按钮空槽。");
+                "邮件应紧跟体力信息块，不应保留旧加号空槽。");
 
             settings.GetComponent<Button>().onClick.Invoke();
             yield return null;

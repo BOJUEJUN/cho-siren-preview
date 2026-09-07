@@ -1,0 +1,187 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ChoSiren.Systems;
+using ChoSiren.Systems.Economy;
+using ChoSiren.Systems.Tactics;
+using ChoSiren.UI;
+using NUnit.Framework;
+using UnityEngine;
+
+namespace ChoSiren.Tests
+{
+    public sealed class StageRewardDiversityTests
+    {
+        private static readonly DateTime Now = new DateTime(2026, 9, 7, 12, 0, 0);
+        [SetUp] public void SetUp() => ClearSave();
+        [TearDown] public void TearDown() => ClearSave();
+        private static void ClearSave()
+        {
+            PlayerPrefs.DeleteKey(GameModel.SaveKey);
+            PlayerPrefs.DeleteKey(GameModel.LegacySaveKey);
+        }
+
+        [Test]
+        public void EachStageHasDistinctNineItemPoolAndAllSixtySixEquipmentsAreReachable()
+        {
+            var model = new GameModel(() => Now);
+            var signatures = new HashSet<string>();
+            var firstRewards = new HashSet<int>();
+            var reachable = new HashSet<int>();
+            for (int number = 1; number <= 10; number++)
+            {
+                string stageId = "stage-1-" + number;
+                IReadOnlyList<StageLootCandidate> pool = model.StageLootCandidates(stageId);
+                Assert.That(pool.Count, Is.EqualTo(9), stageId);
+                Assert.That(pool.Count(item => GameModel.AccessoryIndexForItem(item.ItemId) >= 0), Is.EqualTo(7));
+                Assert.That(pool.Any(item => item.ItemId == GameModel.EquipmentFragmentItemId), Is.True);
+                Assert.That(signatures.Add(string.Join("|", pool.Select(item => item.ItemId))), Is.True,
+                    "各关必须有不同的定向刷取选择，而不是同一掉落列表。");
+                int guaranteed = GameModel.FirstClearAccessory(stageId);
+                firstRewards.Add(guaranteed);
+                Assert.That(pool.Any(item => item.ItemId == GameModel.AccessoryItemIds[guaranteed]), Is.True);
+                foreach (StageLootCandidate item in pool)
+                {
+                    Assert.That(item.Chance, Is.InRange(.001f, 1f));
+                    Assert.That(item.Minimum, Is.GreaterThan(0));
+                    Assert.That(item.Maximum, Is.GreaterThanOrEqualTo(item.Minimum));
+                    Assert.That(item.Use, Is.Not.EqualTo("收藏资源"), item.ItemId + " 必须有消费用途");
+                    Assert.That(RewardItemVisuals.SpriteFor(item.ItemId), Is.Not.Null, item.ItemId);
+                    int accessory = GameModel.AccessoryIndexForItem(item.ItemId);
+                    if (accessory >= 0) reachable.Add(accessory);
+                }
+            }
+            Assert.That(firstRewards.Count, Is.GreaterThanOrEqualTo(8));
+            Assert.That(reachable.Count, Is.EqualTo(GameModel.AccessoryNames.Length));
+        }
+
+        [Test]
+        public void AdvertisedChanceMatchesActualIndependentRolls()
+        {
+            var model = new GameModel(() => Now);
+            const string stageId = "stage-1-1";
+            string itemId = GameModel.AccessoryItemIds[3];
+            Assert.That(model.StageItemDropChance(stageId, itemId), Is.EqualTo(1f - .9f * .9f).Within(.00001f));
+            var random = new SeededRandom(847);
+            int found = 0;
+            const int trials = 10000;
+            for (int i = 0; i < trials; i++)
+                if (DropResolver.Roll(model.Tactics.FindStage(stageId).Drops, random).Any(item => item.ItemId == itemId)) found++;
+            Assert.That(found / (float)trials, Is.EqualTo(model.StageItemDropChance(stageId, itemId)).Within(.025f));
+        }
+
+        [Test]
+        public void ZeroQuantityRandomEntriesAreCountedAsMissesInPublishedProbability()
+        {
+            var tactics = GameModelTests.BuildTactics();
+            StageDefinition stage = tactics.Stages[0];
+            stage.Drops = new DropTable { Rolls = 2, Entries = new List<DropEntry>
+            {
+                new DropEntry { ItemId = GameModel.EquipmentFragmentItemId, Weight = 1, Min = 0, Max = 1 },
+                new DropEntry { ItemId = "gold", Weight = 1, Min = 1, Max = 1 }
+            } };
+            var model = new GameModel(() => Now, null, null, tactics, null);
+            Assert.That(model.StageItemDropChance(stage.Id, GameModel.EquipmentFragmentItemId),
+                Is.EqualTo(.4375f).Within(.00001f));
+        }
+
+        [Test]
+        public void DirectFragmentsSettlePersistAndAreConsumedByRealEquipmentUpgrade()
+        {
+            var tactics = GameModelTests.BuildTactics();
+            StageDefinition stage = tactics.Stages[0];
+            stage.Drops = new DropTable { Rolls = 1, Entries = new List<DropEntry>
+            { new DropEntry { ItemId = GameModel.EquipmentFragmentItemId, Weight = 1, Min = 3, Max = 3 } } };
+            var model = new GameModel(() => Now, null, null, tactics, null);
+            BattleSimulator battle = model.StartStageBattle(stage.Id, 44, out string error);
+            Assert.That(battle, Is.Not.Null, error);
+            Assert.That(battle.AutoPlay(), Is.EqualTo(BattleOutcome.Victory));
+            model.SettleStageBattle(battle, out string message);
+            Assert.That(message, Does.Contain("强化碎片 +3"));
+            Assert.That(model.LastBattleRewards.Any(r => r.ItemId == GameModel.EquipmentFragmentItemId && r.Amount == 3), Is.True,
+                "结算图标列表必须来自实际发放结果。");
+            int rewardCount = model.LastBattleRewards.Count;
+            model.SettleStageBattle(battle, out _);
+            Assert.That(model.LastBattleRewards.Count, Is.EqualTo(rewardCount), "重复结算不能增加图标或重新发奖。");
+            var loaded = new GameModel(() => Now, null, null, tactics, null);
+            Assert.That(loaded.Save.EquipmentFragments, Is.EqualTo(3));
+            Assert.That(loaded.Save.OwnedCostumes, Does.Not.Contain(GameModel.EquipmentFragmentItemId));
+            Assert.That(loaded.UpgradeAccessory(0, out _), Is.True);
+            Assert.That(loaded.Save.EquipmentFragments, Is.Zero);
+            Assert.That(loaded.AccessoryUpgradeLevel(0), Is.EqualTo(1));
+        }
+
+        [Test]
+        public void AlreadyClaimedOldFirstClearIsNotReplacedOrPaidAgainAfterPoolRevision()
+        {
+            var save = new GameSave { OwnedAccessories = new List<int> { 0, 1, 2, 3 }, EquipmentFragments = 3,
+                ClearedStages = new List<StageClear> { new StageClear { Id = "stage-1-2", Stars = 2 } },
+                EquipmentFirstClearClaims = new List<string> { "stage-1-2" } };
+            PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(save));
+            for (int reload = 0; reload < 3; reload++)
+            {
+                var model = new GameModel(() => Now);
+                Assert.That(model.OwnsAccessory(3), Is.True, "已经领取的旧装备保留。");
+                Assert.That(model.OwnsAccessory(6), Is.False, "改表不得让旧首通再次领取新装备。");
+                Assert.That(model.Save.EquipmentFragments, Is.EqualTo(3));
+                Assert.That(model.StarsOf("stage-1-2"), Is.EqualTo(2));
+            }
+        }
+
+        [Test]
+        public void AdvancedEquipmentHasStableUniqueIdsAndRealPersonalStats()
+        {
+            var model = new GameModel(() => Now);
+            Assert.That(GameModel.AccessoryItemIds.Length, Is.EqualTo(GameModel.AccessoryNames.Length));
+            Assert.That(GameModel.AccessoryItemIds.Distinct().Count(), Is.EqualTo(GameModel.AccessoryNames.Length));
+            for (int i = 6; i < GameModel.AccessoryNames.Length; i++)
+            {
+                model.Grant(new CurrencyAmount(GameModel.AccessoryItemIds[i], 1));
+                Assert.That(model.OwnsAccessory(i), Is.True);
+                Assert.That(model.StatsOf(0, i).Power, Is.GreaterThan(model.StatsOf(0, -1).Power));
+                Assert.That(RewardItemVisuals.SpriteFor(GameModel.AccessoryItemIds[i]), Is.Not.Null);
+            }
+            Assert.That(new GameModel(() => Now).Save.OwnedAccessories.Count, Is.EqualTo(GameModel.AccessoryNames.Length - 3));
+        }
+
+        [Test]
+        public void FiftyFourCollectionNamesIdsPathsAndCategoriesStayInMatchingVisualOrder()
+        {
+            string[] groups = { "ear", "neck", "wrist", "ring", "hair", "charm" };
+            string[] categories = { "耳饰", "项链", "手环", "戒指", "发饰", "挂饰" };
+            string[] firstNames = { "紫月水滴耳坠", "紫晶心项链", "银月开口镯", "紫月戒", "紫星冠", "紫晶麦挂饰" };
+            string[] lastNames = { "幻彩彗星耳坠", "黑星蚀领", "黑曜雷链", "青彗轨戒", "粉晶狐耳发饰", "粉流星香水挂饰" };
+            Assert.That(GameModel.AccessoryNames.Length, Is.EqualTo(66));
+            for (int group = 0; group < groups.Length; group++)
+            {
+                var statProfiles = new HashSet<string>();
+                Assert.That(GameModel.AccessoryNames[12 + group * 9], Is.EqualTo(firstNames[group]));
+                Assert.That(GameModel.AccessoryNames[20 + group * 9], Is.EqualTo(lastNames[group]));
+                for (int variant = 0; variant < 9; variant++)
+                {
+                    int index = 12 + group * 9 + variant;
+                    Assert.That(GameModel.AccessoryCategory(index), Is.EqualTo(categories[group]));
+                    Assert.That(GameModel.AccessoryItemIds[index], Is.EqualTo($"accessory-collection-{groups[group]}-{variant + 1:00}"));
+                    Assert.That(GameModel.AccessoryCollectionResourcePath(index),
+                        Is.EqualTo($"Art/AccessoryAI/Collection54/accessory-{groups[group]}-{variant + 1:00}-v1"));
+                    CombatStatBonuses stats = GameModel.AccessoryBonuses(index);
+                    Assert.That(stats.Hp, Is.InRange(0, 170));
+                    Assert.That(stats.Attack, Is.InRange(0, 170));
+                    Assert.That(stats.Defense, Is.InRange(0, 170));
+                    Assert.That(statProfiles.Add($"{stats.Hp}/{stats.Attack}/{stats.Defense}"), Is.True,
+                        "同一分类的九种饰品不能只有名字不同、属性完全重复。");
+                    Assert.That(GameModel.AccessorySource(index), Does.Not.Contain("暂无来源"));
+                }
+            }
+        }
+
+        [Test]
+        public void FragmentOverflowSaturatesInsteadOfLosingSavedMaterials()
+        {
+            var model = new GameModel(() => Now);
+            model.Grant(new CurrencyAmount(GameModel.EquipmentFragmentItemId, int.MaxValue));
+            model.Grant(new CurrencyAmount(GameModel.EquipmentFragmentItemId, 100));
+            Assert.That(new GameModel(() => Now).Save.EquipmentFragments, Is.EqualTo(int.MaxValue));
+        }
+    }
+}

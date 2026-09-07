@@ -77,6 +77,10 @@ namespace ChoSiren.Tests
         [TestCase(SkillVisualKind.Pierce)]
         [TestCase(SkillVisualKind.Heal)]
         [TestCase(SkillVisualKind.Shield)]
+        [TestCase(SkillVisualKind.Tide)]
+        [TestCase(SkillVisualKind.Rift)]
+        [TestCase(SkillVisualKind.Thorn)]
+        [TestCase(SkillVisualKind.Prism)]
         public void EveryEffectProducesFiniteBoundedGeometry(SkillVisualKind kind)
         {
             effects.Play(target, kind, Color.cyan, true);

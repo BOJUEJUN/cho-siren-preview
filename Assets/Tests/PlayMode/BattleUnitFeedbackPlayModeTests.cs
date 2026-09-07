@@ -45,6 +45,8 @@ namespace ChoSiren.Tests
                     TargetId = enemy.Id, SkillId = fixture.Battle.ActiveSkillId(caster, true), Amount = 20 });
                 var fx = fixture.Panel.GetComponent<SkillEffectPresentation>();
                 Assert.That(fx.ActiveCount, Is.EqualTo(1));
+                var trajectory = fixture.Panel.GetComponent<AttackTrajectoryPresentation>();
+                Assert.That(trajectory.ActiveCount, Is.EqualTo(1), "真实伤害事件必须接入攻击者到目标的因果提示。");
                 Assert.That(enemy.Hp, Is.EqualTo(hp), "特效不能重复执行伤害。");
                 Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Heal, ActorId = caster.Id,
                     TargetId = caster.Id, Amount = 10 });

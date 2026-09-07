@@ -4,6 +4,7 @@ using ChoSiren.Systems.Economy;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Story;
 using ChoSiren.Systems.Tactics;
+using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -75,6 +76,8 @@ namespace ChoSiren
         private Text diamondRewardText;
         private Text goldRewardText;
         private Text equipmentDropText;
+        private Transform dropPreviewIcons;
+        private string lastDropPreviewStage;
         private Text startLabel;
         private Text stageTitleText;
         private Text storyChapterLabel;
@@ -416,20 +419,21 @@ namespace ChoSiren
             stageStatusText = NewPlacedText(card.transform, "当前关卡", 14,
                 new Color32(255, 142, 217, 255), 140, 48, 292, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             progressText = NewPlacedText(card.transform, string.Empty, 13, Muted,
-                28, 79, 414, 28, TextAnchor.MiddleLeft);
+                28, 72, 414, 20, TextAnchor.MiddleLeft);
 
             GameObject drops = NewPanelButton("StageDropPreview", card.transform, new Color32(11, 29, 55, 180), 8, OpenDropPreview);
-            PlaceTop(drops.GetComponent<RectTransform>(), 28, 106, 430, 37);
-            equipmentDropText = NewPlacedText(drops.transform, string.Empty, 11, Cyan,
-                7, 0, 416, 37, TextAnchor.MiddleLeft);
+            PlaceTop(drops.GetComponent<RectTransform>(), 28, 110, 430, 54);
+            dropPreviewIcons = drops.transform;
+            equipmentDropText = NewPlacedText(card.transform, string.Empty, 11, Cyan,
+                28, 92, 430, 18, TextAnchor.MiddleLeft);
             equipmentDropText.gameObject.name = "StageDropSummary";
 
             staminaCostText = InfoChip(card.transform, "StaminaCost", "体力 -8",
-                28, 145, 126, new Color32(255, 157, 220, 255));
+                28, 170, 126, new Color32(255, 157, 220, 255));
             diamondRewardText = InfoChip(card.transform, "DiamondReward", "星钻 ×20",
-                164, 145, 140, Cyan);
+                164, 170, 140, Cyan);
             goldRewardText = InfoChip(card.transform, "GoldReward", "星币 ×300",
-                314, 145, 146, new Color32(255, 215, 111, 255));
+                314, 170, 146, new Color32(255, 215, 111, 255));
 
             GameObject start = NewSpriteButton("StartChallenge", card.transform,
                 actionFrameSprite, White, StartChallenge);
@@ -443,10 +447,85 @@ namespace ChoSiren
 
         private void OpenDropPreview()
         {
-            GameObject card = OpenModalShell("StageLootModal", 280, 880);
-            NewPlacedText(card.transform, "关卡奖励与掉落", 25, White, 40, 60, 580, 48, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(card.transform, model.StageLootDescription($"stage-1-{selectedStage}"), 18, White,
-                44, 142, 572, 644, TextAnchor.UpperLeft);
+            string stageId = $"stage-1-{selectedStage}";
+            StageDefinition stage = model.Tactics.FindStage(stageId);
+            GameObject card = OpenModalShell("StageLootModal", 204, 1080);
+            NewPlacedText(card.transform, $"1-{selectedStage} · 奖励与掉落", 25, White, 28, 26, 526, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
+            bool cleared = model.IsStageCleared(stageId);
+            NewPlacedText(card.transform, cleared ? "首通已领取 · 历史奖励保留" : "首次通关额外必得", 19, Cyan,
+                28, 84, 600, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            int equipment = GameModel.FirstClearAccessory(stageId);
+            BuildFirstReward(card.transform, "FirstClearDiamonds", CurrencyIds.Diamond,
+                $"星钻 ×{stage?.DiamondFirstClear ?? 0}", 28, cleared);
+            if (equipment >= 0) BuildFirstReward(card.transform, "FirstClearEquipment", GameModel.AccessoryItemIds[equipment],
+                GameModel.AccessoryNames[equipment] + " ×1", 340, cleared);
+            NewPlacedText(card.transform, $"每次胜利：金币 {model.PreviewStageGoldReward(stageId)} + 随机池抽取 {stage?.Drops?.Rolls ?? 0} 次", 18,
+                White, 28, 264, 604, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
+            Image viewport = NewImage("LootScrollViewport", card.transform, null, new Color(0, 0, 0, .01f));
+            PlaceTop(viewport.rectTransform, 28, 310, 604, 516);
+            viewport.raycastTarget = true;
+            viewport.gameObject.AddComponent<RectMask2D>();
+            Image body = NewImage("LootScrollContent", viewport.transform, null, Color.clear);
+            PlaceTop(body.rectTransform, 0, 0, 604, Mathf.Max(516, ((candidates.Count + 1) / 2) * 170 - 14));
+            ScrollRect scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport.rectTransform;
+            scroll.content = body.rectTransform;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                StageLootCandidate candidate = candidates[i];
+                GameObject tile = NewPanel("LootCandidate-" + candidate.ItemId, body.transform,
+                    new Color32(26, 30, 67, 245), 14);
+                PlaceTop(tile.GetComponent<RectTransform>(), i % 2 * 312, i / 2 * 170, 292, 156);
+                AddGlassOutline(tile, RewardItemVisuals.AccentFor(candidate.ItemId), 1);
+                RewardItemVisuals.CreateIcon(tile.transform, candidate.ItemId, "RewardArt", 10, 16, 58);
+                NewPlacedText(tile.transform, candidate.Name, 18, White, 80, 10, 198, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                NewPlacedText(tile.transform, $"至少一次 {candidate.Chance:P1}", 15, Cyan, 80, 44, 198, 26, TextAnchor.MiddleLeft);
+                NewPlacedText(tile.transform, "每次抽中 " + candidate.AmountLabel, 14, Muted, 80, 74, 198, 24, TextAnchor.MiddleLeft);
+                NewPlacedText(tile.transform, candidate.Use, 14, White, 12, 106, 268, 44, TextAnchor.UpperLeft);
+            }
+            NewPlacedText(card.transform, $"共 {candidates.Count} 种候选 · 上下滑动查看完整奖池", 15, Cyan,
+                28, 832, 604, 26, TextAnchor.MiddleLeft);
+            NewPlacedText(card.transform,
+                "概率表示本场至少获得一次；多次独立抽取，概率不可相加。\n新装备进入饰品页；每件重复装备转为 3 强化碎片。\n强化碎片用于饰品升级；金币用于成员训练与强化。\n再次挑战仍可随机掉落；首通奖励不再发放，失败无奖励。", 16, Muted,
+                28, 870, 604, 170, TextAnchor.UpperLeft);
+        }
+
+        private void BuildFirstReward(Transform parent, string name, string itemId, string label, float x, bool claimed)
+        {
+            GameObject tile = NewPanel(name, parent, new Color32(28, 33, 72, 245), 14);
+            PlaceTop(tile.GetComponent<RectTransform>(), x, 126, 292, 116);
+            Image icon = RewardItemVisuals.CreateIcon(tile.transform, itemId, "RewardArt", 14, 20, 68);
+            if (claimed) icon.color = new Color(1, 1, 1, .45f);
+            NewPlacedText(tile.transform, label, 17, White, 94, 22, 184, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(tile.transform, claimed ? "已领取" : "首通 100%", 15, Cyan, 94, 72, 184, 28, TextAnchor.MiddleLeft);
+        }
+
+        private void RefreshDropPreview(string stageId)
+        {
+            equipmentDropText.text = model.StageEquipmentPreview(stageId).Split('\n')[0] + $" · {model.StageLootCandidates(stageId).Count} 种掉落详情";
+            if (lastDropPreviewStage == stageId) return;
+            lastDropPreviewStage = stageId;
+            for (int i = dropPreviewIcons.childCount - 1; i >= 0; i--)
+            {
+                GameObject old = dropPreviewIcons.GetChild(i).gameObject;
+                old.SetActive(false);
+                if (Application.isPlaying) Destroy(old); else DestroyImmediate(old);
+            }
+            IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
+            int count = Mathf.Min(5, candidates.Count);
+            float width = 430f / Mathf.Max(1, count);
+            for (int i = 0; i < count; i++)
+            {
+                int candidateIndex = candidates.Count > 5 && i >= 3 ? candidates.Count - 5 + i : i;
+                StageLootCandidate reward = candidates[candidateIndex];
+                RewardItemVisuals.CreateIcon(dropPreviewIcons, reward.ItemId, "DropIcon-" + reward.ItemId,
+                    i * width + (width - 32) * .5f, 0, 32);
+                string shortName = reward.Name.Length > 7 ? reward.Name.Substring(0, 7) + "…" : reward.Name;
+                NewPlacedText(dropPreviewIcons, shortName, 10, White, i * width, 33, width, 20, TextAnchor.MiddleCenter);
+            }
         }
 
         private Text InfoChip(Transform parent, string name, string label, float x, float y, float width, Color accent)
@@ -870,7 +949,7 @@ namespace ChoSiren
             staminaCostText.text = $"体力 -{staminaCost}";
             diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";
             goldRewardText.text = $"星币 ×{goldReward}";
-            equipmentDropText.text = model.StageEquipmentPreview(selectedStageId);
+            RefreshDropPreview(selectedStageId);
             startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
             startBackground.color = model.Save.Stamina < staminaCost

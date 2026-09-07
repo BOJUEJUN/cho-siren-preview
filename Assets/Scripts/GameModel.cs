@@ -305,7 +305,14 @@ namespace ChoSiren
         public static readonly MemberDefinition[] Members = LoadMemberDefinitions();
         private static readonly Dictionary<string, int> MemberIndexById = BuildMemberIndex(Members);
 
-        public static readonly string[] AccessoryNames = { "星轨耳返", "霓虹心链", "月桂舞鞋", "麦克风挂饰", "星辉手环", "舞台冠冕" };
+        public static readonly string[] AccessoryNames = { "星轨耳返", "霓虹心链", "月桂舞鞋", "麦克风挂饰", "星辉手环", "舞台冠冕",
+            "棱镜耳返", "脉冲心链", "追光舞鞋", "回响音符", "月辉手环", "星夜冠冕",
+            "紫月水滴耳坠", "玫金蝶翼耳坠", "蓝宝音符耳坠", "翠蛇耳扣", "红蔷薇链耳坠", "珍珠雪花耳坠", "黑曜蝠翼耳饰", "琥珀日芒耳坠", "幻彩彗星耳坠",
+            "紫晶心项链", "蓝泪银领", "红玫蕾丝颈链", "翡翠沙漏项链", "金日徽章项链", "珍珠月缎颈链", "紫晶钥匙项链", "青羽吊坠", "黑星蚀领",
+            "银月开口镯", "红荆藤手环", "蓝潮水晶手环", "金乐谱手环", "翠蝶手环", "紫星珠手链", "白羽珍珠手链", "琥珀齿轮手环", "黑曜雷链",
+            "紫月戒", "红心皇冠戒", "蓝浪戒", "翠双蛇戒", "金日戒", "白雪花戒", "黑鸦翼戒", "粉蝶戒", "青彗轨戒",
+            "紫星冠", "红玫梳", "蓝月簪", "金蝶缎发饰", "翠羽发饰", "珍珠雪冠", "黑蝠头饰", "琥珀音符夹", "粉晶狐耳发饰",
+            "紫晶麦挂饰", "蓝竖琴挂饰", "红玫镜挂饰", "翠沙漏挂饰", "金天钥挂饰", "珍珠贝铃挂饰", "黑鸦羽挂饰", "琥珀八音盒挂饰", "粉流星香水挂饰" };
         // Existing stage accessories are mutually exclusive shared party loadouts. The later
         // four-slot inventory will feed the same capped bonuses, not a second combat formula.
         public static CombatStatBonuses AccessoryBonuses(int index)
@@ -318,7 +325,13 @@ namespace ChoSiren
                 case 3: return new CombatStatBonuses(0, 100, 0);
                 case 4: return new CombatStatBonuses(120, 0, 60);
                 case 5: return new CombatStatBonuses(50, 70, 70);
-                default: return default;
+                case 6: return new CombatStatBonuses(110, 0, 50);
+                case 7: return new CombatStatBonuses(50, 110, 0);
+                case 8: return new CombatStatBonuses(0, 60, 140);
+                case 9: return new CombatStatBonuses(0, 130, 0);
+                case 10: return new CombatStatBonuses(150, 0, 70);
+                case 11: return new CombatStatBonuses(80, 100, 100);
+                default: return CollectionAccessoryBonuses(index);
             }
         }
 
@@ -1332,6 +1345,7 @@ namespace ChoSiren
             }
 
             pendingBattles.Remove(battle);
+            lastBattleRewards.Clear();
             if (battle.Outcome != BattleOutcome.Victory)
             {
                 message = "演出失败，调整编队后再来挑战";
@@ -1376,8 +1390,11 @@ namespace ChoSiren
                     int duplicates = owned ? amount : Math.Max(0, amount - 1);
                     if (!owned) equipmentNotes.Add($"新装备：{AccessoryNames[equipment]}");
                     if (duplicates > 0) equipmentNotes.Add($"{AccessoryNames[equipment]}重复 → 强化碎片 +{duplicates * 3}");
+                    if (!owned) lastBattleRewards.Add((itemId, 1));
+                    if (duplicates > 0) lastBattleRewards.Add((EquipmentFragmentItemId, duplicates * 3));
                     LastAwardedAccessory = equipment;
                 }
+                else if (amount > 0) lastBattleRewards.Add((itemId, amount));
                 GrantItemInternal(itemId, amount);
             }
 
@@ -1720,6 +1737,11 @@ namespace ChoSiren
             if (string.IsNullOrEmpty(itemId) || amount <= 0) return;
             int accessory = AccessoryIndexForItem(itemId);
             if (accessory >= 0) { GrantAccessory(accessory, amount); return; }
+            if (itemId == EquipmentFragmentItemId)
+            {
+                Save.EquipmentFragments = (int)Math.Min(int.MaxValue, (long)Save.EquipmentFragments + amount);
+                return;
+            }
             switch (itemId)
             {
                 case CurrencyIds.Diamond: Save.Diamonds += amount; break;
@@ -1880,6 +1902,11 @@ namespace ChoSiren
             var parts = new List<string>();
             foreach ((string itemId, int amount) in rewards)
             {
+                if (itemId == EquipmentFragmentItemId)
+                {
+                    parts.Add($"强化碎片 +{amount}");
+                    continue;
+                }
                 if (CurrencyIds.IsKnown(itemId))
                 {
                     parts.Add($"{CurrencyName(itemId)} +{amount}");

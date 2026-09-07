@@ -1,0 +1,974 @@
+[
+  {
+    "group": "ear",
+    "number": 1,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      0,
+      0,
+      418,
+      418
+    ],
+    "alphaBounds": [
+      150,
+      11,
+      303,
+      407
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-01-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 2,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      418,
+      0,
+      836,
+      418
+    ],
+    "alphaBounds": [
+      96,
+      13,
+      340,
+      387
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-02-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 3,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      836,
+      0,
+      1254,
+      418
+    ],
+    "alphaBounds": [
+      130,
+      11,
+      270,
+      401
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-03-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 4,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      0,
+      418,
+      418,
+      836
+    ],
+    "alphaBounds": [
+      152,
+      14,
+      308,
+      390
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-04-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 5,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      418,
+      418,
+      836,
+      836
+    ],
+    "alphaBounds": [
+      82,
+      10,
+      353,
+      382
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-05-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 6,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      836,
+      418,
+      1254,
+      836
+    ],
+    "alphaBounds": [
+      110,
+      2,
+      299,
+      392
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-06-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 7,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      0,
+      836,
+      418,
+      1254
+    ],
+    "alphaBounds": [
+      69,
+      0,
+      334,
+      401
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-07-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 8,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      418,
+      836,
+      836,
+      1254
+    ],
+    "alphaBounds": [
+      117,
+      0,
+      301,
+      400
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-08-v1.png"
+  },
+  {
+    "group": "ear",
+    "number": 9,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-ed6d4176-383d-43af-8a33-ad9ea35b23e7.png",
+    "sourceCell": [
+      836,
+      836,
+      1254,
+      1254
+    ],
+    "alphaBounds": [
+      100,
+      0,
+      321,
+      409
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ear-09-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 1,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      0,
+      0,
+      418,
+      418
+    ],
+    "alphaBounds": [
+      33,
+      17,
+      383,
+      388
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-01-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 2,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      418,
+      0,
+      836,
+      418
+    ],
+    "alphaBounds": [
+      35,
+      25,
+      377,
+      395
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-02-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 3,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      836,
+      0,
+      1254,
+      418
+    ],
+    "alphaBounds": [
+      36,
+      36,
+      394,
+      364
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-03-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 4,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      0,
+      418,
+      418,
+      836
+    ],
+    "alphaBounds": [
+      43,
+      0,
+      365,
+      399
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-04-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 5,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      418,
+      418,
+      836,
+      836
+    ],
+    "alphaBounds": [
+      61,
+      0,
+      362,
+      388
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-05-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 6,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      836,
+      418,
+      1254,
+      836
+    ],
+    "alphaBounds": [
+      28,
+      29,
+      403,
+      366
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-06-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 7,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      0,
+      836,
+      418,
+      1254
+    ],
+    "alphaBounds": [
+      83,
+      0,
+      381,
+      395
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-07-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 8,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      418,
+      836,
+      836,
+      1254
+    ],
+    "alphaBounds": [
+      73,
+      0,
+      353,
+      392
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-08-v1.png"
+  },
+  {
+    "group": "neck",
+    "number": 9,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-89502baa-d9cd-4822-9655-5bc03e4942d0.png",
+    "sourceCell": [
+      836,
+      836,
+      1254,
+      1254
+    ],
+    "alphaBounds": [
+      25,
+      0,
+      384,
+      386
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-neck-09-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 1,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      0,
+      0,
+      418,
+      418
+    ],
+    "alphaBounds": [
+      36,
+      54,
+      386,
+      388
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-01-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 2,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      418,
+      0,
+      836,
+      418
+    ],
+    "alphaBounds": [
+      24,
+      35,
+      398,
+      401
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-02-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 3,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      836,
+      0,
+      1254,
+      418
+    ],
+    "alphaBounds": [
+      29,
+      28,
+      399,
+      392
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-03-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 4,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      0,
+      418,
+      418,
+      836
+    ],
+    "alphaBounds": [
+      25,
+      20,
+      389,
+      389
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-04-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 5,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      418,
+      418,
+      836,
+      836
+    ],
+    "alphaBounds": [
+      34,
+      44,
+      388,
+      385
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-05-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 6,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      836,
+      418,
+      1254,
+      836
+    ],
+    "alphaBounds": [
+      31,
+      30,
+      399,
+      389
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-06-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 7,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      0,
+      836,
+      418,
+      1254
+    ],
+    "alphaBounds": [
+      27,
+      7,
+      397,
+      384
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-07-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 8,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      418,
+      836,
+      836,
+      1254
+    ],
+    "alphaBounds": [
+      39,
+      33,
+      379,
+      323
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-08-v1.png"
+  },
+  {
+    "group": "wrist",
+    "number": 9,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-000f6636-e4fc-42af-8213-cc1350457248.png",
+    "sourceCell": [
+      836,
+      836,
+      1254,
+      1254
+    ],
+    "alphaBounds": [
+      27,
+      7,
+      398,
+      392
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-wrist-09-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 1,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      0,
+      0,
+      418,
+      418
+    ],
+    "alphaBounds": [
+      45,
+      29,
+      364,
+      382
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-01-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 2,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      418,
+      0,
+      836,
+      418
+    ],
+    "alphaBounds": [
+      37,
+      13,
+      379,
+      379
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-02-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 3,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      836,
+      0,
+      1254,
+      418
+    ],
+    "alphaBounds": [
+      52,
+      24,
+      387,
+      383
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-03-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 4,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      0,
+      418,
+      418,
+      836
+    ],
+    "alphaBounds": [
+      28,
+      7,
+      366,
+      370
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-04-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 5,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      418,
+      418,
+      836,
+      836
+    ],
+    "alphaBounds": [
+      41,
+      0,
+      384,
+      377
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-05-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 6,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      836,
+      418,
+      1254,
+      836
+    ],
+    "alphaBounds": [
+      49,
+      12,
+      390,
+      373
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-06-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 7,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      0,
+      836,
+      418,
+      1254
+    ],
+    "alphaBounds": [
+      27,
+      0,
+      366,
+      397
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-07-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 8,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      418,
+      836,
+      836,
+      1254
+    ],
+    "alphaBounds": [
+      46,
+      0,
+      391,
+      369
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-08-v1.png"
+  },
+  {
+    "group": "ring",
+    "number": 9,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-285dc2fa-302b-4dc7-bf19-8a3d79a58ea1.png",
+    "sourceCell": [
+      836,
+      836,
+      1254,
+      1254
+    ],
+    "alphaBounds": [
+      34,
+      10,
+      398,
+      388
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-ring-09-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 1,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      0,
+      0,
+      418,
+      418
+    ],
+    "alphaBounds": [
+      28,
+      48,
+      416,
+      367
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-01-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 2,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      418,
+      0,
+      836,
+      418
+    ],
+    "alphaBounds": [
+      50,
+      26,
+      382,
+      389
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-02-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 3,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      836,
+      0,
+      1254,
+      418
+    ],
+    "alphaBounds": [
+      32,
+      28,
+      383,
+      388
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-03-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 4,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      0,
+      418,
+      418,
+      836
+    ],
+    "alphaBounds": [
+      39,
+      19,
+      392,
+      376
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-04-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 5,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      418,
+      418,
+      836,
+      836
+    ],
+    "alphaBounds": [
+      30,
+      14,
+      381,
+      394
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-05-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 6,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      836,
+      418,
+      1254,
+      836
+    ],
+    "alphaBounds": [
+      19,
+      33,
+      401,
+      377
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-06-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 7,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      0,
+      836,
+      418,
+      1254
+    ],
+    "alphaBounds": [
+      23,
+      22,
+      418,
+      340
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-07-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 8,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      418,
+      836,
+      836,
+      1254
+    ],
+    "alphaBounds": [
+      74,
+      44,
+      370,
+      380
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-08-v1.png"
+  },
+  {
+    "group": "hair",
+    "number": 9,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-a24d1388-be2d-42fd-9b15-3a47546816e6.png",
+    "sourceCell": [
+      836,
+      836,
+      1254,
+      1254
+    ],
+    "alphaBounds": [
+      24,
+      19,
+      383,
+      383
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-hair-09-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 1,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      0,
+      0,
+      418,
+      418
+    ],
+    "alphaBounds": [
+      53,
+      19,
+      401,
+      399
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-01-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 2,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      418,
+      0,
+      836,
+      418
+    ],
+    "alphaBounds": [
+      60,
+      15,
+      370,
+      405
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-02-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 3,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      836,
+      0,
+      1254,
+      418
+    ],
+    "alphaBounds": [
+      66,
+      20,
+      380,
+      395
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-03-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 4,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      0,
+      418,
+      418,
+      836
+    ],
+    "alphaBounds": [
+      63,
+      16,
+      384,
+      404
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-04-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 5,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      418,
+      418,
+      836,
+      836
+    ],
+    "alphaBounds": [
+      66,
+      8,
+      365,
+      402
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-05-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 6,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      836,
+      418,
+      1254,
+      836
+    ],
+    "alphaBounds": [
+      56,
+      10,
+      381,
+      403
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-06-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 7,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      0,
+      836,
+      418,
+      1254
+    ],
+    "alphaBounds": [
+      47,
+      6,
+      383,
+      398
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-07-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 8,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      418,
+      836,
+      836,
+      1254
+    ],
+    "alphaBounds": [
+      66,
+      13,
+      395,
+      394
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-08-v1.png"
+  },
+  {
+    "group": "charm",
+    "number": 9,
+    "source": "/Users/nikizhao/.codex/generated_images/01a06b16-98db-7880-8f1b-fe252e44e159/exec-5766e717-875d-4ed5-8e8b-07a59257d6cb.png",
+    "sourceCell": [
+      836,
+      836,
+      1254,
+      1254
+    ],
+    "alphaBounds": [
+      63,
+      4,
+      377,
+      397
+    ],
+    "output": "Assets/Resources/Art/AccessoryAI/Collection54/accessory-charm-09-v1.png"
+  }
+]

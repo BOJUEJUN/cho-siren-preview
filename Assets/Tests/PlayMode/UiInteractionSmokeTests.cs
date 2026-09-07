@@ -84,7 +84,7 @@ namespace ChoSiren.Tests
             float timeout = Time.realtimeSinceStartup + 15f;
             while (GameObject.Find("StartupLoading") != null && Time.realtimeSinceStartup < timeout)
                 yield return null;
-            Assert.That(RequireActiveObject("PlayerLevel").GetComponent<Text>().text, Is.EqualTo("队均 68 级"));
+            Assert.That(RequireActiveObject("PlayerLevel").GetComponent<Text>().text, Is.EqualTo($"战力 {new GameModel().TeamPower:N0}"));
 
             Click("Settings");
             Click("Reset");
@@ -100,7 +100,7 @@ namespace ChoSiren.Tests
             yield return null;
             Click("Primary");
             yield return null;
-            Assert.That(RequireActiveObject("PlayerLevel").GetComponent<Text>().text, Is.EqualTo("队均 1 级"));
+            Assert.That(RequireActiveObject("PlayerLevel").GetComponent<Text>().text, Is.EqualTo($"战力 {new GameModel().TeamPower:N0}"));
             var fresh = new GameModel();
             Assert.That(fresh.Save.ClearedStages, Is.Empty);
             Assert.That(fresh.CurrentChapterOneStage, Is.EqualTo(1));
@@ -215,8 +215,8 @@ namespace ChoSiren.Tests
             Assert.That(equipped.Save.Gold, Is.EqualTo(gold));
             Assert.That(equipped.TeamPower, Is.EqualTo(model.TeamPowerWithMemberAccessory(0, 1)));
             Assert.That(RequireActiveObject("AccessoryPowerChange").GetComponent<Text>().text,
-                Is.EqualTo($"战力变化 {model.TeamPower - equipped.TeamPower:N0}"),
-                "当前选中已装备饰品时，主操作是卸下，对比应展示卸下后的战力损失。");
+                Is.EqualTo($"已生效 · 战力 +{equipped.TeamPower - model.TeamPower:N0}"),
+                "装备成功后展示已生效加成，不要默认用卸下损失误导玩家。");
 
             Click("EquipmentNextMember");
             yield return null;
@@ -411,8 +411,24 @@ namespace ChoSiren.Tests
                 Is.EqualTo(BattleSimulator.ActiveSkillName(CombatRace.Charm, true)));
             RectTransform first = RequireActiveObject("MemberSkillPrimary").GetComponent<RectTransform>();
             RectTransform second = RequireActiveObject("MemberSkillSecondary").GetComponent<RectTransform>();
-            Assert.That(first.anchoredPosition.x + first.rect.width, Is.LessThan(second.anchoredPosition.x),
-                "两项技能须分别进入左右美术槽，不能都堆在左侧。");
+            RectTransform skillPanel = RequireActiveObject("MemberSkillPanel").GetComponent<RectTransform>();
+            Canvas.ForceUpdateCanvases();
+            Rect InSkillPanel(RectTransform child)
+            {
+                var corners = new Vector3[4];
+                child.GetWorldCorners(corners);
+                Vector3 min = skillPanel.InverseTransformPoint(corners[0]);
+                Vector3 max = skillPanel.InverseTransformPoint(corners[2]);
+                return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            }
+            Rect firstRect = InSkillPanel(first), secondRect = InSkillPanel(second);
+            Assert.That(firstRect.xMax, Is.LessThan(secondRect.xMin),
+                "两项技能须在共同技能面板坐标中左右分列，不能比较各自卡片内的局部坐标。");
+            Rect firstCard = InSkillPanel(first.parent as RectTransform);
+            Rect secondCard = InSkillPanel(second.parent as RectTransform);
+            Assert.That(firstCard.Overlaps(secondCard), Is.False, "两个完整技能卡不能重叠。");
+            Assert.That(firstCard.Contains(firstRect.min) && firstCard.Contains(firstRect.max), Is.True);
+            Assert.That(secondCard.Contains(secondRect.min) && secondCard.Contains(secondRect.max), Is.True);
             Click("Close");
             yield return null;
             AssertInactiveOrMissing("MemberModal");

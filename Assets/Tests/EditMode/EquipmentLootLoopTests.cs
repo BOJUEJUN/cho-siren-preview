@@ -115,7 +115,9 @@ namespace ChoSiren.Tests
             {
                 var model = CreateModel();
                 Assert.That(model.OwnsAccessory(3), Is.True);
-                Assert.That(model.Save.EquipmentFragments, Is.EqualTo(3));
+                Assert.That(model.OwnsAccessory(6), Is.True,
+                    "从未领取过装备首通奖励的旧档按当前1-2奖励补偿棱镜耳返。");
+                Assert.That(model.Save.EquipmentFragments, Is.Zero);
                 Assert.That(model.Save.EquipmentFirstClearClaims.Count, Is.EqualTo(2));
                 Assert.That(model.Save.Diamonds, Is.EqualTo(321));
                 Assert.That(model.Save.Gold, Is.EqualTo(654));

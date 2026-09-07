@@ -48,36 +48,35 @@ namespace ChoSiren.Tests
                 RectTransform rect = group.GetComponent<RectTransform>();
                 float left = LeftInParent(group);
                 Assert.That(left, Is.GreaterThanOrEqualTo(previousRight - 0.5f),
-                    "顶部完整资源点击区（含加号）、邮件与设置不得重叠。");
+                    "顶部完整资源信息块、邮件与设置不得重叠。");
                 previousRight = left + rect.rect.width;
                 Assert.That(group.GetComponent<Button>()?.IsInteractable(), Is.True);
                 if (!name.StartsWith("Currency-")) continue;
-                GameObject plus = Require(name.Replace("Currency-", "CurrencyPlus-"));
-                float plusLeft = LeftInParent(plus);
-                Assert.That(plus.GetComponent<Text>().text, Is.EqualTo("+"));
-                Assert.That(plusLeft, Is.GreaterThanOrEqualTo(left));
-                Assert.That(plusLeft + plus.GetComponent<RectTransform>().rect.width,
-                    Is.LessThanOrEqualTo(previousRight + 0.5f), "加号必须位于对应资源的可点击范围内。");
+                Assert.That(GameObject.Find(name.Replace("Currency-", "CurrencyPlus-")), Is.Null,
+                    "资源信息块直接可点，不再显示额外加号。");
+                Assert.That(group.GetComponent<Image>().color.a, Is.InRange(.3f, .7f));
+                Assert.That(group.GetComponentsInChildren<Text>().Count(t => !string.IsNullOrEmpty(t.text)), Is.EqualTo(1));
             }
             Assert.That(previousRight, Is.LessThan(Require("TopBar").GetComponent<RectTransform>().rect.width));
             yield return null;
         }
 
         [UnityTest]
-        public IEnumerator TeamChromeUsesTransparentAiArtWithoutReplacingLiveText()
+        public IEnumerator TeamInformationUsesQuietFramesAndPreservesSuppliedStageAndActions()
         {
             Click("Nav-team");
             yield return null;
 
-            AssertSpriteTexture("TeamTitlePlaque", "Art/TeamAI/UI/team-title-plaque-ai-v2");
-            AssertSpriteTexture("TeamPower", "Art/TeamAI/UI/team-power-panel-ai-v2");
-            AssertSpriteTexture("TeamSynergy", "Art/TeamAI/UI/team-synergy-panel-ai-v2");
+            AssertQuietInformationPanel("TeamTitlePlaque");
+            AssertQuietInformationPanel("TeamPower");
+            AssertQuietInformationPanel("TeamSynergy");
+            Assert.That(Require("TeamStellarBackground").GetComponent<Image>().sprite, Is.Not.Null);
             AssertSpriteTexture("ChangeLeader", "Art/TeamAI/UI/team-action-cyan-ai-v2");
             AssertSpriteTexture("AutoTeam", "Art/TeamAI/UI/team-action-pink-ai-v2");
             AssertSpriteTexture("TeamSwapIcon", "Art/TeamAI/UI/team-swap-ai-v2");
 
             Assert.That(Require("TeamPowerValue").GetComponent<Text>()?.text, Is.Not.Empty,
-                "AI 面板只负责美术框体，实时战力仍必须由可读文字呈现。");
+                "简洁信息框仍必须保留可读的实时战力。");
             Assert.That(Require("ChangeLeader").transform.Find("Label")?.GetComponent<Text>()?.text,
                 Is.EqualTo("更换队长"));
         }
@@ -156,7 +155,16 @@ namespace ChoSiren.Tests
             Require("MemberSkillPrimary");
             Require("MemberSkillSecondary");
             Require("MemberAcquireGuide");
-            AssertSpriteTexture("MemberProfilePanelArt", "Art/MemberAI/UI/member-profile-panel-ai-v1");
+            Assert.That(GameObject.Find("MemberProfilePanelArt"), Is.Null,
+                "带空圆圈和装饰文字的旧资料底图不可重新压在动态信息后方。");
+            AssertQuietInformationPanel("MemberStatPanel");
+            AssertQuietInformationPanel("MemberSkillPanel");
+            AssertQuietInformationPanel("MemberAcquireGuide");
+            Assert.That(Require("MemberSkillPrimaryIcon").GetComponent<SkillIconGraphic>(), Is.Not.Null);
+            Assert.That(Require("MemberSkillSecondaryIcon").GetComponent<SkillIconGraphic>(), Is.Not.Null);
+            Transform lockedPortrait = Require("MemberModal").transform.Find("Panel/Portrait");
+            Assert.That(lockedPortrait, Is.Not.Null);
+            AssertSpriteTexture(lockedPortrait.gameObject, GameModel.Members[lockedIndex].ResourcePath);
             Require("AcquireMember");
             Assert.That(GameObject.Find("Train"), Is.Null, "未签约成员不得显示训练操作。");
             Assert.That(GameObject.Find("Team"), Is.Null, "未签约成员不得显示编队操作。");
@@ -166,9 +174,26 @@ namespace ChoSiren.Tests
             Click("Member-" + GameModel.Members[0].Id);
             yield return null;
             Assert.That(Require("MemberOwnershipStatus").GetComponent<Text>()?.text, Is.EqualTo("已签约成员"));
+            Transform ownedPortrait = Require("MemberModal").transform.Find("Panel/Portrait");
+            Assert.That(ownedPortrait, Is.Not.Null);
+            AssertSpriteTexture(ownedPortrait.gameObject, GameModel.Members[0].ResourcePath);
             Require("Train");
             Require("Team");
             Assert.That(GameObject.Find("AcquireMember"), Is.Null);
+        }
+
+        private static void AssertQuietInformationPanel(string name)
+        {
+            var panel = Require(name);
+            Image image = panel.GetComponent<Image>();
+            Assert.That(image, Is.Not.Null);
+            Assert.That(image.color.a, Is.GreaterThan(.8f), "信息区需要足够背景对比度：" + name);
+            Assert.That(image.sprite?.texture.name ?? string.Empty, Does.Not.Contain("-ai-"),
+                "信息框不得再使用会干扰动态文字的旧AI装饰框：" + name);
+            Outline edge = panel.GetComponent<Outline>();
+            Assert.That(edge, Is.Not.Null);
+            Assert.That(edge.effectDistance.magnitude, Is.LessThanOrEqualTo(2f));
+            Assert.That(panel.GetComponentsInChildren<Text>().Any(t => !string.IsNullOrWhiteSpace(t.text)), Is.True);
         }
 
         private static float LeftInParent(GameObject target)

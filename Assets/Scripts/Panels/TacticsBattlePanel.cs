@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ChoSiren.Systems;
 using ChoSiren.Systems.Dice;
@@ -180,6 +181,8 @@ namespace ChoSiren.Panels
         private SkillCutInPresentation skillCutIn;
         private float presentationClock;
         private SkillEffectPresentation skillEffects;
+        private AttackTrajectoryPresentation attackTrajectories;
+        private Sprite crystalBurstSprite, tideSpellSprite, lanceSpellSprite;
         private readonly Dictionary<int, string> lastPresentedActions = new Dictionary<int, string>();
         private Sprite rerollRingSprite;
         private Sprite memberFrameSprite;
@@ -256,6 +259,8 @@ namespace ChoSiren.Panels
             effectsLayer.SetSiblingIndex(pauseOverlay.transform.GetSiblingIndex());
             skillEffects = gameObject.AddComponent<SkillEffectPresentation>();
             skillEffects.Configure(effectsLayer, () => paused || closing, () => speed);
+            attackTrajectories = gameObject.AddComponent<AttackTrajectoryPresentation>();
+            attackTrajectories.Configure(enemyStageRoot, () => paused || closing, () => speed);
             BuildPopups();
             skillCutIn = gameObject.AddComponent<SkillCutInPresentation>();
             skillCutIn.Configure(transform, () => paused || closing, () => speed);
@@ -276,6 +281,9 @@ namespace ChoSiren.Panels
             memberFrameSprite = LoadRuntimeSprite("Art/BattleAI/member-skill-frame-v1");
             skillButtonFrameSprite = LoadRuntimeSprite("Art/BattleAI/skill-button-frame-v1");
             bossHitSlashSprite = LoadRuntimeSprite("Art/BattleAI/battle-hit-slash-ai-v1");
+            crystalBurstSprite = LoadRuntimeSprite("Art/BattleAI/battle-crystal-burst-ai-v2");
+            tideSpellSprite = LoadRuntimeSprite("Art/BattleAI/battle-tide-spell-ai-v2");
+            lanceSpellSprite = LoadRuntimeSprite("Art/BattleAI/battle-lance-spell-ai-v2");
             bossHeartImpactSprite = LoadRuntimeSprite("Art/BattleAI/battle-heart-impact-ai-v1");
             bossChargeAuraSprite = LoadRuntimeSprite("Art/BattleAI/battle-charge-aura-ai-v1");
             bossLowHealthFrameSprite = LoadRuntimeSprite("Art/BattleAI/battle-low-health-frame-ai-v1");
@@ -1187,6 +1195,11 @@ namespace ChoSiren.Panels
                         CellIdle, PanelKit.White,
                         () => Notify(description), 12);
                     PanelKit.PlaceTop(button.GetComponent<RectTransform>(), i * 342, 0, 330, 80);
+                    SkillDefinition definition = battle.LookupSkill(battle.ActiveSkillId(inputActor, i == 1));
+                    var icon = SkillIconVisuals.Create(button.transform, "BattleSkillIcon-" + i,
+                        definition?.Name, description, PerformerColor(battle.RaceOf(inputActor)));
+                    PanelKit.PlaceTop(icon.rectTransform, 12, 18, 44, 44);
+                    PanelKit.PlaceTop(PanelKit.LabelOf(button).rectTransform, 65, 6, 253, 68);
                     skillButtons.Add(button);
                     PanelKit.EnableBestFit(PanelKit.LabelOf(button), 17);
                 }
@@ -1442,9 +1455,9 @@ namespace ChoSiren.Panels
             if (actor.Side == BattleSide.Player && caster != null)
             {
                 caster.Motion?.PlayAttack(heavy);
-                if (heavy)
+                if (caster.ActionLabel != null)
                 {
-                    caster.ActionLabel.text = title;
+                    caster.ActionLabel.text = heavy ? title : "普攻 → " + (target?.Definition.Name ?? "目标");
                     caster.ActionLabel.color = PerformerColor(battle.RaceOf(actor));
                     caster.ActionLabelUntil = presentationClock + (heavy ? 1.05f : .4f);
                     caster.ActionLabel.gameObject.SetActive(true);
@@ -1478,9 +1491,41 @@ namespace ChoSiren.Panels
                 : entry.SkillId == "rt-enemy-heavy" || entry.SkillId == "rt-enemy-finale";
             bool strong = entry.Critical || special && player && entry.SkillId == battle.ActiveSkillId(actor, true);
             CombatRace race = battle.RaceOf(actor);
-            SkillVisualKind kind = !special ? SkillVisualKind.Impact : race == CombatRace.Demon
-                ? SkillVisualKind.Hex : race == CombatRace.BloodElf ? SkillVisualKind.Pierce : SkillVisualKind.Slash;
-            Sprite art = kind == SkillVisualKind.Slash && strong ? bossHitSlashSprite : null;
+            bool ultimate = player && entry.SkillId == battle.ActiveSkillId(actor, true);
+            SkillVisualKind kind = !special ? SkillVisualKind.Impact
+                : race == CombatRace.Demon ? (ultimate ? SkillVisualKind.Thorn : SkillVisualKind.Rift)
+                : race == CombatRace.BloodElf ? (ultimate ? SkillVisualKind.Prism : SkillVisualKind.Pierce)
+                : race == CombatRace.Mermaid ? SkillVisualKind.Tide
+                : (ultimate ? SkillVisualKind.Hex : SkillVisualKind.Slash);
+            Sprite art = kind == SkillVisualKind.Tide ? tideSpellSprite
+                : kind == SkillVisualKind.Pierce ? lanceSpellSprite
+                : kind == SkillVisualKind.Prism || kind == SkillVisualKind.Thorn ? crystalBurstSprite
+                : kind == SkillVisualKind.Hex ? bossHeartImpactSprite
+                : kind == SkillVisualKind.Slash ? bossHitSlashSprite : null;
+            BattleUnit playerUnit = player ? actor : target;
+            int slot = 0;
+            foreach (BattleUnit unit in battle.Units)
+            {
+                if (unit.Side != BattleSide.Player) continue;
+                CellView view = FindCell(unit);
+                attackTrajectories?.SetPlayerProxy(slot, view?.Portrait.sprite, unit.Definition.Name);
+                if (unit.Id == playerUnit.Id)
+                {
+                    Sprite actorPortrait = player ? FindCell(actor)?.Portrait.sprite
+                        : enemyFigures.TryGetValue(actor.Id, out Image figure) ? figure.sprite : userBossSprite;
+                    attackTrajectories?.Play(UnitVisual(actor), UnitVisual(target), actorPortrait,
+                        actor.Definition.Name, target.Definition.Name, player ? PerformerColor(race) : PanelKit.Pink,
+                        !player, special, slot);
+                    if (!player && view?.ActionLabel != null)
+                    {
+                        view.ActionLabel.text = "受击 ← " + actor.Definition.Name;
+                        view.ActionLabel.color = PanelKit.Pink;
+                        view.ActionLabelUntil = presentationClock + .75f;
+                        view.ActionLabel.gameObject.SetActive(true);
+                    }
+                }
+                slot++;
+            }
             skillEffects?.Play(UnitVisual(target), kind, player ? PerformerColor(race) : PanelKit.Pink, strong, art);
         }
 
@@ -2499,6 +2544,7 @@ namespace ChoSiren.Panels
         {
             skillCutIn?.Cancel();
             skillEffects?.Clear();
+            attackTrajectories?.Cancel();
             foreach (DiceRollPresentation roll in dicePresentations) roll.CancelRoll();
             awaitingDiceLanding = false;
             awaitingInput = false;
@@ -2555,6 +2601,27 @@ namespace ChoSiren.Panels
                 resultRewards.alignment = TextAnchor.UpperLeft;
                 resultRewards.fontSize = 16;
                 PanelKit.EnableBestFit(resultRewards, 13);
+            }
+            else if (model.LastBattleRewards.Count > 0)
+            {
+                resultRewards.gameObject.SetActive(false);
+                Transform rewardHost = resultCardRect.Find("BattleReward");
+                Transform previous = rewardHost.Find("EarnedRewardIcons");
+                if (previous != null) { previous.gameObject.SetActive(false); Destroy(previous.gameObject); }
+                RectTransform icons = kit.NewRect("EarnedRewardIcons", rewardHost);
+                PanelKit.PlaceTop(icons, 12, 38, 490, 160);
+                var earned = model.LastBattleRewards.GroupBy(r => r.ItemId)
+                    .Select(g => (ItemId: g.Key, Amount: g.Sum(r => r.Amount))).ToList();
+                for (int i = 0; i < earned.Count; i++)
+                {
+                    float x = i % 4 * 122, y = i / 4 * 80;
+                    var reward = earned[i];
+                    ChoSiren.UI.RewardItemVisuals.CreateIcon(icons, reward.ItemId, "Earned-" + reward.ItemId, x + 39, y, 44);
+                    kit.NewPlacedText(icons, GameModel.RewardItemName(reward.ItemId), 11, PanelKit.White,
+                        x + 2, y + 44, 118, 18, TextAnchor.MiddleCenter);
+                    kit.NewPlacedText(icons, "×" + reward.Amount.ToString("N0"), 13, PanelKit.Cyan,
+                        x + 2, y + 61, 118, 18, TextAnchor.MiddleCenter);
+                }
             }
 
             if (victory) kit.PlaySuccess();

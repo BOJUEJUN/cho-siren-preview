@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace ChoSiren
 {
-    public enum SkillVisualKind { Cast, Impact, Slash, Hex, Pierce, Heal, Shield }
+    public enum SkillVisualKind { Cast, Impact, Slash, Hex, Pierce, Heal, Shield, Tide, Rift, Thorn, Prism }
 
     /// <summary>Bounded local effects; never touches combat state or crosses the dice controls.</summary>
     public sealed class SkillEffectPresentation : MonoBehaviour
@@ -95,9 +95,13 @@ namespace ChoSiren
                 e.Graphic.rectTransform.anchoredPosition = layer.InverseTransformPoint(e.Target.TransformPoint(e.Target.rect.center));
             float t = Mathf.Clamp01(e.Elapsed / e.Duration);
             e.Graphic.SetFrame(t, e.Radius);
-            e.Accent.color = new Color(1, 1, 1, Mathf.Sin(Mathf.PI * t) * .55f);
-            e.Accent.rectTransform.localScale = Vector3.one * Mathf.Lerp(.75f, 1.2f, t);
-            e.Accent.rectTransform.localEulerAngles = new Vector3(0, 0, Mathf.Lerp(-12, 12, t));
+            e.Accent.color = new Color(1, 1, 1, Mathf.Sin(Mathf.PI * t) * .85f);
+            bool directional = e.Graphic.Kind == SkillVisualKind.Pierce;
+            e.Accent.rectTransform.localScale = directional
+                ? new Vector3(Mathf.Lerp(.6f, 1.35f, t), Mathf.Lerp(.9f, .6f, t), 1)
+                : Vector3.one * Mathf.Lerp(.65f, 1.25f, t);
+            e.Accent.rectTransform.localEulerAngles = new Vector3(0, 0,
+                directional ? 32 : e.Graphic.Kind == SkillVisualKind.Tide ? Mathf.Lerp(-55, 35, t) : Mathf.Lerp(-12, 12, t));
         }
 
         public void Clear()
@@ -147,6 +151,36 @@ namespace ChoSiren
                     Ribbon(vh, new Vector2(-r, -r * .64f), new Vector2(r, r * .64f), 4, tint);
                     Ribbon(vh, new Vector2(-r * .6f, r * .7f), new Vector2(r * .6f, -r * .7f), 2, tint);
                     Star(vh, Vector2.zero, radius * .35f, tint);
+                    break;
+                case SkillVisualKind.Tide:
+                    for (int i = 0; i < 2; i++)
+                        Arc(vh, new Vector2((phase - .5f) * r * .9f, -r * .25f + i * r * .25f), r * (1 - i * .15f), .4f, 10 + phase * 85, 210, 6 - i, tint);
+                    break;
+                case SkillVisualKind.Rift:
+                    for (int i = 0; i < 3; i++)
+                    {
+                        float x = (i - 1) * r * .38f;
+                        Ribbon(vh, new Vector2(x - r * .2f, -r), new Vector2(x + r * .35f, r * .9f), (1 - phase) * 8 + 1, tint);
+                    }
+                    break;
+                case SkillVisualKind.Thorn:
+                    for (int i = 0; i < 7; i++)
+                    {
+                        float angle = i * 360f / 7;
+                        Vector2 p = Polar(r, angle);
+                        Ribbon(vh, p, Polar(r * .2f, angle + 25), 4, tint);
+                        Star(vh, p, radius * .12f, tint);
+                    }
+                    break;
+                case SkillVisualKind.Prism:
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Vector2 p = Polar(r * .8f, 45 + i * 90 + phase * 40);
+                        Ribbon(vh, p + Vector2.up * r * .32f, p + Vector2.right * r * .12f, 3, tint);
+                        Ribbon(vh, p + Vector2.right * r * .12f, p - Vector2.up * r * .32f, 3, tint);
+                        Ribbon(vh, p - Vector2.up * r * .32f, p - Vector2.right * r * .12f, 3, tint);
+                        Ribbon(vh, p - Vector2.right * r * .12f, p + Vector2.up * r * .32f, 3, tint);
+                    }
                     break;
                 case SkillVisualKind.Heal:
                     Arc(vh, new Vector2(0, -radius * .45f + phase * radius * .3f), r, .28f, phase * 100, 330, 3, tint);
