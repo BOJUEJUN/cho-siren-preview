@@ -1,11 +1,11 @@
 {
-  "version": "0.3.2",
-  "name": "主动战术更新",
+  "version": "0.3.3",
+  "name": "玩家反馈优化",
   "date": "2026-09-08",
-  "sourceCommit": "bf8b1f0",
-  "buildDirectory": "WebGL-tactics-v032",
-  "previousVersion": "0.3.1",
-  "previousWebCommit": "5faf8bd",
+  "sourceCommit": "3216418",
+  "buildDirectory": "WebGL",
+  "previousVersion": "0.3.2",
+  "previousWebCommit": "bf8b1f0",
   "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
-  "validation": { "unityTests": 487, "webTests": 12, "localBattleSeconds": 62.8, "tacticalSimulations": 128 }
+  "validation": { "unityTests": 390, "webTests": 12, "feedbackItems": 12 }
 }
