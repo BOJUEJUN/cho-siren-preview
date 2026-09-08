@@ -16,6 +16,32 @@ namespace ChoSiren.Tests
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
         [Test]
+        public void TacticalCommandsAreDistinctFixedNamesAndUsableBeforeEnemyCast()
+        {
+            var root = new GameObject("Tactical Commands", typeof(RectTransform));
+            try
+            {
+                var battle = CreateBattle();
+                battle.EnableRealtime(new Dictionary<string, string> { { "player", "魅族" } }, "player");
+                var panel = TacticsBattlePanel.Open(root.transform, new GameModel(), battle, null);
+                Invoke(panel, "RefreshRealtimeCommands");
+                var strike = FindRect(panel.transform, "TacticalInterrupt");
+                var guard = FindRect(panel.transform, "TacticalGuard");
+                Assert.That(strike.GetComponent<Button>().interactable, Is.True);
+                Assert.That(guard.GetComponent<Button>().interactable, Is.True);
+                Assert.That(strike.anchoredPosition.x + strike.sizeDelta.x, Is.LessThan(guard.anchoredPosition.x));
+                strike.GetComponent<Button>().onClick.Invoke();
+                Assert.That(battle.InterruptCooldownRemaining, Is.EqualTo(12000));
+                Assert.That(strike.GetComponentInChildren<Text>().text, Is.EqualTo("破招突袭"));
+                Invoke(panel, "TogglePause");
+                guard.GetComponent<Button>().onClick.Invoke();
+                Assert.That(battle.GuardCooldownRemaining, Is.Zero);
+                Assert.That(panel.GetComponentsInChildren<Text>(true).Any(t => t.text.Contains("等待敌人蓄力")), Is.False);
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void FinalTwentySecondsAreRedAndPauseKeepsBattleTime()
         {
             GameObject root = new GameObject("Countdown Test", typeof(RectTransform));

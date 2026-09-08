@@ -22,6 +22,7 @@ namespace ChoSiren.Systems.Tactics
             public int PoisonStacks, PoisonSource;
             public int StunnedUntil, SlowUntil, ArmorBrokenUntil, ControlWardUntil, ControlRecoveryUntil;
             public int CastUntil, CastTargetId;
+            public int TacticalGuardUntil;
         }
 
         private static readonly Dictionary<string, SkillDefinition> realtimeSkills = CreateRealtimeSkills();
@@ -461,6 +462,7 @@ namespace ChoSiren.Systems.Tactics
         private void ApplyActualDamage(BattleUnit actor, BattleUnit target, string skill, int damage, bool critical)
         {
             if (!target.Alive || Outcome != BattleOutcome.Ongoing) return;
+            if (GuardRemaining(target) > 0) damage = Math.Max(1, damage / 2);
             int absorbed = Math.Min(target.Shield, damage);
             target.Shield -= absorbed;
             PerformerClock targetClock = performerClocks[target.Id];
@@ -658,6 +660,8 @@ namespace ChoSiren.Systems.Tactics
             Add("rt-control-ward", "控场免疫", SkillEffect.Shield);
             Add("rt-cleanse", "净化", SkillEffect.Heal); Add("rt-interrupt", "打断");
             Add("rt-resist", "抵抗"); Add("rt-cast", "蓄力预警");
+            Add("rt-tactical-strike", "破招突袭");
+            Add("rt-tactical-guard", "应急守护", SkillEffect.Shield);
             return result;
         }
     }

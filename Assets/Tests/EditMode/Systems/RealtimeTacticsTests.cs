@@ -7,6 +7,73 @@ namespace ChoSiren.Tests
 {
     public sealed class RealtimeTacticsTests
     {
+        [Test]
+        public void TacticalStrikeWorksWithoutWaitingAndHasRealCooldown()
+        {
+            var b = RealtimeBattleTests.Create("none", encounter: "normal");
+            int hp = b.FindUnit(2).Hp;
+            Assert.That(b.TryTacticalStrike(), Is.True);
+            Assert.That(b.FindUnit(2).Hp, Is.LessThan(hp));
+            Assert.That(b.InterruptCooldownRemaining, Is.EqualTo(12000));
+            Assert.That(b.TryTacticalStrike(), Is.False);
+            Assert.That(b.ConditionRemaining(b.FindUnit(2), CombatCondition.ArmorBreak), Is.Zero);
+        }
+
+        [Test]
+        public void WellTimedStrikeCancelsCastAndOpensFourSecondArmorBreak()
+        {
+            var b = RealtimeBattleTests.Create("none", encounter: "normal");
+            b.AdvanceRealtime(4000);
+            Assert.That(b.CastTarget(b.FindUnit(2)), Is.EqualTo(b.FindUnit(1)));
+            Assert.That(b.TryTacticalStrike(), Is.True);
+            Assert.That(b.CastRemaining(b.FindUnit(2)), Is.Zero);
+            Assert.That(b.ConditionRemaining(b.FindUnit(2), CombatCondition.ArmorBreak), Is.EqualTo(4000));
+        }
+
+        [Test]
+        public void ControlImmuneCastSurvivesStrikeButStillTakesDamage()
+        {
+            var b = RealtimeBattleTests.Create("none", encounter: "normal");
+            var enemy = b.FindUnit(2);
+            b.AdvanceRealtime(4000);
+            Apply(b, enemy, enemy, CombatCondition.ControlWard, 3000);
+            int hp = enemy.Hp;
+            Assert.That(b.TryTacticalStrike(), Is.True);
+            Assert.That(enemy.Hp, Is.LessThan(hp));
+            Assert.That(b.CastRemaining(enemy), Is.EqualTo(2000));
+            Assert.That(b.ConditionRemaining(enemy, CombatCondition.ArmorBreak), Is.Zero);
+        }
+
+        [Test]
+        public void GuardHalvesDamageExpiresAndCannotBeSpammed()
+        {
+            var normal = RealtimeBattleTests.Create("none", encounter: "normal");
+            var guarded = RealtimeBattleTests.Create("none", encounter: "normal");
+            Assert.That(guarded.TryTacticalGuard(), Is.True);
+            Assert.That(guarded.TryTacticalGuard(), Is.False);
+            Assert.That(guarded.GuardCooldownRemaining, Is.EqualTo(18000));
+            normal.AdvanceRealtime(2000); guarded.AdvanceRealtime(2000);
+            int Damage(BattleSimulator b) => b.Log.First(e => e.Kind == BattleEventKind.Damage && e.ActorId == 2).Amount;
+            Assert.That(Damage(guarded), Is.EqualTo(System.Math.Max(1, Damage(normal) / 2)));
+            guarded.AdvanceRealtime(1000);
+            Assert.That(guarded.GuardRemaining(guarded.FindUnit(1)), Is.Zero);
+            Assert.That(guarded.GuardCooldownRemaining, Is.EqualTo(15000));
+        }
+
+        [Test]
+        public void ControlledTeamCannotSpendCommandsAndNewBattleResetsCooldowns()
+        {
+            var b = RealtimeBattleTests.Create("none", encounter: "normal");
+            Apply(b, b.FindUnit(2), b.FindUnit(1), CombatCondition.Stun, 1200);
+            Assert.That(b.TryTacticalStrike(), Is.False);
+            Assert.That(b.TryTacticalGuard(), Is.False);
+            Assert.That(b.GuardCooldownRemaining, Is.Zero);
+            Assert.That(b.InterruptCooldownRemaining, Is.Zero);
+            var fresh = RealtimeBattleTests.Create("none", encounter: "normal");
+            Assert.That(fresh.TryTacticalStrike(), Is.True);
+            Assert.That(fresh.TryTacticalGuard(), Is.True);
+        }
+
         private static bool Apply(BattleSimulator b, BattleUnit from, BattleUnit to, CombatCondition c, int ms) =>
             (bool)typeof(BattleSimulator).GetMethod("ApplyCondition", BindingFlags.NonPublic | BindingFlags.Instance)
                 .Invoke(b, new object[] { from, to, c, ms });

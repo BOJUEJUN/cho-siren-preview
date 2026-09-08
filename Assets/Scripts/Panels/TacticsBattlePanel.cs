@@ -20,7 +20,7 @@ namespace ChoSiren.Panels
     public sealed class TacticsBattlePanel : MonoBehaviour
     {
         private const float EnemyCellWidth = 152f;
-        private const float EnemyCellHeight = 84f;
+        private const float EnemyCellHeight = 112f;
         private const float PlayerCellWidth = 158f;
         // One real roster, directly above the dice. No duplicate portraits on the stage.
         private const float PlayerCellHeight = 172f;
@@ -58,6 +58,7 @@ namespace ChoSiren.Panels
             public Text HurtLabel;
             public float HurtLabelUntil;
             public Image CastFill;
+            public Text CastLabel;
             public int MotionBoundId = -1;
         }
 
@@ -186,6 +187,11 @@ namespace ChoSiren.Panels
         private SkillEffectPresentation skillEffects;
         private AttackTrajectoryPresentation attackTrajectories;
         private GameObject interruptButton;
+        private GameObject guardButton;
+        private Text strikeHint;
+        private Text guardHint;
+        private string commandFeedback;
+        private int commandFeedbackUntil;
         private Sprite crystalBurstSprite, tideSpellSprite, lanceSpellSprite;
         private readonly Dictionary<int, string> lastPresentedActions = new Dictionary<int, string>();
         private Sprite rerollRingSprite;
@@ -733,9 +739,12 @@ namespace ChoSiren.Panels
             };
             if (!player)
             {
-                view.CastFill = kit.NewBar("EnemyCast", root.transform, 8, 81, width - 16, 3,
+                view.CastFill = kit.NewBar("EnemyCast", root.transform, 8, 103, width - 16, 5,
                     new Color32(70, 53, 25, 200), CombatFeedbackPalette.Control, 2);
                 view.CastFill.transform.parent.gameObject.SetActive(false);
+                view.CastLabel = kit.NewPlacedText(root.transform, "", 11, CombatFeedbackPalette.Control,
+                    8, 81, width - 16, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
+                view.CastLabel.gameObject.name = "EnemyCastIntent";
             }
             if (player)
             {
@@ -758,21 +767,43 @@ namespace ChoSiren.Panels
         {
             GameObject strip = kit.NewPanel("TurnStrip", transform, new Color32(12, 11, 47, 78), 12);
             PanelKit.PlaceTop(strip.GetComponent<RectTransform>(), 20, 840, 680, 54);
-            actorText = kit.NewPlacedText(strip.transform, string.Empty, 18, PanelKit.White, 14, 3, battle.IsRealtime ? 464 : 652, 25,
+            actorText = kit.NewPlacedText(strip.transform, string.Empty, 18, PanelKit.White, 14, 3, battle.IsRealtime ? 248 : 652, 25,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             eventText = kit.NewPlacedText(strip.transform, "战斗开始", 16, PanelKit.Muted, 14, 27, 652, 22,
                 TextAnchor.MiddleLeft);
             if (battle.IsRealtime)
             {
-                PanelKit.PlaceTop(eventText.rectTransform, 14, 27, 464, 22);
-                interruptButton = kit.NewButton("TacticalInterrupt", strip.transform, "等待敌人蓄力", 16,
+                PanelKit.PlaceTop(eventText.rectTransform, 14, 27, 248, 22);
+                interruptButton = kit.NewButton("TacticalInterrupt", strip.transform, "破招突袭", 16,
                     new Color32(77, 58, 26, 255), CombatFeedbackPalette.Control, () =>
                     {
-                        if (!paused && !closing) battle.TryTacticalInterrupt();
+                        if (!paused && !closing && battle.TryTacticalStrike())
+                        {
+                            commandFeedback = battle.LastTacticalStrikeBrokeCast
+                                ? "破招成功 · 破甲4秒" : "突袭已释放 · 12秒冷却";
+                            commandFeedbackUntil = battle.ElapsedMilliseconds + 2500;
+                        }
                         RefreshRealtimeCommands();
                     }, 10);
-                PanelKit.PlaceTop(interruptButton.GetComponent<RectTransform>(), 492, 4, 174, 46);
+                PanelKit.PlaceTop(interruptButton.GetComponent<RectTransform>(), 274, 2, 190, 50);
+                PanelKit.PlaceTop(PanelKit.LabelOf(interruptButton).rectTransform, 4, 1, 182, 26);
                 PanelKit.EnableBestFit(PanelKit.LabelOf(interruptButton), 12);
+                strikeHint = kit.NewPlacedText(interruptButton.transform, "攻击 / 打断时破甲", 11, PanelKit.Gold,
+                    4, 28, 182, 18, TextAnchor.MiddleCenter);
+                guardButton = kit.NewButton("TacticalGuard", strip.transform, "应急守护", 16,
+                    new Color32(24, 61, 88, 255), CombatFeedbackPalette.Shield, () =>
+                    {
+                        if (!paused && !closing && battle.TryTacticalGuard())
+                        {
+                            commandFeedback = "守护生效 · 全队减伤50%";
+                            commandFeedbackUntil = battle.ElapsedMilliseconds + 3000;
+                        }
+                        RefreshRealtimeCommands();
+                    }, 10);
+                PanelKit.PlaceTop(guardButton.GetComponent<RectTransform>(), 476, 2, 190, 50);
+                PanelKit.PlaceTop(PanelKit.LabelOf(guardButton).rectTransform, 4, 1, 182, 26);
+                guardHint = kit.NewPlacedText(guardButton.transform, "全队减伤50% · 3秒", 11, CombatFeedbackPalette.Shield,
+                    4, 28, 182, 18, TextAnchor.MiddleCenter);
             }
             PanelKit.EnableBestFit(actorText, 16);
             PanelKit.EnableBestFit(eventText, 14);
@@ -900,22 +931,23 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(pauseShade.rectTransform);
             pauseShade.raycastTarget = true;
             GameObject dialog = kit.NewPanel("PauseDialog", pauseShade.transform, new Color32(17, 17, 43, 255), 24);
-            PanelKit.PlaceTop(dialog.GetComponent<RectTransform>(), 140, 480, 440, 540);
+            PanelKit.PlaceTop(dialog.GetComponent<RectTransform>(), 140, 390, 440, 720);
             kit.AddOutline(dialog, new Color32(146, 120, 218, 120), 1);
             kit.NewPlacedText(dialog.transform, "演出已暂停", 30, PanelKit.White, 20, 24, 400, 54,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             kit.NewPlacedText(dialog.transform, battle.IsRealtime
                 ? $"本关限时 {battle.Stage.TimeLimitSeconds} 秒，超时判负。暂停不计时；2倍速也会加快倒计时。\n\n骰子伤害加成逐次相加，上限+100%（×2）。开局+0–25%，每次重投+5–25%，不会倒扣；新战斗重新累计。\n\n追击、护盾、叠毒和穿甲由当前骰型与队长决定，不随伤害加成叠乘。"
-                : "点击骰子可保留，骰型加成下一技能。", 16, PanelKit.Muted, 28, 90, 384, 208,
+                  + "\n\n破招突袭：150%攻击，12秒冷却。蓄力时命中可打断并破甲30%持续4秒；免控敌人仍受伤但不会被打断。\n\n应急守护：全队减伤50%持续3秒，18秒冷却。点敌人指定突袭目标；没有指定时优先蓄力者。"
+                : "点击骰子可保留，骰型加成下一技能。", 16, PanelKit.Muted, 28, 90, 384, 360,
                 TextAnchor.UpperLeft).gameObject.name = "BattleRules";
             GameObject resume = kit.NewButton("ResumeBattle", dialog.transform, "继续演出", 24,
                 new Color32(87, 49, 143, 255), PanelKit.White, TogglePause, 12);
-            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 32, 316, 376, 60);
+            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 32, 476, 376, 60);
             exitButton = kit.NewButton("BattleExit", dialog.transform, "退出战斗", 22,
                 PanelKit.ButtonDark, PanelKit.Muted, ExitBattle, 12);
-            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 32, 394, 376, 60);
+            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 32, 554, 376, 60);
             kit.NewPlacedText(dialog.transform, "退出不返还已消耗的体力", 18, PanelKit.Muted,
-                20, 474, 400, 36, TextAnchor.MiddleCenter);
+                20, 644, 400, 36, TextAnchor.MiddleCenter);
             pauseOverlay = pauseShade.gameObject;
             pauseOverlay.SetActive(false);
         }
@@ -1205,11 +1237,19 @@ namespace ChoSiren.Panels
             {
                 BattleUnit threat = battle.InterruptTarget;
                 float cooldown = battle.InterruptCooldownRemaining / 1000f;
-                bool ready = !paused && battle.Outcome == BattleOutcome.Ongoing && cooldown <= 0 && threat != null;
+                bool available = !paused && !closing && battle.TacticalActor != null;
+                bool ready = available && cooldown <= 0 && battle.TacticalStrikeTarget != null;
                 PanelKit.SetButtonState(interruptButton, ready, new Color32(77, 58, 26, 255));
-                PanelKit.LabelOf(interruptButton).text = ready ? "打断蓄力" : cooldown > 0 ? $"打断 · {cooldown:0.0}s" : "等待敌人蓄力";
-                if (threat != null) eventText.text = $"{threat.Definition.Name}：{battle.EnemyThreatName(threat)}";
-                else eventText.text = "点击敌人集火 · 金色蓄力可手动打断";
+                PanelKit.LabelOf(interruptButton).text = "破招突袭";
+                var target = battle.TacticalStrikeTarget;
+                strikeHint.text = cooldown > 0 ? $"冷却 {cooldown:0.0}秒" : battle.CastRemaining(target) > 0
+                    ? "时机！打断并破甲" : "攻击 / 打断时破甲";
+                float guardCooldown = battle.GuardCooldownRemaining / 1000f;
+                PanelKit.SetButtonState(guardButton, available && guardCooldown <= 0, new Color32(24, 61, 88, 255));
+                guardHint.text = guardCooldown > 0 ? $"冷却 {guardCooldown:0.0}秒" : "全队减伤50% · 3秒";
+                if (commandFeedbackUntil > battle.ElapsedMilliseconds) eventText.text = commandFeedback;
+                else if (threat != null) eventText.text = $"危险 · {battle.EnemyThreatName(threat)}";
+                else eventText.text = "点敌人集火 · 战术可主动释放";
             }
             if (inputActor == null || !inputActor.Alive)
             {
@@ -1253,7 +1293,7 @@ namespace ChoSiren.Panels
                 float remaining = battle.SkillCooldownRemaining(inputActor, i == 1) / 1000f;
                 PanelKit.LabelOf(skillButtons[i]).text = $"{skill.Name}\n自动 · {remaining:0.0}秒";
             }
-            actorText.text = $"查看：{inputActor.Definition.Name} · 全员独立自动出手";
+            actorText.text = $"{inputActor.Definition.Name} · 自动战斗";
             BattleUnit focused = battle.FindUnit(battle.FocusTargetId);
             previewText.text = focused != null && focused.Alive
                 ? $"集火：{focused.Definition.Name} · 点击其他敌人切换"
@@ -1415,6 +1455,8 @@ namespace ChoSiren.Panels
                         skillEffects?.Play(UnitVisual(target), SkillVisualKind.Pierce, effectColor, true);
                     else if (battleEvent.SkillId == "rt-cleanse")
                         skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal, effectColor, true);
+                    else if (battleEvent.SkillId == "rt-tactical-guard")
+                        skillEffects?.Play(UnitVisual(target), SkillVisualKind.Shield, CombatFeedbackPalette.Shield, true);
                     string buffLine = $"{actorName} 使用「{skillName}」：{targetName} {effectLabel}";
                     if (!battle.IsRealtime) eventText.text = buffLine;
                     AppendLog(buffLine);
@@ -1889,6 +1931,11 @@ namespace ChoSiren.Panels
                 int remaining = battle.IsRealtime ? battle.CastRemaining(unit) : 0;
                 cell.CastFill.transform.parent.gameObject.SetActive(remaining > 0);
                 cell.CastFill.fillAmount = 1f - Mathf.Clamp01(remaining / 2000f);
+                cell.CastFill.color = remaining <= 700 ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Control;
+                var castTarget = battle.CastTarget(unit);
+                bool allTargets = battle.Stage.HasBossPhases && battle.EnemyPhase >= 3;
+                cell.CastLabel.text = remaining > 0 ? $"→{(unit.Definition.Id == "velvet-hexer" ? "敌方治疗" : allTargets ? "全队" : castTarget?.Definition.Name ?? "全体")} {remaining / 1000f:0.0}s" : "";
+                if (remaining > 0) cell.Status.text = battle.EnemyThreatName(unit);
             }
             bool stunned = battle.IsRealtime && battle.ConditionRemaining(unit, CombatCondition.Stun) > 0;
             cell.Motion?.SetControlled(stunned);

@@ -240,6 +240,33 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void FreshPartyWithActiveTacticsStillHasAFullLengthBattle()
+        {
+            foreach (bool waitForCast in new[] { false, true })
+            {
+                var times = new List<int>();
+                for (ulong seed = 1; seed <= 64; seed++)
+                {
+                    PlayerPrefs.DeleteKey(SaveKey); PlayerPrefs.DeleteKey(LegacySaveKey);
+                    var model = new GameModel(() => now);
+                    var battle = model.StartStageBattle("stage-1-1", seed, out _);
+                    while (battle.Outcome == BattleOutcome.Ongoing)
+                    {
+                        if (!waitForCast || battle.InterruptTarget != null) battle.TryTacticalStrike();
+                        if (battle.InterruptTarget != null) battle.TryTacticalGuard();
+                        battle.AdvanceRealtime(100, true);
+                    }
+                    Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+                    times.Add(battle.ElapsedMilliseconds);
+                }
+                times.Sort();
+                TestContext.WriteLine($"TACTICS timed={waitForCast} median={times[32]} over60={times.Count(t => t > 60000)}/64 min={times[0]} max={times[63]}");
+                Assert.That(times[32], Is.InRange(65000, 90000));
+                Assert.That(times.Count(t => t > 60000), Is.GreaterThanOrEqualTo(50));
+            }
+        }
+
+        [Test]
         public void NewGameCreatesAndPersistsNormalizedDefaults()
         {
             GameModel model = CreateModel();

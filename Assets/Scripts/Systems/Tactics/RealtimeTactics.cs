@@ -8,7 +8,72 @@ namespace ChoSiren.Systems.Tactics
     public sealed partial class BattleSimulator
     {
         private int nextTacticalInterrupt;
+        private int nextTacticalGuard;
         public int InterruptCooldownRemaining => Math.Max(0, nextTacticalInterrupt - ElapsedMilliseconds);
+        public int GuardCooldownRemaining => Math.Max(0, nextTacticalGuard - ElapsedMilliseconds);
+        public bool LastTacticalStrikeBrokeCast { get; private set; }
+
+        public BattleUnit TacticalActor
+        {
+            get
+            {
+                bool Available(BattleUnit u) => u != null && u.Side == BattleSide.Player && u.Alive &&
+                    ConditionRemaining(u, CombatCondition.Stun) == 0 &&
+                    performerClocks[u.Id].SilencedUntil <= ElapsedMilliseconds;
+                if (!IsRealtime || Outcome != BattleOutcome.Ongoing) return null;
+                var captain = FindUnit(CurrentLeaderId);
+                if (Available(captain)) return captain;
+                foreach (var unit in units) if (Available(unit)) return unit;
+                return null;
+            }
+        }
+
+        public BattleUnit TacticalStrikeTarget
+        {
+            get
+            {
+                var actor = TacticalActor;
+                if (actor == null) return null;
+                var focused = FindUnit(FocusTargetId);
+                if (focused != null && focused.Alive && focused.Side == BattleSide.Enemy) return focused;
+                return InterruptTarget ?? SelectEnemy(actor);
+            }
+        }
+
+        public int GuardRemaining(BattleUnit unit) => IsRealtime && unit != null && unit.Alive
+            ? Math.Max(0, performerClocks[unit.Id].TacticalGuardUntil - ElapsedMilliseconds) : 0;
+
+        public BattleUnit CastTarget(BattleUnit unit) => CastRemaining(unit) > 0
+            ? FindUnit(performerClocks[unit.Id].CastTargetId) : null;
+
+        // Attack now or save it for a dangerous cast: timing changes the reward, not availability.
+        public bool TryTacticalStrike()
+        {
+            var actor = TacticalActor;
+            var target = TacticalStrikeTarget;
+            if (actor == null || target == null || InterruptCooldownRemaining > 0) return false;
+            nextTacticalInterrupt = ElapsedMilliseconds + 12000;
+            Emit(BattleEventKind.ActionStarted, actor.Id, target.Id, "rt-tactical-strike", 0, false);
+            bool broken = CastRemaining(target) > 0 && ApplyCondition(actor, target, CombatCondition.Stun, 1200);
+            LastTacticalStrikeBrokeCast = broken;
+            if (broken) ApplyCondition(actor, target, CombatCondition.ArmorBreak, 4000);
+            Deal(actor, target, "rt-tactical-strike", 1500);
+            return true;
+        }
+
+        public bool TryTacticalGuard()
+        {
+            var actor = TacticalActor;
+            if (actor == null || GuardCooldownRemaining > 0) return false;
+            nextTacticalGuard = ElapsedMilliseconds + 18000;
+            foreach (var ally in units)
+                if (ally.Side == BattleSide.Player && ally.Alive)
+                {
+                    performerClocks[ally.Id].TacticalGuardUntil = ElapsedMilliseconds + 3000;
+                    Emit(BattleEventKind.Buff, actor.Id, ally.Id, "rt-tactical-guard", 3000, false);
+                }
+            return true;
+        }
 
         public int ConditionRemaining(BattleUnit unit, CombatCondition condition)
         {
@@ -98,6 +163,7 @@ namespace ChoSiren.Systems.Tactics
             var labels = new List<string>();
             string Seconds(int ms) => (Math.Max(0, ms - ElapsedMilliseconds) / 1000f).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + "s";
             if (c.CastUntil > ElapsedMilliseconds) labels.Add("蓄力 " + Seconds(c.CastUntil));
+            if (c.TacticalGuardUntil > ElapsedMilliseconds) labels.Add("守护50% " + Seconds(c.TacticalGuardUntil));
             if (c.StunnedUntil > ElapsedMilliseconds) labels.Add("眩晕 " + Seconds(c.StunnedUntil));
             if (c.ArmorBrokenUntil > ElapsedMilliseconds) labels.Add("破甲30%");
             if (c.SlowUntil > ElapsedMilliseconds) labels.Add("迟缓35%");

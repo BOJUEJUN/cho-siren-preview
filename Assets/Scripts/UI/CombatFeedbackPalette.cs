@@ -15,6 +15,7 @@ namespace ChoSiren
 
         public static Color Skill(string id, BattleSide side = BattleSide.Player)
         {
+            if (id == "rt-tactical-guard") return Shield;
             if (id == "rt-mermaid-small" || id == "rt-cleanse") return Heal;
             if (id == "rt-mermaid-big" || id == "rt-control-ward" || id == "rt-tide-hand" || id == "rt-elite-harden" || id == "rt-boss-barrier") return Shield;
             if (id == "rt-stun" || id == "rt-slow" || id == "rt-interrupt" || id == "rt-resist" || id == "rt-cast" || id == "rt-charm-big") return Control;
@@ -24,6 +25,7 @@ namespace ChoSiren
 
         public static Color Status(string value)
         {
+            if (value.Contains("守护")) return Shield;
             if (value.Contains("眩晕") || value.Contains("蓄力") || value.Contains("封技") || value.Contains("迟缓")) return Control;
             if (value.Contains("毒") || value.Contains("破甲") || value.Contains("禁疗")) return Debuff;
             if (value.Contains("护盾") || value.Contains("控免") || value.Contains("减伤") || value.Contains("硬化")) return Shield;
