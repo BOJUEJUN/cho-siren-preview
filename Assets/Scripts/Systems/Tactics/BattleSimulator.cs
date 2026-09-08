@@ -417,15 +417,28 @@ namespace ChoSiren.Systems.Tactics
             if (unit == null) return default;
             if (unit.GrowthModel == "idol-v1")
                 return new CombatStats(
-                    GrowthStat(unit.MaxHp, level, 1.085, equipment.Hp, 1),
-                    GrowthStat(unit.Attack, level, 1.065, equipment.Attack, 1),
-                    GrowthStat(unit.Defense, level, 1.05, equipment.Defense, 0), unit.Speed, unit.CritPermille);
+                    GrowthStat(unit.MaxHp, level, GrowthRates.Hp, equipment.Hp, 1),
+                    GrowthStat(unit.Attack, level, GrowthRates.Attack, equipment.Attack, 1),
+                    GrowthStat(unit.Defense, level, GrowthRates.Defense, equipment.Defense, 0), unit.Speed, unit.CritPermille);
             int scale = LevelMultiplierPermille(level);
             return new CombatStats(
                 Scale(unit.MaxHp, scale, 1000 + equipment.Hp, 1),
                 Scale(unit.Attack, scale, 1000 + equipment.Attack, 1),
                 Scale(unit.Defense, scale, 1000 + equipment.Defense, 0),
                 unit.Speed, unit.CritPermille);
+        }
+
+        /// <summary>
+        /// Per-level compounding rates. Earlier builds used 1.085 / 1.065 / 1.05, which reached
+        /// roughly 2400x HP and 550x attack at level 100 and made every encounter trivial. These
+        /// rates keep level 1 unchanged (rate^0 == 1) so a new account plays identically, while
+        /// capping the level 100 spread at a readable magnitude.
+        /// </summary>
+        public static class GrowthRates
+        {
+            public const double Hp = 1.052;
+            public const double Attack = 1.042;
+            public const double Defense = 1.032;
         }
 
         private static int GrowthStat(int basis, int level, double rate, int equipment, int minimum) =>

@@ -395,7 +395,7 @@ namespace ChoSiren.Panels
             switch (currencyId)
             {
                 case "diamond": return "星钻";
-                case "gold": return "金币";
+                case "gold": return "星光币";
                 case "stamina": return "体力";
                 case "recruit-ticket": return "招募券";
                 case "costume-ticket": return "服装券";

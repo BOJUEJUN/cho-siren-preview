@@ -1126,7 +1126,7 @@ namespace ChoSiren
 
             bool canUpgrade = model.CanUpgradeAccessory(selected, out int pieces, out int gold);
             string upgradeLabel = model.AccessoryUpgradeLevel(selected) >= 3 ? "已强化至 +3" :
-                $"强化：{pieces}碎片 + {gold}金币\n持有碎片 {model.Save.EquipmentFragments}";
+                $"强化：{pieces}碎片 + {gold}星光币\n持有碎片 {model.Save.EquipmentFragments}";
             GameObject settings = NewButton("AccessoryUpgrade", detail.transform, upgradeLabel, 12,
                 canUpgrade ? new Color32(45, 90, 125, 255) : new Color32(45, 52, 105, 220), White,
                 () => { model.UpgradeAccessory(selected, out string upgradeMessage); ShowScreen("accessory"); Toast(upgradeMessage); });
@@ -1257,10 +1257,12 @@ namespace ChoSiren
             AddQuietPanelEdge(statPanel);
             NewPlacedText(statPanel.transform, "当前等级属性", 16, new Color32(255, 183, 229, 255),
                 16, 12, 244, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            AddMemberStat(statPanel.transform, "MemberStatAttack", "攻击", attack.ToString("N0"), 50);
-            AddMemberStat(statPanel.transform, "MemberStatHp", "生命", hp.ToString("N0"), 91);
-            AddMemberStat(statPanel.transform, "MemberStatCrit", "暴击", critPercent + "%", 132);
-            AddMemberStat(statPanel.transform, "MemberStatSpeed", "速度", speed.ToString(), 173);
+            AddMemberStat(statPanel.transform, "MemberStatAttack", "攻击", attack.ToString("N0"), 46);
+            AddMemberStat(statPanel.transform, "MemberStatHp", "生命", hp.ToString("N0"), 84);
+            AddMemberStat(statPanel.transform, "MemberStatCrit", "暴击", critPercent + "%", 122);
+            AddMemberStat(statPanel.transform, "MemberStatSpeed", "速度", speed.ToString(), 160);
+            AddMemberStat(statPanel.transform, "MemberStatAffection", "好感度",
+                $"{model.AffectionOf(memberIndex)} · {model.AffectionTierOf(memberIndex)}", 198);
 
             GameObject skillPanel = NewPanel("MemberSkillPanel", panel.transform,
                 new Color32(18, 22, 70, 222), 22);
@@ -1289,7 +1291,7 @@ namespace ChoSiren
                 PanelKit.EnableBestFit(preview, 14);
                 Text cost = NewPlacedText(guidePanel.transform, atLevelCap
                         ? "已满级 · 无需继续训练"
-                        : $"消耗金币 {trainingCost:N0} · 持有 {model.Save.Gold:N0}",
+                        : $"消耗星光币 {trainingCost:N0} · 持有 {model.Save.Gold:N0}",
                     16, canTrain || atLevelCap ? Cyan : Pink, 18, 78, 520, 30, TextAnchor.MiddleLeft);
                 cost.name = "MemberTrainingCost";
                 PanelKit.EnableBestFit(cost, 14);
@@ -1302,7 +1304,7 @@ namespace ChoSiren
             {
                 Button trainButton = null;
                 GameObject train = NewButton("Train", panel.transform,
-                    atLevelCap ? "已满级" : canTrain ? "训练升级" : "金币不足", 18, Pink, White, () =>
+                    atLevelCap ? "已满级" : canTrain ? "训练升级" : "星光币不足", 18, Pink, White, () =>
                 {
                     // Retire the old action immediately; rebuild from the saved result so
                     // a second pointer event cannot spend a stale displayed quote.
@@ -1445,12 +1447,12 @@ namespace ChoSiren
             int gold = preview.AmountOf(CurrencyIds.Gold);
             int diamonds = preview.AmountOf(CurrencyIds.Diamond);
             bool canClaim = model.CanClaimIdleIncome && (gold > 0 || diamonds > 0);
-            string body = $"挂机舞台收益\n已累积金币 {gold:N0}\n已累积星钻 {diamonds:N0}";
+            string body = $"挂机舞台收益\n已累积星光币 {gold:N0}\n已累积星钻 {diamonds:N0}";
             if (preview.Capped) body += "\n收益已达上限，请尽快领取。";
             else if (!canClaim) body += "\n收益还在累积，稍后再来。";
 
             OpenInfoModal("闪耀舞台", body,
-                canClaim ? $"领取 · 金币 {gold:N0} / 星钻 {diamonds:N0}" : "暂无收益",
+                canClaim ? $"领取 · 星光币 {gold:N0} / 星钻 {diamonds:N0}" : "暂无收益",
                 canClaim
                     ? () =>
                     {
@@ -1889,6 +1891,13 @@ namespace ChoSiren
         {
             return index >= 0 && index < GameModel.AccessoryItemIds.Length
                 ? ChoSiren.UI.RewardItemVisuals.SpriteFor(GameModel.AccessoryItemIds[index]) : null;
+        }
+
+        /// <summary>Quality colour shared by every accessory surface so a tier always looks the same.</summary>
+        protected static Color AccessoryRarityColor(int index)
+        {
+            Color parsed;
+            return ColorUtility.TryParseHtmlString(GameModel.AccessoryRarityColorHexOf(index), out parsed) ? parsed : White;
         }
 
         private void AddIconButton(Transform parent, string name, string glyph, int x, UnityEngine.Events.UnityAction action)

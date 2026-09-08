@@ -518,7 +518,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("MemberModal");
             Button button = RequireActiveObject("Train").GetComponent<Button>();
             Assert.That(button.interactable, Is.False);
-            Assert.That(button.transform.Find("Label").GetComponent<Text>().text, Is.EqualTo("金币不足"));
+            Assert.That(button.transform.Find("Label").GetComponent<Text>().text, Is.EqualTo("星光币不足"));
             GameSave saved = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
             Assert.That(saved.Gold, Is.GreaterThanOrEqualTo(0));
             Assert.That(saved.Gold, Is.LessThan(BattleSimulator.TrainingCostAtLevel(saved.MemberLevels[0])));

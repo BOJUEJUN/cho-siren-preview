@@ -127,7 +127,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.Gold, Is.EqualTo(11300));
             Assert.That(model.Save.Diamonds, Is.EqualTo(219));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(83));
-            Assert.That(model.StatsOf(0).Hp, Is.EqualTo(66214));
+            Assert.That(model.StatsOf(0).Hp, Is.EqualTo(8360));
             Assert.That(model.CanTrain(0, out int cost, out _), Is.False);
             Assert.That(cost, Is.EqualTo(583077));
             Assert.That(model.Train(0, out _), Is.False);
@@ -206,7 +206,8 @@ namespace ChoSiren.Tests
                 Assert.That(wins, Is.GreaterThanOrEqualTo(number <= 4 ? 14 : 12),
                     $"1-{number} 队长{captain}在校准等级下不应依赖罕见好运才能获胜");
                 int[] minimumMedians = { 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000 };
-                int[] maximumMedians = { 105000, 105000, 105000, 105000, 105000, 105000, 105000, 105000, 105000, 105000 };
+                // v0.3.3: 成长压制后高关卡时长自然拉长,放宽上限至 120s
+                int[] maximumMedians = { 120000, 120000, 120000, 120000, 120000, 120000, 120000, 120000, 120000, 120000 };
                 Assert.That(durations[8], Is.InRange(minimumMedians[number - 1], maximumMedians[number - 1]),
                     $"1-{number} 队长{captain} 的典型时长需留出决策空间，又不能靠拖满关卡上限取胜");
             }
@@ -271,8 +272,9 @@ namespace ChoSiren.Tests
         {
             GameModel model = CreateModel();
 
-            Assert.That(model.Save.Diamonds, Is.EqualTo(10695));
-            Assert.That(model.Save.Gold, Is.EqualTo(17267));
+            // 0.3.3 feedback: 默认经济收紧,新号仅持小额星钻与星光币,避免"开局过富"
+            Assert.That(model.Save.Diamonds, Is.EqualTo(300));
+            Assert.That(model.Save.Gold, Is.EqualTo(1200));
             Assert.That(model.Save.Stamina, Is.EqualTo(GameModel.MaxStamina));
             Assert.That(model.Save.DailyActivityDate, Is.EqualTo("2026-09-02"));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(79));
@@ -420,7 +422,7 @@ namespace ChoSiren.Tests
 
             int expectedEasyGold = (StageGold + StageDropGold) * 800 / 1000;
             Assert.That(model.Save.Gold, Is.EqualTo(gold + expectedEasyGold),
-                "结算必须沿用开战时的简单难度快照，并缩放基础金币与金币掉落的总和。");
+                "结算必须沿用开战时的简单难度快照，并缩放基础星光币与星光币掉落的总和。");
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + StageFirstClearDiamonds));
             Assert.That(settlement, Does.Contain("简单"));
 
@@ -696,6 +698,7 @@ namespace ChoSiren.Tests
         public void RecruitValidatesCandidateCostAndPersistsUnlock()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 5000;  // v0.3.3: 新号默认 300,招募前先补足
             int initialDiamonds = model.Save.Diamonds;
 
             Assert.That(model.Recruit(-1, out _), Is.False);
@@ -727,6 +730,7 @@ namespace ChoSiren.Tests
         public void InterviewShortlistSurvivesSigningReloadAndPoolSwitchWithoutReplacingOtherCandidates()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 20000;  // v0.3.3: 签约需星钻,新号默认 300,补足
             int[] online = model.InterviewCandidates(0).ToArray();
             int[] offline = model.InterviewCandidates(1).ToArray();
             Assert.That(online.Length, Is.EqualTo(10));
@@ -734,10 +738,10 @@ namespace ChoSiren.Tests
             Assert.That(online.Intersect(offline), Is.Empty);
             int candidate = online[3];
             int cost = model.InterviewQuote(0, candidate);
-            int initialGold = model.Save.Gold;
+            int initialDiamonds = model.Save.Diamonds;  // v0.3.3: 签约消耗星钻而非星光币
             Assert.That(model.SignInterviewCandidate(0, candidate, model.CurrentInterviewCycle,
                 cost, out string message), Is.True, message);
-            Assert.That(model.Save.Gold, Is.EqualTo(initialGold - cost));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds - cost));
             Assert.That(model.InterviewCandidates(0), Is.EqualTo(online.Where(index => index != candidate)));
             Assert.That(model.InterviewCandidates(1), Is.EqualTo(offline));
             GameModel reloaded = CreateModel();
@@ -771,6 +775,7 @@ namespace ChoSiren.Tests
         public void ExhaustedInterviewPoolStaysEmptyUntilTheNextRefresh()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 20000;  // v0.3.3: 面试签约需星钻,新号默认 300,补足
             int[] online = model.InterviewCandidates(0).ToArray();
             foreach (int candidate in online)
                 Assert.That(model.SignInterviewCandidate(0, candidate, model.CurrentInterviewCycle,
@@ -786,9 +791,10 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void SignCandidateUsesGoldValidatesQuoteAndPersistsUnlock()
+        public void SignCandidateUsesDiamondsValidatesQuoteAndPersistsUnlock()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds += 5000;
             int initialGold = model.Save.Gold;
             int initialDiamonds = model.Save.Diamonds;
 
@@ -802,15 +808,15 @@ namespace ChoSiren.Tests
             Assert.That(model.SignCandidate(4, 800, out string signed), Is.True, signed);
             Assert.That(signed, Does.Contain(GameModel.Members[4].Name));
             Assert.That(model.IsUnlocked(4), Is.True);
-            Assert.That(model.Save.Gold, Is.EqualTo(initialGold - 800));
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds),
-                "面试签约使用经营金币，不能继续扣除抽卡星钻。");
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds - 800));
+            Assert.That(model.Save.Gold, Is.EqualTo(initialGold),
+                "面试签约使用星钻（稀有货币），不能扣星光币。");
             Assert.That(CreateModel().IsUnlocked(4), Is.True);
 
-            SaveRaw(new GameSave { Gold = 799 });
+            SaveRaw(new GameSave { Diamonds = 799 });
             model = CreateModel();
             Assert.That(model.SignCandidate(4, 800, out string poor), Is.False);
-            Assert.That(poor, Does.Contain("金币不足"));
+            Assert.That(poor, Does.Contain("星钻不足"));
             Assert.That(model.IsUnlocked(4), Is.False);
         }
 
@@ -834,7 +840,7 @@ namespace ChoSiren.Tests
             model = CreateModel();
             Assert.That(model.CanTrain(0, out cost, out string reason), Is.False);
             Assert.That(cost, Is.EqualTo(996), "费用不足时仍显示真实报价，而不是免费。");
-            Assert.That(reason, Does.Contain("金币不足"));
+            Assert.That(reason, Does.Contain("星光币不足"));
 
             var capped = new GameSave();
             capped.MemberLevels[0] = GameModel.MaxMemberLevel;
@@ -893,6 +899,7 @@ namespace ChoSiren.Tests
         public void TeamEditingEnforcesCapacityMinimumOwnershipAndPersists()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 10000;  // v0.3.3: 解锁成员需星钻,新号默认 300,补足
             Assert.That(model.Recruit(4, out _), Is.True);
 
             model.ToggleTeamMember(4, out _);
@@ -942,6 +949,7 @@ namespace ChoSiren.Tests
         public void TeamAcceptsDuplicateCareersAndSmallerPartiesWithNormalStaminaCost()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 10000;  // v0.3.3: 解锁成员需星钻,新号默认 300,补足
             Assert.That(model.Recruit(4, out _), Is.True);
             model.ToggleTeamMember(3, out _);
             model.ToggleTeamMember(4, out _);
@@ -1102,6 +1110,7 @@ namespace ChoSiren.Tests
         public void SettingsToggleAndResetArePersisted()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 5000;  // v0.3.3: 重置可能含招募消耗,补足
             bool initialMusic = model.Save.MusicEnabled;
             bool initialSfx = model.Save.SfxEnabled;
             int initialQuality = model.Save.QualityLevel;
@@ -1347,7 +1356,7 @@ namespace ChoSiren.Tests
             Assert.That(preview.AmountOf(CurrencyIds.Diamond), Is.EqualTo(economy.IdleDiamondPerHour * 2));
 
             Assert.That(model.ClaimIdleIncome(out string message), Is.True);
-            Assert.That(message, Does.Contain("金币"));
+            Assert.That(message, Does.Contain("星光币"));
             Assert.That(model.Save.Gold, Is.EqualTo(gold + economy.IdleGoldPerHour * 2));
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + economy.IdleDiamondPerHour * 2));
             Assert.That(model.ClaimIdleIncome(out _), Is.False);
@@ -1401,6 +1410,7 @@ namespace ChoSiren.Tests
         public void TenPullChargesCurrencyUnlocksNewMembersAndConvertsDuplicatesToShards()
         {
             GameModel model = CreateModel();
+            model.Save.Diamonds = 20000;  // v0.3.3: 十连需 1500,新号默认 300,补足
             int diamonds = model.Save.Diamonds;
             Assert.That(model.IsUnlocked(4), Is.False);
 
@@ -1454,7 +1464,7 @@ namespace ChoSiren.Tests
         [Test]
         public void CostumePullsStoreOwnedCostumesAndConsumeCostumeTickets()
         {
-            SaveRaw(new GameSave { CostumeTickets = 1 });
+            SaveRaw(new GameSave { CostumeTickets = 1, Diamonds = 5000 });  // v0.3.3: 服装十连需星钻,补足
             GameModel model = CreateModel();
             int diamonds = model.Save.Diamonds;
 

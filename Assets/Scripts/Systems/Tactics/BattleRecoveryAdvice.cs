@@ -12,7 +12,7 @@ namespace ChoSiren.Systems.Tactics
         public static string Describe(GameModel model, BattleSimulator battle)
         {
             if (model == null || battle == null) return "返回关卡查看队伍，再到成员页训练或调整配装。";
-            if (battle.Outcome == BattleOutcome.Victory) return "已通关。可继续下一关，或重刷已通关关卡积累训练金币。";
+            if (battle.Outcome == BattleOutcome.Victory) return "已通关。可继续下一关，或重刷已通关关卡积累训练星光币。";
             var party = battle.Units.Where(unit => unit.Side == BattleSide.Player).ToArray();
             var text = new StringBuilder();
             if (party.Length > 0 && party.All(unit => !unit.Alive))
@@ -34,12 +34,12 @@ namespace ChoSiren.Systems.Tactics
             if (member >= 0)
             {
                 bool affordable = model.CanTrain(member, out int cost, out _);
-                if (affordable) text.Append($"训练{GameModel.Members[member].Name}需{cost:N0}金币。");
+                if (affordable) text.Append($"训练{GameModel.Members[member].Name}需{cost:N0}星光币。");
                 else if (cost > 0)
                 {
-                    text.Append($"训练需{cost:N0}金币；金币不足，");
+                    text.Append($"训练需{cost:N0}星光币；星光币不足，");
                     text.Append(model.Save.ClearedStages.Count > 0
-                        ? "重刷已通关关卡或领任务金币。" : "先领任务金币或挂机收益。");
+                        ? "重刷已通关关卡或领任务星光币。" : "先领任务星光币或挂机收益。");
                 }
             }
 

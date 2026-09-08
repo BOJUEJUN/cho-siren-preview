@@ -380,7 +380,7 @@ namespace ChoSiren.Tests
             Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item => item.name == "BalanceDiamond"),
                 Is.False, "钻石余额应由主界面顶栏统一显示。");
             Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item => item.name == "BalanceGold"),
-                Is.False, "金币余额应由主界面顶栏统一显示。");
+                Is.False, "星光币余额应由主界面顶栏统一显示。");
             Assert.That(panel.GetComponentsInChildren<Text>(true).Any(label =>
                     label.text == "SSR" || label.text == "SR" || label.text == "R"),
                 Is.False, "选秀候选页不应再显示抽卡稀有度。");
@@ -422,7 +422,8 @@ namespace ChoSiren.Tests
 
             Text signingPrice = FindNamed<Text>(panel.transform, "SigningPrice");
             int onlinePrice = int.Parse(signingPrice.text.Replace(",", string.Empty));
-            Assert.That(onlinePrice, Is.InRange(700, 1000));
+            // v0.3.3: 签约改用星钻(稀有货币),报价从金币 700-1000 压到星钻 60-200
+            Assert.That(onlinePrice, Is.InRange(60, 200));
             Transform viewInterview = FindNamed<Transform>(panel.transform, "ViewInterview");
             Assert.That(FindNamed<Text>(viewInterview, "Label").text, Is.EqualTo("查看视频面试"));
             Assert.That(FindButton(panel.transform, "SignCandidate"), Is.Not.Null);

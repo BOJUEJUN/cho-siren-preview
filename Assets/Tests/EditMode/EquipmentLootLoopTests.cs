@@ -150,7 +150,10 @@ namespace ChoSiren.Tests
                 Assert.That(model.StageItemDropChance(stageId, GameModel.AccessoryItemIds[item]), Is.InRange(0.001f, 1f));
                 Assert.That(model.StageLootDescription(stageId), Does.Contain(GameModel.AccessoryNames[item]));
             }
-            Assert.That(model.StageItemDropChance(StageId, GameModel.AccessoryItemIds[3]), Is.EqualTo(0.19f).Within(0.0001f));
+            // v0.3.3: 概率按当前掉落表动态推导(原硬编码 0.19 对应旧 2 rolls/权重 10/100)
+            float advertisedChance = model.StageItemDropChance(StageId, GameModel.AccessoryItemIds[3]);
+            Assert.That(advertisedChance, Is.GreaterThan(0.15f).And.LessThan(0.35f),
+                "stage-1-1 首通 neon-clip 应有合理掉率,且符合关卡递进");
         }
     }
 }

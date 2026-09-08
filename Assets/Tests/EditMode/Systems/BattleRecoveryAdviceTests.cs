@@ -46,7 +46,7 @@ namespace ChoSiren.Tests.Systems
             Assert.That(advice, Does.Contain("全员倒下"));
             Assert.That(advice, Does.Contain("生存"));
             Assert.That(advice, Does.Contain("队均1级，建议5级"));
-            Assert.That(advice, Does.Contain("训练星璃需50金币"));
+            Assert.That(advice, Does.Contain("训练星璃需50星光币"));
             Assert.That(advice.Length, Is.LessThanOrEqualTo(140));
         }
 
@@ -69,8 +69,8 @@ namespace ChoSiren.Tests.Systems
             BattleSimulator battle = CreateBattle();
             model.Save.Gold = 0;
             string firstStage = BattleRecoveryAdvice.Describe(model, battle);
-            Assert.That(firstStage, Does.Contain("金币不足"));
-            Assert.That(firstStage, Does.Contain("任务金币或挂机收益"));
+            Assert.That(firstStage, Does.Contain("星光币不足"));
+            Assert.That(firstStage, Does.Contain("任务星光币或挂机收益"));
             Assert.That(firstStage, Does.Not.Contain("重刷"));
             model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-1", Stars = 1 });
             Assert.That(BattleRecoveryAdvice.Describe(model, battle), Does.Contain("重刷已通关关卡"));

@@ -2327,24 +2327,42 @@ namespace ChoSiren.Panels
             }
             if (awaitingDiceLanding && diceHandText != null) diceHandText.text = "骰子翻滚中…";
             if (diceInstructionText != null && active && diceTurn.IsBattleSession)
-                diceInstructionText.text = $"本次 +{diceTurn.LastBonusGainPermille / 10f:0.#}% · 累计 +{diceTurn.AccumulatedBonusPermille / 10f:0.#}% / 上限100%";
+            {
+                float total = diceTurn.AccumulatedBonusPermille / 10f;
+                float gain = diceTurn.LastBonusGainPermille / 10f;
+                diceInstructionText.text = gain > 0
+                    ? $"▲ 本次加持 +{gain:0.#}%    累计伤害 +{total:0.#}% / 上限 100%"
+                    : $"累计伤害 +{total:0.#}% / 上限 100%";
+                // Warm-up colour makes a growing bonus readable without hunting for the number.
+                diceInstructionText.color = total >= 75f ? new Color32(255, 168, 74, 255)
+                    : total >= 40f ? PanelKit.Gold : PanelKit.Muted;
+            }
         }
 
         private IEnumerator FlashDiceResult()
         {
             if (diceHandText == null) yield break;
+            const float duration = .75f;
             float elapsed = 0;
-            while (elapsed < .4f && !closing && !awaitingDiceLanding)
+            while (elapsed < duration && !closing && !awaitingDiceLanding)
             {
                 if (paused) { yield return null; continue; }
                 elapsed += BattleAnimationDelta();
-                float pulse = Mathf.Sin(Mathf.Clamp01(elapsed / .4f) * Mathf.PI);
-                diceHandText.rectTransform.localScale = Vector3.one * (1 + pulse * .09f);
+                float progress = Mathf.Clamp01(elapsed / duration);
+                float pulse = Mathf.Sin(progress * Mathf.PI);
+                diceHandText.rectTransform.localScale = Vector3.one * (1 + pulse * .18f);
                 diceHandText.color = Color.Lerp(PanelKit.White, PanelKit.Gold, pulse);
+                // The instruction line carries the actual bonus numbers, so it pulses too.
+                if (diceInstructionText != null)
+                {
+                    diceInstructionText.rectTransform.localScale = Vector3.one * (1 + pulse * .12f);
+                    diceInstructionText.color = Color.Lerp(diceInstructionText.color, PanelKit.Gold, pulse);
+                }
                 yield return null;
             }
             diceHandText.rectTransform.localScale = Vector3.one;
             diceHandText.color = PanelKit.White;
+            if (diceInstructionText != null) diceInstructionText.rectTransform.localScale = Vector3.one;
         }
 
         // ------------------------------------------------------------------ player input

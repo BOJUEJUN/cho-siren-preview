@@ -16,12 +16,13 @@ namespace ChoSiren.Tests
             { "mermaid", "海灵族 · 人鱼" }, { "elf", "血精灵" }
         };
 
+        // v0.3.3: 成长曲线已压制(原 1.065/1.085/1.05 → 现 1.042/1.052/1.032),Lv100 数值从 550× 压到 ~28×
         [TestCase(1, 280, 40, 6, 50)]
-        [TestCase(5, 388, 51, 7, 88)]
-        [TestCase(10, 583, 70, 9, 176)]
-        [TestCase(30, 2982, 248, 24, 2879)]
-        [TestCase(68, 66214, 2719, 157, 583077)]
-        [TestCase(100, 900952, 20401, 751, 51057107)]
+        [TestCase(5, 342, 47, 6, 88)]
+        [TestCase(10, 441, 57, 7, 176)]
+        [TestCase(30, 1217, 131, 14, 2879)]
+        [TestCase(68, 8360, 629, 49, 583077)]
+        [TestCase(100, 42336, 2349, 135, 51057107)]
         public void CompoundingUsesEachAuthoredFormulaInsteadOfConflictingIllustrativeTables(
             int level, int hp, int attack, int defense, int trainingCost)
         {

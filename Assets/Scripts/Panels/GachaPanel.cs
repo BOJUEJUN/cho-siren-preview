@@ -276,7 +276,8 @@ namespace ChoSiren.Panels
             kit.AddOutline(complete, new Color32(153, 97, 228, 98), 1);
             kit.NewPlacedText(complete.transform, "本期候选已全部签约", 28, PanelKit.White,
                 30, 76, 500, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
-            kit.NewPlacedText(complete.transform, "她们已经进入成员列表。\n下次候选将在每日 18:00 刷新。", 17,
+            kit.NewPlacedText(complete.transform,
+                $"她们已经进入成员列表。\n{model.NextInterviewRefreshLabel()}（候选每日 18:00 刷新）。", 17,
                 PanelKit.Muted, 50, 146, 460, 78, TextAnchor.MiddleCenter);
             GameObject switchPool = kit.NewButton("SwitchInterviewPool", complete.transform,
                 interviewPoolIndex == 0 ? "查看线下面试" : "查看线上面试", 17,
@@ -417,17 +418,18 @@ namespace ChoSiren.Panels
             kit.NewPlacedText(action.transform, "签约报价", 14, PanelKit.Muted,
                 18, 54, 150, 26, TextAnchor.MiddleLeft);
             Image currency = kit.NewImage("SigningCurrency", action.transform,
-                PanelKit.CurrencyIcon("gold"), PanelKit.CurrencyIcon("gold") != null
-                    ? Color.white : PanelKit.CurrencyColor("gold"));
+                PanelKit.CurrencyIcon("diamond"), PanelKit.CurrencyIcon("diamond") != null
+                    ? Color.white : PanelKit.CurrencyColor("diamond"));
             PanelKit.PlaceTop(currency.rectTransform, 18, 86, 35, 35);
             currency.preserveAspect = true;
             Text price = kit.NewPlacedText(action.transform, cost.ToString("N0"), 30,
-                new Color32(255, 213, 126, 255), 60, 78, 160, 50,
+                PanelKit.CurrencyColor("diamond"), 60, 78, 160, 50,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             price.name = "SigningPrice";
             kit.NewPlacedText(action.transform,
-                interviewPoolIndex == 0 ? "线上候选 · 预算较低" : "线下候选 · 预算较高",
-                12, PanelKit.Muted, 18, 130, 220, 25, TextAnchor.MiddleLeft);
+                (interviewPoolIndex == 0 ? "线上候选 · 星钻报价" : "线下候选 · 星钻报价") +
+                "\n" + model.NextInterviewRefreshLabel(),
+                12, PanelKit.Muted, 18, 128, 226, 44, TextAnchor.MiddleLeft);
 
             string detailLabel = interviewPoolIndex == 0 ? "查看视频面试" : "开始现场面试";
             GameObject details = kit.NewButton("ViewInterview", action.transform, detailLabel, 15,

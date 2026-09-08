@@ -54,18 +54,18 @@ namespace ChoSiren.Tests
         {
             var model = new GameModel(() => Now);
             int candidate = Candidate(model);
-            int gold = model.Save.Gold;
+            int diamonds = model.Save.Diamonds;  // v0.3.3: 签约消耗星钻而非星光币
             Assert.That(model.SignCandidate(candidate, 1, out string message), Is.True, message);
 
             var loaded = new GameModel(() => Now);
             Assert.That(loaded.IsUnlocked(candidate), Is.True);
-            Assert.That(loaded.Save.Gold, Is.EqualTo(gold - 1));
+            Assert.That(loaded.Save.Diamonds, Is.EqualTo(diamonds - 1));
             var page = MemberRosterPagination.Build(GameModel.Members.Length, 0,
                 priority: i => loaded.IsUnlocked(i) ? 0 : 1);
             Assert.That(page.SourceIndices, Does.Contain(candidate));
             Assert.That(page.SourceIndices.Take(loaded.Save.UnlockedMembers.Count).All(loaded.IsUnlocked), Is.True);
             Assert.That(loaded.SignCandidate(candidate, 1, out _), Is.False);
-            Assert.That(loaded.Save.Gold, Is.EqualTo(gold - 1), "Repeated clicks cannot charge twice");
+            Assert.That(loaded.Save.Diamonds, Is.EqualTo(diamonds - 1), "Repeated clicks cannot charge twice");
         }
 
         [Test]

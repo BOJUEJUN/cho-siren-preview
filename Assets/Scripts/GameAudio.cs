@@ -35,11 +35,21 @@ namespace ChoSiren
             sfxSource.volume = 0.32f;
             sfxSource.ignoreListenerPause = true;
 
-            musicClip = CreateMusicLoop();
+            // A real soundtrack wins when present: drop bgm.mp3 / bgm.ogg / bgm.wav into
+            // Assets/Resources/Audio/ and it replaces the synthesized fallback with no code change.
+            musicClip = LoadSoundtrackClip() ?? CreateMusicLoop();
             clickClip = CreateTone("CHO-SIREN Click", 740f, 0.075f, 0.16f, 0.010f);
             successClip = CreateSuccessTone();
             musicSource.clip = musicClip;
             ApplySettings();
+        }
+
+        private static AudioClip LoadSoundtrackClip()
+        {
+            AudioClip clip = Resources.Load<AudioClip>("Audio/bgm");
+            if (clip != null)
+                Debug.Log($"[GameAudio] 使用自定义背景音乐：{clip.name}（{clip.length:0.#}s）");
+            return clip;
         }
 
         public void ApplySettings()

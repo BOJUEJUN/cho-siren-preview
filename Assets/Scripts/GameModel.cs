@@ -118,8 +118,10 @@ namespace ChoSiren
     public sealed class GameSave
     {
         public int SchemaVersion = GameModel.SaveSchemaVersion;
-        public int Diamonds = 10695;
-        public int Gold = 17267;
+        // New-save starting purse. Kept deliberately small so early training and signing decisions
+        // matter; existing saves keep whatever balance they already stored.
+        public int Diamonds = 300;
+        public int Gold = 1200;
         public int Stamina = 120;
         public int DailyPerformances;
         public string DailyActivityDate = string.Empty;
@@ -128,6 +130,9 @@ namespace ChoSiren
         public int StoryProgress = 79;
         public List<int> UnlockedMembers = new List<int> { 0, 1, 2, 3 };
         public List<int> MemberLevels = new List<int> { 68, 64, 59, 57, 52, 49, 46, 43, 40 };
+        /// <summary>Per-member 好感度 (0-100), indexed like <see cref="MemberLevels"/>.
+        /// Added after schema v5; a save without it normalizes to the starting value.</summary>
+        public List<int> MemberAffection = new List<int>();
         public List<int> Team = new List<int> { 0, 1, 2, 3 };
         public int EquippedAccessory = -1;
         public List<int> OwnedAccessories = new List<int> { 0, 1, 2 };
@@ -335,6 +340,63 @@ namespace ChoSiren
             }
         }
 
+        // ------------------------------------------------------------------ accessory quality
+
+        public enum AccessoryRarity { Common = 0, Fine = 1, Rare = 2, Epic = 3, Legendary = 4 }
+
+        /// <summary>
+        /// Quality tier used for the name colour and the later-stage loot curve: the six combat
+        /// accessories are the rarest, the six advanced ones follow, and each of the six
+        /// collection categories walks 精良 → 稀有 → 史诗 so deeper stages drop better pieces.
+        /// </summary>
+        public static AccessoryRarity AccessoryRarityOf(int index)
+        {
+            if (index < 0 || index >= AccessoryNames.Length) return AccessoryRarity.Common;
+            if (index < 6) return AccessoryRarity.Legendary;
+            if (index < 12) return AccessoryRarity.Epic;
+            int tier = (index - 12) % 9;
+            return tier < 3 ? AccessoryRarity.Fine : tier < 6 ? AccessoryRarity.Rare : AccessoryRarity.Epic;
+        }
+
+        public static string AccessoryRarityName(AccessoryRarity rarity) => rarity switch
+        {
+            AccessoryRarity.Legendary => "传说",
+            AccessoryRarity.Epic => "史诗",
+            AccessoryRarity.Rare => "稀有",
+            AccessoryRarity.Fine => "精良",
+            _ => "普通",
+        };
+
+        /// <summary>Hex colour per tier (灰/绿/蓝/紫/橙). Kept as hex so UI code without Unity
+        /// colour helpers can still read the table.</summary>
+        public static string AccessoryRarityColorHex(AccessoryRarity rarity) => rarity switch
+        {
+            AccessoryRarity.Legendary => "#BA7517",
+            AccessoryRarity.Epic => "#534AB7",
+            AccessoryRarity.Rare => "#185FA5",
+            AccessoryRarity.Fine => "#3B6D11",
+            _ => "#8A8A82",
+        };
+
+        public static string AccessoryRarityNameOf(int index) => AccessoryRarityName(AccessoryRarityOf(index));
+        public static string AccessoryRarityColorHexOf(int index) => AccessoryRarityColorHex(AccessoryRarityOf(index));
+
+        /// <summary>Reads the same bonus table the battle uses, so the label can never drift
+        /// from the numbers actually applied.</summary>
+        public static string AccessoryStatDescription(int index)
+        {
+            if (index < 0 || index >= AccessoryNames.Length) return string.Empty;
+            CombatStatBonuses bonus = AccessoryBonuses(index);
+            var parts = new List<string>();
+            if (bonus.Hp > 0) parts.Add($"生命 +{bonus.Hp / 10f:0.#}%");
+            if (bonus.Attack > 0) parts.Add($"攻击 +{bonus.Attack / 10f:0.#}%");
+            if (bonus.Defense > 0) parts.Add($"防御 +{bonus.Defense / 10f:0.#}%");
+            return parts.Count == 0 ? "无属性加成" : string.Join(" · ", parts);
+        }
+
+        public static string AccessoryQualityLabel(int index) =>
+            $"{AccessoryRarityNameOf(index)} · {AccessoryStatDescription(index)}";
+
         public GameSave Save { get; private set; }
         public event Action Changed;
 
@@ -390,6 +452,34 @@ namespace ChoSiren
         public bool IsUnlocked(int index) => IsValidMemberIndex(index) && Save.UnlockedMembers.Contains(index);
         public bool IsInTeam(int index) => IsValidMemberIndex(index) && Save.Team.Contains(index);
         public int LevelOf(int index) => IsValidMemberIndex(index) ? Save.MemberLevels[index] : 0;
+
+        // ------------------------------------------------------------------ 好感度
+
+        public const int MaxAffection = 100;
+        public const int StartingAffection = 5;
+
+        public int AffectionOf(int index) => IsValidMemberIndex(index) && index < Save.MemberAffection.Count
+            ? Mathf.Clamp(Save.MemberAffection[index], 0, MaxAffection) : 0;
+
+        /// <summary>Read-only tier label so panels never invent their own thresholds.</summary>
+        public static string AffectionTierName(int affection) => affection >= 80 ? "羁绊"
+            : affection >= 55 ? "亲密" : affection >= 25 ? "熟悉" : affection >= 10 ? "友好" : "陌生";
+
+        public string AffectionTierOf(int index) => AffectionTierName(AffectionOf(index));
+
+        /// <summary>Adds affection to one member. Never persists alone; callers batch with their own save.</summary>
+        public void GainAffection(int index, int amount)
+        {
+            if (!IsValidMemberIndex(index) || amount <= 0) return;
+            while (Save.MemberAffection.Count <= index) Save.MemberAffection.Add(0);
+            Save.MemberAffection[index] = Mathf.Clamp(Save.MemberAffection[index] + amount, 0, MaxAffection);
+        }
+
+        /// <summary>Battle/training reward: only members who actually took part gain affection.</summary>
+        public void GainTeamAffection(int amount)
+        {
+            foreach (int index in Save.Team) GainAffection(index, amount);
+        }
         public CombatStats StatsOf(int index) => IsValidMemberIndex(index)
             ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), MemberEquipmentBonuses(index)) : default;
         public CombatStats StatsOf(int index, int accessoryIndex) => IsValidMemberIndex(index)
@@ -442,7 +532,7 @@ namespace ChoSiren
             switch (currencyId)
             {
                 case CurrencyIds.Diamond: return "星钻";
-                case CurrencyIds.Gold: return "金币";
+                case CurrencyIds.Gold: return "星光币";
                 case CurrencyIds.Stamina: return "体力";
                 case CurrencyIds.RecruitTicket: return "签约券";
                 case CurrencyIds.CostumeTicket: return "服装券";
@@ -509,6 +599,28 @@ namespace ChoSiren
 
         public string CurrentInterviewCycle => DateKey(nowProvider().AddHours(-18));
 
+        /// <summary>The shortlists rotate at the 18:00 boundary that defines a cycle, so the
+        /// countdown shown to the player is simply the distance to the next boundary.</summary>
+        public TimeSpan TimeUntilNextInterviewCycle()
+        {
+            DateTime now = nowProvider();
+            DateTime next = now.Date.AddHours(18);
+            if (now >= next) next = next.AddDays(1);
+            TimeSpan remaining = next - now;
+            return remaining < TimeSpan.Zero ? TimeSpan.Zero : remaining;
+        }
+
+        /// <summary>e.g. "3 小时 25 分后可约下一批" — empty when a new shortlist is already due.</summary>
+        public string NextInterviewRefreshLabel()
+        {
+            TimeSpan remaining = TimeUntilNextInterviewCycle();
+            if (remaining <= TimeSpan.Zero) return "新名单已开放";
+            int hours = (int)remaining.TotalHours;
+            int minutes = remaining.Minutes;
+            if (hours <= 0) return $"{Math.Max(1, minutes)} 分钟后可约下一批";
+            return minutes > 0 ? $"{hours} 小时 {minutes} 分后可约下一批" : $"{hours} 小时后可约下一批";
+        }
+
         public IReadOnlyList<int> InterviewCandidates(int poolIndex)
         {
             if (poolIndex < 0 || poolIndex > 1) return Array.Empty<int>();
@@ -517,10 +629,12 @@ namespace ChoSiren
             return ids.Select(IndexOfMember).Where(index => index >= 0 && !IsUnlocked(index)).ToArray();
         }
 
+        /// <summary>Signing quotes are priced in 星钻: signing is the rare-currency sink,
+        /// while day-to-day training and upgrades stay on 星光币.</summary>
         public int InterviewQuote(int poolIndex, int memberIndex)
         {
             if (poolIndex < 0 || poolIndex > 1 || !IsValidMemberIndex(memberIndex)) return 0;
-            return poolIndex == 0 ? 700 + memberIndex % 4 * 100 : 1150 + memberIndex % 4 * 150;
+            return poolIndex == 0 ? 60 + memberIndex % 4 * 20 : 100 + memberIndex % 4 * 25;
         }
 
         public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,
@@ -602,10 +716,10 @@ namespace ChoSiren
         }
 
         /// <summary>
-        /// 面试页按候选人与面试池给出不同报价。报价使用经营金币，避免把角色签约继续表现为
-        /// 稀有度抽卡；旧 <see cref="Recruit"/> 仍保留给尚未迁移的入口。
+        /// 面试页按候选人与面试池给出不同报价。签约一律消耗星钻（稀有货币），成员训练与饰品
+        /// 强化只消耗星光币；旧 <see cref="Recruit"/> 仍保留给尚未迁移的入口。
         /// </summary>
-        public bool SignCandidate(int memberIndex, int goldCost, out string message)
+        public bool SignCandidate(int memberIndex, int diamondCost, out string message)
         {
             if (!IsValidMemberIndex(memberIndex))
             {
@@ -619,20 +733,21 @@ namespace ChoSiren
                 return false;
             }
 
-            if (goldCost <= 0)
+            if (diamondCost <= 0)
             {
                 message = "签约报价无效";
                 return false;
             }
 
-            if (Save.Gold < goldCost)
+            if (Save.Diamonds < diamondCost)
             {
-                message = "金币不足，完成演出可继续获得";
+                message = "星钻不足，完成演出与关卡首通可继续获得";
                 return false;
             }
 
-            Save.Gold -= goldCost;
+            Save.Diamonds -= diamondCost;
             UnlockMemberInternal(memberIndex);
+            GainAffection(memberIndex, StartingAffection);
             Report(TaskTriggers.GachaPull);
             SaveState();
             message = $"签约成功：{Members[memberIndex].Name} 已加入成员列表";
@@ -666,7 +781,7 @@ namespace ChoSiren
                 ? BattleSimulator.TrainingCostAtLevel(level) : 180 + level * 12;
             if (Save.Gold < cost)
             {
-                message = $"金币不足，本次训练需要 {cost:N0}";
+                message = $"星光币不足，本次训练需要 {cost:N0}";
                 return false;
             }
 
@@ -680,6 +795,7 @@ namespace ChoSiren
             int level = LevelOf(memberIndex);
             Save.Gold -= cost;
             Save.MemberLevels[memberIndex] = level + 1;
+            GainAffection(memberIndex, 3);
             Report(TaskTriggers.Train);
             SaveState();
             message = $"{Members[memberIndex].Name} 提升至等级 {level + 1}";
@@ -809,11 +925,11 @@ namespace ChoSiren
             if (RecordSuccessfulPerformance())
             {
                 Save.Diamonds += DailyPerformanceDiamondReward;
-                message = $"演出完成！金币 +{PerformanceGoldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
+                message = $"演出完成！星光币 +{PerformanceGoldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
             }
             else
             {
-                message = $"演出完成！金币 +{PerformanceGoldReward}（今日 {Save.DailyPerformances}/{DailyPerformanceGoal}）";
+                message = $"演出完成！星光币 +{PerformanceGoldReward}（今日 {Save.DailyPerformances}/{DailyPerformanceGoal}）";
             }
 
             SaveState();
@@ -856,7 +972,7 @@ namespace ChoSiren
             AdvanceStoryProgressInternal();
             Report(TaskTriggers.BattleWin);
             SaveState();
-            message = $"章节推进至 {Save.StoryProgress}%：金币 +{StoryGoldReward}，星钻 +{StoryDiamondReward}";
+            message = $"章节推进至 {Save.StoryProgress}%：星光币 +{StoryGoldReward}，星钻 +{StoryDiamondReward}";
             return true;
         }
 
@@ -1417,6 +1533,8 @@ namespace ChoSiren
             else if (!TryGetChapterOneStageNumber(stage.Id, out _))
                 AdvanceStoryProgressInternal();
             Report(TaskTriggers.BattleWin);
+            // Sharing the stage with the deployed members is the main affection source.
+            GainTeamAffection(2 + stars);
             SaveState();
 
             string difficultyName = DifficultyProfileFor(context.Difficulty).Name;
@@ -2107,6 +2225,15 @@ namespace ChoSiren
 
             if (Save.EquippedAccessory < -1 || Save.EquippedAccessory >= AccessoryNames.Length)
                 Save.EquippedAccessory = -1;
+
+            Save.MemberAffection ??= new List<int>();
+            var unlockedSet = new HashSet<int>(Save.UnlockedMembers);
+            while (Save.MemberAffection.Count < Members.Length)
+                Save.MemberAffection.Add(unlockedSet.Contains(Save.MemberAffection.Count) ? StartingAffection : 0);
+            if (Save.MemberAffection.Count > Members.Length)
+                Save.MemberAffection.RemoveRange(Members.Length, Save.MemberAffection.Count - Members.Length);
+            for (int index = 0; index < Save.MemberAffection.Count; index++)
+                Save.MemberAffection[index] = Mathf.Clamp(Save.MemberAffection[index], 0, MaxAffection);
 
             NormalizeEquipment();
 

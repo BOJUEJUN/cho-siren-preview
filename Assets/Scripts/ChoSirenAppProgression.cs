@@ -232,10 +232,12 @@ namespace ChoSiren
             GameObject icon = NewImage("EquipmentSelectedArt", detail.transform, AccessoryItemSprite(item), White);
             PlaceTop(icon.GetComponent<RectTransform>(), 232, 18, 74, 74);
             icon.GetComponent<Image>().preserveAspect = true;
-            FlowText(detail.transform, "EquipmentItemName", GameModel.AccessoryNames[item], 24, 320, 16, 342, 40);
+            FlowText(detail.transform, "EquipmentItemName", GameModel.AccessoryNames[item], 24, 320, 16, 342, 40, AccessoryRarityColor(item));
             int owner = model.AccessoryOwner(item);
             string state = !model.OwnsAccessory(item) ? "尚未获得" : owner < 0 ? "未装备" : $"{GameModel.Members[owner].Name} 使用中";
             FlowText(detail.transform, "EquipmentItemOwner", $"{state} · 强化 +{model.AccessoryUpgradeLevel(item)}", 16, 320, 58, 342, 28, Cyan);
+            FlowText(detail.transform, "EquipmentItemQuality", $"{GameModel.AccessoryRarityNameOf(item)} · {GameModel.AccessoryStatDescription(item)}",
+                14, 320, 84, 342, 22, AccessoryRarityColor(item));
             bool wearingSelected = current == item;
             int candidateItem = item;
             CombatStats before = wearingSelected ? model.PreviewEquipmentStats(member, member, candidateItem, true) : model.StatsOf(member);
@@ -266,7 +268,7 @@ namespace ChoSiren
             });
             bool upgrade = model.CanUpgradeAccessory(item, out int fragments, out int gold);
             GameObject improve = FlowButton(detail.transform, "AccessoryUpgrade", model.AccessoryUpgradeLevel(item) >= 3 ? "已满级 +3"
-                : $"强化 · 碎片 {fragments} / 金币 {gold}", 350, 398, 310, 62, () =>
+                : $"强化 · 碎片 {fragments} / 星光币 {gold}", 350, 398, 310, 62, () =>
             {
                 model.UpgradeAccessory(item, out string message); ShowScreen("accessory"); Toast(message);
             });
@@ -284,16 +286,18 @@ namespace ChoSiren
             {
                 int i = visibleItems[slot];
                 int captured = i;
-                float x = slot % 3 * 230, y = 706 + slot / 3 * 166;
-                GameObject card = FlowButton(root, "Accessory-" + i, string.Empty, x, y, 220, 152, () =>
+                float x = slot % 3 * 230, y = 706 + slot / 3 * 178;
+                GameObject card = FlowButton(root, "Accessory-" + i, string.Empty, x, y, 220, 166, () =>
                 { selectedAccessoryIndex = captured; ShowScreen("accessory"); });
                 card.GetComponent<Image>().color = i == item ? new Color32(72, 50, 115, 250) : new Color32(27, 32, 64, 245);
                 GameObject art = NewImage("ItemArt", card.transform, AccessoryItemSprite(i), model.OwnsAccessory(i) ? White : new Color(1, 1, 1, .4f));
                 PlaceTop(art.GetComponent<RectTransform>(), 73, 6, 74, 72);
                 art.GetComponent<Image>().preserveAspect = true;
-                FlowText(card.transform, "ItemName", GameModel.AccessoryNames[i], 18, 12, 82, 196, 29);
+                FlowText(card.transform, "ItemName", GameModel.AccessoryNames[i], 18, 12, 82, 196, 29, AccessoryRarityColor(i));
+                FlowText(card.transform, "ItemQuality", GameModel.AccessoryRarityNameOf(i) + " · " + GameModel.AccessoryStatDescription(i),
+                    12, 12, 108, 196, 22, AccessoryRarityColor(i));
                 int wearer = model.AccessoryOwner(i);
-                FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 117, 196, 25, Cyan);
+                FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 132, 196, 25, Cyan);
             }
             if (visibleItems.Length == 0)
                 FlowText(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 18, 16, inventoryBottom, 648, 36, Muted);

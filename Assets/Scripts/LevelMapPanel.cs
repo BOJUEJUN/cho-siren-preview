@@ -475,7 +475,7 @@ namespace ChoSiren
                 $"星钻 ×{stage?.DiamondFirstClear ?? 0}", 28, cleared);
             if (equipment >= 0) BuildFirstReward(card.transform, "FirstClearEquipment", GameModel.AccessoryItemIds[equipment],
                 GameModel.AccessoryNames[equipment] + " ×1", 340, cleared);
-            NewPlacedText(card.transform, $"每次胜利：金币 {model.PreviewStageGoldReward(stageId)} + 随机池抽取 {stage?.Drops?.Rolls ?? 0} 次", 18,
+            NewPlacedText(card.transform, $"每次胜利：星光币 {model.PreviewStageGoldReward(stageId)} + 随机池抽取 {stage?.Drops?.Rolls ?? 0} 次", 18,
                 White, 28, 264, 604, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
             IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
             Image viewport = NewImage("LootScrollViewport", card.transform, null, new Color(0, 0, 0, .01f));
@@ -506,7 +506,7 @@ namespace ChoSiren
             NewPlacedText(card.transform, $"共 {candidates.Count} 种候选 · 上下滑动查看完整奖池", 15, Cyan,
                 28, 832, 604, 26, TextAnchor.MiddleLeft);
             NewPlacedText(card.transform,
-                "概率表示本场至少获得一次；多次独立抽取，概率不可相加。\n新装备进入饰品页；每件重复装备转为 3 强化碎片。\n强化碎片用于饰品升级；金币用于成员训练与强化。\n再次挑战仍可随机掉落；首通奖励不再发放，失败无奖励。", 16, Muted,
+                "概率表示本场至少获得一次；多次独立抽取，概率不可相加。\n新装备进入饰品页；每件重复装备转为 3 强化碎片。\n强化碎片用于饰品升级；星光币用于成员训练与强化。\n再次挑战仍可随机掉落；首通奖励不再发放，失败无奖励。", 16, Muted,
                 28, 870, 604, 170, TextAnchor.UpperLeft);
         }
 
@@ -892,7 +892,7 @@ namespace ChoSiren
                 StageDefinition stage = battle.Stage;
                 if (stage != null)
                 {
-                    if (stage.GoldReward > 0) lines.Add($"金币 +{stage.GoldReward}");
+                    if (stage.GoldReward > 0) lines.Add($"星光币 +{stage.GoldReward}");
                     if (stage.DiamondFirstClear > 0) lines.Add($"星钻 +{stage.DiamondFirstClear}");
                 }
             }

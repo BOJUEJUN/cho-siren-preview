@@ -153,7 +153,7 @@ namespace ChoSiren
             {
                 case EquipmentFragmentItemId: return "饰品强化材料";
                 case CurrencyIds.Gold: return "成员训练 / 饰品强化";
-                case CurrencyIds.Diamond: return "选秀 / 补体力 / 换金币";
+                case CurrencyIds.Diamond: return "选秀 / 补体力 / 换星光币";
                 case CurrencyIds.RecruitTicket: return "选秀招募抵扣星钻";
                 case CurrencyIds.CostumeTicket: return "服装招募使用";
                 default: return "收藏资源";
@@ -177,7 +177,7 @@ namespace ChoSiren
             if (!OwnsAccessory(index)) { message = "尚未获得该饰品"; return false; }
             if (AccessoryUpgradeLevel(index) >= 3) { message = "已达强化上限 +3"; return false; }
             if (!CanUpgradeAccessory(index, out int fragments, out int gold))
-            { message = $"需要强化碎片 {fragments}、金币 {gold}；重复装备可转为碎片"; return false; }
+            { message = $"需要强化碎片 {fragments}、星光币 {gold}；重复装备可转为碎片"; return false; }
             Save.EquipmentFragments -= fragments;
             Save.Gold -= gold;
             Save.AccessoryUpgradeLevels[index]++;
@@ -261,7 +261,7 @@ namespace ChoSiren
             int item = FirstClearAccessory(stageId);
             string first = IsStageCleared(stageId) ? "首通奖励已领取，不重复发放。" : $"首通额外：星钻 {stage.DiamondFirstClear}" +
                 (item >= 0 ? $" + {AccessoryNames[item]} ×1（必得）" : string.Empty);
-            var lines = new List<string> { first, $"每次胜利：基础金币 {PreviewStageGoldReward(stageId)}", "", "随机奖励（每场至少获得一次的概率）：" };
+            var lines = new List<string> { first, $"每次胜利：基础星光币 {PreviewStageGoldReward(stageId)}", "", "随机奖励（每场至少获得一次的概率）：" };
             foreach (StageLootCandidate candidate in StageLootCandidates(stageId))
             {
                 lines.Add($"{candidate.Name} {candidate.AmountLabel}  {candidate.Chance:P1}");

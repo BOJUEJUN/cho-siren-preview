@@ -45,7 +45,7 @@ namespace ChoSiren.Tests.Systems
             Assert.That(repository.Tactics.Stages.ConvertAll(stage => stage.StaminaCost),
                 Is.Ordered.Ascending, "第一章体力消耗应随难度平滑上升。");
             Assert.That(repository.Tactics.Stages.ConvertAll(stage => stage.GoldReward),
-                Is.Ordered.Ascending, "第一章基础金币奖励应随关卡递增。");
+                Is.Ordered.Ascending, "第一章基础星光币奖励应随关卡递增。");
         }
 
         [Test]

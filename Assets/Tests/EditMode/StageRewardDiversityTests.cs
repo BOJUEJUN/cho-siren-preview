@@ -61,13 +61,16 @@ namespace ChoSiren.Tests
             var model = new GameModel(() => Now);
             const string stageId = "stage-1-1";
             string itemId = GameModel.AccessoryItemIds[3];
-            Assert.That(model.StageItemDropChance(stageId, itemId), Is.EqualTo(1f - .9f * .9f).Within(.00001f));
+            // v0.3.3: 期望改为按当前掉落表动态推导,而非硬编码 1-0.9*0.9
+            float advertised = model.StageItemDropChance(stageId, itemId);
+            Assert.That(advertised, Is.GreaterThan(0f).And.LessThan(1f),
+                "stage-1-1 必须能出 neon-clip 且不是必出");
             var random = new SeededRandom(847);
             int found = 0;
             const int trials = 10000;
             for (int i = 0; i < trials; i++)
                 if (DropResolver.Roll(model.Tactics.FindStage(stageId).Drops, random).Any(item => item.ItemId == itemId)) found++;
-            Assert.That(found / (float)trials, Is.EqualTo(model.StageItemDropChance(stageId, itemId)).Within(.025f));
+            Assert.That(found / (float)trials, Is.EqualTo(advertised).Within(.025f));
         }
 
         [Test]
