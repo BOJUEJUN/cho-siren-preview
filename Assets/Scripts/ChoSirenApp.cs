@@ -508,9 +508,7 @@ namespace ChoSiren
             GameObject leader = NewButton("ChangeLeader", contentRoot, "更换队长", 16,
                 new Color32(22, 35, 82, 178), White, () =>
                 {
-                    model.RotateTeamLeader(out string message);
-                    Toast(message);
-                    ShowScreen("team");
+                    OpenCaptainPicker();
             });
             PlaceTop(leader.GetComponent<RectTransform>(), 174, buttonY, 178, buttonHeight);
             if (!ApplyAiUiSprite(leader, "Art/TeamAI/UI/team-action-cyan-ai-v2"))
@@ -1209,6 +1207,7 @@ namespace ChoSiren
         private void OpenMember(int memberIndex) => OpenTeamMember(memberIndex, -1);
         private void OpenTeamMember(int memberIndex, int teamSlot)
         {
+            memberProfileReturn = null;
             CloseModal();
             MemberDefinition member = GameModel.Members[memberIndex];
             bool unlocked = model.IsUnlocked(memberIndex);
@@ -1230,7 +1229,7 @@ namespace ChoSiren
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(620, 1110);
+            panelRect.sizeDelta = new Vector2(620, 1250);
             AddQuietPanelEdge(panel);
 
             GameObject portrait = NewImage("Portrait", panel.transform, Resources.Load<Sprite>(member.ResourcePath), White);
@@ -1315,7 +1314,7 @@ namespace ChoSiren
                 });
                 trainButton = train.GetComponent<Button>();
                 trainButton.interactable = canTrain;
-                PlaceTop(train.GetComponent<RectTransform>(), 34, 930, 258, 60);
+                PlaceTop(train.GetComponent<RectTransform>(), 34, 1070, 258, 60);
                 AddQuietPanelEdge(train);
 
                 GameObject team = NewButton("Team", panel.transform,
@@ -1329,7 +1328,7 @@ namespace ChoSiren
                     CloseModal();
                     ShowScreen(currentScreen);
                 });
-                PlaceTop(team.GetComponent<RectTransform>(), 328, 930, 258, 60);
+                PlaceTop(team.GetComponent<RectTransform>(), 328, 1070, 258, 60);
                 AddQuietPanelEdge(team);
             }
             else
@@ -1340,15 +1339,24 @@ namespace ChoSiren
                     CloseModal();
                     ShowScreen("audition");
                 });
-                PlaceTop(acquire.GetComponent<RectTransform>(), 154, 930, 312, 60);
+                PlaceTop(acquire.GetComponent<RectTransform>(), 154, 1070, 312, 60);
                 AddQuietPanelEdge(acquire);
             }
 
+            GameObject captainPanel = NewPanel("MemberCaptainPanel", panel.transform, new Color32(26, 33, 65, 255), 18);
+            PlaceTop(captainPanel.GetComponent<RectTransform>(), 28, 924, 564, 130);
+            FlowText(captainPanel.transform, "CaptainEffectTitle", "担任队长后的效果", 16, 16, 10, 532, 26, Cyan);
+            FlowText(captainPanel.transform, "CaptainEffectDescription", CaptainEffectCopy(member.Race), 14, 16, 43, 320, 72, Muted);
+            bool isCaptain = model.Save.Team.Count > 0 && model.Save.Team[0] == memberIndex;
+            FlowButton(captainPanel.transform, "AppointCaptain", !unlocked ? "签约后可任命" : isCaptain ? "当前队长" : model.IsInTeam(memberIndex) ? "设为队长" : "上阵并任命", 352, 52, 196, 52,
+                () => ConfirmCaptain(memberIndex)).GetComponent<Button>().interactable = unlocked && !isCaptain;
+
             GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
-                new Color32(63, 57, 108, 245), White, CloseModal);
-            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 328 : 185, 1012, 250, 56);
+                new Color32(63, 57, 108, 245), White, () =>
+                { Action back = memberProfileReturn; memberProfileReturn = null; CloseModal(); back?.Invoke(); });
+            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 328 : 185, 1152, 250, 56);
             if (unlocked)
-                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 34, 1012, 258, 56, () =>
+                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 34, 1152, 258, 56, () =>
                 { equipmentMember = memberIndex; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(memberIndex)); ShowScreen("accessory"); });
         }
 

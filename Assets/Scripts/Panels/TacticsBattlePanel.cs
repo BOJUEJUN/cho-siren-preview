@@ -900,18 +900,22 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(pauseShade.rectTransform);
             pauseShade.raycastTarget = true;
             GameObject dialog = kit.NewPanel("PauseDialog", pauseShade.transform, new Color32(17, 17, 43, 255), 24);
-            PanelKit.PlaceTop(dialog.GetComponent<RectTransform>(), 140, 590, 440, 320);
+            PanelKit.PlaceTop(dialog.GetComponent<RectTransform>(), 140, 480, 440, 540);
             kit.AddOutline(dialog, new Color32(146, 120, 218, 120), 1);
             kit.NewPlacedText(dialog.transform, "演出已暂停", 30, PanelKit.White, 20, 24, 400, 54,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
+            kit.NewPlacedText(dialog.transform, battle.IsRealtime
+                ? $"本关限时 {battle.Stage.TimeLimitSeconds} 秒，超时判负。暂停不计时；2倍速也会加快倒计时。\n\n骰子伤害加成逐次相加，上限+100%（×2）。开局+0–25%，每次重投+5–25%，不会倒扣；新战斗重新累计。\n\n追击、护盾、叠毒和穿甲由当前骰型与队长决定，不随伤害加成叠乘。"
+                : "点击骰子可保留，骰型加成下一技能。", 16, PanelKit.Muted, 28, 90, 384, 208,
+                TextAnchor.UpperLeft).gameObject.name = "BattleRules";
             GameObject resume = kit.NewButton("ResumeBattle", dialog.transform, "继续演出", 24,
                 new Color32(87, 49, 143, 255), PanelKit.White, TogglePause, 12);
-            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 32, 100, 376, 60);
+            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 32, 316, 376, 60);
             exitButton = kit.NewButton("BattleExit", dialog.transform, "退出战斗", 22,
                 PanelKit.ButtonDark, PanelKit.Muted, ExitBattle, 12);
-            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 32, 178, 376, 60);
+            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 32, 394, 376, 60);
             kit.NewPlacedText(dialog.transform, "退出不返还已消耗的体力", 18, PanelKit.Muted,
-                20, 258, 400, 36, TextAnchor.MiddleCenter);
+                20, 474, 400, 36, TextAnchor.MiddleCenter);
             pauseOverlay = pauseShade.gameObject;
             pauseOverlay.SetActive(false);
         }
@@ -2106,6 +2110,9 @@ namespace ChoSiren.Panels
             timerText.text = battle.IsRealtime
                 ? $"剩余 {Mathf.Max(0, battle.Stage.TimeLimitSeconds - Mathf.CeilToInt(battleElapsed)) / 60:00}:{Mathf.Max(0, battle.Stage.TimeLimitSeconds - Mathf.CeilToInt(battleElapsed)) % 60:00}"
                 : FormatBattleTimer(battleElapsed);
+            bool timeWarning = battle.IsRealtime && battle.Stage.TimeLimitSeconds - battleElapsed <= 20;
+            timerText.color = timeWarning ? new Color32(255, 111, 118, 255) : new Color32(193, 187, 221, 255);
+            if (timeWarning && battle.Outcome == BattleOutcome.Ongoing) phaseText.text = "即将超时判负";
         }
 
         private void PrepareDiceTurn()
@@ -2259,7 +2266,7 @@ namespace ChoSiren.Panels
             }
             if (active && diceTurn.IsBattleSession)
             {
-                diceHandText.text = $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.##}";
+                diceHandText.text = $"{diceTurn.Hand.DisplayName} · 累计 ×{diceTurn.DamageMultiplierPermille / 1000f:0.###}";
                 bool canReroll = awaitingInput && !paused && !awaitingDiceLanding && diceTurn.CanEnergyReroll;
                 PanelKit.LabelOf(rerollButton).text = diceTurn.SelectiveReroll
                     ? "精准重投 · 人鱼" : $"本场剩余 {diceTurn.RerollsRemaining} 次";
@@ -2272,10 +2279,8 @@ namespace ChoSiren.Panels
                     canReroll ? new Color32(100, 55, 151, 255) : PanelKit.ButtonDark);
             }
             if (awaitingDiceLanding && diceHandText != null) diceHandText.text = "骰子翻滚中…";
-            if (diceInstructionText != null && active)
-                diceInstructionText.text = diceTurn.SelectiveReroll
-                    ? "人鱼：保留3至4颗，其余精准重投 · 充能满后可用"
-                    : "伤害与击杀充能 · 满100重投 · 骰型增益全队";
+            if (diceInstructionText != null && active && diceTurn.IsBattleSession)
+                diceInstructionText.text = $"本次 +{diceTurn.LastBonusGainPermille / 10f:0.#}% · 累计 +{diceTurn.AccumulatedBonusPermille / 10f:0.#}% / 上限100%";
         }
 
         private IEnumerator FlashDiceResult()

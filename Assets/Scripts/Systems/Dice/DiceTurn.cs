@@ -26,6 +26,10 @@ namespace ChoSiren.Systems.Dice
         public int UsedRerolls { get; private set; }
         public int FreeRerolls { get; private set; }
         public int Revision { get; private set; }
+        public const int MaxBattleBonusPermille = 1000;
+        public int AccumulatedBonusPermille { get; private set; }
+        public int LastBonusGainPermille { get; private set; }
+        public int DamageMultiplierPermille => IsBattleSession ? 1000 + AccumulatedBonusPermille : Hand.MultiplierPermille;
 
         public static DiceTurn ForBattle(IRandomSource random, int rerollLimit, bool selectiveReroll)
         {
@@ -209,6 +213,15 @@ namespace ChoSiren.Systems.Dice
         private void RefreshHand()
         {
             Hand = DiceRules.Evaluate(values);
+            if (IsBattleSession)
+            {
+                // A hand contributes a bounded additive encore bonus, never a compound multiplier.
+                // A reroll always progresses by at least 5%; opening high point is the neutral baseline.
+                int gain = (Hand.MultiplierPermille - 1000) / 4;
+                if (Revision > 0) gain = Math.Max(50, gain);
+                LastBonusGainPermille = Math.Min(gain, MaxBattleBonusPermille - AccumulatedBonusPermille);
+                AccumulatedBonusPermille += LastBonusGainPermille;
+            }
             Revision++;
         }
     }

@@ -6,6 +6,43 @@ namespace ChoSiren.Tests.Systems
 {
     public sealed class DiceTests
     {
+        [Test]
+        public void WeakerNewHandStillAddsToExistingBattleBonus()
+        {
+            var dice = DiceTurn.ForBattle(new ScriptedRandom(new[] { 0 }, new[] { 5, 5, 5, 5, 5, 0, 1, 2, 3, 5 }), 2, false);
+            dice.Begin(); dice.GainEnergy(100);
+            Assert.That(dice.EnergyRerollAll(out _), Is.True);
+            Assert.That(dice.Hand.Pattern, Is.EqualTo(DicePattern.HighPoint));
+            Assert.That(dice.DamageMultiplierPermille, Is.EqualTo(1300));
+        }
+
+        [Test]
+        public void BattleBonusAccumulatesAdditivelyCapsAndResetsForNewBattle()
+        {
+            var dice = DiceTurn.ForBattle(new ScriptedRandom(new[] { 0 }, new[] { 5 }), 5, false);
+            dice.Begin();
+            Assert.That(dice.DamageMultiplierPermille, Is.EqualTo(1250));
+            for (int i = 1; i <= 5; i++)
+            {
+                dice.GainEnergy(100);
+                Assert.That(dice.EnergyRerollAll(out _), Is.True);
+                Assert.That(dice.AccumulatedBonusPermille, Is.EqualTo(System.Math.Min(1000, 250 * (i + 1))));
+                Assert.That(dice.LastBonusGainPermille, Is.EqualTo(i < 4 ? 250 : 0));
+                int revision = dice.Revision;
+                dice.Begin();
+                dice.SetBattleSelectiveReroll(true);
+                Assert.That(dice.Revision, Is.EqualTo(revision));
+            }
+            Assert.That(dice.DamageMultiplierPermille, Is.EqualTo(2000));
+            Assert.That(dice.EnergyRerollAll(out _), Is.False);
+            var fresh = DiceTurn.ForBattle(new ScriptedRandom(new[] { 0 }, new[] { 0, 1, 2, 3, 5, 0, 1, 2, 3, 5 }), 2, false);
+            fresh.Begin();
+            Assert.That(fresh.AccumulatedBonusPermille, Is.Zero);
+            fresh.GrantFreeReroll();
+            Assert.That(fresh.EnergyRerollAll(out _), Is.True);
+            Assert.That(fresh.LastBonusGainPermille, Is.EqualTo(50));
+            Assert.That(fresh.DamageMultiplierPermille, Is.EqualTo(1050));
+        }
         [TestCase(new[] { 1, 2, 3, 4, 6 }, DicePattern.HighPoint, 1000, 16, 6,
             new[] { false, false, false, false, true })]
         [TestCase(new[] { 1, 1, 3, 4, 6 }, DicePattern.Pair, 1150, 15, 2,

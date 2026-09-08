@@ -26,6 +26,30 @@ namespace ChoSiren.Tests
             .Last(i => !model.IsUnlocked(i) && model.Tactics.FindUnit(GameModel.MemberIdAt(i)) != null);
 
         [Test]
+        public void CaptainAppointmentPreservesPartyEquipmentAndRejectsUnowned()
+        {
+            var model = new GameModel(() => Now);
+            int candidate = Candidate(model);
+            int[] original = model.Save.Team.ToArray();
+            Assert.That(model.AppointCaptain(candidate, out _), Is.False);
+            Assert.That(model.Save.Team, Is.EqualTo(original));
+            Assert.That(model.EquipAccessoryForMember(original[0], 0, out _), Is.True);
+            Assert.That(model.AppointCaptain(original[2], out _), Is.True);
+            Assert.That(model.Save.Team[0], Is.EqualTo(original[2]));
+            Assert.That(model.Save.Team, Is.EquivalentTo(original));
+            Assert.That(model.EquippedAccessoryFor(original[0]), Is.EqualTo(0));
+            int[] otherMembers = model.Save.Team.Skip(1).ToArray();
+            Assert.That(model.SignCandidate(candidate, 1, out _), Is.True);
+            Assert.That(model.AppointCaptain(candidate, out _), Is.True);
+            Assert.That(model.Save.Team.Skip(1), Is.EqualTo(otherMembers));
+            Assert.That(model.IsUnlocked(original[2]), Is.True);
+            var loaded = new GameModel(() => Now);
+            Assert.That(loaded.Save.Team[0], Is.EqualTo(candidate));
+            Assert.That(loaded.EquippedAccessoryFor(original[0]), Is.EqualTo(0));
+            Assert.That(loaded.AppointCaptain(candidate, out _), Is.False);
+        }
+
+        [Test]
         public void SigningPersistsAndOwnedFirstPaginationShowsLateCatalogCandidate()
         {
             var model = new GameModel(() => Now);

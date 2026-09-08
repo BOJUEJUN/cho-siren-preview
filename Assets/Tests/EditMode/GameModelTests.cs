@@ -190,7 +190,7 @@ namespace ChoSiren.Tests
                     if (model.Save.Team[0] != captain) Assert.That(model.SetTeamLeader(captain, out _), Is.True);
                     BattleSimulator battle = model.StartStageBattle($"stage-1-{number}", seed, out string message);
                     Assert.That(battle, Is.Not.Null, message);
-                    battle.AutoPlay();
+                    battle.AutoPlay(600);
                     if (battle.Outcome == BattleOutcome.Victory) wins++;
                     durations.Add(battle.ElapsedMilliseconds);
                     if (battle.CharacterDamageDealt > 0)
@@ -205,12 +205,38 @@ namespace ChoSiren.Tests
                 Assert.That(minimumCoreShare, Is.GreaterThanOrEqualTo(70), "普攻与双主动技能必须是主要伤害来源");
                 Assert.That(wins, Is.GreaterThanOrEqualTo(number <= 4 ? 14 : 12),
                     $"1-{number} 队长{captain}在校准等级下不应依赖罕见好运才能获胜");
-                int[] minimumMedians = { 45000, 45000, 45000, 45000, 45000, 45000, 45000, 45000, 45000, 45000 };
-                int[] maximumMedians = { 80000, 80000, 80000, 80000, 80000, 80000, 80000, 80000, 80000, 80000 };
+                int[] minimumMedians = { 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000 };
+                int[] maximumMedians = { 105000, 105000, 105000, 105000, 105000, 105000, 105000, 105000, 105000, 105000 };
                 Assert.That(durations[8], Is.InRange(minimumMedians[number - 1], maximumMedians[number - 1]),
                     $"1-{number} 队长{captain} 的典型时长需留出决策空间，又不能靠拖满关卡上限取胜");
             }
             // Gates test a representative cohort; they do not claim every seed, item or tactic is balanced.
+        }
+
+        [Test]
+        public void FreshDefaultPartyUsuallyFightsOverOneMinuteWithOrWithoutRerolls()
+        {
+            foreach (bool automatic in new[] { false, true })
+            {
+                var durations = new List<int>();
+                int wins = 0;
+                for (ulong seed = 1; seed <= 256; seed++)
+                {
+                    PlayerPrefs.DeleteKey(SaveKey); PlayerPrefs.DeleteKey(LegacySaveKey);
+                    var model = new GameModel(() => now);
+                    Assert.That(model.Save.Team, Is.EqualTo(new[] { 0, 1, 2, 3 }));
+                    Assert.That(model.Save.MemberAccessories, Is.Empty);
+                    var battle = model.StartStageBattle("stage-1-1", seed, out _);
+                    while (battle.Outcome == BattleOutcome.Ongoing) battle.AdvanceRealtime(250, automatic);
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
+                    durations.Add(battle.ElapsedMilliseconds);
+                }
+                durations.Sort();
+                TestContext.WriteLine($"FRESH auto={automatic} wins={wins}/256 min={durations[0]} p10={durations[25]} median={durations[128]} p90={durations[230]} max={durations[255]} over60={durations.Count(t => t > 60000)}");
+                Assert.That(wins, Is.GreaterThanOrEqualTo(250));
+                Assert.That(durations.Count(t => t > 60000), Is.GreaterThanOrEqualTo(230));
+                Assert.That(durations[128], Is.InRange(65000, 90000));
+            }
         }
 
         [Test]

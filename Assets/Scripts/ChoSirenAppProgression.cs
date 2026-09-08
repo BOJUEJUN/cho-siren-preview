@@ -13,6 +13,7 @@ namespace ChoSiren
         private int equipmentPage;
         private string equipmentCategory = "全部";
         private bool equipmentOwnedOnly;
+        private Action memberProfileReturn;
         private GameObject ProgressionModal(string name, string title, float height = 750)
         {
             CloseModal();
@@ -29,10 +30,31 @@ namespace ChoSiren
         }
         private void OpenTeamSlotPicker(int slot, int page = 0) => OpenOwnedMemberPicker(slot, page, false);
         private void OpenOwnedMemberPicker(int slot, int page, bool equipmentSelection)
+            => OpenMemberSelection(equipmentSelection ? "equipment" : "team", slot, page);
+        private void OpenCaptainPicker() => OpenMemberSelection("captain", 0, 0);
+        private void OpenMemberSelection(string purpose, int slot, int page, bool ownedOnly = true, string query = "")
         {
-            GameObject card = ProgressionModal(equipmentSelection ? "EquipmentMemberPicker" : "TeamMemberPicker", equipmentSelection ? "选择饰品管理角色" : $"位置 {slot + 1}{(slot == 0 ? " · 队长" : "")}：选择成员", 900);
-            FlowText(card.transform, "PickerHelp", equipmentSelection ? "点击角色查看和管理饰品；不会改变编队，也不会自动转移装备。" : "选择即替换；已出战成员会与此位置互换。职业可自由搭配。", 16, 28, 86, 560, 55, Muted);
-            int[] owned = model.Save.UnlockedMembers.ToArray();
+            bool equipmentSelection = purpose == "equipment", captain = purpose == "captain", replacement = purpose == "replacement";
+            string title = equipmentSelection ? "选择饰品管理角色" : captain ? "选择队长" : replacement ? $"让{GameModel.Members[slot].Name}替换谁？" : $"位置 {slot + 1}：选择成员";
+            GameObject card = ProgressionModal(equipmentSelection ? "EquipmentMemberPicker" : captain ? "CaptainMemberPicker" : replacement ? "TeamReplacementPicker" : "TeamMemberPicker", title, 900);
+            FlowText(card.transform, "PickerHelp", equipmentSelection ? "仅切换管理对象，不改变编队或转移装备。未签约角色只能查看。" : captain ? "点击查看队长效果并任命；待命成员任命时会替换当前队长。" : replacement ? "选择要替换的出战位置；原成员和装备均保留。" : "已出战成员与此位置互换；未签约角色只能查看。", 16, 28, 86, 560, 55, Muted);
+            FlowButton(card.transform, "PickerOwnership", ownedOnly ? "已拥有 ✓ · 切换全部" : "全部 · 只看已拥有", 28, 146, 252, 44,
+                () => OpenMemberSelection(purpose, slot, 0, !ownedOnly, query)).GetComponent<Button>().interactable = !replacement;
+            GameObject search = NewPanel("PickerSearch", card.transform, new Color32(38, 46, 82, 255), 10);
+            PlaceTop(search.GetComponent<RectTransform>(), 292, 146, 300, 44);
+            Text placeholder = FlowText(search.transform, "Placeholder", "搜索角色名 · 回车", 15, 12, 6, 276, 32, Muted);
+            Text searchValue = FlowText(search.transform, "Value", query, 15, 12, 6, 276, 32);
+            InputField input = search.AddComponent<InputField>();
+            input.targetGraphic = search.GetComponent<Image>(); input.textComponent = searchValue; input.placeholder = placeholder;
+            input.characterLimit = 12; input.text = query;
+            input.onEndEdit.AddListener(value =>
+            {
+                string normalized = (value ?? "").Trim();
+                if (normalized != query) OpenMemberSelection(purpose, slot, 0, ownedOnly, normalized);
+            });
+            int[] owned = (replacement ? model.Save.Team : Enumerable.Range(0, GameModel.Members.Length).Where(i => !ownedOnly || model.IsUnlocked(i)))
+                .Where(i => string.IsNullOrEmpty(query) || GameModel.Members[i].Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                .OrderBy(i => model.IsUnlocked(i) ? 0 : 1).ThenBy(i => i).ToArray();
             int pages = Math.Max(1, (owned.Length + 7) / 8);
             page = Mathf.Clamp(page, 0, pages - 1);
             for (int i = page * 8; i < Math.Min(owned.Length, page * 8 + 8); i++)
@@ -40,12 +62,21 @@ namespace ChoSiren
                 int member = owned[i];
                 var m = GameModel.Members[member];
                 GameObject row = FlowButton(card.transform, "PickMember-" + member, string.Empty,
-                    28, 152 + (i % 8) * 74, 564, 64, () =>
+                    28, 204 + (i % 8) * 68, 564, 62, () =>
                     {
+                        if (!model.IsUnlocked(member) || captain)
+                        {
+                            OpenMember(member);
+                            memberProfileReturn = () => OpenMemberSelection(purpose, slot, page, ownedOnly, query);
+                            return;
+                        }
                         if (equipmentSelection)
                         { equipmentMember = member; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(member)); ShowScreen("accessory"); return; }
-                        model.ReplaceTeamSlot(slot, member, out string message); ShowScreen("team"); Toast(message);
+                        int targetSlot = replacement ? model.Save.Team.IndexOf(member) : slot;
+                        model.ReplaceTeamSlot(targetSlot, replacement ? slot : member, out string message); ShowScreen("team"); Toast(message);
                     });
+                if (replacement) row.name = "ReplaceSlot-" + model.Save.Team.IndexOf(member);
+                row.GetComponent<Image>().color = new Color32(38, 46, 82, 255);
                 AddQuietPanelEdge(row);
                 GameObject portrait = NewImage("PickerPortrait-" + member, row.transform,
                     Resources.Load<Sprite>(m.ResourcePath), White);
@@ -53,14 +84,15 @@ namespace ChoSiren
                 portrait.GetComponent<Image>().preserveAspect = true;
                 portrait.GetComponent<Image>().raycastTarget = false;
                 FlowText(row.transform, "PickerName-" + member, m.Name, 19, 88, 5, 262, 27);
-                FlowText(row.transform, "PickerRole-" + member, $"{m.Career} · Lv.{model.LevelOf(member)} · 战力 {model.PowerOf(member):N0}", 14, 88, 34, 330, 23, Muted);
+                FlowText(row.transform, "PickerRole-" + member, model.IsUnlocked(member) ? $"{m.Career} · Lv.{model.LevelOf(member)} · 战力 {model.PowerOf(member):N0}" : $"{m.Career} · 仅可查看档案", 14, 88, 34, 330, 23, Muted);
                 FlowText(row.transform, "PickerState-" + member, MemberDeploymentLabel(member), 15, 434, 18, 112, 28,
                     model.IsInTeam(member) ? Cyan : Pink);
             }
             int p = page;
-            FlowButton(card.transform, "PickerPrevious", "上一页", 28, 778, 170, 58, () => OpenOwnedMemberPicker(slot, p - 1, equipmentSelection)).GetComponent<Button>().interactable = page > 0;
+            if (owned.Length == 0) FlowText(card.transform, "PickerEmpty", "没有符合条件的角色，可修改搜索或切换全部。", 18, 28, 224, 564, 60, Muted);
+            FlowButton(card.transform, "PickerPrevious", "上一页", 28, 778, 170, 58, () => OpenMemberSelection(purpose, slot, p - 1, ownedOnly, query)).GetComponent<Button>().interactable = page > 0;
             FlowText(card.transform, "PickerPage", $"{page + 1}/{pages}", 20, 275, 778, 100, 58);
-            FlowButton(card.transform, "PickerNext", "下一页", 422, 778, 170, 58, () => OpenOwnedMemberPicker(slot, p + 1, equipmentSelection)).GetComponent<Button>().interactable = page + 1 < pages;
+            FlowButton(card.transform, "PickerNext", "下一页", 422, 778, 170, 58, () => OpenMemberSelection(purpose, slot, p + 1, ownedOnly, query)).GetComponent<Button>().interactable = page + 1 < pages;
         }
         private string MemberDeploymentLabel(int member)
         {
@@ -68,17 +100,34 @@ namespace ChoSiren
             int slot = model.Save.Team.IndexOf(member);
             return slot == 0 ? "队长" : slot > 0 ? "出战中" : "待命";
         }
-        private void OpenTeamReplacement(int member)
+        private static string CaptainEffectCopy(string race)
         {
-            GameObject card = ProgressionModal("TeamReplacementPicker", $"让{GameModel.Members[member].Name}替换谁？", 500);
-            for (int slot = 0; slot < model.Save.Team.Count; slot++)
+            switch (BattleSimulator.ParseCombatRace(race))
             {
-                int captured = slot;
-                FlowButton(card.transform, "ReplaceSlot-" + slot, $"位置 {slot + 1} · {GameModel.Members[model.Save.Team[slot]].Name}{(slot == 0 ? "（队长）" : "")}",
-                    28, 108 + slot * 82, 564, 66, () =>
-                    { model.ReplaceTeamSlot(captured, member, out string message); ShowScreen("team"); Toast(message); });
+                case CombatRace.Charm: return "魅族指挥：骰型赋予全队追击次数，随普攻触发；好骰型获得更多追击。";
+                case CombatRace.Mermaid: return "人鱼指挥：掷骰提供护盾；可保留3–4颗骰子精准重投，五同额外减伤。";
+                case CombatRace.Demon: return "魔族指挥：全队普攻附加中毒，持续消耗敌人；骰型决定叠毒层数。";
+                case CombatRace.BloodElf: return "血精灵指挥：骰型提供穿甲，收割低血量目标；首次散点可免费重投一次。";
+                default: return "全队享有骰子累计伤害增益。当前成员暂无额外种族指挥效果。";
             }
         }
+        private void ConfirmCaptain(int member)
+        {
+            if (!model.IsUnlocked(member)) { Toast("请先签约该成员"); return; }
+            if (model.IsInTeam(member)) { ApplyCaptain(member); return; }
+            GameObject card = ProgressionModal("CaptainConfirmation", "上阵并任命队长", 410);
+            string previous = model.Save.Team.Count > 0 ? GameModel.Members[model.Save.Team[0]].Name : "空位";
+            FlowText(card.transform, "CaptainReplacementNotice", $"{GameModel.Members[member].Name}将替换{previous}的队长位置。\n原成员转为待命，等级和装备保留；其他队员不变。", 20, 28, 98, 564, 110, Muted);
+            FlowButton(card.transform, "ConfirmCaptain", "确认任命", 28, 278, 270, 62, () => ApplyCaptain(member));
+            FlowButton(card.transform, "CancelCaptain", "返回档案", 322, 278, 270, 62, () => OpenMember(member));
+        }
+        private void ApplyCaptain(int member)
+        {
+            model.AppointCaptain(member, out string message);
+            ShowScreen("team"); Toast(message);
+        }
+        private void OpenTeamReplacement(int member)
+            => OpenMemberSelection("replacement", member, 0);
         private void OpenCurrency(string currency)
         {
             GameObject card = ProgressionModal("CurrencyModal", GameModel.CurrencyName(currency), 740);

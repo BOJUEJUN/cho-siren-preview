@@ -34,6 +34,46 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator CaptainPickerUsesSharedOwnedFilterAndProfileAppointment()
+        {
+            Require("Nav-team").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            int[] before = new GameModel().Save.Team.ToArray();
+            Require("ChangeLeader").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(GameObject.Find("CaptainMemberPicker"), Is.Not.Null);
+            Assert.That(new GameModel().Save.Team, Is.EqualTo(before), "打开面板不能自动换队长");
+            Assert.That(Require("PickerOwnership").GetComponentInChildren<Text>().text, Does.StartWith("已拥有"));
+            Require("PickMember-" + before[1]).GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(Require("CaptainEffectDescription").GetComponent<Text>().text.Length, Is.GreaterThan(10));
+            Canvas.ForceUpdateCanvases();
+            AssertTextRectsContainedAndSeparated(Require("MemberCaptainPanel"));
+            Require("AppointCaptain").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(new GameModel().Save.Team[0], Is.EqualTo(before[1]));
+            Invoke("OpenOwnedMemberPicker", 0, 0, true);
+            yield return null;
+            Require("PickerOwnership").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            var model = new GameModel();
+            int locked = Enumerable.Range(0, GameModel.Members.Length).First(i => !model.IsUnlocked(i));
+            Require("PickMember-" + locked).GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(Require("AppointCaptain").GetComponent<Button>().interactable, Is.False);
+            Assert.That(GameObject.Find("MemberEquipment"), Is.Null);
+            Assert.That(new GameModel().Save.Team, Is.EqualTo(model.Save.Team));
+            Require("Close").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Assert.That(GameObject.Find("EquipmentMemberPicker"), Is.Not.Null);
+            Assert.That(Require("PickerOwnership").GetComponentInChildren<Text>().text, Does.StartWith("全部"));
+            Require("PickerSearch").GetComponent<InputField>().onEndEdit.Invoke(GameModel.Members[before[0]].Name);
+            yield return null;
+            Assert.That(GameObject.Find("PickMember-" + before[0]), Is.Not.Null);
+            Assert.That(GameObject.Find("PickMember-" + locked), Is.Null);
+        }
+
+        [UnityTest]
         public IEnumerator TeamPortraitOpensTrainingAndExplicitReplacementWhileRosterShowsDeployment()
         {
             Require("Nav-team").GetComponent<Button>().onClick.Invoke();

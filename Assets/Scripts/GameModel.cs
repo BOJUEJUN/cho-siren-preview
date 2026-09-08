@@ -765,6 +765,16 @@ namespace ChoSiren
             return true;
         }
 
+        public bool AppointCaptain(int memberIndex, out string message)
+        {
+            if (!IsValidMemberIndex(memberIndex) || !IsUnlocked(memberIndex))
+            { message = "请先签约该成员"; return false; }
+            if (Save.Team.Contains(memberIndex)) return SetTeamLeader(memberIndex, out message);
+            if (!ReplaceTeamSlot(0, memberIndex, out message)) return false;
+            message = $"已上阵并任命 {Members[memberIndex].Name} 为队长";
+            return true;
+        }
+
         /// <summary>Cycles the next current party member into the leader slot.</summary>
         public bool RotateTeamLeader(out string message)
         {

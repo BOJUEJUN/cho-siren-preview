@@ -108,7 +108,7 @@ namespace ChoSiren.Systems.Tactics
                 realtimeRemainder -= RealtimeStepMilliseconds;
                 ElapsedMilliseconds += RealtimeStepMilliseconds;
                 ApplyNewHand();
-                if (autoDice && BattleDice.CanEnergyReroll && BattleDice.Hand.MultiplierPermille < 1600)
+                if (autoDice && BattleDice.CanEnergyReroll && BattleDice.AccumulatedBonusPermille < DiceTurn.MaxBattleBonusPermille)
                 {
                     AutoReroll();
                     ApplyNewHand();
@@ -438,15 +438,14 @@ namespace ChoSiren.Systems.Tactics
             bool player = actor.Side == BattleSide.Player;
             if (player)
             {
-                raw = raw * BattleDice.Hand.MultiplierPermille / 1000;
+                raw = raw * BattleDice.DamageMultiplierPermille / 1000;
                 if (performerClocks[actor.Id].AttackBuffUntil > ElapsedMilliseconds) raw = raw * 1100 / 1000;
                 if (leaderRace == CombatRace.BloodElf)
                 {
                     ignoreDefense = Math.Max(ignoreDefense, Pierce(BattleDice.Hand.Pattern));
                     if ((long)target.Hp * 100 < (long)target.MaxHp * 30) raw = raw * 1250 / 1000;
                 }
-                if (BattleDice.Hand.Pattern == DicePattern.TwoPair) raw = raw * 1080 / 1000;
-                if (BattleDice.Hand.Pattern == DicePattern.Pair && actor.Id == leaderId) raw = raw * 1100 / 1000;
+                // All dice damage growth is accounted for in the displayed accumulated multiplier.
             }
             int defense = (int)((long)EffectiveRealtimeDefense(target) * (1000 - Math.Min(500, ignoreDefense)) / 1000);
             raw = raw * 1000 / (1000 + (long)defense * DefenseWeight);

@@ -16,6 +16,33 @@ namespace ChoSiren.Tests
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
         [Test]
+        public void FinalTwentySecondsAreRedAndPauseKeepsBattleTime()
+        {
+            GameObject root = new GameObject("Countdown Test", typeof(RectTransform));
+            try
+            {
+                BattleSimulator battle = CreateBattle();
+                battle.Stage.TimeLimitSeconds = 120;
+                battle.EnableRealtime(new Dictionary<string, string> { { "player", "魅族" } }, "player");
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), battle, null);
+                var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var elapsed = typeof(TacticsBattlePanel).GetField("battleElapsed", flags);
+                var timer = (Text)typeof(TacticsBattlePanel).GetField("timerText", flags).GetValue(panel);
+                elapsed.SetValue(panel, 99f); Invoke(panel, "RefreshBattleHud");
+                Color normal = timer.color;
+                elapsed.SetValue(panel, 100f); Invoke(panel, "RefreshBattleHud");
+                Assert.That(timer.text, Is.EqualTo("剩余 00:20"));
+                Assert.That(timer.color, Is.Not.EqualTo(normal));
+                var phase = (Text)typeof(TacticsBattlePanel).GetField("phaseText", flags).GetValue(panel);
+                Assert.That(phase.text, Does.Contain("超时判负"));
+                Invoke(panel, "TogglePause"); Invoke(panel, "Update");
+                Assert.That(elapsed.GetValue(panel), Is.EqualTo(100f));
+                Assert.That(battle.ElapsedMilliseconds, Is.Zero);
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void HighLevelMapOnlyStartsTheFixedEncounterWithoutRehearsal()
         {
             bool hadSave = PlayerPrefs.HasKey(GameModel.SaveKey), hadLegacy = PlayerPrefs.HasKey(GameModel.LegacySaveKey);

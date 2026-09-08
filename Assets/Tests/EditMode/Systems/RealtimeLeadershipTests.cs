@@ -58,6 +58,7 @@ namespace ChoSiren.Tests
             int[] values = battle.BattleDice.Values.ToArray();
             int energy = battle.BattleDice.Energy, revision = battle.BattleDice.Revision;
             int used = battle.BattleDice.UsedRerolls, free = battle.BattleDice.FreeRerolls;
+            int bonus = battle.BattleDice.AccumulatedBonusPermille;
             BattleUnit successor = battle.FindUnit(2);
             int small = battle.SkillCooldownRemaining(successor, false);
             int big = battle.SkillCooldownRemaining(successor, true);
@@ -69,6 +70,7 @@ namespace ChoSiren.Tests
             Assert.That(battle.BattleDice.Revision, Is.EqualTo(revision));
             Assert.That(battle.BattleDice.UsedRerolls, Is.EqualTo(used));
             Assert.That(battle.BattleDice.FreeRerolls, Is.EqualTo(free));
+            Assert.That(battle.BattleDice.AccumulatedBonusPermille, Is.EqualTo(bonus));
             Assert.That(battle.BattleDice.Held.Any(held => held), Is.False);
             Assert.That(battle.SkillCooldownRemaining(successor, false), Is.EqualTo(small));
             Assert.That(battle.SkillCooldownRemaining(successor, true), Is.EqualTo(big));

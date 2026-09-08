@@ -100,16 +100,16 @@
       "EncounterType": "normal",
       "GoldReward": 300,
       "DiamondFirstClear": 20,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 1,
       "Enemies": [
-        {"UnitId":"neon-scout","Row":0,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":0},
-        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":0},
-        {"UnitId":"neon-scout","Row":2,"Col":0,"ScalePermille":600,"HpScalePermille":25556,"Wave":1},
-        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":1},
-        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":2},
-        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":600,"HpScalePermille":25556,"Wave":2}
+        {"UnitId":"neon-scout","Row":0,"Col":0,"ScalePermille":600,"HpScalePermille":28112,"Wave":0},
+        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":600,"HpScalePermille":28112,"Wave":0},
+        {"UnitId":"neon-scout","Row":2,"Col":0,"ScalePermille":600,"HpScalePermille":28112,"Wave":1},
+        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":600,"HpScalePermille":28112,"Wave":1},
+        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":600,"HpScalePermille":28112,"Wave":2},
+        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":600,"HpScalePermille":28112,"Wave":2}
       ],
       "Drops": { "Rolls": 2, "Entries": [
         {"ItemId":"accessory-neon-clip","Weight":10,"Min":1,"Max":1},
@@ -133,16 +133,16 @@
       "EncounterType": "normal",
       "GoldReward": 320,
       "DiamondFirstClear": 20,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 2,
       "Enemies": [
-        {"UnitId":"noise-wraith","Row":0,"Col":0,"ScalePermille":650,"HpScalePermille":28889,"Wave":0},
-        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":650,"HpScalePermille":27778,"Wave":0},
-        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":650,"HpScalePermille":28889,"Wave":1},
-        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":650,"HpScalePermille":27778,"Wave":1},
-        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":650,"HpScalePermille":28889,"Wave":2},
-        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":650,"HpScalePermille":27778,"Wave":2}
+        {"UnitId":"noise-wraith","Row":0,"Col":0,"ScalePermille":650,"HpScalePermille":31778,"Wave":0},
+        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":650,"HpScalePermille":30556,"Wave":0},
+        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":650,"HpScalePermille":31778,"Wave":1},
+        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":650,"HpScalePermille":30556,"Wave":1},
+        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":650,"HpScalePermille":31778,"Wave":2},
+        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":650,"HpScalePermille":30556,"Wave":2}
       ],
       "Drops": { "Rolls": 2, "Entries": [
         {"ItemId":"accessory-prism-monitor","Weight":10,"Min":1,"Max":1},
@@ -166,14 +166,14 @@
       "EncounterType": "elite",
       "GoldReward": 350,
       "DiamondFirstClear": 25,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 3,
       "Enemies": [
-        {"UnitId":"static-golem","Row":0,"Col":0,"ScalePermille":456,"HpScalePermille":25521,"Wave":0},
-        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":456,"HpScalePermille":22222,"Wave":0},
-        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":456,"HpScalePermille":22222,"Wave":1},
-        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":456,"HpScalePermille":25000,"Wave":1}
+        {"UnitId":"static-golem","Row":0,"Col":0,"ScalePermille":456,"HpScalePermille":28073,"Wave":0},
+        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":456,"HpScalePermille":24445,"Wave":0},
+        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":456,"HpScalePermille":24445,"Wave":1},
+        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":456,"HpScalePermille":27500,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-pulse-necklace","Weight":10,"Min":1,"Max":1},
@@ -197,16 +197,16 @@
       "EncounterType": "normal",
       "GoldReward": 380,
       "DiamondFirstClear": 25,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 4,
       "Enemies": [
-        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":720,"HpScalePermille":32778,"Wave":0},
-        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":720,"HpScalePermille":30556,"Wave":0},
-        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":720,"HpScalePermille":32778,"Wave":1},
-        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":720,"HpScalePermille":30556,"Wave":1},
-        {"UnitId":"neon-scout","Row":1,"Col":1,"ScalePermille":720,"HpScalePermille":32778,"Wave":2},
-        {"UnitId":"noise-wraith","Row":2,"Col":1,"ScalePermille":720,"HpScalePermille":30556,"Wave":2}
+        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":720,"HpScalePermille":36056,"Wave":0},
+        {"UnitId":"neon-scout","Row":1,"Col":0,"ScalePermille":720,"HpScalePermille":33612,"Wave":0},
+        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":720,"HpScalePermille":36056,"Wave":1},
+        {"UnitId":"noise-wraith","Row":0,"Col":1,"ScalePermille":720,"HpScalePermille":33612,"Wave":1},
+        {"UnitId":"neon-scout","Row":1,"Col":1,"ScalePermille":720,"HpScalePermille":36056,"Wave":2},
+        {"UnitId":"noise-wraith","Row":2,"Col":1,"ScalePermille":720,"HpScalePermille":33612,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-spotlight-boots","Weight":10,"Min":1,"Max":1},
@@ -230,14 +230,14 @@
       "EncounterType": "boss",
       "GoldReward": 420,
       "DiamondFirstClear": 30,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 5,
       "Enemies": [
-        {"UnitId":"siren-queen","Row":0,"Col":0,"ScalePermille":434,"HpScalePermille":11001,"Wave":0},
-        {"UnitId":"pulse-guard","Row":1,"Col":0,"ScalePermille":482,"HpScalePermille":16667,"Wave":0},
-        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":482,"HpScalePermille":19444,"Wave":1,"BossPhase":2},
-        {"UnitId":"pulse-guard","Row":0,"Col":1,"ScalePermille":482,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
+        {"UnitId":"siren-queen","Row":0,"Col":0,"ScalePermille":434,"HpScalePermille":12101,"Wave":0},
+        {"UnitId":"pulse-guard","Row":1,"Col":0,"ScalePermille":482,"HpScalePermille":18334,"Wave":0},
+        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":482,"HpScalePermille":21388,"Wave":1,"BossPhase":2},
+        {"UnitId":"pulse-guard","Row":0,"Col":1,"ScalePermille":482,"HpScalePermille":21388,"Wave":1,"BossPhase":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-neon-earring","Weight":10,"Min":1,"Max":1},
@@ -261,14 +261,14 @@
       "EncounterType": "elite",
       "GoldReward": 460,
       "DiamondFirstClear": 30,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 6,
       "Enemies": [
-        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":824,"HpScalePermille":97222,"Wave":0},
-        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":549,"HpScalePermille":25000,"Wave":0},
-        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":549,"HpScalePermille":25000,"Wave":1},
-        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":549,"HpScalePermille":25000,"Wave":1}
+        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":824,"HpScalePermille":106945,"Wave":0},
+        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":549,"HpScalePermille":27500,"Wave":0},
+        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":549,"HpScalePermille":27500,"Wave":1},
+        {"UnitId":"neon-scout","Row":0,"Col":1,"ScalePermille":549,"HpScalePermille":27500,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-echo-note","Weight":10,"Min":1,"Max":1},
@@ -292,16 +292,16 @@
       "EncounterType": "normal",
       "GoldReward": 500,
       "DiamondFirstClear": 35,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 7,
       "Enemies": [
-        {"UnitId":"velvet-hexer","Row":0,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":0},
-        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":0},
-        {"UnitId":"neon-scout","Row":2,"Col":0,"ScalePermille":880,"HpScalePermille":38889,"Wave":1},
-        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":1},
-        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":2},
-        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":880,"HpScalePermille":38889,"Wave":2}
+        {"UnitId":"velvet-hexer","Row":0,"Col":0,"ScalePermille":880,"HpScalePermille":42778,"Wave":0},
+        {"UnitId":"noise-wraith","Row":1,"Col":0,"ScalePermille":880,"HpScalePermille":42778,"Wave":0},
+        {"UnitId":"neon-scout","Row":2,"Col":0,"ScalePermille":880,"HpScalePermille":42778,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":880,"HpScalePermille":42778,"Wave":1},
+        {"UnitId":"noise-wraith","Row":1,"Col":1,"ScalePermille":880,"HpScalePermille":42778,"Wave":2},
+        {"UnitId":"neon-scout","Row":2,"Col":1,"ScalePermille":880,"HpScalePermille":42778,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-moon-bracelet","Weight":10,"Min":1,"Max":1},
@@ -325,16 +325,16 @@
       "EncounterType": "normal",
       "GoldReward": 550,
       "DiamondFirstClear": 35,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 8,
       "Enemies": [
-        {"UnitId":"neon-scout","Row":0,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":0},
-        {"UnitId":"velvet-hexer","Row":1,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":0},
-        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":930,"HpScalePermille":41667,"Wave":1},
-        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":1},
-        {"UnitId":"velvet-hexer","Row":1,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2},
-        {"UnitId":"pulse-guard","Row":2,"Col":1,"ScalePermille":930,"HpScalePermille":41667,"Wave":2}
+        {"UnitId":"neon-scout","Row":0,"Col":0,"ScalePermille":930,"HpScalePermille":45834,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":1,"Col":0,"ScalePermille":930,"HpScalePermille":45834,"Wave":0},
+        {"UnitId":"pulse-guard","Row":2,"Col":0,"ScalePermille":930,"HpScalePermille":45834,"Wave":1},
+        {"UnitId":"echo-drone","Row":0,"Col":1,"ScalePermille":930,"HpScalePermille":45834,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":1,"Col":1,"ScalePermille":930,"HpScalePermille":45834,"Wave":2},
+        {"UnitId":"pulse-guard","Row":2,"Col":1,"ScalePermille":930,"HpScalePermille":45834,"Wave":2}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-prism-monitor","Weight":10,"Min":1,"Max":1},
@@ -358,15 +358,15 @@
       "EncounterType": "elite",
       "GoldReward": 620,
       "DiamondFirstClear": 40,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 9,
       "Enemies": [
-        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":935,"HpScalePermille":120554,"Wave":0},
-        {"UnitId":"velvet-hexer","Row":1,"Col":0,"ScalePermille":623,"HpScalePermille":25000,"Wave":0},
-        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
-        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1},
-        {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":623,"HpScalePermille":25000,"Wave":1}
+        {"UnitId":"pulse-guard","Row":0,"Col":0,"ScalePermille":935,"HpScalePermille":132610,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":1,"Col":0,"ScalePermille":623,"HpScalePermille":27500,"Wave":0},
+        {"UnitId":"noise-wraith","Row":2,"Col":0,"ScalePermille":623,"HpScalePermille":27500,"Wave":1},
+        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":623,"HpScalePermille":27500,"Wave":1},
+        {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":623,"HpScalePermille":27500,"Wave":1}
       ],
       "Drops": { "Rolls": 3, "Entries": [
         {"ItemId":"accessory-starlit-crown","Weight":10,"Min":1,"Max":1},
@@ -390,15 +390,15 @@
       "EncounterType": "boss",
       "GoldReward": 800,
       "DiamondFirstClear": 50,
-      "TimeLimitSeconds": 90,
-      "ThreeStarSeconds": 75,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
       "RecommendedLevel": 10,
       "Enemies": [
-        {"UnitId":"siren-queen","Row":0,"Col":0,"ScalePermille":543,"HpScalePermille":14666,"Wave":0},
-        {"UnitId":"pulse-guard","Row":1,"Col":0,"ScalePermille":603,"HpScalePermille":16667,"Wave":0},
-        {"UnitId":"velvet-hexer","Row":2,"Col":0,"ScalePermille":603,"HpScalePermille":16667,"Wave":0},
-        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2},
-        {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":603,"HpScalePermille":19444,"Wave":1,"BossPhase":2}
+        {"UnitId":"siren-queen","Row":0,"Col":0,"ScalePermille":543,"HpScalePermille":16133,"Wave":0},
+        {"UnitId":"pulse-guard","Row":1,"Col":0,"ScalePermille":603,"HpScalePermille":18334,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":2,"Col":0,"ScalePermille":603,"HpScalePermille":18334,"Wave":0},
+        {"UnitId":"velvet-hexer","Row":0,"Col":1,"ScalePermille":603,"HpScalePermille":21388,"Wave":1,"BossPhase":2},
+        {"UnitId":"pulse-guard","Row":1,"Col":1,"ScalePermille":603,"HpScalePermille":21388,"Wave":1,"BossPhase":2}
       ],
       "Drops": { "Rolls": 4, "Entries": [
         {"ItemId":"accessory-stage-crown","Weight":10,"Min":1,"Max":1},

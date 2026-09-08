@@ -273,9 +273,9 @@ namespace ChoSiren.Tests
             battle.AdvanceRealtime(0);
             Assert.That(battle.CharacterDamageDealt, Is.Zero);
             battle.AdvanceRealtime(25);
-            Assert.That(battle.CharacterDamageDealt, Is.EqualTo(200));
+            Assert.That(battle.CharacterDamageDealt, Is.EqualTo(125));
             battle.AdvanceRealtime(25);
-            Assert.That(battle.CharacterDamageDealt, Is.EqualTo(200), "同一个骰型只在新投掷时触发一次即时追击");
+            Assert.That(battle.CharacterDamageDealt, Is.EqualTo(125), "同一个骰型只在新投掷时触发一次即时追击");
         }
 
         [Test]
@@ -313,11 +313,15 @@ namespace ChoSiren.Tests
         public void ClearingOpeningWaveSpawnsReserveInsteadOfFinishingBattle()
         {
             BattleSimulator battle = CreateWaves();
+            battle.BattleDice.GainEnergy(100);
+            Assert.That(battle.BattleDice.EnergyRerollAll(out _), Is.True);
+            int bonus = battle.BattleDice.AccumulatedBonusPermille;
             battle.FindUnit(2).Hp = 1;
             battle.AdvanceRealtime(1000);
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
             Assert.That(battle.FindUnit(3).Spawned, Is.True);
             Assert.That(battle.CurrentWave, Is.EqualTo(2));
+            Assert.That(battle.BattleDice.AccumulatedBonusPermille, Is.EqualTo(bonus));
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Spawned), Is.EqualTo(1));
             Assert.That(battle.Log.Any(e => e.Kind == BattleEventKind.Finished), Is.False);
             Assert.That(battle.FindUnit(3).Hp, Is.EqualTo(battle.FindUnit(3).MaxHp));
@@ -365,6 +369,22 @@ namespace ChoSiren.Tests
             Assert.That(battle.Log.Any(e => e.Kind == BattleEventKind.Damage &&
                 e.SkillId == "rt-demon-big" && e.TargetId == 3), Is.False,
                 "范围技能只能命中释放时在场的敌人，不能跨波扫到刚刷新的增援");
+        }
+
+        [Test]
+        public void TwoMinuteDeadlineDefeatsExactlyOnceAndZeroStepDoesNotConsumeTime()
+        {
+            BattleSimulator battle = CreateWaves();
+            battle.Stage.TimeLimitSeconds = 120;
+            battle.AdvanceRealtime(119975);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing));
+            battle.AdvanceRealtime(0);
+            Assert.That(battle.ElapsedMilliseconds, Is.EqualTo(119975));
+            battle.AdvanceRealtime(25);
+            Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Defeat));
+            Assert.That(battle.ElapsedMilliseconds, Is.EqualTo(120000));
+            battle.AdvanceRealtime(1000);
+            Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Finished), Is.EqualTo(1));
         }
 
         [Test]

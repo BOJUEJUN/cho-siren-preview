@@ -70,11 +70,11 @@ namespace ChoSiren.Tests.Systems
             {
                 StageDefinition stage = data.Stages[i];
                 int totalHp = stage.Enemies.Sum(spawn => BattleSimulator.EnemyStats(data.FindUnit(spawn.UnitId), spawn).Hp);
-                Assert.That(Math.Abs(totalHp - expectedHp[i]), Is.LessThanOrEqualTo(2), stage.Id);
+                Assert.That(Math.Abs(totalHp - expectedHp[i] * 1.10), Is.LessThanOrEqualTo(8), stage.Id);
                 Assert.That(stage.Enemies.Count, Is.EqualTo(expectedCounts[i]), stage.Id);
                 Assert.That(stage.Enemies.Select(spawn => spawn.Wave).Distinct().Count(), Is.EqualTo(expectedWaves[i]), stage.Id);
-                Assert.That(stage.TimeLimitSeconds, Is.EqualTo(90));
-                Assert.That(stage.ThreeStarSeconds, Is.EqualTo(75));
+                Assert.That(stage.TimeLimitSeconds, Is.EqualTo(120));
+                Assert.That(stage.ThreeStarSeconds, Is.EqualTo(100));
                 Assert.That(stage.RecommendedLevel, Is.EqualTo(i + 1));
                 if (i == 4 || i == 9)
                 {
