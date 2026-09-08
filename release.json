@@ -1,0 +1,11 @@
+{
+  "version": "0.3.1",
+  "name": "队长与骰子更新",
+  "date": "2026-09-08",
+  "sourceCommit": "90ea9a1",
+  "buildCommit": "0c94ab9",
+  "previousVersion": "0.3.0",
+  "previousWebCommit": "422a642",
+  "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
+  "validation": { "unityTests": 480, "webTests": 12, "localBattleSeconds": 68.9 }
+}
