@@ -2,10 +2,10 @@
   "version": "0.3.3",
   "name": "玩家反馈优化",
   "date": "2026-09-08",
-  "sourceCommit": "3216418",
+  "sourceCommit": "07a7b1a",
   "buildDirectory": "WebGL",
   "previousVersion": "0.3.2",
-  "previousWebCommit": "bf8b1f0",
+  "previousWebCommit": "c3db439",
   "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
   "validation": { "unityTests": 390, "webTests": 12, "feedbackItems": 12 }
 }
