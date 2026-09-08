@@ -1,11 +1,15 @@
 {
-  "version": "0.3.3",
-  "name": "玩家反馈优化",
+  "version": "0.3.4",
+  "name": "深入交流",
   "date": "2026-09-08",
-  "sourceCommit": "07a7b1a",
-  "buildDirectory": "WebGL",
-  "previousVersion": "0.3.2",
-  "previousWebCommit": "c3db439",
+  "sourceCommit": "a3238cc",
+  "buildDirectory": "WebGL-deeptalk-v034",
+  "previousVersion": "0.3.3",
+  "previousWebCommit": "973bf1e",
   "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
-  "validation": { "unityTests": 390, "webTests": 12, "feedbackItems": 12 }
+  "validation": {
+    "unityTests": 401,
+    "webTests": 12,
+    "feedbackItems": 1
+  }
 }
