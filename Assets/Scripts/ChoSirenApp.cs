@@ -1356,10 +1356,87 @@ namespace ChoSiren
             GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
                 new Color32(63, 57, 108, 245), White, () =>
                 { Action back = memberProfileReturn; memberProfileReturn = null; CloseModal(); back?.Invoke(); });
-            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 328 : 185, 1152, 250, 56);
+            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 406 : 185, 1152, 186, 56);
             if (unlocked)
-                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 34, 1152, 258, 56, () =>
+            {
+                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 28, 1152, 172, 56, () =>
                 { equipmentMember = memberIndex; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(memberIndex)); ShowScreen("accessory"); });
+
+                // v0.3.4 深入交流：羁绊档专属入口。锁定/已用仍可点击，用 Toast 说明原因。
+                bool deepUnlocked = model.DeepTalkUnlocked(memberIndex);
+                bool deepUsed = model.DeepTalkUsedToday(memberIndex);
+                string deepLabel = deepUsed ? "今日已交流"
+                    : deepUnlocked ? "深入交流"
+                    : $"好感度{GameModel.DeepTalkAffectionUnlock}解锁";
+                Color deepBackground = deepUnlocked && !deepUsed
+                    ? new Color32(201, 92, 148, 255)
+                    : new Color32(63, 57, 108, 245);
+                GameObject deepTalk = NewButton("DeepTalk", panel.transform, deepLabel, 15,
+                    deepBackground, White, () =>
+                {
+                    int affectionBefore = model.AffectionOf(memberIndex);
+                    if (!model.DeepTalk(memberIndex, out string message, out string dialogue))
+                    {
+                        Toast(message);
+                        return;
+                    }
+                    OpenDeepTalkResult(memberIndex, teamSlot, dialogue, affectionBefore, model.AffectionOf(memberIndex));
+                });
+                deepTalk.name = "MemberDeepTalkButton";
+                PlaceTop(deepTalk.GetComponent<RectTransform>(), 208, 1152, 190, 56);
+                AddQuietPanelEdge(deepTalk);
+            }
+        }
+
+        /// <summary>v0.3.4 深入交流结果弹窗：立绘 + 羁绊文案 + 好感度变化，返回原档案。</summary>
+        private void OpenDeepTalkResult(int memberIndex, int teamSlot, string dialogue,
+            int affectionBefore, int affectionAfter)
+        {
+            MemberDefinition member = GameModel.Members[memberIndex];
+            CloseModal();
+
+            GameObject overlay = NewImage("DeepTalkModal", safeRoot, null, new Color32(3, 4, 20, 220));
+            Stretch(overlay.GetComponent<RectTransform>());
+            overlay.GetComponent<Image>().raycastTarget = true;
+            modalObject = overlay;
+
+            GameObject panel = NewPanel("Panel", overlay.transform, new Color32(26, 14, 40, 253), 28);
+            RectTransform panelRect = panel.GetComponent<RectTransform>();
+            panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+            panelRect.sizeDelta = new Vector2(560, 640);
+            AddQuietPanelEdge(panel);
+
+            GameObject portrait = NewImage("Portrait", panel.transform,
+                Resources.Load<Sprite>(member.ResourcePath), White);
+            PlaceTop(portrait.GetComponent<RectTransform>(), 28, 28, 204, 288);
+            Image portraitImage = portrait.GetComponent<Image>();
+            portraitImage.preserveAspect = true;
+            portraitImage.useSpriteMesh = true;
+
+            NewPlacedText(panel.transform, "深入交流 · 羁绊时刻", 22, new Color32(255, 183, 229, 255),
+                248, 44, 292, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(panel.transform, member.Name, 30, White,
+                248, 84, 292, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(panel.transform, $"{MemberRace(member, memberIndex)} · {member.Career}", 15, Pink,
+                250, 132, 290, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+
+            Text dialogueText = NewPlacedText(panel.transform, dialogue, 17, White,
+                28, 340, 504, 176, TextAnchor.UpperLeft);
+            dialogueText.name = "DeepTalkDialogue";
+            dialogueText.lineSpacing = 1.25f;
+
+            Text affectionGain = NewPlacedText(panel.transform,
+                $"好感度 {affectionBefore} → {affectionAfter}（+{affectionAfter - affectionBefore}） · 明日可再来",
+                16, new Color32(111, 255, 194, 255), 28, 528, 504, 30,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            affectionGain.name = "DeepTalkAffectionResult";
+            PanelKit.EnableBestFit(affectionGain, 13);
+
+            GameObject back = NewButton("BackToProfile", panel.transform, "返回档案", 17,
+                new Color32(63, 57, 108, 245), White, () => OpenTeamMember(memberIndex, teamSlot));
+            PlaceTop(back.GetComponent<RectTransform>(), 28, 572, 504, 52);
+            AddQuietPanelEdge(back);
         }
 
         private void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,

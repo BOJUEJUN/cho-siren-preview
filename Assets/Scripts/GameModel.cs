@@ -133,6 +133,10 @@ namespace ChoSiren
         /// <summary>Per-member 好感度 (0-100), indexed like <see cref="MemberLevels"/>.
         /// Added after schema v5; a save without it normalizes to the starting value.</summary>
         public List<int> MemberAffection = new List<int>();
+        /// <summary>Per-member last 深入交流 date key ("yyyy-MM-dd"), indexed like
+        /// <see cref="MemberLevels"/>. Empty/missing means never talked; old saves stay compatible.
+        /// Added in v0.3.4 without a schema bump (field is optional).</summary>
+        public List<string> MemberDeepTalkDate = new List<string>();
         public List<int> Team = new List<int> { 0, 1, 2, 3 };
         public int EquippedAccessory = -1;
         public List<int> OwnedAccessories = new List<int> { 0, 1, 2 };
@@ -480,6 +484,61 @@ namespace ChoSiren
         {
             foreach (int index in Save.Team) GainAffection(index, amount);
         }
+
+        // ------------------------------------------------------------------ 深入交流 (v0.3.4)
+
+        /// <summary>羁绊档才可深入交流；阈值必须与 <see cref="AffectionTierName"/> 的羁绊一致。</summary>
+        public const int DeepTalkAffectionUnlock = 80;
+        public const int DeepTalkGoldCost = 200;
+        public const int DeepTalkAffectionGain = 6;
+
+        public bool DeepTalkUnlocked(int index) =>
+            IsUnlocked(index) && AffectionOf(index) >= DeepTalkAffectionUnlock;
+
+        /// <summary>True when this member already had her 深入交流 today (calendar day, same as check-in).</summary>
+        public bool DeepTalkUsedToday(int index) => IsValidMemberIndex(index) && index < Save.MemberDeepTalkDate.Count
+            && Save.MemberDeepTalkDate[index] == DateKey(Today);
+
+        public bool CanDeepTalk(int memberIndex, out string reason)
+        {
+            reason = string.Empty;
+            if (!IsValidMemberIndex(memberIndex)) { reason = "成员不存在"; return false; }
+            if (!IsUnlocked(memberIndex)) { reason = "尚未签约该成员"; return false; }
+            if (AffectionOf(memberIndex) < DeepTalkAffectionUnlock)
+            {
+                reason = $"好感度达到 {DeepTalkAffectionUnlock}（羁绊）后解锁深入交流";
+                return false;
+            }
+            if (DeepTalkUsedToday(memberIndex)) { reason = "今日已深入交流，明天再来"; return false; }
+            if (Save.Gold < DeepTalkGoldCost)
+            {
+                reason = $"星光币不足，深入交流需要 {DeepTalkGoldCost:N0}";
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 羁绊档专属互动：扣星光币、记录当日使用并小幅提升好感度。
+        /// Returns the dialogue line so the UI never invents its own copy.
+        /// </summary>
+        public bool DeepTalk(int memberIndex, out string message, out string dialogue)
+        {
+            dialogue = string.Empty;
+            if (!CanDeepTalk(memberIndex, out message)) return false;
+
+            Save.Gold -= DeepTalkGoldCost;
+            GainAffection(memberIndex, DeepTalkAffectionGain);
+            while (Save.MemberDeepTalkDate.Count <= memberIndex) Save.MemberDeepTalkDate.Add(string.Empty);
+            Save.MemberDeepTalkDate[memberIndex] = DateKey(Today);
+            SaveState();
+
+            MemberDefinition member = Members[memberIndex];
+            dialogue = DeepTalkCatalog.PickLine(member, nowProvider());
+            message = $"与 {member.Name} 深入交流完成，好感度 +{DeepTalkAffectionGain}";
+            return true;
+        }
+
         public CombatStats StatsOf(int index) => IsValidMemberIndex(index)
             ? BattleSimulator.PlayerStats(tactics.FindUnit(Members[index].Id), LevelOf(index), MemberEquipmentBonuses(index)) : default;
         public CombatStats StatsOf(int index, int accessoryIndex) => IsValidMemberIndex(index)
@@ -2234,6 +2293,13 @@ namespace ChoSiren
                 Save.MemberAffection.RemoveRange(Members.Length, Save.MemberAffection.Count - Members.Length);
             for (int index = 0; index < Save.MemberAffection.Count; index++)
                 Save.MemberAffection[index] = Mathf.Clamp(Save.MemberAffection[index], 0, MaxAffection);
+
+            Save.MemberDeepTalkDate ??= new List<string>();
+            while (Save.MemberDeepTalkDate.Count < Members.Length) Save.MemberDeepTalkDate.Add(string.Empty);
+            if (Save.MemberDeepTalkDate.Count > Members.Length)
+                Save.MemberDeepTalkDate.RemoveRange(Members.Length, Save.MemberDeepTalkDate.Count - Members.Length);
+            for (int index = 0; index < Save.MemberDeepTalkDate.Count; index++)
+                Save.MemberDeepTalkDate[index] ??= string.Empty;
 
             NormalizeEquipment();
 
