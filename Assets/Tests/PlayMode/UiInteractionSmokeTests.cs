@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Panels;
+using ChoSiren.Systems.Presentation;
 using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
 using UnityEngine;
@@ -437,7 +438,7 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator MemberTrainingShowsCostAndKeepsUpdatedDossierOpen()
+        public IEnumerator MemberTrainingPracticeShowsGoldOnlyCostAndReopensUpdatedDossier()
         {
             Click("Nav-members");
             yield return null;
@@ -450,16 +451,39 @@ namespace ChoSiren.Tests
                 Does.Contain($"{level} → {level + 1}"));
             Assert.That(RequireActiveObject("MemberTrainingCost").GetComponent<Text>().text,
                 Does.Contain(cost.ToString("N0")));
+
+            // 减弱动画：批处理测试不必等完整 1.4 秒，但信息与正式版完全一致。
+            PlayerPrefs.SetInt(MemberTrainingPractice.ReduceMotionPreferenceKey, 1);
             Click("Train");
+            yield return null;
+            MemberPracticePanel practice = Object.FindAnyObjectByType<MemberPracticePanel>();
+            Assert.That(practice, Is.Not.Null, "训练入口必须进入紧凑练习反馈面板。");
+            Assert.That(RequireActiveObject("PracticeNoDiamond").GetComponent<Text>().text,
+                Does.Contain("不消耗星钻"), "升级不得新增钻石消耗。");
+            Assert.That(RequireActiveObject("PracticeQuoteGold").GetComponent<Text>().text,
+                Does.Contain(cost.ToString("N0")));
+            Assert.That(RequireActiveObject("PracticePortrait").GetComponent<Image>().sprite,
+                Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[0].ResourcePath)),
+                "练习反馈复用现有立绘，不新增美术。");
+
+            Click("StartPractice");
+            yield return new WaitForSeconds(MemberTrainingPractice.ReducedDurationSeconds + .35f);
+            Assert.That(practice.LastOutcome, Is.Not.Null);
+            Assert.That(practice.LastOutcome.GoldSpent, Is.EqualTo(cost));
+            Assert.That(practice.LastHeadline, Does.Contain($"等级 {level} → {level + 1}"));
+            Assert.That(practice.LastCostLine, Does.Contain("不消耗星钻"));
+            GameSave after = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
+            Assert.That(after.Gold, Is.EqualTo(before.Gold - cost));
+            Assert.That(after.Diamonds, Is.EqualTo(before.Diamonds), "练习升级不得消耗星钻。");
+            Assert.That(after.MemberLevels.Skip(1), Is.EqualTo(before.MemberLevels.Skip(1)));
+
+            Click("PracticeDone");
             yield return null;
             RequireActiveObject("MemberModal");
             Assert.That(RequireActiveObject("MemberTrainingPreview").GetComponent<Text>().text,
                 Does.Contain($"{level + 1} → {level + 2}"));
             Assert.That(RequireActiveObject("MemberPower").GetComponent<Text>().text,
                 Does.Contain($"等级 {level + 1}"));
-            GameSave after = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
-            Assert.That(after.Gold, Is.EqualTo(before.Gold - cost));
-            Assert.That(after.MemberLevels.Skip(1), Is.EqualTo(before.MemberLevels.Skip(1)));
             var definition = ChoSiren.Systems.Data.GameData.Repository.Tactics.FindUnit("xingli");
             Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
                 Is.EqualTo(BattleSimulator.PlayerStats(definition, level + 1).Attack.ToString("N0")));
@@ -471,6 +495,7 @@ namespace ChoSiren.Tests
             Click("Close");
             yield return null;
             AssertInactiveOrMissing("MemberModal");
+            PlayerPrefs.DeleteKey(MemberTrainingPractice.ReduceMotionPreferenceKey);
         }
 
         [UnityTest]
@@ -502,16 +527,25 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator TrainingBecomesUnavailableBeforeOverspending()
+        public IEnumerator TrainingPracticeBecomesUnavailableBeforeOverspending()
         {
             Click("Nav-members");
             yield return null;
             Click("Member-xingli");
             yield return null;
+            PlayerPrefs.SetInt(MemberTrainingPractice.ReduceMotionPreferenceKey, 1);
             int attempts = 0;
             while (RequireActiveObject("Train").GetComponent<Button>().interactable && attempts++ < 30)
             {
                 Click("Train");
+                yield return null;
+                MemberPracticePanel practice = Object.FindAnyObjectByType<MemberPracticePanel>();
+                Assert.That(practice, Is.Not.Null);
+                Assert.That(RequireActiveObject("StartPractice").GetComponent<Button>().interactable, Is.True,
+                    "档案报价与练习面板扣费边界必须一致：档案显示可练时练习按钮必须可用。");
+                Click("StartPractice");
+                yield return new WaitForSeconds(MemberTrainingPractice.ReducedDurationSeconds + .35f);
+                Click("PracticeDone");
                 yield return null;
             }
             Assert.That(attempts, Is.LessThan(30));
@@ -524,6 +558,7 @@ namespace ChoSiren.Tests
             Assert.That(saved.Gold, Is.LessThan(BattleSimulator.TrainingCostAtLevel(saved.MemberLevels[0])));
             Click("Close");
             yield return null;
+            PlayerPrefs.DeleteKey(MemberTrainingPractice.ReduceMotionPreferenceKey);
         }
 
         [UnityTest]

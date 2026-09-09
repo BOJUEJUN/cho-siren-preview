@@ -23,6 +23,8 @@ namespace ChoSiren.Systems.Tactics
             public int StunnedUntil, SlowUntil, ArmorBrokenUntil, ControlWardUntil, ControlRecoveryUntil;
             public int CastUntil, CastTargetId;
             public int TacticalGuardUntil;
+            /// <summary>Per-character ultimate energy, 0-100, owned by the battle model.</summary>
+            public int Energy;
         }
 
         private static readonly Dictionary<string, SkillDefinition> realtimeSkills = CreateRealtimeSkills();
@@ -90,8 +92,9 @@ namespace ChoSiren.Systems.Tactics
                 clock.NextSmall = unit.Side == BattleSide.Player ? SmallCooldown(clock.Race) : 4000;
                 clock.NextBig = BigCooldown(clock.Race);
             }
-            BattleDice = DiceTurn.ForBattle(random, rerollLimit, leaderRace == CombatRace.Mermaid);
+            BattleDice = DiceTurn.ForBattle(random, rerollLimit, true);
             BattleDice.Begin();
+            nextUnitEnergyTick = UnitEnergyTickMilliseconds;
             IsRealtime = true;
             // The opening hand becomes active on the first logical tick, never while UI opens/pauses.
         }
@@ -108,8 +111,11 @@ namespace ChoSiren.Systems.Tactics
             {
                 realtimeRemainder -= RealtimeStepMilliseconds;
                 ElapsedMilliseconds += RealtimeStepMilliseconds;
+                AccrueUltimateEnergy();
                 ApplyNewHand();
-                if (autoDice && BattleDice.CanEnergyReroll && BattleDice.AccumulatedBonusPermille < DiceTurn.MaxBattleBonusPermille)
+                if (autoDice && BattleDice.CanReroll &&
+                    (BattleDice.FreeRerolls > 0 || BattleDice.Energy >= DiceTurn.MaxEnergy) &&
+                    BattleDice.AccumulatedBonusPermille < DiceTurn.MaxBattleBonusPermille)
                 {
                     AutoReroll();
                     ApplyNewHand();
@@ -157,13 +163,11 @@ namespace ChoSiren.Systems.Tactics
                         clock.NextSmall = ElapsedMilliseconds +
                             (actor.Side == BattleSide.Enemy ? 4000 : SmallCooldown(clock.Race));
                     }
-                    if (Outcome == BattleOutcome.Ongoing && actor.Side == BattleSide.Player &&
-                        ElapsedMilliseconds >= clock.NextBig)
-                    {
-                        CastRaceSkill(actor, true);
-                        clock.NextBig = ElapsedMilliseconds + BigCooldown(clock.Race);
-                    }
                 }
+                // Ultimates are gated by per-character energy, not only by a cooldown clock.
+                // Manual mode leaves them for the player; auto mode releases the highest-priority
+                // ready character through the exact same authoritative cast path.
+                if (Outcome == BattleOutcome.Ongoing) AutoReleaseUltimates();
                 if (Outcome == BattleOutcome.Ongoing && ElapsedMilliseconds >= nextMeasure)
                 {
                     ResolvePoison();
@@ -241,20 +245,47 @@ namespace ChoSiren.Systems.Tactics
             return Math.Max(0, (big ? clock.NextBig : clock.NextSmall) - ElapsedMilliseconds);
         }
 
-        public string RealtimeStatus(BattleUnit unit)
+        public string RealtimeStatus(BattleUnit unit, int maxEffects = 2)
         {
             if (unit == null || !unit.Alive || !performerClocks.TryGetValue(unit.Id, out var clock)) return string.Empty;
             string tactical = TacticalStatus(unit);
             if (!string.IsNullOrEmpty(tactical)) return tactical;
-            if (clock.SilencedUntil > ElapsedMilliseconds) return "封技";
-            if (clock.HardenedUntil > ElapsedMilliseconds) return "硬化";
-            if (clock.PoisonStacks > 0) return $"毒 {clock.PoisonStacks}";
-            if (clock.AntiHealUntil > ElapsedMilliseconds) return "禁疗30%";
-            if (clock.ReductionUntil > ElapsedMilliseconds) return "减伤15%";
-            if (clock.AttackBuffUntil > ElapsedMilliseconds) return "攻击+10%";
-            if (unit.Shield > 0) return "护盾";
-            return string.Empty;
+            var parts = new List<string>(2);
+            if (clock.SilencedUntil > ElapsedMilliseconds) parts.Add($"封技 {SecondsRemaining(clock.SilencedUntil)}");
+            if (clock.HardenedUntil > ElapsedMilliseconds) parts.Add($"硬化 {SecondsRemaining(clock.HardenedUntil)}");
+            if (clock.PoisonStacks > 0) parts.Add($"毒 {clock.PoisonStacks}");
+            if (clock.AntiHealUntil > ElapsedMilliseconds) parts.Add($"禁疗30% {SecondsRemaining(clock.AntiHealUntil)}");
+            if (clock.ReductionUntil > ElapsedMilliseconds) parts.Add($"减伤15% {SecondsRemaining(clock.ReductionUntil)}");
+            if (clock.AttackBuffUntil > ElapsedMilliseconds) parts.Add($"攻击+10% {SecondsRemaining(clock.AttackBuffUntil)}");
+            if (unit.Shield > 0) parts.Add(clock.TimedShield > 0 && clock.TimedShieldUntil > ElapsedMilliseconds
+                ? $"护盾 {SecondsRemaining(clock.TimedShieldUntil)}" : "护盾");
+            if (parts.Count == 0) return string.Empty;
+            int count = Math.Max(1, Math.Min(maxEffects, parts.Count));
+            string result = parts[0];
+            for (int index = 1; index < count; index++) result += " · " + parts[index];
+            return result;
         }
+
+        private string SecondsRemaining(int untilMilliseconds) =>
+            (Math.Max(0, untilMilliseconds - ElapsedMilliseconds) / 1000f)
+            .ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + "s";
+
+        // ---------------------------------------------------------------- authoritative benefit readout
+        // The battle feedback layer reads these values instead of re-deriving or hard-coding
+        // percentages. Every number here is the same one the damage/support code applies.
+
+        public int DiceDamageBonusPermille => BattleDice != null ? BattleDice.AccumulatedBonusPermille : 0;
+        public int DiceDamageMultiplierPermille => BattleDice != null ? BattleDice.DamageMultiplierPermille : 1000;
+        public int DiceRerollsRemaining => BattleDice != null ? BattleDice.RerollsRemaining : 0;
+        public int DiceRerollLimit => BattleDice != null ? BattleDice.BattleRerollLimit : 0;
+        public int CaptainShieldPermille => CurrentLeaderRace == CombatRace.Mermaid && BattleDice?.Hand != null
+            ? ShieldPercent(BattleDice.Hand.Pattern) : 0;
+        public int CaptainPoisonLayers => CurrentLeaderRace == CombatRace.Demon && BattleDice?.Hand != null
+            ? PoisonLayers(BattleDice.Hand.Pattern) : 0;
+        public int CaptainComboCount => CurrentLeaderRace == CombatRace.Charm && BattleDice?.Hand != null
+            ? Combo(BattleDice.Hand.Pattern) : 0;
+        public int CaptainPiercePermille => CurrentLeaderRace == CombatRace.BloodElf && BattleDice?.Hand != null
+            ? Pierce(BattleDice.Hand.Pattern) : 0;
 
         private static int SmallCooldown(CombatRace race) => race == CombatRace.Charm ? 2500
             : race == CombatRace.BloodElf ? 2800 : 3000;
@@ -437,9 +468,11 @@ namespace ChoSiren.Systems.Tactics
             if (!actor.Alive || !target.Alive || Outcome != BattleOutcome.Ongoing) return;
             long raw = (long)actor.Attack * power / 1000;
             bool player = actor.Side == BattleSide.Player;
+            int diceMultiplier = 1000;
             if (player)
             {
-                raw = raw * BattleDice.DamageMultiplierPermille / 1000;
+                diceMultiplier = BattleDice.DamageMultiplierPermille;
+                raw = raw * diceMultiplier / 1000;
                 if (performerClocks[actor.Id].AttackBuffUntil > ElapsedMilliseconds) raw = raw * 1100 / 1000;
                 if (leaderRace == CombatRace.BloodElf)
                 {
@@ -456,10 +489,12 @@ namespace ChoSiren.Systems.Tactics
             if (performerClocks[target.Id].HardenedUntil > ElapsedMilliseconds) raw = raw * 500 / 1000;
             if (target.Side == BattleSide.Player && leaderRace == CombatRace.Mermaid &&
                 BattleDice.Hand.Pattern == DicePattern.FiveKind) raw = raw * 750 / 1000;
-            ApplyActualDamage(actor, target, skill, (int)Math.Max(1, Math.Min(int.MaxValue, raw)), critical);
+            ApplyActualDamage(actor, target, skill, (int)Math.Max(1, Math.Min(int.MaxValue, raw)), critical,
+                diceMultiplier);
         }
 
-        private void ApplyActualDamage(BattleUnit actor, BattleUnit target, string skill, int damage, bool critical)
+        private void ApplyActualDamage(BattleUnit actor, BattleUnit target, string skill, int damage, bool critical,
+            int diceMultiplierPermille = 1000)
         {
             if (!target.Alive || Outcome != BattleOutcome.Ongoing) return;
             if (GuardRemaining(target) > 0) damage = Math.Max(1, damage / 2);
@@ -470,7 +505,8 @@ namespace ChoSiren.Systems.Tactics
             int lostHp = Math.Min(target.Hp, damage - absorbed);
             target.Hp -= lostHp;
             int applied = absorbed + lostHp;
-            Emit(BattleEventKind.Damage, actor.Id, target.Id, skill, applied, critical);
+            Emit(BattleEventKind.Damage, actor.Id, target.Id, skill, applied, critical,
+                diceMultiplierPermille, absorbed, lostHp);
             if (actor.Side == BattleSide.Player && target.Side == BattleSide.Enemy)
             {
                 CharacterDamageDealt += applied;
@@ -479,6 +515,8 @@ namespace ChoSiren.Systems.Tactics
                 int gain = BattleDice.Hand.Pattern == DicePattern.ThreeKind ? 1300 : 1000;
                 if (WorldEncounter) gain = gain * 750 / 1000;
                 BattleDice.RecordDamage(applied, !target.Alive, gain);
+                // Ultimate energy follows real hits only; overkill on a dead target is not applied.
+                GainUltimateEnergy(actor, UnitEnergyPerHit + (!target.Alive ? UnitEnergyPerKill : 0));
             }
             if (!target.Alive)
             {
@@ -503,9 +541,10 @@ namespace ChoSiren.Systems.Tactics
                 leaderRace = performerClocks[candidate.Id].Race;
                 break;
             }
-            BattleDice.SetBattleSelectiveReroll(leaderRace == CombatRace.Mermaid);
-            // Do not refresh the hand/revision, combo budgets, cooldowns, energy or rescue flag.
-            // Applied poison/shields also remain; only subsequent commander-dependent effects change.
+            BattleDice.SetBattleSelectiveReroll(true);
+            // Do not refresh the hand/revision, combo budgets, cooldowns, ultimate energy or
+            // rescue flag. Applied poison/shields also remain; only subsequent commander-dependent
+            // effects change.
             Emit(BattleEventKind.LeaderChanged, previousLeaderId, leaderId, "command-transfer",
                 (int)leaderRace, false);
         }
@@ -612,6 +651,9 @@ namespace ChoSiren.Systems.Tactics
 
         private void AutoReroll()
         {
+            // Auto-planning keeps the legacy damage-charge cadence so existing pacing fixtures
+            // stay comparable; the player-facing panel never uses this path.
+            if (BattleDice.FreeRerolls <= 0) BattleDice.SpendEnergyCharge();
             if (BattleDice.SelectiveReroll)
             {
                 bool[] planned = DiceHoldPlanner.Choose(BattleDice.Values);
@@ -625,7 +667,7 @@ namespace ChoSiren.Systems.Tactics
                     return;
                 }
             }
-            BattleDice.EnergyRerollAll(out _);
+            BattleDice.RerollAll(out _);
         }
 
         private static int PoisonLayers(DicePattern p) => p == DicePattern.FiveKind ? 8
@@ -639,12 +681,19 @@ namespace ChoSiren.Systems.Tactics
         private static string SkillId(CombatRace race, bool big) => "rt-" + race.ToString().ToLowerInvariant() + (big ? "-big" : "-small");
         private static SkillDefinition RealtimeSkill(string id) => id != null && realtimeSkills.TryGetValue(id, out var skill) ? skill : null;
 
+        /// <summary>
+        /// Authored realtime basic attack shared by idol-v1 members (rt-basic, single target,
+        /// 100% attack). Exposed so profile/practice copy can quote the same battle data.
+        /// </summary>
+        public const string BasicAttackSkillId = "rt-basic";
+        public const string BasicAttackName = "普攻";
+
         private static Dictionary<string, SkillDefinition> CreateRealtimeSkills()
         {
             var result = new Dictionary<string, SkillDefinition>(StringComparer.Ordinal);
             void Add(string id, string name, string effect = SkillEffect.Damage) =>
                 result.Add(id, new SkillDefinition { Id = id, Name = name, Effect = effect });
-            Add("rt-basic", "普攻");
+            Add(BasicAttackSkillId, BasicAttackName);
             Add("rt-demon-small", "毒蚀斩"); Add("rt-demon-big", "万毒噬体");
             Add("rt-charm-small", "狐影瞬击"); Add("rt-charm-big", "魅语迷心");
             Add("rt-mermaid-small", "汐愈微光", SkillEffect.Heal);

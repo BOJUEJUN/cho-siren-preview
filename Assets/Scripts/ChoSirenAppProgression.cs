@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using ChoSiren.Systems.Presentation;
 using ChoSiren.Systems.Tactics;
 using ChoSiren.Systems.Economy;
 using UnityEngine;
@@ -52,8 +53,10 @@ namespace ChoSiren
                 string normalized = (value ?? "").Trim();
                 if (normalized != query) OpenMemberSelection(purpose, slot, 0, ownedOnly, normalized);
             });
-            int[] owned = (replacement ? model.Save.Team : Enumerable.Range(0, GameModel.Members.Length).Where(i => !ownedOnly || model.IsUnlocked(i)))
-                .Where(i => string.IsNullOrEmpty(query) || GameModel.Members[i].Name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+            int[] owned = (replacement ? model.Save.Team : Enumerable.Range(0, GameModel.Members.Length))
+                .Where(i => MemberRosterVisibility.MatchesRosterFilter(model.IsUnlocked(i),
+                    GameModel.Members[i].Name, GameModel.Members[i].Career, GameModel.Members[i].Race,
+                    ownedOnly, string.Empty, string.Empty, query))
                 .OrderBy(i => model.IsUnlocked(i) ? 0 : 1).ThenBy(i => i).ToArray();
             int pages = Math.Max(1, (owned.Length + 7) / 8);
             page = Mathf.Clamp(page, 0, pages - 1);
@@ -79,12 +82,16 @@ namespace ChoSiren
                 row.GetComponent<Image>().color = new Color32(38, 46, 82, 255);
                 AddQuietPanelEdge(row);
                 GameObject portrait = NewImage("PickerPortrait-" + member, row.transform,
-                    Resources.Load<Sprite>(m.ResourcePath), White);
+                    model.IsUnlocked(member) ? Resources.Load<Sprite>(m.ResourcePath) : LockedSilhouetteSprite(),
+                    model.IsUnlocked(member) ? White : LockedSilhouetteTint);
                 PlaceTop(portrait.GetComponent<RectTransform>(), 10, 3, 62, 58);
                 portrait.GetComponent<Image>().preserveAspect = true;
                 portrait.GetComponent<Image>().raycastTarget = false;
-                FlowText(row.transform, "PickerName-" + member, m.Name, 19, 88, 5, 262, 27);
-                FlowText(row.transform, "PickerRole-" + member, model.IsUnlocked(member) ? $"{m.Career} · Lv.{model.LevelOf(member)} · 战力 {model.PowerOf(member):N0}" : $"{m.Career} · 仅可查看档案", 14, 88, 34, 330, 23, Muted);
+                FlowText(row.transform, "PickerName-" + member,
+                    model.IsUnlocked(member) ? m.Name : MemberRosterVisibility.LockedName, 19, 88, 5, 262, 27);
+                FlowText(row.transform, "PickerRole-" + member, model.IsUnlocked(member)
+                        ? $"{m.Career} · Lv.{model.LevelOf(member)} · 战力 {model.PowerOf(member):N0}"
+                        : $"{MemberRosterVisibility.LockedCareer} · 仅可查看档案", 14, 88, 34, 330, 23, Muted);
                 FlowText(row.transform, "PickerState-" + member, MemberDeploymentLabel(member), 15, 434, 18, 112, 28,
                     model.IsInTeam(member) ? Cyan : Pink);
             }
@@ -100,17 +107,9 @@ namespace ChoSiren
             int slot = model.Save.Team.IndexOf(member);
             return slot == 0 ? "队长" : slot > 0 ? "出战中" : "待命";
         }
-        private static string CaptainEffectCopy(string race)
-        {
-            switch (BattleSimulator.ParseCombatRace(race))
-            {
-                case CombatRace.Charm: return "魅族指挥：骰型赋予全队追击次数，随普攻触发；好骰型获得更多追击。";
-                case CombatRace.Mermaid: return "人鱼指挥：掷骰提供护盾；可保留3–4颗骰子精准重投，五同额外减伤。";
-                case CombatRace.Demon: return "魔族指挥：全队普攻附加中毒，持续消耗敌人；骰型决定叠毒层数。";
-                case CombatRace.BloodElf: return "血精灵指挥：骰型提供穿甲，收割低血量目标；首次散点可免费重投一次。";
-                default: return "全队享有骰子累计伤害增益。当前成员暂无额外种族指挥效果。";
-            }
-        }
+        // 训练/展示专项：队长特性文案抽到 MemberCaptainTraits，本处仅保留原调用点，
+        // 文案与效果不变，便于成员档案分组展示与独立测试共用同一份真实配置。
+        private static string CaptainEffectCopy(string race) => MemberCaptainTraits.Describe(race);
         private void ConfirmCaptain(int member)
         {
             if (!model.IsUnlocked(member)) { Toast("请先签约该成员"); return; }

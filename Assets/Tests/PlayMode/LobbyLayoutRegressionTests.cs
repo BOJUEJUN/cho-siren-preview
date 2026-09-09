@@ -194,6 +194,8 @@ namespace ChoSiren.Tests
             Assert.That(cards, Is.Not.Empty);
             foreach (Button card in cards)
             {
+                Assert.That(card.transform.Find("LockedSilhouette"), Is.Null,
+                    "职业筛选不得再筛出未获得剪影卡。");
                 string id = card.name.Substring("Member-".Length);
                 Assert.That(GameModel.Members.Single(member => member.Id == id).Career, Is.EqualTo("门面"));
                 string[] labels = card.GetComponentsInChildren<Text>(true).Select(label => label.text).ToArray();
@@ -204,6 +206,67 @@ namespace ChoSiren.Tests
             yield return null;
             Text fourthCareer = RequireRect("CareerStatus-3").GetComponent<Text>();
             Assert.That(fourthCareer.text, Does.StartWith("门面"));
+        }
+
+        [UnityTest]
+        public IEnumerator RosterSearchAndCareerFilterNeverRevealLockedIdentity()
+        {
+            RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            var model = new GameModel();
+            int lockedIndex = Enumerable.Range(0, GameModel.Members.Length)
+                .First(index => !model.IsUnlocked(index));
+            string lockedId = GameModel.Members[lockedIndex].Id;
+            string lockedName = GameModel.Members[lockedIndex].Name;
+            string lockedCareer = GameModel.Members[lockedIndex].Career;
+            string lockedRace = GameModel.Members[lockedIndex].Race;
+
+            Assert.That(GameObject.Find("Member-" + lockedId), Is.Not.Null,
+                "默认列表必须保留匿名剪影占位。");
+            Assert.That(GameObject.Find("Member-" + lockedId).transform.Find("LockedSilhouette"), Is.Not.Null);
+
+            // 真实姓名搜索不得返回未获得成员，也不得再列出匿名剪影卡暗示命中。
+            RequireRect("MemberSearch").GetComponent<InputField>().onEndEdit.Invoke(lockedName);
+            yield return null;
+            Assert.That(GameObject.Find("Member-" + lockedId), Is.Null,
+                "搜索未获得成员真实姓名不得返回该卡。");
+            Assert.That(VisibleMemberCards().Any(card => card.transform.Find("LockedSilhouette") != null), Is.False,
+                "身份搜索时不得继续列出匿名剪影占位。");
+            Assert.That(RequireRect("Content").GetComponentsInChildren<Text>(true)
+                    .Any(text => text.text == lockedCareer || text.text == lockedRace), Is.False,
+                "身份搜索不得暴露未获得成员的职业或种族。");
+
+            // 清空搜索后剪影恢复。
+            RequireRect("MemberSearch").GetComponent<InputField>().onEndEdit.Invoke(string.Empty);
+            yield return null;
+            Assert.That(GameObject.Find("Member-" + lockedId), Is.Not.Null);
+            Assert.That(GameObject.Find("Member-" + lockedId).transform.Find("LockedSilhouette"), Is.Not.Null,
+                "清空搜索后匿名剪影必须恢复。");
+
+            // 逐一切换职业筛选：只允许出现已获得成员，且身份与筛选一致。
+            for (int step = 0; step < 4; step++)
+            {
+                RequireButtonRect("MemberRoleFilter").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                string career = RequireRect("MemberRoleFilter").GetComponentInChildren<Text>().text
+                    .Substring("职业：".Length);
+                foreach (RectTransform card in VisibleMemberCards())
+                {
+                    Assert.That(card.transform.Find("LockedSilhouette"), Is.Null,
+                        "职业筛选不得筛出未获得剪影卡：" + career);
+                    string id = card.name.Substring("Member-".Length);
+                    Assert.That(GameModel.Members.Single(member => member.Id == id).Career, Is.EqualTo(career));
+                }
+            }
+        }
+
+        private static RectTransform[] VisibleMemberCards()
+        {
+            return RequireRect("Content").GetComponentsInChildren<Button>(true)
+                .Where(button => button.name.StartsWith("Member-"))
+                .Select(button => button.GetComponent<RectTransform>())
+                .ToArray();
         }
 
         [UnityTest]
@@ -255,8 +318,24 @@ namespace ChoSiren.Tests
                         .Select(text => text.text)
                         .Where(text => !string.IsNullOrWhiteSpace(text))
                         .ToArray();
-                    Assert.That(cardLabels.Any(IsVisibleMemberTaxonomy), Is.True,
-                        $"成员第 {visitedPages + 1} 页角色卡 {first + 1} 缺少种族与职业。");
+                    // 未获得角色只显示剪影与剩余数量，不得泄露种族/职业/姓名。
+                    bool lockedCard = cards[first].transform.Find("LockedSilhouette") != null;
+                    if (lockedCard)
+                    {
+                        Assert.That(cardLabels.Any(IsVisibleMemberTaxonomy), Is.False,
+                            $"未获得角色卡不得泄露种族与职业：第 {visitedPages + 1} 页卡 {first + 1}");
+                        Assert.That(cardLabels.Any(text => text == "未签约成员"), Is.True,
+                            "未获得角色卡必须标注未签约");
+                        Assert.That(cardLabels.Any(text => text.Contains("待揭晓")), Is.True,
+                            "未获得角色卡必须给出剩余数量/进度");
+                        Assert.That(cards[first].transform.Find("LockedSilhouette"), Is.Not.Null);
+                    }
+                    else
+                    {
+                        Assert.That(cardLabels.Any(IsVisibleMemberTaxonomy), Is.True,
+                            $"成员第 {visitedPages + 1} 页角色卡 {first + 1} 缺少种族与职业。");
+                    }
+
                     Assert.That(cardLabels.Any(IsLegacyVisibleRarity), Is.False,
                         $"成员第 {visitedPages + 1} 页角色卡 {first + 1} 不应显示内部稀有度。");
 
@@ -278,16 +357,34 @@ namespace ChoSiren.Tests
                     .Select(text => text.text)
                     .Where(text => !string.IsNullOrWhiteSpace(text))
                     .ToArray();
-                Assert.That(profileLabels.Any(IsVisibleMemberTaxonomy), Is.True,
-                    $"成员第 {visitedPages + 1} 页资料面板缺少种族与职业。");
+                bool lockedProfile = profile.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "LockedSilhouetteMark");
+                if (lockedProfile)
+                {
+                    Assert.That(profileLabels.Any(IsVisibleMemberTaxonomy), Is.False,
+                        $"未获得角色档案不得泄露种族与职业：第 {visitedPages + 1} 页");
+                    RequireRect("MemberLockedProgress");
+                    Assert.That(GameObject.Find("MemberStatPanel"), Is.Null,
+                        "未获得角色不得显示基础属性面板。");
+                    Assert.That(GameObject.Find("MemberSkillPanel"), Is.Null,
+                        "未获得角色不得显示技能面板。");
+                    AssertContained(profile, RequireRect("MemberAcquireGuide"),
+                        $"成员第 {visitedPages + 1} 页获取说明");
+                }
+                else
+                {
+                    Assert.That(profileLabels.Any(IsVisibleMemberTaxonomy), Is.True,
+                        $"成员第 {visitedPages + 1} 页资料面板缺少种族与职业。");
+                    AssertContained(profile, RequireRect("MemberStatPanel"),
+                        $"成员第 {visitedPages + 1} 页基础属性");
+                    AssertContained(profile, RequireRect("MemberSkillPanel"),
+                        $"成员第 {visitedPages + 1} 页成员技能");
+                    AssertContained(profile, RequireRect("MemberAcquireGuide"),
+                        $"成员第 {visitedPages + 1} 页培养或获取说明");
+                }
+
                 Assert.That(profileLabels.Any(IsLegacyVisibleRarity), Is.False,
                     $"成员第 {visitedPages + 1} 页资料面板不应显示内部稀有度。");
-                AssertContained(profile, RequireRect("MemberStatPanel"),
-                    $"成员第 {visitedPages + 1} 页基础属性");
-                AssertContained(profile, RequireRect("MemberSkillPanel"),
-                    $"成员第 {visitedPages + 1} 页成员技能");
-                AssertContained(profile, RequireRect("MemberAcquireGuide"),
-                    $"成员第 {visitedPages + 1} 页培养或获取说明");
                 RequireButtonRect("Close").GetComponent<Button>().onClick.Invoke();
                 yield return null;
 

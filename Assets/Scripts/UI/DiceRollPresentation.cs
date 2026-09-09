@@ -14,6 +14,7 @@ namespace ChoSiren
         private RectTransform motionRoot;
         private Func<bool> paused;
         private Func<int> speed;
+        private Func<bool> reduceMotion;
         private IReadOnlyList<Sprite> faces;
         private Sprite finalFace;
         private Color restingTint;
@@ -32,7 +33,8 @@ namespace ChoSiren
         public int RollCount { get; private set; }
         public float Elapsed => elapsed;
 
-        public void Configure(Image image, RectTransform childMotionRoot, Func<bool> isPaused, Func<int> battleSpeed)
+        public void Configure(Image image, RectTransform childMotionRoot, Func<bool> isPaused, Func<int> battleSpeed,
+            Func<bool> reducedMotion = null)
         {
             if (configured) CancelRoll();
             if (image == null) throw new ArgumentNullException(nameof(image));
@@ -48,6 +50,7 @@ namespace ChoSiren
             motionRoot = childMotionRoot;
             paused = isPaused;
             speed = battleSpeed;
+            reduceMotion = reducedMotion;
             origin = motionRoot.anchoredPosition;
             originalScale = motionRoot.localScale;
             originalRotation = motionRoot.localRotation;
@@ -69,6 +72,12 @@ namespace ChoSiren
             faces = availableFaces;
             participating = inHand;
             RollCount++;
+            // Reduced motion lands on the authoritative face immediately instead of tumbling.
+            if (reduceMotion != null && reduceMotion())
+            {
+                Settle();
+                return;
+            }
             // Automatic planning may produce several model rerolls in one frame. Keep one
             // continuous visual roll and land on the newest authoritative result, never replay stale ones.
             if (IsRolling) return;
@@ -113,6 +122,7 @@ namespace ChoSiren
             if (!configured || !IsRolling || !isActiveAndEnabled || face == null ||
                 (paused != null && paused()) || unscaledSeconds <= 0f ||
                 float.IsNaN(unscaledSeconds) || float.IsInfinity(unscaledSeconds)) return;
+            if (reduceMotion != null && reduceMotion()) { Settle(); return; }
             elapsed += unscaledSeconds * Mathf.Clamp(speed != null ? speed() : 1, 1, 4);
             float activeTime = elapsed - delay;
             if (activeTime < 0f) return;

@@ -310,10 +310,11 @@ namespace ChoSiren.Tests
                 Assert.That(panel.GetComponentsInChildren<RectTransform>(true)
                     .Any(item => item.name.StartsWith("DicePedestal-")), Is.False,
                     "骰子后方不应再生成额外底座光斑。");
-                Assert.That(reroll.text, Does.StartWith("本场剩余 "));
+                Assert.That(reroll.text, Is.EqualTo("重投已选0颗"), "开局全部保留，必须先点选要重投的骰子。");
                 Assert.That(energy.text, Does.StartWith("全部重投"));
                 Assert.That(panel.Battle.BattleDice.Energy, Is.Zero);
-                Assert.That(FindRect(panel.transform, "EnergyReroll").GetComponent<Button>().interactable, Is.False);
+                Assert.That(FindRect(panel.transform, "EnergyReroll").GetComponent<Button>().interactable, Is.True,
+                    "首章 3 次重投额度不依赖充能，开局即可全部重投。");
                 Text controlHint = FindRect(panel.transform, "BattleControlInstruction").GetComponent<Text>();
                 Assert.That(controlHint.text, Does.Contain("自动释放"));
                 Assert.That(controlHint.text, Does.Not.Contain("手动选技能"));
@@ -323,15 +324,21 @@ namespace ChoSiren.Tests
 
                 BattleUnit player = panel.Battle.Units.First(unit => unit.Side == BattleSide.Player);
                 Invoke(panel, "RefreshRealtimeCommands");
-                Image skillFrame = FindRect(panel.transform, "RealtimeSkill-0").GetComponent<Image>();
-                Text skillLabel = skillFrame.GetComponentInChildren<Text>(true);
-                Assert.That(skillLabel.text, Does.Contain("自动 · "), "双技能显示真实冷却，不再等待玩家点击释放。");
-                Assert.That(FindRect(panel.transform, "RealtimeSkill-1"), Is.Not.Null);
-                Assert.That(skillLabel.preferredHeight, Is.LessThanOrEqualTo(skillLabel.rectTransform.rect.height));
-                Assert.That(skillFrame.color.a, Is.EqualTo(1f),
-                    "简约技能卡必须挡住 Outline 的内部重复网格，避免整张卡被金色选中框染亮。");
-                Assert.That(skillFrame.color.r, Is.LessThan(0.25f));
-                Assert.That(skillFrame.color.b, Is.LessThan(0.3f));
+                Assert.That(panel.GetComponentsInChildren<Transform>(true)
+                    .Count(item => item.name.StartsWith("RealtimeSkill-")), Is.Zero,
+                    "头像下方的两条常驻自动技能倒计时卡必须删除。");
+                Text summary = FindRect(panel.transform, "SkillWaitingState").GetComponent<Text>();
+                Assert.That(summary.text, Does.Contain("普攻与小技能自动"));
+                Assert.That(summary.text, Does.Contain("大招"));
+                Assert.That(summary.text, Does.Not.Contain("秒"), "摘要里不能再出现技能倒计时。");
+                Assert.That(FindRect(panel.transform, "AbilityDetails").GetComponent<Button>().interactable, Is.True,
+                    "角色能力详情入口必须保留。");
+                FindRect(panel.transform, "AbilityDetails").GetComponent<Button>().onClick.Invoke();
+                Text abilityBody = FindRect(panel.transform, "AbilityBody").GetComponent<Text>();
+                Assert.That(abilityBody.text, Does.Contain("小技能"));
+                Assert.That(abilityBody.text, Does.Contain("大招"));
+                FindRect(panel.transform, "AbilityClose").GetComponent<Button>().onClick.Invoke();
+                Assert.That(FindRect(panel.transform, "AbilityOverlay").gameObject.activeInHierarchy, Is.False);
 
                 InvokeWithResult(panel, "SetActorHighlight", player);
                 Image actorGlow = GetField<Image>(panel, "actorGlow");
@@ -356,13 +363,13 @@ namespace ChoSiren.Tests
             {
                 Assert.That(panel.AutoMode, Is.False);
                 Text autoLabel = FindRect(panel.transform, "AutoToggle").GetComponentInChildren<Text>();
-                Assert.That(autoLabel.text, Is.EqualTo("手动重投"));
+                Assert.That(autoLabel.text, Is.EqualTo("手动"));
                 Invoke(panel, "ToggleAuto");
                 Assert.That(panel.AutoMode, Is.True);
-                Assert.That(autoLabel.text, Is.EqualTo("自动重投"));
+                Assert.That(autoLabel.text, Is.EqualTo("自动"));
                 Assert.That(autoLabel.preferredHeight, Is.LessThanOrEqualTo(autoLabel.rectTransform.rect.height));
                 Invoke(panel, "ToggleAuto");
-                Assert.That(autoLabel.text, Is.EqualTo("手动重投"));
+                Assert.That(autoLabel.text, Is.EqualTo("手动"));
                 yield return new WaitForSecondsRealtime(2.3f);
                 int before = panel.Battle.ElapsedMilliseconds;
                 yield return new WaitForSecondsRealtime(0.6f);

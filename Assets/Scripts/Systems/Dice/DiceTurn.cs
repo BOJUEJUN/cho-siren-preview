@@ -52,16 +52,34 @@ namespace ChoSiren.Systems.Dice
         public IReadOnlyList<bool> Held => readOnlyHeld;
         public int RerollsRemaining => IsBattleSession ? BattleRerollLimit - UsedRerolls : legacyRerolls;
         public int Energy { get; private set; }
-        public bool CanEnergyReroll => IsBattleSession
-            ? begun && RerollsRemaining > 0 && (Energy >= MaxEnergy || FreeRerolls > 0)
+        /// <summary>Dice explicitly ticked for the next selective reroll (unheld dice).</summary>
+        public int SelectedForRerollCount
+        {
+            get
+            {
+                int count = 0;
+                for (int index = 0; index < held.Length; index++) if (!held[index]) count++;
+                return count;
+            }
+        }
+        /// <summary>
+        /// Battle sessions spend one per-battle reroll quota per operation (first chapter budget is
+        /// three); the legacy turn session still requires a full energy charge.
+        /// </summary>
+        public bool CanReroll => IsBattleSession
+            ? begun && (RerollsRemaining > 0 || FreeRerolls > 0)
             : Energy >= MaxEnergy;
+        /// <summary>Backward-compatible alias for callers/tests written before the quota rename.</summary>
+        public bool CanEnergyReroll => CanReroll;
         public DiceHand Hand { get; private set; }
 
         public void Begin()
         {
             // A battle owns one persistent hand and budget. A new actor must not refill it.
             if (IsBattleSession && begun) return;
-            for (int index = 0; index < held.Length; index++) held[index] = false;
+            // Battle dice start fully kept: the player ticks the dice that should be rerolled, so a
+            // stray tap can never reroll the whole hand. Legacy turns keep the old all-unheld rule.
+            for (int index = 0; index < held.Length; index++) held[index] = IsBattleSession;
             legacyRerolls = InitialRerolls;
             RollAll();
             begun = true;
@@ -110,7 +128,18 @@ namespace ChoSiren.Systems.Dice
 
         public bool EnergyRerollAll(out string error)
         {
-            if (IsBattleSession) return RerollBattle(false, out error);
+            if (IsBattleSession)
+            {
+                // Legacy auto-planning cadence: a full damage charge (or a rescue reroll) buys the
+                // operation. The production panel uses RerollAll/RerollUnheld, which spend quota only.
+                if (FreeRerolls <= 0 && Energy < MaxEnergy)
+                {
+                    error = $"能量达到 {MaxEnergy} 才能自动重投";
+                    return false;
+                }
+                if (FreeRerolls <= 0) SpendEnergyCharge();
+                return RerollBattle(false, out error);
+            }
             if (!begun)
             {
                 error = "请先开始骰子回合";
@@ -129,6 +158,21 @@ namespace ChoSiren.Systems.Dice
             RefreshHand();
             error = string.Empty;
             return true;
+        }
+
+        /// <summary>Rerolls the whole hand as one battle operation (one quota, or a rescue reroll).</summary>
+        public bool RerollAll(out string error) =>
+            IsBattleSession ? RerollBattle(false, out error) : EnergyRerollAll(out error);
+
+        /// <summary>
+        /// Spends the legacy damage charge that auto-planning uses. Player-triggered rerolls never
+        /// call this, so a manual operation can never double-charge energy and quota.
+        /// </summary>
+        public void SpendEnergyCharge()
+        {
+            if (!IsBattleSession) return;
+            energyMicros = 0;
+            Energy = 0;
         }
 
         public void GainEnergy(int amount)
@@ -155,7 +199,8 @@ namespace ChoSiren.Systems.Dice
 
         public void GrantFreeReroll()
         {
-            if (IsBattleSession && RerollsRemaining > 0) FreeRerolls = Math.Min(1, FreeRerolls + 1);
+            // A rescue reroll may arrive after the normal quota is spent; it is its own allowance.
+            if (IsBattleSession) FreeRerolls = Math.Min(1, FreeRerolls + 1);
         }
 
         /// <summary>Changes command capability without rerolling or refilling any battle budget.</summary>
@@ -175,29 +220,35 @@ namespace ChoSiren.Systems.Dice
 
         private bool RerollBattle(bool selective, out string error)
         {
-            if (!CanEnergyReroll)
+            if (!CanReroll)
             {
-                error = RerollsRemaining <= 0 ? "本场重投次数已用完" : "造成伤害积攒能量，满100可重投";
+                error = RerollsRemaining <= 0 ? "本场重投次数已用完" : "请先开始骰子回合";
                 return false;
             }
             if (selective)
             {
-                int unheld = 0;
-                for (int i = 0; i < held.Length; i++) if (!held[i]) unheld++;
-                if (!SelectiveReroll || unheld < 1 || unheld > 2)
+                int unheld = SelectedForRerollCount;
+                if (!SelectiveReroll)
                 {
-                    error = SelectiveReroll ? "请保留3至4颗骰子，只重投1至2颗" : "人鱼队长才能精准重投";
+                    error = "本场不支持自选重投";
+                    return false;
+                }
+                if (unheld < 1)
+                {
+                    error = "请先点选要重投的骰子";
                     return false;
                 }
             }
+            // One operation = one cost. A rescue free reroll is spent before the normal quota, and
+            // the same operation never consumes both.
             if (FreeRerolls > 0) FreeRerolls--;
-            else { energyMicros = 0; Energy = 0; }
-            UsedRerolls++;
+            else UsedRerolls++;
             for (int i = 0; i < values.Length; i++)
             {
                 if (!selective || !held[i]) values[i] = RollDie();
-                if (!selective) held[i] = false;
             }
+            // After a reroll the new faces are kept by default; the player ticks the next selection.
+            for (int i = 0; i < held.Length; i++) held[i] = true;
             RefreshHand();
             error = string.Empty;
             return true;

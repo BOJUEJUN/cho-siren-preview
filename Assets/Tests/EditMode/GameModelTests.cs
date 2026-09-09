@@ -70,7 +70,7 @@ namespace ChoSiren.Tests
             BattleSimulator battle = loaded.StartStageBattle("stage-1-1", 847, out string message);
             Assert.That(battle, Is.Not.Null, message);
             Assert.That(battle.IsRealtime, Is.True, "生产模型的战斗从创建开始就必须使用新规则，不能依赖某个页面切换");
-            Assert.That(battle.BattleDice.BattleRerollLimit, Is.EqualTo(2));
+            Assert.That(battle.BattleDice.BattleRerollLimit, Is.EqualTo(3), "首章普通战体验预算为 3 次重投");
             BattleUnit first = battle.Units.Single(u => u.Side == BattleSide.Player && u.Definition.Id == "xingli");
             Assert.That(first.BaseAttack, Is.EqualTo(loaded.StatsOf(0).Attack));
             Assert.That(first.MaxHp, Is.EqualTo(loaded.StatsOf(0).Hp));

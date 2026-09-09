@@ -36,6 +36,7 @@ namespace ChoSiren
         private Text actorName, skillName;
         private Func<bool> pauseProbe;
         private Func<int> speedProbe;
+        private Func<bool> reduceMotionProbe;
         private float clock, elapsed;
         private bool configured;
 
@@ -43,12 +44,14 @@ namespace ChoSiren
         public int PendingCount => pending.Count;
         public bool IsShowing { get; private set; }
 
-        public void Configure(Transform host, Func<bool> paused, Func<int> speed)
+        public void Configure(Transform host, Func<bool> paused, Func<int> speed,
+            Func<bool> reduceMotion = null)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             Cancel();
             pauseProbe = paused;
             speedProbe = speed;
+            reduceMotionProbe = reduceMotion;
             if (banner == null) Build(host);
             else banner.SetParent(host, false);
             clock = 0f;
@@ -59,6 +62,8 @@ namespace ChoSiren
         public void Enqueue(Sprite image, string actor, string skill, Color accent)
         {
             if (!configured || !isActiveAndEnabled || string.IsNullOrWhiteSpace(skill)) return;
+            // Reduced motion keeps the damage/energy result and skips only the portrait banner.
+            if (ReduceMotion()) return;
             // Keep recent meaningful actions, never interrupt the cut-in being read.
             while (pending.Count >= QueueCapacity) pending.Dequeue();
             pending.Enqueue(new Entry
@@ -85,6 +90,11 @@ namespace ChoSiren
         {
             if (!configured || !isActiveAndEnabled || IsPaused() || unscaledSeconds <= 0f ||
                 float.IsNaN(unscaledSeconds) || float.IsInfinity(unscaledSeconds)) return;
+            if (ReduceMotion())
+            {
+                if (IsShowing || pending.Count > 0) Cancel();
+                return;
+            }
             clock += unscaledSeconds;
             if (!IsShowing) { ShowNext(); return; }
             // Cap visual acceleration to keep the hold >= 0.7 real seconds even at 2x combat.
@@ -100,6 +110,7 @@ namespace ChoSiren
         }
 
         private bool IsPaused() => pauseProbe != null && pauseProbe();
+        private bool ReduceMotion() => reduceMotionProbe != null && reduceMotionProbe();
 
         private void ShowNext()
         {

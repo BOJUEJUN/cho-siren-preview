@@ -107,7 +107,7 @@ namespace ChoSiren.Panels
                     new Color32(255, 86, 173, 255), LowHealth ? 1f : 0f);
         }
 
-        public void PlayHit(int amount, bool critical)
+        public void PlayHit(int amount, bool critical, int diceMultiplierPermille = 1000)
         {
             if (!configured || outcomeLocked) return;
             HitReactionCount++;
@@ -117,7 +117,7 @@ namespace ChoSiren.Panels
                 minorHitRoutine = StartCoroutine(MinorHitRoutine(critical));
             }
             else StartReaction(HitRoutine(critical), 1);
-            SpawnDamageNumber(amount, critical);
+            SpawnDamageNumber(amount, critical, diceMultiplierPermille);
         }
 
         public void PlayCharge(string skillName)
@@ -555,7 +555,7 @@ namespace ChoSiren.Panels
             }
         }
 
-        private void SpawnDamageNumber(int amount, bool critical)
+        private void SpawnDamageNumber(int amount, bool critical, int diceMultiplierPermille)
         {
             int capacity = Math.Min(damageTexts.Length, damageRoutines.Length);
             if (capacity == 0) return;
@@ -564,10 +564,12 @@ namespace ChoSiren.Panels
             if (text == null) return;
             if (slot < damageRoutines.Length && damageRoutines[slot] != null)
                 StopCoroutine(damageRoutines[slot]);
-            damageRoutines[slot] = StartCoroutine(DamageNumberRoutine(text, amount, critical, slot));
+            damageRoutines[slot] = StartCoroutine(
+                DamageNumberRoutine(text, amount, critical, slot, diceMultiplierPermille));
         }
 
-        private IEnumerator DamageNumberRoutine(Text text, int amount, bool critical, int slot)
+        private IEnumerator DamageNumberRoutine(Text text, int amount, bool critical, int slot,
+            int diceMultiplierPermille)
         {
             RectTransform rect = text.rectTransform;
             // Six fixed lanes: independent clocks can produce many hits on the same frame.
@@ -577,6 +579,8 @@ namespace ChoSiren.Panels
             rect.sizeDelta = new Vector2(190f, 52f);
             rect.localScale = Vector3.one;
             text.text = critical ? $"暴击  -{amount:N0}" : $"-{amount:N0}";
+            if (diceMultiplierPermille > 1000)
+                text.text += $"  ×{diceMultiplierPermille / 1000f:0.##}";
             text.fontSize = critical ? 30 : 26;
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 18;

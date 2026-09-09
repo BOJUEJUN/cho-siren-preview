@@ -45,7 +45,7 @@ namespace ChoSiren.Tests.Systems
             Assert.That(battle.CharacterDamageDealt, Is.GreaterThan(0));
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing),
                 "一级新手战不能在首次普攻后立即结束");
-            Assert.That(dice.BattleRerollLimit, Is.EqualTo(2));
+            Assert.That(dice.BattleRerollLimit, Is.EqualTo(3), "首章普通战体验预算为 3 次重投");
 
             BattleOutcome outcome = battle.AutoPlay();
             Assert.That(outcome, Is.EqualTo(BattleOutcome.Victory));

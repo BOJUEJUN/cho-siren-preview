@@ -337,7 +337,7 @@ namespace ChoSiren.Panels
                 24, 62, 260, 54, TextAnchor.MiddleLeft, FontStyle.Bold);
             name.name = "CandidateName";
 
-            string meta = $"{InterviewRace(member, memberIndex)}\n{career}\n{InterviewPosition(career, memberIndex)}";
+            string meta = $"{InterviewRace(member, memberIndex)}\n{career}\n战斗定位：{InterviewPosition(career, memberIndex)}";
             Text identity = kit.NewPlacedText(card.transform, meta, 16, new Color32(225, 220, 245, 255),
                 24, 122, 248, 98, TextAnchor.UpperLeft, FontStyle.Bold);
             identity.name = "CandidateIdentity";
@@ -434,7 +434,7 @@ namespace ChoSiren.Panels
             string detailLabel = interviewPoolIndex == 0 ? "查看视频面试" : "开始现场面试";
             GameObject details = kit.NewButton("ViewInterview", action.transform, detailLabel, 15,
                 new Color32(18, 22, 65, 218), PanelKit.White,
-                () => Notify($"{member.Name}：{InterviewTrait(career, memberIndex)}，{InterviewPosition(career, memberIndex)}。"),
+                () => Notify($"{member.Name}：{InterviewTrait(career, memberIndex)}，战斗定位：{InterviewPosition(career, memberIndex)}。"),
                 16);
             PanelKit.PlaceTop(details.GetComponent<RectTransform>(), 254, 84, 174, 66);
             kit.AddOutline(details, new Color32(159, 139, 211, 98), 1);
@@ -553,10 +553,15 @@ namespace ChoSiren.Panels
             return MemberBattlePresentation.Position(model.Tactics, GameModel.Members[memberIndex].Id);
         }
 
+        /// <summary>
+        /// 面试素质来自舞台四维（声能/律动/气场/共鸣），与战斗技能/属性是两套概念，
+        /// 不再把战斗技能名当面试特质。
+        /// </summary>
         private string InterviewTrait(string career, int memberIndex)
         {
-            var skills = MemberBattlePresentation.FeaturedSkills(model.Tactics, GameModel.Members[memberIndex].Id);
-            return skills.Count == 0 ? "暂无技能" : skills[0].Name;
+            CandidateStats(GameModel.Members[memberIndex], memberIndex, out int vocal, out int rhythm,
+                out int presence, out int resonance, out _);
+            return MemberStageQualities.Describe(vocal, rhythm, presence, resonance);
         }
 
         private static void CandidateStats(MemberDefinition member, int memberIndex, out int vocal,

@@ -90,6 +90,12 @@ namespace ChoSiren.Systems.Tactics
         public bool Critical;
         public BattleOutcome Outcome;
         public int Phase;
+        /// <summary>Dice accumulated multiplier that produced this hit; 1000 means no dice bonus.</summary>
+        public int DiceMultiplierPermille = 1000;
+        /// <summary>Damage taken by shield; Amount still means total damage before absorption.</summary>
+        public int AbsorbedAmount;
+        /// <summary>Damage that actually removed HP (capped by the target's remaining HP).</summary>
+        public int HpLostAmount;
     }
 
     public sealed class PlayerUnitSetup
@@ -487,8 +493,14 @@ namespace ChoSiren.Systems.Tactics
                         int absorbed = Math.Min(target.Shield, damage);
                         target.Shield -= absorbed;
                         int applied = damage - absorbed;
-                        target.Hp = Math.Max(0, target.Hp - applied);
-                        Emit(BattleEventKind.Damage, actor.Id, target.Id, skill.Id, damage, critical);
+                        int lostHp = Math.Min(target.Hp, applied);
+                        target.Hp -= lostHp;
+                        // Only player actions carry a dice multiplier; Amount stays the total hit
+                        // so existing damage numbers and balance tests keep their meaning.
+                        int diceMultiplier = actor.Side == BattleSide.Player
+                            ? ClampActionMultiplier(powerMultiplierPermille) : 1000;
+                        Emit(BattleEventKind.Damage, actor.Id, target.Id, skill.Id, damage, critical,
+                            diceMultiplier, absorbed, lostHp);
                         if (!target.Alive)
                         {
                             if (target.Side == BattleSide.Player) PlayerUnitsLost++;
@@ -674,7 +686,8 @@ namespace ChoSiren.Systems.Tactics
                 TimeMilliseconds = ElapsedMilliseconds, Outcome = outcome });
         }
 
-        private void Emit(BattleEventKind kind, int actorId, int targetId, string skillId, int amount, bool critical)
+        private void Emit(BattleEventKind kind, int actorId, int targetId, string skillId, int amount, bool critical,
+            int diceMultiplierPermille = 1000, int absorbed = 0, int hpLost = 0)
         {
             log.Add(new BattleEvent
             {
@@ -685,7 +698,10 @@ namespace ChoSiren.Systems.Tactics
                 TargetId = targetId,
                 SkillId = skillId,
                 Amount = amount,
-                Critical = critical
+                Critical = critical,
+                DiceMultiplierPermille = diceMultiplierPermille > 0 ? diceMultiplierPermille : 1000,
+                AbsorbedAmount = Math.Max(0, absorbed),
+                HpLostAmount = Math.Max(0, hpLost)
             });
         }
     }

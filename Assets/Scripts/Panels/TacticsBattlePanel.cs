@@ -23,7 +23,8 @@ namespace ChoSiren.Panels
         private const float EnemyCellHeight = 112f;
         private const float PlayerCellWidth = 158f;
         // One real roster, directly above the dice. No duplicate portraits on the stage.
-        private const float PlayerCellHeight = 172f;
+        // 180 keeps the 98 px portrait and adds a dedicated blue ultimate-energy row.
+        private const float PlayerCellHeight = 180f;
         private const float PlayerRosterLabelTop = 900f;
         private const float PlayerRosterTop = 934f;
         private const float BeatSeconds = 2f;
@@ -60,6 +61,9 @@ namespace ChoSiren.Panels
             public Image CastFill;
             public Text CastLabel;
             public int MotionBoundId = -1;
+            public BattleEnergyMeter Energy;
+            public BattleStatusIconStrip StatusIcons;
+            public GameObject CaptainBadge;
         }
 
         private sealed class CellImpactState
@@ -86,6 +90,7 @@ namespace ChoSiren.Panels
         private static readonly Color AnchorTint = new Color32(80, 220, 255, 40);
         private static readonly Color AffectedTint = new Color32(255, 82, 194, 58);
         private static readonly Color DiceIdle = new Color32(220, 235, 255, 235);
+        private static readonly Color DiceSelected = new Color32(118, 208, 255, 255);
         private static readonly Color DiceParticipating = new Color32(255, 232, 170, 255);
         private static readonly Color DiceHeld = new Color32(255, 180, 235, 255);
         private static readonly Color DiceParticipatingHeld = new Color32(255, 204, 190, 255);
@@ -154,6 +159,10 @@ namespace ChoSiren.Panels
         private GameObject retreatButton;
         private GameObject exitButton;
         private GameObject pauseOverlay;
+        private GameObject rulesOverlay;
+        private GameObject reduceMotionButton;
+        private GameObject abilityOverlay;
+        private Text abilityBody;
         private RectTransform popupLayer;
         private GameObject resultOverlay;
         private Text resultTitle;
@@ -232,6 +241,9 @@ namespace ChoSiren.Panels
             string captain = gameModel.Save.Team.Count > 0 ? GameModel.MemberIdAt(gameModel.Save.Team[0]) : null;
             simulator.EnableRealtime(races, captain, simulator.Stage.RerollLimit,
                 simulator.Stage.EncounterType == "world");
+            // Manual skill release is the default: basics/small skills stay automatic, ultimates
+            // wait for the player's tap until the top button is switched to 自动.
+            simulator.AutoCastUltimates = false;
             panel.diceTurn = simulator.BattleDice;
             panel.Build();
             panel.StartCoroutine(panel.MainLoop());
@@ -275,7 +287,8 @@ namespace ChoSiren.Panels
             attackTrajectories.Configure(combatCueArea, () => paused || closing, () => speed);
             BuildPopups();
             skillCutIn = gameObject.AddComponent<SkillCutInPresentation>();
-            skillCutIn.Configure(transform, () => paused || closing, () => speed);
+            skillCutIn.Configure(transform, () => paused || closing, () => speed,
+                () => BattlePresentationOptions.ReduceMotion);
             // Round flash sits above popups but below the result overlay.
             roundFlash.transform.SetAsLastSibling();
             BuildResult();
@@ -518,7 +531,7 @@ namespace ChoSiren.Panels
             captainEffectText = kit.NewPlacedText(stageCaption.transform, string.Empty, 14, PanelKit.Cyan,
                 14, 32, 430, 24, TextAnchor.MiddleLeft);
             captainEffectText.gameObject.name = "CaptainEffect";
-            kit.NewPlacedText(stageCaption.transform, battle.IsRealtime ? "全员自动释放\n点击敌人集火" : "点击高亮目标", 14, PanelKit.Muted,
+            kit.NewPlacedText(stageCaption.transform, battle.IsRealtime ? "普攻自动释放\n满能量点头像放大招" : "点击高亮目标", 14, PanelKit.Muted,
                 476, 8, 190, 48, TextAnchor.MiddleRight).gameObject.name = "BattleControlInstruction";
 
             Text bossState = kit.NewPlacedText(stage.transform, string.Empty, 15, PanelKit.Pink,
@@ -670,7 +683,7 @@ namespace ChoSiren.Panels
             Image portrait = kit.NewImage("Portrait", player ? playerMotionRoot : root.transform, null, PanelKit.White);
             if (player)
             {
-                PanelKit.PlaceTop(portrait.rectTransform, 8, 4, width - 16, 98);
+                PanelKit.PlaceTop(portrait.rectTransform, 8, 2, width - 16, 98);
                 portrait.preserveAspect = true;
                 portrait.useSpriteMesh = true;
             }
@@ -691,27 +704,27 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(highlight.rectTransform);
             highlight.enabled = false;
 
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, 16, PanelKit.White,
-                player ? 10 : 8, player ? 104 : 3, width - (player ? 20 : 16), 26,
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 14 : 16, PanelKit.White,
+                player ? 10 : 8, player ? 100 : 3, width - (player ? 20 : 16), player ? 19 : 26,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
             unitName.gameObject.name = "UnitName";
-            PanelKit.EnableBestFit(unitName, 12);
-            Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 8, player ? 144 : 34,
-                width - (player ? 24 : 16), 6,
+            PanelKit.EnableBestFit(unitName, 11);
+            Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 8, player ? 122 : 34,
+                width - (player ? 24 : 16), player ? 7 : 6,
                 new Color32(66, 54, 117, 255), player ? PanelKit.Cyan : PanelKit.Pink, 5);
-            Text hpText = kit.NewPlacedText(root.transform, string.Empty, 13, PanelKit.Muted,
-                player ? 10 : 8, player ? 152 : 42, width - (player ? 20 : 16), 20,
+            Text hpText = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 13, PanelKit.Muted,
+                player ? 10 : 8, player ? 129 : 42, width - (player ? 20 : 16), player ? 18 : 20,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft);
             hpText.gameObject.name = "UnitHpText";
-            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 12 : 8, player ? 139 : 30,
+            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 12 : 8, player ? 119 : 30,
                 width - (player ? 24 : 16), 3,
                 new Color32(50, 60, 110, 255), new Color32(150, 230, 255, 255), 3);
             GameObject shieldTrack = shieldFill.transform.parent.gameObject;
-            Text status = kit.NewPlacedText(root.transform, string.Empty, 13, PanelKit.Gold,
-                8, player ? 152 : 62, width - 16, 20,
+            Text status = kit.NewPlacedText(root.transform, string.Empty, 12, PanelKit.Gold,
+                8, player ? 170 : 62, width - 16, player ? 10 : 20,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
             status.gameObject.name = "UnitStatus";
-            PanelKit.EnableBestFit(status, 12);
+            PanelKit.EnableBestFit(status, 8);
             Text fallen = kit.NewPlacedText(root.transform, "倒下", 14, new Color32(196, 190, 220, 255), 4, player ? 31 : 22,
                 width - 8, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
             fallen.gameObject.SetActive(false);
@@ -759,6 +772,23 @@ namespace ChoSiren.Panels
                 view.HurtLabel.gameObject.name = "PerformerHurt";
                 kit.AddOutline(view.HurtLabel.gameObject, new Color32(8, 9, 27, 255), 2);
                 view.HurtLabel.gameObject.SetActive(false);
+
+                // Per-character ultimate energy. The value is read from the simulator on every
+                // refresh; this view never runs its own timer.
+                view.Energy = root.AddComponent<BattleEnergyMeter>();
+                view.Energy.Configure(rect, battle, () => view.Unit, () => paused || closing,
+                    () => BattlePresentationOptions.ReduceMotion, kit);
+                view.StatusIcons = root.AddComponent<BattleStatusIconStrip>();
+                view.StatusIcons.Configure(rect, battle, () => view.Unit, kit);
+
+                GameObject captainBadge = kit.NewPanel("CaptainBadge", root.transform,
+                    new Color32(112, 78, 18, 232), 7);
+                PanelKit.PlaceTop(captainBadge.GetComponent<RectTransform>(), width - 50, 5, 44, 17);
+                kit.AddOutline(captainBadge, new Color32(255, 205, 96, 150), 1f);
+                kit.NewPlacedText(captainBadge.transform, "队长", 12, PanelKit.Gold, 2, 0, 40, 17,
+                    TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "CaptainBadgeText";
+                captainBadge.SetActive(false);
+                view.CaptainBadge = captainBadge;
             }
             return view;
         }
@@ -871,21 +901,22 @@ namespace ChoSiren.Panels
                 diceHoldLabels.Add(held);
                 diceOutlines.Add(outline);
                 DiceRollPresentation roll = rollRig.gameObject.AddComponent<DiceRollPresentation>();
-                roll.Configure(faceArt, rollRig, () => paused || closing, () => speed);
+                roll.Configure(faceArt, rollRig, () => paused || closing, () => speed,
+                    () => BattlePresentationOptions.ReduceMotion);
                 dicePresentations.Add(roll);
 
             }
 
-            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投未保留 · 2次", 20,
+            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投已选0颗", 20,
                 PanelKit.ButtonDark, PanelKit.White, RerollDice, 12);
             PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 36, 214, 292, 42);
-            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "能量重投", 20,
+            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "全部重投", 20,
                 PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 12);
             PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 352, 214, 292, 42);
             Text diceHint = kit.NewPlacedText(console.transform,
-                battle.IsRealtime ? (diceTurn.SelectiveReroll
-                    ? "人鱼队长：保留3至4颗，精准重投其余骰子"
-                    : "伤害与击杀积攒能量 · 骰型持续增益全队") : "点击保留 · 骰型加成下一技能", 16,
+                battle.IsRealtime
+                    ? "点骰子标记“待重投”，再按下方“重投已选”按钮；没点的保留"
+                    : "点击保留 · 骰型加成下一技能", 16,
                 PanelKit.Muted, 36, 50, 608, 26, TextAnchor.MiddleCenter);
             diceHint.gameObject.name = "DiceInstruction";
             diceInstructionText = diceHint;
@@ -903,10 +934,62 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, 1386, 680, 92);
             kit.AddOutline(frame, new Color32(114, 207, 255, 76), 1.25f);
             skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", 20,
-                PanelKit.Muted, 18, 14, 644, 64, TextAnchor.MiddleCenter);
+                PanelKit.Muted, 18, 14, battle.IsRealtime ? 496 : 644, 64, TextAnchor.MiddleCenter);
             skillWaitingText.gameObject.name = "SkillWaitingState";
             skillBar = kit.NewRect("SkillBar", transform);
             PanelKit.PlaceTop(skillBar, 24, 1390, 672, 84);
+            if (battle.IsRealtime)
+            {
+                // The old pair of permanent auto-skill countdown cards is gone; abilities are now a
+                // single summary line plus one explicit detail entry.
+                GameObject details = kit.NewButton("AbilityDetails", frame.transform, "角色能力", 17,
+                    PanelKit.ButtonDark, PanelKit.White, OpenAbilityDetails, 10);
+                PanelKit.PlaceTop(details.GetComponent<RectTransform>(), 526, 14, 136, 64);
+            }
+        }
+
+        /// <summary>Compact secondary surface for the selected character's two active skills.</summary>
+        private void OpenAbilityDetails()
+        {
+            BattleUnit actor = inputActor;
+            if (actor == null) return;
+            if (abilityOverlay == null) BuildAbilityOverlay();
+            CombatRace race = battle.RaceOf(actor);
+            bool ready = battle.IsUltimateReady(actor);
+            abilityBody.text = $"{actor.Definition.Name}\n\n" +
+                $"小技能 · {BattleSimulator.ActiveSkillName(race, false)}\n{BattleSimulator.ActiveSkillDescription(race, false)}\n\n" +
+                $"大招 · {BattleSimulator.ActiveSkillName(race, true)}\n{BattleSimulator.ActiveSkillDescription(race, true)}\n\n" +
+                (ready ? "当前：大招已就绪" : $"当前：大招能量 {battle.EnergyOf(actor)}/{BattleSimulator.MaxUnitEnergy}") +
+                (autoMode ? " · 自动战斗会按队长→编队顺序释放" : " · 手动战斗点击满能量头像释放");
+            abilityOverlay.SetActive(true);
+            abilityOverlay.transform.SetAsLastSibling();
+        }
+
+        private void BuildAbilityOverlay()
+        {
+            Image shade = kit.NewImage("AbilityOverlay", transform, null, new Color32(2, 4, 20, 208));
+            PanelKit.Stretch(shade.rectTransform);
+            shade.raycastTarget = true;
+            GameObject card = kit.NewPanel("AbilityCard", shade.transform, new Color32(15, 14, 40, 255), 22);
+            RectTransform cardRect = card.GetComponent<RectTransform>();
+            PanelKit.PlaceCentered(cardRect, 580, 560);
+            kit.AddOutline(card, new Color32(114, 207, 255, 120), 1.25f);
+            kit.NewPlacedText(card.transform, "角色能力", 24, PanelKit.White, 24, 20, 532, 38,
+                TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "AbilityTitle";
+            abilityBody = kit.NewPlacedText(card.transform, string.Empty, 16, PanelKit.Muted, 28, 76,
+                524, 360, TextAnchor.UpperLeft);
+            abilityBody.gameObject.name = "AbilityBody";
+            abilityBody.lineSpacing = 1.14f;
+            GameObject close = kit.NewButton("AbilityClose", card.transform, "关闭", 20,
+                new Color32(87, 49, 143, 255), PanelKit.White, CloseAbilityOverlay, 12);
+            PanelKit.PlaceTop(close.GetComponent<RectTransform>(), 28, 468, 524, 58);
+            abilityOverlay = shade.gameObject;
+            abilityOverlay.SetActive(false);
+        }
+
+        private void CloseAbilityOverlay()
+        {
+            if (abilityOverlay != null) abilityOverlay.SetActive(false);
         }
 
         private void BuildControls()
@@ -915,7 +998,7 @@ namespace ChoSiren.Panels
                 ToggleAuto, 12);
             if (battle.IsRealtime)
             {
-                PanelKit.LabelOf(autoButton).text = "手动重投";
+                PanelKit.LabelOf(autoButton).text = "手动";
                 PanelKit.LabelOf(autoButton).fontSize = 17;
                 PanelKit.EnableBestFit(PanelKit.LabelOf(autoButton), 15);
             }
@@ -930,26 +1013,98 @@ namespace ChoSiren.Panels
             Image pauseShade = kit.NewImage("PauseOverlay", transform, null, new Color32(3, 5, 24, 168));
             PanelKit.Stretch(pauseShade.rectTransform);
             pauseShade.raycastTarget = true;
+
+            // Compact pause card: title, one-line hint, continue, exit, and a link to the rules.
+            // The long rule text now lives in the secondary overlay and never covers the battle.
             GameObject dialog = kit.NewPanel("PauseDialog", pauseShade.transform, new Color32(17, 17, 43, 255), 24);
-            PanelKit.PlaceTop(dialog.GetComponent<RectTransform>(), 140, 390, 440, 720);
+            RectTransform dialogRect = dialog.GetComponent<RectTransform>();
+            PanelKit.PlaceCentered(dialogRect, 380, 300);
             kit.AddOutline(dialog, new Color32(146, 120, 218, 120), 1);
-            kit.NewPlacedText(dialog.transform, "演出已暂停", 30, PanelKit.White, 20, 24, 400, 54,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
-            kit.NewPlacedText(dialog.transform, battle.IsRealtime
-                ? $"本关限时 {battle.Stage.TimeLimitSeconds} 秒，超时判负。暂停不计时；2倍速也会加快倒计时。\n\n骰子伤害加成逐次相加，上限+100%（×2）。开局+0–25%，每次重投+5–25%，不会倒扣；新战斗重新累计。\n\n追击、护盾、叠毒和穿甲由当前骰型与队长决定，不随伤害加成叠乘。"
-                  + "\n\n破招突袭：150%攻击，12秒冷却。蓄力时命中可打断并破甲30%持续4秒；免控敌人仍受伤但不会被打断。\n\n应急守护：全队减伤50%持续3秒，18秒冷却。点敌人指定突袭目标；没有指定时优先蓄力者。"
-                : "点击骰子可保留，骰型加成下一技能。", 16, PanelKit.Muted, 28, 90, 384, 360,
-                TextAnchor.UpperLeft).gameObject.name = "BattleRules";
-            GameObject resume = kit.NewButton("ResumeBattle", dialog.transform, "继续演出", 24,
+            kit.NewPlacedText(dialog.transform, "战斗暂停", 28, PanelKit.White, 20, 20, 340, 44,
+                TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "PauseTitle";
+            Text pauseHint = kit.NewPlacedText(dialog.transform, "暂停不计时 · 退出不返还体力", 14,
+                PanelKit.Muted, 20, 68, 340, 24, TextAnchor.MiddleCenter);
+            pauseHint.gameObject.name = "PauseHint";
+            PanelKit.EnableBestFit(pauseHint, 12);
+            GameObject resume = kit.NewButton("ResumeBattle", dialog.transform, "继续战斗", 22,
                 new Color32(87, 49, 143, 255), PanelKit.White, TogglePause, 12);
-            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 32, 476, 376, 60);
-            exitButton = kit.NewButton("BattleExit", dialog.transform, "退出战斗", 22,
+            PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 30, 108, 320, 58);
+            exitButton = kit.NewButton("BattleExit", dialog.transform, "退出战斗", 20,
                 PanelKit.ButtonDark, PanelKit.Muted, ExitBattle, 12);
-            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 32, 554, 376, 60);
-            kit.NewPlacedText(dialog.transform, "退出不返还已消耗的体力", 18, PanelKit.Muted,
-                20, 644, 400, 36, TextAnchor.MiddleCenter);
+            PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 30, 176, 320, 54);
+            GameObject rulesButton = kit.NewButton("BattleRulesEntry", dialog.transform, "战斗规则与设置", 16,
+                new Color32(30, 27, 58, 255), PanelKit.Cyan, OpenRulesOverlay, 10);
+            PanelKit.PlaceTop(rulesButton.GetComponent<RectTransform>(), 30, 240, 320, 42);
             pauseOverlay = pauseShade.gameObject;
             pauseOverlay.SetActive(false);
+            BuildRulesOverlay();
+        }
+
+        /// <summary>Secondary rules/settings surface, reachable from the compact pause card.</summary>
+        private void BuildRulesOverlay()
+        {
+            Image shade = kit.NewImage("RulesOverlay", transform, null, new Color32(2, 4, 20, 214));
+            PanelKit.Stretch(shade.rectTransform);
+            shade.raycastTarget = true;
+            GameObject card = kit.NewPanel("RulesCard", shade.transform, new Color32(15, 14, 40, 255), 24);
+            RectTransform cardRect = card.GetComponent<RectTransform>();
+            PanelKit.PlaceCentered(cardRect, 640, 1040);
+            kit.AddOutline(card, new Color32(104, 220, 255, 120), 1.25f);
+            kit.NewPlacedText(card.transform, "战斗规则与设置", 26, PanelKit.White, 24, 22, 592, 40,
+                TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "RulesTitle";
+            Text body = kit.NewPlacedText(card.transform,
+                "【能量与大招】\n" +
+                "每名角色有独立蓝色能量条（0–100）。存活时每秒 +4；普攻、技能与毒伤只要实际造成伤害，每命中一次 +6，击杀再 +10。死亡、暂停、战斗结束都不再累积。\n" +
+                "满能量后头像柔和发光并显示“大招就绪”。手动战斗：点击满能量头像放大招；自动战斗：按队长→编队顺序自动放大招。普攻与小技能始终自动释放。\n\n" +
+                "【骰子与重投】\n" +
+                "点击骰子把要换掉的骰子标成“待重投”，再按“重投已选N颗”；没点的骰子保留。也可以“全部重投”。每次操作消耗 1 次本场重投额度（首章普通/精英 3 次、首领 4 次、世界首领 5 次），不额外扣能量，连点也不会重复扣。\n" +
+                "每次重投把新骰型加成累计到伤害，累计上限 +100%（×2），封顶后不再增长。\n\n" +
+                "【队长与骰型】\n" +
+                "骰型给全队持续加成：人鱼=护盾、恶魔=叠毒、魅族=追击、血精灵=穿甲，数值随骰型变化。队长倒下由下一位存活成员接任，不刷新骰子、能量或冷却。\n\n" +
+                "【战术指令】\n" +
+                "破招突袭：150% 攻击，12 秒冷却；命中蓄力中的敌人可打断并破甲 30% 持续 4 秒。\n" +
+                "应急守护：全队减伤 50% 持续 3 秒，18 秒冷却。点敌人可指定集火/突袭目标。",
+                15, PanelKit.Muted, 34, 76, 572, 780, TextAnchor.UpperLeft);
+            body.gameObject.name = "RulesBody";
+            body.lineSpacing = 1.12f;
+            reduceMotionButton = kit.NewButton("ReduceMotionToggle", card.transform,
+                BattlePresentationOptions.Label(BattlePresentationOptions.ReduceMotion), 17,
+                PanelKit.ButtonDark, PanelKit.White, ToggleReduceMotion, 12);
+            PanelKit.PlaceTop(reduceMotionButton.GetComponent<RectTransform>(), 34, 866, 572, 56);
+            GameObject back = kit.NewButton("RulesBack", card.transform, "返回", 20,
+                new Color32(87, 49, 143, 255), PanelKit.White, CloseRulesOverlay, 12);
+            PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 34, 938, 572, 58);
+            rulesOverlay = shade.gameObject;
+            rulesOverlay.SetActive(false);
+        }
+
+        private void OpenRulesOverlay()
+        {
+            if (rulesOverlay == null) return;
+            RefreshReduceMotionButton();
+            rulesOverlay.SetActive(true);
+            rulesOverlay.transform.SetAsLastSibling();
+        }
+
+        private void CloseRulesOverlay()
+        {
+            if (rulesOverlay != null) rulesOverlay.SetActive(false);
+        }
+
+        private void ToggleReduceMotion()
+        {
+            BattlePresentationOptions.Toggle();
+            RefreshReduceMotionButton();
+            Notify(BattlePresentationOptions.ReduceMotion
+                ? "已开启减少动画：保留数值与反馈，跳过大招切入和骰子翻滚"
+                : "已关闭减少动画：恢复完整演出");
+        }
+
+        private void RefreshReduceMotionButton()
+        {
+            if (reduceMotionButton == null) return;
+            PanelKit.LabelOf(reduceMotionButton).text =
+                BattlePresentationOptions.Label(BattlePresentationOptions.ReduceMotion);
         }
 
         private void BuildPreview()
@@ -1202,7 +1357,9 @@ namespace ChoSiren.Panels
                     realtimeFractionMs += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * speed * 1000f;
                     int elapsedMs = Mathf.FloorToInt(realtimeFractionMs);
                     realtimeFractionMs -= elapsedMs;
-                    battle.AdvanceRealtime(elapsedMs, autoMode);
+                    // Dice rerolls are always a player decision; 自动/手动 only controls ultimates.
+                    battle.AutoCastUltimates = autoMode;
+                    battle.AdvanceRealtime(elapsedMs, false);
                     int previousActor = -1;
                     while (logCursor < battle.Log.Count)
                     {
@@ -1233,6 +1390,9 @@ namespace ChoSiren.Panels
 
         private void RefreshRealtimeCommands()
         {
+            // The top toggle is the single authority for ultimate release mode; the simulator keeps
+            // all energy, so switching never refunds or double-spends a charge.
+            battle.AutoCastUltimates = autoMode;
             if (interruptButton != null)
             {
                 BattleUnit threat = battle.InterruptTarget;
@@ -1270,43 +1430,46 @@ namespace ChoSiren.Panels
             {
                 ClearSkillBar();
                 displayedPerformerId = inputActor.Id;
-                if (skillWaitingText != null) skillWaitingText.gameObject.SetActive(false);
-                for (int i = 0; i < 2; i++)
-                {
-                    string description = BattleSimulator.ActiveSkillDescription(battle.RaceOf(inputActor), i == 1);
-                    GameObject button = kit.NewButton("RealtimeSkill-" + i, skillBar, "", 20,
-                        CellIdle, PanelKit.White,
-                        () => Notify(description), 12);
-                    PanelKit.PlaceTop(button.GetComponent<RectTransform>(), i * 342, 0, 330, 80);
-                    SkillDefinition definition = battle.LookupSkill(battle.ActiveSkillId(inputActor, i == 1));
-                    var icon = SkillIconVisuals.Create(button.transform, "BattleSkillIcon-" + i,
-                        definition?.Name, description, PerformerColor(battle.RaceOf(inputActor)));
-                    PanelKit.PlaceTop(icon.rectTransform, 12, 18, 44, 44);
-                    PanelKit.PlaceTop(PanelKit.LabelOf(button).rectTransform, 65, 6, 253, 68);
-                    skillButtons.Add(button);
-                    PanelKit.EnableBestFit(PanelKit.LabelOf(button), 17);
-                }
             }
-            for (int i = 0; i < skillButtons.Count; i++)
+            // One summary line replaces the two permanent per-skill countdown cards. Ability names
+            // and descriptions live behind the explicit 角色能力 entry.
+            if (skillWaitingText != null)
             {
-                SkillDefinition skill = battle.LookupSkill(battle.ActiveSkillId(inputActor, i == 1));
-                float remaining = battle.SkillCooldownRemaining(inputActor, i == 1) / 1000f;
-                PanelKit.LabelOf(skillButtons[i]).text = $"{skill.Name}\n自动 · {remaining:0.0}秒";
+                bool ultimateReady = battle.IsUltimateReady(inputActor);
+                skillWaitingText.gameObject.SetActive(true);
+                skillWaitingText.text = $"{inputActor.Definition.Name} · 普攻与小技能自动 · 大招" +
+                    (ultimateReady
+                        ? autoMode ? "就绪 · 自动释放" : "就绪 · 点击满能量头像释放"
+                        : $"能量 {battle.EnergyOf(inputActor)}/{BattleSimulator.MaxUnitEnergy}");
+                skillWaitingText.color = ultimateReady ? PanelKit.Gold : PanelKit.Muted;
+                PanelKit.EnableBestFit(skillWaitingText, 15);
             }
-            actorText.text = $"{inputActor.Definition.Name} · 自动战斗";
+            actorText.text = $"{inputActor.Definition.Name} · {(autoMode ? "自动战斗" : "手动战斗")}";
             BattleUnit focused = battle.FindUnit(battle.FocusTargetId);
-            previewText.text = focused != null && focused.Alive
-                ? $"集火：{focused.Definition.Name} · 点击其他敌人切换"
-                : "点击角色查看技能 · 点击敌人集火";
+            int readyUltimates = battle.ReadyUltimateCount;
+            previewText.text = readyUltimates > 0 && !autoMode
+                ? $"大招就绪 {readyUltimates} 人 · 点击满能量头像释放 · 点敌人集火"
+                : focused != null && focused.Alive
+                    ? $"集火：{focused.Definition.Name} · 点击其他敌人切换"
+                    : "点击角色查看技能 · 点击敌人集火";
             // Selection is not an attack. Every actual actor animates through ActionStarted.
             actorGlow.enabled = false;
             foreach (CellView cell in cells)
-                cell.Outline.effectColor = cell.Unit != null && cell.Unit.Alive &&
-                    (cell.Side == BattleSide.Player ? cell.Unit.Id == inputActor.Id : cell.Unit.Id == battle.FocusTargetId)
-                    ? new Color32(95, 219, 255, 150) : new Color32(166, 112, 255, 0);
+            {
+                bool selected = cell.Unit != null && cell.Unit.Alive &&
+                    (cell.Side == BattleSide.Player
+                        ? cell.Unit.Id == inputActor.Id
+                        : cell.Unit.Id == battle.FocusTargetId);
+                // The captain keeps a persistent gold frame so command transfer is readable at a glance.
+                bool isCaptain = cell.Side == BattleSide.Player && cell.Unit != null && cell.Unit.Alive &&
+                    cell.Unit.Id == battle.CurrentLeaderId;
+                cell.Outline.effectColor = selected ? new Color32(95, 219, 255, 150)
+                    : isCaptain ? new Color32(255, 205, 110, 165)
+                    : new Color32(166, 112, 255, 0);
+            }
             BattleUnit captain = battle.FindUnit(battle.CurrentLeaderId);
             captainNameText.text = captain != null && captain.Alive ? $"当前队长 · {captain.Definition.Name}" : "无人可接任";
-            captainEffectText.text = CaptainEffect(battle.CurrentLeaderRace);
+            captainEffectText.text = CaptainEffectLabel();
         }
 
         private IEnumerator PlayPendingEvents()
@@ -1404,6 +1567,17 @@ namespace ChoSiren.Panels
                 case BattleEventKind.Damage:
                     PresentHitEffect(actor, target, battleEvent);
                     RefreshCell(target);
+                    if (actor != null && actor.Side == BattleSide.Player)
+                    {
+                        // Actual-hit energy comes from the simulator; the view only reflects it.
+                        CellView attackerCell = FindCell(actor);
+                        if (attackerCell != null)
+                        {
+                            attackerCell.Energy?.Refresh();
+                            attackerCell.Energy?.FlashGain();
+                            attackerCell.StatusIcons?.Refresh();
+                        }
+                    }
                     CellView damagedCell = FindCell(target);
                     if (damagedCell != null && damagedCell.Motion != null) damagedCell.Motion.PlayHit(battleEvent.Critical);
                     if (target != null && enemyMotions.TryGetValue(target.Id, out var enemyHit)) enemyHit.PlayHit(battleEvent.Critical);
@@ -1413,16 +1587,28 @@ namespace ChoSiren.Panels
                     {
                         // The boss presentation owns its floating damage numbers.  Showing the generic
                         // cell popup as well makes one hit look like two separate damage events.
-                        bossPresentation.PlayHit(battleEvent.Amount, battleEvent.Critical);
+                        bossPresentation.PlayHit(DamageHpLoss(battleEvent), battleEvent.Critical,
+                            battleEvent.DiceMultiplierPermille);
                     }
                     else
                     {
-                        SpawnPopup(target, battleEvent.Critical ? $"暴击 -{battleEvent.Amount}" : $"-{battleEvent.Amount}",
-                            battleEvent.SkillId == "rt-poison" ? CombatFeedbackPalette.Debuff : battleEvent.Critical ? CombatFeedbackPalette.Critical : target != null && target.Side == BattleSide.Player ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Attack,
+                        bool fullyAbsorbed = battleEvent.AbsorbedAmount > 0 && DamageHpLoss(battleEvent) <= 0;
+                        Color damageColor = fullyAbsorbed ? CombatFeedbackPalette.Shield
+                            : battleEvent.SkillId == "rt-poison" ? CombatFeedbackPalette.Debuff
+                            : battleEvent.Critical ? CombatFeedbackPalette.Critical
+                            : target != null && target.Side == BattleSide.Player
+                                ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Attack;
+                        SpawnPopup(target, DamagePopupLabel(battleEvent), damageColor,
                             battleEvent.Critical ? 26 : 22);
                     }
+                    var damageNotes = new List<string>();
+                    if (battleEvent.Critical) damageNotes.Add("暴击");
+                    if (battleEvent.DiceMultiplierPermille > 1000)
+                        damageNotes.Add($"骰子 ×{battleEvent.DiceMultiplierPermille / 1000f:0.##}");
+                    if (battleEvent.AbsorbedAmount > 0)
+                        damageNotes.Add($"护盾吸收 {battleEvent.AbsorbedAmount}");
                     string damageLine = $"{actorName} 使用「{skillName}」对 {targetName} 造成 {battleEvent.Amount} 伤害" +
-                        (battleEvent.Critical ? "（暴击）" : string.Empty);
+                        (damageNotes.Count > 0 ? $"（{string.Join(" · ", damageNotes)}）" : string.Empty);
                     if (!battle.IsRealtime) eventText.text = damageLine;
                     AppendLog(damageLine);
                     return sameAction ? 0.14f : BeatSeconds;
@@ -1512,15 +1698,31 @@ namespace ChoSiren.Panels
             logText.text = logBuilder.ToString();
         }
 
-        private static string CaptainEffect(CombatRace race)
+        /// <summary>Captain command readout with the values the current hand actually applies.</summary>
+        private string CaptainEffectLabel()
         {
-            switch (race)
+            switch (battle.CurrentLeaderRace)
             {
-                case CombatRace.Demon: return "恶魔指挥 · 普攻叠毒，持续消耗";
-                case CombatRace.Charm: return "魅族指挥 · 骰型连击，追击压制";
-                case CombatRace.Mermaid: return "人鱼指挥 · 骰型护盾，精准重投";
-                case CombatRace.BloodElf: return "血精灵指挥 · 穿甲与残血收割";
-                default: return "接任不刷新骰子、能量或冷却";
+                case CombatRace.Demon:
+                    return battle.CaptainPoisonLayers > 0
+                        ? $"恶魔指挥 · 当前骰型普攻叠毒 {battle.CaptainPoisonLayers} 层"
+                        : "恶魔指挥 · 当前骰型无叠毒，重投可提高层数";
+                case CombatRace.Charm:
+                    return battle.CaptainComboCount > 0
+                        ? $"魅族指挥 · 当前骰型追击 {battle.CaptainComboCount} 次"
+                        : "魅族指挥 · 当前骰型无追击，重投可提高次数";
+                case CombatRace.Mermaid:
+                    // Selective reroll is a shared battle rule for every captain; only the
+                    // mermaid's own dice benefits belong in the race-command readout.
+                    return battle.CaptainShieldPermille > 0
+                        ? $"人鱼指挥 · 当前骰型护盾 +{battle.CaptainShieldPermille / 10f:0.#}% · 五同减伤"
+                        : "人鱼指挥 · 当前骰型无护盾 · 五同减伤";
+                case CombatRace.BloodElf:
+                    return battle.CaptainPiercePermille > 0
+                        ? $"血精灵指挥 · 当前骰型穿甲 {battle.CaptainPiercePermille / 10f:0.#}% · 残血收割"
+                        : "血精灵指挥 · 当前骰型无穿甲 · 残血收割";
+                default:
+                    return "接任不刷新骰子、能量或冷却";
             }
         }
 
@@ -1544,18 +1746,27 @@ namespace ChoSiren.Panels
             bool heavy = entry.SkillId != "rt-basic";
             string title = battle.LookupSkill(entry.SkillId)?.Name ?? (heavy ? "施放技能" : "普攻");
             CellView caster = FindCell(actor);
+            bool ultimate = actor.Side == BattleSide.Player && entry.SkillId == battle.ActiveSkillId(actor, true);
             if (actor.Side == BattleSide.Player && caster != null)
             {
                 caster.Motion?.PlayAttack(heavy);
                 if (caster.ActionLabel != null)
                 {
-                    caster.ActionLabel.text = heavy ? title : "普攻 → " + (target?.Definition.Name ?? "目标");
-                    caster.ActionLabel.color = CombatFeedbackPalette.Skill(entry.SkillId, actor.Side);
+                    caster.ActionLabel.text = ultimate ? "大招 · " + title
+                        : heavy ? title : "普攻 → " + (target?.Definition.Name ?? "目标");
+                    caster.ActionLabel.color = ultimate ? PanelKit.Gold
+                        : CombatFeedbackPalette.Skill(entry.SkillId, actor.Side);
                     caster.ActionLabelUntil = presentationClock + (heavy ? 1.05f : .4f);
                     caster.ActionLabel.gameObject.SetActive(true);
                 }
-                if (entry.SkillId == battle.ActiveSkillId(actor, true))
-                    skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title, CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
+                if (ultimate)
+                {
+                    // Short local cut-in (bounded by SkillCutInPresentation) plus a readable badge.
+                    SpawnPopup(actor, "大招 · " + title, PanelKit.Gold, 22);
+                    skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title,
+                        CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
+                    caster.Energy?.Refresh();
+                }
             }
             else if (enemyMotions.TryGetValue(actor.Id, out var motion)) motion.PlayAttack(heavy);
             else if (actor.Id == bossUnitId && heavy) bossPresentation?.PlayCharge(title);
@@ -1770,30 +1981,66 @@ namespace ChoSiren.Panels
             cellImpacts.Remove(rect);
         }
 
+        /// <summary>HP actually removed by a hit. Events without attribution fall back to Amount.</summary>
+        private static int DamageHpLoss(BattleEvent entry) =>
+            entry.AbsorbedAmount > 0 || entry.HpLostAmount > 0 ? entry.HpLostAmount : entry.Amount;
+
+        /// <summary>Floating number text that separates shield absorption from real HP loss.</summary>
+        private static string DamagePopupLabel(BattleEvent entry)
+        {
+            int lost = DamageHpLoss(entry);
+            string label = entry.AbsorbedAmount <= 0
+                ? entry.Critical ? $"暴击 -{lost}" : $"-{lost}"
+                : lost > 0 ? $"{(entry.Critical ? "暴击 " : string.Empty)}-{lost} 护盾-{entry.AbsorbedAmount}"
+                : $"护盾吸收 {entry.AbsorbedAmount}";
+            if (entry.DiceMultiplierPermille > 1000)
+                label += $" ×{entry.DiceMultiplierPermille / 1000f:0.##}";
+            return label;
+        }
+
         private void SpawnPopup(BattleUnit target, string text, Color color, int fontSize)
         {
             CellView cell = FindCell(target);
             if (cell == null) return;
+            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target) : cell.Rect;
+            SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, 22f);
+        }
+
+        /// <summary>Floating feedback anchored to any rect (used by dice/captain reroll readouts).</summary>
+        private void SpawnPopupAt(RectTransform anchor, int ownerId, string text, Color color,
+            int fontSize, float offsetY = 22f)
+        {
+            if (anchor == null) return;
             int slot = -1;
             // Small portrait cards show the newest feedback for that target. Every underlying
             // hit remains in the combat log; overlapping text must not obscure the member.
             for (int i = 0; i < popupPool.Count; i++)
-                if (popupOwners[i] == target.Id && popupPool[i].gameObject.activeSelf) { slot = i; break; }
+                if (popupOwners[i] == ownerId && popupPool[i].gameObject.activeSelf) { slot = i; break; }
             if (slot < 0) { slot = popupIndex; popupIndex = (popupIndex + 1) % popupPool.Count; }
             Text popup = popupPool[slot];
             if (popupRoutines[slot] != null) StopCoroutine(popupRoutines[slot]);
-            popupOwners[slot] = target.Id;
+            popupOwners[slot] = ownerId;
             popup.text = text;
             popup.color = color;
             popup.fontSize = fontSize;
-            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target) : cell.Rect;
-            if (visual == null) visual = cell.Rect;
-            Vector3 world = visual.TransformPoint(new Vector3(visual.rect.center.x, visual.rect.center.y + 22, 0));
+            Vector3 world = anchor.TransformPoint(new Vector3(anchor.rect.center.x,
+                anchor.rect.center.y + offsetY, 0));
             Vector2 local = popupLayer.InverseTransformPoint(world);
             popup.rectTransform.anchoredPosition = local - new Vector2(popupLayer.rect.xMin, popupLayer.rect.yMax);
             popup.gameObject.SetActive(true);
             popup.transform.SetAsLastSibling();
             popupRoutines[slot] = StartCoroutine(AnimatePopup(popup));
+        }
+
+        private void ClearPopups()
+        {
+            for (int index = 0; index < popupPool.Count; index++)
+            {
+                if (popupRoutines[index] != null) StopCoroutine(popupRoutines[index]);
+                popupRoutines[index] = null;
+                popupOwners[index] = 0;
+                popupPool[index].gameObject.SetActive(false);
+            }
         }
 
         private IEnumerator AnimatePopup(Text popup)
@@ -1904,6 +2151,9 @@ namespace ChoSiren.Panels
             cell.Status.gameObject.SetActive(occupied);
             cell.Background.color = cell.Side == BattleSide.Player ? CellIdle : CellEnemy;
             cell.Name.text = unit.Definition.Name;
+            // The captain's name is always gold, independent of the transient selection frame.
+            bool captainName = cell.Side == BattleSide.Player && unit.Id == battle.CurrentLeaderId && unit.Alive;
+            cell.Name.color = captainName ? new Color32(255, 205, 110, 255) : PanelKit.White;
             if (cell.Portrait != null)
             {
                 Sprite portrait = cell.Side == BattleSide.Player
@@ -1923,7 +2173,8 @@ namespace ChoSiren.Panels
             bool shielded = unit.Shield > 0;
             cell.ShieldTrack.SetActive(shielded);
             if (shielded) cell.ShieldFill.fillAmount = Mathf.Clamp01(unit.Shield / (float)Mathf.Max(1, unit.MaxHp));
-            string realtimeStatus = battle.IsRealtime ? battle.RealtimeStatus(unit) : string.Empty;
+            string realtimeStatus = battle.IsRealtime
+                ? battle.RealtimeStatus(unit, cell.Side == BattleSide.Player ? 2 : 1) : string.Empty;
             cell.Status.text = string.IsNullOrEmpty(realtimeStatus) ? StatusSummary(unit) : realtimeStatus;
             cell.Status.color = CombatFeedbackPalette.Status(cell.Status.text);
             if (cell.CastFill != null)
@@ -1944,10 +2195,13 @@ namespace ChoSiren.Panels
             {
                 // Health must remain readable when a shield/buff is present.
                 cell.HpText.gameObject.SetActive(true);
-                PanelKit.PlaceTop(cell.Status.rectTransform, 8, 130, PlayerCellWidth - 16, 12);
+                PanelKit.PlaceTop(cell.Status.rectTransform, 8, 170, PlayerCellWidth - 16, 10);
                 cell.Status.fontSize = 8;
                 PanelKit.EnableBestFit(cell.Status, 8);
                 cell.Status.gameObject.SetActive(!string.IsNullOrEmpty(cell.Status.text));
+                if (cell.CaptainBadge != null) cell.CaptainBadge.SetActive(captainName);
+                cell.Energy?.Refresh();
+                cell.StatusIcons?.Refresh();
             }
             if (!unit.Alive)
             {
@@ -2221,11 +2475,7 @@ namespace ChoSiren.Panels
         private void ToggleDie(int index)
         {
             if (paused || !awaitingInput || diceTurn == null || awaitingDiceLanding) return;
-            if (diceTurn.IsBattleSession && !diceTurn.SelectiveReroll)
-            {
-                Notify("人鱼队长可保留3至4颗骰子，其他队长使用全部重投");
-                return;
-            }
+            // Held means "kept"; unheld dice are ticked for the next selective reroll.
             diceTurn.ToggleHold(index);
             RefreshDiceUi();
         }
@@ -2233,16 +2483,48 @@ namespace ChoSiren.Panels
         private void RerollDice()
         {
             if (paused || !awaitingInput || diceTurn == null || awaitingDiceLanding) return;
-            if (!diceTurn.RerollUnheld(out string error)) Notify(error);
+            int bonusBefore = diceTurn.AccumulatedBonusPermille;
+            if (!diceTurn.RerollUnheld(out string error)) { Notify(error); return; }
+            diceEnergy = diceTurn.Energy;
+            ShowRerollFeedback(bonusBefore);
             RefreshDiceUi();
         }
 
         private void EnergyRerollDice()
         {
             if (paused || !awaitingInput || diceTurn == null || awaitingDiceLanding) return;
-            if (!diceTurn.EnergyRerollAll(out string error)) Notify(error);
-            else diceEnergy = diceTurn.Energy;
+            int bonusBefore = diceTurn.AccumulatedBonusPermille;
+            if (!diceTurn.RerollAll(out string error)) { Notify(error); return; }
+            diceEnergy = diceTurn.Energy;
+            ShowRerollFeedback(bonusBefore);
             RefreshDiceUi();
+        }
+
+        /// <summary>
+        /// Short visible chain for one reroll operation: dice gain -> captain/pattern benefit ->
+        /// the next real hit uses the new accumulated multiplier (shown on damage events).
+        /// </summary>
+        private void ShowRerollFeedback(int bonusBefore)
+        {
+            if (diceTurn == null || diceTurn.Hand == null) return;
+            int gain = Mathf.Max(0, diceTurn.AccumulatedBonusPermille - bonusBefore);
+            float total = diceTurn.AccumulatedBonusPermille / 10f;
+            string gainLabel = gain > 0 ? $"骰子加成 +{gain / 10f:0.#}%" : "骰子加成已达上限";
+            SpawnPopupAt(diceHandText.rectTransform, -101, gainLabel, PanelKit.Cyan, 20, 12f);
+            string captain = CaptainBenefitLabel();
+            BattleUnit captainUnit = battle.FindUnit(battle.CurrentLeaderId);
+            if (!string.IsNullOrEmpty(captain) && captainUnit != null)
+                SpawnPopup(captainUnit, captain, PanelKit.Gold, 18);
+            string line = $"重投 → {diceTurn.Hand.DisplayName} · {gainLabel} · 累计 +{total:0.#}%" +
+                (string.IsNullOrEmpty(captain) ? string.Empty : " · " + captain);
+            AppendLog(line);
+            if (battle.IsRealtime)
+            {
+                commandFeedback = line;
+                commandFeedbackUntil = battle.ElapsedMilliseconds + 2600;
+            }
+            else if (eventText != null) eventText.text = line;
+            RefreshAllCells();
         }
 
         private void RefreshDiceUi()
@@ -2250,6 +2532,8 @@ namespace ChoSiren.Panels
             bool active = diceTurn != null && diceTurn.Hand != null;
             bool newRoll = active && displayedDiceRevision != diceTurn.Revision;
             if (newRoll) { displayedDiceRevision = diceTurn.Revision; awaitingDiceLanding = true; }
+            bool battleSession = active && diceTurn.IsBattleSession;
+            int selected = battleSession ? diceTurn.SelectedForRerollCount : 0;
             for (int index = 0; index < diceButtons.Count; index++)
             {
                 Text label = PanelKit.LabelOf(diceButtons[index]);
@@ -2260,10 +2544,13 @@ namespace ChoSiren.Panels
                 label.text = faceSprite != null ? string.Empty : active ? face.ToString() : "?";
                 bool held = active && diceTurn.Held[index];
                 bool participating = active && diceTurn.Hand.Participating[index];
-                diceHoldLabels[index].text = held ? "已保留" : awaitingDiceLanding ? "投掷中" : participating ? "成型" : "";
-                Color background = participating
-                    ? held ? DiceParticipatingHeld : DiceParticipating
-                    : held ? DiceHeld : DiceIdle;
+                diceHoldLabels[index].text = !active ? string.Empty
+                    : awaitingDiceLanding ? "投掷中"
+                    : battleSession ? held ? participating ? "保留·成型" : "保留" : "待重投"
+                    : held ? "已保留" : participating ? "成型" : string.Empty;
+                Color background = battleSession && !held ? DiceSelected
+                    : participating ? DiceParticipating
+                    : DiceHeld;
                 Button dieButton = diceButtons[index].GetComponent<Button>();
                 if (dieButton != null) dieButton.interactable = awaitingInput && !paused && !awaitingDiceLanding;
                 Image hitArea = diceButtons[index].GetComponent<Image>();
@@ -2275,7 +2562,7 @@ namespace ChoSiren.Panels
                 if (index < diceFaceImages.Count)
                 {
                     // Use a restrained tint on the die itself instead of restoring a square state background.
-                    float tintStrength = participating ? 0.16f : held ? 0.11f : 0f;
+                    float tintStrength = battleSession && !held ? 0.2f : participating ? 0.16f : 0.11f;
                     dicePresentations[index].SetRestingFace(faceSprite, face, participating,
                         Color.Lerp(PanelKit.White, background, tintStrength));
                     if (newRoll && (!held || dicePresentations[index].RollCount == 0))
@@ -2283,17 +2570,20 @@ namespace ChoSiren.Panels
                 }
                 if (index < diceOutlines.Count)
                 {
-                    diceOutlines[index].effectColor = participating
-                        ? new Color32(255, 204, 83, 150)
-                        : held ? new Color32(255, 105, 210, 105) : new Color32(96, 220, 255, 56);
-                    float distance = participating ? 2f : 1f;
+                    diceOutlines[index].effectColor = battleSession && !held ? new Color32(120, 212, 255, 200)
+                        : participating ? new Color32(255, 204, 83, 150)
+                        : new Color32(255, 105, 210, 105);
+                    float distance = battleSession && !held ? 2.2f : participating ? 2f : 1f;
                     diceOutlines[index].effectDistance = new Vector2(distance, -distance);
                 }
             }
 
-            int energy = active ? diceTurn.Energy : diceEnergy;
-            if (diceEnergyFill != null) diceEnergyFill.fillAmount = energy / 100f;
-            if (diceEnergyText != null) diceEnergyText.text = energy >= 100 ? "重投充能 · 已满" : $"重投充能 {energy}%";
+            int bonus = active ? diceTurn.AccumulatedBonusPermille : 0;
+            if (diceEnergyFill != null)
+                diceEnergyFill.fillAmount = Mathf.Clamp01(bonus / (float)DiceTurn.MaxBattleBonusPermille);
+            if (diceEnergyText != null)
+                diceEnergyText.text = bonus >= DiceTurn.MaxBattleBonusPermille
+                    ? "骰子加成 · 封顶×2" : $"骰子加成 +{bonus / 10f:0.#}%";
             if (diceHandText != null)
                 diceHandText.text = active
                     ? $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.##}"
@@ -2301,42 +2591,69 @@ namespace ChoSiren.Panels
             if (rerollButton != null)
             {
                 int rerolls = active ? diceTurn.RerollsRemaining : 0;
-                PanelKit.LabelOf(rerollButton).text = $"重投未保留 · {rerolls}次";
-                PanelKit.SetButtonState(rerollButton, awaitingInput && rerolls > 0,
-                    rerolls > 0 ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
+                PanelKit.LabelOf(rerollButton).text = battleSession
+                    ? $"重投已选{selected}颗" : $"重投未保留 · {rerolls}次";
+                bool usable = rerolls > 0 && (!battleSession || selected > 0);
+                PanelKit.SetButtonState(rerollButton, awaitingInput && usable,
+                    usable ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
             }
             if (energyRerollButton != null)
             {
-                PanelKit.LabelOf(energyRerollButton).text = energy >= 100 ? "能量重投 · 就绪" : "能量重投 · 充能中";
-                PanelKit.SetButtonState(energyRerollButton, awaitingInput && active && diceTurn.CanEnergyReroll,
-                    energy >= 100 ? new Color32(58, 71, 126, 255) : PanelKit.ButtonDark);
+                PanelKit.LabelOf(energyRerollButton).text = !battleSession
+                    ? active && diceTurn.Energy >= DiceTurn.MaxEnergy ? "能量重投 · 就绪" : "能量重投 · 充能中"
+                    : active && diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次" : "全部重投";
+                bool energyUsable = active && (battleSession ? diceTurn.CanReroll
+                    : diceTurn.Energy >= DiceTurn.MaxEnergy);
+                PanelKit.SetButtonState(energyRerollButton, awaitingInput && energyUsable,
+                    energyUsable ? new Color32(58, 71, 126, 255) : PanelKit.ButtonDark);
             }
-            if (active && diceTurn.IsBattleSession)
+            if (battleSession)
             {
                 diceHandText.text = $"{diceTurn.Hand.DisplayName} · 累计 ×{diceTurn.DamageMultiplierPermille / 1000f:0.###}";
-                bool canReroll = awaitingInput && !paused && !awaitingDiceLanding && diceTurn.CanEnergyReroll;
-                PanelKit.LabelOf(rerollButton).text = diceTurn.SelectiveReroll
-                    ? "精准重投 · 人鱼" : $"本场剩余 {diceTurn.RerollsRemaining} 次";
-                PanelKit.SetButtonState(rerollButton, canReroll && diceTurn.SelectiveReroll,
-                    canReroll && diceTurn.SelectiveReroll ? PanelKit.ButtonDark : PanelKit.Disabled);
-                PanelKit.LabelOf(energyRerollButton).text = diceTurn.FreeRerolls > 0 ? "免费重投 · 1次"
-                    : diceTurn.RerollsRemaining == 0 ? "本场重投已用完"
-                    : canReroll ? "全部重投 · 100能量" : "全部重投 · 充能中";
+                bool canReroll = awaitingInput && !paused && !awaitingDiceLanding && diceTurn.CanReroll;
+                PanelKit.LabelOf(rerollButton).text = $"重投已选{selected}颗";
+                PanelKit.SetButtonState(rerollButton, canReroll && selected > 0,
+                    canReroll && selected > 0 ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
+                PanelKit.LabelOf(energyRerollButton).text = diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次"
+                    : diceTurn.RerollsRemaining > 0 ? $"全部重投 · 剩{diceTurn.RerollsRemaining}次"
+                    : "本场重投已用完";
                 PanelKit.SetButtonState(energyRerollButton, canReroll,
                     canReroll ? new Color32(100, 55, 151, 255) : PanelKit.ButtonDark);
             }
             if (awaitingDiceLanding && diceHandText != null) diceHandText.text = "骰子翻滚中…";
-            if (diceInstructionText != null && active && diceTurn.IsBattleSession)
+            if (diceInstructionText != null && battleSession)
             {
                 float total = diceTurn.AccumulatedBonusPermille / 10f;
                 float gain = diceTurn.LastBonusGainPermille / 10f;
-                diceInstructionText.text = gain > 0
-                    ? $"▲ 本次加持 +{gain:0.#}%    累计伤害 +{total:0.#}% / 上限 100%"
-                    : $"累计伤害 +{total:0.#}% / 上限 100%";
+                bool capped = diceTurn.AccumulatedBonusPermille >= DiceTurn.MaxBattleBonusPermille;
+                string readout = capped
+                    ? $"累计 +{total:0.#}% · 已封顶 ×2"
+                    : gain > 0
+                        ? $"本次 +{gain:0.#}% · 累计 +{total:0.#}%"
+                        : $"累计 +{total:0.#}%";
+                string captain = CaptainBenefitLabel();
+                if (!string.IsNullOrEmpty(captain)) readout += " · " + captain;
+                readout += $" · 待重投{selected}颗 · 保留{DiceRules.DiceCount - selected}颗";
+                diceInstructionText.text = readout;
                 // Warm-up colour makes a growing bonus readable without hunting for the number.
                 diceInstructionText.color = total >= 75f ? new Color32(255, 168, 74, 255)
                     : total >= 40f ? PanelKit.Gold : PanelKit.Muted;
             }
+        }
+
+        /// <summary>Current captain/pattern benefit using the same numbers RealtimeBattle applies.</summary>
+        private string CaptainBenefitLabel()
+        {
+            if (battle == null || !battle.IsRealtime) return string.Empty;
+            int shield = battle.CaptainShieldPermille;
+            if (shield > 0) return $"人鱼护盾 +{shield / 10f:0.#}%";
+            int poison = battle.CaptainPoisonLayers;
+            if (poison > 0) return $"魔族叠毒 {poison}层";
+            int combo = battle.CaptainComboCount;
+            if (combo > 0) return $"魅族追击 {combo}次";
+            int pierce = battle.CaptainPiercePermille;
+            if (pierce > 0) return $"血精灵穿甲 {pierce / 10f:0.#}%";
+            return string.Empty;
         }
 
         private IEnumerator FlashDiceResult()
@@ -2559,7 +2876,18 @@ namespace ChoSiren.Panels
             {
                 BattleUnit unit = battle.UnitAt(side, row, col);
                 if (unit == null) return;
-                if (side == BattleSide.Player) inputActor = unit;
+                if (side == BattleSide.Player)
+                {
+                    inputActor = unit;
+                    // Manual battle: a tap on a full-energy avatar is the release command.
+                    if (!autoMode && battle.IsEnergyFull(unit) && !battle.TryCastUltimate(unit.Id))
+                    {
+                        float cooldown = battle.UltimateCooldownRemaining(unit) / 1000f;
+                        Notify(cooldown > 0 ? $"大招冷却 {cooldown:0.0}秒"
+                            : battle.ConditionRemaining(unit, CombatCondition.Stun) > 0 ? "眩晕中无法放大招"
+                            : "封技中无法放大招");
+                    }
+                }
                 else battle.FocusEnemy(unit.Id);
                 RefreshRealtimeCommands();
                 return;
@@ -2614,13 +2942,19 @@ namespace ChoSiren.Panels
             autoMode = !autoMode;
             if (battle.IsRealtime)
             {
-                PanelKit.LabelOf(autoButton).text = autoMode ? "自动重投" : "手动重投";
+                // Skill-release mode only. Energy lives in the simulator, so toggling preserves
+                // every charge and can never double-cast or double-spend.
+                battle.AutoCastUltimates = autoMode;
+                PanelKit.LabelOf(autoButton).text = autoMode ? "自动" : "手动";
                 PanelKit.SetButtonState(autoButton, true,
                     autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
-                Notify(autoMode ? "已开启自动重投，角色技能持续自动释放" : "已切换手动重投，角色技能持续自动释放");
+                Notify(autoMode
+                    ? "自动战斗：满能量按队长→编队顺序自动放大招，普攻与小技能照常自动"
+                    : "手动战斗：普攻与小技能自动，点击满能量头像放大招");
+                RefreshRealtimeCommands();
                 return;
             }
-            PanelKit.LabelOf(autoButton).text = autoMode ? "自动开" : "自动";
+            PanelKit.LabelOf(autoButton).text = autoMode ? "自动" : "手动";
             PanelKit.SetButtonState(autoButton, true, autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
             if (autoMode && awaitingInput)
             {
@@ -2654,6 +2988,18 @@ namespace ChoSiren.Panels
                 retreatButton.transform.SetAsLastSibling();
                 if (exitButton != null) exitButton.transform.SetAsLastSibling();
             }
+            if (paused)
+            {
+                // A paused battle must not leave a queued ultimate banner or attack trail on screen.
+                skillCutIn?.Cancel();
+                attackTrajectories?.Cancel();
+                ClearPopups();
+                CloseAbilityOverlay();
+            }
+            else
+            {
+                CloseRulesOverlay();
+            }
             Notify(paused ? "战斗已暂停" : "战斗继续");
         }
 
@@ -2680,6 +3026,9 @@ namespace ChoSiren.Panels
             skillEffects?.Clear();
             attackTrajectories?.Cancel();
             foreach (DiceRollPresentation roll in dicePresentations) roll.CancelRoll();
+            ClearPopups();
+            CloseAbilityOverlay();
+            CloseRulesOverlay();
             awaitingDiceLanding = false;
             awaitingInput = false;
             ClearSkillBar();

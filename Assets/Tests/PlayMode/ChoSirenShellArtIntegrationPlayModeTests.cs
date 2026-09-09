@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Linq;
+using ChoSiren.Systems.Presentation;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -140,36 +141,48 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator OwnedAndLockedMembersBothOpenCompleteProfiles()
+        public IEnumerator OwnedProfilesRevealEverythingWhileLockedProfilesOnlyShowSilhouetteAndProgress()
         {
             Click("Nav-members");
             yield return null;
 
-            int lockedIndex = Enumerable.Range(0, GameModel.Members.Length).First(index => index >= 4);
+            int lockedIndex = Enumerable.Range(0, GameModel.Members.Length)
+                .First(index => !new GameModel().IsUnlocked(index));
             Click("Member-" + GameModel.Members[lockedIndex].Id);
             yield return null;
             Assert.That(Require("MemberOwnershipStatus").GetComponent<Text>()?.text, Is.EqualTo("尚未签约"));
-            Require("MemberPower");
-            Require("MemberStatAttack");
-            Require("MemberStatHp");
-            Require("MemberStatCrit");
-            Require("MemberStatSpeed");
-            Require("MemberSkillPrimary");
-            Require("MemberSkillSecondary");
+            Text lockedProgress = Require("MemberLockedProgress").GetComponent<Text>();
+            Assert.That(lockedProgress.text, Does.Contain("未获得"), "未获得角色必须给出剩余数量/进度。");
+            Require("LockedSilhouetteMark");
+            // 未获得角色不得暴露真实姓名、属性、技能或队长特性。
+            Assert.That(GameObject.Find("MemberStatAttack"), Is.Null, "未获得角色不得显示战斗属性。");
+            Assert.That(GameObject.Find("MemberStatHp"), Is.Null);
+            Assert.That(GameObject.Find("MemberStatCrit"), Is.Null);
+            Assert.That(GameObject.Find("MemberStatSpeed"), Is.Null);
+            Assert.That(GameObject.Find("MemberSkillPrimary"), Is.Null, "未获得角色不得显示技能名与效果。");
+            Assert.That(GameObject.Find("MemberSkillSecondary"), Is.Null);
+            Assert.That(GameObject.Find("MemberNormalAttack"), Is.Null);
+            Assert.That(Require("CaptainEffectDescription").GetComponent<Text>().text,
+                Is.EqualTo("签约后解锁该成员的队长特性。"), "未获得角色不得提前公开队长特性。");
             Require("MemberAcquireGuide");
-            Assert.That(GameObject.Find("MemberProfilePanelArt"), Is.Null,
-                "带空圆圈和装饰文字的旧资料底图不可重新压在动态信息后方。");
-            AssertQuietInformationPanel("MemberStatPanel");
-            AssertQuietInformationPanel("MemberSkillPanel");
-            AssertQuietInformationPanel("MemberAcquireGuide");
-            Assert.That(Require("MemberSkillPrimaryIcon").GetComponent<SkillIconGraphic>(), Is.Not.Null);
-            Assert.That(Require("MemberSkillSecondaryIcon").GetComponent<SkillIconGraphic>(), Is.Not.Null);
-            Transform lockedPortrait = Require("MemberModal").transform.Find("Panel/Portrait");
+            Transform lockedPortrait = Require("MemberModal").transform.Find("Panel/LockedPortraitFrame/Portrait");
             Assert.That(lockedPortrait, Is.Not.Null);
-            AssertSpriteTexture(lockedPortrait.gameObject, GameModel.Members[lockedIndex].ResourcePath);
+            Image lockedImage = lockedPortrait.GetComponent<Image>();
+            Assert.That(lockedImage.sprite, Is.Not.Null);
+            Assert.That(lockedImage.sprite.name, Is.EqualTo(MemberRosterVisibility.SilhouetteSpriteName),
+                "未获得角色必须使用程序生成的通用剪影，而不是任何成员立绘。");
+            Assert.That(lockedImage.sprite, Is.Not.SameAs(
+                    Resources.Load<Sprite>(GameModel.Members[lockedIndex].ResourcePath)),
+                "未获得角色不得渲染该成员的真实立绘。");
+            Transform cardSilhouette = GameObject.Find("Member-" + GameModel.Members[lockedIndex].Id)
+                .transform.Find("LockedSilhouette");
+            Assert.That(cardSilhouette, Is.Not.Null);
+            Assert.That(cardSilhouette.GetComponent<Image>().sprite, Is.SameAs(lockedImage.sprite),
+                "图鉴卡与档案必须共用同一张剪影。");
             Require("AcquireMember");
             Assert.That(GameObject.Find("Train"), Is.Null, "未签约成员不得显示训练操作。");
             Assert.That(GameObject.Find("Team"), Is.Null, "未签约成员不得显示编队操作。");
+            Assert.That(GameObject.Find("MemberEquipment"), Is.Null);
             Click("Close");
             yield return null;
 
@@ -179,6 +192,11 @@ namespace ChoSiren.Tests
             Transform ownedPortrait = Require("MemberModal").transform.Find("Panel/Portrait");
             Assert.That(ownedPortrait, Is.Not.Null);
             AssertSpriteTexture(ownedPortrait.gameObject, GameModel.Members[0].ResourcePath);
+            Require("MemberSectionBaseStats");
+            Require("MemberSectionNormalAttack");
+            Require("MemberNormalAttack");
+            Require("MemberSectionActiveSkills");
+            Require("CaptainEffectTitle");
             Require("Train");
             Require("Team");
             Assert.That(GameObject.Find("AcquireMember"), Is.Null);

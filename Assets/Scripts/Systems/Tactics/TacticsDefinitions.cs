@@ -159,7 +159,11 @@ namespace ChoSiren.Systems.Tactics
         public string EncounterType = string.Empty;
         public bool UsesRealtime => !string.IsNullOrEmpty(EncounterType);
         public bool HasBossPhases => EncounterType == "boss" || EncounterType == "world";
-        public int RerollLimit => EncounterType == "normal" ? 2 : EncounterType == "elite" ? 3
+        /// <summary>
+        /// Per-battle reroll operations. Chapter one's experience budget is three (normal/elite),
+        /// so a fresh save can try selective rerolls without first farming damage.
+        /// </summary>
+        public int RerollLimit => EncounterType == "normal" || EncounterType == "elite" ? 3
             : EncounterType == "world" ? 5 : 4;
         public string EncounterLabel => EncounterType == "normal" ? "普通战" : EncounterType == "elite" ? "精英战"
             : EncounterType == "world" ? "世界首领" : "首领战";

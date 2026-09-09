@@ -419,6 +419,9 @@ namespace ChoSiren.Tests
             Assert.That(panel.GetComponentsInChildren<Transform>(true)
                     .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
                 "四维只突出一个最强项，避免所有属性同时抢视觉焦点。");
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateTrait").text,
+                Does.StartWith("舞台特质 · "),
+                "面试素质必须来自舞台四维，不能把战斗技能名当成面试素质。");
 
             Text signingPrice = FindNamed<Text>(panel.transform, "SigningPrice");
             int onlinePrice = int.Parse(signingPrice.text.Replace(",", string.Empty));

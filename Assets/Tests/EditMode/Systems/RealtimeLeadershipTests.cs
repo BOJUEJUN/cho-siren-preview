@@ -22,7 +22,7 @@ namespace ChoSiren.Tests
             Kill(battle, 2);
             Assert.That(battle.CurrentLeaderId, Is.EqualTo(3));
             Assert.That(battle.CurrentLeaderRace, Is.EqualTo(CombatRace.BloodElf));
-            Assert.That(battle.BattleDice.SelectiveReroll, Is.False);
+            Assert.That(battle.BattleDice.SelectiveReroll, Is.True, "自选重投对所有队长开放，接任不改变规则");
             Kill(battle, 3);
             Assert.That(battle.CurrentLeaderId, Is.EqualTo(-1));
             Assert.That(battle.CurrentLeaderRace, Is.EqualTo(CombatRace.None));
@@ -71,7 +71,8 @@ namespace ChoSiren.Tests
             Assert.That(battle.BattleDice.UsedRerolls, Is.EqualTo(used));
             Assert.That(battle.BattleDice.FreeRerolls, Is.EqualTo(free));
             Assert.That(battle.BattleDice.AccumulatedBonusPermille, Is.EqualTo(bonus));
-            Assert.That(battle.BattleDice.Held.Any(held => held), Is.False);
+            Assert.That(battle.BattleDice.SelectedForRerollCount, Is.EqualTo(3),
+                "接任不清空玩家已点选的重投骰，也不能重投或刷新骰面");
             Assert.That(battle.SkillCooldownRemaining(successor, false), Is.EqualTo(small));
             Assert.That(battle.SkillCooldownRemaining(successor, true), Is.EqualTo(big));
             Assert.That(successor.Shield, Is.EqualTo(shield));
@@ -79,7 +80,8 @@ namespace ChoSiren.Tests
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Shield || e.Kind == BattleEventKind.Heal),
                 Is.EqualTo(appliedEffects));
             Kill(battle, 2);
-            Assert.That(battle.BattleDice.SelectiveReroll, Is.True, "接任的人鱼获得精准重投能力");
+            Assert.That(battle.BattleDice.SelectiveReroll, Is.True,
+                "自选重投是全场共用规则，接任后依旧可用，并非人鱼专属能力");
             Assert.That(battle.BattleDice.UsedRerolls, Is.EqualTo(used));
             Assert.That(battle.BattleDice.Revision, Is.EqualTo(revision));
         }

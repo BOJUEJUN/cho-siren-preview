@@ -645,16 +645,23 @@ namespace ChoSiren
             MemberRosterPage page = MemberRosterPagination.Build(GameModel.Members.Length, memberPageIndex, index =>
             {
                 MemberDefinition member = GameModel.Members[index];
-                if (memberOwnedOnly && !model.IsUnlocked(index)) return false;
-                if (!string.IsNullOrEmpty(roleFilter) && member.Career != roleFilter) return false;
-                if (!string.IsNullOrEmpty(raceFilter) && MemberRaceFamily(member, index) != raceFilter) return false;
-                return string.IsNullOrEmpty(memberSearchQuery) ||
-                       member.Name.IndexOf(memberSearchQuery, StringComparison.OrdinalIgnoreCase) >= 0;
+                // 未获得成员是匿名占位：真实姓名/职业/种族不参与搜索与筛选，
+                // 只有在没有任何身份筛选时才以剪影计数出现。
+                return MemberRosterVisibility.MatchesRosterFilter(
+                    model.IsUnlocked(index), member.Name, member.Career, MemberRaceFamily(member, index),
+                    memberOwnedOnly, roleFilter, raceFilter, memberSearchQuery);
             }, dynamicPageSize, index => model.IsUnlocked(index) ? 0 : 1);
             memberPageIndex = page.PageIndex;
             int visiblePageNumber = page.PageCount == 0 ? 0 : page.PageIndex + 1;
-            ScreenTitle("成员档案", "全部成员",
-                $"已拥有 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} · 本页 {page.VisibleCount} 名");
+            string rosterSubtitle =
+                $"已拥有 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} · 本页 {page.VisibleCount} 名";
+            if (MemberRosterVisibility.HasIdentityFilter(roleFilter, raceFilter, memberSearchQuery))
+            {
+                rosterSubtitle += " · " + MemberRosterVisibility.LockedFilterNotice(
+                    MemberRosterVisibility.RemainingCount(model.Save.UnlockedMembers.Count,
+                        GameModel.Members.Length));
+            }
+            ScreenTitle("成员档案", "全部成员", rosterSubtitle);
 
             MemberFilterButton("MemberRoleFilter", $"职业：{(string.IsNullOrEmpty(roleFilter) ? "全部" : roleFilter)}",
                 20, 108, 196, () =>
@@ -814,6 +821,13 @@ namespace ChoSiren
                 OpenMember(index);
                 ResumeMediaAfterUserGesture();
             });
+
+            // 未获得角色只给剪影与剩余进度：不加载真实形象，也不出现姓名/职业/种族/等级。
+            if (!MemberRosterVisibility.ShowsRealPortrait(unlocked))
+            {
+                BuildLockedMemberCard(card, width, height);
+                return;
+            }
 
             Color glowColor = member.Career == "主唱"
                 ? new Color32(80, 224, 255, unlocked ? (byte)76 : (byte)24)
@@ -1219,6 +1233,7 @@ namespace ChoSiren
                 out int speed);
             MemberSkillCopy(member, out string firstSkillName, out string firstSkillEffect,
                 out string secondSkillName, out string secondSkillEffect);
+            MemberNormalAttackCopy(member, out string normalAttackName, out string normalAttackEffect);
 
             GameObject overlay = NewImage("MemberModal", safeRoot, null, new Color32(3, 4, 20, 220));
             Stretch(overlay.GetComponent<RectTransform>());
@@ -1232,31 +1247,52 @@ namespace ChoSiren
             panelRect.sizeDelta = new Vector2(620, 1250);
             AddQuietPanelEdge(panel);
 
-            GameObject portrait = NewImage("Portrait", panel.transform, Resources.Load<Sprite>(member.ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 24, 52, 292, 390);
-            Image portraitImage = portrait.GetComponent<Image>();
-            portraitImage.preserveAspect = true;
-            portraitImage.useSpriteMesh = true;
+            if (MemberRosterVisibility.ShowsRealPortrait(unlocked))
+            {
+                GameObject portrait = NewImage("Portrait", panel.transform,
+                    Resources.Load<Sprite>(member.ResourcePath), White);
+                PlaceTop(portrait.GetComponent<RectTransform>(), 24, 52, 292, 390);
+                Image portraitImage = portrait.GetComponent<Image>();
+                portraitImage.preserveAspect = true;
+                portraitImage.useSpriteMesh = true;
+            }
+            else
+            {
+                BuildLockedMemberPortrait(panel);
+            }
 
             Text ownership = NewPlacedText(panel.transform, unlocked ? "已签约成员" : "尚未签约", 14,
                 unlocked ? new Color32(111, 255, 194, 255) : new Color32(255, 185, 218, 255),
                 328, 48, 250, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             ownership.name = "MemberOwnershipStatus";
-            NewPlacedText(panel.transform, member.Name, 32, White,
+            NewPlacedText(panel.transform, unlocked ? member.Name : MemberRosterVisibility.LockedName, 32,
+                unlocked ? White : new Color32(198, 192, 226, 255),
                 326, 76, 250, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(panel.transform, $"{MemberRace(member, memberIndex)} · {member.Career}", 17, Pink,
+            NewPlacedText(panel.transform,
+                unlocked ? $"{MemberRace(member, memberIndex)} · {member.Career}" : MemberRosterVisibility.LockedCareer,
+                17, unlocked ? Pink : Muted,
                 328, 122, 248, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text power = NewPlacedText(panel.transform,
-                unlocked ? $"等级 {level}  ·  战力 {displayPower:N0}" : $"推荐等级 {level}  ·  潜力战力 {displayPower:N0}",
+                unlocked ? $"等级 {level}  ·  战力 {displayPower:N0}"
+                    : MemberRosterVisibility.LockedProfileProgress(model.Save.UnlockedMembers.Count,
+                        GameModel.Members.Length),
                 16, Cyan, 328, 152, 252, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
             power.name = "MemberPower";
+
+            // 未获得角色到此为止：不创建属性/技能/队长面板，避免未公开数据出现在界面树里。
+            if (!MemberRosterVisibility.ShowsCombatStats(unlocked))
+            {
+                BuildLockedMemberProfileBody(panel, memberIndex);
+                return;
+            }
 
             GameObject statPanel = NewPanel("MemberStatPanel", panel.transform,
                 new Color32(12, 23, 67, 215), 20);
             PlaceTop(statPanel.GetComponent<RectTransform>(), 320, 198, 276, 238);
             AddQuietPanelEdge(statPanel);
-            NewPlacedText(statPanel.transform, "当前等级属性", 16, new Color32(255, 183, 229, 255),
-                16, 12, 244, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text statTitle = NewPlacedText(statPanel.transform, MemberProfileSections.BaseStatsTitle, 16,
+                new Color32(255, 183, 229, 255), 16, 12, 244, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            statTitle.name = "MemberSectionBaseStats";
             AddMemberStat(statPanel.transform, "MemberStatAttack", "攻击", attack.ToString("N0"), 46);
             AddMemberStat(statPanel.transform, "MemberStatHp", "生命", hp.ToString("N0"), 84);
             AddMemberStat(statPanel.transform, "MemberStatCrit", "暴击", critPercent + "%", 122);
@@ -1268,10 +1304,21 @@ namespace ChoSiren
                 new Color32(18, 22, 70, 222), 22);
             PlaceTop(skillPanel.GetComponent<RectTransform>(), 28, 458, 564, 302);
             AddQuietPanelEdge(skillPanel);
-            NewPlacedText(skillPanel.transform, "成员技能", 17, new Color32(255, 184, 230, 255),
-                18, 12, 520, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            BuildReadableMemberSkill(skillPanel.transform, "MemberSkillPrimary", firstSkillName, firstSkillEffect, 14, Pink);
-            BuildReadableMemberSkill(skillPanel.transform, "MemberSkillSecondary", secondSkillName, secondSkillEffect, 292, Cyan);
+            Text normalTitle = NewPlacedText(skillPanel.transform, MemberProfileSections.NormalAttackTitle, 16,
+                new Color32(255, 184, 230, 255), 18, 8, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            normalTitle.name = "MemberSectionNormalAttack";
+            Text normalCopy = NewPlacedText(skillPanel.transform,
+                $"{normalAttackName} · {normalAttackEffect}", 14, White,
+                18, 34, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            normalCopy.name = "MemberNormalAttack";
+            PanelKit.EnableBestFit(normalCopy, 11);
+            Text activeTitle = NewPlacedText(skillPanel.transform, MemberProfileSections.ActiveSkillsTitle, 16,
+                new Color32(255, 184, 230, 255), 18, 62, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            activeTitle.name = "MemberSectionActiveSkills";
+            BuildReadableMemberSkill(skillPanel.transform, "MemberSkillPrimary", firstSkillName, firstSkillEffect,
+                14, Pink, 90, 152);
+            BuildReadableMemberSkill(skillPanel.transform, "MemberSkillSecondary", secondSkillName, secondSkillEffect,
+                292, Cyan, 90, 152);
             NewPlacedText(skillPanel.transform, MemberTeamBonus(member), 13,
                 new Color32(110, 225, 255, 255), 20, 248, 520, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
 
@@ -1302,20 +1349,14 @@ namespace ChoSiren
 
             if (unlocked)
             {
-                Button trainButton = null;
                 GameObject train = NewButton("Train", panel.transform,
-                    atLevelCap ? "已满级" : canTrain ? "训练升级" : "星光币不足", 18, Pink, White, () =>
+                    atLevelCap ? "已满级" : canTrain ? "练习升级" : "星光币不足", 18, Pink, White, () =>
                 {
-                    // Retire the old action immediately; rebuild from the saved result so
-                    // a second pointer event cannot spend a stale displayed quote.
-                    trainButton.interactable = false;
-                    model.Train(memberIndex, out string message);
-                    ShowScreen(currentScreen);
-                    OpenTeamMember(memberIndex, teamSlot);
-                    Toast(message);
+                    // 只进入练习反馈面板；真正的升级仍调用既有 model.Train（只扣星光币）。
+                    if (!canTrain) return;
+                    OpenTrainingPractice(memberIndex, teamSlot);
                 });
-                trainButton = train.GetComponent<Button>();
-                trainButton.interactable = canTrain;
+                train.GetComponent<Button>().interactable = canTrain;
                 PlaceTop(train.GetComponent<RectTransform>(), 34, 1070, 258, 60);
                 AddQuietPanelEdge(train);
 
@@ -1347,7 +1388,7 @@ namespace ChoSiren
 
             GameObject captainPanel = NewPanel("MemberCaptainPanel", panel.transform, new Color32(26, 33, 65, 255), 18);
             PlaceTop(captainPanel.GetComponent<RectTransform>(), 28, 924, 564, 130);
-            FlowText(captainPanel.transform, "CaptainEffectTitle", "担任队长后的效果", 16, 16, 10, 532, 26, Cyan);
+            FlowText(captainPanel.transform, "CaptainEffectTitle", MemberProfileSections.PassiveCaptainTitle, 16, 16, 10, 532, 26, Cyan);
             FlowText(captainPanel.transform, "CaptainEffectDescription", CaptainEffectCopy(member.Race), 14, 16, 43, 320, 72, Muted);
             bool isCaptain = model.Save.Team.Count > 0 && model.Save.Team[0] == memberIndex;
             FlowButton(captainPanel.transform, "AppointCaptain", !unlocked ? "签约后可任命" : isCaptain ? "当前队长" : model.IsInTeam(memberIndex) ? "设为队长" : "上阵并任命", 352, 52, 196, 52,

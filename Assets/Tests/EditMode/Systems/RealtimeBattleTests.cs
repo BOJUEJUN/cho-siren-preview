@@ -36,7 +36,7 @@ namespace ChoSiren.Tests
             Assert.That(equipped.Attack, Is.EqualTo((int)((long)attack * 1200 / 1000)));
         }
 
-        [TestCase("normal", 2)]
+        [TestCase("normal", 3)]
         [TestCase("elite", 3)]
         [TestCase("boss", 4)]
         [TestCase("world", 5)]
@@ -104,45 +104,50 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void FullBattleBudgetNeverRefillsForNextActorOrOverflowAndRequiresEnergy()
+        public void FullBattleBudgetNeverRefillsForNextActorAndSpendsOneQuotaPerOperation()
         {
-            DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(2), 2, false);
+            DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(2), 2, true);
             dice.Begin();
-            Assert.That(dice.EnergyRerollAll(out _), Is.False);
+            Assert.That(dice.RerollsRemaining, Is.EqualTo(2));
             for (int i = 0; i < 2; i++)
             {
-                dice.RecordDamage(int.MaxValue, true);
-                Assert.That(dice.Energy, Is.EqualTo(100));
-                Assert.That(dice.EnergyRerollAll(out _), Is.True);
-                Assert.That(dice.Energy, Is.Zero, "溢出能量不能存成第二次重投");
+                Assert.That(dice.RerollAll(out _), Is.True, "首章额度的每次操作只花一次");
+                Assert.That(dice.RerollsRemaining, Is.EqualTo(1 - i));
                 int[] faces = dice.Values.ToArray();
                 dice.Begin();
-                Assert.That(dice.Values, Is.EqualTo(faces));
-                Assert.That(dice.RerollsRemaining, Is.EqualTo(1 - i));
+                Assert.That(dice.Values, Is.EqualTo(faces), "换人不能重投或刷新骰面");
             }
-            dice.GainEnergy(100);
+            Assert.That(dice.CanReroll, Is.False, "额度用完就不能再重投");
+            Assert.That(dice.RerollAll(out _), Is.False);
             dice.GrantFreeReroll();
-            Assert.That(dice.CanEnergyReroll, Is.False);
+            Assert.That(dice.CanReroll, Is.True, "救场免费重投是独立的一次机会");
+            Assert.That(dice.RerollAll(out _), Is.True);
+            Assert.That(dice.RerollsRemaining, Is.Zero, "免费重投不额外消耗普通额度");
+            Assert.That(dice.FreeRerolls, Is.Zero);
+            Assert.That(dice.CanReroll, Is.False);
         }
 
         [Test]
-        public void OnlyMermaidCanRerollOneOrTwoDiceAndInvalidSelectionDoesNotSpend()
+        public void SelectiveRerollRequiresATickAndSpendsExactlyOneBudget()
         {
             DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(3), 3, true);
             dice.Begin();
-            dice.GainEnergy(100);
-            Assert.That(dice.RerollUnheld(out _), Is.False);
-            Assert.That(dice.Energy, Is.EqualTo(100));
+            Assert.That(dice.Held.All(held => held), Is.True, "开局全部保留，避免误触重投整手");
+            Assert.That(dice.RerollUnheld(out _), Is.False, "没有点选骰子时不能重投");
+            Assert.That(dice.UsedRerolls, Is.Zero, "非法选择不消耗额度");
             for (int i = 0; i < 3; i++) dice.ToggleHold(i);
-            int[] before = dice.Values.ToArray();
-            Assert.That(dice.RerollUnheld(out _), Is.True);
-            Assert.That(dice.Values.Take(3), Is.EqualTo(before.Take(3)));
-            Assert.That(dice.UsedRerolls, Is.EqualTo(1));
-            DiceTurn other = DiceTurn.ForBattle(new SeededRandom(3), 3, false);
-            other.Begin(); other.GainEnergy(100);
-            for (int i = 0; i < 4; i++) other.ToggleHold(i);
-            Assert.That(other.RerollUnheld(out _), Is.False);
-            Assert.That(other.Energy, Is.EqualTo(100));
+            int keptFourth = dice.Values[3], keptFifth = dice.Values[4];
+            Assert.That(dice.SelectedForRerollCount, Is.EqualTo(3));
+            Assert.That(dice.RerollUnheld(out string error), Is.True, error);
+            Assert.That(dice.Values[3], Is.EqualTo(keptFourth), "没点选的骰子必须保留");
+            Assert.That(dice.Values[4], Is.EqualTo(keptFifth), "没点选的骰子必须保留");
+            Assert.That(dice.UsedRerolls, Is.EqualTo(1), "一次操作只扣一次额度");
+            Assert.That(dice.SelectedForRerollCount, Is.Zero, "重投后新骰面默认全部保留");
+            DiceTurn noSelection = DiceTurn.ForBattle(new SeededRandom(3), 3, false);
+            noSelection.Begin();
+            for (int i = 0; i < 4; i++) noSelection.ToggleHold(i);
+            Assert.That(noSelection.RerollUnheld(out _), Is.False, "不支持自选重投的会话只能全部重投");
+            Assert.That(noSelection.UsedRerolls, Is.Zero);
         }
 
         [Test]
