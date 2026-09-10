@@ -371,8 +371,8 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(divider.rectTransform, 24, 616, 468, 1);
             int benefit = Mathf.Clamp((charm - 50) / 2, 8, 24);
             Text management = kit.NewPlacedText(card.transform,
-                $"魅力  {charm}        演出收益  +{benefit}%", 16,
-                new Color32(229, 217, 249, 255), 24, 624, 290, 32,
+                $"魅力  {charm}  ·  演出收益  +{benefit}%", 16,
+                new Color32(229, 217, 249, 255), 24, 622, 290, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             management.name = "CandidateCharm";
 
@@ -383,12 +383,20 @@ namespace ChoSiren.Panels
                 ? new Color32(255, 108, 128, 255)
                 : riskTier == "中" ? new Color32(255, 196, 92, 255) : new Color32(104, 226, 160, 255);
             Text riskText = kit.NewPlacedText(card.transform,
-                $"风险值  {risk}  ·  {riskTier}", 16, riskColor, 296, 624, 196, 32,
+                $"风险值  {risk}  ·  {riskTier}", 16, riskColor, 296, 622, 196, 30,
                 TextAnchor.MiddleRight, FontStyle.Bold);
             riskText.name = "CandidateRisk";
-            Image riskTrack = kit.NewBar("CandidateRiskBar", card.transform, 24, 660, 468, 6,
+            Image riskTrack = kit.NewBar("CandidateRiskBar", card.transform, 24, 654, 468, 6,
                 new Color32(83, 78, 126, 86), riskColor, 6);
             riskTrack.fillAmount = risk / 100f;
+
+            // 签约前明示预估月薪：签约后按 7 天经营期从星光币扣除（见成员档案「经纪经营」）。
+            Text salaryText = kit.NewPlacedText(card.transform,
+                $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期（7 天一期）",
+                13, new Color32(255, 210, 117, 255), 24, 662, 468, 22,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            salaryText.name = "CandidateSalary";
+            PanelKit.EnableBestFit(salaryText, 10);
         }
 
         private void BuildInterviewStat(Transform parent, string label, int value, int row, bool strongest)

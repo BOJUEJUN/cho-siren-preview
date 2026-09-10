@@ -172,6 +172,20 @@ namespace ChoSiren
         public string InterviewCycle = string.Empty;
         public List<string> OnlineCandidateIds = new List<string>();
         public List<string> OfflineCandidateIds = new List<string>();
+
+        // ---- 风险与月薪（经纪经营） ----
+        // Per-member 当前风险 0-100（休整后可下降），indexed like MemberLevels。旧档缺字段由 Normalize 补齐。
+        public List<int> MemberRisk = new List<int>();
+        // Per-member 最近一次风险休整日期 ("yyyy-MM-dd")，空 = 从未处理。每日一次冷却。
+        public List<string> MemberRiskMitigationDate = new List<string>();
+        // Per-member 签约渠道：0 = 线上（低起点/低价）、1 = 线下（高起点/高价）、-1 = 旧档/其他入口。
+        public List<int> MemberSigningChannel = new List<int>();
+        // 上次已结算（已付或待付）的经营期序号，单调递增；-1 = 尚未启用（新号/旧档免追缴）。
+        public int SalarySettlementIndex = -1;
+        // 本期月薪已到期但余额不足、等待补足后支付（恢复支付只扣一次）。
+        public bool SalarySettlementPending = false;
+        // 最近一次结算结果的提示（余额不足等），仅展示，不改变数值。
+        public string SalarySettlementNotice = string.Empty;
     }
 
     public sealed partial class GameModel : IGachaService, ITaskBoardService
@@ -411,6 +425,7 @@ namespace ChoSiren
         public event Action Changed;
 
         private readonly Func<DateTime> nowProvider;
+        private readonly ISaveStore store;
         private readonly EconomyConfig economy;
         private readonly GachaManifest gacha;
         private readonly TacticsManifest tactics;
@@ -428,15 +443,29 @@ namespace ChoSiren
         {
         }
 
+        /// <summary>Isolation constructor: inject a fake clock and a non-PlayerPrefs store for tests/tools.</summary>
+        public GameModel(Func<DateTime> nowProvider, ISaveStore store) : this(nowProvider, store, null, null, null, null)
+        {
+        }
+
         /// <summary>
         /// Injectable constructor for tests and tools. Any null table falls back to
         /// <see cref="GameData.Repository"/>; a table that is still missing there degrades to an
         /// empty manifest so the lobby keeps working when a designer commits a broken file.
+        /// A null <paramref name="store"/> keeps production <see cref="PlayerPrefsSaveStore"/>.
         /// </summary>
         public GameModel(Func<DateTime> nowProvider, EconomyConfig economy, GachaManifest gacha,
             TacticsManifest tactics, Func<string, StoryScript> storyLoader)
+            : this(nowProvider, null, economy, gacha, tactics, storyLoader)
+        {
+        }
+
+        /// <summary>Full constructor shared by production and isolation paths.</summary>
+        public GameModel(Func<DateTime> nowProvider, ISaveStore store, EconomyConfig economy, GachaManifest gacha,
+            TacticsManifest tactics, Func<string, StoryScript> storyLoader)
         {
             this.nowProvider = nowProvider ?? throw new ArgumentNullException(nameof(nowProvider));
+            this.store = store ?? new PlayerPrefsSaveStore();
 
             GameDataRepository repository = null;
             if (economy == null || gacha == null || tactics == null || storyLoader == null)
@@ -449,6 +478,9 @@ namespace ChoSiren
                 repository != null && repository.TryGetStory(id, out StoryScript script, out _) ? script : null);
 
             Load();
+            // 构造即推进一次每日/经营期状态：月薪等周期结算不依赖玩家先做一个动作。
+            // 首次启用只记账不扣款，跨经营期才结算一次。
+            Tick();
         }
 
         // ------------------------------------------------------------------ tables
@@ -740,7 +772,7 @@ namespace ChoSiren
 
         /// <summary>低/中/高 band for the numeric risk, matching the 0–100 scale above.</summary>
         public static string InterviewRiskLabel(int risk) =>
-            risk >= 60 ? "高" : risk >= 35 ? "中" : "低";
+            risk >= 67 ? "高" : risk >= 34 ? "中" : "低";
 
         public string InterviewRiskLabelOf(int poolIndex, int memberIndex) =>
             InterviewRiskLabel(InterviewRisk(poolIndex, memberIndex));
@@ -762,7 +794,7 @@ namespace ChoSiren
                 message = "签约报价已更新，请重新查看";
                 return false;
             }
-            return SignCandidate(memberIndex, displayedQuote, out message);
+            return SignCandidate(memberIndex, displayedQuote, poolIndex, out message);
         }
 
         private void EnsureInterviewShortlists()
@@ -826,7 +858,11 @@ namespace ChoSiren
         /// 面试页按候选人与面试池给出不同报价。签约一律消耗星钻（稀有货币），成员训练与饰品
         /// 强化只消耗星光币；旧 <see cref="Recruit"/> 仍保留给尚未迁移的入口。
         /// </summary>
-        public bool SignCandidate(int memberIndex, int diamondCost, out string message)
+        public bool SignCandidate(int memberIndex, int diamondCost, out string message) =>
+            SignCandidate(memberIndex, diamondCost, -1, out message);
+
+        /// <summary>签约并把渠道起点写入存档（0 = 线上低起点、1 = 线下高起点、其他 = 无偏移）。</summary>
+        public bool SignCandidate(int memberIndex, int diamondCost, int signingChannel, out string message)
         {
             if (!IsValidMemberIndex(memberIndex))
             {
@@ -854,6 +890,7 @@ namespace ChoSiren
 
             Save.Diamonds -= diamondCost;
             UnlockMemberInternal(memberIndex);
+            ApplySigningChannel(memberIndex, signingChannel);
             GainAffection(memberIndex, StartingAffection);
             Report(TaskTriggers.GachaPull);
             SaveState();
@@ -1028,15 +1065,17 @@ namespace ChoSiren
                 return false;
             }
 
-            Save.Gold += PerformanceGoldReward;
+            // 队内摩擦按当前编队平均风险降低演出星光币，一次演出只应用一次。
+            int goldReward = CareerEconomy.ApplyPenalty(PerformanceGoldReward, TeamFrictionPenaltyPercent());
+            Save.Gold += goldReward;
             if (RecordSuccessfulPerformance())
             {
                 Save.Diamonds += DailyPerformanceDiamondReward;
-                message = $"演出完成！星光币 +{PerformanceGoldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
+                message = $"演出完成！星光币 +{goldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
             }
             else
             {
-                message = $"演出完成！星光币 +{PerformanceGoldReward}（今日 {Save.DailyPerformances}/{DailyPerformanceGoal}）";
+                message = $"演出完成！星光币 +{goldReward}（今日 {Save.DailyPerformances}/{DailyPerformanceGoal}）";
             }
 
             SaveState();
@@ -1134,14 +1173,19 @@ namespace ChoSiren
             }
 
             Tick();
-            IdleIncomeReport report = IdleIncome.Compute(Save.IdleLastClaimUnix, now, economy);
-            foreach (CurrencyAmount reward in report.Rewards) GrantItemInternal(reward.Currency, reward.Amount);
+            IdleIncomeReport report = PreviewIdleIncome();
+            var granted = new List<(string ItemId, int Amount)>();
+            foreach (CurrencyAmount reward in report.Rewards)
+            {
+                GrantItemInternal(reward.Currency, reward.Amount);
+                if (reward.Amount > 0) granted.Add((reward.Currency, reward.Amount));
+            }
             Save.IdleLastClaimUnix = now;
             Report(TaskTriggers.ClaimIdle);
             SaveState();
-            message = report.Rewards.Count == 0
+            message = granted.Count == 0
                 ? "舞台收益已刷新，暂无可领取的资源"
-                : "领取舞台收益：" + FormatRewards(report.Rewards.Select(reward => (reward.Currency, reward.Amount)));
+                : "领取舞台收益：" + FormatRewards(granted);
             return true;
         }
 
@@ -1747,7 +1791,7 @@ namespace ChoSiren
         /// </summary>
         public void Reset()
         {
-            PlayerPrefs.DeleteKey(SaveKey);
+            store.DeleteKey(SaveKey);
             pendingBattles.Clear();
             activeStories.Clear();
             Save = CreateDefault();
@@ -1759,7 +1803,7 @@ namespace ChoSiren
 
         private void Load()
         {
-            string v2 = PlayerPrefs.GetString(SaveKey, string.Empty);
+            string v2 = store.GetString(SaveKey, string.Empty);
             if (!string.IsNullOrEmpty(v2))
             {
                 try
@@ -1787,9 +1831,9 @@ namespace ChoSiren
             Persist();
         }
 
-        private static GameSave LoadLegacyOrDefault()
+        private GameSave LoadLegacyOrDefault()
         {
-            string v1 = PlayerPrefs.GetString(LegacySaveKey, string.Empty);
+            string v1 = store.GetString(LegacySaveKey, string.Empty);
             if (string.IsNullOrEmpty(v1)) return CreateDefault();
 
             try
@@ -1929,6 +1973,7 @@ namespace ChoSiren
             bool changed = EnsureDailyState();
             changed |= ApplyStaminaRegen();
             changed |= TaskBoard.Refresh(Save.Tasks, economy.Tasks, nowProvider());
+            changed |= SettleSalaryIfDue();
             return changed;
         }
 
@@ -2345,6 +2390,29 @@ namespace ChoSiren
             for (int index = 0; index < Save.MemberDeepTalkDate.Count; index++)
                 Save.MemberDeepTalkDate[index] ??= string.Empty;
 
+            // 风险：旧档缺字段时按成员 ID 确定性补齐；已休整的存档值原样保留。
+            Save.MemberRisk ??= new List<int>();
+            while (Save.MemberRisk.Count < Members.Length)
+                Save.MemberRisk.Add(CareerEconomy.RiskValue(Members[Save.MemberRisk.Count].Id));
+            if (Save.MemberRisk.Count > Members.Length)
+                Save.MemberRisk.RemoveRange(Members.Length, Save.MemberRisk.Count - Members.Length);
+            for (int index = 0; index < Save.MemberRisk.Count; index++)
+                Save.MemberRisk[index] = Mathf.Clamp(Save.MemberRisk[index], CareerEconomy.RiskMin, CareerEconomy.RiskMax);
+
+            Save.MemberRiskMitigationDate ??= new List<string>();
+            while (Save.MemberRiskMitigationDate.Count < Members.Length) Save.MemberRiskMitigationDate.Add(string.Empty);
+            if (Save.MemberRiskMitigationDate.Count > Members.Length)
+                Save.MemberRiskMitigationDate.RemoveRange(Members.Length, Save.MemberRiskMitigationDate.Count - Members.Length);
+            for (int index = 0; index < Save.MemberRiskMitigationDate.Count; index++)
+                Save.MemberRiskMitigationDate[index] ??= string.Empty;
+
+            Save.MemberSigningChannel ??= new List<int>();
+            while (Save.MemberSigningChannel.Count < Members.Length) Save.MemberSigningChannel.Add(-1);
+            if (Save.MemberSigningChannel.Count > Members.Length)
+                Save.MemberSigningChannel.RemoveRange(Members.Length, Save.MemberSigningChannel.Count - Members.Length);
+
+            Save.SalarySettlementNotice ??= string.Empty;
+
             NormalizeEquipment();
 
             SyncRosterFromIndices();
@@ -2455,8 +2523,8 @@ namespace ChoSiren
 
         private void Persist()
         {
-            PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(Save));
-            PlayerPrefs.Save();
+            store.SetString(SaveKey, JsonUtility.ToJson(Save));
+            store.Flush();
         }
 
         private DateTime Today => nowProvider().Date;

@@ -236,7 +236,7 @@ namespace ChoSiren
             string state = !model.OwnsAccessory(item) ? "尚未获得" : owner < 0 ? "未装备" : $"{GameModel.Members[owner].Name} 使用中";
             FlowText(detail.transform, "EquipmentItemOwner", $"{state} · 强化 +{model.AccessoryUpgradeLevel(item)}", 16, 320, 58, 342, 28, Cyan);
             FlowText(detail.transform, "EquipmentItemQuality", $"{GameModel.AccessoryRarityNameOf(item)} · {GameModel.AccessoryStatDescription(item)}",
-                14, 320, 84, 342, 22, AccessoryRarityColor(item));
+                14, 320, 88, 342, 22, AccessoryRarityColor(item));
             bool wearingSelected = current == item;
             int candidateItem = item;
             CombatStats before = wearingSelected ? model.PreviewEquipmentStats(member, member, candidateItem, true) : model.StatsOf(member);
@@ -245,7 +245,7 @@ namespace ChoSiren
             int baselinePower = wearingSelected ? model.PreviewEquipmentTeamPower(member, candidateItem, true) : model.TeamPower;
             int[] oldValues = { before.Hp, before.Attack, before.Defense, baselinePower };
             int[] newValues = { after.Hp, after.Attack, after.Defense, model.PreviewEquipmentTeamPower(member, candidateItem) };
-            FlowText(detail.transform, "EquipmentCompareHeading", wearingSelected ? "未装备时   →   当前已装备" : "当前     →     装备后预览", 16, 332, 106, 330, 28, Muted);
+            FlowText(detail.transform, "EquipmentCompareHeading", wearingSelected ? "未装备时   →   当前已装备" : "当前     →     装备后预览", 16, 332, 112, 330, 28, Muted);
             for (int row = 0; row < 4; row++)
             {
                 FlowText(detail.transform, "AccessoryStatName-" + row, names[row], 18, 236, 143 + row * 34, 112, 32, Muted);
@@ -293,10 +293,14 @@ namespace ChoSiren
                 PlaceTop(art.GetComponent<RectTransform>(), 73, 6, 74, 72);
                 art.GetComponent<Image>().preserveAspect = true;
                 FlowText(card.transform, "ItemName", GameModel.AccessoryNames[i], 18, 12, 82, 196, 29, AccessoryRarityColor(i));
-                FlowText(card.transform, "ItemQuality", GameModel.AccessoryRarityNameOf(i) + " · " + GameModel.AccessoryStatDescription(i),
-                    12, 12, 108, 196, 22, AccessoryRarityColor(i));
+                // 品质+属性压成一行窄卡文案：去掉空格分隔并用 BestFit 兜底，避免传说三属性被行高裁切。
+                Text quality = FlowText(card.transform, "ItemQuality",
+                    GameModel.AccessoryRarityNameOf(i) + "·" + GameModel.AccessoryStatDescription(i)
+                        .Replace(" · ", "·").Replace("攻击 ", "攻").Replace("防御 ", "防"),
+                    12, 8, 113, 204, 22, AccessoryRarityColor(i));
+                ChoSiren.Panels.PanelKit.EnableBestFit(quality, 10);
                 int wearer = model.AccessoryOwner(i);
-                FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 132, 196, 25, Cyan);
+                FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 137, 196, 25, Cyan);
             }
             if (visibleItems.Length == 0)
                 FlowText(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 18, 16, inventoryBottom, 648, 36, Muted);

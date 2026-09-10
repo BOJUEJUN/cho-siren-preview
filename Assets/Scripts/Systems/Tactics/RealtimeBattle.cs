@@ -670,13 +670,14 @@ namespace ChoSiren.Systems.Tactics
             BattleDice.RerollAll(out _);
         }
 
-        private static int PoisonLayers(DicePattern p) => p == DicePattern.FiveKind ? 8
+        // 骰型收益表改为公开：面板的队长收益读数在回合制模式下也按同一张表换算（0.3.8）。
+        public static int PoisonLayers(DicePattern p) => p == DicePattern.FiveKind ? 8
             : p == DicePattern.FourKind ? 5 : p == DicePattern.FullHouse ? 4 : p == DicePattern.ThreeKind ? 3
             : p == DicePattern.TwoPair ? 2 : p == DicePattern.Pair ? 1 : 0;
-        private static int Combo(DicePattern p) => p == DicePattern.FiveKind ? 3 : PoisonLayers(p);
-        private static int Pierce(DicePattern p) => p == DicePattern.FiveKind ? 500 : p == DicePattern.FourKind ? 300
+        public static int Combo(DicePattern p) => p == DicePattern.FiveKind ? 3 : PoisonLayers(p);
+        public static int Pierce(DicePattern p) => p == DicePattern.FiveKind ? 500 : p == DicePattern.FourKind ? 300
             : p == DicePattern.FullHouse ? 250 : p == DicePattern.ThreeKind ? 200 : 0;
-        private static int ShieldPercent(DicePattern p) => p == DicePattern.FiveKind ? 300 : p == DicePattern.FourKind ? 200
+        public static int ShieldPercent(DicePattern p) => p == DicePattern.FiveKind ? 300 : p == DicePattern.FourKind ? 200
             : p == DicePattern.FullHouse ? 150 : p == DicePattern.ThreeKind ? 120 : p == DicePattern.Straight ? 80 : 0;
         private static string SkillId(CombatRace race, bool big) => "rt-" + race.ToString().ToLowerInvariant() + (big ? "-big" : "-small");
         private static SkillDefinition RealtimeSkill(string id) => id != null && realtimeSkills.TryGetValue(id, out var skill) ? skill : null;

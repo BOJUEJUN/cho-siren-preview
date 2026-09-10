@@ -251,8 +251,8 @@ namespace ChoSiren.Tests
             try
             {
                 var model = new GameModel();
-                model.Save.Team[0] = 2; // 雾白（人鱼）接任队长，验证护盾图标
-                BattleSimulator battle = CreateBattle(new[] { "feiyin", "xingli" },
+                model.Save.Team[0] = 2; // 雾白（人鱼，index 2）接任队长，验证护盾图标
+                BattleSimulator battle = CreateBattle(new[] { "wubai", "xingli" },
                     rolls: new ScriptedRandom(new[] { 999 }, new[] { 0, 0, 0, 1, 2 }));
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, model, battle, null);
                 panel.StopAllCoroutines();
@@ -260,7 +260,7 @@ namespace ChoSiren.Tests
                 Invoke(panel, "RefreshRealtimeCommands");
 
                 BattleUnit captain = battle.FindUnit(battle.CurrentLeaderId);
-                Assert.That(captain.Definition.Id, Is.EqualTo("feiyin"));
+                Assert.That(captain.Definition.Id, Is.EqualTo("wubai"));
                 Assert.That(battle.CaptainShieldPermille, Is.GreaterThan(0), "三条开局应给护盾收益。");
                 RectTransform card = FindRect(panel.transform, "Cell-P-" + captain.Row + "-" + captain.Col);
                 Assert.That(FindRect(card, "CaptainBadge").gameObject.activeSelf, Is.True,

@@ -108,9 +108,9 @@ namespace ChoSiren
             switch (currencyId)
             {
                 case CurrencyIds.Diamond:
-                    return "星钻 · 稀有资源\n用途：选秀招募、兑换星光币、补充体力。\n获取：关卡首通、任务、签到和舞台收益。\n" + RealMoneyPurchaseNotice;
+                    return "星钻 · 稀有资源\n用途：面试签约、选秀招募、兑换星光币、补充体力。\n获取：关卡首通、任务、签到和舞台收益。\n" + RealMoneyPurchaseNotice;
                 case CurrencyIds.Gold:
-                    return $"星光币 · 养成资源\n用途：训练成员、面试签约、强化饰品。\n获取：关卡通关、任务和舞台收益。\n也可用 {GoldExchangeDiamondCost} 星钻兑换 {GoldExchangeAmount:N0} 星光币，确认后才会扣除。";
+                    return $"星光币 · 养成资源\n用途：训练成员、强化饰品、风险沟通休整。\n获取：关卡通关、任务和舞台收益。\n也可用 {GoldExchangeDiamondCost} 星钻兑换 {GoldExchangeAmount:N0} 星光币，确认后才会扣除。";
                 case CurrencyIds.Stamina:
                     return $"体力 · 挑战消耗\n用途：进入关卡时消耗；并不是星光币。\n自然恢复：每 {economy.StaminaRegenSeconds / 60f:0.#} 分钟恢复 {economy.StaminaPerTick} 点，上限 {StaminaCap}。\n补充：每点 {StaminaRefillDiamondCostPerPoint} 星钻，每次最多 {StaminaRefillMaximum} 点；不足上限时只按实际补充数量收费。";
                 default:

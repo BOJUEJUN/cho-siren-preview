@@ -1,0 +1,99 @@
+name: unity-tests
+
+# 每次推送自动跑 Unity EditMode + PlayMode 测试，杜绝带病上线。
+# 首次启用需要在仓库 Settings → Secrets → Actions 添加 UNITY_LICENSE：
+#   内容为 Unity Personal 授权文件（macOS: /Library/Application Support/Unity/Unity_lic.ulf）的全文。
+# 未配置 secret 时本工作流会跳过并给出警告，不会失败阻塞发布。
+
+on:
+  push:
+    branches: [main, 'release/**']
+  pull_request:
+    branches: [main, 'release/**']
+
+jobs:
+  editmode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check license secret
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          if [ -n "$UNITY_LICENSE" ]; then
+            echo "HAS_LICENSE=1" >> "$GITHUB_ENV"
+          else
+            echo "HAS_LICENSE=0" >> "$GITHUB_ENV"
+            echo "::warning::未配置 UNITY_LICENSE secret，跳过 Unity 测试。配置方法见 RELEASES.md v0.3.8。"
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Cache Library
+        if: env.HAS_LICENSE == '1'
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Run EditMode tests
+        if: env.HAS_LICENSE == '1'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          unityVersion: 6000.6.0f1
+          testMode: EditMode
+          artifactsPath: artifacts/editmode
+
+      - name: Upload EditMode results
+        if: env.HAS_LICENSE == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: editmode-results
+          path: artifacts/editmode
+          if-no-files-found: ignore
+
+  playmode:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check license secret
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          if [ -n "$UNITY_LICENSE" ]; then
+            echo "HAS_LICENSE=1" >> "$GITHUB_ENV"
+          else
+            echo "HAS_LICENSE=0" >> "$GITHUB_ENV"
+            echo "::warning::未配置 UNITY_LICENSE secret，跳过 Unity 测试。配置方法见 RELEASES.md v0.3.8。"
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Cache Library
+        if: env.HAS_LICENSE == '1'
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      - name: Run PlayMode tests
+        if: env.HAS_LICENSE == '1'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          unityVersion: 6000.6.0f1
+          testMode: PlayMode
+          artifactsPath: artifacts/playmode
+
+      - name: Upload PlayMode results
+        if: env.HAS_LICENSE == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playmode-results
+          path: artifacts/playmode
+          if-no-files-found: ignore

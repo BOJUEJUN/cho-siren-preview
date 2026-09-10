@@ -35,7 +35,11 @@ namespace ChoSiren.Tests
                 });
 
                 Assert.That(ActivePopups(panel).Any(text => text.Contains("-100") && text.Contains("×1.45")),
-                    Is.True, "我方伤害弹字必须同时给出伤害与本次骰子累计倍率。");
+                    Is.True, "我方伤害弹字必须同时给出伤害与本次骰子累计倍率。实际弹字: [" +
+                    string.Join(" | ", ActivePopups(panel)) + "] 诊断: 弹字池节点" +
+                    panel.GetComponentsInChildren<Text>(true).Count(t => t.name == "Popup") + "个 / 激活" +
+                    panel.GetComponentsInChildren<Text>(true).Count(t => t.name == "Popup" && t.gameObject.activeSelf) + "个 / 敌方格子" +
+                    (FindRectOrNull(panel.transform, "Cell-E-0-0") != null ? "有" : "无"));
                 Assert.That(LogText(panel).text, Does.Contain("骰子 ×1.45"));
                 Assert.That(LogText(panel).text, Does.Contain("造成 100 伤害"));
             }
@@ -83,7 +87,8 @@ namespace ChoSiren.Tests
                     SkillId = "strike", Amount = 100, AbsorbedAmount = 80, HpLostAmount = 20
                 });
                 Assert.That(ActivePopups(panel).Any(text => text.Contains("-20") && text.Contains("护盾-80")),
-                    Is.True, "部分吸收必须显示真实掉血，而不是含护盾的总伤害。");
+                    Is.True, "部分吸收必须显示真实掉血，而不是含护盾的总伤害。实际弹字: [" +
+                    string.Join(" | ", ActivePopups(panel)) + "]");
                 Assert.That(LogText(panel).text, Does.Contain("护盾吸收 80"));
 
                 Present(panel, new BattleEvent
@@ -131,13 +136,19 @@ namespace ChoSiren.Tests
             {
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(), null);
                 panel.StopAllCoroutines();
+                // 同步测试不会推进骰子落地协程，模拟落地后的稳定状态，断言的是落地后的可读性。
+                SetField(panel, "awaitingInput", true);
+                SetField(panel, "awaitingDiceLanding", false);
                 Invoke(panel, "RefreshDiceUi");
                 Invoke(panel, "RefreshRealtimeCommands");
 
                 Text instruction = FindRect(panel.transform, "DiceInstruction").GetComponent<Text>();
                 Text hand = FindRect(panel.transform, "DiceHandSummary").GetComponent<Text>();
                 Assert.That(hand.text, Does.Contain("五条"), "默认测试骰面为五条，摘要必须显示真实骰型。");
-                Assert.That(hand.text, Does.Contain("×2"), "五条累计上限就是 ×2。");
+                // 战斗内倍率是「累计」口径（起手 +25%，封顶 ×2），摘要必须与模型读数一致，不得展示假倍率。
+                Assert.That(hand.text, Does.Contain(
+                    $"累计 ×{panel.Battle.BattleDice.DamageMultiplierPermille / 1000f:0.##}"),
+                    "骰型摘要的倍率必须与模型当前累计读数一致。");
                 Assert.That(instruction.text, Does.Contain("累计 +"));
                 Assert.That(instruction.text, Does.Contain("魅族追击 3次"),
                     "默认队长星璃是魅族，五条应显示 3 次追击，而不是硬编码文案。");
@@ -240,6 +251,12 @@ namespace ChoSiren.Tests
                 Id = "player", Name = "我方", MaxHp = 100000, Attack = 100, Defense = 20, Speed = 100,
                 SkillIds = new List<string> { "strike" }
             });
+            // 队长卡测试需要第二名队员对比金色/青色描边，原夹具只有一人会让 First() 直接抛空。
+            manifest.Units.Add(new UnitDefinition
+            {
+                Id = "player2", Name = "队友", MaxHp = 100000, Attack = 100, Defense = 20, Speed = 100,
+                SkillIds = new List<string> { "strike" }
+            });
             manifest.Units.Add(new UnitDefinition
             {
                 Id = "enemy", Name = "敌方", MaxHp = 100000, Attack = 50, Defense = 10, Speed = 90,
@@ -248,11 +265,17 @@ namespace ChoSiren.Tests
             var stage = new StageDefinition
             {
                 Id = "feedback-attribution-test", Name = "反馈归因", TurnLimit = 10,
+                // 普通遭遇：弹字走格子弹字池；不设会落进 boss 表现层，导致弹字断言拿不到 Popup 节点。
+                EncounterType = "normal",
                 Enemies = new List<EnemySpawn> { new EnemySpawn { UnitId = "enemy", Row = 0, Col = 0 } }
             };
             manifest.Stages.Add(stage);
             return new BattleSimulator(manifest, stage,
-                new[] { new PlayerUnitSetup { UnitId = "player", Row = 0, Col = 0, Level = 1 } },
+                new[]
+                {
+                    new PlayerUnitSetup { UnitId = "player", Row = 0, Col = 0, Level = 1 },
+                    new PlayerUnitSetup { UnitId = "player2", Row = 0, Col = 1, Level = 1 },
+                },
                 new ScriptedRandom(new[] { 999 }));
         }
 
@@ -271,5 +294,9 @@ namespace ChoSiren.Tests
             Assert.That(result, Is.Not.Null, "未找到布局节点：" + name);
             return result;
         }
+
+        private static RectTransform FindRectOrNull(Transform root, string name) =>
+            root.GetComponentsInChildren<RectTransform>(true)
+                .FirstOrDefault(item => item.name == name);
     }
 }

@@ -570,12 +570,17 @@ namespace ChoSiren.Tests
             int initialDiamonds = model.Save.Diamonds;
             int initialGold = model.Save.Gold;
             int initialStamina = model.Save.Stamina;
+            // 0.3.8 起演出星光币按队伍平均风险打折（队内摩擦）；期望值与模型同一口径计算。
+            int frictionPenalty = model.TeamFrictionPenaltyPercent();
+            int perShowGold = ChoSiren.Systems.Economy.CareerEconomy.ApplyPenalty(
+                GameModel.PerformanceGoldReward, frictionPenalty);
 
             for (int count = 0; count < GameModel.DailyPerformanceGoal; count++)
                 Assert.That(model.Perform(out _), Is.True);
 
             Assert.That(model.Save.Gold,
-                Is.EqualTo(initialGold + GameModel.PerformanceGoldReward * GameModel.DailyPerformanceGoal));
+                Is.EqualTo(initialGold + perShowGold * GameModel.DailyPerformanceGoal), () =>
+                    $"摩擦减益 {frictionPenalty}% 下每场应为 {perShowGold}");
             Assert.That(model.Save.Stamina,
                 Is.EqualTo(initialStamina - GameModel.PerformanceStaminaCost * GameModel.DailyPerformanceGoal));
             Assert.That(model.Save.DailyPerformances, Is.EqualTo(GameModel.DailyPerformanceGoal));

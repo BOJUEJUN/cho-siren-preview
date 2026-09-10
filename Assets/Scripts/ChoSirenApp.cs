@@ -1371,7 +1371,7 @@ namespace ChoSiren
                     CloseModal();
                     ShowScreen(currentScreen);
                 });
-                PlaceTop(team.GetComponent<RectTransform>(), 328, 1070, 258, 60);
+                PlaceTop(team.GetComponent<RectTransform>(), 328, 1230, 258, 60);
                 AddQuietPanelEdge(team);
             }
             else

@@ -313,6 +313,10 @@ namespace ChoSiren.Tests
                 Assert.That(reroll.text, Is.EqualTo("重投已选0颗"), "开局全部保留，必须先点选要重投的骰子。");
                 Assert.That(energy.text, Does.StartWith("全部重投"));
                 Assert.That(panel.Battle.BattleDice.Energy, Is.Zero);
+                // 同步测试不会推进骰子落地动画；模拟落地后的稳定状态再验证重投额度。
+                SetField(panel, "awaitingInput", true);
+                SetField(panel, "awaitingDiceLanding", false);
+                Invoke(panel, "RefreshDiceUi");
                 Assert.That(FindRect(panel.transform, "EnergyReroll").GetComponent<Button>().interactable, Is.True,
                     "首章 3 次重投额度不依赖充能，开局即可全部重投。");
                 Text controlHint = FindRect(panel.transform, "BattleControlInstruction").GetComponent<Text>();

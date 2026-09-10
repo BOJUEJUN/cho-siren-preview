@@ -105,7 +105,9 @@ namespace ChoSiren.Tests
                         actor.Definition.Name + " 的普攻、小技能、大技能不能都显示成首位队员行动。");
                     Text label = cell.Find("PerformerAction").GetComponent<Text>();
                     Assert.That(label.gameObject.activeInHierarchy, Is.True);
-                    Assert.That(label.text, Is.EqualTo(fixture.Battle.LookupSkill(skills[2]).Name));
+                    // 大招带「大招 · 」前缀（0.3.5 上线形态），回归点是必须指向该成员自己的大招名。
+                    Assert.That(label.text, Does.EndWith(fixture.Battle.LookupSkill(skills[2]).Name),
+                        actor.Definition.Name + " 的大招标签没有指向自己的大招");
                 }
                 foreach (BattleUnit unit in fixture.Battle.Units)
                     Assert.That(unit.Hp, Is.EqualTo(originalHp[unit.Id]),

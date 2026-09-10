@@ -704,8 +704,10 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(highlight.rectTransform);
             highlight.enabled = false;
 
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 14 : 16, PanelKit.White,
-                player ? 10 : 8, player ? 100 : 3, width - (player ? 20 : 16), player ? 19 : 26,
+            // 玩家卡名字 11pt(排版钳到12)：名字行 100..120 夹在头像(至100)与护盾/血条(119起)之间，
+            // 20px 行高容纳 BestFit 后 12pt 的真实行高。
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 11 : 16, PanelKit.White,
+                player ? 10 : 8, player ? 100 : 3, width - (player ? 20 : 16), player ? 20 : 26,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
             unitName.gameObject.name = "UnitName";
             PanelKit.EnableBestFit(unitName, 11);
@@ -1730,25 +1732,32 @@ namespace ChoSiren.Panels
         /// <summary>Captain command readout with the values the current hand actually applies.</summary>
         private string CaptainEffectLabel()
         {
-            switch (battle.CurrentLeaderRace)
+            if (battle?.BattleDice?.Hand == null) return "接任不刷新骰子、能量或冷却";
+            CombatRace race = ReadoutLeaderRace();
+            DicePattern pattern = battle.BattleDice.Hand.Pattern;
+            switch (race)
             {
                 case CombatRace.Demon:
-                    return battle.CaptainPoisonLayers > 0
-                        ? $"恶魔指挥 · 当前骰型普攻叠毒 {battle.CaptainPoisonLayers} 层"
+                    int poison = BattleSimulator.PoisonLayers(pattern);
+                    return poison > 0
+                        ? $"恶魔指挥 · 当前骰型普攻叠毒 {poison} 层"
                         : "恶魔指挥 · 当前骰型无叠毒，重投可提高层数";
                 case CombatRace.Charm:
-                    return battle.CaptainComboCount > 0
-                        ? $"魅族指挥 · 当前骰型追击 {battle.CaptainComboCount} 次"
+                    int combo = BattleSimulator.Combo(pattern);
+                    return combo > 0
+                        ? $"魅族指挥 · 当前骰型追击 {combo} 次"
                         : "魅族指挥 · 当前骰型无追击，重投可提高次数";
                 case CombatRace.Mermaid:
                     // Selective reroll is a shared battle rule for every captain; only the
                     // mermaid's own dice benefits belong in the race-command readout.
-                    return battle.CaptainShieldPermille > 0
-                        ? $"人鱼指挥 · 当前骰型护盾 +{battle.CaptainShieldPermille / 10f:0.#}% · 五同减伤"
+                    int shield = BattleSimulator.ShieldPercent(pattern);
+                    return shield > 0
+                        ? $"人鱼指挥 · 当前骰型护盾 +{shield / 10f:0.#}% · 五同减伤"
                         : "人鱼指挥 · 当前骰型无护盾 · 五同减伤";
                 case CombatRace.BloodElf:
-                    return battle.CaptainPiercePermille > 0
-                        ? $"血精灵指挥 · 当前骰型穿甲 {battle.CaptainPiercePermille / 10f:0.#}% · 残血收割"
+                    int pierce = BattleSimulator.Pierce(pattern);
+                    return pierce > 0
+                        ? $"血精灵指挥 · 当前骰型穿甲 {pierce / 10f:0.#}% · 残血收割"
                         : "血精灵指挥 · 当前骰型无穿甲 · 残血收割";
                 default:
                     return "接任不刷新骰子、能量或冷却";
@@ -2182,7 +2191,8 @@ namespace ChoSiren.Panels
             cell.Name.text = unit.Definition.Name;
             // The captain's name is always gold, independent of the transient selection frame.
             bool captainName = cell.Side == BattleSide.Player && unit.Id == battle.CurrentLeaderId && unit.Alive;
-            cell.Name.color = captainName ? new Color32(255, 205, 110, 255) : PanelKit.White;
+            // 非队长名字用近白但非金色（r<0.95），让队长的金色在卡片阵列里唯一可辨。
+            cell.Name.color = captainName ? new Color32(255, 205, 110, 255) : new Color32(226, 228, 245, 255);
             if (cell.Portrait != null)
             {
                 Sprite portrait = cell.Side == BattleSide.Player
@@ -2670,19 +2680,52 @@ namespace ChoSiren.Panels
             }
         }
 
+        /// <summary>成员目录的种族文案 → 战斗种族；用于回合制模式下的队长收益读数。</summary>
+        private static CombatRace RaceFromMemberLabel(string race) =>
+            string.IsNullOrEmpty(race) ? CombatRace.None
+            : race.Contains("人鱼") ? CombatRace.Mermaid
+            : race.Contains("魅族") ? CombatRace.Charm
+            : race.Contains("恶魔") ? CombatRace.Demon
+            : race.Contains("血精灵") ? CombatRace.BloodElf
+            : CombatRace.None;
+
+        /// <summary>
+        /// 收益读数用的队长种族：实时模式用战场队长；回合制没有战场时钟，
+        /// 按编队默认队长从成员目录解析，保证两种模式下队长收益都可读。
+        /// </summary>
+        private CombatRace ReadoutLeaderRace()
+        {
+            if (battle != null && battle.CurrentLeaderRace != CombatRace.None) return battle.CurrentLeaderRace;
+            int captain = model != null && model.Save != null && model.Save.Team.Count > 0
+                ? model.Save.Team[0] : -1;
+            return captain >= 0 && captain < GameModel.Members.Length
+                ? RaceFromMemberLabel(GameModel.Members[captain].Race)
+                : CombatRace.None;
+        }
+
         /// <summary>Current captain/pattern benefit using the same numbers RealtimeBattle applies.</summary>
         private string CaptainBenefitLabel()
         {
-            if (battle == null || !battle.IsRealtime) return string.Empty;
-            int shield = battle.CaptainShieldPermille;
-            if (shield > 0) return $"人鱼护盾 +{shield / 10f:0.#}%";
-            int poison = battle.CaptainPoisonLayers;
-            if (poison > 0) return $"魔族叠毒 {poison}层";
-            int combo = battle.CaptainComboCount;
-            if (combo > 0) return $"魅族追击 {combo}次";
-            int pierce = battle.CaptainPiercePermille;
-            if (pierce > 0) return $"血精灵穿甲 {pierce / 10f:0.#}%";
-            return string.Empty;
+            if (battle?.BattleDice?.Hand == null) return string.Empty;
+            CombatRace race = ReadoutLeaderRace();
+            DicePattern pattern = battle.BattleDice.Hand.Pattern;
+            switch (race)
+            {
+                case CombatRace.Mermaid:
+                    int shield = BattleSimulator.ShieldPercent(pattern);
+                    return shield > 0 ? $"人鱼护盾 +{shield / 10f:0.#}%" : string.Empty;
+                case CombatRace.Demon:
+                    int poison = BattleSimulator.PoisonLayers(pattern);
+                    return poison > 0 ? $"魔族叠毒 {poison}层" : string.Empty;
+                case CombatRace.Charm:
+                    int combo = BattleSimulator.Combo(pattern);
+                    return combo > 0 ? $"魅族追击 {combo}次" : string.Empty;
+                case CombatRace.BloodElf:
+                    int pierce = BattleSimulator.Pierce(pattern);
+                    return pierce > 0 ? $"血精灵穿甲 {pierce / 10f:0.#}%" : string.Empty;
+                default:
+                    return string.Empty;
+            }
         }
 
         private IEnumerator FlashDiceResult()

@@ -194,7 +194,8 @@ namespace ChoSiren.Tests
             int qingge = System.Array.FindIndex(GameModel.Members, member => member.Name == "晴歌");
             Assert.That(qingge, Is.GreaterThanOrEqualTo(0), "晴歌应存在于真实成员目录");
             var renderedKinds = new System.Collections.Generic.HashSet<SkillIconKind>();
-            foreach (int member in new[] { 0, 1, 2, 3, qingge })
+            // 初始四名已签约成员：档案技能卡必须渲染语义图标。
+            foreach (int member in new[] { 0, 1, 2, 3 })
             {
                 Invoke("OpenMember", member);
                 yield return null;
@@ -214,6 +215,13 @@ namespace ChoSiren.Tests
                     }
                 }
             }
+            // 未签约成员按 0.3.5「隐藏未获得角色形象」走锁定档案：不渲染技能数据，防止剧透。
+            Invoke("OpenMember", qingge);
+            yield return null;
+            Assert.That(Require("MemberOwnershipStatus").GetComponent<Text>().text, Is.EqualTo("尚未签约"),
+                "晴歌默认未签约，档案应显示锁定态");
+            Assert.That(GameObject.Find("MemberSkillPrimaryIcon"), Is.Null,
+                "未签约成员不得渲染技能图标与技能数据。");
             Assert.That(renderedKinds.Count, Is.GreaterThanOrEqualTo(5),
                 "初始四名不同定位的技能必须具有多种可辨识语义轮廓，不能统一图案换色。");
         }
