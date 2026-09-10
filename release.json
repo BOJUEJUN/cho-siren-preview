@@ -1,14 +1,15 @@
 {
-  "version": "0.3.6",
-  "name": "品质与渠道",
+  "version": "0.3.7",
+  "name": "掉落曲线",
   "date": "2026-09-10",
-  "sourceCommit": "34e82fb",
-  "buildDirectory": "WebGL-quality-channel-v036",
-  "previousVersion": "0.3.5",
-  "previousWebCommit": "c595061",
-  "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
+  "sourceCommit": "2f7f5f0",
+  "buildDirectory": "WebGL-loot-curve-v037",
+  "previousVersion": "0.3.6",
+  "previousWebCommit": "5632456",
+  "savePolicy": "保留现有存档；版本回滚不等于存档回滚。强化碎片已按 50 金币/枚一次性折算退还",
   "validation": {
     "unityTests": 442,
+    "playModeTests": 123,
     "webTests": 12,
     "feedbackItems": 3
   }
