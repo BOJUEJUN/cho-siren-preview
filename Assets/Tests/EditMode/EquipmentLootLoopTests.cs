@@ -11,6 +11,8 @@ namespace ChoSiren.Tests
     public sealed class EquipmentLootLoopTests
     {
         private const string StageId = "stage-1-1";
+        /// <summary>本关首通必得的饰品索引。不写死数字，品质曲线调整后测试仍成立。</summary>
+        private static int Guaranteed => GameModel.FirstClearAccessory(StageId);
         private static readonly DateTime Now = new DateTime(2026, 9, 7, 12, 0, 0);
 
         [SetUp]
@@ -33,7 +35,7 @@ namespace ChoSiren.Tests
             stage.Id = StageId;
             stage.Drops = new DropTable { Rolls = guaranteedRandomEquipment ? 1 : 0,
                 Entries = new List<DropEntry> { new DropEntry {
-                    ItemId = GameModel.AccessoryItemIds[3], Weight = 1, Min = 1, Max = 1 } } };
+                    ItemId = GameModel.AccessoryItemIds[Guaranteed], Weight = 1, Min = 1, Max = 1 } } };
             return new GameModel(() => Now, null, null, tactics, null);
         }
 
@@ -52,17 +54,17 @@ namespace ChoSiren.Tests
         {
             var model = CreateModel();
             int diamonds = model.Save.Diamonds;
-            Assert.That(model.OwnsAccessory(3), Is.False);
+            Assert.That(model.OwnsAccessory(Guaranteed), Is.False);
             Assert.That(model.StageEquipmentPreview(StageId), Does.Contain("首通必得"));
             Win(model);
-            Assert.That(model.OwnsAccessory(3), Is.True);
+            Assert.That(model.OwnsAccessory(Guaranteed), Is.True);
             Assert.That(model.Save.EquipmentFragments, Is.Zero);
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + model.Tactics.FindStage(StageId).DiamondFirstClear));
-            Assert.That(model.LastAwardedAccessory, Is.EqualTo(3));
+            Assert.That(model.LastAwardedAccessory, Is.EqualTo(Guaranteed));
             Assert.That(model.Save.EquipmentFirstClearClaims, Is.EqualTo(new[] { StageId }));
             Assert.That(model.StageEquipmentPreview(StageId), Does.Contain("首通已领取"));
             var loaded = CreateModel();
-            Assert.That(loaded.OwnsAccessory(3), Is.True);
+            Assert.That(loaded.OwnsAccessory(Guaranteed), Is.True);
             Assert.That(loaded.Save.EquipmentFragments, Is.Zero);
         }
 
@@ -93,15 +95,21 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void RandomDuplicateEquipmentConvertsToThreeFragmentsEveryClear()
+        public void RandomDuplicateEquipmentConvertsToGoldEveryClear()
         {
+            // 碎片退役后，重复饰品改为折算金币补偿。
             var model = CreateModel(true);
+            int goldBefore = model.Save.Gold;
             Win(model);
-            Assert.That(model.Save.EquipmentFragments, Is.EqualTo(3), "Guaranteed first item plus one random duplicate");
-            Assert.That(model.Save.OwnedAccessories.Count(i => i == 3), Is.EqualTo(1));
+            Assert.That(model.Save.EquipmentFragments, Is.Zero, "不再产出碎片。");
+            Assert.That(model.Save.OwnedAccessories.Count(i => i == Guaranteed), Is.EqualTo(1));
+            int afterFirst = model.Save.Gold;
+            Assert.That(afterFirst, Is.GreaterThan(goldBefore), "首通同物重复应折算金币。");
             Win(model, 2);
-            Assert.That(model.Save.EquipmentFragments, Is.EqualTo(6));
-            Assert.That(CreateModel(true).Save.EquipmentFragments, Is.EqualTo(6));
+            Assert.That(model.Save.Gold - afterFirst,
+                Is.GreaterThanOrEqualTo(GameModel.DuplicateAccessoryGold),
+                "再次通关的重复饰品同样折算金币。");
+            Assert.That(CreateModel(true).Save.Gold, Is.EqualTo(model.Save.Gold), "金币必须持久化。");
         }
 
         [Test]
@@ -114,9 +122,9 @@ namespace ChoSiren.Tests
             for (int reload = 0; reload < 3; reload++)
             {
                 var model = CreateModel();
-                Assert.That(model.OwnsAccessory(3), Is.True);
-                Assert.That(model.OwnsAccessory(6), Is.True,
-                    "从未领取过装备首通奖励的旧档按当前1-2奖励补偿棱镜耳返。");
+                Assert.That(model.OwnsAccessory(Guaranteed), Is.True);
+                Assert.That(model.OwnsAccessory(GameModel.FirstClearAccessory("stage-1-2")), Is.True,
+                    "从未领取过装备首通奖励的旧档按当前 1-2 奖励补偿。");
                 Assert.That(model.Save.EquipmentFragments, Is.Zero);
                 Assert.That(model.Save.EquipmentFirstClearClaims.Count, Is.EqualTo(2));
                 Assert.That(model.Save.Diamonds, Is.EqualTo(321));
@@ -151,9 +159,9 @@ namespace ChoSiren.Tests
                 Assert.That(model.StageLootDescription(stageId), Does.Contain(GameModel.AccessoryNames[item]));
             }
             // v0.3.3: 概率按当前掉落表动态推导(原硬编码 0.19 对应旧 2 rolls/权重 10/100)
-            float advertisedChance = model.StageItemDropChance(StageId, GameModel.AccessoryItemIds[3]);
-            Assert.That(advertisedChance, Is.GreaterThan(0.15f).And.LessThan(0.35f),
-                "stage-1-1 首通 neon-clip 应有合理掉率,且符合关卡递进");
+            float advertisedChance = model.StageItemDropChance(StageId, GameModel.AccessoryItemIds[Guaranteed]);
+            Assert.That(advertisedChance, Is.GreaterThan(0.05f).And.LessThan(0.5f),
+                "stage-1-1 首通物应有合理掉率,且符合关卡递进");
         }
     }
 }

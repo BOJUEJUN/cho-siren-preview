@@ -1138,9 +1138,9 @@ namespace ChoSiren
             equip.GetComponent<Button>().interactable = model.OwnsAccessory(selected);
             if (!model.OwnsAccessory(selected)) PanelKit.LabelOf(equip).text = "未获得";
 
-            bool canUpgrade = model.CanUpgradeAccessory(selected, out int pieces, out int gold);
+            bool canUpgrade = model.CanUpgradeAccessory(selected, out int gold);
             string upgradeLabel = model.AccessoryUpgradeLevel(selected) >= 3 ? "已强化至 +3" :
-                $"强化：{pieces}碎片 + {gold}星光币\n持有碎片 {model.Save.EquipmentFragments}";
+                $"强化：{gold} 金币\n持有 {model.Save.Gold:N0}";
             GameObject settings = NewButton("AccessoryUpgrade", detail.transform, upgradeLabel, 12,
                 canUpgrade ? new Color32(45, 90, 125, 255) : new Color32(45, 52, 105, 220), White,
                 () => { model.UpgradeAccessory(selected, out string upgradeMessage); ShowScreen("accessory"); Toast(upgradeMessage); });

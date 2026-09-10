@@ -32,9 +32,11 @@ namespace ChoSiren.Tests
             {
                 string stageId = "stage-1-" + number;
                 IReadOnlyList<StageLootCandidate> pool = model.StageLootCandidates(stageId);
-                Assert.That(pool.Count, Is.EqualTo(9), stageId);
+                // 强化碎片已从游戏移除，奖池由 9 项（7 饰品 + 碎片 + 金币）缩为 8 项。
+                Assert.That(pool.Count, Is.EqualTo(8), stageId);
                 Assert.That(pool.Count(item => GameModel.AccessoryIndexForItem(item.ItemId) >= 0), Is.EqualTo(7));
-                Assert.That(pool.Any(item => item.ItemId == GameModel.EquipmentFragmentItemId), Is.True);
+                Assert.That(pool.Any(item => item.ItemId == GameModel.EquipmentFragmentItemId), Is.False,
+                    "碎片已移除，奖池不应再出现强化碎片。");
                 Assert.That(signatures.Add(string.Join("|", pool.Select(item => item.ItemId))), Is.True,
                     "各关必须有不同的定向刷取选择，而不是同一掉落列表。");
                 int guaranteed = GameModel.FirstClearAccessory(stageId);
@@ -89,29 +91,30 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void DirectFragmentsSettlePersistAndAreConsumedByRealEquipmentUpgrade()
+        public void RetiredFragmentDropsSettleAsGoldAndUpgradeSpendsGoldOnly()
         {
+            // 碎片已退役：旧数据若仍配了碎片条目，结算时按折算价转金币，强化改为纯金币消耗。
             var tactics = GameModelTests.BuildTactics();
             StageDefinition stage = tactics.Stages[0];
             stage.Drops = new DropTable { Rolls = 1, Entries = new List<DropEntry>
             { new DropEntry { ItemId = GameModel.EquipmentFragmentItemId, Weight = 1, Min = 3, Max = 3 } } };
             var model = new GameModel(() => Now, null, null, tactics, null);
+            int goldBefore = model.Save.Gold;
             BattleSimulator battle = model.StartStageBattle(stage.Id, 44, out string error);
             Assert.That(battle, Is.Not.Null, error);
             Assert.That(battle.AutoPlay(), Is.EqualTo(BattleOutcome.Victory));
             model.SettleStageBattle(battle, out string message);
-            Assert.That(message, Does.Contain("强化碎片 +3"));
-            Assert.That(model.LastBattleRewards.Any(r => r.ItemId == GameModel.EquipmentFragmentItemId && r.Amount == 3), Is.True,
-                "结算图标列表必须来自实际发放结果。");
+            Assert.That(message, Does.Not.Contain("碎片"), "结算文案不应再提碎片。");
             int rewardCount = model.LastBattleRewards.Count;
             model.SettleStageBattle(battle, out _);
             Assert.That(model.LastBattleRewards.Count, Is.EqualTo(rewardCount), "重复结算不能增加图标或重新发奖。");
             var loaded = new GameModel(() => Now, null, null, tactics, null);
-            Assert.That(loaded.Save.EquipmentFragments, Is.EqualTo(3));
-            Assert.That(loaded.Save.OwnedCostumes, Does.Not.Contain(GameModel.EquipmentFragmentItemId));
+            Assert.That(loaded.Save.EquipmentFragments, Is.Zero, "碎片字段必须保持清零。");
+            Assert.That(loaded.Save.Gold, Is.GreaterThan(goldBefore), "碎片应折算为金币入账。");
+            loaded.Save.Gold = 100000;
             Assert.That(loaded.UpgradeAccessory(0, out _), Is.True);
-            Assert.That(loaded.Save.EquipmentFragments, Is.Zero);
             Assert.That(loaded.AccessoryUpgradeLevel(0), Is.EqualTo(1));
+            Assert.That(loaded.Save.EquipmentFragments, Is.Zero);
         }
 
         [Test]
@@ -126,7 +129,8 @@ namespace ChoSiren.Tests
                 var model = new GameModel(() => Now);
                 Assert.That(model.OwnsAccessory(3), Is.True, "已经领取的旧装备保留。");
                 Assert.That(model.OwnsAccessory(6), Is.False, "改表不得让旧首通再次领取新装备。");
-                Assert.That(model.Save.EquipmentFragments, Is.EqualTo(3));
+                // 旧档残留碎片一次性折算为金币后清零，不能凭空消失也不能反复退款。
+                Assert.That(model.Save.EquipmentFragments, Is.Zero);
                 Assert.That(model.StarsOf("stage-1-2"), Is.EqualTo(2));
             }
         }
@@ -179,12 +183,15 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void FragmentOverflowSaturatesInsteadOfLosingSavedMaterials()
+        public void RetiredFragmentGrantsSaturateGoldInsteadOfOverflowing()
         {
+            // 碎片折算入金币时必须饱和到 int.MaxValue，不能溢出成负数把玩家资产清空。
             var model = new GameModel(() => Now);
             model.Grant(new CurrencyAmount(GameModel.EquipmentFragmentItemId, int.MaxValue));
             model.Grant(new CurrencyAmount(GameModel.EquipmentFragmentItemId, 100));
-            Assert.That(new GameModel(() => Now).Save.EquipmentFragments, Is.EqualTo(int.MaxValue));
+            var loaded = new GameModel(() => Now);
+            Assert.That(loaded.Save.EquipmentFragments, Is.Zero);
+            Assert.That(loaded.Save.Gold, Is.EqualTo(int.MaxValue));
         }
     }
 }

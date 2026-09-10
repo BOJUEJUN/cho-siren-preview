@@ -1297,16 +1297,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -1420,16 +1414,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -1527,16 +1515,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -1650,16 +1632,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -1759,16 +1735,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -1866,16 +1836,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -1989,16 +1953,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -2112,16 +2070,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -2227,16 +2179,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }
@@ -2344,16 +2290,10 @@
             "Max": 1
           },
           {
-            "ItemId": "equipment-fragment",
-            "Weight": 40,
-            "Min": 1,
-            "Max": 3
-          },
-          {
             "ItemId": "gold",
-            "Weight": 20,
+            "Weight": 60,
             "Min": 1,
-            "Max": 1
+            "Max": 2
           }
         ]
       }

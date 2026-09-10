@@ -174,17 +174,22 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void CollectionAccessoriesWalkFineRareEpicPerCategory()
+        public void CollectionAccessoriesWalkCommonFineRareEpicPerCategory()
         {
+            // 每类 9 件首位改为「普通」：原先最低档是精良，导致普通档全游戏无物可映射。
             GameModel.AccessoryRarity[] expected =
             {
-                GameModel.AccessoryRarity.Fine, GameModel.AccessoryRarity.Fine, GameModel.AccessoryRarity.Fine,
+                GameModel.AccessoryRarity.Common,
+                GameModel.AccessoryRarity.Fine, GameModel.AccessoryRarity.Fine,
                 GameModel.AccessoryRarity.Rare, GameModel.AccessoryRarity.Rare, GameModel.AccessoryRarity.Rare,
                 GameModel.AccessoryRarity.Epic, GameModel.AccessoryRarity.Epic, GameModel.AccessoryRarity.Epic,
             };
             for (int index = 12; index < GameModel.AccessoryNames.Length; index++)
                 Assert.That(GameModel.AccessoryRarityOf(index), Is.EqualTo(expected[(index - 12) % 9]),
                     $"饰品 {GameModel.AccessoryNames[index]} 品质分档错误");
+            Assert.That(Enumerable.Range(0, GameModel.AccessoryNames.Length)
+                    .Any(i => GameModel.AccessoryRarityOf(i) == GameModel.AccessoryRarity.Common), Is.True,
+                "「普通」档必须真的有饰品映射，否则品质色板最低一档是死代码。");
         }
 
         [Test]

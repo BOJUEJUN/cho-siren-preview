@@ -256,7 +256,7 @@ namespace ChoSiren
             FlowText(detail.transform, "AccessoryEffects", $"生命 +{bonus.Hp / 10f:0.#}%\n攻击 +{bonus.Attack / 10f:0.#}%\n防御 +{bonus.Defense / 10f:0.#}%", 17, 30, 270, 195, 78, Cyan);
             int delta = newValues[3] - baselinePower;
             FlowText(detail.transform, "AccessoryPowerChange", $"{(wearingSelected ? "已生效 · 战力" : "装备后战力")} {(delta > 0 ? "+" : "")}{delta:N0}", 18, 236, 290, 420, 32, delta >= 0 ? Cyan : Pink);
-            FlowText(detail.transform, "EquipmentSource", $"来源：{GameModel.AccessorySource(item)}\n重复获得转为 3 强化碎片", 16, 236, 327, 418, 52, Muted);
+            FlowText(detail.transform, "EquipmentSource", $"来源：{GameModel.AccessorySource(item)}\n重复获得转为金币 +{GameModel.DuplicateAccessoryGold}", 16, 236, 327, 418, 52, Muted);
             string equipLabel = !model.OwnsAccessory(item) ? "尚未获得 · 去关卡" : current == item ? "卸下饰品"
                 : owner >= 0 ? $"从{GameModel.Members[owner].Name}转移" : "装备给当前角色";
             FlowButton(detail.transform, "AccessoryEquip", equipLabel, 20, 398, 310, 62, () =>
@@ -265,14 +265,14 @@ namespace ChoSiren
                 model.EquipAccessoryForMember(member, item, out string message);
                 ShowScreen("accessory"); Toast(message);
             });
-            bool upgrade = model.CanUpgradeAccessory(item, out int fragments, out int gold);
+            bool upgrade = model.CanUpgradeAccessory(item, out int gold);
             GameObject improve = FlowButton(detail.transform, "AccessoryUpgrade", model.AccessoryUpgradeLevel(item) >= 3 ? "已满级 +3"
-                : $"强化 · 碎片 {fragments} / 星光币 {gold}", 350, 398, 310, 62, () =>
+                : $"强化 · 金币 {gold}", 350, 398, 310, 62, () =>
             {
                 model.UpgradeAccessory(item, out string message); ShowScreen("accessory"); Toast(message);
             });
             improve.GetComponent<Button>().interactable = upgrade;
-            FlowText(root, "EquipmentInventoryTitle", $"饰品收藏 {model.Save.OwnedAccessories.Count}/{GameModel.AccessoryNames.Length}      强化碎片 {model.Save.EquipmentFragments}", 21, 8, 602, 660, 42);
+            FlowText(root, "EquipmentInventoryTitle", $"饰品收藏 {model.Save.OwnedAccessories.Count}/{GameModel.AccessoryNames.Length}", 21, 8, 602, 660, 42);
             FlowButton(root, "EquipmentCategoryFilter", "类别：" + equipmentCategory, 8, 648, 318, 42, () =>
             {
                 string[] categories = new[] { "全部" }.Concat(GameModel.AccessoryCategories.Where(c => c != "全部")).ToArray();

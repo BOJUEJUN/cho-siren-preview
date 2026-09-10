@@ -81,6 +81,8 @@ namespace ChoSiren
             .Concat(new[] { "ear", "neck", "wrist", "ring", "hair", "charm" }.SelectMany(group =>
                 Enumerable.Range(1, 9).Select(number => $"accessory-collection-{group}-{number:00}"))).ToArray();
         public const string EquipmentFragmentItemId = "equipment-fragment";
+        /// <summary>碎片退役时的折算价（金币/枚），仅用于旧档一次性补偿。</summary>
+        public const int RetiredFragmentGold = 50;
         public static readonly string[] AccessoryCategories = { "全部", "耳饰", "项链", "手环", "戒指", "发饰", "挂饰", "舞台" };
         public static string AccessoryCategory(int index)
         {
@@ -120,7 +122,24 @@ namespace ChoSiren
         public static int FirstClearAccessory(string stageId)
         {
             if (!TryGetChapterOneStageNumber(stageId, out int stage)) return -1;
-            int[] firstClearItems = { 3, 6, 7, 8, 4, 9, 10, 6, 11, 5 };
+            // 首章首通奖励走 普通 → 精良 → 稀有 → 史诗 → 传说，传说只留给章末 1-10。
+            // 旧表 {3,6,7,8,4,9,10,6,11,5} 十关全是传说/史诗（1-1 开局就发传说），
+            // 且 1-8 与 1-2 重复发同一件，品质分级形同虚设。
+            // 每件都取自该关自身奖池（StageRewardDiversityTests 要求首通物必在池内），
+            // 所以品质曲线跟着奖池一起抬升，而不是另搞一套。
+            int[] firstClearItems =
+            {
+                12, // 1-1  耳饰01 普通
+                31, // 1-2  手环02 精良
+                49, // 1-3  发饰02 精良
+                15, // 1-4  耳饰04 稀有
+                33, // 1-5  手环04 稀有
+                51, // 1-6  发饰04 稀有
+                18, // 1-7  耳饰07 史诗
+                36, // 1-8  手环07 史诗
+                54, // 1-9  发饰07 史诗
+                5,  // 1-10 舞台皇冠 传说（章末唯一传说）
+            };
             return firstClearItems[stage - 1];
         }
         public static string AccessorySource(int index)
@@ -165,30 +184,33 @@ namespace ChoSiren
             int extra = AccessoryUpgradeLevel(index) * 20;
             return new CombatStatBonuses(b.Hp > 0 ? b.Hp + extra : 0, b.Attack > 0 ? b.Attack + extra : 0, b.Defense > 0 ? b.Defense + extra : 0);
         }
-        public bool CanUpgradeAccessory(int index, out int fragments, out int gold)
+        /// <summary>强化只花金币（与「签约用钻石、升级只用金币」口径一致）。
+        /// 原先还要 (level+1)*3 强化碎片，碎片系统已移除，成本折进金币。</summary>
+        public bool CanUpgradeAccessory(int index, out int gold)
         {
             int level = AccessoryUpgradeLevel(index);
-            fragments = (level + 1) * 3;
-            gold = (level + 1) * 100;
-            return OwnsAccessory(index) && level < 3 && Save.EquipmentFragments >= fragments && Save.Gold >= gold;
+            gold = (level + 1) * 250;
+            return OwnsAccessory(index) && level < 3 && Save.Gold >= gold;
         }
         public bool UpgradeAccessory(int index, out string message)
         {
             if (!OwnsAccessory(index)) { message = "尚未获得该饰品"; return false; }
             if (AccessoryUpgradeLevel(index) >= 3) { message = "已达强化上限 +3"; return false; }
-            if (!CanUpgradeAccessory(index, out int fragments, out int gold))
-            { message = $"需要强化碎片 {fragments}、星光币 {gold}；重复装备可转为碎片"; return false; }
-            Save.EquipmentFragments -= fragments;
+            if (!CanUpgradeAccessory(index, out int gold))
+            { message = $"需要金币 {gold}"; return false; }
             Save.Gold -= gold;
             Save.AccessoryUpgradeLevels[index]++;
             SaveState();
             message = $"{AccessoryNames[index]} 强化 +{AccessoryUpgradeLevel(index)}，下场战斗生效";
             return true;
         }
+        /// <summary>重复获得的饰品折算成金币（原为 3 强化碎片）。</summary>
+        public const int DuplicateAccessoryGold = 150;
         private void GrantAccessory(int index, int amount)
         {
             if (!OwnsAccessory(index)) { Save.OwnedAccessories.Add(index); amount--; }
-            Save.EquipmentFragments = (int)Math.Min(int.MaxValue, (long)Save.EquipmentFragments + (long)Math.Max(0, amount) * 3);
+            long refund = (long)Math.Max(0, amount) * DuplicateAccessoryGold;
+            if (refund > 0) Save.Gold = (int)Math.Min(int.MaxValue, (long)Save.Gold + refund);
         }
         private void NormalizeEquipment()
         {
@@ -198,6 +220,14 @@ namespace ChoSiren
             while (Save.AccessoryUpgradeLevels.Count < AccessoryNames.Length) Save.AccessoryUpgradeLevels.Add(0);
             for (int i = 0; i < Save.AccessoryUpgradeLevels.Count; i++) Save.AccessoryUpgradeLevels[i] = Mathf.Clamp(Save.AccessoryUpgradeLevels[i], 0, 3);
             Save.EquipmentFragments = Math.Max(0, Save.EquipmentFragments);
+            // 碎片系统已移除：旧档里剩余的碎片一次性按 50 金币/枚折算退还后清零，
+            // 不让玩家已有的资源凭空消失。字段保留仅为存档结构兼容，不再产出。
+            if (Save.EquipmentFragments > 0)
+            {
+                long refund = (long)Save.EquipmentFragments * RetiredFragmentGold;
+                Save.Gold = (int)Math.Min(int.MaxValue, (long)Save.Gold + refund);
+                Save.EquipmentFragments = 0;
+            }
             Save.EquipmentFirstClearClaims = CleanStrings(Save.EquipmentFirstClearClaims);
             foreach (string item in Save.OwnedCostumes)
             {
@@ -266,7 +296,7 @@ namespace ChoSiren
             {
                 lines.Add($"{candidate.Name} {candidate.AmountLabel}  {candidate.Chance:P1}");
             }
-            lines.Add("\n每场多次抽取，以上概率不能直接相加。\n新装备进入饰品页；每件重复装备转为3强化碎片。\n再次挑战不保证掉装备；失败不发通关奖励。\n三星提升章节星数，不重复发首通奖励。");
+            lines.Add("\n每场多次抽取，以上概率不能直接相加。\n新装备进入饰品页；每件重复装备转为金币。\n再次挑战不保证掉装备；失败不发通关奖励。\n三星提升章节星数，不重复发首通奖励。");
             return string.Join("\n", lines);
         }
     }

@@ -847,12 +847,24 @@ namespace ChoSiren.Panels
 
         private void BuildDiceConsole()
         {
+            // 实时战斗回收了原底部指令框与其下方 56px 空白：骰子台加高、骰面放大，
+            // 台面→提示行→队伍生命三段连续排布，不再出现夹在中间的空盒子。
+            bool realtime = battle.IsRealtime;
+            float consoleH = realtime ? 306f : 264f;
+            float hintTop = realtime ? 52f : 50f;
+            float hintH = realtime ? 28f : 26f;
+            float faceTop = realtime ? 90f : 76f;
+            float dieSize = realtime ? 112f : 104f;
+            float gap = realtime ? 16f : 22f;
+            float statusTop = realtime ? 208f : 184f;
+            float buttonTop = realtime ? 246f : 214f;
+            float buttonH = realtime ? 48f : 42f;
             GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(12, 14, 35, 255), 24);
-            PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 1116, 680, 264);
+            PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 1116, 680, consoleH);
             kit.AddOutline(console, new Color32(102, 218, 255, 92), 1.25f);
             Image consoleGlow = kit.NewImage("DiceConsoleGlow", console.transform, kit.RadialSprite(),
                 new Color32(120, 79, 255, 16));
-            PanelKit.PlaceTop(consoleGlow.rectTransform, 0, 0, 680, 264);
+            PanelKit.PlaceTop(consoleGlow.rectTransform, 0, 0, 680, consoleH);
             consoleGlow.raycastTarget = false;
             consoleGlow.transform.SetAsFirstSibling();
             Image titleLine = kit.NewImage("DiceConsoleTitleLine", console.transform, kit.RoundedSprite(2),
@@ -870,14 +882,12 @@ namespace ChoSiren.Panels
             diceEnergyFill = kit.NewBar("DiceEnergy", console.transform, 18, 37, 644, 8,
                 new Color32(49, 42, 90, 255), PanelKit.Cyan, 4);
 
-            const float dieSize = 104f;
-            const float gap = 22f;
             for (int index = 0; index < DiceRules.DiceCount; index++)
             {
                 int captured = index;
                 GameObject die = kit.NewButton("Dice-" + index, console.transform, "?", 38,
                     Color.clear, PanelKit.White, () => ToggleDie(captured), 20);
-                PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), 76, dieSize, dieSize);
+                PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), faceTop, dieSize, dieSize);
                 Image dieArt = die.GetComponent<Image>();
                 // The button remains a full-size invisible hit target. The authored diamond die is the only visible art.
                 dieArt.sprite = null;
@@ -893,7 +903,7 @@ namespace ChoSiren.Panels
                 faceArt.raycastTarget = false;
                 Outline outline = kit.AddOutline(faceArt.gameObject, new Color32(96, 220, 255, 90), 1f);
                 Text held = kit.NewPlacedText(console.transform, "", 16, PanelKit.Gold,
-                    36 + index * (dieSize + gap), 184, dieSize, 24,
+                    36 + index * (dieSize + gap), statusTop, dieSize, 24,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 held.gameObject.name = "DiceStatus-" + index;
                 diceButtons.Add(die);
@@ -909,15 +919,15 @@ namespace ChoSiren.Panels
 
             rerollButton = kit.NewButton("DiceReroll", console.transform, "重投已选0颗", 20,
                 PanelKit.ButtonDark, PanelKit.White, RerollDice, 12);
-            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 36, 214, 292, 42);
+            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 36, buttonTop, 292, buttonH);
             energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "全部重投", 20,
                 PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 12);
-            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 352, 214, 292, 42);
+            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 352, buttonTop, 292, buttonH);
             Text diceHint = kit.NewPlacedText(console.transform,
                 battle.IsRealtime
                     ? "点骰子标记“待重投”，再按下方“重投已选”按钮；没点的保留"
                     : "点击保留 · 骰型加成下一技能", 16,
-                PanelKit.Muted, 36, 50, 608, 26, TextAnchor.MiddleCenter);
+                PanelKit.Muted, 36, hintTop, 608, hintH, TextAnchor.MiddleCenter);
             diceHint.gameObject.name = "DiceInstruction";
             diceInstructionText = diceHint;
             PanelKit.EnableBestFit(diceHint, 16);
@@ -931,10 +941,12 @@ namespace ChoSiren.Panels
                 // the members they describe, instead of a full-width deck pinned to the bottom.
                 // ▼ is already part of the shipped font subset (StoryPanel uses it); a fresher
                 // glyph like ▾ would only exist after the next font rebuild and render as tofu.
+                // 配色与同排的破招突袭/应急守护同一套玻璃感，避免孤立的深色块。
                 GameObject details = kit.NewButton("AbilityDetails", transform, "角色能力 ▼", 15,
-                    PanelKit.ButtonDark, PanelKit.White, OpenAbilityDetails, 8);
+                    new Color32(38, 46, 96, 235), new Color32(198, 214, 255, 255), OpenAbilityDetails, 9);
                 PanelKit.PlaceTop(details.GetComponent<RectTransform>(),
-                    552, PlayerRosterLabelTop - 2, 148, 34);
+                    536, PlayerRosterLabelTop - 3, 164, 36);
+                kit.AddOutline(details, new Color32(122, 158, 235, 96), 1f);
             }
             RefreshDiceUi();
         }
@@ -948,13 +960,17 @@ namespace ChoSiren.Panels
             bool realtime = battle.IsRealtime;
             GameObject frame = kit.NewPanel("SkillCommandDeck", transform,
                 realtime ? new Color32(12, 14, 35, 0) : new Color32(12, 14, 35, 255), 16);
-            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, 1386, 680, realtime ? 44 : 92);
+            // 实时模式紧贴骰子台底部（1116+306），不再与队伍生命条之间留出空盒子。
+            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, realtime ? 1430 : 1386,
+                680, realtime ? 34 : 92);
             if (!realtime) kit.AddOutline(frame, new Color32(114, 207, 255, 76), 1.25f);
-            skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", realtime ? 16 : 20,
-                PanelKit.Muted, 18, realtime ? 8 : 14, 644, realtime ? 28 : 64, TextAnchor.MiddleCenter);
+            skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", realtime ? 15 : 20,
+                PanelKit.Muted, 18, realtime ? 3 : 14, 644, realtime ? 28 : 64, TextAnchor.MiddleCenter);
             skillWaitingText.gameObject.name = "SkillWaitingState";
             skillBar = kit.NewRect("SkillBar", transform);
-            PanelKit.PlaceTop(skillBar, 24, 1390, 672, 84);
+            // 实时模式下技能按钮容器不使用，跟着提示行收进 1434-1460，
+            // 避免越过上移后的队伍生命条(1472)。回合制保持原位承载技能按钮。
+            PanelKit.PlaceTop(skillBar, 24, realtime ? 1434 : 1390, 672, realtime ? 26 : 84);
         }
 
         /// <summary>Compact secondary surface for the selected character's two active skills.</summary>
@@ -1119,7 +1135,9 @@ namespace ChoSiren.Panels
         private void BuildPreview()
         {
             GameObject panel = kit.NewPanel("PreviewBoard", transform, new Color32(18, 15, 56, 64), 12);
-            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 20, 1486, 680, 46);
+            // 实时模式上移贴住提示行（1430+34），把原来的空白收干净。
+            PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 20,
+                battle.IsRealtime ? 1472 : 1486, 680, battle.IsRealtime ? 50 : 46);
             teamHpFill = kit.NewBar("TeamHealth", panel.transform, 8, 2, 664, 18,
                 new Color32(24, 57, 56, 255), new Color32(67, 206, 154, 255), 8);
             teamHpText = kit.NewPlacedText(panel.transform, string.Empty, 13, PanelKit.White,

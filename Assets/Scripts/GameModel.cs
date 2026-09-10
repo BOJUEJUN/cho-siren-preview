@@ -358,7 +358,11 @@ namespace ChoSiren
             if (index < 0 || index >= AccessoryNames.Length) return AccessoryRarity.Common;
             if (index < 6) return AccessoryRarity.Legendary;
             if (index < 12) return AccessoryRarity.Epic;
+            // 每类 9 件走 普通 → 精良 → 稀有 → 史诗。原先首位是「精良」，导致「普通」档
+            // 全游戏无物可映射，品质色板最低一档等于死代码；现在每类首件为普通，
+            // 首章前两关即可拿到，玩家从最低档开始才感受得到升级。
             int tier = (index - 12) % 9;
+            if (tier == 0) return AccessoryRarity.Common;
             return tier < 3 ? AccessoryRarity.Fine : tier < 6 ? AccessoryRarity.Rare : AccessoryRarity.Epic;
         }
 
@@ -1620,9 +1624,9 @@ namespace ChoSiren
                     bool owned = OwnsAccessory(equipment);
                     int duplicates = owned ? amount : Math.Max(0, amount - 1);
                     if (!owned) equipmentNotes.Add($"新装备：{AccessoryNames[equipment]}");
-                    if (duplicates > 0) equipmentNotes.Add($"{AccessoryNames[equipment]}重复 → 强化碎片 +{duplicates * 3}");
+                    if (duplicates > 0) equipmentNotes.Add($"{AccessoryNames[equipment]}重复 → 金币 +{duplicates * DuplicateAccessoryGold}");
                     if (!owned) lastBattleRewards.Add((itemId, 1));
-                    if (duplicates > 0) lastBattleRewards.Add((EquipmentFragmentItemId, duplicates * 3));
+                    if (duplicates > 0) lastBattleRewards.Add((CurrencyIds.Gold, duplicates * DuplicateAccessoryGold));
                     LastAwardedAccessory = equipment;
                 }
                 else if (amount > 0) lastBattleRewards.Add((itemId, amount));
@@ -1972,7 +1976,8 @@ namespace ChoSiren
             if (accessory >= 0) { GrantAccessory(accessory, amount); return; }
             if (itemId == EquipmentFragmentItemId)
             {
-                Save.EquipmentFragments = (int)Math.Min(int.MaxValue, (long)Save.EquipmentFragments + amount);
+                // 碎片已退役：旧数据/旧存档若仍产出碎片，直接按折算价转成金币，不再累计碎片。
+                Save.Gold = (int)Math.Min(int.MaxValue, (long)Save.Gold + (long)amount * RetiredFragmentGold);
                 return;
             }
             switch (itemId)
@@ -2135,11 +2140,6 @@ namespace ChoSiren
             var parts = new List<string>();
             foreach ((string itemId, int amount) in rewards)
             {
-                if (itemId == EquipmentFragmentItemId)
-                {
-                    parts.Add($"强化碎片 +{amount}");
-                    continue;
-                }
                 if (CurrencyIds.IsKnown(itemId))
                 {
                     parts.Add($"{CurrencyName(itemId)} +{amount}");

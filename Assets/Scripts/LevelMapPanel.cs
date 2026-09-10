@@ -514,7 +514,7 @@ namespace ChoSiren
             NewPlacedText(card.transform, $"共 {candidates.Count} 种候选 · 上下滑动查看完整奖池", 15, Cyan,
                 28, 832, 604, 26, TextAnchor.MiddleLeft);
             NewPlacedText(card.transform,
-                "概率表示本场至少获得一次；多次独立抽取，概率不可相加。\n新装备进入饰品页；每件重复装备转为 3 强化碎片。\n强化碎片用于饰品升级；星光币用于成员训练与强化。\n再次挑战仍可随机掉落；首通奖励不再发放，失败无奖励。", 16, Muted,
+                "概率表示本场至少获得一次；多次独立抽取，概率不可相加。\n新装备进入饰品页；每件重复装备转为金币。\n金币用于成员训练与饰品强化。\n再次挑战仍可随机掉落；首通奖励不再发放，失败无奖励。", 16, Muted,
                 28, 870, 604, 170, TextAnchor.UpperLeft);
         }
 
