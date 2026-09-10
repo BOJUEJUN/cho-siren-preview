@@ -167,7 +167,7 @@ namespace ChoSiren.Tests
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(damage, Is.Not.Null);
             damage.Invoke(battle, new object[] { battle.Units.Last(), battle.FindUnit(unitId),
-                "test-lethal", int.MaxValue, false });
+                "test-lethal", int.MaxValue, false, 1000 });
         }
 
         private static void CastSkill(BattleSimulator battle, int unitId, bool big)
