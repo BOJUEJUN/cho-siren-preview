@@ -1,15 +1,15 @@
 {
-  "version": "0.3.4",
-  "name": "深入交流",
-  "date": "2026-09-08",
-  "sourceCommit": "a3238cc",
-  "buildDirectory": "WebGL-deeptalk-v034",
-  "previousVersion": "0.3.3",
-  "previousWebCommit": "973bf1e",
+  "version": "0.3.5",
+  "name": "战斗手感",
+  "date": "2026-09-10",
+  "sourceCommit": "48f1867",
+  "buildDirectory": "WebGL-battlefeel-v035",
+  "previousVersion": "0.3.4",
+  "previousWebCommit": "95b5394",
   "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
   "validation": {
-    "unityTests": 401,
+    "unityTests": 435,
     "webTests": 12,
-    "feedbackItems": 1
+    "feedbackItems": 8
   }
 }
