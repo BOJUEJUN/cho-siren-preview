@@ -1,15 +1,15 @@
 {
-  "version": "0.3.5",
-  "name": "战斗手感",
+  "version": "0.3.6",
+  "name": "品质与渠道",
   "date": "2026-09-10",
-  "sourceCommit": "48f1867",
-  "buildDirectory": "WebGL-battlefeel-v035",
-  "previousVersion": "0.3.4",
-  "previousWebCommit": "95b5394",
+  "sourceCommit": "34e82fb",
+  "buildDirectory": "WebGL-quality-channel-v036",
+  "previousVersion": "0.3.5",
+  "previousWebCommit": "c595061",
   "savePolicy": "保留现有存档；版本回滚不等于存档回滚",
   "validation": {
-    "unityTests": 435,
+    "unityTests": 442,
     "webTests": 12,
-    "feedbackItems": 8
+    "feedbackItems": 3
   }
 }
