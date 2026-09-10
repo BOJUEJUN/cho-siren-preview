@@ -925,27 +925,36 @@ namespace ChoSiren.Panels
             kit.NewPlacedText(transform, "出战成员", 18, PanelKit.Cyan,
                 28, PlayerRosterLabelTop, 180, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold).gameObject.name = "TeamRoster";
+            if (battle.IsRealtime)
+            {
+                // Abilities now hang off the roster header as a compact dropdown, right next to
+                // the members they describe, instead of a full-width deck pinned to the bottom.
+                // ▼ is already part of the shipped font subset (StoryPanel uses it); a fresher
+                // glyph like ▾ would only exist after the next font rebuild and render as tofu.
+                GameObject details = kit.NewButton("AbilityDetails", transform, "角色能力 ▼", 15,
+                    PanelKit.ButtonDark, PanelKit.White, OpenAbilityDetails, 8);
+                PanelKit.PlaceTop(details.GetComponent<RectTransform>(),
+                    552, PlayerRosterLabelTop - 2, 148, 34);
+            }
             RefreshDiceUi();
         }
 
         private void BuildSkillBar()
         {
-            GameObject frame = kit.NewPanel("SkillCommandDeck", transform, new Color32(12, 14, 35, 255), 16);
-            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, 1386, 680, 92);
-            kit.AddOutline(frame, new Color32(114, 207, 255, 76), 1.25f);
-            skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", 20,
-                PanelKit.Muted, 18, 14, battle.IsRealtime ? 496 : 644, 64, TextAnchor.MiddleCenter);
+            // Realtime play no longer gets a boxed command deck at the bottom: the roster cards
+            // already show 大招就绪/满能量 per member and the mode strip already names the actor,
+            // so the panel only repeated existing information. It survives as an invisible anchor
+            // for the turn-based skill buttons and the shared status line.
+            bool realtime = battle.IsRealtime;
+            GameObject frame = kit.NewPanel("SkillCommandDeck", transform,
+                realtime ? new Color32(12, 14, 35, 0) : new Color32(12, 14, 35, 255), 16);
+            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, 1386, 680, realtime ? 44 : 92);
+            if (!realtime) kit.AddOutline(frame, new Color32(114, 207, 255, 76), 1.25f);
+            skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", realtime ? 16 : 20,
+                PanelKit.Muted, 18, realtime ? 8 : 14, 644, realtime ? 28 : 64, TextAnchor.MiddleCenter);
             skillWaitingText.gameObject.name = "SkillWaitingState";
             skillBar = kit.NewRect("SkillBar", transform);
             PanelKit.PlaceTop(skillBar, 24, 1390, 672, 84);
-            if (battle.IsRealtime)
-            {
-                // The old pair of permanent auto-skill countdown cards is gone; abilities are now a
-                // single summary line plus one explicit detail entry.
-                GameObject details = kit.NewButton("AbilityDetails", frame.transform, "角色能力", 17,
-                    PanelKit.ButtonDark, PanelKit.White, OpenAbilityDetails, 10);
-                PanelKit.PlaceTop(details.GetComponent<RectTransform>(), 526, 14, 136, 64);
-            }
         }
 
         /// <summary>Compact secondary surface for the selected character's two active skills.</summary>
@@ -1437,7 +1446,9 @@ namespace ChoSiren.Panels
             {
                 bool ultimateReady = battle.IsUltimateReady(inputActor);
                 skillWaitingText.gameObject.SetActive(true);
-                skillWaitingText.text = $"{inputActor.Definition.Name} · 普攻与小技能自动 · 大招" +
+                // The actor name and mode already head the strip above, so the slim bottom hint
+                // only carries the ultimate state.
+                skillWaitingText.text = "普攻与小技能自动 · 大招" +
                     (ultimateReady
                         ? autoMode ? "就绪 · 自动释放" : "就绪 · 点击满能量头像释放"
                         : $"能量 {battle.EnergyOf(inputActor)}/{BattleSimulator.MaxUnitEnergy}");

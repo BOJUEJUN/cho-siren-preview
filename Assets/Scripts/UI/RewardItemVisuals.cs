@@ -37,18 +37,24 @@ namespace ChoSiren.UI
             }
         }
 
+        /// <summary>Tier colour for the dark neon UI, matching
+        /// <see cref="GameModel.AccessoryRarityColorHex"/> so text and art never disagree.</summary>
+        public static Color RarityColor(GameModel.AccessoryRarity rarity) => rarity switch
+        {
+            GameModel.AccessoryRarity.Legendary => new Color32(255, 176, 32, 255),
+            GameModel.AccessoryRarity.Epic => new Color32(196, 104, 255, 255),
+            GameModel.AccessoryRarity.Rare => new Color32(74, 176, 255, 255),
+            GameModel.AccessoryRarity.Fine => new Color32(74, 224, 140, 255),
+            _ => new Color32(184, 190, 205, 255),
+        };
+
+        /// <summary>Rarity accent for the item id, or the currency's own identity colour.
+        /// Accessories are keyed on rarity rather than category: the old category tint made
+        /// every tier read the same, so players could not tell a 普通 drop from a 传说 one.</summary>
         public static Color AccentFor(string itemId)
         {
             int accessory = GameModel.AccessoryIndexForItem(itemId);
-            if (accessory >= 12)
-            {
-                Color32[] categories = { new Color32(190, 143, 255, 255), new Color32(250, 145, 192, 255),
-                    new Color32(117, 219, 241, 255), new Color32(251, 210, 121, 255),
-                    new Color32(145, 223, 172, 255), new Color32(242, 175, 132, 255) };
-                return categories[(accessory - 12) / 9];
-            }
-            if (accessory >= 6) return new Color32(255, 211, 117, 255);
-            if (accessory >= 0) return new Color32(203, 148, 255, 255);
+            if (accessory >= 0) return RarityColor(GameModel.AccessoryRarityOf(accessory));
             return itemId == CurrencyIds.Gold || itemId == CurrencyIds.RecruitTicket
                 ? new Color32(255, 213, 123, 255) : new Color32(103, 222, 255, 255);
         }

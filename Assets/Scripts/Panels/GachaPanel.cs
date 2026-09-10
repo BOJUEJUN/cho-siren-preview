@@ -311,8 +311,8 @@ namespace ChoSiren.Panels
         {
             MemberDefinition member = GameModel.Members[memberIndex];
             string career = InterviewCareer(member, memberIndex);
-            CandidateStats(member, memberIndex, out int vocal, out int rhythm, out int presence,
-                out int resonance, out int charm);
+            CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
+                out int presence, out int resonance, out int charm);
 
             GameObject card = kit.NewPanel("CandidateCard", parent, new Color32(10, 14, 49, 236), 28);
             PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 102, compact ? 126 : 172,
@@ -368,13 +368,27 @@ namespace ChoSiren.Panels
 
             Image divider = kit.NewImage("ManagementDivider", card.transform, null,
                 new Color32(153, 133, 204, 64));
-            PanelKit.PlaceTop(divider.rectTransform, 24, 620, 468, 1);
+            PanelKit.PlaceTop(divider.rectTransform, 24, 616, 468, 1);
             int benefit = Mathf.Clamp((charm - 50) / 2, 8, 24);
             Text management = kit.NewPlacedText(card.transform,
                 $"魅力  {charm}        演出收益  +{benefit}%", 16,
-                new Color32(229, 217, 249, 255), 24, 632, 360, 40,
+                new Color32(229, 217, 249, 255), 24, 624, 290, 32,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             management.name = "CandidateCharm";
+
+            // 风险值：线上低价池风险更高，线下试镜更稳，让报价差有实际含义。
+            int risk = model.InterviewRisk(interviewPoolIndex, memberIndex);
+            string riskTier = GameModel.InterviewRiskLabel(risk);
+            Color32 riskColor = riskTier == "高"
+                ? new Color32(255, 108, 128, 255)
+                : riskTier == "中" ? new Color32(255, 196, 92, 255) : new Color32(104, 226, 160, 255);
+            Text riskText = kit.NewPlacedText(card.transform,
+                $"风险值  {risk}  ·  {riskTier}", 16, riskColor, 296, 624, 196, 32,
+                TextAnchor.MiddleRight, FontStyle.Bold);
+            riskText.name = "CandidateRisk";
+            Image riskTrack = kit.NewBar("CandidateRiskBar", card.transform, 24, 660, 468, 6,
+                new Color32(83, 78, 126, 86), riskColor, 6);
+            riskTrack.fillAmount = risk / 100f;
         }
 
         private void BuildInterviewStat(Transform parent, string label, int value, int row, bool strongest)
@@ -559,21 +573,27 @@ namespace ChoSiren.Panels
         /// </summary>
         private string InterviewTrait(string career, int memberIndex)
         {
-            CandidateStats(GameModel.Members[memberIndex], memberIndex, out int vocal, out int rhythm,
-                out int presence, out int resonance, out _);
+            CandidateStats(GameModel.Members[memberIndex], memberIndex, interviewPoolIndex,
+                out int vocal, out int rhythm, out int presence, out int resonance, out _);
             return MemberStageQualities.Describe(vocal, rhythm, presence, resonance);
         }
 
-        private static void CandidateStats(MemberDefinition member, int memberIndex, out int vocal,
-            out int rhythm, out int presence, out int resonance, out int charm)
+        private static void CandidateStats(MemberDefinition member, int memberIndex, int poolIndex,
+            out int vocal, out int rhythm, out int presence, out int resonance, out int charm)
         {
             string career = InterviewCareer(member, memberIndex);
             int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
-            vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0), 55, 98);
-            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0), 55, 98);
-            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0), 55, 98);
-            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == MemberCareers.Face ? 10 : 0), 55, 98);
-            charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias, 65, 96);
+            // 线上是低价视频初筛，天花板压低；线下贵得多，买的是更高的下限与唯一的顶级区间。
+            bool online = poolIndex == 0;
+            int shift = GameModel.InterviewChannelStatDelta(poolIndex);
+            int floor = online ? 55 : 64;
+            int ceiling = online ? 83 : 98;
+            vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0) + shift, floor, ceiling);
+            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0) + shift, floor, ceiling);
+            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0) + shift, floor, ceiling);
+            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == MemberCareers.Face ? 10 : 0) + shift, floor, ceiling);
+            charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias + (online ? -10 : 5),
+                online ? 62 : 72, online ? 84 : 96);
         }
 
         private bool TeamNeedsCareer(string candidateCareer)

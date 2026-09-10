@@ -496,9 +496,17 @@ namespace ChoSiren
                 GameObject tile = NewPanel("LootCandidate-" + candidate.ItemId, body.transform,
                     new Color32(26, 30, 67, 245), 14);
                 PlaceTop(tile.GetComponent<RectTransform>(), i % 2 * 312, i / 2 * 170, 292, 156);
-                AddGlassOutline(tile, RewardItemVisuals.AccentFor(candidate.ItemId), 1);
+                int lootAccessory = GameModel.AccessoryIndexForItem(candidate.ItemId);
+                Color tierAccent = RewardItemVisuals.AccentFor(candidate.ItemId);
+                // Higher tiers get a heavier rim so rarity reads before the text does.
+                AddGlassOutline(tile, tierAccent, lootAccessory >= 0 &&
+                    GameModel.AccessoryRarityOf(lootAccessory) >= GameModel.AccessoryRarity.Epic ? 2 : 1);
                 RewardItemVisuals.CreateIcon(tile.transform, candidate.ItemId, "RewardArt", 10, 16, 58);
-                NewPlacedText(tile.transform, candidate.Name, 18, White, 80, 10, 198, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                NewPlacedText(tile.transform, candidate.Name, 18, tierAccent, 80, 10, 132, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                if (lootAccessory >= 0)
+                    NewPlacedText(tile.transform, GameModel.AccessoryRarityNameOf(lootAccessory), 13, tierAccent,
+                        216, 12, 64, 24, TextAnchor.MiddleRight, FontStyle.Bold).name =
+                        "LootTier-" + candidate.ItemId;
                 NewPlacedText(tile.transform, $"至少一次 {candidate.Chance:P1}", 15, Cyan, 80, 44, 198, 26, TextAnchor.MiddleLeft);
                 NewPlacedText(tile.transform, "每次抽中 " + candidate.AmountLabel, 14, Muted, 80, 74, 198, 24, TextAnchor.MiddleLeft);
                 NewPlacedText(tile.transform, candidate.Use, 14, White, 12, 106, 268, 44, TextAnchor.UpperLeft);
@@ -541,7 +549,9 @@ namespace ChoSiren
                 RewardItemVisuals.CreateIcon(dropPreviewIcons, reward.ItemId, "DropIcon-" + reward.ItemId,
                     i * width + (width - 68) * .5f, 2, 68);
                 string shortName = reward.Name.Length > 7 ? reward.Name.Substring(0, 7) + "…" : reward.Name;
-                NewPlacedText(dropPreviewIcons, shortName, 13, White, i * width + 2, 72, width - 4, 26, TextAnchor.MiddleCenter);
+                // Tier is the point of the preview strip: white-on-every-item hid the rarity.
+                NewPlacedText(dropPreviewIcons, shortName, 13, RewardItemVisuals.AccentFor(reward.ItemId),
+                    i * width + 2, 72, width - 4, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
             }
         }
 

@@ -371,15 +371,17 @@ namespace ChoSiren
             _ => "普通",
         };
 
-        /// <summary>Hex colour per tier (灰/绿/蓝/紫/橙). Kept as hex so UI code without Unity
-        /// colour helpers can still read the table.</summary>
+        /// <summary>Hex colour per tier (灰/绿/蓝/紫/金). Tuned for the dark neon UI: the old
+        /// palette used dark, desaturated values that all read as the same muddy tone on the
+        /// navy background, so tiers were indistinguishable. Kept as hex so UI code without
+        /// Unity colour helpers can still read the table.</summary>
         public static string AccessoryRarityColorHex(AccessoryRarity rarity) => rarity switch
         {
-            AccessoryRarity.Legendary => "#BA7517",
-            AccessoryRarity.Epic => "#534AB7",
-            AccessoryRarity.Rare => "#185FA5",
-            AccessoryRarity.Fine => "#3B6D11",
-            _ => "#8A8A82",
+            AccessoryRarity.Legendary => "#FFB020",
+            AccessoryRarity.Epic => "#C468FF",
+            AccessoryRarity.Rare => "#4AB0FF",
+            AccessoryRarity.Fine => "#4AE08C",
+            _ => "#B8BECD",
         };
 
         public static string AccessoryRarityNameOf(int index) => AccessoryRarityName(AccessoryRarityOf(index));
@@ -696,8 +698,50 @@ namespace ChoSiren
             return poolIndex == 0 ? 60 + memberIndex % 4 * 20 : 100 + memberIndex % 4 * 25;
         }
 
-        public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,
-            int displayedQuote, out string message)
+        /// <summary>Signed stat shift applied to a channel's 舞台四维 preview. Online video
+        /// screening is the cheap, lightly-vetted channel, so its numbers read lower; the pricey
+        /// offline audition delivers a genuinely stronger read. This is what makes the higher
+        /// 线下 quote worth paying — before this the two channels showed identical stats.</summary>
+        public static int InterviewChannelStatDelta(int poolIndex) => poolIndex == 0 ? -9 : 6;
+
+        /// <summary>Risk 0–100 for a candidate as presented in a channel. Deterministic per member
+        /// so it never flickers, then nudged by channel: the bargain 线上 pool carries more risk,
+        /// the vetted 线下 pool less. Higher = more likely to bring team friction / scandal cost.</summary>
+        public int InterviewRisk(int poolIndex, int memberIndex)
+        {
+            if (poolIndex < 0 || poolIndex > 1 || !IsValidMemberIndex(memberIndex)) return 0;
+            MemberDefinition member = Members[memberIndex];
+            int seed = StableSeed(member != null && !string.IsNullOrEmpty(member.Id)
+                ? member.Id
+                : "m" + memberIndex);
+            // Member variance stays deliberately narrow so the channel dominates the band: the
+            // two pools hold different members, so a wide per-member spread would let a 线上
+            // candidate read safer than a 线下 one and make the pricing look backwards.
+            int baseRisk = 20 + seed % 30;               // 20–49 stable core
+            int channel = poolIndex == 0 ? 22 : -10;     // 线上多为中/高 · 线下多为低/中
+            return Mathf.Clamp(baseRisk + channel, 5, 95);
+        }
+
+        /// <summary>Deterministic non-negative hash. <c>string.GetHashCode</c> is randomised per
+        /// process on modern runtimes/IL2CPP, which would make risk flicker every launch.</summary>
+        private static int StableSeed(string text)
+        {
+            unchecked
+            {
+                int hash = 23;
+                foreach (char c in text) hash = hash * 31 + c;
+                return hash & 0x7fffffff;
+            }
+        }
+
+        /// <summary>低/中/高 band for the numeric risk, matching the 0–100 scale above.</summary>
+        public static string InterviewRiskLabel(int risk) =>
+            risk >= 60 ? "高" : risk >= 35 ? "中" : "低";
+
+        public string InterviewRiskLabelOf(int poolIndex, int memberIndex) =>
+            InterviewRiskLabel(InterviewRisk(poolIndex, memberIndex));
+
+        public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,            int displayedQuote, out string message)
         {
             if (displayedCycle != CurrentInterviewCycle)
             {
