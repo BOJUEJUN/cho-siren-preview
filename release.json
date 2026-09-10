@@ -1,16 +1,17 @@
 {
-  "version": "0.3.7",
-  "name": "掉落曲线",
+  "version": "0.3.8",
+  "name": "测试全绿与经纪经营",
   "date": "2026-09-10",
-  "sourceCommit": "2f7f5f0",
-  "buildDirectory": "WebGL-loot-curve-v037",
-  "previousVersion": "0.3.6",
-  "previousWebCommit": "5632456",
-  "savePolicy": "保留现有存档；版本回滚不等于存档回滚。强化碎片已按 50 金币/枚一次性折算退还",
+  "sourceCommit": "20df8c8",
+  "buildDirectory": "WebGL-green-tests-career-v038",
+  "previousVersion": "0.3.7",
+  "previousWebCommit": "9f552fb",
+  "savePolicy": "保留现有存档；新增经纪经营字段由 Normalize 自动迁移，旧档不追缴任何月薪",
   "validation": {
-    "unityTests": 442,
-    "playModeTests": 123,
-    "webTests": 12,
-    "feedbackItems": 3
+    "unityTestsEditMode": 455,
+    "unityTestsPlayMode": 133,
+    "playModeBaselineFixed": 10,
+    "careerEconomyTests": 13,
+    "webTests": 12
   }
 }
