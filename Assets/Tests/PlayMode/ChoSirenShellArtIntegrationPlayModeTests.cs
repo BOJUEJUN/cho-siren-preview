@@ -183,7 +183,7 @@ namespace ChoSiren.Tests
             Assert.That(GameObject.Find("Train"), Is.Null, "未签约成员不得显示训练操作。");
             Assert.That(GameObject.Find("Team"), Is.Null, "未签约成员不得显示编队操作。");
             Assert.That(GameObject.Find("MemberEquipment"), Is.Null);
-            Click("Close");
+            Click("CloseTop");
             yield return null;
 
             Click("Member-" + GameModel.Members[0].Id);

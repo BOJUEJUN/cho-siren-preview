@@ -385,7 +385,7 @@ namespace ChoSiren.Tests
 
                 Assert.That(profileLabels.Any(IsLegacyVisibleRarity), Is.False,
                     $"成员第 {visitedPages + 1} 页资料面板不应显示内部稀有度。");
-                RequireButtonRect("Close").GetComponent<Button>().onClick.Invoke();
+                RequireButtonRect("CloseTop").GetComponent<Button>().onClick.Invoke();
                 yield return null;
 
                 visitedPages++;

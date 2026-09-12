@@ -372,7 +372,7 @@ namespace ChoSiren.Tests
             int signedIndex = System.Array.FindIndex(GameModel.Members, member => member.Name == offlineName);
             Assert.That(signedIndex, Is.GreaterThanOrEqualTo(0));
             Assert.That(new GameModel().IsUnlocked(signedIndex), Is.True);
-            Click("Close");
+            Click("CloseTop");
             yield return null;
             RequireActiveObject("Member-" + GameModel.Members[signedIndex].Id);
             Assert.That(RequireActiveObject("MemberOwnedFilter").GetComponentInChildren<Text>().text,
@@ -433,7 +433,7 @@ namespace ChoSiren.Tests
             Assert.That(firstCard.Overlaps(secondCard), Is.False, "两个完整技能卡不能重叠。");
             Assert.That(firstCard.Contains(firstRect.min) && firstCard.Contains(firstRect.max), Is.True);
             Assert.That(secondCard.Contains(secondRect.min) && secondCard.Contains(secondRect.max), Is.True);
-            Click("Close");
+            Click("CloseTop");
             yield return null;
             AssertInactiveOrMissing("MemberModal");
         }
@@ -495,7 +495,7 @@ namespace ChoSiren.Tests
             Canvas.ForceUpdateCanvases();
             Assert.That(preview.preferredHeight, Is.LessThanOrEqualTo(preview.rectTransform.rect.height));
             Assert.That(price.preferredHeight, Is.LessThanOrEqualTo(price.rectTransform.rect.height));
-            Click("Close");
+            Click("CloseTop");
             yield return null;
             AssertInactiveOrMissing("MemberModal");
             PlayerPrefs.DeleteKey(MemberTrainingPractice.ReduceMotionPreferenceKey);
@@ -520,7 +520,7 @@ namespace ChoSiren.Tests
             yield return null;
             Assert.That(RequireActiveObject("MemberModal"), Is.SameAs(dossier));
             RequireActiveObject("MemberTrainingCost");
-            Click("Close");
+            Click("CloseTop");
             yield return null;
             yield return null;
             AssertInactiveOrMissing("MemberModal");
@@ -559,7 +559,7 @@ namespace ChoSiren.Tests
             GameSave saved = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
             Assert.That(saved.Gold, Is.GreaterThanOrEqualTo(0));
             Assert.That(saved.Gold, Is.LessThan(BattleSimulator.TrainingCostAtLevel(saved.MemberLevels[0])));
-            Click("Close");
+            Click("CloseTop");
             yield return null;
             PlayerPrefs.DeleteKey(MemberTrainingPractice.ReduceMotionPreferenceKey);
         }

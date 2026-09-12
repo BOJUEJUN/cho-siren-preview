@@ -165,16 +165,6 @@ namespace ChoSiren
             PlaceTop(acquire.GetComponent<RectTransform>(), 154, 950, 312, 60);
             AddQuietPanelEdge(acquire);
 
-            GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
-                new Color32(63, 57, 108, 245), White, () =>
-                {
-                    System.Action back = memberProfileReturn;
-                    memberProfileReturn = null;
-                    CloseModal();
-                    back?.Invoke();
-                });
-            PlaceTop(close.GetComponent<RectTransform>(), 185, 1024, 250, 56);
-            AddQuietPanelEdge(close);
         }
 
         /// <summary>

@@ -63,7 +63,7 @@ namespace ChoSiren.Tests
             Assert.That(Require("AppointCaptain").GetComponent<Button>().interactable, Is.False);
             Assert.That(GameObject.Find("MemberEquipment"), Is.Null);
             Assert.That(new GameModel().Save.Team, Is.EqualTo(model.Save.Team));
-            Require("Close").GetComponent<Button>().onClick.Invoke();
+            Require("CloseTop").GetComponent<Button>().onClick.Invoke();
             yield return null;
             Assert.That(GameObject.Find("EquipmentMemberPicker"), Is.Not.Null);
             Assert.That(Require("PickerOwnership").GetComponentInChildren<Text>().text, Does.StartWith("全部"));

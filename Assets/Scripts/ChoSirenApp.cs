@@ -1414,13 +1414,10 @@ namespace ChoSiren
             FlowButton(captainPanel.transform, "AppointCaptain", !unlocked ? "签约后可任命" : isCaptain ? "当前队长" : model.IsInTeam(memberIndex) ? "设为队长" : "上阵并任命", 352, 52, 196, 52,
                 () => ConfirmCaptain(memberIndex)).GetComponent<Button>().interactable = unlocked && !isCaptain;
 
-            GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
-                new Color32(63, 57, 108, 245), White, () =>
-                { Action back = memberProfileReturn; memberProfileReturn = null; CloseModal(); back?.Invoke(); });
-            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 412 : 217, 1140, 180, 56);
+            // 底部不再放「关闭档案」——右上角 × 已覆盖两条路径。
             if (unlocked)
             {
-                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 28, 1140, 180, 56, () =>
+                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 28, 1140, 272, 56, () =>
                 { equipmentMember = memberIndex; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(memberIndex)); ShowScreen("accessory"); });
 
                 // v0.3.4 深入交流：羁绊档专属入口。锁定/已用仍可点击，用 Toast 说明原因。
@@ -1444,7 +1441,7 @@ namespace ChoSiren
                     OpenDeepTalkResult(memberIndex, teamSlot, dialogue, affectionBefore, model.AffectionOf(memberIndex));
                 });
                 deepTalk.name = "MemberDeepTalkButton";
-                PlaceTop(deepTalk.GetComponent<RectTransform>(), 220, 1140, 180, 56);
+                PlaceTop(deepTalk.GetComponent<RectTransform>(), 316, 1140, 276, 56);
                 AddQuietPanelEdge(deepTalk);
             }
         }
