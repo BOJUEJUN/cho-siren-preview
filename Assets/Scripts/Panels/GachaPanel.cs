@@ -42,6 +42,7 @@ namespace ChoSiren.Panels
             public GameObject Root;
             public RectTransform Rect;
             public Image Background;
+            public RectTransform PortraitFrame;
             public Image Portrait;
             public Outline Outline;
             public Text Profile;
@@ -296,11 +297,13 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(side.GetComponent<RectTransform>(), x, y, 176, 568);
             kit.AddOutline(side, new Color32(153, 97, 228, enabled ? (byte)92 : (byte)36), 1);
 
-            Image portrait = kit.NewImage("Portrait", side.transform, CandidateSprite(member),
+            Image portraitFrame = kit.NewImage("PortraitFrame", side.transform, null, Color.clear);
+            PanelKit.PlaceTop(portraitFrame.rectTransform, 8, 16, 160, 474);
+            portraitFrame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            Image portrait = kit.NewImage("Portrait", portraitFrame.transform, CandidateSprite(member),
                 enabled ? new Color(0.72f, 0.67f, 0.90f, 0.58f) : new Color(0.45f, 0.43f, 0.58f, 0.3f));
-            PanelKit.PlaceTop(portrait.rectTransform, 8, 16, 160, 474);
             portrait.preserveAspect = true;
-            portrait.useSpriteMesh = true;
+            PanelKit.FrameBustPortrait(portrait, portraitFrame.rectTransform, member.Id);
             kit.NewPlacedText(side.transform, direction < 0 ? "‹" : "›", 42,
                 enabled ? PanelKit.Muted : new Color32(120, 116, 145, 120),
                 direction < 0 ? 100 : 10, 494, 66, 58, TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -347,10 +350,12 @@ namespace ChoSiren.Panels
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             trait.name = "CandidateTrait";
 
-            Image portrait = kit.NewImage("CandidatePortrait", card.transform, CandidateSprite(member), Color.white);
-            PanelKit.PlaceTop(portrait.rectTransform, 244, 42, 282, 616);
+            Image portraitFrame = kit.NewImage("CandidatePortraitFrame", card.transform, null, Color.clear);
+            PanelKit.PlaceTop(portraitFrame.rectTransform, 244, 42, 282, 616);
+            portraitFrame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            Image portrait = kit.NewImage("CandidatePortrait", portraitFrame.transform, CandidateSprite(member), Color.white);
             portrait.preserveAspect = true;
-            portrait.useSpriteMesh = true;
+            PanelKit.FrameBustPortrait(portrait, portraitFrame.rectTransform, member.Id);
 
             GameObject statVeil = kit.NewPanel("CandidateStats", card.transform, new Color32(7, 10, 39, 194), 18);
             PanelKit.PlaceTop(statVeil.GetComponent<RectTransform>(), 18, 270, 276, 326);
@@ -961,9 +966,11 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(rect, x, y, cellWidth, cellHeight);
             PanelKit.CenterPivot(rect);
 
-            Image portrait = kit.NewImage("Portrait", root.transform, null, PanelKit.White);
-            PanelKit.PlaceTop(portrait.rectTransform, 10, 30, 100, 92);
-            portrait.preserveAspect = true;
+            Image portraitFrame = kit.NewImage("PortraitFrame", root.transform, null, Color.clear);
+            PanelKit.PlaceTop(portraitFrame.rectTransform, 10, 30, 100, 92);
+            portraitFrame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            Image portrait = kit.NewImage("Portrait", portraitFrame.transform, null, PanelKit.White);
+            PanelKit.FitInsideFrame(portrait);
 
             Text profile = kit.NewPlacedText(root.transform, "候选资料", 10, PanelKit.White, 6, 4, 72, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -982,6 +989,7 @@ namespace ChoSiren.Panels
                 Root = root,
                 Rect = rect,
                 Background = root.GetComponent<Image>(),
+                PortraitFrame = portraitFrame.rectTransform,
                 Portrait = portrait,
                 Outline = kit.AddOutline(root, new Color32(255, 205, 96, 0), 3),
                 Profile = profile,
@@ -1416,6 +1424,11 @@ namespace ChoSiren.Panels
             Sprite portrait = ResolveResultPortrait(result.ItemId);
             cell.Portrait.sprite = portrait;
             cell.Portrait.enabled = portrait != null;
+            string portraitMember = PanelKit.MemberIdOfItem(result.ItemId);
+            if (portraitMember != null)
+                PanelKit.FrameBustPortrait(cell.Portrait, cell.PortraitFrame, portraitMember);
+            else
+                PanelKit.FitInsideFrame(cell.Portrait);
 
             string footer;
             if (result.IsNew) footer = result.IsFeatured ? "限定 · 新成员" : "新成员";

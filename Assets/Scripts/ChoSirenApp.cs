@@ -837,11 +837,15 @@ namespace ChoSiren
             GameObject glow = NewImage("CareerGlow", card.transform, StageGlowSprite(), glowColor);
             PlaceTop(glow.GetComponent<RectTransform>(), 3, 3, width - 6, 148);
 
-            GameObject portrait = NewImage("Portrait", card.transform,
+            // 胸部以上取景：遮罩框 + 按成员取景表定位，不再整只小人塞进格子。
+            GameObject portraitFrame = NewImage("PortraitFrame", card.transform, null, Color.clear);
+            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 4, 4, width - 8, 145);
+            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            GameObject portrait = NewImage("Portrait", portraitFrame.transform,
                 Resources.Load<Sprite>(member.ThumbnailResourcePath),
                 unlocked ? White : new Color(0.68f, 0.68f, 0.78f, 0.72f));
-            PlaceTop(portrait.GetComponent<RectTransform>(), 4, 4, width - 8, 145);
-            portrait.GetComponent<Image>().preserveAspect = true;
+            PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
+                portraitFrame.GetComponent<RectTransform>(), member.Id);
             NewPlacedText(card.transform, $"{MemberRaceFamily(member, index)} · {member.Career}", 11, unlocked ? Pink : Muted,
                 7, 140, width - 14, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(card.transform, member.Name, 17, unlocked ? White : new Color32(222, 215, 238, 255),
@@ -911,9 +915,13 @@ namespace ChoSiren
             MemberDefinition member = GameModel.Members[memberIndex];
             GameObject card = NewPanel($"Candidate-{member.Id}", contentRoot, GlassLight, 20);
             PlaceTop(card.GetComponent<RectTransform>(), x, y, 214, 430);
-            GameObject portrait = NewImage("Portrait", card.transform, Resources.Load<Sprite>(member.ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 6, 6, 202, 245);
+            GameObject portraitFrame = NewImage("PortraitFrame", card.transform, null, Color.clear);
+            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 6, 6, 202, 245);
+            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            GameObject portrait = NewImage("Portrait", portraitFrame.transform, Resources.Load<Sprite>(member.ResourcePath), White);
             portrait.GetComponent<Image>().preserveAspect = true;
+            PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
+                portraitFrame.GetComponent<RectTransform>(), member.Id);
             NewPlacedText(card.transform, member.Name, 25, White, 14, 244, 186, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(card.transform, $"{MemberRaceFamily(member, memberIndex)} · {member.Career}", 14, Pink,
                 14, 282, 186, 25, TextAnchor.MiddleLeft);
@@ -1263,12 +1271,8 @@ namespace ChoSiren
                 AddQuietPanelEdge(frame);
                 GameObject portrait = NewImage("Portrait", frame.transform,
                     Resources.Load<Sprite>(member.ResourcePath), White);
-                RectTransform portraitRect = portrait.GetComponent<RectTransform>();
-                portraitRect.anchorMin = portraitRect.anchorMax = new Vector2(0.5f, 1f);
-                portraitRect.pivot = new Vector2(0.5f, 1f);
-                portraitRect.anchoredPosition = new Vector2(0f, -4f);
-                const float portraitZoom = 1.55f; // 源图 512×704，放大后约露出上 60% 胸像
-                portraitRect.sizeDelta = new Vector2(300f * portraitZoom, 412f * portraitZoom);
+                PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
+                    frame.GetComponent<RectTransform>(), member.Id);
             }
             else
             {
@@ -1462,12 +1466,15 @@ namespace ChoSiren
             panelRect.sizeDelta = new Vector2(560, 640);
             AddQuietPanelEdge(panel);
 
-            GameObject portrait = NewImage("Portrait", panel.transform,
+            GameObject portraitFrame = NewImage("PortraitFrame", panel.transform, null, Color.clear);
+            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 28, 28, 204, 288);
+            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            GameObject portrait = NewImage("Portrait", portraitFrame.transform,
                 Resources.Load<Sprite>(member.ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 28, 28, 204, 288);
             Image portraitImage = portrait.GetComponent<Image>();
             portraitImage.preserveAspect = true;
-            portraitImage.useSpriteMesh = true;
+            PanelKit.FrameBustPortrait(portraitImage,
+                portraitFrame.GetComponent<RectTransform>(), member.Id);
 
             NewPlacedText(panel.transform, "深入交流 · 羁绊时刻", 22, new Color32(255, 183, 229, 255),
                 248, 44, 292, 34, TextAnchor.MiddleLeft, FontStyle.Bold);

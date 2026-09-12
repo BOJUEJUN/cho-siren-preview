@@ -122,13 +122,14 @@ namespace ChoSiren.Panels
             GameObject portraitFrame = kit.NewPanel("PracticePortraitFrame", card.transform,
                 new Color32(10, 14, 42, 220), 20);
             PanelKit.PlaceTop(portraitFrame.GetComponent<RectTransform>(), 28, 24, 264, 340);
+            // 胸部以上取景：圆角框遮罩 + 按成员取景表定位。
+            portraitFrame.AddComponent<Mask>().showMaskGraphic = true;
             Image portrait = kit.NewImage("PracticePortrait", portraitFrame.transform,
                 Resources.Load<Sprite>(member.ResourcePath), Color.white);
-            PanelKit.Stretch(portrait.GetComponent<RectTransform>(), 8, 8, -8, -8);
             portraitRect = portrait.GetComponent<RectTransform>();
             Image portraitImage = portrait.GetComponent<Image>();
+            PanelKit.FrameBustPortrait(portraitImage, portraitFrame.GetComponent<RectTransform>(), member.Id);
             portraitImage.preserveAspect = true;
-            portraitImage.useSpriteMesh = true;
             portraitImage.raycastTarget = false;
 
             for (int index = 0; index < 3; index++)

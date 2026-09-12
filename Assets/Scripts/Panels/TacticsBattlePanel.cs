@@ -2303,20 +2303,7 @@ namespace ChoSiren.Panels
             if (source == null) return null;
             // UI-only framing, never replace the shared full-body artwork. Values are normalized
             // texture rectangles, with y measured from the bottom (Unity sprite coordinates).
-            Rect focus;
-            switch (memberId)
-            {
-                case "xingli": focus = new Rect(.50f, .62f, .46f, .29f); break;
-                case "yeying": focus = new Rect(.23f, .48f, .52f, .29f); break;
-                case "feiyin": focus = new Rect(.30f, .60f, .48f, .30f); break;
-                case "wubai": focus = new Rect(.32f, .66f, .48f, .29f); break;
-                case "yaoguang": focus = new Rect(.32f, .61f, .48f, .30f); break;
-                case "hupo": focus = new Rect(.27f, .63f, .52f, .31f); break;
-                case "xianyue": focus = new Rect(.32f, .63f, .52f, .30f); break;
-                case "chuxue": focus = new Rect(.25f, .55f, .52f, .30f); break;
-                case "chengxia": focus = new Rect(.28f, .48f, .52f, .30f); break;
-                default: focus = new Rect(.20f, .48f, .65f, .42f); break;
-            }
+            Rect focus = PanelKit.MemberBustFocus(memberId);
             Rect original = source.rect;
             Rect crop = new Rect(original.x + original.width * focus.x,
                 original.y + original.height * focus.y, original.width * focus.width, original.height * focus.height);

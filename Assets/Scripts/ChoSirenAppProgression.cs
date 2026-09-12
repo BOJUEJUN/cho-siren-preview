@@ -81,12 +81,18 @@ namespace ChoSiren
                 if (replacement) row.name = "ReplaceSlot-" + model.Save.Team.IndexOf(member);
                 row.GetComponent<Image>().color = new Color32(38, 46, 82, 255);
                 AddQuietPanelEdge(row);
-                GameObject portrait = NewImage("PickerPortrait-" + member, row.transform,
+                GameObject portraitFrame = NewImage("PickerPortraitFrame-" + member, row.transform, null, Color.clear);
+                PlaceTop(portraitFrame.GetComponent<RectTransform>(), 10, 3, 62, 58);
+                portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+                GameObject portrait = NewImage("PickerPortrait-" + member, portraitFrame.transform,
                     model.IsUnlocked(member) ? Resources.Load<Sprite>(m.ResourcePath) : LockedSilhouetteSprite(),
                     model.IsUnlocked(member) ? White : LockedSilhouetteTint);
-                PlaceTop(portrait.GetComponent<RectTransform>(), 10, 3, 62, 58);
-                portrait.GetComponent<Image>().preserveAspect = true;
-                portrait.GetComponent<Image>().raycastTarget = false;
+                Image pickerPortrait = portrait.GetComponent<Image>();
+                pickerPortrait.preserveAspect = true;
+                pickerPortrait.raycastTarget = false;
+                if (model.IsUnlocked(member))
+                    ChoSiren.Panels.PanelKit.FrameBustPortrait(pickerPortrait,
+                        portraitFrame.GetComponent<RectTransform>(), m.Id);
                 FlowText(row.transform, "PickerName-" + member,
                     model.IsUnlocked(member) ? m.Name : MemberRosterVisibility.LockedName, 19, 88, 5, 262, 27);
                 FlowText(row.transform, "PickerRole-" + member, model.IsUnlocked(member)
@@ -225,9 +231,13 @@ namespace ChoSiren
 
             GameObject detail = NewPanel("AccessoryDetail", root, new Color32(18, 23, 54, 245), 22);
             PlaceTop(detail.GetComponent<RectTransform>(), 0, 100, 680, 488);
-            GameObject portrait = NewImage("EquipmentPortrait", detail.transform, Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 16, 18, 208, 240);
+            GameObject portraitFrame = NewImage("EquipmentPortraitFrame", detail.transform, null, Color.clear);
+            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 16, 18, 208, 240);
+            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            GameObject portrait = NewImage("EquipmentPortrait", portraitFrame.transform, Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
             portrait.GetComponent<Image>().preserveAspect = true;
+            ChoSiren.Panels.PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
+                portraitFrame.GetComponent<RectTransform>(), GameModel.Members[member].Id);
             GameObject icon = NewImage("EquipmentSelectedArt", detail.transform, AccessoryItemSprite(item), White);
             PlaceTop(icon.GetComponent<RectTransform>(), 232, 18, 74, 74);
             icon.GetComponent<Image>().preserveAspect = true;
