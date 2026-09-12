@@ -300,7 +300,26 @@ namespace ChoSiren
                     12, 8, 113, 204, 22, AccessoryRarityColor(i));
                 ChoSiren.Panels.PanelKit.EnableBestFit(quality, 10);
                 int wearer = model.AccessoryOwner(i);
-                FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 137, 196, 25, Cyan);
+                if (i == item)
+                {
+                    // 选中卡就地给装备/卸下动作，避免每次回到顶部详情按钮。
+                    string quickLabel = !model.OwnsAccessory(i) ? "去关卡获取"
+                        : current == i ? "卸下饰品"
+                        : wearer >= 0 ? $"从{GameModel.Members[wearer].Name}转移" : "装备给当前角色";
+                    if (wearer == member) quickLabel = "卸下饰品";
+                    GameObject quick = NewButton("QuickEquip", card.transform, quickLabel, 14,
+                        current == i || wearer == member ? new Color32(148, 62, 88, 252) : new Color32(126, 62, 181, 252), White, () =>
+                        {
+                            if (!model.OwnsAccessory(captured)) { OpenLevelMap(); return; }
+                            model.EquipAccessoryForMember(member, captured, out string message);
+                            ShowScreen("accessory"); Toast(message);
+                        });
+                    PlaceTop(quick.GetComponent<RectTransform>(), 12, 136, 196, 28);
+                }
+                else
+                {
+                    FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 137, 196, 25, Cyan);
+                }
             }
             if (visibleItems.Length == 0)
                 FlowText(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 18, 16, inventoryBottom, 648, 36, Muted);

@@ -189,7 +189,7 @@ namespace ChoSiren.Tests
             Click("Member-" + GameModel.Members[0].Id);
             yield return null;
             Assert.That(Require("MemberOwnershipStatus").GetComponent<Text>()?.text, Is.EqualTo("已签约成员"));
-            Transform ownedPortrait = Require("MemberModal").transform.Find("Panel/Portrait");
+            Transform ownedPortrait = Require("MemberModal").transform.Find("Panel/PortraitFrame/Portrait");
             Assert.That(ownedPortrait, Is.Not.Null);
             AssertSpriteTexture(ownedPortrait.gameObject, GameModel.Members[0].ResourcePath);
             Require("MemberSectionBaseStats");

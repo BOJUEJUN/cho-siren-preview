@@ -145,6 +145,7 @@ namespace ChoSiren.Panels
         private int displayedPerformerId = -1;
         private int nextRealtimeUiRefresh;
         private int phaseFlashVersion;
+        private int ultFlashVersion;
 
         private Text turnText;
         private Text actorText;
@@ -152,6 +153,7 @@ namespace ChoSiren.Panels
         private Text previewText;
         private Text logText;
         private Text roundFlash;
+        private Image ultFlash;
         private Image actorGlow;
         private RectTransform skillBar;
         private GameObject autoButton;
@@ -845,6 +847,17 @@ namespace ChoSiren.Panels
             roundFlash.verticalOverflow = VerticalWrapMode.Overflow;
             kit.AddOutline(roundFlash.gameObject, new Color32(255, 74, 196, 200), 3);
             roundFlash.gameObject.SetActive(false);
+
+            // 大招释放的全屏瞬时闪光：透明常驻，释放时打一拍彩色脉冲。
+            ultFlash = kit.NewImage("UltFlash", transform, null, new Color(1f, 1f, 1f, 0f));
+            RectTransform flashRect = ultFlash.rectTransform;
+            flashRect.anchorMin = Vector2.zero;
+            flashRect.anchorMax = Vector2.one;
+            flashRect.offsetMin = Vector2.zero;
+            flashRect.offsetMax = Vector2.zero;
+            ultFlash.raycastTarget = false;
+            ultFlash.gameObject.SetActive(false);
+            ultFlash.transform.SetAsLastSibling();
         }
 
         private void BuildDiceConsole()
@@ -1799,11 +1812,14 @@ namespace ChoSiren.Panels
                 }
                 if (ultimate)
                 {
-                    // Short local cut-in (bounded by SkillCutInPresentation) plus a readable badge.
+                    // Short local cut-in (bounded by SkillCutInPresentation) plus a readable badge
+                    // and a one-beat screen pulse so the cast reads as a moment, not a tick.
                     SpawnPopup(actor, "大招 · " + title, PanelKit.Gold, 22);
                     skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title,
                         CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
                     caster.Energy?.Refresh();
+                    if (ultFlash != null) StartCoroutine(FlashUltimate(
+                        CombatFeedbackPalette.Skill(entry.SkillId, actor.Side)));
                 }
             }
             else if (enemyMotions.TryGetValue(actor.Id, out var motion)) motion.PlayAttack(heavy);
@@ -1938,6 +1954,32 @@ namespace ChoSiren.Panels
             if (version != phaseFlashVersion) yield break;
             phaseText.rectTransform.localScale = Vector3.one;
             phaseText.color = PanelKit.Gold;
+        }
+
+        /// <summary>Ultimate cast pulse: a fast full-panel colour beat keyed to the skill palette.</summary>
+        private IEnumerator FlashUltimate(Color accent)
+        {
+            int version = ++ultFlashVersion;
+            const float duration = 0.42f;
+            float elapsed = 0f;
+            ultFlash.gameObject.SetActive(true);
+            while (elapsed < duration && version == ultFlashVersion)
+            {
+                if (paused)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                elapsed += BattleAnimationDelta();
+                float t = Mathf.Clamp01(elapsed / duration);
+                float pulse = Mathf.Sin(t * Mathf.PI);
+                ultFlash.color = new Color(accent.r, accent.g, accent.b, pulse * 0.34f);
+                yield return null;
+            }
+
+            if (version != ultFlashVersion) yield break;
+            ultFlash.gameObject.SetActive(false);
         }
 
         private IEnumerator FadeOut(CellView cell)
@@ -2549,7 +2591,9 @@ namespace ChoSiren.Panels
             int gain = Mathf.Max(0, diceTurn.AccumulatedBonusPermille - bonusBefore);
             float total = diceTurn.AccumulatedBonusPermille / 10f;
             string gainLabel = gain > 0 ? $"骰子加成 +{gain / 10f:0.#}%" : "骰子加成已达上限";
-            SpawnPopupAt(diceHandText.rectTransform, -101, gainLabel, PanelKit.Cyan, 20, 12f);
+            // 加成本次收益要一眼可读：大字号 + 金色浮字，盖过普通伤害读数。
+            SpawnPopupAt(diceHandText.rectTransform, -101, gainLabel,
+                gain > 0 ? PanelKit.Gold : PanelKit.Cyan, 26, 12f);
             string captain = CaptainBenefitLabel();
             BattleUnit captainUnit = battle.FindUnit(battle.CurrentLeaderId);
             if (!string.IsNullOrEmpty(captain) && captainUnit != null)

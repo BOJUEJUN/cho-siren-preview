@@ -1247,14 +1247,28 @@ namespace ChoSiren
             panelRect.sizeDelta = new Vector2(620, 1250);
             AddQuietPanelEdge(panel);
 
+            // 右上角标准关闭按钮：与底部「关闭档案」同一行为，覆盖已签约/未签约两条路径。
+            GameObject closeTop = NewButton("CloseTop", panel.transform, "×", 28, Color.clear, White, () =>
+                { Action back = memberProfileReturn; memberProfileReturn = null; CloseModal(); back?.Invoke(); });
+            PlaceTop(closeTop.GetComponent<RectTransform>(), 556, 14, 50, 50);
+
             if (MemberRosterVisibility.ShowsRealPortrait(unlocked))
             {
-                GameObject portrait = NewImage("Portrait", panel.transform,
+                // 胸部以上取景：圆角遮罩框 + 顶对齐放大，两侧与下半身交给遮罩裁切。
+                GameObject frame = NewImage("PortraitFrame", panel.transform, RoundedSprite(20),
+                    new Color32(16, 20, 52, 240));
+                PlaceTop(frame.GetComponent<RectTransform>(), 20, 40, 300, 400);
+                Mask portraitMask = frame.AddComponent<Mask>();
+                portraitMask.showMaskGraphic = true;
+                AddQuietPanelEdge(frame);
+                GameObject portrait = NewImage("Portrait", frame.transform,
                     Resources.Load<Sprite>(member.ResourcePath), White);
-                PlaceTop(portrait.GetComponent<RectTransform>(), 24, 52, 292, 390);
-                Image portraitImage = portrait.GetComponent<Image>();
-                portraitImage.preserveAspect = true;
-                portraitImage.useSpriteMesh = true;
+                RectTransform portraitRect = portrait.GetComponent<RectTransform>();
+                portraitRect.anchorMin = portraitRect.anchorMax = new Vector2(0.5f, 1f);
+                portraitRect.pivot = new Vector2(0.5f, 1f);
+                portraitRect.anchoredPosition = new Vector2(0f, -4f);
+                const float portraitZoom = 1.55f; // 源图 512×704，放大后约露出上 60% 胸像
+                portraitRect.sizeDelta = new Vector2(300f * portraitZoom, 412f * portraitZoom);
             }
             else
             {
