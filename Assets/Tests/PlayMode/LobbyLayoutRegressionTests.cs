@@ -457,8 +457,8 @@ namespace ChoSiren.Tests
                 scroll.verticalNormalizedPosition = 0f;
                 Canvas.ForceUpdateCanvases();
                 yield return null;
-                AssertContained(viewport, RequireRect("EquipmentRules"),
-                    "滚动到底部后必须能完整阅读装备归属说明");
+                AssertContained(viewport, RequireRect("EquipmentPageCount"),
+                    "滚动到底部后必须能完整看到分页信息");
                 AssertContained(viewport, RequireButtonRect("Accessory-5"),
                     "滚动到底部后必须能完整点击最后一件饰品");
 

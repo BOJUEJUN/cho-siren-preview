@@ -42,6 +42,13 @@ namespace ChoSiren.Tests
             for (int i = 0; i < 15; i++) yield return null;
             RenderTo("/tmp/diag-modal.png", "MemberModal");
 
+            // 再切到饰品页渲染一张，验证大立绘主角区与紧凑详情条。
+            GameObject.Find("Nav-accessory").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            for (int i = 0; i < 15; i++) yield return null;
+            RenderTo("/tmp/diag-accessory.png", "AccessoryDetail");
+
             // 收尾拆掉自建 app，与别的用例的 TearDown 行为一致。
             foreach (var app in Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None))
                 Object.Destroy(app.gameObject);

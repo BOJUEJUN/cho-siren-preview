@@ -212,7 +212,7 @@ namespace ChoSiren.Tests
             Assert.That(equipped.Save.Gold, Is.EqualTo(gold));
             Assert.That(equipped.TeamPower, Is.EqualTo(model.TeamPowerWithMemberAccessory(0, 1)));
             Assert.That(RequireActiveObject("AccessoryPowerChange").GetComponent<Text>().text,
-                Is.EqualTo($"已生效 · 战力 +{equipped.TeamPower - model.TeamPower:N0}"),
+                Is.EqualTo($"已生效 +{equipped.TeamPower - model.TeamPower:N0}"),
                 "装备成功后展示已生效加成，不要默认用卸下损失误导玩家。");
 
             Click("EquipmentChooseMember");
