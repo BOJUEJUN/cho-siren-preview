@@ -61,18 +61,45 @@ namespace ChoSiren.Tests
         public void AdvertisedChanceMatchesActualIndependentRolls()
         {
             var model = new GameModel(() => Now);
-            const string stageId = "stage-1-1";
+            const string stageId = "stage-1-10";
             string itemId = GameModel.AccessoryItemIds[3];
             // v0.3.3: 期望改为按当前掉落表动态推导,而非硬编码 1-0.9*0.9
             float advertised = model.StageItemDropChance(stageId, itemId);
             Assert.That(advertised, Is.GreaterThan(0f).And.LessThan(1f),
-                "stage-1-1 必须能出 neon-clip 且不是必出");
+                "stage-1-10 必须能出 neon-clip 且不是必出");
             var random = new SeededRandom(847);
             int found = 0;
             const int trials = 10000;
             for (int i = 0; i < trials; i++)
                 if (DropResolver.Roll(model.Tactics.FindStage(stageId).Drops, random).Any(item => item.ItemId == itemId)) found++;
             Assert.That(found / (float)trials, Is.EqualTo(advertised).Within(.025f));
+        }
+
+        [Test]
+        public void StageLootQualityRisesAlongChapterOne()
+        {
+            var model = new GameModel(() => Now);
+            int previousMax = -1;
+            for (int stageNumber = 1; stageNumber <= 10; stageNumber++)
+            {
+                StageDefinition stage = model.Tactics.FindStage($"stage-1-{stageNumber}");
+                int max = stage.Drops.Entries
+                    .Select(e => GameModel.AccessoryIndexForItem(e.ItemId))
+                    .Where(i => i >= 0)
+                    .Max(i => (int)GameModel.AccessoryRarityOf(i));
+                Assert.That(max, Is.GreaterThanOrEqualTo(previousMax),
+                    $"stage-1-{stageNumber} 可掉落品质不得比前一关倒退");
+                previousMax = max;
+            }
+            Assert.That(previousMax, Is.EqualTo((int)GameModel.AccessoryRarity.Legendary),
+                "收官关必须能出传说品质");
+            StageDefinition first = model.Tactics.FindStage("stage-1-1");
+            int firstMax = first.Drops.Entries
+                .Select(e => GameModel.AccessoryIndexForItem(e.ItemId))
+                .Where(i => i >= 0)
+                .Max(i => (int)GameModel.AccessoryRarityOf(i));
+            Assert.That(firstMax, Is.LessThanOrEqualTo((int)GameModel.AccessoryRarity.Fine),
+                "首关不得出稀有以上装备");
         }
 
         [Test]

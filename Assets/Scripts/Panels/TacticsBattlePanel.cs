@@ -2656,9 +2656,13 @@ namespace ChoSiren.Panels
                     : Mathf.Clamp01(bonus / (float)DiceTurn.MaxBattleBonusPermille);
             if (diceEnergyText != null)
                 diceEnergyText.text = battleSession
-                    ? (diceTurn.RerollsRemaining > 0 ? $"重投就绪 ×{diceTurn.RerollsRemaining}"
-                        : diceTurn.EarnedRerolls >= diceTurn.BattleRerollLimit ? "重投次数已发完"
-                        : $"重投充能 {diceTurn.Energy}%")
+                    ? (diceTurn.EarnedRerolls >= diceTurn.BattleRerollLimit
+                        ? (diceTurn.RerollsRemaining > 0
+                            ? $"重投就绪 ×{diceTurn.RerollsRemaining} · 次数已发满"
+                            : "本场重投已发完")
+                        : diceTurn.RerollsRemaining > 0
+                            ? $"重投就绪 ×{diceTurn.RerollsRemaining} · 下一发充能 {diceTurn.Energy}%"
+                            : $"重投充能 {diceTurn.Energy}%")
                     : (bonus >= DiceTurn.MaxBattleBonusPermille ? "骰子加成 · 封顶×2"
                         : $"骰子加成 +{bonus / 10f:0.#}%");
             if (diceHandText != null)

@@ -509,13 +509,71 @@ namespace ChoSiren.Panels
             RebuildInterview();
         }
 
-        private void SignInterviewCandidate(int memberIndex, int cost)
+        private GameObject signModal;
+
+        private void SignInterviewCandidate(int memberIndex, int cost) => ShowSignConfirm(memberIndex, cost);
+
+        private void ShowSignConfirm(int memberIndex, int cost)
+        {
+            CloseSignModal();
+            MemberDefinition member = GameModel.Members[memberIndex];
+            string career = InterviewCareer(member, memberIndex);
+            Image overlay = kit.NewImage("SignConfirmOverlay", transform, null, new Color32(3, 4, 23, 232));
+            PanelKit.Stretch(overlay.rectTransform);
+            overlay.raycastTarget = true;
+            signModal = overlay.gameObject;
+
+            GameObject card = kit.NewPanel("SignConfirmCard", overlay.transform, new Color32(14, 17, 52, 252), 24);
+            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 60, 340, 600, 560);
+            kit.AddOutline(card, new Color32(136, 111, 213, 130), 1.5f);
+            kit.NewPlacedText(card.transform, "确认签约", 24, PanelKit.White, 40, 20, 520, 40,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            Image frame = kit.NewImage("PortraitFrame", card.transform, null, Color.clear);
+            PanelKit.PlaceTop(frame.rectTransform, 220, 68, 160, 150);
+            frame.raycastTarget = false;
+            frame.gameObject.AddComponent<RectMask2D>();
+            Image portrait = kit.NewImage("Portrait", frame.transform, CandidateSprite(member), PanelKit.White);
+            portrait.preserveAspect = true;
+            portrait.raycastTarget = false;
+            PanelKit.FrameBustPortrait(portrait, frame.rectTransform, member.Id);
+            kit.NewPlacedText(card.transform, $"{member.Name} · {career}", 22, PanelKit.White,
+                40, 226, 520, 36, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignConfirmName";
+            kit.NewPlacedText(card.transform,
+                $"{InterviewRace(member, memberIndex)} · 战斗定位：{InterviewPosition(career, memberIndex)}",
+                14, PanelKit.Muted, 40, 264, 520, 26, TextAnchor.MiddleCenter);
+            Image cur = kit.NewImage("SignCostIcon", card.transform, PanelKit.CurrencyIcon("diamond"),
+                PanelKit.CurrencyIcon("diamond") != null ? Color.white : PanelKit.CurrencyColor("diamond"));
+            PanelKit.PlaceTop(cur.rectTransform, 168, 312, 34, 34);
+            cur.raycastTarget = false;
+            kit.NewPlacedText(card.transform, $"签约费用  星钻 {cost:N0}", 20,
+                PanelKit.CurrencyColor("diamond"), 210, 306, 350, 44,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "SignConfirmCost";
+            int balance = model.Save.Diamonds;
+            bool affordable = balance >= cost;
+            kit.NewPlacedText(card.transform,
+                affordable ? $"当前余额 {balance:N0} · 签约后剩 {balance - cost:N0}"
+                    : $"星钻不足 · 当前 {balance:N0} · 还差 {cost - balance:N0}",
+                13, affordable ? PanelKit.Muted : PanelKit.Pink, 40, 354, 520, 24,
+                TextAnchor.MiddleCenter).name = "SignConfirmBalance";
+            kit.NewPlacedText(card.transform, "签约后进入成员页 · 按 7 天经营期结算预估月薪",
+                12, PanelKit.Muted, 40, 382, 520, 24, TextAnchor.MiddleCenter);
+            GameObject cancel = kit.NewButton("SignCancel", card.transform, "再想想", 18,
+                PanelKit.ButtonDark, PanelKit.White, CloseSignModal, 16);
+            PanelKit.PlaceTop(cancel.GetComponent<RectTransform>(), 30, 456, 260, 64);
+            GameObject confirm = kit.NewButton("SignConfirm", card.transform, "确认签约", 20,
+                new Color32(92, 65, 191, 245), PanelKit.White, () => ConfirmSign(memberIndex, cost), 16);
+            PanelKit.PlaceTop(confirm.GetComponent<RectTransform>(), 310, 456, 260, 64);
+            confirm.GetComponent<Button>().interactable = affordable;
+        }
+
+        private void ConfirmSign(int memberIndex, int cost)
         {
             bool signed = model.SignInterviewCandidate(interviewPoolIndex, memberIndex,
                 displayedInterviewCycle, cost, out string message);
-            Notify(message);
             if (!signed)
             {
+                Notify(message);
+                CloseSignModal();
                 if (displayedInterviewCycle != model.CurrentInterviewCycle) RebuildInterview();
                 return;
             }
@@ -524,11 +582,58 @@ namespace ChoSiren.Panels
                 ? 0
                 : Mathf.Clamp(interviewCandidateIndex, 0, remaining.Count - 1);
             RebuildInterview();
-            onSigned?.Invoke(memberIndex);
+            ShowSignedCard(memberIndex);
+        }
+
+        private void ShowSignedCard(int memberIndex)
+        {
+            CloseSignModal();
+            MemberDefinition member = GameModel.Members[memberIndex];
+            Image overlay = kit.NewImage("SignResultOverlay", transform, null, new Color32(3, 4, 23, 232));
+            PanelKit.Stretch(overlay.rectTransform);
+            overlay.raycastTarget = true;
+            signModal = overlay.gameObject;
+
+            GameObject card = kit.NewPanel("SignResultCard", overlay.transform, new Color32(14, 17, 52, 252), 24);
+            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 60, 380, 600, 480);
+            kit.AddOutline(card, new Color32(255, 210, 117, 130), 1.5f);
+            kit.NewPlacedText(card.transform, "签约成功", 26, new Color32(255, 210, 117, 255), 40, 24, 520, 44,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            Image frame = kit.NewImage("PortraitFrame", card.transform, null, Color.clear);
+            PanelKit.PlaceTop(frame.rectTransform, 220, 84, 160, 150);
+            frame.raycastTarget = false;
+            frame.gameObject.AddComponent<RectMask2D>();
+            Image portrait = kit.NewImage("Portrait", frame.transform, CandidateSprite(member), PanelKit.White);
+            portrait.preserveAspect = true;
+            portrait.raycastTarget = false;
+            PanelKit.FrameBustPortrait(portrait, frame.rectTransform, member.Id);
+            kit.NewPlacedText(card.transform, $"{member.Name} 已加入团队", 22, PanelKit.White,
+                40, 244, 520, 36, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignResultName";
+            kit.NewPlacedText(card.transform, "可在成员页查看档案并编队上阵",
+                13, PanelKit.Muted, 40, 284, 520, 26, TextAnchor.MiddleCenter);
+            GameObject stay = kit.NewButton("SignResultStay", card.transform, "继续面试", 18,
+                PanelKit.ButtonDark, PanelKit.White, CloseSignModal, 16);
+            PanelKit.PlaceTop(stay.GetComponent<RectTransform>(), 30, 380, 260, 64);
+            GameObject view = kit.NewButton("SignResultProfile", card.transform, "查看档案", 20,
+                new Color32(92, 65, 191, 245), PanelKit.White, () =>
+                {
+                    CloseSignModal();
+                    onSigned?.Invoke(memberIndex);
+                }, 16);
+            PanelKit.PlaceTop(view.GetComponent<RectTransform>(), 310, 380, 260, 64);
+        }
+
+        private void CloseSignModal()
+        {
+            if (signModal == null) return;
+            if (Application.isPlaying) Destroy(signModal);
+            else DestroyImmediate(signModal);
+            signModal = null;
         }
 
         private void RebuildInterview()
         {
+            CloseSignModal();
             if (interviewContent != null)
             {
                 interviewContent.SetActive(false);

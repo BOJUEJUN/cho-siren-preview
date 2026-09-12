@@ -1255,12 +1255,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-neon-clip",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-ear-01",
             "Weight": 6,
             "Min": 1,
@@ -1292,6 +1286,12 @@
           },
           {
             "ItemId": "accessory-collection-neck-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-01",
             "Weight": 6,
             "Min": 1,
             "Max": 1
@@ -1372,12 +1372,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-prism-monitor",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-wrist-01",
             "Weight": 6,
             "Min": 1,
@@ -1409,6 +1403,12 @@
           },
           {
             "ItemId": "accessory-collection-ring-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-01",
             "Weight": 6,
             "Min": 1,
             "Max": 1
@@ -1473,18 +1473,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-pulse-necklace",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
-            "ItemId": "accessory-collection-hair-01",
-            "Weight": 6,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-hair-02",
             "Weight": 6,
             "Min": 1,
@@ -1510,6 +1498,18 @@
           },
           {
             "ItemId": "accessory-collection-charm-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-02",
             "Weight": 6,
             "Min": 1,
             "Max": 1
@@ -1590,12 +1590,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-spotlight-boots",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-ear-04",
             "Weight": 5,
             "Min": 1,
@@ -1627,6 +1621,12 @@
           },
           {
             "ItemId": "accessory-collection-neck-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-04",
             "Weight": 5,
             "Min": 1,
             "Max": 1
@@ -1693,12 +1693,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-neon-earring",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-wrist-04",
             "Weight": 5,
             "Min": 1,
@@ -1730,6 +1724,12 @@
           },
           {
             "ItemId": "accessory-collection-ring-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-06",
             "Weight": 5,
             "Min": 1,
             "Max": 1
@@ -1794,12 +1794,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-echo-note",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-hair-04",
             "Weight": 5,
             "Min": 1,
@@ -1830,8 +1824,14 @@
             "Max": 1
           },
           {
-            "ItemId": "accessory-collection-charm-06",
-            "Weight": 5,
+            "ItemId": "accessory-prism-monitor",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-pulse-necklace",
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
@@ -1911,12 +1911,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-moon-bracelet",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-ear-07",
             "Weight": 4,
             "Min": 1,
@@ -1947,8 +1941,14 @@
             "Max": 1
           },
           {
-            "ItemId": "accessory-collection-neck-09",
-            "Weight": 4,
+            "ItemId": "accessory-spotlight-boots",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-echo-note",
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
@@ -2028,12 +2028,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-prism-monitor",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-wrist-07",
             "Weight": 4,
             "Min": 1,
@@ -2066,6 +2060,12 @@
           {
             "ItemId": "accessory-collection-ring-09",
             "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-moon-bracelet",
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
@@ -2137,12 +2137,6 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-starlit-crown",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-collection-hair-07",
             "Weight": 4,
             "Min": 1,
@@ -2175,6 +2169,12 @@
           {
             "ItemId": "accessory-collection-charm-09",
             "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-starlit-crown",
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
@@ -2248,43 +2248,43 @@
         "Rolls": 3,
         "Entries": [
           {
-            "ItemId": "accessory-stage-crown",
-            "Weight": 10,
-            "Min": 1,
-            "Max": 1
-          },
-          {
             "ItemId": "accessory-ear-monitor",
-            "Weight": 10,
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
           {
             "ItemId": "accessory-heart-necklace",
-            "Weight": 10,
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
           {
             "ItemId": "accessory-dance-boots",
-            "Weight": 10,
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
           {
-            "ItemId": "accessory-collection-charm-07",
-            "Weight": 4,
+            "ItemId": "accessory-neon-clip",
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
           {
-            "ItemId": "accessory-collection-charm-08",
-            "Weight": 4,
+            "ItemId": "accessory-neon-earring",
+            "Weight": 3,
             "Min": 1,
             "Max": 1
           },
           {
-            "ItemId": "accessory-collection-charm-09",
+            "ItemId": "accessory-stage-crown",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-09",
             "Weight": 4,
             "Min": 1,
             "Max": 1

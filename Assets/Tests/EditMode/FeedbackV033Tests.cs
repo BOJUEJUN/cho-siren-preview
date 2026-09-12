@@ -216,7 +216,7 @@ namespace ChoSiren.Tests
                 return index >= 0 && GameModel.AccessoryRarityOf(index) >= GameModel.AccessoryRarity.Epic;
             });
 
-            Assert.That(RareCount("stage-1-1"), Is.EqualTo(1), "首关只应含极少量高稀有度");
+            Assert.That(RareCount("stage-1-1"), Is.Zero, "首关不应出现史诗以上装备");
             Assert.That(RareCount("stage-1-10"), Is.GreaterThan(RareCount("stage-1-1")),
                 "越后面的关卡稀有掉落应越多");
             Assert.That(RareCount("stage-1-10"), Is.GreaterThanOrEqualTo(2));

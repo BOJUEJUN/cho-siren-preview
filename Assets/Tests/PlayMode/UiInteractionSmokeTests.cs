@@ -230,7 +230,7 @@ namespace ChoSiren.Tests
             Assert.That(RequireActiveObject("AccessoryDelta-1").GetComponent<Text>().text,
                 Does.EndWith("→" + equipped.StatsOf(1, 1).Attack.ToString("N0")));
             Assert.That(RequireActiveObject("QuickEquip").GetComponentInChildren<Text>().text,
-                Does.Contain("从" + GameModel.Members[0].Name + "转移"));
+                Is.EqualTo("转移"));
             Click("QuickEquip");
             yield return null;
             var transferred = new GameModel();
@@ -356,6 +356,18 @@ namespace ChoSiren.Tests
             int beforeCount = int.Parse(beforeCounter.Split('/')[1].Trim());
 
             Click("SignCandidate");
+            yield return null;
+            Assert.That(RequireActiveObject("SignConfirmCard"), Is.Not.Null,
+                "签约必须先弹花费确认，不能直接扣款或跳档案。");
+            Assert.That(RequireActiveObject("SignConfirmCost").GetComponent<Text>().text,
+                Does.Contain("星钻"));
+            Click("SignConfirm");
+            yield return null;
+            Assert.That(RequireActiveObject("SignResultCard"), Is.Not.Null,
+                "确认后应展示签约成功卡而不是直接跳档案。");
+            Assert.That(RequireActiveObject("SignResultName").GetComponent<Text>().text,
+                Does.Contain("已加入团队"));
+            Click("SignResultProfile");
             yield return null;
             RequireActiveObject("MemberModal");
             Assert.That(RequireActiveObject("MemberOwnershipStatus").GetComponent<Text>().text,

@@ -140,18 +140,18 @@ namespace ChoSiren.Tests
             Click("QuickEquip");
             yield return null;
             Assert.That(model.EquippedAccessoryFor(member), Is.EqualTo(1));
-            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("未装备时   →   当前已装备"));
+            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("战斗属性 · 未装备→已装备"));
             Assert.That(Label("AccessoryDelta-3"), Is.EqualTo($"{baselinePower:N0}→{expectedPower:N0}"));
             Assert.That(Label("AccessoryPowerChange"), Is.EqualTo($"已生效 · 战力 +{expectedPower - baselinePower:N0}"),
                 "装备状态应解释已生效收益，不可伪装成卸下后的负变化");
             Assert.That(Label("PlayerLevel"), Is.EqualTo($"战力 {model.TeamPower:N0}"));
-            Assert.That(Require("QuickEquip").GetComponentInChildren<Text>().text, Is.EqualTo("卸下饰品"));
+            Assert.That(Require("QuickEquip").GetComponentInChildren<Text>().text, Is.EqualTo("卸下"));
             Assert.That(new GameModel().EquippedAccessoryFor(member), Is.EqualTo(1));
             Click("QuickEquip");
             yield return null;
             Assert.That(model.EquippedAccessoryFor(member), Is.EqualTo(-1));
             Assert.That(Label("PlayerLevel"), Is.EqualTo($"战力 {baselinePower:N0}"));
-            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("当前     →     装备后预览"));
+            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("战斗属性 · 当前→装备后"));
         }
 
         private static int[] VisibleIds() => Require("EquipmentBody").GetComponentsInChildren<Button>()

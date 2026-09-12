@@ -203,9 +203,26 @@ namespace ChoSiren
             GameObject selector = NewPanel("EquipmentMemberSelector", root, Glass, 20);
             PlaceTop(selector.GetComponent<RectTransform>(), 0, 0, 680, 70);
             FlowButton(selector.transform, "EquipmentChooseMember", "选择角色", 518, 10, 150, 48, () => OpenOwnedMemberPicker(0, 0, true));
-            FlowText(selector.transform, "EquipmentMemberName", $"{GameModel.Members[member].Name} · 等级 {model.LevelOf(member)}", 22, 20, 8, 480, 30);
+            // 头像+名字整块可点，直接轮换下一个已解锁角色；「选择角色」进完整选人列表。
+            GameObject cycle = NewButton("EquipmentCycleMember", selector.transform, string.Empty, 1, Color.clear, White,
+                () => CycleEquipmentMember(1));
+            PlaceTop(cycle.GetComponent<RectTransform>(), 0, 0, 500, 70);
+            GameObject portraitFrame = NewImage("EquipmentPortraitFrame", cycle.transform, null, Color.clear);
+            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 10, 8, 54, 54);
+            portraitFrame.GetComponent<Image>().raycastTarget = false;
+            portraitFrame.AddComponent<RectMask2D>();
+            GameObject portrait = NewImage("EquipmentPortrait", portraitFrame.transform,
+                Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
+            portrait.GetComponent<Image>().preserveAspect = true;
+            portrait.GetComponent<Image>().raycastTarget = false;
+            ChoSiren.Panels.PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
+                portraitFrame.GetComponent<RectTransform>(), GameModel.Members[member].Id);
             int current = model.EquippedAccessoryInSlot(member, GameModel.AccessoryCategory(item));
-            FlowText(selector.transform, "EquipmentMemberStatus", $"{MemberDeploymentLabel(member)} · 已穿戴 {model.EquippedAccessoriesFor(member).Length}/7 件", 15, 20, 40, 480, 24, Cyan);
+            FlowText(cycle.transform, "EquipmentMemberName", $"{GameModel.Members[member].Name} · 等级 {model.LevelOf(member)}",
+                22, 74, 8, 420, 30).raycastTarget = false;
+            FlowText(cycle.transform, "EquipmentMemberStatus",
+                $"{MemberDeploymentLabel(member)} · 已穿戴 {model.EquippedAccessoriesFor(member).Length}/7 件 · 点击换角色",
+                14, 74, 40, 420, 24, Cyan).raycastTarget = false;
 
             GameObject detail = NewPanel("AccessoryDetail", root, new Color32(18, 23, 54, 245), 22);
             PlaceTop(detail.GetComponent<RectTransform>(), 0, 78, 680, 168);
@@ -229,7 +246,7 @@ namespace ChoSiren
             int baselinePower = wearingSelected ? model.PreviewEquipmentTeamPower(member, item, true) : model.TeamPower;
             int[] oldValues = { before.Hp, before.Attack, before.Defense, baselinePower };
             int[] newValues = { after.Hp, after.Attack, after.Defense, model.PreviewEquipmentTeamPower(member, item) };
-            FlowText(detail.transform, "EquipmentCompareHeading", wearingSelected ? "未装备时   →   当前已装备" : "当前     →     装备后预览", 14, 16, 94, 320, 20, Muted);
+            FlowText(detail.transform, "EquipmentCompareHeading", wearingSelected ? "战斗属性 · 未装备→已装备" : "战斗属性 · 当前→装备后", 14, 16, 94, 320, 20, Muted);
             int delta = newValues[3] - baselinePower;
             FlowText(detail.transform, "AccessoryPowerChange", $"{(wearingSelected ? "已生效 · 战力" : "装备后战力")} {(delta > 0 ? "+" : "")}{delta:N0}", 15, 344, 94, 320, 24, delta >= 0 ? Cyan : Pink);
             for (int row = 0; row < 4; row++)
@@ -270,10 +287,10 @@ namespace ChoSiren
                 {
                     // 装备/卸下/强化操作绑定在选中卡上，不再用详情面板底部的大按钮行。
                     bool owns = model.OwnsAccessory(i);
-                    string quickLabel = !owns ? "去关卡获取"
-                        : current == i ? "卸下饰品"
-                        : wearer >= 0 ? $"从{GameModel.Members[wearer].Name}转移" : "装备给当前角色";
-                    if (wearer == member) quickLabel = "卸下饰品";
+                    string quickLabel = !owns ? "去关卡"
+                        : current == i ? "卸下"
+                        : wearer >= 0 ? "转移" : "装备";
+                    if (wearer == member) quickLabel = "卸下";
                     GameObject quick = NewButton("QuickEquip", card.transform, quickLabel, 12,
                         current == i || wearer == member ? new Color32(148, 62, 88, 252) : new Color32(126, 62, 181, 252), White, () =>
                         {
