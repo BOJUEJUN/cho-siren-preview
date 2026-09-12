@@ -170,8 +170,8 @@ namespace ChoSiren.Tests
                 "饰品页眉应准确描述当前功能。");
             Assert.That(accessoryLabels, Does.Not.Contain("饰品与设置"),
                 "设置已经统一到顶部齿轮，饰品页不能继续使用旧的混合页标题。");
-            Assert.That(RequireRect("EquipmentPortrait").GetComponent<Image>().preserveAspect,
-                Is.True, "角色装备立绘必须保持素材比例。");
+            Assert.That(RequireRect("EquipmentSelectedArt").GetComponent<Image>().preserveAspect,
+                Is.True, "角色装备选中饰品图必须保持素材比例。");
             Assert.That(GameObject.Find("AccessoryPreviewArt"), Is.Null,
                 "新装备页不可叠回自带栏位与字样的旧预览框体。");
             Assert.That(RequireRect("EquipmentScroll").GetComponent<RectMask2D>(), Is.Not.Null);

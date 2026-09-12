@@ -118,8 +118,6 @@ namespace ChoSiren.Tests
             yield return null;
             Assert.That(VisibleIds(), Is.Empty);
             Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[next].Name));
-            Assert.That(Require("EquipmentPortrait").GetComponent<Image>().sprite,
-                Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[next].ResourcePath)));
             Assert.That(Require("EquipmentSelectedArt").GetComponent<Image>().sprite, Is.Not.Null);
             Click("EquipmentChooseMember");
             yield return null;
@@ -139,18 +137,17 @@ namespace ChoSiren.Tests
             Assert.That(Label("PlayerLevel"), Is.EqualTo($"战力 {baselinePower:N0}"));
             Click("Accessory-1");
             yield return null;
-            Click("AccessoryEquip");
+            Click("QuickEquip");
             yield return null;
             Assert.That(model.EquippedAccessoryFor(member), Is.EqualTo(1));
             Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("未装备时   →   当前已装备"));
-            Assert.That(Label("AccessoryBefore-3"), Is.EqualTo(baselinePower.ToString("N0")));
-            Assert.That(Label("AccessoryAfter-3"), Is.EqualTo(expectedPower.ToString("N0")));
+            Assert.That(Label("AccessoryDelta-3"), Is.EqualTo($"{baselinePower:N0}→{expectedPower:N0}"));
             Assert.That(Label("AccessoryPowerChange"), Is.EqualTo($"已生效 · 战力 +{expectedPower - baselinePower:N0}"),
                 "装备状态应解释已生效收益，不可伪装成卸下后的负变化");
             Assert.That(Label("PlayerLevel"), Is.EqualTo($"战力 {model.TeamPower:N0}"));
-            Assert.That(Require("AccessoryEquip").GetComponentInChildren<Text>().text, Is.EqualTo("卸下饰品"));
+            Assert.That(Require("QuickEquip").GetComponentInChildren<Text>().text, Is.EqualTo("卸下饰品"));
             Assert.That(new GameModel().EquippedAccessoryFor(member), Is.EqualTo(1));
-            Click("AccessoryEquip");
+            Click("QuickEquip");
             yield return null;
             Assert.That(model.EquippedAccessoryFor(member), Is.EqualTo(-1));
             Assert.That(Label("PlayerLevel"), Is.EqualTo($"战力 {baselinePower:N0}"));

@@ -90,8 +90,8 @@ namespace ChoSiren.Tests
 
             var model = new GameModel();
             int selectedMember = model.Save.Team[0];
-            AssertSpriteTexture("EquipmentPortrait", GameModel.Members[selectedMember].ResourcePath);
-            Assert.That(Require("EquipmentPortrait").GetComponent<Image>().preserveAspect, Is.True);
+            Assert.That(Require("EquipmentMemberName").GetComponent<Text>().text,
+                Does.StartWith(GameModel.Members[selectedMember].Name));
             Assert.That(GameObject.Find("AccessoryPreviewArt"), Is.Null,
                 "新角色装备页不再叠加自带槽位/文字的旧美术面板。");
             Assert.That(GameObject.Find("AccessoryCollection"), Is.Null);
@@ -131,13 +131,11 @@ namespace ChoSiren.Tests
             yield return null;
             int next = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(selectedMember) + 1)
                 % model.Save.UnlockedMembers.Count];
-            AssertSpriteTexture("EquipmentPortrait", GameModel.Members[next].ResourcePath);
             Assert.That(Require("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[next].Name));
             Click("Accessory-2");
             yield return null;
             AssertSpriteTexture("EquipmentSelectedArt", itemPaths[2]);
-            AssertSpriteTexture("EquipmentPortrait", GameModel.Members[next].ResourcePath);
         }
 
         [UnityTest]

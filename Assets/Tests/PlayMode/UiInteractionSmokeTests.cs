@@ -178,18 +178,16 @@ namespace ChoSiren.Tests
             Canvas.ForceUpdateCanvases();
             Assert.That(PlayerPrefs.GetString(SaveKey), Is.EqualTo(saved),
                 "Browsing an accessory is not an equip or purchase operation.");
-            Assert.That(RequireActiveObject("AccessoryBefore-3").GetComponent<Text>().text,
-                Is.EqualTo(model.TeamPower.ToString("N0")));
-            Assert.That(RequireActiveObject("AccessoryAfter-3").GetComponent<Text>().text,
-                Is.EqualTo(model.TeamPowerWithMemberAccessory(0, 1).ToString("N0")));
+            Assert.That(RequireActiveObject("AccessoryDelta-3").GetComponent<Text>().text,
+                Is.EqualTo($"{model.TeamPower:N0}→{model.TeamPowerWithMemberAccessory(0, 1):N0}"));
             Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[0].Name));
             int originalFirstAttack = model.StatsOf(0).Attack;
             int originalSecondAttack = model.StatsOf(1).Attack;
             int originalSecondHp = model.StatsOf(1).Hp;
-            Text effects = RequireActiveObject("AccessoryEffects").GetComponent<Text>();
-            Assert.That(effects.text, Is.EqualTo("生命 +4%\n攻击 +8%\n防御 +0%"));
-            Assert.That(effects.preferredHeight, Is.LessThanOrEqualTo(effects.rectTransform.rect.height));
+            Text quality = RequireActiveObject("EquipmentItemQuality").GetComponent<Text>();
+            Assert.That(quality.text, Does.Contain("生命").And.Contain("4%"), "品质行应携带饰品属性加成说明。");
+            Assert.That(quality.preferredHeight, Is.LessThanOrEqualTo(quality.rectTransform.rect.height));
             foreach (Text text in RequireActiveObject("AccessoryDetail").GetComponentsInChildren<Text>())
             {
                 Assert.That(text.text, Does.Not.Contain("套装"));
@@ -198,15 +196,13 @@ namespace ChoSiren.Tests
             for (int row = 0; row < 4; row++)
             {
                 Text statName = RequireActiveObject("AccessoryStatName-" + row).GetComponent<Text>();
-                Text before = RequireActiveObject("AccessoryBefore-" + row).GetComponent<Text>();
-                Text after = RequireActiveObject("AccessoryAfter-" + row).GetComponent<Text>();
+                Text delta = RequireActiveObject("AccessoryDelta-" + row).GetComponent<Text>();
                 Assert.That(statName.preferredHeight, Is.LessThanOrEqualTo(statName.rectTransform.rect.height));
-                Assert.That(before.preferredHeight, Is.LessThanOrEqualTo(before.rectTransform.rect.height));
-                Assert.That(after.preferredHeight, Is.LessThanOrEqualTo(after.rectTransform.rect.height));
-                Assert.That(before.fontSize, Is.GreaterThanOrEqualTo(18));
-                Assert.That(after.fontSize, Is.GreaterThanOrEqualTo(18));
+                Assert.That(delta.preferredHeight, Is.LessThanOrEqualTo(delta.rectTransform.rect.height));
+                Assert.That(delta.text, Does.Contain("→"), "对比列应显示 旧→新 数值。");
+                Assert.That(delta.fontSize, Is.GreaterThanOrEqualTo(15));
             }
-            Click("AccessoryEquip");
+            Click("QuickEquip");
             yield return null;
             var equipped = new GameModel();
             Assert.That(equipped.EquippedAccessoryFor(0), Is.EqualTo(1));
@@ -225,19 +221,17 @@ namespace ChoSiren.Tests
             yield return null;
             Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[1].Name));
-            Assert.That(RequireActiveObject("EquipmentPortrait").GetComponent<Image>().sprite.texture,
-                Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[1].ResourcePath).texture));
             Assert.That(new GameModel().EquippedAccessoryFor(0), Is.EqualTo(1),
                 "浏览另一角色不能自动移动已装备饰品。");
             Click("Accessory-1");
             yield return null;
-            Assert.That(RequireActiveObject("AccessoryBefore-0").GetComponent<Text>().text,
-                Is.EqualTo(originalSecondHp.ToString("N0")));
-            Assert.That(RequireActiveObject("AccessoryAfter-1").GetComponent<Text>().text,
-                Is.EqualTo(equipped.StatsOf(1, 1).Attack.ToString("N0")));
-            Assert.That(RequireActiveObject("AccessoryEquip").GetComponentInChildren<Text>().text,
+            Assert.That(RequireActiveObject("AccessoryDelta-0").GetComponent<Text>().text,
+                Does.StartWith(originalSecondHp.ToString("N0") + "→"));
+            Assert.That(RequireActiveObject("AccessoryDelta-1").GetComponent<Text>().text,
+                Does.EndWith("→" + equipped.StatsOf(1, 1).Attack.ToString("N0")));
+            Assert.That(RequireActiveObject("QuickEquip").GetComponentInChildren<Text>().text,
                 Does.Contain("从" + GameModel.Members[0].Name + "转移"));
-            Click("AccessoryEquip");
+            Click("QuickEquip");
             yield return null;
             var transferred = new GameModel();
             Assert.That(transferred.EquippedAccessoryFor(0), Is.EqualTo(-1));
@@ -246,7 +240,7 @@ namespace ChoSiren.Tests
             Assert.That(transferred.StatsOf(0).Attack, Is.EqualTo(originalFirstAttack));
             Assert.That(transferred.StatsOf(1).Attack, Is.GreaterThan(originalSecondAttack));
             Assert.That(transferred.TeamPower, Is.EqualTo(equipped.TeamPowerWithMemberAccessory(1, 1)));
-            Click("AccessoryEquip");
+            Click("QuickEquip");
             yield return null;
             var unequipped = new GameModel();
             Assert.That(unequipped.EquippedAccessoryFor(1), Is.EqualTo(-1));
@@ -303,7 +297,7 @@ namespace ChoSiren.Tests
             yield return null;
             RequireActiveObject("Accessory-0");
             RequireActiveObject("Accessory-5");
-            RequireActiveObject("EquipmentPortrait");
+            RequireActiveObject("EquipmentSelectedArt");
             RequireActiveObject("AccessoryDetail");
             RequireActiveObject("EquipmentScroll");
             RequireActiveObject("EquipmentInventoryTitle");
