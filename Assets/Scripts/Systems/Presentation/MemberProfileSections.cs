@@ -64,10 +64,10 @@ namespace ChoSiren.Systems.Presentation
         public string Race = string.Empty;
         public int Level;
         public int Power;
-        public int Attack;
-        public int Hp;
-        public int CritPercent;
-        public int Speed;
+        public int Vocal;
+        public int Rhythm;
+        public int Presence;
+        public int Resonance;
         public string NormalAttackName = string.Empty;
         public string NormalAttackDescription = string.Empty;
         public IReadOnlyList<MemberSkillCopy> ActiveSkills = Array.Empty<MemberSkillCopy>();
@@ -110,12 +110,13 @@ namespace ChoSiren.Systems.Presentation
     }
 
     /// <summary>
-    /// Builds the grouped profile from the same values battle reads. Locked members never reach
+    /// Builds the grouped profile from the canonical 舞台四维 values (GameModel.StageStats).
+    /// Locked members never reach
     /// <see cref="Build"/>: the caller must use <see cref="MemberProfileView.Locked"/> instead.
     /// </summary>
     public static class MemberProfileSections
     {
-        public const string BaseStatsTitle = "基础属性";
+        public const string BaseStatsTitle = "舞台四维";
         public const string NormalAttackTitle = "普通攻击";
         public const string ActiveSkillsTitle = "主动技能";
         public const string PassiveCaptainTitle = "被动 · 队长特性";
@@ -132,10 +133,10 @@ namespace ChoSiren.Systems.Presentation
                     {
                         new MemberProfileLine("等级", input.Level.ToString()),
                         new MemberProfileLine("战力", input.Power.ToString("N0")),
-                        new MemberProfileLine("攻击", input.Attack.ToString("N0")),
-                        new MemberProfileLine("生命", input.Hp.ToString("N0")),
-                        new MemberProfileLine("暴击", input.CritPercent + "%"),
-                        new MemberProfileLine("速度", input.Speed.ToString()),
+                        new MemberProfileLine("声能", input.Vocal.ToString()),
+                        new MemberProfileLine("律动", input.Rhythm.ToString()),
+                        new MemberProfileLine("气场", input.Presence.ToString()),
+                        new MemberProfileLine("共鸣", input.Resonance.ToString()),
                     }),
                 new MemberProfileSection(MemberProfileSectionKind.NormalAttack, NormalAttackTitle,
                     new[]

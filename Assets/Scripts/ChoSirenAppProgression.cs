@@ -81,12 +81,18 @@ namespace ChoSiren
                 if (replacement) row.name = "ReplaceSlot-" + model.Save.Team.IndexOf(member);
                 row.GetComponent<Image>().color = new Color32(38, 46, 82, 255);
                 AddQuietPanelEdge(row);
-                GameObject portrait = NewImage("PickerPortrait-" + member, row.transform,
+                GameObject portraitFrame = NewImage("PickerPortraitFrame-" + member, row.transform, null, Color.clear);
+                PlaceTop(portraitFrame.GetComponent<RectTransform>(), 10, 3, 62, 58);
+                portraitFrame.AddComponent<RectMask2D>();
+                GameObject portrait = NewImage("PickerPortrait-" + member, portraitFrame.transform,
                     model.IsUnlocked(member) ? Resources.Load<Sprite>(m.ResourcePath) : LockedSilhouetteSprite(),
                     model.IsUnlocked(member) ? White : LockedSilhouetteTint);
-                PlaceTop(portrait.GetComponent<RectTransform>(), 10, 3, 62, 58);
-                portrait.GetComponent<Image>().preserveAspect = true;
-                portrait.GetComponent<Image>().raycastTarget = false;
+                Image pickerPortrait = portrait.GetComponent<Image>();
+                pickerPortrait.preserveAspect = true;
+                pickerPortrait.raycastTarget = false;
+                if (model.IsUnlocked(member))
+                    ChoSiren.Panels.PanelKit.FrameBustPortrait(pickerPortrait,
+                        portraitFrame.GetComponent<RectTransform>(), m.Id);
                 FlowText(row.transform, "PickerName-" + member,
                     model.IsUnlocked(member) ? m.Name : MemberRosterVisibility.LockedName, 19, 88, 5, 262, 27);
                 FlowText(row.transform, "PickerRole-" + member, model.IsUnlocked(member)
@@ -225,9 +231,13 @@ namespace ChoSiren
 
             GameObject detail = NewPanel("AccessoryDetail", root, new Color32(18, 23, 54, 245), 22);
             PlaceTop(detail.GetComponent<RectTransform>(), 0, 100, 680, 488);
-            GameObject portrait = NewImage("EquipmentPortrait", detail.transform, Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), 16, 18, 208, 240);
+            GameObject portraitFrame = NewImage("EquipmentPortraitFrame", detail.transform, null, Color.clear);
+            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 16, 18, 208, 240);
+            portraitFrame.AddComponent<RectMask2D>();
+            GameObject portrait = NewImage("EquipmentPortrait", portraitFrame.transform, Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
             portrait.GetComponent<Image>().preserveAspect = true;
+            ChoSiren.Panels.PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
+                portraitFrame.GetComponent<RectTransform>(), GameModel.Members[member].Id);
             GameObject icon = NewImage("EquipmentSelectedArt", detail.transform, AccessoryItemSprite(item), White);
             PlaceTop(icon.GetComponent<RectTransform>(), 232, 18, 74, 74);
             icon.GetComponent<Image>().preserveAspect = true;
@@ -300,7 +310,26 @@ namespace ChoSiren
                     12, 8, 113, 204, 22, AccessoryRarityColor(i));
                 ChoSiren.Panels.PanelKit.EnableBestFit(quality, 10);
                 int wearer = model.AccessoryOwner(i);
-                FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 137, 196, 25, Cyan);
+                if (i == item)
+                {
+                    // 选中卡就地给装备/卸下动作，避免每次回到顶部详情按钮。
+                    string quickLabel = !model.OwnsAccessory(i) ? "去关卡获取"
+                        : current == i ? "卸下饰品"
+                        : wearer >= 0 ? $"从{GameModel.Members[wearer].Name}转移" : "装备给当前角色";
+                    if (wearer == member) quickLabel = "卸下饰品";
+                    GameObject quick = NewButton("QuickEquip", card.transform, quickLabel, 14,
+                        current == i || wearer == member ? new Color32(148, 62, 88, 252) : new Color32(126, 62, 181, 252), White, () =>
+                        {
+                            if (!model.OwnsAccessory(captured)) { OpenLevelMap(); return; }
+                            model.EquipAccessoryForMember(member, captured, out string message);
+                            ShowScreen("accessory"); Toast(message);
+                        });
+                    PlaceTop(quick.GetComponent<RectTransform>(), 12, 136, 196, 28);
+                }
+                else
+                {
+                    FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 137, 196, 25, Cyan);
+                }
             }
             if (visibleItems.Length == 0)
                 FlowText(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 18, 16, inventoryBottom, 648, 36, Muted);

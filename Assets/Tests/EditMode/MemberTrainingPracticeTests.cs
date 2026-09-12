@@ -102,7 +102,7 @@ namespace ChoSiren.Tests
             Assert.That(panel.LastCostLine, Does.Contain("不消耗星钻"));
             Assert.That(panel.LastOutcome.PowerDelta, Is.GreaterThanOrEqualTo(0));
 
-            foreach (string label in new[] { "等级", "战力", "攻击", "生命", "暴击", "速度" })
+            foreach (string label in new[] { "等级", "战力", "声能", "律动", "气场", "共鸣" })
             {
                 Text line = Find<Text>(panel.transform, "PracticeDelta-" + label);
                 Assert.That(line.text, Does.Contain("→"), label + " 缺少前后差值");

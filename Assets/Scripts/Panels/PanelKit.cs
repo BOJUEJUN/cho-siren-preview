@@ -467,5 +467,82 @@ namespace ChoSiren.Panels
         {
             return (permille / 10f).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + "%";
         }
+
+        /// <summary>
+        /// 胸部以上取景框（归一化，y 自底向上）。与战斗特写共用同一张按成员头位调过的表；
+        /// 未列出的成员回退到居中的上胸区域。
+        /// </summary>
+        public static Rect MemberBustFocus(string memberId)
+        {
+            switch (memberId)
+            {
+                case "xingli": return new Rect(.50f, .62f, .46f, .29f);
+                case "yeying": return new Rect(.23f, .48f, .52f, .29f);
+                case "feiyin": return new Rect(.30f, .60f, .48f, .30f);
+                case "wubai": return new Rect(.32f, .66f, .48f, .29f);
+                case "yaoguang": return new Rect(.32f, .61f, .48f, .30f);
+                case "hupo": return new Rect(.27f, .63f, .52f, .31f);
+                case "xianyue": return new Rect(.32f, .63f, .52f, .30f);
+                case "chuxue": return new Rect(.25f, .55f, .52f, .30f);
+                case "chengxia": return new Rect(.28f, .48f, .52f, .30f);
+                default: return new Rect(.20f, .48f, .65f, .42f);
+            }
+        }
+
+        /// <summary>
+        /// 在带 Mask 的 frame 内摆放立绘：不改 sprite，仅放大并位移，让成员的胸像取景框
+        /// 铺满 frame。image 的 RectTransform 必须以 frame 为父级；窗口顶部对齐取景框顶部，
+        /// 超出部分由 Mask 裁掉。
+        /// </summary>
+        public static void FrameBustPortrait(Image image, RectTransform frame, string memberId)
+        {
+            if (image == null || frame == null || image.sprite == null) return;
+            Rect src = image.sprite.rect;
+            float fw = frame.rect.width, fh = frame.rect.height;
+            if (src.width <= 0f || src.height <= 0f || fw <= 0f || fh <= 0f) return;
+
+            Rect focus = MemberBustFocus(memberId);
+            float vw = Mathf.Min(focus.width, 1f);
+            float vh = Mathf.Min(vw * src.width * fh / (fw * src.height), 1f);
+            float top = Mathf.Clamp(focus.yMax, vh, 1f);
+            float cx = Mathf.Clamp(focus.center.x, vw * .5f, 1f - vw * .5f);
+
+            float scale = fw / (vw * src.width);
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, 1f);
+            rect.sizeDelta = new Vector2(src.width * scale, src.height * scale);
+            rect.anchoredPosition = new Vector2(src.width * scale * (.5f - cx),
+                src.height * scale * (1f - top));
+        }
+
+        /// <summary>拉伸铺满 frame 并等比居中——饰品等非成员图在遮罩框内的兜底摆法。</summary>
+        public static void FitInsideFrame(Image image)
+        {
+            RectTransform rect = image.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            image.preserveAspect = true;
+        }
+
+        /// <summary>从物品/结果 id 反查成员 id：精确命中或 "-{id}-" 标记段。</summary>
+        public static string MemberIdOfItem(string itemId)
+        {
+            if (string.IsNullOrEmpty(itemId)) return null;
+            MemberDefinition[] members = GameModel.Members;
+            for (int index = 0; index < members.Length; index++)
+            {
+                MemberDefinition member = members[index];
+                if (member != null && member.Id == itemId) return member.Id;
+            }
+            for (int index = 0; index < members.Length; index++)
+            {
+                MemberDefinition member = members[index];
+                if (member != null && !string.IsNullOrEmpty(member.Id) &&
+                    itemId.IndexOf("-" + member.Id + "-", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return member.Id;
+            }
+            return null;
+        }
     }
 }

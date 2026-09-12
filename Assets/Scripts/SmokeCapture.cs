@@ -88,7 +88,7 @@ namespace ChoSiren
                 yield return ClickNamed("Member-xingli", "member-owned");
                 yield return new WaitForSecondsRealtime(0.45f);
                 RequireNamed("MemberModal", "member-owned");
-                RequireNamed("MemberStatAttack", "member-owned");
+                RequireNamed("MemberStatVocal", "member-owned");
                 RequireNamed("MemberSkillPrimary", "member-owned");
             }
             else if (string.Equals(requestedScreen, "member-locked", StringComparison.OrdinalIgnoreCase))
