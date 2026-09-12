@@ -139,7 +139,7 @@ namespace ChoSiren
             NewPlacedText(guidePanel.transform, MemberRosterVisibility.LockedProfileHint, 16, White,
                 18, 92, 520, 62, TextAnchor.UpperLeft);
             NewPlacedText(guidePanel.transform,
-                "已获得角色可在成员档案中查看完整形象、基础属性、普通攻击、主动技能与队长特性；\n未获得角色只显示剪影和剩余数量，不展示未公开内容。",
+                "已获得角色可在成员档案中查看完整形象、舞台四维、普通攻击、主动技能与队长特性；\n未获得角色只显示剪影和剩余数量，不展示未公开内容。",
                 14, Muted, 18, 166, 520, 80, TextAnchor.UpperLeft);
             NewPlacedText(guidePanel.transform,
                 $"候选每日 18:00 刷新 · 当前已拥有 {owned}/{total}",

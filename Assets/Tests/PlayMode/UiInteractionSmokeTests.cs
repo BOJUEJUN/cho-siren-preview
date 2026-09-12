@@ -404,10 +404,11 @@ namespace ChoSiren.Tests
             yield return null;
             Click("Member-xingli");
             yield return null;
-            var manifest = ChoSiren.Systems.Data.GameData.Repository.Tactics;
-            var definition = manifest.FindUnit("xingli");
-            Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
-                Is.EqualTo(BattleSimulator.PlayerStats(definition, 1).Attack.ToString("N0")));
+            int xingliIndex = System.Array.FindIndex(GameModel.Members, member => member.Id == "xingli");
+            GameModel.StageStats(GameModel.Members[xingliIndex], xingliIndex, 1, 1,
+                out int vocal, out _, out _, out _, out _);
+            Assert.That(RequireActiveObject("MemberStatVocal").GetComponent<Text>().text,
+                Is.EqualTo(vocal.ToString()));
             Assert.That(RequireActiveObject("MemberSkillPrimary").GetComponent<Text>().text,
                 Is.EqualTo(BattleSimulator.ActiveSkillName(CombatRace.Charm, false)));
             Assert.That(RequireActiveObject("MemberSkillSecondary").GetComponent<Text>().text,
@@ -484,9 +485,11 @@ namespace ChoSiren.Tests
                 Does.Contain($"{level + 1} → {level + 2}"));
             Assert.That(RequireActiveObject("MemberPower").GetComponent<Text>().text,
                 Does.Contain($"等级 {level + 1}"));
-            var definition = ChoSiren.Systems.Data.GameData.Repository.Tactics.FindUnit("xingli");
-            Assert.That(RequireActiveObject("MemberStatAttack").GetComponent<Text>().text,
-                Is.EqualTo(BattleSimulator.PlayerStats(definition, level + 1).Attack.ToString("N0")));
+            int xingliIndex = System.Array.FindIndex(GameModel.Members, member => member.Id == "xingli");
+            GameModel.StageStats(GameModel.Members[xingliIndex], xingliIndex, 1, level + 1,
+                out int vocal, out _, out _, out _, out _);
+            Assert.That(RequireActiveObject("MemberStatVocal").GetComponent<Text>().text,
+                Is.EqualTo(vocal.ToString()));
             Text preview = RequireActiveObject("MemberTrainingPreview").GetComponent<Text>();
             Text price = RequireActiveObject("MemberTrainingCost").GetComponent<Text>();
             Canvas.ForceUpdateCanvases();

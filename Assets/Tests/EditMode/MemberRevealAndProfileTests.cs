@@ -117,10 +117,10 @@ namespace ChoSiren.Tests
                 Race = "魅族",
                 Level = 68,
                 Power = 9200,
-                Attack = 1234,
-                Hp = 5678,
-                CritPercent = 12,
-                Speed = 140,
+                Vocal = 88,
+                Rhythm = 76,
+                Presence = 81,
+                Resonance = 90,
                 NormalAttackName = "普攻",
                 NormalAttackDescription = "单体100%攻击伤害，无冷却。",
                 ActiveSkills = new[]
@@ -372,7 +372,8 @@ namespace ChoSiren.Tests
         private static MemberProfileInput BuildRealInput(GameModel model, int index, UnitDefinition unit)
         {
             MemberDefinition member = GameModel.Members[index];
-            CombatStats stats = model.StatsOf(index);
+            GameModel.StageStats(member, index, 1, model.LevelOf(index), out int vocal,
+                out int rhythm, out int presence, out int resonance, out _);
             string normalName = unit.GrowthModel == "idol-v1"
                 ? BattleSimulator.BasicAttackName
                 : model.Tactics.FindSkill("strike")?.Name ?? "普通攻击";
@@ -403,10 +404,10 @@ namespace ChoSiren.Tests
                 Race = member.Race,
                 Level = model.LevelOf(index),
                 Power = model.PowerOf(index),
-                Attack = stats.Attack,
-                Hp = stats.Hp,
-                CritPercent = stats.CritPermille / 10,
-                Speed = stats.Speed,
+                Vocal = vocal,
+                Rhythm = rhythm,
+                Presence = presence,
+                Resonance = resonance,
                 NormalAttackName = normalName,
                 NormalAttackDescription = normalEffect,
                 ActiveSkills = actives,

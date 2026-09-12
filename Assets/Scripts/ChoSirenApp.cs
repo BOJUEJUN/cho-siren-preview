@@ -703,7 +703,9 @@ namespace ChoSiren
                     80, 520, 560, 100, TextAnchor.MiddleCenter, FontStyle.Bold);
             }
 
-            float pagerY = contentHeight - 58f;
+            // 翻页条跟随网格末行，不再锚定内容底——内容矮时会压到卡片上。
+            int lastRow = page.VisibleCount == 0 ? 0 : (page.VisibleCount - 1) / MemberRosterPagination.DefaultColumns;
+            float pagerY = 218 + lastRow * 220 + 210 + 12f;
             GameObject previous = NewButton("MemberPreviousPage", contentRoot, "上一页", 16,
                 page.HasPrevious ? new Color32(111, 66, 181, 138) : new Color32(46, 44, 79, 92), White, () =>
                 {
@@ -840,7 +842,7 @@ namespace ChoSiren
             // 胸部以上取景：遮罩框 + 按成员取景表定位，不再整只小人塞进格子。
             GameObject portraitFrame = NewImage("PortraitFrame", card.transform, null, Color.clear);
             PlaceTop(portraitFrame.GetComponent<RectTransform>(), 4, 4, width - 8, 145);
-            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.AddComponent<RectMask2D>();
             GameObject portrait = NewImage("Portrait", portraitFrame.transform,
                 Resources.Load<Sprite>(member.ThumbnailResourcePath),
                 unlocked ? White : new Color(0.68f, 0.68f, 0.78f, 0.72f));
@@ -917,7 +919,7 @@ namespace ChoSiren
             PlaceTop(card.GetComponent<RectTransform>(), x, y, 214, 430);
             GameObject portraitFrame = NewImage("PortraitFrame", card.transform, null, Color.clear);
             PlaceTop(portraitFrame.GetComponent<RectTransform>(), 6, 6, 202, 245);
-            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.AddComponent<RectMask2D>();
             GameObject portrait = NewImage("Portrait", portraitFrame.transform, Resources.Load<Sprite>(member.ResourcePath), White);
             portrait.GetComponent<Image>().preserveAspect = true;
             PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
@@ -1237,8 +1239,8 @@ namespace ChoSiren
             bool canTrain = model.CanTrain(memberIndex, out int trainingCost, out _);
             bool atLevelCap = level >= GameModel.MaxMemberLevel;
             int displayPower = model.PowerOf(memberIndex);
-            MemberDisplayStats(member, memberIndex, out int attack, out int hp, out int critPercent,
-                out int speed);
+            GameModel.StageStats(member, memberIndex, 1, level, out int vocal, out int rhythm,
+                out int presence, out int resonance, out _);
             MemberSkillCopy(member, out string firstSkillName, out string firstSkillEffect,
                 out string secondSkillName, out string secondSkillEffect);
             MemberNormalAttackCopy(member, out string normalAttackName, out string normalAttackEffect);
@@ -1311,10 +1313,10 @@ namespace ChoSiren
             Text statTitle = NewPlacedText(statPanel.transform, MemberProfileSections.BaseStatsTitle, 16,
                 new Color32(255, 183, 229, 255), 16, 12, 244, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             statTitle.name = "MemberSectionBaseStats";
-            AddMemberStat(statPanel.transform, "MemberStatAttack", "攻击", attack.ToString("N0"), 46);
-            AddMemberStat(statPanel.transform, "MemberStatHp", "生命", hp.ToString("N0"), 84);
-            AddMemberStat(statPanel.transform, "MemberStatCrit", "暴击", critPercent + "%", 122);
-            AddMemberStat(statPanel.transform, "MemberStatSpeed", "速度", speed.ToString(), 160);
+            AddMemberStat(statPanel.transform, "MemberStatVocal", "声能", vocal.ToString(), 46);
+            AddMemberStat(statPanel.transform, "MemberStatRhythm", "律动", rhythm.ToString(), 84);
+            AddMemberStat(statPanel.transform, "MemberStatPresence", "气场", presence.ToString(), 122);
+            AddMemberStat(statPanel.transform, "MemberStatResonance", "共鸣", resonance.ToString(), 160);
             AddMemberStat(statPanel.transform, "MemberStatAffection", "好感度",
                 $"{model.AffectionOf(memberIndex)} · {model.AffectionTierOf(memberIndex)}", 198);
 
@@ -1375,7 +1377,7 @@ namespace ChoSiren
                     OpenTrainingPractice(memberIndex, teamSlot);
                 });
                 train.GetComponent<Button>().interactable = canTrain;
-                PlaceTop(train.GetComponent<RectTransform>(), 34, 1070, 258, 60);
+                PlaceTop(train.GetComponent<RectTransform>(), 28, 1072, 272, 56);
                 AddQuietPanelEdge(train);
 
                 GameObject team = NewButton("Team", panel.transform,
@@ -1389,7 +1391,7 @@ namespace ChoSiren
                     CloseModal();
                     ShowScreen(currentScreen);
                 });
-                PlaceTop(team.GetComponent<RectTransform>(), 328, 1230, 258, 60);
+                PlaceTop(team.GetComponent<RectTransform>(), 316, 1072, 276, 56);
                 AddQuietPanelEdge(team);
             }
             else
@@ -1400,7 +1402,7 @@ namespace ChoSiren
                     CloseModal();
                     ShowScreen("audition");
                 });
-                PlaceTop(acquire.GetComponent<RectTransform>(), 154, 1070, 312, 60);
+                PlaceTop(acquire.GetComponent<RectTransform>(), 154, 1072, 312, 56);
                 AddQuietPanelEdge(acquire);
             }
 
@@ -1415,10 +1417,10 @@ namespace ChoSiren
             GameObject close = NewButton("Close", panel.transform, "关闭档案", 16,
                 new Color32(63, 57, 108, 245), White, () =>
                 { Action back = memberProfileReturn; memberProfileReturn = null; CloseModal(); back?.Invoke(); });
-            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 406 : 185, 1152, 186, 56);
+            PlaceTop(close.GetComponent<RectTransform>(), unlocked ? 412 : 217, 1140, 180, 56);
             if (unlocked)
             {
-                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 28, 1152, 172, 56, () =>
+                FlowButton(panel.transform, "MemberEquipment", "角色饰品", 28, 1140, 180, 56, () =>
                 { equipmentMember = memberIndex; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(memberIndex)); ShowScreen("accessory"); });
 
                 // v0.3.4 深入交流：羁绊档专属入口。锁定/已用仍可点击，用 Toast 说明原因。
@@ -1442,7 +1444,7 @@ namespace ChoSiren
                     OpenDeepTalkResult(memberIndex, teamSlot, dialogue, affectionBefore, model.AffectionOf(memberIndex));
                 });
                 deepTalk.name = "MemberDeepTalkButton";
-                PlaceTop(deepTalk.GetComponent<RectTransform>(), 208, 1152, 190, 56);
+                PlaceTop(deepTalk.GetComponent<RectTransform>(), 220, 1140, 180, 56);
                 AddQuietPanelEdge(deepTalk);
             }
         }
@@ -1468,7 +1470,7 @@ namespace ChoSiren
 
             GameObject portraitFrame = NewImage("PortraitFrame", panel.transform, null, Color.clear);
             PlaceTop(portraitFrame.GetComponent<RectTransform>(), 28, 28, 204, 288);
-            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.AddComponent<RectMask2D>();
             GameObject portrait = NewImage("Portrait", portraitFrame.transform,
                 Resources.Load<Sprite>(member.ResourcePath), White);
             Image portraitImage = portrait.GetComponent<Image>();
@@ -1499,16 +1501,6 @@ namespace ChoSiren
                 new Color32(63, 57, 108, 245), White, () => OpenTeamMember(memberIndex, teamSlot));
             PlaceTop(back.GetComponent<RectTransform>(), 28, 572, 504, 52);
             AddQuietPanelEdge(back);
-        }
-
-        private void MemberDisplayStats(MemberDefinition member, int index, out int attack, out int hp,
-            out int critPercent, out int speed)
-        {
-            CombatStats stats = model.StatsOf(index);
-            attack = stats.Attack;
-            hp = stats.Hp;
-            critPercent = stats.CritPermille / 10;
-            speed = stats.Speed;
         }
 
         private void AddMemberStat(Transform parent, string name, string label, string value, float y)

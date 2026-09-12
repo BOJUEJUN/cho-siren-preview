@@ -197,7 +197,7 @@ namespace ChoSiren.Panels
             resultHeadline.name = "PracticeResultHeadline";
             PanelKit.EnableBestFit(resultHeadline, 14);
 
-            string[] labels = { "等级", "战力", "攻击", "生命", "暴击", "速度" };
+            string[] labels = { "等级", "战力", "声能", "律动", "气场", "共鸣" };
             for (int index = 0; index < deltaTexts.Length; index++)
             {
                 float x = 18 + index % 2 * 292;
@@ -270,8 +270,8 @@ namespace ChoSiren.Panels
 
             int levelBefore = model.LevelOf(memberIndex);
             int powerBefore = model.PowerOf(memberIndex);
-            ReadStats(memberIndex, out int attackBefore, out int hpBefore, out int critBefore,
-                out int speedBefore);
+            ReadStats(memberIndex, levelBefore, out int vocalBefore, out int rhythmBefore,
+                out int presenceBefore, out int resonanceBefore);
 
             if (!model.Train(memberIndex, out string message))
             {
@@ -282,10 +282,11 @@ namespace ChoSiren.Panels
 
             int levelAfter = model.LevelOf(memberIndex);
             int powerAfter = model.PowerOf(memberIndex);
-            ReadStats(memberIndex, out int attackAfter, out int hpAfter, out int critAfter,
-                out int speedAfter);
+            ReadStats(memberIndex, levelAfter, out int vocalAfter, out int rhythmAfter,
+                out int presenceAfter, out int resonanceAfter);
             lastOutcome = MemberTrainingPractice.BuildOutcome(levelBefore, levelAfter, powerBefore, powerAfter,
-                attackBefore, attackAfter, hpBefore, hpAfter, critBefore, critAfter, speedBefore, speedAfter, cost);
+                vocalBefore, vocalAfter, rhythmBefore, rhythmAfter, presenceBefore, presenceAfter,
+                resonanceBefore, resonanceAfter, cost);
 
             ShowOutcome(lastOutcome);
             Notify(message);
@@ -378,13 +379,11 @@ namespace ChoSiren.Panels
             RefreshQuote();
         }
 
-        private void ReadStats(int member, out int attack, out int hp, out int crit, out int speed)
+        private void ReadStats(int member, int level, out int vocal, out int rhythm,
+            out int presence, out int resonance)
         {
-            CombatStats stats = model.StatsOf(member);
-            attack = stats.Attack;
-            hp = stats.Hp;
-            crit = stats.CritPermille / 10;
-            speed = stats.Speed;
+            GameModel.StageStats(GameModel.Members[member], member, 1, level,
+                out vocal, out rhythm, out presence, out resonance, out _);
         }
 
         private void Close()

@@ -740,6 +740,32 @@ namespace ChoSiren
         /// 线下 quote worth paying — before this the two channels showed identical stats.</summary>
         public static int InterviewChannelStatDelta(int poolIndex) => poolIndex == 0 ? -9 : 6;
 
+        /// <summary>
+        /// 舞台四维 + 魅力的确定性公式：成员身份唯一决定（memberIndex 散列 + 职业加成 +
+        /// 渠道修正），并随等级成长（每级 +2）。面试预览传 poolIndex 与 level=1；
+        /// 档案/练习页传 poolIndex=1 与真实等级，与「舞台四维」术语全局统一。
+        /// </summary>
+        public static void StageStats(MemberDefinition member, int memberIndex, int poolIndex,
+            int level, out int vocal, out int rhythm, out int presence, out int resonance,
+            out int charm)
+        {
+            string career = member == null || string.IsNullOrWhiteSpace(member.Career)
+                ? "未指定" : member.Career;
+            int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
+            // 线上是低价视频初筛，天花板压低；线下贵得多，买的是更高的下限与唯一的顶级区间。
+            bool online = poolIndex == 0;
+            int shift = InterviewChannelStatDelta(poolIndex);
+            int floor = online ? 55 : 64;
+            int ceiling = online ? 83 : 98;
+            int levelGain = Mathf.Max(0, level - 1) * 2;
+            vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0) + shift, floor, ceiling) + levelGain;
+            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0) + shift, floor, ceiling) + levelGain;
+            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0) + shift, floor, ceiling) + levelGain;
+            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == MemberCareers.Face ? 10 : 0) + shift, floor, ceiling) + levelGain;
+            charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias + (online ? -10 : 5),
+                online ? 62 : 72, online ? 84 : 96) + levelGain;
+        }
+
         /// <summary>Risk 0–100 for a candidate as presented in a channel. Deterministic per member
         /// so it never flickers, then nudged by channel: the bargain 线上 pool carries more risk,
         /// the vetted 线下 pool less. Higher = more likely to bring team friction / scandal cost.</summary>

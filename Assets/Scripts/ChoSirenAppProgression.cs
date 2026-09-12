@@ -83,7 +83,7 @@ namespace ChoSiren
                 AddQuietPanelEdge(row);
                 GameObject portraitFrame = NewImage("PickerPortraitFrame-" + member, row.transform, null, Color.clear);
                 PlaceTop(portraitFrame.GetComponent<RectTransform>(), 10, 3, 62, 58);
-                portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+                portraitFrame.AddComponent<RectMask2D>();
                 GameObject portrait = NewImage("PickerPortrait-" + member, portraitFrame.transform,
                     model.IsUnlocked(member) ? Resources.Load<Sprite>(m.ResourcePath) : LockedSilhouetteSprite(),
                     model.IsUnlocked(member) ? White : LockedSilhouetteTint);
@@ -233,7 +233,7 @@ namespace ChoSiren
             PlaceTop(detail.GetComponent<RectTransform>(), 0, 100, 680, 488);
             GameObject portraitFrame = NewImage("EquipmentPortraitFrame", detail.transform, null, Color.clear);
             PlaceTop(portraitFrame.GetComponent<RectTransform>(), 16, 18, 208, 240);
-            portraitFrame.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.AddComponent<RectMask2D>();
             GameObject portrait = NewImage("EquipmentPortrait", portraitFrame.transform, Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
             portrait.GetComponent<Image>().preserveAspect = true;
             ChoSiren.Panels.PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),

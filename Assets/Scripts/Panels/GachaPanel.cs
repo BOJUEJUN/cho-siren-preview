@@ -299,7 +299,7 @@ namespace ChoSiren.Panels
 
             Image portraitFrame = kit.NewImage("PortraitFrame", side.transform, null, Color.clear);
             PanelKit.PlaceTop(portraitFrame.rectTransform, 8, 16, 160, 474);
-            portraitFrame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.gameObject.AddComponent<RectMask2D>();
             Image portrait = kit.NewImage("Portrait", portraitFrame.transform, CandidateSprite(member),
                 enabled ? new Color(0.72f, 0.67f, 0.90f, 0.58f) : new Color(0.45f, 0.43f, 0.58f, 0.3f));
             portrait.preserveAspect = true;
@@ -352,7 +352,7 @@ namespace ChoSiren.Panels
 
             Image portraitFrame = kit.NewImage("CandidatePortraitFrame", card.transform, null, Color.clear);
             PanelKit.PlaceTop(portraitFrame.rectTransform, 244, 42, 282, 616);
-            portraitFrame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.gameObject.AddComponent<RectMask2D>();
             Image portrait = kit.NewImage("CandidatePortrait", portraitFrame.transform, CandidateSprite(member), Color.white);
             portrait.preserveAspect = true;
             PanelKit.FrameBustPortrait(portrait, portraitFrame.rectTransform, member.Id);
@@ -593,21 +593,9 @@ namespace ChoSiren.Panels
 
         private static void CandidateStats(MemberDefinition member, int memberIndex, int poolIndex,
             out int vocal, out int rhythm, out int presence, out int resonance, out int charm)
-        {
-            string career = InterviewCareer(member, memberIndex);
-            int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
-            // 线上是低价视频初筛，天花板压低；线下贵得多，买的是更高的下限与唯一的顶级区间。
-            bool online = poolIndex == 0;
-            int shift = GameModel.InterviewChannelStatDelta(poolIndex);
-            int floor = online ? 55 : 64;
-            int ceiling = online ? 83 : 98;
-            vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0) + shift, floor, ceiling);
-            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0) + shift, floor, ceiling);
-            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0) + shift, floor, ceiling);
-            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == MemberCareers.Face ? 10 : 0) + shift, floor, ceiling);
-            charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias + (online ? -10 : 5),
-                online ? 62 : 72, online ? 84 : 96);
-        }
+            // 候选人尚未签约，一律按 1 级展示。
+            => GameModel.StageStats(member, memberIndex, poolIndex, 1,
+                out vocal, out rhythm, out presence, out resonance, out charm);
 
         private bool TeamNeedsCareer(string candidateCareer)
         {
@@ -968,7 +956,7 @@ namespace ChoSiren.Panels
 
             Image portraitFrame = kit.NewImage("PortraitFrame", root.transform, null, Color.clear);
             PanelKit.PlaceTop(portraitFrame.rectTransform, 10, 30, 100, 92);
-            portraitFrame.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            portraitFrame.gameObject.AddComponent<RectMask2D>();
             Image portrait = kit.NewImage("Portrait", portraitFrame.transform, null, PanelKit.White);
             PanelKit.FitInsideFrame(portrait);
 

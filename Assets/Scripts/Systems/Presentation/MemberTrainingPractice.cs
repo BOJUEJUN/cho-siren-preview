@@ -33,31 +33,31 @@ namespace ChoSiren.Systems.Presentation
     public sealed class MemberPracticeOutcome
     {
         public MemberPracticeOutcome(int levelBefore, int levelAfter, int powerBefore, int powerAfter,
-            int attackBefore, int attackAfter, int hpBefore, int hpAfter, int critBefore, int critAfter,
-            int speedBefore, int speedAfter, int goldSpent)
+            int vocalBefore, int vocalAfter, int rhythmBefore, int rhythmAfter, int presenceBefore,
+            int presenceAfter, int resonanceBefore, int resonanceAfter, int goldSpent)
         {
             LevelBefore = levelBefore;
             LevelAfter = levelAfter;
             PowerBefore = powerBefore;
             PowerAfter = powerAfter;
-            AttackBefore = attackBefore;
-            AttackAfter = attackAfter;
-            HpBefore = hpBefore;
-            HpAfter = hpAfter;
-            CritBefore = critBefore;
-            CritAfter = critAfter;
-            SpeedBefore = speedBefore;
-            SpeedAfter = speedAfter;
+            VocalBefore = vocalBefore;
+            VocalAfter = vocalAfter;
+            RhythmBefore = rhythmBefore;
+            RhythmAfter = rhythmAfter;
+            PresenceBefore = presenceBefore;
+            PresenceAfter = presenceAfter;
+            ResonanceBefore = resonanceBefore;
+            ResonanceAfter = resonanceAfter;
             GoldSpent = Math.Max(0, goldSpent);
 
             var lines = new List<MemberProfileLine>(6)
             {
                 Line("等级", levelBefore, levelAfter),
                 Line("战力", powerBefore, powerAfter),
-                Line("攻击", attackBefore, attackAfter),
-                Line("生命", hpBefore, hpAfter),
-                Line("暴击", critBefore, critAfter, "%"),
-                Line("速度", speedBefore, speedAfter),
+                Line("声能", vocalBefore, vocalAfter),
+                Line("律动", rhythmBefore, rhythmAfter),
+                Line("气场", presenceBefore, presenceAfter),
+                Line("共鸣", resonanceBefore, resonanceAfter),
             };
             Deltas = lines.AsReadOnly();
         }
@@ -66,14 +66,14 @@ namespace ChoSiren.Systems.Presentation
         public int LevelAfter { get; }
         public int PowerBefore { get; }
         public int PowerAfter { get; }
-        public int AttackBefore { get; }
-        public int AttackAfter { get; }
-        public int HpBefore { get; }
-        public int HpAfter { get; }
-        public int CritBefore { get; }
-        public int CritAfter { get; }
-        public int SpeedBefore { get; }
-        public int SpeedAfter { get; }
+        public int VocalBefore { get; }
+        public int VocalAfter { get; }
+        public int RhythmBefore { get; }
+        public int RhythmAfter { get; }
+        public int PresenceBefore { get; }
+        public int PresenceAfter { get; }
+        public int ResonanceBefore { get; }
+        public int ResonanceAfter { get; }
         public int GoldSpent { get; }
         public IReadOnlyList<MemberProfileLine> Deltas { get; }
 
@@ -152,11 +152,12 @@ namespace ChoSiren.Systems.Presentation
         }
 
         public static MemberPracticeOutcome BuildOutcome(int levelBefore, int levelAfter, int powerBefore,
-            int powerAfter, int attackBefore, int attackAfter, int hpBefore, int hpAfter, int critBefore,
-            int critAfter, int speedBefore, int speedAfter, int goldSpent)
+            int powerAfter, int vocalBefore, int vocalAfter, int rhythmBefore, int rhythmAfter,
+            int presenceBefore, int presenceAfter, int resonanceBefore, int resonanceAfter, int goldSpent)
         {
-            return new MemberPracticeOutcome(levelBefore, levelAfter, powerBefore, powerAfter, attackBefore,
-                attackAfter, hpBefore, hpAfter, critBefore, critAfter, speedBefore, speedAfter, goldSpent);
+            return new MemberPracticeOutcome(levelBefore, levelAfter, powerBefore, powerAfter, vocalBefore,
+                vocalAfter, rhythmBefore, rhythmAfter, presenceBefore, presenceAfter, resonanceBefore,
+                resonanceAfter, goldSpent);
         }
 
         /// <summary>"+1,234", "-12" or "±0" so a stat row never reads as a fake gain.</summary>

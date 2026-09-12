@@ -155,10 +155,10 @@ namespace ChoSiren.Tests
             Assert.That(lockedProgress.text, Does.Contain("未获得"), "未获得角色必须给出剩余数量/进度。");
             Require("LockedSilhouetteMark");
             // 未获得角色不得暴露真实姓名、属性、技能或队长特性。
-            Assert.That(GameObject.Find("MemberStatAttack"), Is.Null, "未获得角色不得显示战斗属性。");
-            Assert.That(GameObject.Find("MemberStatHp"), Is.Null);
-            Assert.That(GameObject.Find("MemberStatCrit"), Is.Null);
-            Assert.That(GameObject.Find("MemberStatSpeed"), Is.Null);
+            Assert.That(GameObject.Find("MemberStatVocal"), Is.Null, "未获得角色不得显示舞台四维。");
+            Assert.That(GameObject.Find("MemberStatRhythm"), Is.Null);
+            Assert.That(GameObject.Find("MemberStatPresence"), Is.Null);
+            Assert.That(GameObject.Find("MemberStatResonance"), Is.Null);
             Assert.That(GameObject.Find("MemberSkillPrimary"), Is.Null, "未获得角色不得显示技能名与效果。");
             Assert.That(GameObject.Find("MemberSkillSecondary"), Is.Null);
             Assert.That(GameObject.Find("MemberNormalAttack"), Is.Null);
