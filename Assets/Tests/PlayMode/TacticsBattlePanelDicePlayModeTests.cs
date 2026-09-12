@@ -317,8 +317,12 @@ namespace ChoSiren.Tests
                 SetField(panel, "awaitingInput", true);
                 SetField(panel, "awaitingDiceLanding", false);
                 Invoke(panel, "RefreshDiceUi");
+                Assert.That(FindRect(panel.transform, "EnergyReroll").GetComponent<Button>().interactable, Is.False,
+                    "开局没有重投次数，必须先积累重投充能。");
+                panel.Battle.BattleDice.GainEnergy(DiceTurn.MaxEnergy);
+                Invoke(panel, "RefreshDiceUi");
                 Assert.That(FindRect(panel.transform, "EnergyReroll").GetComponent<Button>().interactable, Is.True,
-                    "首章 3 次重投额度不依赖充能，开局即可全部重投。");
+                    "充能充满自动发放一次重投，此时即可全部重投。");
                 Text controlHint = FindRect(panel.transform, "BattleControlInstruction").GetComponent<Text>();
                 Assert.That(controlHint.text, Does.Contain("自动释放"));
                 Assert.That(controlHint.text, Does.Not.Contain("手动选技能"));

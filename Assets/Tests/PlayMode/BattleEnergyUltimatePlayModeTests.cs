@@ -196,6 +196,7 @@ namespace ChoSiren.Tests
                 SetField(panel, "awaitingInput", true);
                 SetField(panel, "awaitingDiceLanding", false);
                 DiceTurn dice = panel.Battle.BattleDice;
+                dice.GainEnergy(DiceTurn.MaxEnergy); // 充能满发 1 次重投
                 int budget = dice.RerollsRemaining;
                 Assert.That(dice.SelectedForRerollCount, Is.Zero, "开局默认全部保留。");
 
@@ -228,6 +229,7 @@ namespace ChoSiren.Tests
                 panel.StopAllCoroutines();
                 SetField(panel, "awaitingInput", true);
                 SetField(panel, "awaitingDiceLanding", false);
+                panel.Battle.BattleDice.GainEnergy(DiceTurn.MaxEnergy); // 充满一条发 1 次重投
                 FindRect(panel.transform, "Dice-0").GetComponent<Button>().onClick.Invoke();
                 Invoke(panel, "RerollDice");
 

@@ -1097,7 +1097,7 @@ namespace ChoSiren.Panels
                 "每名角色有独立蓝色能量条（0–100）。存活时每秒 +4；普攻、技能与毒伤只要实际造成伤害，每命中一次 +6，击杀再 +10。死亡、暂停、战斗结束都不再累积。\n" +
                 "满能量后头像柔和发光并显示“大招就绪”。手动战斗：点击满能量头像放大招；自动战斗：按队长→编队顺序自动放大招。普攻与小技能始终自动释放。\n\n" +
                 "【骰子与重投】\n" +
-                "点击骰子把要换掉的骰子标成“待重投”，再按“重投已选N颗”；没点的骰子保留。也可以“全部重投”。每次操作消耗 1 次本场重投额度（首章普通/精英 3 次、首领 4 次、世界首领 5 次），不额外扣能量，连点也不会重复扣。\n" +
+                "点击骰子把要换掉的骰子标成“待重投”，再按“重投已选N颗”；没点的骰子保留。也可以“全部重投”。开局没有重投次数——重投充能条随伤害积累，充满一次自动发放 1 次重投（首章普通/精英最多 3 次、首领 4 次、世界首领 5 次），连点也不会重复扣。\n" +
                 "每次重投把新骰型加成累计到伤害，累计上限 +100%（×2），封顶后不再增长。\n\n" +
                 "【队长与骰型】\n" +
                 "骰型给全队持续加成：人鱼=护盾、恶魔=叠毒、魅族=追击、血精灵=穿甲，数值随骰型变化。队长倒下由下一位存活成员接任，不刷新骰子、能量或冷却。\n\n" +
@@ -2650,10 +2650,17 @@ namespace ChoSiren.Panels
 
             int bonus = active ? diceTurn.AccumulatedBonusPermille : 0;
             if (diceEnergyFill != null)
-                diceEnergyFill.fillAmount = Mathf.Clamp01(bonus / (float)DiceTurn.MaxBattleBonusPermille);
+                diceEnergyFill.fillAmount = battleSession
+                    ? (diceTurn.EarnedRerolls >= diceTurn.BattleRerollLimit ? 1f
+                        : Mathf.Clamp01(diceTurn.Energy / 100f))
+                    : Mathf.Clamp01(bonus / (float)DiceTurn.MaxBattleBonusPermille);
             if (diceEnergyText != null)
-                diceEnergyText.text = bonus >= DiceTurn.MaxBattleBonusPermille
-                    ? "骰子加成 · 封顶×2" : $"骰子加成 +{bonus / 10f:0.#}%";
+                diceEnergyText.text = battleSession
+                    ? (diceTurn.RerollsRemaining > 0 ? $"重投就绪 ×{diceTurn.RerollsRemaining}"
+                        : diceTurn.EarnedRerolls >= diceTurn.BattleRerollLimit ? "重投次数已发完"
+                        : $"重投充能 {diceTurn.Energy}%")
+                    : (bonus >= DiceTurn.MaxBattleBonusPermille ? "骰子加成 · 封顶×2"
+                        : $"骰子加成 +{bonus / 10f:0.#}%");
             if (diceHandText != null)
                 diceHandText.text = active
                     ? $"{diceTurn.Hand.DisplayName} ×{diceTurn.Hand.MultiplierPermille / 1000f:0.##}"
@@ -2686,6 +2693,7 @@ namespace ChoSiren.Panels
                     canReroll && selected > 0 ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
                 PanelKit.LabelOf(energyRerollButton).text = diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次"
                     : diceTurn.RerollsRemaining > 0 ? $"全部重投 · 剩{diceTurn.RerollsRemaining}次"
+                    : diceTurn.EarnedRerolls < diceTurn.BattleRerollLimit ? $"全部重投 · 充能{diceTurn.Energy}%"
                     : "本场重投已用完";
                 PanelKit.SetButtonState(energyRerollButton, canReroll,
                     canReroll ? new Color32(100, 55, 151, 255) : PanelKit.ButtonDark);

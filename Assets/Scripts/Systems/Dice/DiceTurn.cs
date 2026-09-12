@@ -24,6 +24,8 @@ namespace ChoSiren.Systems.Dice
         public bool SelectiveReroll { get; private set; }
         public int BattleRerollLimit { get; private set; }
         public int UsedRerolls { get; private set; }
+        /// <summary>充能条每充满一次自动发放 1 次重投，最多发满 BattleRerollLimit 次。</summary>
+        public int EarnedRerolls { get; private set; }
         public int FreeRerolls { get; private set; }
         public int Revision { get; private set; }
         public const int MaxBattleBonusPermille = 1000;
@@ -50,7 +52,7 @@ namespace ChoSiren.Systems.Dice
 
         public IReadOnlyList<int> Values => readOnlyValues;
         public IReadOnlyList<bool> Held => readOnlyHeld;
-        public int RerollsRemaining => IsBattleSession ? BattleRerollLimit - UsedRerolls : legacyRerolls;
+        public int RerollsRemaining => IsBattleSession ? EarnedRerolls - UsedRerolls : legacyRerolls;
         public int Energy { get; private set; }
         /// <summary>Dice explicitly ticked for the next selective reroll (unheld dice).</summary>
         public int SelectedForRerollCount
@@ -63,8 +65,9 @@ namespace ChoSiren.Systems.Dice
             }
         }
         /// <summary>
-        /// Battle sessions spend one per-battle reroll quota per operation (first chapter budget is
-        /// three); the legacy turn session still requires a full energy charge.
+        /// Battle sessions spend one earned reroll charge per operation; charges are granted
+        /// progressively as the 重投充能 meter fills (first chapter grants up to three). The
+        /// legacy turn session still requires a full energy charge.
         /// </summary>
         public bool CanReroll => IsBattleSession
             ? begun && (RerollsRemaining > 0 || FreeRerolls > 0)
@@ -130,14 +133,12 @@ namespace ChoSiren.Systems.Dice
         {
             if (IsBattleSession)
             {
-                // Legacy auto-planning cadence: a full damage charge (or a rescue reroll) buys the
-                // operation. The production panel uses RerollAll/RerollUnheld, which spend quota only.
-                if (FreeRerolls <= 0 && Energy < MaxEnergy)
+                if (!CanReroll)
                 {
-                    error = $"能量达到 {MaxEnergy} 才能自动重投";
+                    error = !begun ? "请先开始骰子回合"
+                        : "暂无可重投次数，充能满后会自动发放";
                     return false;
                 }
-                if (FreeRerolls <= 0) SpendEnergyCharge();
                 return RerollBattle(false, out error);
             }
             if (!begun)
@@ -164,10 +165,7 @@ namespace ChoSiren.Systems.Dice
         public bool RerollAll(out string error) =>
             IsBattleSession ? RerollBattle(false, out error) : EnergyRerollAll(out error);
 
-        /// <summary>
-        /// Spends the legacy damage charge that auto-planning uses. Player-triggered rerolls never
-        /// call this, so a manual operation can never double-charge energy and quota.
-        /// </summary>
+        /// <summary>Legacy hook kept for old auto-planning callers; charges now grant automatically.</summary>
         public void SpendEnergyCharge()
         {
             if (!IsBattleSession) return;
@@ -213,8 +211,20 @@ namespace ChoSiren.Systems.Dice
 
         private void AddEnergyMicros(long amount)
         {
-            if (RerollsRemaining <= 0) return;
-            energyMicros = Math.Min(MaxEnergy * EnergyScale, energyMicros + amount);
+            // 充满一条发一次重投；本场额度发满后充能条归零不再积累（一共只给 RerollLimit 次）。
+            if (EarnedRerolls >= BattleRerollLimit)
+            {
+                energyMicros = 0;
+                Energy = 0;
+                return;
+            }
+            energyMicros += amount;
+            while (EarnedRerolls < BattleRerollLimit && energyMicros >= MaxEnergy * EnergyScale)
+            {
+                energyMicros -= MaxEnergy * EnergyScale;
+                EarnedRerolls++;
+            }
+            if (EarnedRerolls >= BattleRerollLimit) energyMicros = 0;
             Energy = (int)(energyMicros / EnergyScale);
         }
 
@@ -222,7 +232,7 @@ namespace ChoSiren.Systems.Dice
         {
             if (!CanReroll)
             {
-                error = RerollsRemaining <= 0 ? "本场重投次数已用完" : "请先开始骰子回合";
+                error = !begun ? "请先开始骰子回合" : "暂无可重投次数，充能满后会自动发放";
                 return false;
             }
             if (selective)

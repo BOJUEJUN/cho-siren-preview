@@ -108,6 +108,7 @@ namespace ChoSiren.Tests
         {
             DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(2), 2, true);
             dice.Begin();
+            dice.GainEnergy(DiceTurn.MaxEnergy * 2); // 两条充能发满 2 次额度
             Assert.That(dice.RerollsRemaining, Is.EqualTo(2));
             for (int i = 0; i < 2; i++)
             {
@@ -132,6 +133,7 @@ namespace ChoSiren.Tests
         {
             DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(3), 3, true);
             dice.Begin();
+            dice.GainEnergy(DiceTurn.MaxEnergy); // 充能满发 1 次重投
             Assert.That(dice.Held.All(held => held), Is.True, "开局全部保留，避免误触重投整手");
             Assert.That(dice.RerollUnheld(out _), Is.False, "没有点选骰子时不能重投");
             Assert.That(dice.UsedRerolls, Is.Zero, "非法选择不消耗额度");
@@ -145,6 +147,7 @@ namespace ChoSiren.Tests
             Assert.That(dice.SelectedForRerollCount, Is.Zero, "重投后新骰面默认全部保留");
             DiceTurn noSelection = DiceTurn.ForBattle(new SeededRandom(3), 3, false);
             noSelection.Begin();
+            noSelection.GainEnergy(DiceTurn.MaxEnergy); // 有额度仍受自选开关约束
             for (int i = 0; i < 4; i++) noSelection.ToggleHold(i);
             Assert.That(noSelection.RerollUnheld(out _), Is.False, "不支持自选重投的会话只能全部重投");
             Assert.That(noSelection.UsedRerolls, Is.Zero);

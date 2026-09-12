@@ -28,30 +28,29 @@ namespace ChoSiren.Tests
             for (int i = 0; i < 90; i++) yield return null; // 等淡出动画结束
             Object.Destroy(GameObject.Find("StartupLoading")); // 诊断环境无视频回调，直接移除
 
-            var navBtn = GameObject.Find("Nav-members");
-            Debug.Log("DIAG nav=" + (navBtn == null ? "NULL" : "found active=" + navBtn.activeInHierarchy));
-            navBtn.GetComponent<Button>().onClick.Invoke();
+            GameObject.Find("Nav-members").GetComponent<Button>().onClick.Invoke();
             yield return null;
             Canvas.ForceUpdateCanvases();
             for (int i = 0; i < 30; i++) yield return null;
 
-            int memberCards = 0, frames = 0;
-            foreach (Transform t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude))
-            {
-                if (t.name.StartsWith("Member-")) memberCards++;
-                if (t.name == "PortraitFrame") frames++;
-            }
-            Debug.Log($"DIAG afterNav memberCards={memberCards} frames={frames}");
-            foreach (Canvas cv in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude))
-            {
-                int membersUnder = 0;
-                foreach (Transform t in cv.GetComponentsInChildren<Transform>())
-                    if (t.name.StartsWith("Member-")) membersUnder++;
-                Debug.Log($"DIAG canvas {cv.name} order={cv.sortingOrder} mode={cv.renderMode} members={membersUnder}");
-            }
+            RenderTo("/tmp/diag-members.png", "Member-");
 
-            // 全部 Canvas 切到相机模式，渲染到 RenderTexture 存 PNG 自查；
-            // 渲染完必须还原——禁用的画布与相机模式会泄漏给后续测试。
+            // 再打开档案弹窗渲染一张，验证按钮布局与胸像。
+            GameObject.Find("Member-xingli").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            for (int i = 0; i < 15; i++) yield return null;
+            RenderTo("/tmp/diag-modal.png", "MemberModal");
+
+            // 收尾拆掉自建 app，与别的用例的 TearDown 行为一致。
+            foreach (var app in Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None))
+                Object.Destroy(app.gameObject);
+            yield return null;
+        }
+
+        /// <summary>把含 marker 对象的那个 Canvas 切到相机模式渲出 PNG；其余画布临时关闭，渲染完全部还原。</summary>
+        private static void RenderTo(string path, string marker)
+        {
             var camGo = new GameObject("DiagCam");
             Camera cam = camGo.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
@@ -60,11 +59,11 @@ namespace ChoSiren.Tests
             var touched = new System.Collections.Generic.List<Canvas>();
             foreach (Canvas canvas in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude))
             {
-                bool hasMembers = false;
+                bool hasMarker = false;
                 foreach (Transform t in canvas.GetComponentsInChildren<Transform>())
-                    if (t.name.StartsWith("Member-")) { hasMembers = true; break; }
+                    if (t.name.StartsWith(marker)) { hasMarker = true; break; }
                 touched.Add(canvas);
-                if (!hasMembers) { canvas.gameObject.SetActive(false); continue; } // 关掉背景画布
+                if (!hasMarker) { canvas.gameObject.SetActive(false); continue; }
                 canvas.renderMode = RenderMode.ScreenSpaceCamera;
                 canvas.worldCamera = cam;
                 canvas.planeDistance = 1f;
@@ -77,7 +76,7 @@ namespace ChoSiren.Tests
             Texture2D tex = new Texture2D(720, 1536, TextureFormat.RGBA32, false);
             tex.ReadPixels(new Rect(0, 0, 720, 1536), 0, 0);
             tex.Apply();
-            System.IO.File.WriteAllBytes("/tmp/diag-members.png", tex.EncodeToPNG());
+            System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
             RenderTexture.active = null;
             cam.targetTexture = null;
             rt.Release();
@@ -90,12 +89,7 @@ namespace ChoSiren.Tests
                 canvas.worldCamera = null;
                 canvas.gameObject.SetActive(true);
             }
-            Debug.Log("DIAG saved /tmp/diag-members.png");
-
-            // 收尾拆掉自建 app，与别的用例的 TearDown 行为一致。
-            foreach (var app in Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None))
-                Object.Destroy(app.gameObject);
-            yield return null;
+            Debug.Log("DIAG saved " + path);
         }
     }
 }

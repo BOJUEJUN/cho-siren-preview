@@ -153,7 +153,7 @@ namespace ChoSiren.Tests
             Kill(battle, 2);
             battle.AdvanceRealtime(25);
             Assert.That(battle.BattleDice.FreeRerolls, Is.Zero);
-            battle.BattleDice.GainEnergy(100);
+            battle.BattleDice.GainEnergy(200); // 两条充能发 2 次重投
             Assert.That(battle.BattleDice.EnergyRerollAll(out _), Is.True);
             battle.AdvanceRealtime(25);
             Assert.That(battle.BattleDice.RerollsRemaining, Is.GreaterThan(0));

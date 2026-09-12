@@ -114,7 +114,6 @@ namespace ChoSiren.Systems.Tactics
                 AccrueUltimateEnergy();
                 ApplyNewHand();
                 if (autoDice && BattleDice.CanReroll &&
-                    (BattleDice.FreeRerolls > 0 || BattleDice.Energy >= DiceTurn.MaxEnergy) &&
                     BattleDice.AccumulatedBonusPermille < DiceTurn.MaxBattleBonusPermille)
                 {
                     AutoReroll();

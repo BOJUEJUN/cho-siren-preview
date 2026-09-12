@@ -113,7 +113,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void FirstChapterRerollBudgetIsThreeAndDoesNotNeedDiceEnergy()
+        public void FirstChapterRerollBudgetIsThreeAndChargesGrantProgressively()
         {
             var normal = new StageDefinition { Id = "budget-normal", EncounterType = "normal" };
             Assert.That(normal.RerollLimit, Is.EqualTo(3), "首章普通战体验预算为 3 次重投");
@@ -121,11 +121,34 @@ namespace ChoSiren.Tests
             DiceTurn dice = battle.BattleDice;
             Assert.That(dice.BattleRerollLimit, Is.EqualTo(3));
             Assert.That(dice.Energy, Is.Zero, "开局没有伤害充能");
-            Assert.That(dice.CanReroll, Is.True, "额度不依赖充能");
+            Assert.That(dice.RerollsRemaining, Is.Zero, "重投次数靠充能发放，开局为 0");
+            Assert.That(dice.CanReroll, Is.False);
+
+            dice.GainEnergy(DiceTurn.MaxEnergy);
+            Assert.That(dice.EarnedRerolls, Is.EqualTo(1), "充满一条发一次重投");
+            Assert.That(dice.RerollsRemaining, Is.EqualTo(1));
             Assert.That(dice.RerollAll(out string error), Is.True, error);
             Assert.That(dice.UsedRerolls, Is.EqualTo(1));
-            Assert.That(dice.Energy, Is.Zero, "玩家重投不扣骰子充能，也不应双扣");
-            Assert.That(dice.RerollsRemaining, Is.EqualTo(2));
+            Assert.That(dice.RerollsRemaining, Is.EqualTo(0));
+
+            dice.GainEnergy(DiceTurn.MaxEnergy * 3);
+            Assert.That(dice.EarnedRerolls, Is.EqualTo(3), "一条充能可连续补发欠的额度");
+            Assert.That(dice.Energy, Is.Zero, "额度发满后充能不再积累");
+            dice.GainEnergy(DiceTurn.MaxEnergy);
+            Assert.That(dice.EarnedRerolls, Is.EqualTo(3), "本场最多发满 3 次");
+        }
+
+        [Test]
+        public void RerollChargeCarriesOverAndResetsAfterEachGrant()
+        {
+            DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(7), 3, true);
+            dice.Begin();
+            dice.GainEnergy(50);
+            Assert.That(dice.Energy, Is.EqualTo(50), "充能条随伤害逐点积累");
+            Assert.That(dice.EarnedRerolls, Is.Zero);
+            dice.GainEnergy(60);
+            Assert.That(dice.EarnedRerolls, Is.EqualTo(1), "跨次积累充满一条发一次");
+            Assert.That(dice.Energy, Is.EqualTo(10), "发放后余量继续累积，从零开始充下一条");
         }
 
         [Test]
@@ -134,6 +157,7 @@ namespace ChoSiren.Tests
             DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(3), 3, true);
             dice.Begin();
             Assert.That(dice.Held.All(held => held), Is.True, "开局全部保留，避免误触重投整手");
+            dice.GainEnergy(DiceTurn.MaxEnergy); // 充能满发 1 次重投
             Assert.That(dice.RerollUnheld(out _), Is.False, "没有点选骰子时不能重投");
             Assert.That(dice.UsedRerolls, Is.Zero, "非法选择不消耗额度");
 
@@ -154,11 +178,13 @@ namespace ChoSiren.Tests
         {
             DiceTurn dice = DiceTurn.ForBattle(new SeededRandom(3), 3, true);
             dice.Begin();
+            dice.GainEnergy(DiceTurn.MaxEnergy); // 充能满发 1 次重投
             for (int index = 0; index < DiceRules.DiceCount; index++) dice.ToggleHold(index);
             Assert.That(dice.RerollUnheld(out _), Is.True);
             int used = dice.UsedRerolls;
             Assert.That(dice.RerollUnheld(out _), Is.False, "重投后默认全部保留，重复点击不能再次扣额度");
             Assert.That(dice.UsedRerolls, Is.EqualTo(used));
+            dice.GainEnergy(DiceTurn.MaxEnergy); // 再充一条发第 2 次
             Assert.That(dice.RerollAll(out _), Is.True);
             Assert.That(dice.UsedRerolls, Is.EqualTo(used + 1), "全部重投是另一次操作，只扣一次");
         }
