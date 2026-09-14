@@ -512,30 +512,28 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator LobbyContentEntriesAreUniqueAiRenderedHotspots()
+        public IEnumerator LobbyKeepsThreeSecondaryRoutesOnePrimaryActionAndAProtectedFaceArea()
         {
+            RectTransform lobby = RequireRect("LobbyCards");
             RectTransform[] hotspots =
             {
-                RequireButtonRect("闪耀舞台"),
-                RequireButtonRect("任务"),
+                FindLobbyButtonByText(lobby, "练习室").GetComponent<RectTransform>(),
+                FindLobbyButtonByText(lobby, "专辑制作").GetComponent<RectTransform>(),
+                FindLobbyButtonByText(lobby, "任务").GetComponent<RectTransform>(),
             };
+            string[] subtitles = { "PRACTICE ROOM", "ALBUM PRODUCTION", "TASKS" };
 
             for (int index = 0; index < hotspots.Length; index++)
             {
                 Rect rect = RectInParent(hotspots[index]);
-                Assert.That(rect.width, Is.InRange(240f - PositionTolerance, 280f + PositionTolerance),
-                    $"{hotspots[index].name} 应保留完整 AI 全息装置的视觉尺寸，同时不能扩张成页面卡片。");
-                Assert.That(rect.height, Is.InRange(220f - PositionTolerance, 250f + PositionTolerance),
-                    $"{hotspots[index].name} 应保留完整 AI 全息装置的视觉尺寸，同时不能扩张成页面卡片。");
-                Assert.That(hotspots[index].GetComponent<Image>().color.a, Is.LessThanOrEqualTo(0.01f),
-                    $"{hotspots[index].name} 的点击层必须透明，让视频舞台保持完整。");
-                Assert.That(hotspots[index].GetComponent<Mask>(), Is.Null,
-                    $"{hotspots[index].name} 不应使用会形成实体卡片的遮罩。");
-                Transform emblem = hotspots[index].Find("Emblem");
-                Assert.That(emblem, Is.Not.Null, $"{hotspots[index].name} 必须保留 AI 生成的透明入口素材。");
-                Assert.That(emblem.GetComponent<Image>()?.sprite, Is.Not.Null,
-                    $"{hotspots[index].name} 的 AI 入口素材未成功载入。");
-                FindText(hotspots[index], hotspots[index].name);
+                Assert.That(rect.width, Is.GreaterThanOrEqualTo(160f),
+                    $"{hotspots[index].name} 的完整卡面必须可点击，不能只让文字响应。");
+                Assert.That(rect.height, Is.GreaterThanOrEqualTo(96f),
+                    $"{hotspots[index].name} 的点击热区必须覆盖卡面。");
+                Assert.That(hotspots[index].GetComponent<Button>(), Is.Not.Null);
+                Assert.That(hotspots[index].GetComponent<Button>().targetGraphic?.raycastTarget, Is.True);
+                AssertDecorationsDoNotStealRaycasts(hotspots[index]);
+                FindText(hotspots[index], subtitles[index]);
             }
 
             for (int first = 0; first < hotspots.Length; first++)
@@ -546,10 +544,27 @@ namespace ChoSiren.Tests
             Assert.That(Object.FindObjectsByType<Button>(FindObjectsInactive.Exclude)
                     .Count(button => button.name == "LiveOnStage"), Is.EqualTo(1),
                 "首页只能有一个开始演出主入口。");
-            Transform stageFrame = RequireRect("LiveOnStage").Find("StageFrame");
-            Assert.That(stageFrame, Is.Not.Null, "开始演出必须保留 AI 生成的主视觉素材。");
-            Assert.That(stageFrame.GetComponent<Image>()?.sprite, Is.Not.Null,
-                "开始演出的 AI 主视觉素材未成功载入。");
+            RectTransform stage = RequireButtonRect("LiveOnStage");
+            FindText(stage, "开始演出");
+            FindText(stage, "START LIVE");
+            AssertDecorationsDoNotStealRaycasts(stage);
+
+            Button album = hotspots[1].GetComponent<Button>();
+            Assert.That(HasLockedPresentation(hotspots[1]), Is.True,
+                "专辑制作必须明确显示锁定/即将开放，不能让玩家误以为功能已经可用。");
+            Assert.That(album, Is.Not.Null,
+                "专辑制作锁定入口仍需保留 Button，以便禁用或点击后解释开放状态。");
+            Assert.That(album.IsInteractable(), Is.True,
+                "专辑制作锁定入口应可点击并解释开放状态，不能像失效按钮一样没有反馈。");
+
+            RectTransform faceSafeZone = RequireRect("HeroFaceSafeZone");
+            Graphic faceGraphic = faceSafeZone.GetComponent<Graphic>();
+            Assert.That(faceGraphic == null || !faceGraphic.raycastTarget, Is.True,
+                "角色脸部安全区只能用于构图回归，不得拦截点击。");
+            foreach (RectTransform hotspot in hotspots)
+                Assert.That(RectRelativeTo(lobby, hotspot).Overlaps(RectRelativeTo(lobby, faceSafeZone)), Is.False,
+                    $"{hotspot.name} 不得遮住角色脸部安全区。");
+
             Assert.That(GameObject.Find("闪耀舞台计划"), Is.Null, "首页入口应使用短标签“闪耀舞台”。");
             Assert.That(GameObject.Find("每日签到"), Is.Null, "签到应合并进任务面板，不应重复占据首页入口。");
             Assert.That(GameObject.Find("直播间"), Is.Null, "演出只能保留一个主入口。");
@@ -570,8 +585,10 @@ namespace ChoSiren.Tests
             Text subtitle = FindText(stage, "舞台已就绪");
 
             Rect stageRect = RectInParent(stage);
-            Assert.That(stageRect.center.x, Is.EqualTo(0f).Within(PositionTolerance),
-                "开始演出应居中成为首页唯一主操作。");
+            RectTransform lobby = RequireRect("LobbyCards");
+            RectTransform faceSafeZone = RequireRect("HeroFaceSafeZone");
+            Assert.That(stageRect.Overlaps(RectRelativeTo(lobby, faceSafeZone)), Is.False,
+                "开始演出不得盖住角色脸部。");
 
             AssertContained(stage, title.rectTransform, "开始演出");
             AssertContained(stage, subtitle.rectTransform, "舞台已就绪");
@@ -721,6 +738,65 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator LobbyCompositionFitsReferenceTallAndCompactPortraitViewports()
+        {
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            Assert.That(canvas, Is.Not.Null);
+            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            Assert.That(scaler, Is.Not.Null);
+
+            // CanvasScaler matches width, so every physical viewport maps to a 720-unit-wide
+            // design surface. Driving that logical surface directly is deterministic in the
+            // Editor, where Screen.SetResolution is not reliable in batch PlayMode tests.
+            canvas.renderMode = RenderMode.WorldSpace;
+            scaler.enabled = false;
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            canvasRect.anchorMin = canvasRect.anchorMax = new Vector2(.5f, .5f);
+            canvasRect.pivot = new Vector2(.5f, .5f);
+
+            (int width, int height)[] viewports =
+            {
+                (720, 1536),
+                (390, 844),
+                (320, 568),
+            };
+            foreach ((int width, int height) viewport in viewports)
+            {
+                float logicalHeight = viewport.height * 720f / viewport.width;
+                canvasRect.sizeDelta = new Vector2(720f, logicalHeight);
+                Canvas.ForceUpdateCanvases();
+                yield return null;
+
+                RectTransform safe = RequireRect("SafeArea");
+                RectTransform content = RequireRect("Content");
+                RectTransform navigation = RequireRect("BottomNavigation");
+                RectTransform lobby = RequireRect("LobbyCards");
+                RectTransform faceSafeZone = RequireRect("HeroFaceSafeZone");
+                RectTransform[] actions =
+                {
+                    FindLobbyButtonByText(lobby, "练习室").GetComponent<RectTransform>(),
+                    FindLobbyButtonByText(lobby, "专辑制作").GetComponent<RectTransform>(),
+                    FindLobbyButtonByText(lobby, "任务").GetComponent<RectTransform>(),
+                    RequireButtonRect("LiveOnStage"),
+                };
+
+                AssertContained(safe, content, $"{viewport.width}x{viewport.height} 内容区");
+                AssertContained(safe, navigation, $"{viewport.width}x{viewport.height} 底部导航");
+                AssertContained(content, faceSafeZone, $"{viewport.width}x{viewport.height} 角色脸部安全区");
+                foreach (RectTransform action in actions)
+                {
+                    AssertContained(content, action,
+                        $"{viewport.width}x{viewport.height} 的 {action.name}");
+                    Assert.That(RectRelativeTo(safe, action).Overlaps(RectRelativeTo(safe, navigation)), Is.False,
+                        $"{viewport.width}x{viewport.height} 下 {action.name} 不得侵入底栏。");
+                    Assert.That(RectRelativeTo(content, action)
+                            .Overlaps(RectRelativeTo(content, faceSafeZone)), Is.False,
+                        $"{viewport.width}x{viewport.height} 下 {action.name} 不得遮住角色脸部。");
+                }
+            }
+        }
+
+        [UnityTest]
         public IEnumerator ButtonsReceiveHoverPressAndExitScaleFeedback()
         {
             RectTransform mail = RequireButtonRect("Mail");
@@ -831,6 +907,39 @@ namespace ChoSiren.Tests
                 .SingleOrDefault(candidate => candidate.text == value);
             Assert.That(result, Is.Not.Null, $"Expected text '{value}' under {parent.name} was not found.");
             return result;
+        }
+
+        private static Button FindLobbyButtonByText(RectTransform lobby, string value)
+        {
+            Button result = lobby.GetComponentsInChildren<Button>(true)
+                .SingleOrDefault(candidate => candidate.GetComponentsInChildren<Text>(true)
+                    .Any(text => text.text == value));
+            Assert.That(result, Is.Not.Null, $"首页缺少“{value}”入口。");
+            Assert.That(result.gameObject.activeInHierarchy, Is.True, $"首页“{value}”入口未激活。");
+            Assert.That(result.targetGraphic, Is.Not.Null, $"首页“{value}”入口缺少点击图形。");
+            Assert.That(result.targetGraphic.raycastTarget, Is.True, $"首页“{value}”入口无法接收点击。");
+            return result;
+        }
+
+        private static bool HasLockedPresentation(RectTransform entry)
+        {
+            bool namedLock = entry.GetComponentsInChildren<Transform>(true)
+                .Any(item => item.name.ToLowerInvariant().Contains("lock"));
+            bool copyLock = entry.GetComponentsInChildren<Text>(true)
+                .Any(text => text.text.Contains("即将") || text.text.Contains("未开放") || text.text.Contains("锁定"));
+            return namedLock || copyLock || !entry.GetComponent<Button>().IsInteractable();
+        }
+
+        private static void AssertDecorationsDoNotStealRaycasts(RectTransform action)
+        {
+            Button button = action.GetComponent<Button>();
+            Assert.That(button, Is.Not.Null);
+            foreach (Graphic graphic in action.GetComponentsInChildren<Graphic>(true))
+            {
+                if (graphic == button.targetGraphic) continue;
+                Assert.That(graphic.raycastTarget, Is.False,
+                    $"{action.name}/{graphic.name} 是装饰层，不应抢占 {action.name} 的射线。");
+            }
         }
 
         private static bool IsVisibleMemberTaxonomy(string value)

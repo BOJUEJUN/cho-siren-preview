@@ -63,6 +63,56 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator LobbyReferenceArtStaysLayeredAndLeavesOnlyActionRootsRaycastable()
+        {
+            RawImage video = Require("LobbyVideoBackground").GetComponent<RawImage>();
+            Assert.That(video, Is.Not.Null, "首页必须保留动态角色舞台层。");
+            Assert.That(video.raycastTarget, Is.False, "动态角色舞台不得挡住首页操作。");
+
+            GameObject lobby = Require("LobbyCards");
+            Button[] actions =
+            {
+                FindLobbyButton(lobby, "练习室"),
+                FindLobbyButton(lobby, "专辑制作"),
+                FindLobbyButton(lobby, "任务"),
+                Require("LiveOnStage").GetComponent<Button>(),
+            };
+            string[] resourcePaths =
+            {
+                "Art/LobbyPunk/lobby-practice-punk-v1",
+                "Art/LobbyPunk/lobby-album-punk-v1",
+                "Art/LobbyPunk/lobby-task-punk-v1",
+                "Art/LobbyPunk/lobby-perform-cta-punk-v1",
+            };
+            for (int actionIndex = 0; actionIndex < actions.Length; actionIndex++)
+            {
+                Button action = actions[actionIndex];
+                Assert.That(action, Is.Not.Null);
+                Image[] artwork = action.GetComponentsInChildren<Image>(true)
+                    .Where(image => image != action.targetGraphic && image.sprite != null)
+                    .ToArray();
+                Assert.That(artwork, Is.Not.Empty,
+                    $"{action.name} 必须使用独立美术层，不能只靠代码色块和文字拼出参考首页。");
+                Texture expected = Resources.Load<Sprite>(resourcePaths[actionIndex])?.texture ??
+                                   Resources.Load<Texture2D>(resourcePaths[actionIndex]);
+                Assert.That(expected, Is.Not.Null, "未导入首页正式素材：" + resourcePaths[actionIndex]);
+                Assert.That(artwork.Any(layer => layer.sprite.texture == expected), Is.True,
+                    $"{action.name} 未装配正式素材 {resourcePaths[actionIndex]}。");
+                foreach (Image layer in artwork)
+                {
+                    Assert.That(layer.raycastTarget, Is.False,
+                        $"{action.name}/{layer.name} 的美术层不得抢占点击射线。");
+                }
+            }
+
+            GameObject faceSafeZone = Require("HeroFaceSafeZone");
+            Graphic faceGraphic = faceSafeZone.GetComponent<Graphic>();
+            Assert.That(faceGraphic == null || !faceGraphic.raycastTarget, Is.True,
+                "角色脸部安全区只能记录构图，不应成为隐藏点击层。");
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator TeamInformationUsesQuietFramesAndPreservesSuppliedStageAndActions()
         {
             Click("Nav-team");
@@ -212,6 +262,15 @@ namespace ChoSiren.Tests
             Assert.That(edge, Is.Not.Null);
             Assert.That(edge.effectDistance.magnitude, Is.LessThanOrEqualTo(2f));
             Assert.That(panel.GetComponentsInChildren<Text>().Any(t => !string.IsNullOrWhiteSpace(t.text)), Is.True);
+        }
+
+        private static Button FindLobbyButton(GameObject lobby, string label)
+        {
+            Button result = lobby.GetComponentsInChildren<Button>(true)
+                .SingleOrDefault(candidate => candidate.GetComponentsInChildren<Text>(true)
+                    .Any(text => text.text == label));
+            Assert.That(result, Is.Not.Null, $"首页缺少“{label}”入口。");
+            return result;
         }
 
         private static float LeftInParent(GameObject target)

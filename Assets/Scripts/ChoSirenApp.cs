@@ -367,47 +367,7 @@ namespace ChoSiren
 
         private void BuildLobby()
         {
-            Text eyebrow = NewText("Eyebrow", contentRoot, "星途舞台", 15,
-                new Color32(255, 177, 228, 255), FontStyle.Bold, TextAnchor.MiddleCenter);
-            PlaceTop(eyebrow.rectTransform, 253, 173, 214, 20);
-
-            GameObject heroLayer = NewObject("HeroLayer", contentRoot);
-            Stretch(heroLayer.AddComponent<RectTransform>());
-            GameObject cardLayer = NewObject("LobbyCards", contentRoot);
-            Stretch(cardLayer.AddComponent<RectTransform>());
-
-            GameObject loadingBadge = NewPanel("HeroLoading", heroLayer.transform,
-                new Color32(20, 18, 65, 220), 15);
-            PlaceTop(loadingBadge.GetComponent<RectTransform>(), 266, 936, 188, 34);
-            loadingBadge.GetComponent<Image>().raycastTarget = false;
-            Text loadingText = NewText("Status", loadingBadge.transform, "舞台资源载入中 · 0%", 12,
-                new Color32(232, 217, 250, 255), FontStyle.Bold, TextAnchor.MiddleCenter);
-            Stretch(loadingText.rectTransform, 8, 2, -8, -2);
-            // The stage itself is the menu. Each hotspot uses a complete transparent AI-rendered
-            // holographic device; code only supplies localized labels and interaction.
-            LobbyHotspot(cardLayer.transform, "闪耀舞台", 1, 8, 326, 270, 238, OpenActivity);
-            LobbyHotspot(cardLayer.transform, "任务", 3, 446, 520, 274, 242, OpenDailyTasks);
-            BuildStageCallToAction(cardLayer.transform);
-            cardLayer.transform.SetAsLastSibling();
-            UiEntranceMotion cardEntrance = cardLayer.AddComponent<UiEntranceMotion>();
-            lobbyVideoPlayer?.SetMusicEnabled(model.Save.MusicEnabled);
-            gameAudio?.SetLobbyVideoMusicActive(false);
-            lobbyVideoPlayer?.StartLoop(() =>
-            {
-                ApplyMusicRouting();
-                if (loadingText != null) loadingText.text = "舞台资源载入中 · 100%";
-                UpdateStartupLoading(1f);
-                if (loadingBadge != null) loadingBadge.SetActive(false);
-                FinishStartupLoading();
-                if (cardEntrance != null) cardEntrance.Play();
-            }, error =>
-            {
-                gameAudio?.SetLobbyVideoMusicActive(false);
-                if (loadingBadge != null) loadingBadge.SetActive(false);
-                FinishStartupLoading();
-                if (cardEntrance != null) cardEntrance.Play();
-                Debug.LogWarning($"CHO-SIREN lobby video fallback: {error}");
-            });
+            BuildPunkLobby();
         }
 
         private void BuildTeam()

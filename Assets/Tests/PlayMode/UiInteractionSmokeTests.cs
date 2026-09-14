@@ -140,16 +140,24 @@ namespace ChoSiren.Tests
             yield return null;
             AssertInactiveOrMissing("SettingsModal");
 
-            RequireActiveObject("闪耀舞台");
             AssertInactiveOrMissing("冒险剧本");
-            RequireActiveObject("任务");
-            Click("闪耀舞台");
-            RequireActiveObject("InfoModal");
-            Click("Close");
+            ClickLobbyEntry("练习室");
             yield return null;
-            AssertInactiveOrMissing("InfoModal");
+            RequireActiveObject("MemberPracticePanel");
+            Click("PracticeBack");
+            yield return null;
+            RequireActiveObject("LobbyCards");
+            AssertInactiveOrMissing("MemberPracticePanel");
 
-            Click("任务");
+            ClickLobbyEntry("专辑制作");
+            yield return null;
+            RequireActiveObject("LobbyCards");
+            Text albumToast = RequireActiveObject("Toast").GetComponentInChildren<Text>();
+            Assert.That(albumToast, Is.Not.Null);
+            Assert.That(albumToast.text, Does.Contain("即将开放"),
+                "锁定入口被点击后必须说明开放状态，不能进入空白页。");
+
+            ClickLobbyEntry("任务");
             yield return null;
             RequireActiveObject("TaskBoardPanel");
             Click("TabWeekly");
@@ -800,11 +808,19 @@ namespace ChoSiren.Tests
             {
                 "SSR", "SR", "R", "S", "A", "B", "C", "Rapper", "DJ",
             };
+            HashSet<string> allowedLobbyReferenceCopy = new HashSet<string>
+            {
+                "PRACTICE ROOM", "ALBUM PRODUCTION", "TASKS", "START LIVE",
+            };
+            Transform lobby = GameObject.Find("LobbyCards")?.transform;
 
             Text[] labels = Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude);
             for (int labelIndex = 0; labelIndex < labels.Length; labelIndex++)
             {
                 string value = labels[labelIndex].text ?? string.Empty;
+                if (lobby != null && labels[labelIndex].transform.IsChildOf(lobby) &&
+                    allowedLobbyReferenceCopy.Contains(value.Trim()))
+                    continue;
                 int runStart = -1;
                 for (int characterIndex = 0; characterIndex <= value.Length; characterIndex++)
                 {
@@ -852,6 +868,26 @@ namespace ChoSiren.Tests
             };
             Assert.That(ExecuteEvents.Execute(target, pointer, ExecuteEvents.pointerClickHandler), Is.True,
                 $"'{objectName}' did not handle the pointer click.");
+        }
+
+        private static void ClickLobbyEntry(string label)
+        {
+            GameObject lobby = RequireActiveObject("LobbyCards");
+            Button button = lobby.GetComponentsInChildren<Button>(true)
+                .SingleOrDefault(candidate => candidate.GetComponentsInChildren<Text>(true)
+                    .Any(text => text.text == label));
+            Assert.That(button, Is.Not.Null, $"首页缺少“{label}”入口。");
+            Assert.That(button.gameObject.activeInHierarchy, Is.True, $"首页“{label}”入口未激活。");
+            Assert.That(button.isActiveAndEnabled, Is.True, $"首页“{label}”按钮组件未启用。");
+            Assert.That(button.IsInteractable(), Is.True, $"首页“{label}”入口不可点击。");
+            Assert.That(button.targetGraphic, Is.Not.Null, $"首页“{label}”入口缺少点击图形。");
+            Assert.That(button.targetGraphic.raycastTarget, Is.True, $"首页“{label}”入口无法接收射线。");
+            PointerEventData pointer = new PointerEventData(EventSystem.current)
+            {
+                button = PointerEventData.InputButton.Left,
+            };
+            Assert.That(ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerClickHandler), Is.True,
+                $"首页“{label}”入口未处理玩家点击。");
         }
 
         private static GameObject RequireActiveObject(string objectName)
