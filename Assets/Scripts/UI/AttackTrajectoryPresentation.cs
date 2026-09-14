@@ -6,16 +6,27 @@ using UnityEngine.UI;
 
 namespace ChoSiren
 {
-    /// <summary>Bounded causal attack cues. Never reads or mutates battle HP, targets or clocks.</summary>
+    /// <summary>
+    /// Bounded causal attack cues: a short light bolt with a comet tail, a wind-up flash at the
+    /// attacker and a hit ring with light shards on the victim. Never reads or mutates battle
+    /// HP, targets or clocks, and performs no per-frame allocation.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class AttackTrajectoryPresentation : MonoBehaviour
     {
         public const int Capacity = 8;
+        private const int ShardCount = 4;
+        // Outward burst directions for the impact shards, biased along the travel axis.
+        private static readonly float[] ShardAngles = { 12f, 132f, 228f, 348f };
+
         private sealed class Flight
         {
             public GameObject Root;
-            public Image Line, SourcePulse, Impact;
-            public RectTransform Arrow;
+            public Image Trail, Launch, Impact;
+            public RectTransform Bolt;
+            public Image BoltGlow, BoltCore;
+            public CombatRingGraphic Ring;
+            public Image[] Shards;
             public Text Caption;
             public Vector2 Start, End;
             public Color Color;
@@ -75,8 +86,9 @@ namespace ChoSiren
             flight.Heavy = heavy;
             flight.Elapsed = 0f;
             flight.Active = true;
+            // The causal pair is still recorded on the (hidden) label so logs/tests keep the
+            // attacker → victim attribution; nothing text-shaped is drawn on the stage.
             flight.Caption.text = (sourceName ?? string.Empty) + " 攻击 " + (targetName ?? string.Empty);
-            flight.Caption.color = flight.Color;
             flight.Root.SetActive(true);
             layer.gameObject.SetActive(true);
             Draw(flight);
@@ -125,36 +137,79 @@ namespace ChoSiren
             bool flying = flight.Elapsed >= launch && progress < 1f;
             bool hit = progress >= 1f;
             float impact = hit ? Mathf.Clamp01((flight.Elapsed - launch - travel) / (Duration(flight) - launch - travel)) : 0f;
-            flight.Line.gameObject.SetActive(flying);
-            flight.Arrow.gameObject.SetActive(flying);
-            flight.SourcePulse.gameObject.SetActive(!hit);
+            flight.Trail.gameObject.SetActive(flying);
+            flight.Bolt.gameObject.SetActive(flying);
+            flight.Launch.gameObject.SetActive(!hit);
             flight.Impact.gameObject.SetActive(hit);
-            Place(flight.SourcePulse.rectTransform, flight.Start, Vector2.one * (flight.Heavy ? 64 : 48));
-            flight.SourcePulse.color = WithAlpha(flight.Color, flight.Elapsed < launch ? .7f : .18f);
+            flight.Ring.gameObject.SetActive(hit);
+            for (int index = 0; index < flight.Shards.Length; index++)
+                flight.Shards[index].gameObject.SetActive(hit);
+
+            // Wind-up flash at the attacker: swells during the launch window, then snaps out so
+            // the read is "who fired" rather than a lingering glow.
+            float windUp = Mathf.Clamp01(flight.Elapsed / launch);
+            float launchAlpha = flight.Elapsed < launch ? .85f : .18f * (1f - progress);
+            float launchSize = Mathf.Lerp(flight.Heavy ? 40f : 28f, flight.Heavy ? 108f : 72f, windUp);
+            Place(flight.Launch.rectTransform, flight.Start, Vector2.one * launchSize);
+            flight.Launch.color = WithAlpha(flight.Color, launchAlpha);
+
             if (flying)
             {
                 Vector2 vector = head - flight.Start;
-                float angle = Mathf.Atan2(-vector.y, vector.x) * Mathf.Rad2Deg;
-                Place(flight.Line.rectTransform, flight.Start, new Vector2(vector.magnitude, flight.Heavy ? 4 : 2));
-                flight.Line.rectTransform.pivot = new Vector2(0, .5f);
-                flight.Line.rectTransform.localRotation = Quaternion.Euler(0, 0, angle);
-                flight.Line.color = WithAlpha(flight.Color, .44f);
-                Place(flight.Arrow, head, Vector2.one * (flight.Heavy ? 18 : 12));
-                flight.Arrow.localRotation = Quaternion.Euler(0, 0, angle);
-                foreach (Image image in flight.Arrow.GetComponentsInChildren<Image>()) image.color = flight.Color;
+                if (vector.sqrMagnitude < .0001f) vector = Vector2.right;
+                Vector2 direction = vector.normalized;
+                float angle = Mathf.Atan2(-direction.y, direction.x) * Mathf.Rad2Deg;
+
+                // Comet tail: a capped streak that trails the bolt instead of a static line
+                // stretched all the way back to the attacker.
+                float trailLength = Mathf.Min(vector.magnitude, flight.Heavy ? 170f : 110f);
+                Vector2 tailHead = head - direction * (flight.Heavy ? 14f : 9f);
+                flight.Trail.rectTransform.anchoredPosition = new Vector2(tailHead.x, -tailHead.y);
+                flight.Trail.rectTransform.sizeDelta = new Vector2(trailLength, flight.Heavy ? 11f : 6f);
+                flight.Trail.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
+                flight.Trail.color = WithAlpha(flight.Color, flight.Heavy ? .5f : .4f);
+
+                float boltSize = (flight.Heavy ? 46f : 30f) * Mathf.Lerp(.55f, 1f,
+                    Mathf.Clamp01(progress * 3f));
+                flight.Bolt.anchoredPosition = new Vector2(head.x, -head.y);
+                flight.Bolt.sizeDelta = Vector2.one * boltSize;
+                flight.Bolt.localRotation = Quaternion.Euler(0f, 0f, angle);
+                flight.BoltGlow.color = WithAlpha(flight.Color, flight.Heavy ? .6f : .5f);
+                Color core = Color.Lerp(flight.Color, Color.white, flight.Heavy ? .78f : .66f);
+                flight.BoltCore.color = WithAlpha(core, .95f);
+                flight.BoltCore.rectTransform.sizeDelta =
+                    new Vector2(boltSize * 1.35f, boltSize * (flight.Heavy ? .34f : .3f));
             }
             if (hit)
             {
-                float size = Mathf.Lerp(flight.Heavy ? 30 : 18, flight.Heavy ? 96 : 62, impact);
-                Place(flight.Impact.rectTransform, flight.End, Vector2.one * size);
-                flight.Impact.color = WithAlpha(flight.Color, (1f - impact) * .85f);
+                float flashSize = Mathf.Lerp(flight.Heavy ? 30f : 18f,
+                    flight.Heavy ? 128f : 78f, impact);
+                Place(flight.Impact.rectTransform, flight.End, Vector2.one * flashSize);
+                flight.Impact.color = WithAlpha(flight.Color, (1f - impact) * .8f);
+
+                // Expanding hit ring: quick outward ease, then the shards carry the shatter.
+                float eased = 1f - (1f - impact) * (1f - impact);
+                float ringSize = Mathf.Lerp(flight.Heavy ? 34f : 20f,
+                    flight.Heavy ? 168f : 104f, eased);
+                Place(flight.Ring.rectTransform, flight.End, Vector2.one * ringSize);
+                flight.Ring.color = WithAlpha(Color.Lerp(flight.Color, Color.white, .3f),
+                    (1f - impact) * (flight.Heavy ? .95f : .85f));
+
+                for (int index = 0; index < flight.Shards.Length; index++)
+                {
+                    float shardAngle = ShardAngles[index] * Mathf.Deg2Rad;
+                    Vector2 shardDirection = new Vector2(Mathf.Cos(shardAngle), Mathf.Sin(shardAngle));
+                    float distance = impact * (flight.Heavy ? 88f : 58f);
+                    Vector2 point = flight.End + shardDirection * distance;
+                    float length = Mathf.Lerp(flight.Heavy ? 34f : 22f, 5f, impact);
+                    Place(flight.Shards[index].rectTransform, point,
+                        new Vector2(length, flight.Heavy ? 5f : 3.5f));
+                    flight.Shards[index].rectTransform.localRotation =
+                        Quaternion.Euler(0f, 0f, ShardAngles[index]);
+                    flight.Shards[index].color = WithAlpha(
+                        Color.Lerp(flight.Color, Color.white, .5f), (1f - impact) * .85f);
+                }
             }
-            // One short causal label belongs to this projectile, not the shared instant log.
-            Vector2 caption = (flight.Start + flight.End) * .5f + new Vector2(0, -26 + (flight.Lane - 3.5f) * 30f);
-            caption.x = Mathf.Clamp(caption.x, 110, Width - 110);
-            caption.y = Mathf.Clamp(caption.y, 22, Height - 24);
-            Place(flight.Caption.rectTransform, caption, new Vector2(216, 28));
-            flight.Caption.color = WithAlpha(flight.Color, hit ? 1f - impact : 1f);
         }
 
         private Vector2 VisualPoint(RectTransform rect)
@@ -189,22 +244,42 @@ namespace ChoSiren
                 RectTransform root = kit.NewRect("AttackTrajectory-" + index, layer);
                 PanelKit.Stretch(root);
                 var flight = new Flight { Root = root.gameObject, Lane = index };
-                flight.Line = kit.NewImage("AttackTrail", root, null, Color.clear);
-                flight.SourcePulse = kit.NewImage("AttackLaunch", root, kit.RadialSprite(), Color.clear);
-                flight.Arrow = kit.NewRect("AttackArrow", root);
-                for (int side = -1; side <= 1; side += 2)
-                {
-                    Image wing = kit.NewImage("ArrowWing" + side, flight.Arrow, null, PanelKit.White);
-                    wing.rectTransform.anchorMin = wing.rectTransform.anchorMax = new Vector2(.5f, .5f);
-                    wing.rectTransform.pivot = new Vector2(0, .5f);
-                    wing.rectTransform.sizeDelta = new Vector2(14, 3);
-                    wing.rectTransform.localRotation = Quaternion.Euler(0, 0, side * 145);
-                }
+
+                flight.Trail = kit.NewImage("AttackTrail", root, kit.RoundedSprite(5), Color.clear);
+                flight.Trail.rectTransform.anchorMin = flight.Trail.rectTransform.anchorMax =
+                    new Vector2(0f, 1f);
+                flight.Trail.rectTransform.pivot = new Vector2(1f, .5f);
+
+                flight.Launch = kit.NewImage("AttackLaunch", root, kit.RadialSprite(), Color.clear);
+
+                // "AttackArrow" keeps its node name but is now a light bolt: a soft radial glow
+                // wrapped around a hot capsule core, both rotated along the flight direction.
+                flight.Bolt = kit.NewRect("AttackArrow", root);
+                flight.Bolt.anchorMin = flight.Bolt.anchorMax = new Vector2(0f, 1f);
+                flight.Bolt.pivot = new Vector2(.5f, .5f);
+                flight.BoltGlow = kit.NewImage("BoltGlow", flight.Bolt, kit.RadialSprite(), Color.clear);
+                PanelKit.Stretch(flight.BoltGlow.rectTransform);
+                flight.BoltCore = kit.NewImage("BoltCore", flight.Bolt, kit.RoundedSprite(6), Color.clear);
+                flight.BoltCore.rectTransform.anchorMin = flight.BoltCore.rectTransform.anchorMax =
+                    new Vector2(.5f, .5f);
+                flight.BoltCore.rectTransform.pivot = new Vector2(.5f, .5f);
+                flight.BoltCore.rectTransform.anchoredPosition = Vector2.zero;
+
                 flight.Impact = kit.NewImage("AttackImpact", root, kit.RadialSprite(), Color.clear);
+                var ringObject = new GameObject("AttackImpactRing", typeof(RectTransform),
+                    typeof(CanvasRenderer), typeof(CombatRingGraphic));
+                ringObject.transform.SetParent(root, false);
+                flight.Ring = ringObject.GetComponent<CombatRingGraphic>();
+                flight.Ring.thickness = .16f;
+
+                flight.Shards = new Image[ShardCount];
+                for (int shard = 0; shard < ShardCount; shard++)
+                    flight.Shards[shard] = kit.NewImage("AttackShard-" + shard, root,
+                        kit.RoundedSprite(3), Color.clear);
+
                 flight.Caption = kit.NewText("AttackCausalLabel", root, string.Empty, 14, PanelKit.White,
                     FontStyle.Bold, TextAnchor.MiddleCenter);
-                kit.AddOutline(flight.Caption.gameObject, new Color32(5, 8, 22, 245), 1.5f);
-                PanelKit.EnableBestFit(flight.Caption, 12);
+                flight.Caption.gameObject.SetActive(false);
                 flights.Add(flight);
                 root.gameObject.SetActive(false);
             }

@@ -99,6 +99,7 @@ namespace ChoSiren.Panels
         private readonly List<GameObject> skillButtons = new List<GameObject>();
         private readonly List<string> logHistory = new List<string>();
         private readonly List<Text> popupPool = new List<Text>();
+        private readonly SkillIconGraphic[] popupIcons = new SkillIconGraphic[PopupPoolSize];
         private readonly List<GameObject> diceButtons = new List<GameObject>();
         private readonly List<Image> diceFaceImages = new List<Image>();
         private readonly List<DiceRollPresentation> dicePresentations = new List<DiceRollPresentation>();
@@ -420,38 +421,40 @@ namespace ChoSiren.Panels
 
             Image stagePulse = kit.NewImage("BossStagePulse", stage.transform, kit.RadialSprite(),
                 new Color32(255, 57, 202, 38));
-            PanelKit.PlaceTop(stagePulse.rectTransform, 68, 350, 584, 320);
+            PanelKit.PlaceTop(stagePulse.rectTransform, 40, 380, 640, 360);
             PanelKit.CenterPivot(stagePulse.rectTransform);
             stagePulse.raycastTarget = false;
 
             Image shadow = kit.NewImage("BossGroundShadow", stage.transform, kit.RadialSprite(),
                 new Color32(7, 3, 28, 115));
-            PanelKit.PlaceTop(shadow.rectTransform, 158, 560, 404, 92);
+            PanelKit.PlaceTop(shadow.rectTransform, 140, 620, 440, 100);
             PanelKit.CenterPivot(shadow.rectTransform);
             shadow.raycastTarget = false;
 
             Image rearAura = kit.NewImage("BossAuraBack", stage.transform, rerollRingSprite ?? kit.RadialSprite(),
                 new Color32(255, 60, 203, 54));
-            PanelKit.PlaceTop(rearAura.rectTransform, 62, 56, 596, 596);
+            PanelKit.PlaceTop(rearAura.rectTransform, 30, 76, 660, 660);
             PanelKit.CenterPivot(rearAura.rectTransform);
             rearAura.preserveAspect = true;
             rearAura.raycastTarget = false;
 
             Image coreAura = kit.NewImage("BossAuraCore", stage.transform, kit.RadialSprite(),
                 new Color32(122, 105, 255, 46));
-            PanelKit.PlaceTop(coreAura.rectTransform, 134, 135, 452, 452);
+            PanelKit.PlaceTop(coreAura.rectTransform, 100, 146, 520, 520);
             PanelKit.CenterPivot(coreAura.rectTransform);
             coreAura.raycastTarget = false;
 
             Image chargeArt = kit.NewImage("BossChargeAuraAI", stage.transform, bossChargeAuraSprite, PanelKit.White);
-            PanelKit.PlaceTop(chargeArt.rectTransform, 75, 180, 570, 500);
+            PanelKit.PlaceTop(chargeArt.rectTransform, 50, 136, 620, 540);
             PanelKit.CenterPivot(chargeArt.rectTransform);
             chargeArt.preserveAspect = true;
             chargeArt.raycastTarget = false;
             chargeArt.gameObject.SetActive(false);
 
+            // 竖屏 720x1536 下 Boss 视觉放大到约 1.36 倍：590x680 → 800x800。放大后仍完全位于
+            // 顶部 HUD(0-132) 与出战成员卡(934起)/骰子台(1116起) 之间，层级保持在 EnemyStage 内。
             RectTransform rig = kit.NewRect("BossMotionRig", stage.transform);
-            PanelKit.PlaceTop(rig, 65, 4, 590, 680);
+            PanelKit.PlaceTop(rig, -40, 6, 800, 800);
             PanelKit.CenterPivot(rig);
             Image echo = kit.NewImage("BossHitEcho", rig, userBossSprite, new Color32(255, 50, 190, 0));
             PanelKit.Stretch(echo.rectTransform);
@@ -1186,6 +1189,12 @@ namespace ChoSiren.Panels
                 kit.AddOutline(popup.gameObject, new Color32(10, 8, 30, 220), 1.5f);
                 popup.gameObject.SetActive(false);
                 popupPool.Add(popup);
+                // Semantic icon docked on the popup: heal/shield/buff reads come from a glyph
+                // plus a short number instead of a full sentence floating over the stage.
+                SkillIconGraphic icon = CombatStatusIconVisuals.CreateIcon(popup.transform,
+                    "PopupIcon", 22f);
+                icon.gameObject.SetActive(false);
+                popupIcons[index] = icon;
             }
         }
 
@@ -1642,8 +1651,15 @@ namespace ChoSiren.Panels
                             : battleEvent.Critical ? CombatFeedbackPalette.Critical
                             : target != null && target.Side == BattleSide.Player
                                 ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Attack;
-                        SpawnPopup(target, DamagePopupLabel(battleEvent), damageColor,
-                            battleEvent.Critical ? 26 : 22);
+                        if (battleEvent.AbsorbedAmount > 0)
+                            SpawnPopupIcon(target, DamagePopupLabel(battleEvent), damageColor,
+                                battleEvent.Critical ? 26 : 22, SkillIconKind.Shield);
+                        else if (battleEvent.SkillId == "rt-poison")
+                            SpawnPopupIcon(target, DamagePopupLabel(battleEvent), damageColor,
+                                battleEvent.Critical ? 26 : 22, SkillIconKind.Poison);
+                        else
+                            SpawnPopup(target, DamagePopupLabel(battleEvent), damageColor,
+                                battleEvent.Critical ? 26 : 22);
                     }
                     var damageNotes = new List<string>();
                     if (battleEvent.Critical) damageNotes.Add("暴击");
@@ -1660,7 +1676,8 @@ namespace ChoSiren.Panels
                     if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal,
                         CombatFeedbackPalette.Heal, true);
                     RefreshCell(target);
-                    SpawnPopup(target, $"治疗 +{battleEvent.Amount}", CombatFeedbackPalette.Heal, 22);
+                    SpawnPopupIcon(target, $"+{battleEvent.Amount}", CombatFeedbackPalette.Heal, 22,
+                        SkillIconKind.Heal);
                     string healLine = $"{actorName} 使用「{skillName}」为 {targetName} 恢复 {battleEvent.Amount}";
                     if (!battle.IsRealtime) eventText.text = healLine;
                     AppendLog(healLine);
@@ -1669,7 +1686,8 @@ namespace ChoSiren.Panels
                     if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Shield,
                         CombatFeedbackPalette.Shield, true);
                     RefreshCell(target);
-                    SpawnPopup(target, $"护盾 +{battleEvent.Amount}", CombatFeedbackPalette.Shield, 20);
+                    SpawnPopupIcon(target, $"+{battleEvent.Amount}", CombatFeedbackPalette.Shield, 20,
+                        SkillIconKind.Shield);
                     string shieldLine = $"{actorName} 使用「{skillName}」为 {targetName} 施加 {battleEvent.Amount} 护盾";
                     if (!battle.IsRealtime) eventText.text = shieldLine;
                     AppendLog(shieldLine);
@@ -1678,7 +1696,10 @@ namespace ChoSiren.Panels
                     RefreshCell(target);
                     string effectLabel = battleEvent.SkillId.StartsWith("rt-") ? skillName : skill != null ? EffectShort(skill.Effect) : "状态";
                     Color effectColor = CombatFeedbackPalette.Skill(battleEvent.SkillId);
-                    SpawnPopup(target, effectLabel, effectColor, 20);
+                    SpawnPopupIcon(target, effectLabel, effectColor, 20,
+                        battleEvent.SkillId.StartsWith("rt-")
+                            ? CombatStatusIconVisuals.ForSkill(battleEvent.SkillId)
+                            : CombatStatusIconVisuals.ForStatusText(effectLabel));
                     if (battleEvent.SkillId == "rt-stun" || battleEvent.SkillId == "rt-interrupt")
                         skillEffects?.Play(UnitVisual(target), SkillVisualKind.Hex, effectColor, true);
                     else if (battleEvent.SkillId == "rt-armor-break")
@@ -1803,8 +1824,8 @@ namespace ChoSiren.Panels
                 caster.Motion?.PlayAttack(heavy);
                 if (caster.ActionLabel != null)
                 {
-                    caster.ActionLabel.text = ultimate ? "大招 · " + title
-                        : heavy ? title : "普攻 → " + (target?.Definition.Name ?? "目标");
+                    // 短读法：普攻只显示“普攻”，技能只显示技能名；目标由光弹轨迹和命中环表达。
+                    caster.ActionLabel.text = ultimate ? "大招 · " + title : title;
                     caster.ActionLabel.color = ultimate ? PanelKit.Gold
                         : CombatFeedbackPalette.Skill(entry.SkillId, actor.Side);
                     caster.ActionLabelUntil = presentationClock + (heavy ? 1.05f : .4f);
@@ -1814,15 +1835,31 @@ namespace ChoSiren.Panels
                 {
                     // Short local cut-in (bounded by SkillCutInPresentation) plus a readable badge
                     // and a one-beat screen pulse so the cast reads as a moment, not a tick.
-                    SpawnPopup(actor, "大招 · " + title, PanelKit.Gold, 22);
+                    SpawnPopupIcon(actor, "大招 · " + title, PanelKit.Gold, 22,
+                        CombatStatusIconVisuals.ForSkill(entry.SkillId));
                     skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title,
                         CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
                     caster.Energy?.Refresh();
                     if (ultFlash != null) StartCoroutine(FlashUltimate(
                         CombatFeedbackPalette.Skill(entry.SkillId, actor.Side)));
                 }
+                else if (heavy)
+                {
+                    // 非大招技能：一枚语义图标闪现替代文字喊话，治疗/盾/毒/控场一眼可辨。
+                    SpawnPopupIcon(actor, string.Empty,
+                        CombatFeedbackPalette.Skill(entry.SkillId, actor.Side), 20,
+                        CombatStatusIconVisuals.ForSkill(entry.SkillId));
+                }
             }
-            else if (enemyMotions.TryGetValue(actor.Id, out var motion)) motion.PlayAttack(heavy);
+            else if (enemyMotions.TryGetValue(actor.Id, out var motion))
+            {
+                motion.PlayAttack(heavy);
+                // 小怪重击起手给一枚语义图标闪现（盾/毒/控场…），替代原先的文字喊话。
+                if (heavy)
+                    SpawnPopupIcon(actor, string.Empty,
+                        CombatFeedbackPalette.Skill(entry.SkillId, actor.Side), 20,
+                        CombatStatusIconVisuals.ForSkill(entry.SkillId));
+            }
             else if (actor.Id == bossUnitId && heavy) bossPresentation?.PlayCharge(title);
             if (heavy && actor.Side == BattleSide.Player)
                 skillEffects?.Play(UnitVisual(actor), SkillVisualKind.Cast, PerformerColor(battle.RaceOf(actor)));
@@ -1879,7 +1916,7 @@ namespace ChoSiren.Panels
                         !player, special, slot);
                     if (!player && view?.HurtLabel != null)
                     {
-                        view.HurtLabel.text = "受击 ← " + actor.Definition.Name;
+                        view.HurtLabel.text = "受击";
                         view.HurtLabel.color = CombatFeedbackPalette.Hurt;
                         view.HurtLabelUntil = presentationClock + .75f;
                         view.HurtLabel.gameObject.SetActive(true);
@@ -2086,9 +2123,19 @@ namespace ChoSiren.Panels
             SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, 22f);
         }
 
+        /// <summary>Popup carrying a semantic icon (heal/shield/buff reads) beside the short text.</summary>
+        private void SpawnPopupIcon(BattleUnit target, string text, Color color, int fontSize,
+            SkillIconKind icon)
+        {
+            CellView cell = FindCell(target);
+            if (cell == null) return;
+            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target) : cell.Rect;
+            SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, 22f, icon);
+        }
+
         /// <summary>Floating feedback anchored to any rect (used by dice/captain reroll readouts).</summary>
         private void SpawnPopupAt(RectTransform anchor, int ownerId, string text, Color color,
-            int fontSize, float offsetY = 22f)
+            int fontSize, float offsetY = 22f, SkillIconKind? icon = null)
         {
             if (anchor == null) return;
             int slot = -1;
@@ -2107,9 +2154,21 @@ namespace ChoSiren.Panels
                 anchor.rect.center.y + offsetY, 0));
             Vector2 local = popupLayer.InverseTransformPoint(world);
             popup.rectTransform.anchoredPosition = local - new Vector2(popupLayer.rect.xMin, popupLayer.rect.yMax);
+            SkillIconGraphic popupIcon = popupIcons[slot];
+            if (icon.HasValue)
+            {
+                popupIcon.Kind = icon.Value;
+                popupIcon.color = CombatStatusIconVisuals.ColorFor(icon.Value);
+                // The glyph sits just left of the text; icon-only reads stay centered.
+                float half = string.IsNullOrEmpty(text) ? 0f
+                    : popup.preferredWidth * .5f + popupIcon.rectTransform.sizeDelta.x * .5f + 3f;
+                popupIcon.rectTransform.anchoredPosition = new Vector2(-half, 0f);
+                popupIcon.gameObject.SetActive(true);
+            }
+            else popupIcon.gameObject.SetActive(false);
             popup.gameObject.SetActive(true);
             popup.transform.SetAsLastSibling();
-            popupRoutines[slot] = StartCoroutine(AnimatePopup(popup));
+            popupRoutines[slot] = StartCoroutine(AnimatePopup(popup, popupIcon));
         }
 
         private void ClearPopups()
@@ -2120,10 +2179,11 @@ namespace ChoSiren.Panels
                 popupRoutines[index] = null;
                 popupOwners[index] = 0;
                 popupPool[index].gameObject.SetActive(false);
+                popupIcons[index].gameObject.SetActive(false);
             }
         }
 
-        private IEnumerator AnimatePopup(Text popup)
+        private IEnumerator AnimatePopup(Text popup, Graphic icon)
         {
             const float duration = 0.7f;
             float elapsed = 0f;
@@ -2141,10 +2201,17 @@ namespace ChoSiren.Panels
                 popup.rectTransform.anchoredPosition = start + new Vector2(0f, 46f * t);
                 color.a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.45f, 1f, t));
                 popup.color = color;
+                if (icon != null && icon.gameObject.activeSelf)
+                {
+                    Color iconColor = icon.color;
+                    iconColor.a = color.a;
+                    icon.color = iconColor;
+                }
                 yield return null;
             }
 
             popup.gameObject.SetActive(false);
+            if (icon != null) icon.gameObject.SetActive(false);
         }
 
         // ------------------------------------------------------------------ cells
