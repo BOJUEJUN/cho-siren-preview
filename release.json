@@ -1,15 +1,17 @@
 {
   "version": "0.3.8",
-  "name": "最新参考首页 1:1 复刻",
-  "date": "2026-09-14",
-  "sourceCommit": "e0abe2e",
+  "name": "首页可见交互动画与底栏热区修复",
+  "date": "2026-09-15",
+  "sourceCommit": "05538eb",
   "buildDirectory": "Builds/WebGL",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "4faee7d",
+  "previousWebCommit": "e6814e7",
   "savePolicy": "保留现有存档；新增经纪经营字段由 Normalize 自动迁移，旧档不追缴任何月薪",
   "validation": {
     "unityTestsPlayMode": 141,
     "unityTestsPlayModePassed": 141,
-    "referencePixelsChangedOutsideRequestedEdits": 0
+    "visibleHoverHotspots": 14,
+    "bottomNavigationMeasuredHitAreas": 5,
+    "referencePixelsChangedAtRest": 0
   }
 }
