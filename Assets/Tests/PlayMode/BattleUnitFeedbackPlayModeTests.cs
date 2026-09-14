@@ -60,6 +60,48 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues()
+        {
+            using (var fixture = new Fixture(false))
+            {
+                BattleUnit caster = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Player);
+                BattleUnit enemy = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Enemy && unit.Alive);
+                Present(fixture.Panel, new BattleEvent
+                {
+                    Kind = BattleEventKind.Damage, ActorId = caster.Id, TargetId = enemy.Id,
+                    SkillId = "rt-basic", Amount = 18, HpLostAmount = 18,
+                });
+                Present(fixture.Panel, new BattleEvent
+                {
+                    Kind = BattleEventKind.Heal, ActorId = caster.Id, TargetId = caster.Id,
+                    SkillId = "rt-mermaid-small", Amount = 11,
+                });
+
+                SkillEffectGraphic[] icons = fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>(true)
+                    .Where(graphic => graphic.gameObject.activeSelf).ToArray();
+                Assert.That(icons.Any(icon => icon.Kind == SkillVisualKind.Impact), Is.True,
+                    "普攻必须出现攻击图形，不能只显示“攻击/普攻”文字。");
+                Assert.That(icons.Any(icon => icon.Kind == SkillVisualKind.Heal), Is.True,
+                    "治疗必须出现治疗图形，不能只显示“治疗”文字。");
+                foreach (SkillEffectGraphic icon in icons)
+                {
+                    Assert.That(icon.raycastTarget, Is.False, "战斗效果图标不得遮断单位和暂停按钮的点击。");
+                    Assert.That(icon.rectTransform.rect.width, Is.GreaterThanOrEqualTo(30f));
+                    Assert.That(icon.rectTransform.rect.height, Is.GreaterThanOrEqualTo(30f));
+                }
+
+                Text[] popups = fixture.Panel.GetComponentsInChildren<Text>(true)
+                    .Where(text => text.name == "Popup" && text.gameObject.activeSelf).ToArray();
+                Assert.That(popups.Any(text => text.text.Contains("-18")), Is.True,
+                    "攻击图标不能替代真实伤害数值。");
+                Assert.That(popups.Any(text => text.text.Contains("+11")), Is.True,
+                    "治疗图标不能替代真实治疗数值。");
+                Assert.That(popups.Any(text => text.text.Contains("攻击") || text.text.Contains("治疗")), Is.False,
+                    "攻击/治疗语义应由图标承担，浮字只保留结果数值。");
+            }
+        }
+
+        [Test]
         public void PerformerNamesAndDiceSummaryHaveRoomToRenderAboveTheirBars()
         {
             using (var fixture = new Fixture(false))
@@ -227,6 +269,43 @@ namespace ChoSiren.Tests
                     SkillId = "rt-basic", Amount = 6,
                 });
                 Assert.That(boss.HitReactionCount, Is.EqualTo(before + 1));
+            }
+        }
+
+        [Test]
+        public void BossRemainsStageDominantWithoutBreakingFocusOrPauseControls()
+        {
+            using (var fixture = new Fixture(true))
+            {
+                BattleUnit queen = fixture.Battle.Units.First(unit => unit.Definition.Id == "siren-queen");
+                BattleUnit add = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Enemy &&
+                    unit.Definition.Id == "echo-drone");
+                RectTransform stage = Find(fixture.Panel.transform, "EnemyStage") as RectTransform;
+                RectTransform bossRig = Find(fixture.Panel.transform, "BossMotionRig") as RectTransform;
+                RectTransform addRig = Find(fixture.Panel.transform, "EnemyMotion-" + add.Id) as RectTransform;
+                Assert.That(stage, Is.Not.Null);
+                Assert.That(bossRig, Is.Not.Null);
+                Assert.That(addRig, Is.Not.Null);
+                Assert.That(bossRig.rect.width, Is.GreaterThanOrEqualTo(addRig.rect.width * 2f),
+                    "Boss 主视觉宽度至少应为伴生敌人的两倍，保持首领层级。");
+                Assert.That(bossRig.rect.height, Is.GreaterThanOrEqualTo(addRig.rect.height * 2f),
+                    "Boss 主视觉高度至少应为伴生敌人的两倍，不能退化成普通单位卡。");
+                AssertContained(stage, bossRig, "Boss 主视觉");
+
+                Button focus = Find(fixture.Panel.transform, "BossPortrait").GetComponent<Button>();
+                Assert.That(focus, Is.Not.Null);
+                Assert.That(focus.IsInteractable(), Is.True);
+                Assert.That(focus.targetGraphic?.raycastTarget, Is.True);
+                focus.onClick.Invoke();
+                Assert.That(fixture.Battle.FocusTargetId, Is.EqualTo(queen.Id),
+                    "放大 Boss 后，其画像仍必须能被点击集火。");
+
+                Button pause = Find(fixture.Panel.transform, "PauseToggle").GetComponent<Button>();
+                Assert.That(pause.IsInteractable(), Is.True);
+                pause.onClick.Invoke();
+                Assert.That(fixture.Panel.IsPaused, Is.True, "视觉尺寸调整不能切断暂停操作。");
+                pause.onClick.Invoke();
+                Assert.That(fixture.Panel.IsPaused, Is.False, "暂停后必须能继续战斗。");
             }
         }
 
@@ -418,6 +497,18 @@ namespace ChoSiren.Tests
             Transform found = root.GetComponentsInChildren<Transform>(true).FirstOrDefault(item => item.name == name);
             Assert.That(found, Is.Not.Null, "缺少验收节点：" + name);
             return found;
+        }
+
+        private static void AssertContained(RectTransform outer, RectTransform inner, string label)
+        {
+            Vector3[] outerCorners = new Vector3[4];
+            Vector3[] innerCorners = new Vector3[4];
+            outer.GetWorldCorners(outerCorners);
+            inner.GetWorldCorners(innerCorners);
+            Assert.That(innerCorners[0].x, Is.GreaterThanOrEqualTo(outerCorners[0].x - .5f), label + " 左侧超出舞台。");
+            Assert.That(innerCorners[2].x, Is.LessThanOrEqualTo(outerCorners[2].x + .5f), label + " 右侧超出舞台。");
+            Assert.That(innerCorners[0].y, Is.GreaterThanOrEqualTo(outerCorners[0].y - .5f), label + " 底部超出舞台。");
+            Assert.That(innerCorners[2].y, Is.LessThanOrEqualTo(outerCorners[2].y + .5f), label + " 顶部超出舞台。");
         }
 
         private static void Present(TacticsBattlePanel panel, BattleEvent entry) =>

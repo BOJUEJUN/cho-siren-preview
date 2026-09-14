@@ -451,10 +451,10 @@ namespace ChoSiren.Panels
             chargeArt.raycastTarget = false;
             chargeArt.gameObject.SetActive(false);
 
-            // 竖屏 720x1536 下 Boss 视觉放大到约 1.36 倍：590x680 → 800x800。放大后仍完全位于
-            // 顶部 HUD(0-132) 与出战成员卡(934起)/骰子台(1116起) 之间，层级保持在 EnemyStage 内。
+            // 竖屏 720x1536 下让方形 Boss 立绘占满 700 高舞台；仍完整位于 EnemyStage 内，
+            // 不侵入顶部 HUD、出战成员卡或骰子台。
             RectTransform rig = kit.NewRect("BossMotionRig", stage.transform);
-            PanelKit.PlaceTop(rig, -40, 6, 800, 800);
+            PanelKit.PlaceTop(rig, 10, 0, 700, 700);
             PanelKit.CenterPivot(rig);
             Image echo = kit.NewImage("BossHitEcho", rig, userBossSprite, new Color32(255, 50, 190, 0));
             PanelKit.Stretch(echo.rectTransform);
