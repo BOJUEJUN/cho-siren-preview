@@ -1,15 +1,16 @@
 {
-  "assets": [
-    "4586deda66ebaeedd48d31915bf210ef.loader.js",
-    "7b461cf0057bde1ad1954fbfca317e66.data.unityweb",
-    "bfbed33ba9ba1ba58c2ec563efec0d9e.wasm.unityweb",
-    "cd0b195015ed7997450856c56c13b607.framework.js.unityweb"
+  "schemaVersion": 1,
+  "current": [
+    "3c63cbf0bcd968cfc4d94a1ffb94d800.data.unityweb",
+    "c831803aead8d3c6c3dd6aa0e585f9fe.framework.js.unityweb",
+    "0137ec8da6277166003582a3efc0af95.wasm.unityweb",
+    "fb25a96c80dd2b772a9eb12838f0262c.loader.js"
   ],
-  "source": "6c77c6e",
   "previous": [
-    "0889ecd0da10646e8c74790e4725f2c9.framework.js.unityweb",
-    "1c9c01ddefd9744fe4b0061c26b33a08.loader.js",
-    "22e375dfa6ce2e883938b4629e56fe80.data.unityweb",
-    "ab4ad6dc4d0fee100bc63c234cb5f26a.wasm.unityweb"
-  ]
+    "7b461cf0057bde1ad1954fbfca317e66.data.unityweb",
+    "cd0b195015ed7997450856c56c13b607.framework.js.unityweb",
+    "bfbed33ba9ba1ba58c2ec563efec0d9e.wasm.unityweb",
+    "4586deda66ebaeedd48d31915bf210ef.loader.js"
+  ],
+  "source": "da7916a"
 }
