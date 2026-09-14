@@ -18,6 +18,18 @@ namespace ChoSiren.Tests
         private const string SaveKey = "ChoSiren.Save.v1";
         private const float PositionTolerance = 0.5f;
 
+        // 0.3.8 bottom destinations measured from the visible icon/frame/Chinese-label
+        // groups in lobby-home-base-038.png, converted from 821x1739 to 720x1536.
+        // Keep these non-uniform x positions: the approved artwork is not an equal-column grid.
+        private static readonly Rect[] LobbyNavHitBounds038 =
+        {
+            new Rect(18f, 1328f, 132f, 143f),
+            new Rect(161f, 1343f, 118f, 128f),
+            new Rect(280f, 1337f, 142f, 149f),
+            new Rect(424f, 1343f, 125f, 128f),
+            new Rect(554f, 1326f, 147f, 148f),
+        };
+
         [UnitySetUp]
         public IEnumerator SetUp()
         {
@@ -700,10 +712,22 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator BottomNavigationKeepsFiveEqualNonOverlappingDestinations()
+        public IEnumerator BottomNavigationMatchesLatestFiveNonOverlappingDestinations()
         {
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
             string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            scaler.enabled = false;
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            canvasRect.anchorMin = canvasRect.anchorMax = new Vector2(.5f, .5f);
+            canvasRect.pivot = new Vector2(.5f, .5f);
+            canvasRect.sizeDelta = new Vector2(720f, 1536f);
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
+            RectTransform safe = RequireRect("SafeArea");
             RectTransform navigation = RequireRect("BottomNavigation");
             var buttons = new RectTransform[ids.Length];
             int selectedCount = 0;
@@ -725,24 +749,32 @@ namespace ChoSiren.Tests
                     $"底部{labels[index]}入口必须可点击。");
                 Assert.That(buttons[index].GetComponent<Button>().targetGraphic.raycastTarget, Is.True,
                     $"底部{labels[index]}入口必须能独立接收点击。");
-                Rect hitRect = RectInParent(buttons[index]);
-                Assert.That(hitRect.width, Is.GreaterThanOrEqualTo(128f - PositionTolerance),
-                    $"{labels[index]} 的点击热区不能因页面切换被压窄。");
-                Assert.That(hitRect.height, Is.GreaterThanOrEqualTo(120f - PositionTolerance),
-                    $"{labels[index]} 的点击热区必须覆盖图标与文字。");
+                Rect hitRect = RectRelativeTo(safe, buttons[index]);
+                Rect expected = LobbyNavHitBounds038[index];
+                Rect expectedLocal = Rect.MinMaxRect(
+                    safe.rect.xMin + expected.x,
+                    safe.rect.yMax - expected.y - expected.height,
+                    safe.rect.xMin + expected.x + expected.width,
+                    safe.rect.yMax - expected.y);
+                AssertTopLeftBounds(safe, buttons[index],
+                    expected.x, expected.y, expected.width, expected.height, 10f,
+                    labels[index] + " 0.3.8 点击热区");
+                Assert.That(Vector2.Distance(hitRect.center, expectedLocal.center), Is.LessThanOrEqualTo(6f),
+                    $"{labels[index]} 的点击中心必须命中 0.3.8 图中对应图标，不能沿用等分底栏的偏移中心。");
+                Assert.That(hitRect.Contains(expectedLocal.center), Is.True,
+                    $"{labels[index]} 的真实视觉中心必须落在自身点击热区内。");
+                for (int other = 0; other < index; other++)
+                    Assert.That(RectRelativeTo(safe, buttons[other]).Contains(expectedLocal.center), Is.False,
+                        $"{labels[index]} 的视觉中心不能被 {labels[other]} 的热区截获。");
                 Image highlight = buttons[index].Find("Highlight")?.GetComponent<Image>();
                 Assert.That(highlight, Is.Not.Null, $"{labels[index]} 缺少选中态指示。");
                 if (highlight.color.a > 0.5f) selectedCount++;
             }
 
-            float expectedWidth = RectInParent(buttons[0]).width;
             for (int first = 0; first < buttons.Length; first++)
             {
-                Assert.That(RectInParent(buttons[first]).width,
-                    Is.EqualTo(expectedWidth).Within(PositionTolerance),
-                    "底部导航的五个入口必须保持等宽。");
                 for (int second = first + 1; second < buttons.Length; second++)
-                    Assert.That(RectInParent(buttons[first]).Overlaps(RectInParent(buttons[second])), Is.False,
+                    Assert.That(RectRelativeTo(safe, buttons[first]).Overlaps(RectRelativeTo(safe, buttons[second])), Is.False,
                         $"{labels[first]} 与 {labels[second]} 的点击热区不能重叠。");
             }
 
@@ -820,39 +852,159 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator ButtonsReceiveHoverPressAndExitScaleFeedback()
+        public IEnumerator LobbyHotspotsExposeVisibleHoverPressExitFeedbackWithoutBreakingClicks()
         {
-            RectTransform settings = RequireButtonRect("Settings");
-            ButtonInteractionFeedback feedback = settings.GetComponent<ButtonInteractionFeedback>();
-            Assert.That(feedback, Is.Not.Null,
-                "Canvas installer should attach feedback to dynamically built buttons.");
-
-            float restingScale = settings.localScale.x;
             PointerEventData pointer = new PointerEventData(EventSystem.current)
             {
                 button = PointerEventData.InputButton.Left,
             };
+            string[] hotspotNames =
+            {
+                "PracticeRoom",
+                "CurrencyPlus-diamond",
+                "Nav-team",
+                "Settings",
+            };
 
-            ExecuteEvents.Execute<IPointerEnterHandler>(settings.gameObject, pointer,
-                ExecuteEvents.pointerEnterHandler);
-            yield return new WaitForSecondsRealtime(0.12f);
-            float hoverScale = settings.localScale.x;
-            Assert.That(hoverScale, Is.GreaterThan(restingScale + 0.01f),
-                "Hover should visibly increase the button scale.");
+            foreach (string hotspotName in hotspotNames)
+                yield return AssertVisiblePointerFeedback(hotspotName, pointer);
 
-            ExecuteEvents.Execute<IPointerDownHandler>(settings.gameObject, pointer,
-                ExecuteEvents.pointerDownHandler);
-            yield return new WaitForSecondsRealtime(0.16f);
-            Assert.That(settings.localScale.x, Is.LessThan(restingScale),
-                "Pointer down should rebound below the resting scale.");
-
-            ExecuteEvents.Execute<IPointerExitHandler>(settings.gameObject, pointer,
-                ExecuteEvents.pointerExitHandler);
-            yield return new WaitForSecondsRealtime(0.22f);
-            Assert.That(settings.localScale.x, Is.EqualTo(restingScale).Within(0.01f),
-                "Pointer exit should restore the scale even when it follows pointer down.");
-
+            // Pointer feedback must decorate the existing Buttons rather than replace or
+            // consume their click chain. Exercise the original route behind each class.
+            RequireButtonRect("Settings").GetComponent<Button>().onClick.Invoke();
             yield return null;
+            RequireRect("SettingsModal");
+            RequireButtonRect("Done").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            RequireButtonRect("CurrencyPlus-diamond").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            RequireRect("CurrencyModal");
+            RequireButtonRect("CloseProgression").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            RequireButtonRect("Nav-team").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            RequireRect("TeamPower");
+            RequireButtonRect("Nav-lobby").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+
+            RequireButtonRect("PracticeRoom").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            RequireRect("MemberPracticePanel");
+        }
+
+        private static IEnumerator AssertVisiblePointerFeedback(string hotspotName, PointerEventData pointer)
+        {
+            RectTransform hotspot = RequireButtonRect(hotspotName);
+            Button button = hotspot.GetComponent<Button>();
+            Graphic[] decorations = hotspot.GetComponentsInChildren<Graphic>(true)
+                .Where(graphic => graphic != button.targetGraphic)
+                .ToArray();
+            Assert.That(decorations, Is.Not.Empty,
+                $"{hotspotName} 必须提供独立的可见反馈层，不能只缩放透明点击层。");
+            foreach (Graphic decoration in decorations)
+                Assert.That(decoration.raycastTarget, Is.False,
+                    $"{hotspotName}/{decoration.name} 是反馈装饰，不得拦截 Button 射线。");
+
+            Assert.That(MaxEffectiveAlpha(hotspot, button.targetGraphic), Is.LessThanOrEqualTo(0.01f),
+                $"{hotspotName} 静止时反馈必须完全透明或 inactive，不能改变 0.3.8 golden。");
+
+            ExecuteEvents.Execute<IPointerEnterHandler>(hotspot.gameObject, pointer,
+                ExecuteEvents.pointerEnterHandler);
+            yield return new WaitForSecondsRealtime(0.16f);
+            Graphic visible = MostVisibleFeedback(hotspot, button.targetGraphic);
+            Assert.That(visible, Is.Not.Null,
+                $"{hotspotName} 悬停后必须出现玩家看得到的 Graphic/CanvasGroup 反馈。");
+            Assert.That(EffectiveAlpha(visible, hotspot), Is.GreaterThan(0.05f),
+                $"{hotspotName} 悬停反馈不能只改变透明 Button 自身的缩放。");
+            FeedbackVisualState hover = CaptureFeedbackState(visible, hotspot);
+
+            ExecuteEvents.Execute<IPointerDownHandler>(hotspot.gameObject, pointer,
+                ExecuteEvents.pointerDownHandler);
+            yield return new WaitForSecondsRealtime(0.08f);
+            FeedbackVisualState pressed = CaptureFeedbackState(visible, hotspot);
+            Assert.That(FeedbackChanged(hover, pressed), Is.True,
+                $"{hotspotName} pointer down 必须产生可观察的压下或闪光状态。");
+
+            ExecuteEvents.Execute<IPointerUpHandler>(hotspot.gameObject, pointer,
+                ExecuteEvents.pointerUpHandler);
+            yield return new WaitForSecondsRealtime(0.12f);
+            FeedbackVisualState released = CaptureFeedbackState(visible, hotspot);
+            Assert.That(FeedbackChanged(pressed, released), Is.True,
+                $"{hotspotName} pointer up 必须从按压态恢复为悬停态。");
+
+            ExecuteEvents.Execute<IPointerExitHandler>(hotspot.gameObject, pointer,
+                ExecuteEvents.pointerExitHandler);
+            yield return new WaitForSecondsRealtime(0.3f);
+            Assert.That(MaxEffectiveAlpha(hotspot, button.targetGraphic), Is.LessThanOrEqualTo(0.01f),
+                $"{hotspotName} pointer exit 后必须恢复完全透明，保持静止画面 1:1。");
+            Assert.That(button.IsInteractable(), Is.True,
+                $"{hotspotName} 动画结束后必须保留原 Button 点击链。");
+        }
+
+        private struct FeedbackVisualState
+        {
+            public float Alpha;
+            public Color Color;
+            public Vector3 Scale;
+            public Vector3 Position;
+        }
+
+        private static FeedbackVisualState CaptureFeedbackState(Graphic graphic, RectTransform hotspot)
+        {
+            return new FeedbackVisualState
+            {
+                Alpha = EffectiveAlpha(graphic, hotspot),
+                Color = graphic.color,
+                Scale = graphic.rectTransform.localScale,
+                Position = graphic.rectTransform.localPosition,
+            };
+        }
+
+        private static bool FeedbackChanged(FeedbackVisualState before, FeedbackVisualState after)
+        {
+            Color colorDelta = before.Color - after.Color;
+            float colorDifference = colorDelta.r * colorDelta.r + colorDelta.g * colorDelta.g +
+                                    colorDelta.b * colorDelta.b + colorDelta.a * colorDelta.a;
+            return Mathf.Abs(before.Alpha - after.Alpha) > 0.005f ||
+                   colorDifference > 0.000025f ||
+                   (before.Scale - after.Scale).sqrMagnitude > 0.000025f ||
+                   (before.Position - after.Position).sqrMagnitude > 0.000025f;
+        }
+
+        private static Graphic MostVisibleFeedback(RectTransform hotspot, Graphic targetGraphic)
+        {
+            return hotspot.GetComponentsInChildren<Graphic>(true)
+                .Where(graphic => graphic != targetGraphic)
+                .OrderByDescending(graphic => EffectiveAlpha(graphic, hotspot))
+                .FirstOrDefault(graphic => EffectiveAlpha(graphic, hotspot) > 0.01f);
+        }
+
+        private static float MaxEffectiveAlpha(RectTransform hotspot, Graphic targetGraphic)
+        {
+            return hotspot.GetComponentsInChildren<Graphic>(true)
+                .Where(graphic => graphic != targetGraphic)
+                .Select(graphic => EffectiveAlpha(graphic, hotspot))
+                .DefaultIfEmpty(0f)
+                .Max();
+        }
+
+        private static float EffectiveAlpha(Graphic graphic, RectTransform hotspot)
+        {
+            if (graphic == null || !graphic.enabled || !graphic.gameObject.activeInHierarchy)
+                return 0f;
+
+            float alpha = graphic.color.a;
+            Transform current = graphic.transform;
+            while (current != null)
+            {
+                CanvasGroup group = current.GetComponent<CanvasGroup>();
+                if (group != null) alpha *= group.alpha;
+                if (current == hotspot) break;
+                current = current.parent;
+            }
+            return alpha;
         }
 
         private static void AssertLatestReferenceBounds(RectTransform safe, RectTransform navigation,

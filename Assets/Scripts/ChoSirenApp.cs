@@ -264,6 +264,7 @@ namespace ChoSiren
             teamLevelText.resizeTextMaxSize = 13;
             teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
             AddReadableShadow(teamLevelText);
+            AttachLobbyHotspotFeedback(profile, LobbyHotspotFeedback.VisualKind.Profile);
 
             // Currency pills keep the v1 quiet-glass plate so presses still tint; the
             // baked pill art sits on a non-raycast VisualV2 child. Hit rects are trimmed
@@ -299,6 +300,7 @@ namespace ChoSiren
                 AiUiSprite("Art/LobbyPunk/lobby-settings-punk-v2"));
             PlaceTop(settingsVisual.GetComponent<RectTransform>(), 0f, 0f, 67f, 80f);
             settingsVisual.transform.SetAsFirstSibling();
+            AttachLobbyHotspotFeedback(settings, LobbyHotspotFeedback.VisualKind.Settings);
 
             // The v2 reference top bar has no inbox entry. The button stays built but
             // inactive so the inbox feature code remains wired for future placement.
@@ -315,6 +317,25 @@ namespace ChoSiren
             navHighlights.Clear();
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
             string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            bool goldenLobby = currentScreen == "lobby";
+            Rect[] goldenHitRects038 =
+            {
+                new Rect(18f, 1328f, 132f, 143f),
+                new Rect(161f, 1343f, 118f, 128f),
+                new Rect(280f, 1337f, 142f, 149f),
+                new Rect(424f, 1343f, 125f, 128f),
+                new Rect(554f, 1326f, 147f, 148f),
+            };
+
+            // The 0.3.8 golden is uniformly contained in the full 720x1536 SafeArea.
+            // Its five painted destinations are deliberately not an equal-width grid,
+            // so lobby input follows their measured screen-space bounds exactly while
+            // the transparent navigation parent remains confined to the bottom strip.
+            navRoot.anchorMin = new Vector2(0f, 0f);
+            navRoot.anchorMax = new Vector2(1f, 0f);
+            navRoot.pivot = new Vector2(0.5f, 0f);
+            navRoot.offsetMin = new Vector2(12f, 34f);
+            navRoot.offsetMax = new Vector2(-12f, 218f);
             // v2 bakes icon + label into one PNG per destination. The shared visual strip
             // is [17,1329,684,168] on screen, i.e. (5,11,136.8,168) per item inside navRoot.
             string[] navArt =
@@ -337,10 +358,18 @@ namespace ChoSiren
                 bool selected = currentScreen == ids[index];
                 GameObject buttonObject = NewImage($"Nav-{ids[index]}", navRoot, null, Color.clear);
                 RectTransform rect = buttonObject.GetComponent<RectTransform>();
-                rect.anchorMin = new Vector2(index / 5f, 0);
-                rect.anchorMax = new Vector2((index + 1) / 5f, 1);
-                rect.offsetMin = new Vector2(3, 4);
-                rect.offsetMax = new Vector2(-3, -4);
+                if (goldenLobby)
+                {
+                    Rect hit = goldenHitRects038[index];
+                    PlaceTop(rect, hit.x - 12f, hit.y - 1318f, hit.width, hit.height);
+                }
+                else
+                {
+                    rect.anchorMin = new Vector2(index / 5f, 0);
+                    rect.anchorMax = new Vector2((index + 1) / 5f, 1);
+                    rect.offsetMin = new Vector2(3, 4);
+                    rect.offsetMax = new Vector2(-3, -4);
+                }
                 Image buttonGraphic = buttonObject.GetComponent<Image>();
                 buttonGraphic.raycastTarget = true;
                 Button button = buttonObject.AddComponent<Button>();
@@ -351,7 +380,6 @@ namespace ChoSiren
                     ResumeMediaAfterUserGesture();
                 });
 
-                bool goldenLobby = currentScreen == "lobby";
                 Sprite art = goldenLobby ? null : AiUiSprite(navArt[index]);
                 if (!goldenLobby && art != null)
                 {
@@ -394,6 +422,8 @@ namespace ChoSiren
                 highlightRect.offsetMin = new Vector2(0, 2);
                 highlightRect.offsetMax = new Vector2(0, 7);
                 navHighlights.Add(highlight.GetComponent<Image>());
+                if (goldenLobby)
+                    AttachLobbyHotspotFeedback(buttonObject, LobbyHotspotFeedback.VisualKind.Navigation);
             }
         }
 
@@ -2143,6 +2173,10 @@ namespace ChoSiren
                 ResumeMediaAfterUserGesture();
                 gameAudio?.PlayClick();
             });
+            Sprite plusFeedbackSprite = AiUiSprite(
+                "Art/LobbyPunk/038/lobby-resource-plus-" + currency + "-038");
+            AttachLobbyHotspotFeedback(plus, LobbyHotspotFeedback.VisualKind.CurrencyPlus,
+                plusFeedbackSprite);
             return value;
         }
 
@@ -2162,6 +2196,11 @@ namespace ChoSiren
             foreach (Text text in topBar.GetComponentsInChildren<Text>(true))
             {
                 text.enabled = !active;
+            }
+            foreach (LobbyHotspotFeedback feedback in
+                     topBar.GetComponentsInChildren<LobbyHotspotFeedback>(true))
+            {
+                feedback.enabled = active;
             }
         }
 

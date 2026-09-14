@@ -86,7 +86,21 @@ namespace ChoSiren
                 ResumeMediaAfterUserGesture();
                 gameAudio?.PlayClick();
             });
+            AttachLobbyHotspotFeedback(hotspot,
+                objectName == "LiveOnStage"
+                    ? LobbyHotspotFeedback.VisualKind.CallToAction
+                    : LobbyHotspotFeedback.VisualKind.Entry);
             layout.Add(rect, spec, fallback, false);
+        }
+
+        private static void AttachLobbyHotspotFeedback(GameObject hotspot,
+            LobbyHotspotFeedback.VisualKind visualKind, Sprite glyph = null)
+        {
+            if (hotspot.GetComponent<ButtonInteractionFeedback>() == null)
+                hotspot.AddComponent<ButtonInteractionFeedback>();
+            LobbyHotspotFeedback feedback = hotspot.GetComponent<LobbyHotspotFeedback>() ??
+                                              hotspot.AddComponent<LobbyHotspotFeedback>();
+            feedback.Configure(visualKind, glyph);
         }
 
         private void BuildPunkLobbyLogo(Transform parent, LobbyPunkResponsiveLayout layout)
