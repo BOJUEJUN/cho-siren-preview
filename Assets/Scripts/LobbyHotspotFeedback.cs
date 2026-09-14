@@ -47,6 +47,23 @@ namespace ChoSiren
             ResetImmediately();
         }
 
+        /// <summary>
+        /// Positions navigation feedback in the approved 0.3.8 artwork coordinate space.
+        /// The input rectangle deliberately remains larger and must never drive the
+        /// underline's visual center or baseline.
+        /// </summary>
+        public void ConfigureNavigationVisual(float centerFromLeft, float baselineFromTop, float width)
+        {
+            if (kind != VisualKind.Navigation || accent == null) return;
+
+            RectTransform rect = accent.rectTransform;
+            rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = new Vector2(centerFromLeft, -baselineFromTop);
+            rect.sizeDelta = new Vector2(width, 8f);
+            accent.SetVerticesDirty();
+        }
+
         private void OnEnable()
         {
             hovered = false;
@@ -224,7 +241,7 @@ namespace ChoSiren
             {
                 VisualKind.Entry => 1.012f,
                 VisualKind.CallToAction => 1.018f,
-                VisualKind.Navigation => 1.025f,
+                VisualKind.Navigation => 1f,
                 VisualKind.CurrencyPlus => 1.16f,
                 VisualKind.Profile => 1.04f,
                 VisualKind.Settings => 1.06f,
@@ -238,7 +255,7 @@ namespace ChoSiren
             {
                 VisualKind.Entry => 0.965f,
                 VisualKind.CallToAction => 0.95f,
-                VisualKind.Navigation => 0.92f,
+                VisualKind.Navigation => 1f,
                 VisualKind.CurrencyPlus => 0.78f,
                 VisualKind.Profile => 0.90f,
                 VisualKind.Settings => 0.86f,
@@ -342,8 +359,9 @@ namespace ChoSiren
 
         private void DrawNavigation(VertexHelper vh, Rect rect)
         {
-            float width = rect.width * Mathf.Lerp(0.34f, 0.64f, 0.5f + 0.5f * Mathf.Sin(phase * Mathf.PI * 2f));
-            float y = rect.yMin + Mathf.Clamp(rect.height * 0.08f, 7f, 13f);
+            float width = rect.width * Mathf.Lerp(0.62f, 0.94f,
+                0.5f + 0.5f * Mathf.Sin(phase * Mathf.PI * 2f));
+            float y = rect.center.y;
             Color32 cyan = new Color32(121, 226, 255, 245);
             AddLine(vh, new Vector2(rect.center.x - width * 0.5f, y),
                 new Vector2(rect.center.x + width * 0.5f, y), 2.5f, cyan);

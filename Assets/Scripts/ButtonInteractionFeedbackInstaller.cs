@@ -32,7 +32,8 @@ namespace ChoSiren
             for (int index = 0; index < buttons.Length; index++)
             {
                 Button candidate = buttons[index];
-                if (candidate == null || candidate.GetComponent<ButtonInteractionFeedback>() != null) continue;
+                if (candidate == null || candidate.GetComponent<ButtonInteractionFeedback>() != null ||
+                    candidate.GetComponent<LobbyHotspotFeedback>() != null) continue;
                 candidate.gameObject.AddComponent<ButtonInteractionFeedback>();
                 installed++;
             }

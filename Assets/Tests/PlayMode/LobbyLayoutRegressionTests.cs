@@ -30,6 +30,13 @@ namespace ChoSiren.Tests
             new Rect(554f, 1326f, 147f, 148f),
         };
 
+        private static readonly float[] LobbyNavLabelCenters038 =
+        {
+            84.63f, 212.67f, 347.28f, 479.27f, 602.05f,
+        };
+
+        private const float LobbyNavUnderlineBaseline038 = 1473.09f;
+
         [UnitySetUp]
         public IEnumerator SetUp()
         {
@@ -784,6 +791,61 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
+        public IEnumerator BottomNavigationKeepsMeasuredLayoutAndFeedbackAnchorsAcrossPages()
+        {
+            string[] ids = { "team", "members", "lobby", "accessory", "audition" };
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            scaler.enabled = false;
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            canvasRect.anchorMin = canvasRect.anchorMax = new Vector2(.5f, .5f);
+            canvasRect.pivot = new Vector2(.5f, .5f);
+            canvasRect.sizeDelta = new Vector2(720f, 1536f);
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
+            RectTransform safe = RequireRect("SafeArea");
+            string[] destinations = { "members", "team", "accessory", "lobby", "audition" };
+            foreach (string destination in destinations)
+            {
+                RequireButtonRect("Nav-" + destination).GetComponent<Button>().onClick.Invoke();
+                Canvas.ForceUpdateCanvases();
+                yield return null;
+
+                for (int index = 0; index < ids.Length; index++)
+                {
+                    RectTransform button = RequireButtonRect("Nav-" + ids[index]);
+                    Rect expected = LobbyNavHitBounds038[index];
+                    AssertTopLeftBounds(safe, button, expected.x, expected.y,
+                        expected.width, expected.height, 1f,
+                        destination + " 页面底栏 " + ids[index]);
+                    Assert.That(button.GetComponent<ButtonInteractionFeedback>(), Is.Null,
+                        ids[index] + " 不得缩放输入热区并拖动反馈线。 ");
+
+                    RectTransform underline = button.Find("InteractionFx/HoverUnderline") as RectTransform;
+                    Assert.That(underline, Is.Not.Null, ids[index] + " 缺少独立导航反馈锚点。 ");
+                    Rect underlineRect = RectRelativeTo(safe, underline);
+                    float screenCenterX = underlineRect.center.x - safe.rect.xMin;
+                    float screenCenterY = safe.rect.yMax - underlineRect.center.y;
+                    Assert.That(screenCenterX, Is.EqualTo(LobbyNavLabelCenters038[index]).Within(1f),
+                        ids[index] + " 的反馈线必须对齐底图中文标签中心。 ");
+                    Assert.That(screenCenterY, Is.EqualTo(LobbyNavUnderlineBaseline038).Within(1f),
+                        ids[index] + " 的反馈线必须和大厅选中光条共用基线。 ");
+
+                    if (destination != "lobby")
+                    {
+                        Image visual = button.GetComponentsInChildren<Image>(true)
+                            .FirstOrDefault(image => image.name.EndsWith("VisualV2"));
+                        Assert.That(visual, Is.Not.Null, ids[index] + " 非大厅导航缺少视觉素材。 ");
+                        Assert.That(visual.preserveAspect, Is.True,
+                            ids[index] + " 导航素材必须保持原比例，不能随热区拉伸。 ");
+                    }
+                }
+            }
+        }
+
+        [UnityTest]
         public IEnumerator LobbyCompositionFitsReferenceTallAndCompactPortraitViewports()
         {
             Canvas canvas = Object.FindAnyObjectByType<Canvas>();
@@ -863,6 +925,10 @@ namespace ChoSiren.Tests
                 "PracticeRoom",
                 "CurrencyPlus-diamond",
                 "Nav-team",
+                "Nav-members",
+                "Nav-lobby",
+                "Nav-accessory",
+                "Nav-audition",
                 "Settings",
             };
 
@@ -898,6 +964,9 @@ namespace ChoSiren.Tests
         {
             RectTransform hotspot = RequireButtonRect(hotspotName);
             Button button = hotspot.GetComponent<Button>();
+            Vector2 originalPosition = hotspot.anchoredPosition;
+            Vector2 originalSize = hotspot.sizeDelta;
+            Vector3 originalScale = hotspot.localScale;
             Graphic[] decorations = hotspot.GetComponentsInChildren<Graphic>(true)
                 .Where(graphic => graphic != button.targetGraphic)
                 .ToArray();
@@ -941,6 +1010,12 @@ namespace ChoSiren.Tests
                 $"{hotspotName} pointer exit 后必须恢复完全透明，保持静止画面 1:1。");
             Assert.That(button.IsInteractable(), Is.True,
                 $"{hotspotName} 动画结束后必须保留原 Button 点击链。");
+            Assert.That(hotspot.anchoredPosition, Is.EqualTo(originalPosition),
+                $"{hotspotName} 的输入区域不能被反馈动画移动。");
+            Assert.That(hotspot.sizeDelta, Is.EqualTo(originalSize),
+                $"{hotspotName} 的输入区域不能被反馈动画改尺寸。");
+            Assert.That(hotspot.localScale, Is.EqualTo(originalScale),
+                $"{hotspotName} 的输入区域不能被反馈动画缩放。");
         }
 
         private struct FeedbackVisualState

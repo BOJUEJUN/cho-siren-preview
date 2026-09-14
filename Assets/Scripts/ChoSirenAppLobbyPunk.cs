@@ -96,8 +96,6 @@ namespace ChoSiren
         private static void AttachLobbyHotspotFeedback(GameObject hotspot,
             LobbyHotspotFeedback.VisualKind visualKind, Sprite glyph = null)
         {
-            if (hotspot.GetComponent<ButtonInteractionFeedback>() == null)
-                hotspot.AddComponent<ButtonInteractionFeedback>();
             LobbyHotspotFeedback feedback = hotspot.GetComponent<LobbyHotspotFeedback>() ??
                                               hotspot.AddComponent<LobbyHotspotFeedback>();
             feedback.Configure(visualKind, glyph);

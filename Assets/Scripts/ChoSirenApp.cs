@@ -326,6 +326,9 @@ namespace ChoSiren
                 new Rect(424f, 1343f, 125f, 128f),
                 new Rect(554f, 1326f, 147f, 148f),
             };
+            float[] goldenLabelCenters038 = { 84.63f, 212.67f, 347.28f, 479.27f, 602.05f };
+            const float goldenUnderlineBaseline038 = 1473.09f;
+            const float goldenUnderlineWidth038 = 87.7f;
 
             // The 0.3.8 golden is uniformly contained in the full 720x1536 SafeArea.
             // Its five painted destinations are deliberately not an equal-width grid,
@@ -358,18 +361,8 @@ namespace ChoSiren
                 bool selected = currentScreen == ids[index];
                 GameObject buttonObject = NewImage($"Nav-{ids[index]}", navRoot, null, Color.clear);
                 RectTransform rect = buttonObject.GetComponent<RectTransform>();
-                if (goldenLobby)
-                {
-                    Rect hit = goldenHitRects038[index];
-                    PlaceTop(rect, hit.x - 12f, hit.y - 1318f, hit.width, hit.height);
-                }
-                else
-                {
-                    rect.anchorMin = new Vector2(index / 5f, 0);
-                    rect.anchorMax = new Vector2((index + 1) / 5f, 1);
-                    rect.offsetMin = new Vector2(3, 4);
-                    rect.offsetMax = new Vector2(-3, -4);
-                }
+                Rect hit = goldenHitRects038[index];
+                PlaceTop(rect, hit.x - 12f, hit.y - 1318f, hit.width, hit.height);
                 Image buttonGraphic = buttonObject.GetComponent<Image>();
                 buttonGraphic.raycastTarget = true;
                 Button button = buttonObject.AddComponent<Button>();
@@ -384,7 +377,8 @@ namespace ChoSiren
                 if (!goldenLobby && art != null)
                 {
                     GameObject visual = NewVisualV2(navVisualNames[index], buttonObject.transform, art);
-                    PlaceTop(visual.GetComponent<RectTransform>(), 2f - 2.4f * index, 7f, 136.8f, 168f);
+                    Stretch(visual.GetComponent<RectTransform>());
+                    visual.GetComponent<Image>().preserveAspect = true;
                     visual.transform.SetAsFirstSibling();
                 }
                 else if (!goldenLobby)
@@ -422,8 +416,12 @@ namespace ChoSiren
                 highlightRect.offsetMin = new Vector2(0, 2);
                 highlightRect.offsetMax = new Vector2(0, 7);
                 navHighlights.Add(highlight.GetComponent<Image>());
-                if (goldenLobby)
-                    AttachLobbyHotspotFeedback(buttonObject, LobbyHotspotFeedback.VisualKind.Navigation);
+                AttachLobbyHotspotFeedback(buttonObject, LobbyHotspotFeedback.VisualKind.Navigation);
+                LobbyHotspotFeedback navFeedback = buttonObject.GetComponent<LobbyHotspotFeedback>();
+                navFeedback.ConfigureNavigationVisual(
+                    goldenLabelCenters038[index] - hit.x,
+                    goldenUnderlineBaseline038 - hit.y,
+                    goldenUnderlineWidth038);
             }
         }
 
