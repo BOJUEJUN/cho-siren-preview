@@ -1,17 +1,19 @@
 {
   "version": "0.3.8",
-  "name": "首页可见交互动画与底栏热区修复",
+  "name": "底栏五项跨页面对齐与动画基线修复",
   "date": "2026-09-15",
-  "sourceCommit": "05538eb",
+  "sourceCommit": "a56de6b",
   "buildDirectory": "Builds/WebGL",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "e6814e7",
+  "previousWebCommit": "e44dc70",
   "savePolicy": "保留现有存档；新增经纪经营字段由 Normalize 自动迁移，旧档不追缴任何月薪",
   "validation": {
-    "unityTestsPlayMode": 141,
-    "unityTestsPlayModePassed": 141,
+    "unityTestsPlayMode": 142,
+    "unityTestsPlayModePassed": 142,
     "visibleHoverHotspots": 14,
     "bottomNavigationMeasuredHitAreas": 5,
+    "bottomNavigationPagesAligned": 5,
+    "bottomNavigationSharedUnderlineBaseline": true,
     "referencePixelsChangedAtRest": 0
   }
 }
