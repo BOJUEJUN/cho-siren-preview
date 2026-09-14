@@ -1,17 +1,15 @@
 {
   "version": "0.3.8",
-  "name": "测试全绿与经纪经营",
-  "date": "2026-09-10",
-  "sourceCommit": "20df8c8",
-  "buildDirectory": "WebGL-green-tests-career-v038",
-  "previousVersion": "0.3.7",
-  "previousWebCommit": "9f552fb",
+  "name": "最新参考首页 1:1 复刻",
+  "date": "2026-09-14",
+  "sourceCommit": "e0abe2e",
+  "buildDirectory": "Builds/WebGL",
+  "previousVersion": "0.3.8",
+  "previousWebCommit": "4faee7d",
   "savePolicy": "保留现有存档；新增经纪经营字段由 Normalize 自动迁移，旧档不追缴任何月薪",
   "validation": {
-    "unityTestsEditMode": 455,
-    "unityTestsPlayMode": 133,
-    "playModeBaselineFixed": 10,
-    "careerEconomyTests": 13,
-    "webTests": 12
+    "unityTestsPlayMode": 141,
+    "unityTestsPlayModePassed": 141,
+    "referencePixelsChangedOutsideRequestedEdits": 0
   }
 }
