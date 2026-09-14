@@ -1,0 +1,59 @@
+{
+  "version": "038",
+  "reference": {
+    "width": 821,
+    "height": 1746,
+    "origin": "top-left",
+    "sha256": "1b3c0bff0a1ef499fb9a06c8dc2f7d915577348ccc5087591b3338bb7e315552",
+    "croppedTopPixels": 7
+  },
+  "coordinateSpace": {
+    "width": 821,
+    "height": 1739,
+    "origin": "top-left of cropped base",
+    "referenceYOffset": 7
+  },
+  "base": {
+    "asset": "lobby-home-base-038.png",
+    "width": 821,
+    "height": 1739,
+    "preserveAspect": true,
+    "scaleMode": "uniform-contain",
+    "sha256": "10d1c7e98f85547301b83963bc376a024991897a4485c7fa0de144254775bfe0",
+    "allowedPixelChanges": "The source reference top 7 pixels are cropped. After that offset, only the five bottom English-label rectangles listed below differ."
+  },
+  "bottomEnglishRemovalRects": [
+    { "label": "TEAM", "x": 76, "y": 1656, "width": 42, "height": 14 },
+    { "label": "MEMBER", "x": 214, "y": 1656, "width": 57, "height": 14 },
+    { "label": "LOBBY", "x": 371, "y": 1655, "width": 48, "height": 15 },
+    { "label": "ACCESSORY", "x": 511, "y": 1656, "width": 93, "height": 14 },
+    { "label": "AUDITION", "x": 658, "y": 1665, "width": 72, "height": 15 }
+  ],
+  "resourcePlusButtons": [
+    {
+      "id": "diamond",
+      "visualBounds": { "x": 366, "y": 48, "width": 8, "height": 9 },
+      "recommendedHitRect": { "x": 350, "y": 32, "width": 42, "height": 48 },
+      "optionalRgbaSprite": "lobby-resource-plus-diamond-038.png",
+      "spriteSourceRect": { "x": 364, "y": 46, "width": 12, "height": 13 }
+    },
+    {
+      "id": "gold",
+      "visualBounds": { "x": 532, "y": 50, "width": 8, "height": 8 },
+      "recommendedHitRect": { "x": 520, "y": 33, "width": 38, "height": 48 },
+      "optionalRgbaSprite": "lobby-resource-plus-gold-038.png",
+      "spriteSourceRect": { "x": 530, "y": 48, "width": 12, "height": 12 }
+    },
+    {
+      "id": "stamina",
+      "visualBounds": { "x": 688, "y": 49, "width": 17, "height": 10 },
+      "recommendedHitRect": { "x": 677, "y": 33, "width": 42, "height": 49 },
+      "optionalRgbaSprite": "lobby-resource-plus-stamina-038.png",
+      "spriteSourceRect": { "x": 686, "y": 48, "width": 20, "height": 12 }
+    }
+  ],
+  "integration": {
+    "preferred": "Render the 821 x 1739 base once at its cropped effective aspect ratio and place three transparent raycast Buttons over recommendedHitRect. The visible plus signs remain in the base. The source reference top 7-pixel white strip is intentionally omitted because the WebGL page supplies it.",
+    "avoid": "Do not redraw the header, resource bars, logo, entries, character, START LIVE frame or bottom labels with runtime fonts or replacement UI."
+  }
+}

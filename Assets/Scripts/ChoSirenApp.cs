@@ -213,20 +213,22 @@ namespace ChoSiren
 
         private void BuildTopBar()
         {
-            // v2 reference: group [8,10,699,88] in the 720x1536 screen.
+            // 0.3.8 reference: the interaction layer follows the approved 720x1536
+            // artwork exactly. Visuals are hidden on the lobby because the golden
+            // image already contains the complete header without stretching.
             GameObject bar = NewImage("TopBar", safeRoot, null, Color.clear);
             RectTransform barRect = bar.GetComponent<RectTransform>();
             barRect.anchorMin = new Vector2(0, 1);
-            barRect.anchorMax = Vector2.one;
+            barRect.anchorMax = new Vector2(1, 1);
             barRect.pivot = new Vector2(0.5f, 1);
-            barRect.offsetMin = new Vector2(8, -98);
-            barRect.offsetMax = new Vector2(-13, -10);
+            barRect.offsetMin = new Vector2(0, -100);
+            barRect.offsetMax = Vector2.zero;
 
             // Profile hit [8,10,185,88]: baked header art plus the realtime avatar,
             // name and power layers on top.
             GameObject profile = NewImage("Profile", bar.transform, null, Color.clear);
             RectTransform profileRect = profile.GetComponent<RectTransform>();
-            PlaceTop(profileRect, 0f, 0f, 185f, 88f);
+            PlaceTop(profileRect, 7f, 10f, 194f, 90f);
             Image profileHit = profile.GetComponent<Image>();
             profileHit.raycastTarget = true;
             Button profileButton = profile.AddComponent<Button>();
@@ -249,7 +251,7 @@ namespace ChoSiren
             GameObject avatar = NewImage("Avatar", avatarMask.transform,
                 AiUiSprite("Art/ProfileAvatarUser") ?? Resources.Load<Sprite>("Art/ProfileAvatar"), White);
             Stretch(avatar.GetComponent<RectTransform>());
-            avatar.GetComponent<Image>().preserveAspect = false;
+            avatar.GetComponent<Image>().preserveAspect = true;
 
             Text name = NewText("PlayerName", profile.transform, "音律少女", 17, White, FontStyle.Bold, TextAnchor.MiddleLeft);
             PlaceTop(name.rectTransform, 72f, 14f, 106f, 26f);
@@ -269,20 +271,20 @@ namespace ChoSiren
             diamondText = BuildResourcePill(bar.transform, CurrencyIds.Diamond, "DiamondIcon", "Diamonds",
                 "Art/LobbyPunk/lobby-resource-diamond-punk-v2", "DiamondVisualV2",
                 "Art/UI/ResourceDiamond-C",
-                new Rect(202f, 7f, 139f, 55f), new Rect(202f, 7f, 139f, 55f), Cyan);
+                new Rect(209f, 20f, 137f, 53f), new Rect(209f, 20f, 137f, 53f), Cyan);
             goldText = BuildResourcePill(bar.transform, CurrencyIds.Gold, "GoldIcon", "Gold",
                 "Art/LobbyPunk/lobby-resource-gold-punk-v2", "GoldVisualV2",
                 "Art/UI/ResourceGold-C",
-                new Rect(344f, 7f, 141f, 54f), new Rect(344f, 7f, 141f, 54f),
+                new Rect(356f, 21f, 141f, 52f), new Rect(356f, 21f, 141f, 52f),
                 new Color32(255, 219, 126, 255));
             staminaText = BuildResourcePill(bar.transform, CurrencyIds.Stamina, "StaminaIcon", "Stamina",
                 "Art/LobbyPunk/lobby-resource-stamina-punk-v2", "StaminaVisualV2",
                 "Art/UI/ResourceStamina-C",
-                new Rect(485f, 4f, 142f, 59f), new Rect(475f, 4f, 152f, 59f),
+                new Rect(498f, 20f, 140f, 55f), new Rect(498f, 20f, 140f, 55f),
                 new Color32(255, 151, 211, 255));
 
             GameObject settings = NewImage("Settings", bar.transform, null, Color.clear);
-            PlaceTop(settings.GetComponent<RectTransform>(), 627f, 3f, 69f, 70f);
+            PlaceTop(settings.GetComponent<RectTransform>(), 640f, 7f, 67f, 80f);
             Image settingsHit = settings.GetComponent<Image>();
             settingsHit.raycastTarget = true;
             Button settingsButton = settings.AddComponent<Button>();
@@ -295,7 +297,7 @@ namespace ChoSiren
             });
             GameObject settingsVisual = NewVisualV2("SettingsVisualV2", settings.transform,
                 AiUiSprite("Art/LobbyPunk/lobby-settings-punk-v2"));
-            PlaceTop(settingsVisual.GetComponent<RectTransform>(), -1f, 0f, 70f, 73f);
+            PlaceTop(settingsVisual.GetComponent<RectTransform>(), 0f, 0f, 67f, 80f);
             settingsVisual.transform.SetAsFirstSibling();
 
             // The v2 reference top bar has no inbox entry. The button stays built but
@@ -349,14 +351,15 @@ namespace ChoSiren
                     ResumeMediaAfterUserGesture();
                 });
 
-                Sprite art = AiUiSprite(navArt[index]);
-                if (art != null)
+                bool goldenLobby = currentScreen == "lobby";
+                Sprite art = goldenLobby ? null : AiUiSprite(navArt[index]);
+                if (!goldenLobby && art != null)
                 {
                     GameObject visual = NewVisualV2(navVisualNames[index], buttonObject.transform, art);
                     PlaceTop(visual.GetComponent<RectTransform>(), 2f - 2.4f * index, 7f, 136.8f, 168f);
                     visual.transform.SetAsFirstSibling();
                 }
-                else
+                else if (!goldenLobby)
                 {
                     GameObject icon = NewImage("Icon", buttonObject.transform, NavIconSprite(index),
                         selected ? White : new Color32(197, 183, 218, 215));
@@ -372,7 +375,9 @@ namespace ChoSiren
 
                 // Labels are baked into the nav art; keep the live node transparent for
                 // accessibility/tests once the baked strip is present.
-                Color labelColor = art != null
+                Color labelColor = goldenLobby
+                    ? new Color(1f, 1f, 1f, 0f)
+                    : art != null
                     ? new Color(1f, 1f, 1f, 0f)
                     : selected ? White : Muted;
                 Text label = NewText("Label", buttonObject.transform, labels[index], selected ? 17 : 16,
@@ -382,6 +387,7 @@ namespace ChoSiren
 
                 GameObject highlight = NewImage("Highlight", buttonObject.transform, null,
                     selected ? Pink : Color.clear);
+                highlight.GetComponent<Image>().enabled = !goldenLobby;
                 RectTransform highlightRect = highlight.GetComponent<RectTransform>();
                 highlightRect.anchorMin = new Vector2(0.3f, 0);
                 highlightRect.anchorMax = new Vector2(0.7f, 0);
@@ -395,6 +401,9 @@ namespace ChoSiren
         {
             model.RefreshDailyState();
             currentScreen = screen;
+            GameObject previousGolden = GameObject.Find("LobbyHomeGolden038");
+            if (previousGolden != null) Destroy(previousGolden);
+            SetGoldenLobbyShell(screen == "lobby");
             if (screen != "lobby" && lobbyVideoObject != null)
             {
                 lobbyVideoPlayer?.PauseLoop();
@@ -2083,18 +2092,10 @@ namespace ChoSiren
             string visualPath, string visualName, string fallbackIconPath,
             Rect hitRect, Rect visualRect, Color tint)
         {
-            GameObject pill = NewPanel("Currency-" + currency, parent, new Color32(16, 22, 48, 150), 16);
+            GameObject pill = NewPanel("Currency-" + currency, parent, Color.clear, 16);
             PlaceTop(pill.GetComponent<RectTransform>(), hitRect.x, hitRect.y, hitRect.width, hitRect.height);
             Image plate = pill.GetComponent<Image>();
-            plate.raycastTarget = true;
-            Button button = pill.AddComponent<Button>();
-            button.targetGraphic = plate;
-            button.onClick.AddListener(() =>
-            {
-                OpenCurrency(currency);
-                ResumeMediaAfterUserGesture();
-                gameAudio?.PlayClick();
-            });
+            plate.raycastTarget = false;
 
             Sprite art = AiUiSprite(visualPath);
             GameObject visual = NewVisualV2(visualName, pill.transform, art);
@@ -2121,12 +2122,47 @@ namespace ChoSiren
                 Mathf.Min(85f, hitRect.width - 56f), 30f);
             ConfigureHudNumber(value);
             value.raycastTarget = false;
-            ColorBlock feedback = button.colors;
-            feedback.highlightedColor = new Color(1.3f, 1.3f, 1.4f, 1);
-            feedback.pressedColor = new Color(.75f, .8f, .9f, 1);
-            feedback.fadeDuration = .12f;
-            button.colors = feedback;
+            Rect absolutePlus;
+            if (currency == CurrencyIds.Diamond)
+                absolutePlus = new Rect(306.9f, 36.6f, 36.8f, 42.1f);
+            else if (currency == CurrencyIds.Gold)
+                absolutePlus = new Rect(456f, 37.5f, 33.3f, 42.1f);
+            else
+                absolutePlus = new Rect(593.7f, 37.5f, 36.8f, 43f);
+
+            GameObject plus = NewImage("CurrencyPlus-" + currency, parent, null, Color.clear);
+            PlaceTop(plus.GetComponent<RectTransform>(), absolutePlus.x,
+                absolutePlus.y, absolutePlus.width, absolutePlus.height);
+            Image plusHit = plus.GetComponent<Image>();
+            plusHit.raycastTarget = true;
+            Button plusButton = plus.AddComponent<Button>();
+            plusButton.targetGraphic = plusHit;
+            plusButton.onClick.AddListener(() =>
+            {
+                OpenCurrency(currency);
+                ResumeMediaAfterUserGesture();
+                gameAudio?.PlayClick();
+            });
             return value;
+        }
+
+        private void SetGoldenLobbyShell(bool active)
+        {
+            GameObject background = GameObject.Find("Background");
+            if (background != null) background.SetActive(!active);
+
+            GameObject topBar = GameObject.Find("TopBar");
+            if (topBar == null) return;
+            foreach (Transform child in topBar.GetComponentsInChildren<Transform>(true))
+            {
+                if (child == topBar.transform) continue;
+                if (child.name.EndsWith("VisualV2") || child.name == "AvatarMask")
+                    child.gameObject.SetActive(!active);
+            }
+            foreach (Text text in topBar.GetComponentsInChildren<Text>(true))
+            {
+                text.enabled = !active;
+            }
         }
 
         /// <summary>Full-bleed baked artwork node. Always raycastTarget=false so the

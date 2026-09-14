@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Systems.Presentation;
 using NUnit.Framework;
@@ -49,11 +50,16 @@ namespace ChoSiren.Tests
                 Assert.That(left, Is.GreaterThanOrEqualTo(previousRight - 0.5f),
                     "顶部完整资源信息块、邮件与设置不得重叠。");
                 previousRight = left + rect.rect.width;
-                Assert.That(group.GetComponent<Button>()?.IsInteractable(), Is.True);
-                if (!name.StartsWith("Currency-")) continue;
-                Assert.That(GameObject.Find(name.Replace("Currency-", "CurrencyPlus-")), Is.Null,
-                    "资源信息块直接可点，不再显示额外加号。");
-                Assert.That(group.GetComponent<Image>().color.a, Is.InRange(.3f, .7f));
+                if (!name.StartsWith("Currency-"))
+                {
+                    Assert.That(group.GetComponent<Button>()?.IsInteractable(), Is.True);
+                    continue;
+                }
+                GameObject plus = Require(name.Replace("Currency-", "CurrencyPlus-"));
+                Assert.That(plus.GetComponent<Button>()?.IsInteractable(), Is.True,
+                    name + " 必须提供独立可点击的加号。");
+                Assert.That(plus.GetComponent<Button>()?.targetGraphic?.raycastTarget, Is.True,
+                    name + " 的加号必须独立接收射线。");
                 Assert.That(group.GetComponentsInChildren<Text>().Count(t => !string.IsNullOrEmpty(t.text)), Is.EqualTo(1));
             }
             Assert.That(previousRight, Is.LessThan(Require("TopBar").GetComponent<RectTransform>().rect.width));
@@ -63,12 +69,58 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator LobbyV2ArtworkCoversHeaderTitleAndEveryNavigationDestination()
+        public IEnumerator EveryVisibleLobbySpriteKeepsItsOriginalAspect()
         {
             Canvas canvas = Object.FindAnyObjectByType<Canvas>();
-            Assert.That(canvas, Is.Not.Null, "首页 V2 美术回归需要 Canvas。");
+            Assert.That(canvas, Is.Not.Null);
             CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
-            Assert.That(scaler, Is.Not.Null, "首页 V2 美术回归需要 CanvasScaler。");
+            Assert.That(scaler, Is.Not.Null);
+            canvas.renderMode = RenderMode.WorldSpace;
+            scaler.enabled = false;
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            canvasRect.anchorMin = canvasRect.anchorMax = canvasRect.pivot = new Vector2(.5f, .5f);
+            canvasRect.sizeDelta = new Vector2(720f, 1536f);
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
+            UnityEngine.UI.Image[] visibleImages = Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
+                .Where(image => image.sprite != null && image.canvas == canvas && image.color.a > .001f)
+                .ToArray();
+            Assert.That(visibleImages, Is.Not.Empty, "首页必须显示已导入的正式图片素材。");
+
+            var stretched = new List<string>();
+            foreach (UnityEngine.UI.Image image in visibleImages)
+            {
+                if (image.type == UnityEngine.UI.Image.Type.Sliced ||
+                    image.type == UnityEngine.UI.Image.Type.Tiled) continue;
+                Mask hiddenMask = image.GetComponent<Mask>();
+                if (hiddenMask != null && !hiddenMask.showMaskGraphic) continue;
+
+                AspectRatioFitter fitter = image.GetComponent<AspectRatioFitter>();
+                bool fitted = fitter != null && fitter.enabled &&
+                              fitter.aspectMode != AspectRatioFitter.AspectMode.None;
+                Rect rect = image.rectTransform.rect;
+                Rect spriteRect = image.sprite.rect;
+                bool matchingRect = rect.height > .01f && spriteRect.height > .01f &&
+                                    Mathf.Abs(rect.width / rect.height / (spriteRect.width / spriteRect.height) - 1f) <= .02f;
+                if (!image.preserveAspect && !fitted && !matchingRect)
+                    stretched.Add($"{image.name}（显示 {rect.width / rect.height:F3} / 素材 " +
+                                  $"{spriteRect.width / spriteRect.height:F3}）");
+            }
+
+            Assert.That(stretched, Is.Empty,
+                "以下首页图片会被拉伸（其中应包含纵向压扁的三条货币素材）：\n" +
+                string.Join("\n", stretched) +
+                "\n请启用 preserveAspect、比例适配器，或让显示区域保持素材原比例。");
+        }
+
+        [UnityTest]
+        public IEnumerator LobbyUsesTheApproved038GoldenAsOneAspectSafeImage()
+        {
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            Assert.That(canvas, Is.Not.Null, "首页 0.3.8 美术回归需要 Canvas。");
+            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            Assert.That(scaler, Is.Not.Null, "首页 0.3.8 美术回归需要 CanvasScaler。");
 
             // Fix this test's own viewport instead of inheriting the physical Editor window or
             // a viewport left behind by another test. Lobby responsive layout uses the logical
@@ -84,35 +136,21 @@ namespace ChoSiren.Tests
             Canvas.ForceUpdateCanvases();
             yield return null;
 
-            string[] roots =
-            {
-                "Profile",
-                "Currency-diamond", "Currency-gold", "Currency-stamina",
-                "Settings",
-                "LobbyLogo",
-                "Nav-team", "Nav-members", "Nav-lobby", "Nav-accessory", "Nav-audition",
-            };
-            string[] resources =
-            {
-                "Art/LobbyPunk/lobby-header-profile-punk-v2",
-                "Art/LobbyPunk/lobby-resource-diamond-punk-v2",
-                "Art/LobbyPunk/lobby-resource-gold-punk-v2",
-                "Art/LobbyPunk/lobby-resource-stamina-punk-v2",
-                "Art/LobbyPunk/lobby-settings-punk-v2",
-                "Art/LobbyPunk/lobby-logo-punk-v2",
-                "Art/LobbyPunk/lobby-nav-team-punk-v2",
-                "Art/LobbyPunk/lobby-nav-member-punk-v2",
-                "Art/LobbyPunk/lobby-nav-lobby-punk-v2",
-                "Art/LobbyPunk/lobby-nav-accessory-punk-v2",
-                "Art/LobbyPunk/lobby-nav-audition-punk-v2",
-            };
-            float[] minimumWidths = { 175, 129, 131, 142, 60, 340, 128, 128, 128, 128, 128 };
-            float[] minimumHeights = { 78, 45, 44, 49, 63, 296, 120, 120, 120, 120, 120 };
+            UnityEngine.UI.Image golden = RequireApprovedLobbyGolden();
+            Assert.That(golden.preserveAspect, Is.True,
+                "0.3.8 整图必须等比显示，不能为了铺满 720×1536 而纵向压扁。");
+            Assert.That(golden.raycastTarget, Is.False,
+                "0.3.8 整图是视觉层，不得挡住上方透明点击热区。");
+            Assert.That(golden.rectTransform.rect.width, Is.EqualTo(720f).Within(.5f));
+            Assert.That(golden.rectTransform.rect.height, Is.EqualTo(1536f).Within(.5f));
 
-            for (int index = 0; index < roots.Length; index++)
-                AssertV2Artwork(roots[index], resources[index], minimumWidths[index], minimumHeights[index]);
+            UnityEngine.UI.Image[] visibleLegacyLayers = Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
+                .Where(image => image.name.EndsWith("VisualV2") && image.color.a > .001f)
+                .ToArray();
+            Assert.That(visibleLegacyLayers, Is.Empty,
+                "0.3.8 整图已经包含头像、字体、资源条、入口、CTA 与底栏；旧 V2 分层不得再次叠画造成设计漂移。");
 
-            // Numbers are live game state and must remain updateable even though their frames are authored art.
+            // Named values remain available to gameplay code while the approved golden owns presentation.
             Assert.That(Require("Diamonds").GetComponent<Text>(), Is.Not.Null);
             Assert.That(Require("Gold").GetComponent<Text>(), Is.Not.Null);
             Assert.That(Require("Stamina").GetComponent<Text>(), Is.Not.Null);
@@ -120,11 +158,10 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator LobbyReferenceArtStaysLayeredAndLeavesOnlyActionRootsRaycastable()
+        public IEnumerator LobbyGoldenDoesNotBlockTheTransparentActionHotspots()
         {
-            RawImage video = Require("LobbyVideoBackground").GetComponent<RawImage>();
-            Assert.That(video, Is.Not.Null, "首页必须保留动态角色舞台层。");
-            Assert.That(video.raycastTarget, Is.False, "动态角色舞台不得挡住首页操作。");
+            UnityEngine.UI.Image golden = RequireApprovedLobbyGolden();
+            Assert.That(golden.raycastTarget, Is.False);
 
             Button[] actions =
             {
@@ -133,33 +170,16 @@ namespace ChoSiren.Tests
                 Require("Tasks").GetComponent<Button>(),
                 Require("LiveOnStage").GetComponent<Button>(),
             };
-            string[] resourcePaths =
-            {
-                "Art/LobbyPunk/lobby-practice-punk-v2",
-                "Art/LobbyPunk/lobby-album-punk-v2",
-                "Art/LobbyPunk/lobby-task-punk-v2",
-                "Art/LobbyPunk/lobby-perform-cta-punk-v2",
-            };
             for (int actionIndex = 0; actionIndex < actions.Length; actionIndex++)
             {
                 Button action = actions[actionIndex];
                 Assert.That(action, Is.Not.Null);
-                Image[] artwork = action.GetComponentsInChildren<Image>(true)
-                    .Where(image => image != action.targetGraphic && image.sprite != null &&
-                                    image.name.EndsWith("VisualV2"))
-                    .ToArray();
-                Assert.That(artwork, Is.Not.Empty,
-                    $"{action.name} 必须使用以 VisualV2 结尾的独立整图层，不能回退到旧版拼装卡。");
-                Texture expected = Resources.Load<Sprite>(resourcePaths[actionIndex])?.texture ??
-                                   Resources.Load<Texture2D>(resourcePaths[actionIndex]);
-                Assert.That(expected, Is.Not.Null, "未导入首页正式素材：" + resourcePaths[actionIndex]);
-                Assert.That(artwork.Any(layer => layer.sprite.texture == expected), Is.True,
-                    $"{action.name} 未装配正式素材 {resourcePaths[actionIndex]}。");
-                foreach (Image layer in artwork)
-                {
-                    Assert.That(layer.raycastTarget, Is.False,
-                        $"{action.name}/{layer.name} 的美术层不得抢占点击射线。");
-                }
+                Assert.That(action.IsInteractable(), Is.True, action.name + " 必须可点击。");
+                Assert.That(action.targetGraphic, Is.Not.Null, action.name + " 缺少透明点击图形。");
+                Assert.That(action.targetGraphic.raycastTarget, Is.True,
+                    action.name + " 的透明热区必须接收点击。");
+                Assert.That(action.targetGraphic.color.a, Is.LessThanOrEqualTo(.001f),
+                    action.name + " 点击热区不得覆盖 0.3.8 原图。");
             }
 
             GameObject faceSafeZone = Require("HeroFaceSafeZone");
@@ -346,27 +366,16 @@ namespace ChoSiren.Tests
                 target.name + " 使用了错误或回退素材，应为 " + resourcePath);
         }
 
-        private static void AssertV2Artwork(string rootName, string resourcePath,
-            float minimumWidth, float minimumHeight)
+        private static UnityEngine.UI.Image RequireApprovedLobbyGolden()
         {
-            GameObject root = Require(rootName);
-            RectTransform rootRect = root.GetComponent<RectTransform>();
-            Assert.That(rootRect, Is.Not.Null, rootName + " 缺少 RectTransform。");
-            Assert.That(rootRect.rect.width, Is.GreaterThanOrEqualTo(minimumWidth - .5f),
-                $"{rootName} 宽度不足，无法达到参考图的视觉占比。");
-            Assert.That(rootRect.rect.height, Is.GreaterThanOrEqualTo(minimumHeight - .5f),
-                $"{rootName} 高度不足，无法覆盖完整视觉和点击区域。");
-
-            Texture expected = Resources.Load<Sprite>(resourcePath)?.texture ?? Resources.Load<Texture2D>(resourcePath);
-            Assert.That(expected, Is.Not.Null, "未导入首页 V2 素材：" + resourcePath);
-            Image[] visualLayers = root.GetComponentsInChildren<Image>(true)
-                .Where(image => image.name.EndsWith("VisualV2") && image.sprite != null)
+            const string path = "Art/LobbyPunk/038/lobby-home-base-038";
+            Texture expected = Resources.Load<Sprite>(path)?.texture ?? Resources.Load<Texture2D>(path);
+            Assert.That(expected, Is.Not.Null, "未导入 0.3.8 首页 golden：" + path);
+            UnityEngine.UI.Image[] matches = Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
+                .Where(image => image.sprite != null && image.sprite.texture == expected)
                 .ToArray();
-            Assert.That(visualLayers.Any(image => image.sprite.texture == expected), Is.True,
-                $"{rootName} 未装配 V2 素材 {resourcePath}，或整图节点名未以 VisualV2 结尾。");
-            foreach (Image visual in visualLayers)
-                Assert.That(visual.raycastTarget, Is.False,
-                    $"{rootName}/{visual.name} 是视觉层，不得抢占 {rootName} 的点击射线。");
+            Assert.That(matches.Length, Is.EqualTo(1), "首页必须且只能显示一张 0.3.8 golden 整图。");
+            return matches[0];
         }
 
         private static void Click(string objectName)

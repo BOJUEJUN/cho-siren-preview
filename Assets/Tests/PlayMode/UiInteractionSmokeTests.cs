@@ -257,7 +257,23 @@ namespace ChoSiren.Tests
         {
             var before = new GameModel();
             int gold = before.Save.Gold, diamonds = before.Save.Diamonds;
-            Click("Currency-gold");
+
+            string[] currencies = { "diamond", "gold", "stamina" };
+            string[] expectedTitles = { "星钻", "星光币", "体力" };
+            for (int index = 0; index < currencies.Length; index++)
+            {
+                Click("CurrencyPlus-" + currencies[index]);
+                yield return null;
+                GameObject modal = RequireActiveObject("CurrencyModal");
+                Assert.That(modal.GetComponentsInChildren<Text>(true)
+                        .Any(text => text.name == "Title" && text.text == expectedTitles[index]), Is.True,
+                    $"{expectedTitles[index]}加号必须打开对应资源说明，不能共用错误的点击目标。");
+                Click("CloseProgression");
+                yield return null;
+                AssertInactiveOrMissing("CurrencyModal");
+            }
+
+            Click("CurrencyPlus-gold");
             yield return null;
             Assert.That(RequireActiveObject("CurrencyHelp").GetComponent<Text>().text,
                 Does.Contain("训练成员"));
@@ -816,19 +832,11 @@ namespace ChoSiren.Tests
             {
                 "SSR", "SR", "R", "S", "A", "B", "C", "Rapper", "DJ",
             };
-            HashSet<string> allowedLobbyReferenceCopy = new HashSet<string>
-            {
-                "PRACTICE ROOM", "ALBUM PRODUCTION", "TASKS", "START LIVE",
-            };
-            Transform lobby = GameObject.Find("LobbyCards")?.transform;
-
             Text[] labels = Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude);
             for (int labelIndex = 0; labelIndex < labels.Length; labelIndex++)
             {
+                if (labels[labelIndex].color.a <= .001f) continue;
                 string value = labels[labelIndex].text ?? string.Empty;
-                if (lobby != null && labels[labelIndex].transform.IsChildOf(lobby) &&
-                    allowedLobbyReferenceCopy.Contains(value.Trim()))
-                    continue;
                 int runStart = -1;
                 for (int characterIndex = 0; characterIndex <= value.Length; characterIndex++)
                 {
@@ -857,10 +865,18 @@ namespace ChoSiren.Tests
                     Assert.That(label.text, Is.EqualTo(navigationLabels[index]),
                         "底部导航若保留动态文字，必须只显示单行中文，不得附加英文副标题。");
                 else
-                    Assert.That(navigation.GetComponentsInChildren<Image>(true)
-                            .Any(image => image.name.EndsWith("VisualV2") && image.sprite != null), Is.True,
-                        navigation.name + " 必须通过 VisualV2 整图承载烘焙导航文案。");
+                    AssertApprovedLobbyGoldenIsVisible();
             }
+        }
+
+        private static void AssertApprovedLobbyGoldenIsVisible()
+        {
+            const string path = "Art/LobbyPunk/038/lobby-home-base-038";
+            Texture expected = Resources.Load<Sprite>(path)?.texture ?? Resources.Load<Texture2D>(path);
+            Assert.That(expected, Is.Not.Null, "未导入 0.3.8 首页 golden：" + path);
+            Assert.That(Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
+                    .Count(image => image.sprite != null && image.sprite.texture == expected), Is.EqualTo(1),
+                "底栏中文必须来自唯一的 0.3.8 整图，不能回退到旧英文分层素材。");
         }
 
         private static void Click(string objectName)

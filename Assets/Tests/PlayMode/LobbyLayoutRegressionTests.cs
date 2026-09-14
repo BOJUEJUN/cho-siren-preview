@@ -574,26 +574,27 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator StageCallToActionVisualDoesNotStealInputOrCoverTheHeroFace()
+        public IEnumerator StageCallToActionHotspotDoesNotCoverTheHeroFaceAndGoldenDoesNotStealInput()
         {
             RectTransform stage = RequireRect("LiveOnStage");
-            RectTransform visual = RequireVisualV2(stage);
+            Image golden = RequireApprovedLobbyGolden();
 
             Rect stageRect = RectInParent(stage);
             RectTransform lobby = RequireRect("LobbyCards");
             RectTransform faceSafeZone = RequireRect("HeroFaceSafeZone");
             Assert.That(stageRect.Overlaps(RectRelativeTo(lobby, faceSafeZone)), Is.False,
                 "开始演出不得盖住角色脸部。");
-            Assert.That(visual.GetComponent<Image>().raycastTarget, Is.False,
-                "主 CTA 的烘焙整图层不得抢占按钮射线。");
+            Assert.That(golden.raycastTarget, Is.False,
+                "0.3.8 首页 golden 不得抢占主 CTA 的按钮射线。");
             yield return null;
         }
 
         [UnityTest]
         public IEnumerator TopBarMatchesLatestReferenceWithoutMailAndKeepsMusicInsideSettings()
         {
+            RectTransform profile = RequireButtonRect("Profile");
             RectTransform settings = RequireButtonRect("Settings");
-            RectTransform[] controls = { settings };
+            RectTransform[] controls = { profile, settings };
             RectTransform topBar = RequireRect("TopBar");
 
             Assert.That(GameObject.Find("Mail"), Is.Null,
@@ -653,17 +654,30 @@ namespace ChoSiren.Tests
             Assert.That(staminaValueRect.xMin - staminaIconRect.xMax,
                 Is.InRange(-PositionTolerance, 4f + PositionTolerance));
             Rect previousResource = default;
+            Rect previousPlus = default;
             foreach (string currency in new[] { "diamond", "gold", "stamina" })
             {
-                RectTransform group = RequireButtonRect("Currency-" + currency);
-                Assert.That(GameObject.Find("CurrencyPlus-" + currency), Is.Null);
-                Assert.That(group.GetComponent<Button>().IsInteractable(), Is.True);
+                RectTransform group = RequireRect("Currency-" + currency);
+                RectTransform plus = RequireButtonRect("CurrencyPlus-" + currency);
+                Assert.That(plus.GetComponent<Button>().IsInteractable(), Is.True);
+                Assert.That(plus.GetComponent<Button>().targetGraphic.raycastTarget, Is.True,
+                    $"{currency} 的加号必须能独立接收玩家点击。");
                 Rect groupRect = RectInParent(group);
+                Rect plusRect = RectRelativeTo(group, plus);
                 Assert.That(groupRect.height, Is.GreaterThanOrEqualTo(44f));
+                Assert.That(plusRect.width, Is.GreaterThanOrEqualTo(30f),
+                    $"{currency} 的加号点击区不能窄到难以点击。");
+                Assert.That(plusRect.height, Is.GreaterThanOrEqualTo(36f),
+                    $"{currency} 的加号点击区必须覆盖可见加号。");
                 if (currency != "diamond")
+                {
                     Assert.That(groupRect.Overlaps(previousResource), Is.False,
                         "资源信息块不得侵入下一组。");
+                    Assert.That(RectInParent(plus).Overlaps(previousPlus), Is.False,
+                        "三个资源加号必须拥有互不重叠的独立点击区。");
+                }
                 previousResource = groupRect;
+                previousPlus = RectInParent(plus);
                 string valueName = currency == "diamond" ? "Diamonds" : currency == "gold" ? "Gold" : "Stamina";
                 AssertContained(group, RequireRect(valueName), "数字必须完整落在所属资源信息块内");
                 Assert.That(RequireRect(valueName).GetComponent<Text>().raycastTarget, Is.False);
@@ -698,7 +712,19 @@ namespace ChoSiren.Tests
             {
                 buttons[index] = RequireButtonRect("Nav-" + ids[index]);
                 AssertContained(navigation, buttons[index], labels[index]);
-                FindText(buttons[index], labels[index]);
+                Text[] buttonLabels = buttons[index].GetComponentsInChildren<Text>(true)
+                    .Where(text => !string.IsNullOrWhiteSpace(text.text))
+                    .ToArray();
+                Assert.That(buttonLabels.Length, Is.EqualTo(1),
+                    $"底部{labels[index]}入口只能保留一个中文标签，不能再叠加英文副标题。");
+                Assert.That(buttonLabels[0].text.Trim(), Is.EqualTo(labels[index]));
+                Assert.That(buttonLabels[0].text.Any(character =>
+                        character >= 'A' && character <= 'Z' || character >= 'a' && character <= 'z'),
+                    Is.False, $"底部{labels[index]}入口不能显示英文。");
+                Assert.That(buttons[index].GetComponent<Button>().IsInteractable(), Is.True,
+                    $"底部{labels[index]}入口必须可点击。");
+                Assert.That(buttons[index].GetComponent<Button>().targetGraphic.raycastTarget, Is.True,
+                    $"底部{labels[index]}入口必须能独立接收点击。");
                 Rect hitRect = RectInParent(buttons[index]);
                 Assert.That(hitRect.width, Is.GreaterThanOrEqualTo(128f - PositionTolerance),
                     $"{labels[index]} 的点击热区不能因页面切换被压窄。");
@@ -832,72 +858,73 @@ namespace ChoSiren.Tests
         private static void AssertLatestReferenceBounds(RectTransform safe, RectTransform navigation,
             RectTransform faceSafeZone, RectTransform[] actions)
         {
-            const float tolerance = 12f;
+            const float tolerance = 3f;
             RectTransform[] headerVisuals =
             {
-                RequireVisualV2(RequireRect("Profile")),
-                RequireVisualV2(RequireRect("Currency-diamond")),
-                RequireVisualV2(RequireRect("Currency-gold")),
-                RequireVisualV2(RequireRect("Currency-stamina")),
-                RequireVisualV2(RequireRect("Settings")),
+                RequireRect("Profile"),
+                RequireRect("Currency-diamond"),
+                RequireRect("Currency-gold"),
+                RequireRect("Currency-stamina"),
+                RequireRect("Settings"),
             };
             AssertTopLeftBounds(safe, CombinedRectRelativeTo(safe, headerVisuals),
-                8, 10, 699, 88, tolerance, "顶部 HUD 整组");
-            AssertTopLeftBounds(safe, headerVisuals[0], 8, 10, 185, 88, tolerance, "玩家信息");
-            AssertTopLeftBounds(safe, headerVisuals[1], 210, 17, 139, 55, tolerance, "钻石");
-            AssertTopLeftBounds(safe, headerVisuals[2], 352, 17, 141, 54, tolerance, "金币");
-            AssertTopLeftBounds(safe, headerVisuals[3], 483, 14, 152, 59, tolerance, "体力");
-            AssertTopLeftBounds(safe, headerVisuals[4], 631, 13, 70, 73, tolerance, "设置");
+                7, 7, 700, 93, tolerance, "顶部 HUD 整组");
+            AssertTopLeftBounds(safe, headerVisuals[0], 7, 10, 194, 90, tolerance, "玩家信息");
+            AssertTopLeftBounds(safe, headerVisuals[1], 209, 20, 137, 53, tolerance, "钻石");
+            AssertTopLeftBounds(safe, headerVisuals[2], 356, 21, 141, 52, tolerance, "金币");
+            AssertTopLeftBounds(safe, headerVisuals[3], 498, 20, 140, 55, tolerance, "体力");
+            AssertTopLeftBounds(safe, headerVisuals[4], 640, 7, 67, 80, tolerance, "设置");
             Assert.That(GameObject.Find("Mail"), Is.Null, "720x1536 最新参考不得显示 Mail。");
 
-            AssertTopLeftBounds(safe, RequireVisualV2(RequireRect("LobbyLogo")),
-                10, 106, 350, 306, tolerance, "首页标题");
+            Image golden = RequireApprovedLobbyGolden();
+            AssertTopLeftBounds(safe, golden.rectTransform,
+                0, 0, 720, 1536, .5f, "0.3.8 首页 golden");
+            Assert.That(golden.preserveAspect, Is.True,
+                "0.3.8 整图必须原比例显示，不能纵向压扁来填满画布。");
             AssertTopLeftBounds(safe, faceSafeZone,
                 318, 184, 217, 267, tolerance, "角色脸部安全区");
 
             int[,] hitBounds =
             {
-                { 24, 546, 273, 250 },
-                { 23, 838, 260, 168 },
-                { 25, 1026, 247, 158 },
-                { 387, 1003, 317, 271 },
-            };
-            int[,] visualBounds =
-            {
-                { 13, 514, 309, 316 },
-                { 15, 816, 282, 216 },
-                { 17, 1000, 271, 207 },
-                { 365, 792, 355, 577 },
+                { 12, 506, 283, 251 },
+                { 16, 758, 274, 245 },
+                { 19, 1003, 265, 196 },
+                { 354, 834, 365, 464 },
             };
             for (int index = 0; index < actions.Length; index++)
             {
                 AssertTopLeftBounds(safe, actions[index],
                     hitBounds[index, 0], hitBounds[index, 1], hitBounds[index, 2], hitBounds[index, 3],
                     tolerance, actions[index].name + " 点击区");
-                AssertTopLeftBounds(safe, RequireVisualV2(actions[index]),
-                    visualBounds[index, 0], visualBounds[index, 1], visualBounds[index, 2], visualBounds[index, 3],
-                    tolerance, actions[index].name + " 视觉区");
             }
 
-            RectTransform[] navigationVisuals = navigation.GetComponentsInChildren<Image>(true)
-                .Where(image => image.name.EndsWith("VisualV2"))
-                .Select(image => image.rectTransform)
-                .ToArray();
-            Assert.That(navigationVisuals.Length, Is.EqualTo(5),
-                "底部五个导航入口必须各自装配一张 VisualV2 正式素材。");
-            AssertTopLeftBounds(safe, CombinedRectRelativeTo(safe, navigationVisuals),
-                17, 1329, 684, 168, tolerance, "底部导航视觉整组");
             AssertTopLeftBounds(safe, navigation,
                 12, 1318, 696, 184, tolerance, "底部导航点击根区");
+
+            string[] currencies = { "diamond", "gold", "stamina" };
+            float[,] plusBounds =
+            {
+                { 306.9f, 36.6f, 36.8f, 42.1f },
+                { 456.0f, 37.5f, 33.3f, 42.1f },
+                { 593.7f, 37.5f, 36.8f, 43.0f },
+            };
+            for (int index = 0; index < currencies.Length; index++)
+                AssertTopLeftBounds(safe, RequireButtonRect("CurrencyPlus-" + currencies[index]),
+                    plusBounds[index, 0], plusBounds[index, 1], plusBounds[index, 2], plusBounds[index, 3],
+                    1.5f, currencies[index] + " 独立加号点击区");
         }
 
-        private static RectTransform RequireVisualV2(RectTransform root)
+        private static Image RequireApprovedLobbyGolden()
         {
-            Image result = root.GetComponentsInChildren<Image>(true)
-                .SingleOrDefault(image => image.name.EndsWith("VisualV2"));
-            Assert.That(result, Is.Not.Null, root.name + " 缺少唯一的 VisualV2 整图层。");
-            Assert.That(result.raycastTarget, Is.False, root.name + " 的 VisualV2 整图层不得拦截点击。");
-            return result.rectTransform;
+            const string path = "Art/LobbyPunk/038/lobby-home-base-038";
+            Texture expected = Resources.Load<Sprite>(path)?.texture ?? Resources.Load<Texture2D>(path);
+            Assert.That(expected, Is.Not.Null, "未导入 0.3.8 首页 golden：" + path);
+            Image[] matches = Object.FindObjectsByType<Image>(FindObjectsInactive.Exclude)
+                .Where(image => image.sprite != null && image.sprite.texture == expected)
+                .ToArray();
+            Assert.That(matches.Length, Is.EqualTo(1), "首页必须且只能显示一张 0.3.8 golden 整图。");
+            Assert.That(matches[0].raycastTarget, Is.False, "0.3.8 golden 不得拦截任何点击热区。");
+            return matches[0];
         }
 
         private static Rect CombinedRectRelativeTo(RectTransform coordinateSpace, RectTransform[] rects)
