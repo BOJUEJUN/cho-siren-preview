@@ -37,11 +37,9 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator HeaderUsesUserAvatarAndNonOverlappingResourceActions()
+        public IEnumerator HeaderKeepsDynamicResourceActionsNonOverlappingAndOmitsMail()
         {
-            AssertSpriteTexture("Avatar", "Art/ProfileAvatarUser");
-
-            string[] groups = { "Currency-diamond", "Currency-gold", "Currency-stamina", "Mail", "Settings" };
+            string[] groups = { "Currency-diamond", "Currency-gold", "Currency-stamina", "Settings" };
             float previousRight = 0;
             foreach (string name in groups)
             {
@@ -59,6 +57,65 @@ namespace ChoSiren.Tests
                 Assert.That(group.GetComponentsInChildren<Text>().Count(t => !string.IsNullOrEmpty(t.text)), Is.EqualTo(1));
             }
             Assert.That(previousRight, Is.LessThan(Require("TopBar").GetComponent<RectTransform>().rect.width));
+            Assert.That(GameObject.Find("Mail"), Is.Null,
+                "最新首页参考没有邮件入口，邮件功能不得继续占用顶部 HUD 空间。");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator LobbyV2ArtworkCoversHeaderTitleAndEveryNavigationDestination()
+        {
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            Assert.That(canvas, Is.Not.Null, "首页 V2 美术回归需要 Canvas。");
+            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            Assert.That(scaler, Is.Not.Null, "首页 V2 美术回归需要 CanvasScaler。");
+
+            // Fix this test's own viewport instead of inheriting the physical Editor window or
+            // a viewport left behind by another test. Lobby responsive layout uses the logical
+            // Canvas height to choose between reference portrait and compact fallback modes.
+            canvas.renderMode = RenderMode.WorldSpace;
+            scaler.enabled = false;
+            RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+            canvasRect.anchorMin = canvasRect.anchorMax = new Vector2(.5f, .5f);
+            canvasRect.pivot = new Vector2(.5f, .5f);
+            canvasRect.sizeDelta = new Vector2(720f, 1536f);
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
+            string[] roots =
+            {
+                "Profile",
+                "Currency-diamond", "Currency-gold", "Currency-stamina",
+                "Settings",
+                "LobbyLogo",
+                "Nav-team", "Nav-members", "Nav-lobby", "Nav-accessory", "Nav-audition",
+            };
+            string[] resources =
+            {
+                "Art/LobbyPunk/lobby-header-profile-punk-v2",
+                "Art/LobbyPunk/lobby-resource-diamond-punk-v2",
+                "Art/LobbyPunk/lobby-resource-gold-punk-v2",
+                "Art/LobbyPunk/lobby-resource-stamina-punk-v2",
+                "Art/LobbyPunk/lobby-settings-punk-v2",
+                "Art/LobbyPunk/lobby-logo-punk-v2",
+                "Art/LobbyPunk/lobby-nav-team-punk-v2",
+                "Art/LobbyPunk/lobby-nav-member-punk-v2",
+                "Art/LobbyPunk/lobby-nav-lobby-punk-v2",
+                "Art/LobbyPunk/lobby-nav-accessory-punk-v2",
+                "Art/LobbyPunk/lobby-nav-audition-punk-v2",
+            };
+            float[] minimumWidths = { 175, 129, 131, 142, 60, 340, 128, 128, 128, 128, 128 };
+            float[] minimumHeights = { 78, 45, 44, 49, 63, 296, 120, 120, 120, 120, 120 };
+
+            for (int index = 0; index < roots.Length; index++)
+                AssertV2Artwork(roots[index], resources[index], minimumWidths[index], minimumHeights[index]);
+
+            // Numbers are live game state and must remain updateable even though their frames are authored art.
+            Assert.That(Require("Diamonds").GetComponent<Text>(), Is.Not.Null);
+            Assert.That(Require("Gold").GetComponent<Text>(), Is.Not.Null);
+            Assert.That(Require("Stamina").GetComponent<Text>(), Is.Not.Null);
             yield return null;
         }
 
@@ -69,30 +126,30 @@ namespace ChoSiren.Tests
             Assert.That(video, Is.Not.Null, "首页必须保留动态角色舞台层。");
             Assert.That(video.raycastTarget, Is.False, "动态角色舞台不得挡住首页操作。");
 
-            GameObject lobby = Require("LobbyCards");
             Button[] actions =
             {
-                FindLobbyButton(lobby, "练习室"),
-                FindLobbyButton(lobby, "专辑制作"),
-                FindLobbyButton(lobby, "任务"),
+                Require("PracticeRoom").GetComponent<Button>(),
+                Require("AlbumProduction").GetComponent<Button>(),
+                Require("Tasks").GetComponent<Button>(),
                 Require("LiveOnStage").GetComponent<Button>(),
             };
             string[] resourcePaths =
             {
-                "Art/LobbyPunk/lobby-practice-punk-v1",
-                "Art/LobbyPunk/lobby-album-punk-v1",
-                "Art/LobbyPunk/lobby-task-punk-v1",
-                "Art/LobbyPunk/lobby-perform-cta-punk-v1",
+                "Art/LobbyPunk/lobby-practice-punk-v2",
+                "Art/LobbyPunk/lobby-album-punk-v2",
+                "Art/LobbyPunk/lobby-task-punk-v2",
+                "Art/LobbyPunk/lobby-perform-cta-punk-v2",
             };
             for (int actionIndex = 0; actionIndex < actions.Length; actionIndex++)
             {
                 Button action = actions[actionIndex];
                 Assert.That(action, Is.Not.Null);
                 Image[] artwork = action.GetComponentsInChildren<Image>(true)
-                    .Where(image => image != action.targetGraphic && image.sprite != null)
+                    .Where(image => image != action.targetGraphic && image.sprite != null &&
+                                    image.name.EndsWith("VisualV2"))
                     .ToArray();
                 Assert.That(artwork, Is.Not.Empty,
-                    $"{action.name} 必须使用独立美术层，不能只靠代码色块和文字拼出参考首页。");
+                    $"{action.name} 必须使用以 VisualV2 结尾的独立整图层，不能回退到旧版拼装卡。");
                 Texture expected = Resources.Load<Sprite>(resourcePaths[actionIndex])?.texture ??
                                    Resources.Load<Texture2D>(resourcePaths[actionIndex]);
                 Assert.That(expected, Is.Not.Null, "未导入首页正式素材：" + resourcePaths[actionIndex]);
@@ -264,15 +321,6 @@ namespace ChoSiren.Tests
             Assert.That(panel.GetComponentsInChildren<Text>().Any(t => !string.IsNullOrWhiteSpace(t.text)), Is.True);
         }
 
-        private static Button FindLobbyButton(GameObject lobby, string label)
-        {
-            Button result = lobby.GetComponentsInChildren<Button>(true)
-                .SingleOrDefault(candidate => candidate.GetComponentsInChildren<Text>(true)
-                    .Any(text => text.text == label));
-            Assert.That(result, Is.Not.Null, $"首页缺少“{label}”入口。");
-            return result;
-        }
-
         private static float LeftInParent(GameObject target)
         {
             RectTransform rect = target.GetComponent<RectTransform>();
@@ -296,6 +344,29 @@ namespace ChoSiren.Tests
             Assert.That(image.sprite, Is.Not.Null, target.name + " 未装配 AI 素材。");
             Assert.That(image.sprite.texture, Is.SameAs(expected),
                 target.name + " 使用了错误或回退素材，应为 " + resourcePath);
+        }
+
+        private static void AssertV2Artwork(string rootName, string resourcePath,
+            float minimumWidth, float minimumHeight)
+        {
+            GameObject root = Require(rootName);
+            RectTransform rootRect = root.GetComponent<RectTransform>();
+            Assert.That(rootRect, Is.Not.Null, rootName + " 缺少 RectTransform。");
+            Assert.That(rootRect.rect.width, Is.GreaterThanOrEqualTo(minimumWidth - .5f),
+                $"{rootName} 宽度不足，无法达到参考图的视觉占比。");
+            Assert.That(rootRect.rect.height, Is.GreaterThanOrEqualTo(minimumHeight - .5f),
+                $"{rootName} 高度不足，无法覆盖完整视觉和点击区域。");
+
+            Texture expected = Resources.Load<Sprite>(resourcePath)?.texture ?? Resources.Load<Texture2D>(resourcePath);
+            Assert.That(expected, Is.Not.Null, "未导入首页 V2 素材：" + resourcePath);
+            Image[] visualLayers = root.GetComponentsInChildren<Image>(true)
+                .Where(image => image.name.EndsWith("VisualV2") && image.sprite != null)
+                .ToArray();
+            Assert.That(visualLayers.Any(image => image.sprite.texture == expected), Is.True,
+                $"{rootName} 未装配 V2 素材 {resourcePath}，或整图节点名未以 VisualV2 结尾。");
+            foreach (Image visual in visualLayers)
+                Assert.That(visual.raycastTarget, Is.False,
+                    $"{rootName}/{visual.name} 是视觉层，不得抢占 {rootName} 的点击射线。");
         }
 
         private static void Click(string objectName)

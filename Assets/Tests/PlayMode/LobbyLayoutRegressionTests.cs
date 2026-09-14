@@ -517,11 +517,10 @@ namespace ChoSiren.Tests
             RectTransform lobby = RequireRect("LobbyCards");
             RectTransform[] hotspots =
             {
-                FindLobbyButtonByText(lobby, "练习室").GetComponent<RectTransform>(),
-                FindLobbyButtonByText(lobby, "专辑制作").GetComponent<RectTransform>(),
-                FindLobbyButtonByText(lobby, "任务").GetComponent<RectTransform>(),
+                RequireButtonRect("PracticeRoom"),
+                RequireButtonRect("AlbumProduction"),
+                RequireButtonRect("Tasks"),
             };
-            string[] subtitles = { "PRACTICE ROOM", "ALBUM PRODUCTION", "TASKS" };
 
             for (int index = 0; index < hotspots.Length; index++)
             {
@@ -533,7 +532,6 @@ namespace ChoSiren.Tests
                 Assert.That(hotspots[index].GetComponent<Button>(), Is.Not.Null);
                 Assert.That(hotspots[index].GetComponent<Button>().targetGraphic?.raycastTarget, Is.True);
                 AssertDecorationsDoNotStealRaycasts(hotspots[index]);
-                FindText(hotspots[index], subtitles[index]);
             }
 
             for (int first = 0; first < hotspots.Length; first++)
@@ -545,8 +543,6 @@ namespace ChoSiren.Tests
                     .Count(button => button.name == "LiveOnStage"), Is.EqualTo(1),
                 "首页只能有一个开始演出主入口。");
             RectTransform stage = RequireButtonRect("LiveOnStage");
-            FindText(stage, "开始演出");
-            FindText(stage, "START LIVE");
             AssertDecorationsDoNotStealRaycasts(stage);
 
             Button album = hotspots[1].GetComponent<Button>();
@@ -578,34 +574,30 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator StageCallToActionCopyStaysInsideItsHitRect()
+        public IEnumerator StageCallToActionVisualDoesNotStealInputOrCoverTheHeroFace()
         {
             RectTransform stage = RequireRect("LiveOnStage");
-            Text title = FindText(stage, "开始演出");
-            Text subtitle = FindText(stage, "舞台已就绪");
+            RectTransform visual = RequireVisualV2(stage);
 
             Rect stageRect = RectInParent(stage);
             RectTransform lobby = RequireRect("LobbyCards");
             RectTransform faceSafeZone = RequireRect("HeroFaceSafeZone");
             Assert.That(stageRect.Overlaps(RectRelativeTo(lobby, faceSafeZone)), Is.False,
                 "开始演出不得盖住角色脸部。");
-
-            AssertContained(stage, title.rectTransform, "开始演出");
-            AssertContained(stage, subtitle.rectTransform, "舞台已就绪");
-            Assert.That(title.horizontalOverflow, Is.EqualTo(HorizontalWrapMode.Wrap));
-            Assert.That(title.verticalOverflow, Is.EqualTo(VerticalWrapMode.Truncate));
-            Assert.That(subtitle.horizontalOverflow, Is.EqualTo(HorizontalWrapMode.Wrap));
-            Assert.That(subtitle.verticalOverflow, Is.EqualTo(VerticalWrapMode.Truncate));
+            Assert.That(visual.GetComponent<Image>().raycastTarget, Is.False,
+                "主 CTA 的烘焙整图层不得抢占按钮射线。");
             yield return null;
         }
 
         [UnityTest]
-        public IEnumerator TopBarOnlyKeepsCompactMailAndSettingsWithMusicInsideSettings()
+        public IEnumerator TopBarMatchesLatestReferenceWithoutMailAndKeepsMusicInsideSettings()
         {
-            RectTransform mail = RequireButtonRect("Mail");
             RectTransform settings = RequireButtonRect("Settings");
-            RectTransform[] controls = { mail, settings };
+            RectTransform[] controls = { settings };
             RectTransform topBar = RequireRect("TopBar");
+
+            Assert.That(GameObject.Find("Mail"), Is.Null,
+                "最新首页参考不显示邮件，顶部不得保留可见按钮或隐藏热区。");
 
             Assert.That(topBar.GetComponentsInChildren<Transform>(true)
                     .Any(item => item.name == "Music"), Is.False,
@@ -640,11 +632,7 @@ namespace ChoSiren.Tests
                 }
             }
 
-            Rect mailRect = RectInParent(mail);
             Rect settingsRect = RectInParent(settings);
-            Assert.That(settingsRect.xMin - mailRect.xMax,
-                Is.InRange(-PositionTolerance, 9f),
-                "邮件与设置应紧凑排列，不应为已移除的音乐按钮保留空槽。");
 
             Rect diamondIconRect = RectInParent(RequireRect("DiamondIcon"));
             Rect diamondValueRect = RectInParent(RequireRect("Diamonds"));
@@ -680,8 +668,8 @@ namespace ChoSiren.Tests
                 AssertContained(group, RequireRect(valueName), "数字必须完整落在所属资源信息块内");
                 Assert.That(RequireRect(valueName).GetComponent<Text>().raycastTarget, Is.False);
             }
-            Assert.That(mailRect.xMin - previousResource.xMax, Is.InRange(-PositionTolerance, 24f),
-                "邮件应紧跟体力信息块，不应保留旧加号空槽。");
+            Assert.That(settingsRect.xMin - previousResource.xMax, Is.InRange(-PositionTolerance, 24f),
+                "设置应紧跟体力信息块，不应为已移除的邮件按钮保留空槽。");
 
             settings.GetComponent<Button>().onClick.Invoke();
             yield return null;
@@ -774,9 +762,9 @@ namespace ChoSiren.Tests
                 RectTransform faceSafeZone = RequireRect("HeroFaceSafeZone");
                 RectTransform[] actions =
                 {
-                    FindLobbyButtonByText(lobby, "练习室").GetComponent<RectTransform>(),
-                    FindLobbyButtonByText(lobby, "专辑制作").GetComponent<RectTransform>(),
-                    FindLobbyButtonByText(lobby, "任务").GetComponent<RectTransform>(),
+                    RequireButtonRect("PracticeRoom"),
+                    RequireButtonRect("AlbumProduction"),
+                    RequireButtonRect("Tasks"),
                     RequireButtonRect("LiveOnStage"),
                 };
 
@@ -793,43 +781,154 @@ namespace ChoSiren.Tests
                             .Overlaps(RectRelativeTo(content, faceSafeZone)), Is.False,
                         $"{viewport.width}x{viewport.height} 下 {action.name} 不得遮住角色脸部。");
                 }
+
+                for (int first = 0; first < actions.Length; first++)
+                for (int second = first + 1; second < actions.Length; second++)
+                    Assert.That(RectRelativeTo(content, actions[first])
+                            .Overlaps(RectRelativeTo(content, actions[second])), Is.False,
+                        $"{viewport.width}x{viewport.height} 下 {actions[first].name} 与 {actions[second].name} 点击区不得重叠。");
+
+                if (viewport.width == 720 && viewport.height == 1536)
+                    AssertLatestReferenceBounds(safe, navigation, faceSafeZone, actions);
             }
         }
 
         [UnityTest]
         public IEnumerator ButtonsReceiveHoverPressAndExitScaleFeedback()
         {
-            RectTransform mail = RequireButtonRect("Mail");
-            ButtonInteractionFeedback feedback = mail.GetComponent<ButtonInteractionFeedback>();
+            RectTransform settings = RequireButtonRect("Settings");
+            ButtonInteractionFeedback feedback = settings.GetComponent<ButtonInteractionFeedback>();
             Assert.That(feedback, Is.Not.Null,
                 "Canvas installer should attach feedback to dynamically built buttons.");
 
-            float restingScale = mail.localScale.x;
+            float restingScale = settings.localScale.x;
             PointerEventData pointer = new PointerEventData(EventSystem.current)
             {
                 button = PointerEventData.InputButton.Left,
             };
 
-            ExecuteEvents.Execute<IPointerEnterHandler>(mail.gameObject, pointer,
+            ExecuteEvents.Execute<IPointerEnterHandler>(settings.gameObject, pointer,
                 ExecuteEvents.pointerEnterHandler);
             yield return new WaitForSecondsRealtime(0.12f);
-            float hoverScale = mail.localScale.x;
+            float hoverScale = settings.localScale.x;
             Assert.That(hoverScale, Is.GreaterThan(restingScale + 0.01f),
                 "Hover should visibly increase the button scale.");
 
-            ExecuteEvents.Execute<IPointerDownHandler>(mail.gameObject, pointer,
+            ExecuteEvents.Execute<IPointerDownHandler>(settings.gameObject, pointer,
                 ExecuteEvents.pointerDownHandler);
             yield return new WaitForSecondsRealtime(0.16f);
-            Assert.That(mail.localScale.x, Is.LessThan(restingScale),
+            Assert.That(settings.localScale.x, Is.LessThan(restingScale),
                 "Pointer down should rebound below the resting scale.");
 
-            ExecuteEvents.Execute<IPointerExitHandler>(mail.gameObject, pointer,
+            ExecuteEvents.Execute<IPointerExitHandler>(settings.gameObject, pointer,
                 ExecuteEvents.pointerExitHandler);
             yield return new WaitForSecondsRealtime(0.22f);
-            Assert.That(mail.localScale.x, Is.EqualTo(restingScale).Within(0.01f),
+            Assert.That(settings.localScale.x, Is.EqualTo(restingScale).Within(0.01f),
                 "Pointer exit should restore the scale even when it follows pointer down.");
 
             yield return null;
+        }
+
+        private static void AssertLatestReferenceBounds(RectTransform safe, RectTransform navigation,
+            RectTransform faceSafeZone, RectTransform[] actions)
+        {
+            const float tolerance = 12f;
+            RectTransform[] headerVisuals =
+            {
+                RequireVisualV2(RequireRect("Profile")),
+                RequireVisualV2(RequireRect("Currency-diamond")),
+                RequireVisualV2(RequireRect("Currency-gold")),
+                RequireVisualV2(RequireRect("Currency-stamina")),
+                RequireVisualV2(RequireRect("Settings")),
+            };
+            AssertTopLeftBounds(safe, CombinedRectRelativeTo(safe, headerVisuals),
+                8, 10, 699, 88, tolerance, "顶部 HUD 整组");
+            AssertTopLeftBounds(safe, headerVisuals[0], 8, 10, 185, 88, tolerance, "玩家信息");
+            AssertTopLeftBounds(safe, headerVisuals[1], 210, 17, 139, 55, tolerance, "钻石");
+            AssertTopLeftBounds(safe, headerVisuals[2], 352, 17, 141, 54, tolerance, "金币");
+            AssertTopLeftBounds(safe, headerVisuals[3], 483, 14, 152, 59, tolerance, "体力");
+            AssertTopLeftBounds(safe, headerVisuals[4], 631, 13, 70, 73, tolerance, "设置");
+            Assert.That(GameObject.Find("Mail"), Is.Null, "720x1536 最新参考不得显示 Mail。");
+
+            AssertTopLeftBounds(safe, RequireVisualV2(RequireRect("LobbyLogo")),
+                10, 106, 350, 306, tolerance, "首页标题");
+            AssertTopLeftBounds(safe, faceSafeZone,
+                318, 184, 217, 267, tolerance, "角色脸部安全区");
+
+            int[,] hitBounds =
+            {
+                { 24, 546, 273, 250 },
+                { 23, 838, 260, 168 },
+                { 25, 1026, 247, 158 },
+                { 387, 1003, 317, 271 },
+            };
+            int[,] visualBounds =
+            {
+                { 13, 514, 309, 316 },
+                { 15, 816, 282, 216 },
+                { 17, 1000, 271, 207 },
+                { 365, 792, 355, 577 },
+            };
+            for (int index = 0; index < actions.Length; index++)
+            {
+                AssertTopLeftBounds(safe, actions[index],
+                    hitBounds[index, 0], hitBounds[index, 1], hitBounds[index, 2], hitBounds[index, 3],
+                    tolerance, actions[index].name + " 点击区");
+                AssertTopLeftBounds(safe, RequireVisualV2(actions[index]),
+                    visualBounds[index, 0], visualBounds[index, 1], visualBounds[index, 2], visualBounds[index, 3],
+                    tolerance, actions[index].name + " 视觉区");
+            }
+
+            RectTransform[] navigationVisuals = navigation.GetComponentsInChildren<Image>(true)
+                .Where(image => image.name.EndsWith("VisualV2"))
+                .Select(image => image.rectTransform)
+                .ToArray();
+            Assert.That(navigationVisuals.Length, Is.EqualTo(5),
+                "底部五个导航入口必须各自装配一张 VisualV2 正式素材。");
+            AssertTopLeftBounds(safe, CombinedRectRelativeTo(safe, navigationVisuals),
+                17, 1329, 684, 168, tolerance, "底部导航视觉整组");
+            AssertTopLeftBounds(safe, navigation,
+                12, 1318, 696, 184, tolerance, "底部导航点击根区");
+        }
+
+        private static RectTransform RequireVisualV2(RectTransform root)
+        {
+            Image result = root.GetComponentsInChildren<Image>(true)
+                .SingleOrDefault(image => image.name.EndsWith("VisualV2"));
+            Assert.That(result, Is.Not.Null, root.name + " 缺少唯一的 VisualV2 整图层。");
+            Assert.That(result.raycastTarget, Is.False, root.name + " 的 VisualV2 整图层不得拦截点击。");
+            return result.rectTransform;
+        }
+
+        private static Rect CombinedRectRelativeTo(RectTransform coordinateSpace, RectTransform[] rects)
+        {
+            Assert.That(rects, Is.Not.Empty);
+            Rect combined = RectRelativeTo(coordinateSpace, rects[0]);
+            for (int index = 1; index < rects.Length; index++)
+            {
+                Rect next = RectRelativeTo(coordinateSpace, rects[index]);
+                combined = Rect.MinMaxRect(Mathf.Min(combined.xMin, next.xMin), Mathf.Min(combined.yMin, next.yMin),
+                    Mathf.Max(combined.xMax, next.xMax), Mathf.Max(combined.yMax, next.yMax));
+            }
+            return combined;
+        }
+
+        private static void AssertTopLeftBounds(RectTransform coordinateSpace, RectTransform rect,
+            float x, float y, float width, float height, float tolerance, string label)
+        {
+            AssertTopLeftBounds(coordinateSpace, RectRelativeTo(coordinateSpace, rect),
+                x, y, width, height, tolerance, label);
+        }
+
+        private static void AssertTopLeftBounds(RectTransform coordinateSpace, Rect actual,
+            float x, float y, float width, float height, float tolerance, string label)
+        {
+            float actualX = actual.xMin - coordinateSpace.rect.xMin;
+            float actualY = coordinateSpace.rect.yMax - actual.yMax;
+            Assert.That(actualX, Is.EqualTo(x).Within(tolerance), label + " x 与最新参考不符。");
+            Assert.That(actualY, Is.EqualTo(y).Within(tolerance), label + " y 与最新参考不符。");
+            Assert.That(actual.width, Is.EqualTo(width).Within(tolerance), label + " 宽度与最新参考不符。");
+            Assert.That(actual.height, Is.EqualTo(height).Within(tolerance), label + " 高度与最新参考不符。");
         }
 
         private static void AssertEquipmentTextFitsWithoutOverlap(RectTransform body)
@@ -906,18 +1005,6 @@ namespace ChoSiren.Tests
             Text result = parent.GetComponentsInChildren<Text>(true)
                 .SingleOrDefault(candidate => candidate.text == value);
             Assert.That(result, Is.Not.Null, $"Expected text '{value}' under {parent.name} was not found.");
-            return result;
-        }
-
-        private static Button FindLobbyButtonByText(RectTransform lobby, string value)
-        {
-            Button result = lobby.GetComponentsInChildren<Button>(true)
-                .SingleOrDefault(candidate => candidate.GetComponentsInChildren<Text>(true)
-                    .Any(text => text.text == value));
-            Assert.That(result, Is.Not.Null, $"首页缺少“{value}”入口。");
-            Assert.That(result.gameObject.activeInHierarchy, Is.True, $"首页“{value}”入口未激活。");
-            Assert.That(result.targetGraphic, Is.Not.Null, $"首页“{value}”入口缺少点击图形。");
-            Assert.That(result.targetGraphic.raycastTarget, Is.True, $"首页“{value}”入口无法接收点击。");
             return result;
         }
 

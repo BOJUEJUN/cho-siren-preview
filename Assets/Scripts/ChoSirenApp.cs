@@ -193,8 +193,9 @@ namespace ChoSiren
             navRoot.anchorMin = new Vector2(0, 0);
             navRoot.anchorMax = new Vector2(1, 0);
             navRoot.pivot = new Vector2(0.5f, 0);
-            navRoot.offsetMin = new Vector2(16, 12);
-            navRoot.offsetMax = new Vector2(-16, 150);
+            // v2 reference: root [12,1318,696,184] in the 720x1536 screen.
+            navRoot.offsetMin = new Vector2(12, 34);
+            navRoot.offsetMax = new Vector2(-12, 218);
             Image navBackground = nav.AddComponent<Image>();
             navBackground.sprite = RoundedSprite(26);
             navBackground.type = Image.Type.Sliced;
@@ -212,19 +213,37 @@ namespace ChoSiren
 
         private void BuildTopBar()
         {
+            // v2 reference: group [8,10,699,88] in the 720x1536 screen.
             GameObject bar = NewImage("TopBar", safeRoot, null, Color.clear);
             RectTransform barRect = bar.GetComponent<RectTransform>();
             barRect.anchorMin = new Vector2(0, 1);
             barRect.anchorMax = Vector2.one;
             barRect.pivot = new Vector2(0.5f, 1);
-            barRect.offsetMin = new Vector2(0, -82);
-            barRect.offsetMax = Vector2.zero;
+            barRect.offsetMin = new Vector2(8, -98);
+            barRect.offsetMax = new Vector2(-13, -10);
 
-            GameObject avatarFrame = NewImage("AvatarFrame", bar.transform, RoundedSprite(30),
-                new Color32(222, 195, 255, 230));
-            PlaceTop(avatarFrame.GetComponent<RectTransform>(), 22, 13, 56, 56);
-            GameObject avatarMask = NewImage("AvatarMask", avatarFrame.transform, RoundedSprite(30), White);
-            Stretch(avatarMask.GetComponent<RectTransform>(), 2, 2, -2, -2);
+            // Profile hit [8,10,185,88]: baked header art plus the realtime avatar,
+            // name and power layers on top.
+            GameObject profile = NewImage("Profile", bar.transform, null, Color.clear);
+            RectTransform profileRect = profile.GetComponent<RectTransform>();
+            PlaceTop(profileRect, 0f, 0f, 185f, 88f);
+            Image profileHit = profile.GetComponent<Image>();
+            profileHit.raycastTarget = true;
+            Button profileButton = profile.AddComponent<Button>();
+            profileButton.targetGraphic = profileHit;
+            profileButton.onClick.AddListener(() =>
+            {
+                OpenProfile();
+                ResumeMediaAfterUserGesture();
+                gameAudio?.PlayClick();
+            });
+            GameObject profileVisual = NewVisualV2("ProfileVisualV2", profile.transform,
+                AiUiSprite("Art/LobbyPunk/lobby-header-profile-punk-v2"));
+            Stretch(profileVisual.GetComponent<RectTransform>());
+            profileVisual.transform.SetAsFirstSibling();
+
+            GameObject avatarMask = NewImage("AvatarMask", profile.transform, RoundedSprite(30), White);
+            PlaceTop(avatarMask.GetComponent<RectTransform>(), 12f, 16f, 54f, 54f);
             Mask mask = avatarMask.AddComponent<Mask>();
             mask.showMaskGraphic = false;
             GameObject avatar = NewImage("Avatar", avatarMask.transform,
@@ -232,34 +251,59 @@ namespace ChoSiren
             Stretch(avatar.GetComponent<RectTransform>());
             avatar.GetComponent<Image>().preserveAspect = false;
 
-            Text name = NewText("PlayerName", bar.transform, "音律少女", 19, White, FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(name.rectTransform, 86, 14, 104, 29);
+            Text name = NewText("PlayerName", profile.transform, "音律少女", 17, White, FontStyle.Bold, TextAnchor.MiddleLeft);
+            PlaceTop(name.rectTransform, 72f, 14f, 106f, 26f);
             AddReadableShadow(name);
-            teamLevelText = NewText("PlayerLevel", bar.transform, string.Empty, 14,
-                new Color32(225, 215, 242, 255), FontStyle.Bold, TextAnchor.UpperLeft);
-            PlaceTop(teamLevelText.rectTransform, 86, 43, 112, 22);
+            teamLevelText = NewText("PlayerLevel", profile.transform, string.Empty, 13,
+                new Color32(225, 215, 242, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
+            PlaceTop(teamLevelText.rectTransform, 72f, 44f, 108f, 24f);
             teamLevelText.resizeTextForBestFit = true;
             teamLevelText.resizeTextMinSize = 10;
-            teamLevelText.resizeTextMaxSize = 14;
+            teamLevelText.resizeTextMaxSize = 13;
             teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
             AddReadableShadow(teamLevelText);
 
-            GameObject profileHit = NewButton("Profile", bar.transform, string.Empty, 1, Color.clear, Color.clear, OpenProfile);
-            PlaceTop(profileHit.GetComponent<RectTransform>(), 16, 8, 190, 70);
-            profileHit.transform.SetAsFirstSibling();
-
-            // Each quiet pill is the action: no extra purchase symbols or competing glow.
+            // Currency pills keep the v1 quiet-glass plate so presses still tint; the
+            // baked pill art sits on a non-raycast VisualV2 child. Hit rects are trimmed
+            // inside the (overlapping) art so no two currency hit zones touch.
             diamondText = BuildResourcePill(bar.transform, CurrencyIds.Diamond, "DiamondIcon", "Diamonds",
-                "Art/UI/ResourceDiamond-C", 208, 120, Cyan);
+                "Art/LobbyPunk/lobby-resource-diamond-punk-v2", "DiamondVisualV2",
+                "Art/UI/ResourceDiamond-C",
+                new Rect(202f, 7f, 139f, 55f), new Rect(202f, 7f, 139f, 55f), Cyan);
             goldText = BuildResourcePill(bar.transform, CurrencyIds.Gold, "GoldIcon", "Gold",
-                "Art/UI/ResourceGold-C", 338, 120, new Color32(255, 219, 126, 255));
+                "Art/LobbyPunk/lobby-resource-gold-punk-v2", "GoldVisualV2",
+                "Art/UI/ResourceGold-C",
+                new Rect(344f, 7f, 141f, 54f), new Rect(344f, 7f, 141f, 54f),
+                new Color32(255, 219, 126, 255));
             staminaText = BuildResourcePill(bar.transform, CurrencyIds.Stamina, "StaminaIcon", "Stamina",
-                "Art/UI/ResourceStamina-C", 468, 126, new Color32(255, 151, 211, 255));
+                "Art/LobbyPunk/lobby-resource-stamina-punk-v2", "StaminaVisualV2",
+                "Art/UI/ResourceStamina-C",
+                new Rect(485f, 4f, 142f, 59f), new Rect(475f, 4f, 152f, 59f),
+                new Color32(255, 151, 211, 255));
 
-            AddSpriteIconButton(bar.transform, "Mail",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 83, OpenInbox);
-            AddSpriteIconButton(bar.transform, "Settings",
-                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), 37, OpenSettings);
+            GameObject settings = NewImage("Settings", bar.transform, null, Color.clear);
+            PlaceTop(settings.GetComponent<RectTransform>(), 627f, 3f, 69f, 70f);
+            Image settingsHit = settings.GetComponent<Image>();
+            settingsHit.raycastTarget = true;
+            Button settingsButton = settings.AddComponent<Button>();
+            settingsButton.targetGraphic = settingsHit;
+            settingsButton.onClick.AddListener(() =>
+            {
+                OpenSettings();
+                ResumeMediaAfterUserGesture();
+                gameAudio?.PlayClick();
+            });
+            GameObject settingsVisual = NewVisualV2("SettingsVisualV2", settings.transform,
+                AiUiSprite("Art/LobbyPunk/lobby-settings-punk-v2"));
+            PlaceTop(settingsVisual.GetComponent<RectTransform>(), -1f, 0f, 70f, 73f);
+            settingsVisual.transform.SetAsFirstSibling();
+
+            // The v2 reference top bar has no inbox entry. The button stays built but
+            // inactive so the inbox feature code remains wired for future placement.
+            GameObject mail = AddSpriteIconButton(bar.transform, "Mail",
+                Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 0, OpenInbox);
+            mail.SetActive(false);
+
             UpdateTopBar();
         }
 
@@ -269,6 +313,21 @@ namespace ChoSiren
             navHighlights.Clear();
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
             string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            // v2 bakes icon + label into one PNG per destination. The shared visual strip
+            // is [17,1329,684,168] on screen, i.e. (5,11,136.8,168) per item inside navRoot.
+            string[] navArt =
+            {
+                "Art/LobbyPunk/lobby-nav-team-punk-v2",
+                "Art/LobbyPunk/lobby-nav-member-punk-v2",
+                "Art/LobbyPunk/lobby-nav-lobby-punk-v2",
+                "Art/LobbyPunk/lobby-nav-accessory-punk-v2",
+                "Art/LobbyPunk/lobby-nav-audition-punk-v2",
+            };
+            string[] navVisualNames =
+            {
+                "NavTeamVisualV2", "NavMemberVisualV2", "NavLobbyVisualV2",
+                "NavAccessoryVisualV2", "NavAuditionVisualV2",
+            };
 
             for (int index = 0; index < ids.Length; index++)
             {
@@ -290,19 +349,34 @@ namespace ChoSiren
                     ResumeMediaAfterUserGesture();
                 });
 
-                GameObject icon = NewImage("Icon", buttonObject.transform, NavIconSprite(index),
-                    selected ? White : new Color32(197, 183, 218, 215));
-                RectTransform iconRect = icon.GetComponent<RectTransform>();
-                iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 1);
-                iconRect.pivot = new Vector2(0.5f, 1);
-                iconRect.anchoredPosition = new Vector2(0, -6);
-                iconRect.sizeDelta = new Vector2(68, 66);
-                Image iconImage = icon.GetComponent<Image>();
-                iconImage.preserveAspect = true;
-                iconImage.useSpriteMesh = true;
+                Sprite art = AiUiSprite(navArt[index]);
+                if (art != null)
+                {
+                    GameObject visual = NewVisualV2(navVisualNames[index], buttonObject.transform, art);
+                    PlaceTop(visual.GetComponent<RectTransform>(), 2f - 2.4f * index, 7f, 136.8f, 168f);
+                    visual.transform.SetAsFirstSibling();
+                }
+                else
+                {
+                    GameObject icon = NewImage("Icon", buttonObject.transform, NavIconSprite(index),
+                        selected ? White : new Color32(197, 183, 218, 215));
+                    RectTransform iconRect = icon.GetComponent<RectTransform>();
+                    iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 1);
+                    iconRect.pivot = new Vector2(0.5f, 1);
+                    iconRect.anchoredPosition = new Vector2(0, -6);
+                    iconRect.sizeDelta = new Vector2(68, 66);
+                    Image iconImage = icon.GetComponent<Image>();
+                    iconImage.preserveAspect = true;
+                    iconImage.useSpriteMesh = true;
+                }
 
+                // Labels are baked into the nav art; keep the live node transparent for
+                // accessibility/tests once the baked strip is present.
+                Color labelColor = art != null
+                    ? new Color(1f, 1f, 1f, 0f)
+                    : selected ? White : Muted;
                 Text label = NewText("Label", buttonObject.transform, labels[index], selected ? 17 : 16,
-                    selected ? White : Muted, selected ? FontStyle.Bold : FontStyle.Normal,
+                    labelColor, selected ? FontStyle.Bold : FontStyle.Normal,
                     TextAnchor.MiddleCenter);
                 PlaceTopStretch(label.rectTransform, 76, 32);
 
@@ -2006,22 +2080,65 @@ namespace ChoSiren
         }
 
         private Text BuildResourcePill(Transform parent, string currency, string iconName, string valueName,
-            string iconPath, float x, float width, Color tint)
+            string visualPath, string visualName, string fallbackIconPath,
+            Rect hitRect, Rect visualRect, Color tint)
         {
-            GameObject pill = NewButton("Currency-" + currency, parent, string.Empty, 1,
-                new Color32(16, 22, 48, 150), White, () => OpenCurrency(currency));
-            PlaceTop(pill.GetComponent<RectTransform>(), x, 18, width, 46);
-            AddResourceIcon(pill.transform, iconName, iconPath, 10, 10, 25);
-            Text value = NewText(valueName, pill.transform, string.Empty, 17, tint, FontStyle.Bold, TextAnchor.MiddleLeft);
-            PlaceTop(value.rectTransform, 38, 0, width - 48, 46);
+            GameObject pill = NewPanel("Currency-" + currency, parent, new Color32(16, 22, 48, 150), 16);
+            PlaceTop(pill.GetComponent<RectTransform>(), hitRect.x, hitRect.y, hitRect.width, hitRect.height);
+            Image plate = pill.GetComponent<Image>();
+            plate.raycastTarget = true;
+            Button button = pill.AddComponent<Button>();
+            button.targetGraphic = plate;
+            button.onClick.AddListener(() =>
+            {
+                OpenCurrency(currency);
+                ResumeMediaAfterUserGesture();
+                gameAudio?.PlayClick();
+            });
+
+            Sprite art = AiUiSprite(visualPath);
+            GameObject visual = NewVisualV2(visualName, pill.transform, art);
+            PlaceTop(visual.GetComponent<RectTransform>(),
+                visualRect.x - hitRect.x, visualRect.y - hitRect.y, visualRect.width, visualRect.height);
+            visual.transform.SetAsFirstSibling();
+
+            if (art != null)
+            {
+                // The pill art bakes its icon; the named marker only anchors the value text.
+                GameObject marker = NewObject(iconName, pill.transform);
+                PlaceTop(marker.AddComponent<RectTransform>(), 12f,
+                    (hitRect.height - 32f) * 0.5f, 30f, 32f);
+            }
+            else
+            {
+                AddResourceIcon(pill.transform, iconName, fallbackIconPath, 10f,
+                    (hitRect.height - 32f) * 0.5f, 32f);
+            }
+
+            Text value = NewText(valueName, pill.transform, string.Empty, 17, tint,
+                FontStyle.Bold, TextAnchor.MiddleLeft);
+            PlaceTop(value.rectTransform, 46f, (hitRect.height - 30f) * 0.5f,
+                Mathf.Min(85f, hitRect.width - 56f), 30f);
             ConfigureHudNumber(value);
             value.raycastTarget = false;
-            ColorBlock feedback = pill.GetComponent<Button>().colors;
+            ColorBlock feedback = button.colors;
             feedback.highlightedColor = new Color(1.3f, 1.3f, 1.4f, 1);
             feedback.pressedColor = new Color(.75f, .8f, .9f, 1);
             feedback.fadeDuration = .12f;
-            pill.GetComponent<Button>().colors = feedback;
+            button.colors = feedback;
             return value;
+        }
+
+        /// <summary>Full-bleed baked artwork node. Always raycastTarget=false so the
+        /// measured hit areas keep exclusive ownership of UI input.</summary>
+        private GameObject NewVisualV2(string name, Transform parent, Sprite sprite)
+        {
+            GameObject visual = NewImage(name, parent, sprite, White);
+            Image image = visual.GetComponent<Image>();
+            image.preserveAspect = false;
+            image.useSpriteMesh = true;
+            image.raycastTarget = false;
+            return visual;
         }
 
         private static void ConfigureHudNumber(Text text)
@@ -2162,8 +2279,9 @@ namespace ChoSiren
             rect.anchorMin = new Vector2(0.5f, 0);
             rect.anchorMax = new Vector2(0.5f, 0);
             rect.pivot = new Vector2(0.5f, 0);
-            rect.anchoredPosition = new Vector2(0, 132);
+            rect.anchoredPosition = new Vector2(0, 228);
             rect.sizeDelta = new Vector2(620, 70);
+            toastObject.GetComponent<Image>().raycastTarget = false;
             toastText = NewText("Message", toastObject.transform, string.Empty, 16, White, FontStyle.Normal, TextAnchor.MiddleCenter);
             Stretch(toastText.rectTransform, 22, 8, -22, -8);
             toastObject.SetActive(false);

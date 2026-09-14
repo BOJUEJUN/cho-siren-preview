@@ -125,11 +125,7 @@ namespace ChoSiren.Tests
             yield return null;
             AssertInactiveOrMissing("InfoModal");
 
-            Click("Mail");
-            RequireActiveObject("InfoModal");
-            Click("Close");
-            yield return null;
-            AssertInactiveOrMissing("InfoModal");
+            AssertInactiveOrMissing("Mail");
 
             Click("Settings");
             RequireActiveObject("SettingsModal");
@@ -141,7 +137,7 @@ namespace ChoSiren.Tests
             AssertInactiveOrMissing("SettingsModal");
 
             AssertInactiveOrMissing("冒险剧本");
-            ClickLobbyEntry("练习室");
+            ClickLobbyEntry("PracticeRoom");
             yield return null;
             RequireActiveObject("MemberPracticePanel");
             Click("PracticeBack");
@@ -149,7 +145,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("LobbyCards");
             AssertInactiveOrMissing("MemberPracticePanel");
 
-            ClickLobbyEntry("专辑制作");
+            ClickLobbyEntry("AlbumProduction");
             yield return null;
             RequireActiveObject("LobbyCards");
             Text albumToast = RequireActiveObject("Toast").GetComponentInChildren<Text>();
@@ -157,7 +153,7 @@ namespace ChoSiren.Tests
             Assert.That(albumToast.text, Does.Contain("即将开放"),
                 "锁定入口被点击后必须说明开放状态，不能进入空白页。");
 
-            ClickLobbyEntry("任务");
+            ClickLobbyEntry("Tasks");
             yield return null;
             RequireActiveObject("TaskBoardPanel");
             Click("TabWeekly");
@@ -301,6 +297,12 @@ namespace ChoSiren.Tests
             RequireActiveObject("Member-" + GameModel.Members[0].Id);
             AssertActiveUiUsesChineseOnly();
 
+            Click("Nav-lobby");
+            yield return null;
+            RequireActiveObject("LobbyCards");
+            RequireActiveObject("LiveOnStage");
+            AssertActiveUiUsesChineseOnly();
+
             Click("Nav-accessory");
             yield return null;
             RequireActiveObject("Accessory-0");
@@ -336,6 +338,12 @@ namespace ChoSiren.Tests
             yield return null;
             RequireActiveObject("Member-" + GameModel.Members[0].Id);
             AssertInactiveOrMissing("GachaPanel");
+            AssertActiveUiUsesChineseOnly();
+
+            Click("Nav-lobby");
+            yield return null;
+            RequireActiveObject("LobbyCards");
+            RequireActiveObject("LiveOnStage");
             AssertActiveUiUsesChineseOnly();
         }
 
@@ -844,9 +852,14 @@ namespace ChoSiren.Tests
                 {
                     "team", "members", "lobby", "accessory", "audition",
                 }[index]);
-                Text label = navigation.transform.Find("Label").GetComponent<Text>();
-                Assert.That(label.text, Is.EqualTo(navigationLabels[index]),
-                    "底部导航必须只保留单行中文标签，不得附加英文副标题。");
+                Text label = navigation.transform.Find("Label")?.GetComponent<Text>();
+                if (label != null)
+                    Assert.That(label.text, Is.EqualTo(navigationLabels[index]),
+                        "底部导航若保留动态文字，必须只显示单行中文，不得附加英文副标题。");
+                else
+                    Assert.That(navigation.GetComponentsInChildren<Image>(true)
+                            .Any(image => image.name.EndsWith("VisualV2") && image.sprite != null), Is.True,
+                        navigation.name + " 必须通过 VisualV2 整图承载烘焙导航文案。");
             }
         }
 
@@ -870,24 +883,24 @@ namespace ChoSiren.Tests
                 $"'{objectName}' did not handle the pointer click.");
         }
 
-        private static void ClickLobbyEntry(string label)
+        private static void ClickLobbyEntry(string objectName)
         {
             GameObject lobby = RequireActiveObject("LobbyCards");
-            Button button = lobby.GetComponentsInChildren<Button>(true)
-                .SingleOrDefault(candidate => candidate.GetComponentsInChildren<Text>(true)
-                    .Any(text => text.text == label));
-            Assert.That(button, Is.Not.Null, $"首页缺少“{label}”入口。");
-            Assert.That(button.gameObject.activeInHierarchy, Is.True, $"首页“{label}”入口未激活。");
-            Assert.That(button.isActiveAndEnabled, Is.True, $"首页“{label}”按钮组件未启用。");
-            Assert.That(button.IsInteractable(), Is.True, $"首页“{label}”入口不可点击。");
-            Assert.That(button.targetGraphic, Is.Not.Null, $"首页“{label}”入口缺少点击图形。");
-            Assert.That(button.targetGraphic.raycastTarget, Is.True, $"首页“{label}”入口无法接收射线。");
+            Transform entry = lobby.transform.Find(objectName);
+            Assert.That(entry, Is.Not.Null, $"首页缺少 {objectName} 入口。");
+            Button button = entry.GetComponent<Button>();
+            Assert.That(button, Is.Not.Null, $"首页 {objectName} 缺少 Button。");
+            Assert.That(button.gameObject.activeInHierarchy, Is.True, $"首页 {objectName} 入口未激活。");
+            Assert.That(button.isActiveAndEnabled, Is.True, $"首页 {objectName} 按钮组件未启用。");
+            Assert.That(button.IsInteractable(), Is.True, $"首页 {objectName} 入口不可点击。");
+            Assert.That(button.targetGraphic, Is.Not.Null, $"首页 {objectName} 入口缺少点击图形。");
+            Assert.That(button.targetGraphic.raycastTarget, Is.True, $"首页 {objectName} 入口无法接收射线。");
             PointerEventData pointer = new PointerEventData(EventSystem.current)
             {
                 button = PointerEventData.InputButton.Left,
             };
             Assert.That(ExecuteEvents.Execute(button.gameObject, pointer, ExecuteEvents.pointerClickHandler), Is.True,
-                $"首页“{label}”入口未处理玩家点击。");
+                $"首页 {objectName} 入口未处理玩家点击。");
         }
 
         private static GameObject RequireActiveObject(string objectName)
