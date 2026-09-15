@@ -421,6 +421,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(phaseBadge.GetComponent<RectTransform>(), 282, 12, 150, 66);
             StylePunkPlate(phaseBadge.GetComponent<Image>(), PanelKit.Gold);
             phaseBadge.GetComponent<Image>().color = new Color32(12, 7, 29, 226);
+            AddReferenceBattleFrame(phaseBadge.transform, BattleReferenceFrame038.FrameKind.Information, PanelKit.Gold);
             phaseText = kit.NewPlacedText(phaseBadge.transform, "阶段 1/3", 22, PanelKit.Gold, 6, 0, 138, 36,
                 TextAnchor.MiddleCenter, FontStyle.BoldAndItalic);
             PanelKit.EnableBestFit(phaseText, 16);
@@ -590,6 +591,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(stageCaption.GetComponent<RectTransform>(), 20, 10, 430, 64);
             StylePunkPlate(stageCaption.GetComponent<Image>(), new Color32(165, 75, 255, 255));
             stageCaption.GetComponent<Image>().color = new Color32(9, 8, 30, 206);
+            AddReferenceBattleFrame(stageCaption.transform, BattleReferenceFrame038.FrameKind.Information, PanelKit.Purple);
             captainNameText = kit.NewPlacedText(stageCaption.transform, "当前队长", 17, PanelKit.White,
                 14, 5, 396, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             captainNameText.gameObject.name = "CurrentCaptain";
@@ -600,6 +602,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(instructionPlate.rectTransform, 470, 10, 230, 64);
             StylePunkPlate(instructionPlate, new Color32(165, 75, 255, 255));
             instructionPlate.raycastTarget = false;
+            AddReferenceBattleFrame(instructionPlate.transform, BattleReferenceFrame038.FrameKind.Information, PanelKit.Purple);
             kit.NewPlacedText(instructionPlate.transform, battle.IsRealtime ? "普攻自动释放\n满能量点头像放大招" : "点击高亮目标", 14, PanelKit.Muted,
                 14, 8, 202, 48, TextAnchor.MiddleRight).gameObject.name = "BattleControlInstruction";
 
@@ -768,18 +771,20 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(ornament.rectTransform);
             ornament.preserveAspect = true;
             ornament.raycastTarget = false;
+            AddReferenceBattleFrame(root.transform, player ? BattleReferenceFrame038.FrameKind.Member
+                : BattleReferenceFrame038.FrameKind.Information, player ? PanelKit.Purple : PanelKit.Pink);
 
             Image highlight = kit.NewImage("Highlight", root.transform, PunkPlateSprite(), AnchorTint);
             PanelKit.Stretch(highlight.rectTransform);
             highlight.enabled = false;
 
-            // 玩家卡名字 11pt(排版钳到12)：名字行 100..120 夹在头像(至100)与护盾/血条(119起)之间，
-            // 20px 行高容纳 BestFit 后 12pt 的真实行高。
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 11 : 21, PanelKit.White,
+            // Live member names keep the reference card's separate 20px name band,
+            // fully below the portrait (ends y100) and clear of the shield/HP rows.
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 21, PanelKit.White,
                 player ? 10 : 8, player ? 100 : 3, width - (player ? 20 : 16), player ? 20 : 26,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, player ? FontStyle.Bold : FontStyle.BoldAndItalic);
             unitName.gameObject.name = "UnitName";
-            PanelKit.EnableBestFit(unitName, 11);
+            PanelKit.EnableBestFit(unitName, player ? 12 : 11);
             Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 8, player ? 122 : 34,
                 width - (player ? 24 : 16), player ? 7 : 6,
                 new Color32(66, 54, 117, 255), player ? PanelKit.Cyan : PanelKit.Pink, 5);
@@ -922,6 +927,59 @@ namespace ChoSiren.Panels
             ultFlash.transform.SetAsLastSibling();
         }
 
+        private void AddReferenceBattleFrame(Transform parent, BattleReferenceFrame038.FrameKind kind, Color accent)
+        {
+            GameObject decoration = new GameObject("ReferenceBattleFrame038", typeof(RectTransform));
+            decoration.transform.SetParent(parent, false);
+            PanelKit.Stretch(decoration.GetComponent<RectTransform>());
+            var graphic = decoration.AddComponent<BattleReferenceFrame038>();
+            graphic.Kind = kind;
+            graphic.Accent = accent;
+            graphic.raycastTarget = false;
+            decoration.transform.SetAsFirstSibling();
+        }
+
+        private void BuildReferenceRerollButton(GameObject buttonObject, bool all)
+        {
+            UnityEngine.UI.Image hit = buttonObject.GetComponent<UnityEngine.UI.Image>();
+            // Transparent pixels keep the full rectangular hit target while model
+            // state changes can still tint labels without drawing a filled rectangle.
+            hit.sprite = BattleReferenceFrame038.TransparentHitSprite;
+            hit.color = Color.clear;
+            hit.raycastTarget = true;
+            GameObject frameObject = new GameObject("ReferenceRerollFrame", typeof(RectTransform));
+            frameObject.transform.SetParent(buttonObject.transform, false);
+            PanelKit.Stretch(frameObject.GetComponent<RectTransform>());
+            var frame = frameObject.AddComponent<BattleReferenceFrame038>();
+            frame.Kind = all ? BattleReferenceFrame038.FrameKind.AllReroll : BattleReferenceFrame038.FrameKind.SelectedReroll;
+            frame.Accent = all ? PanelKit.Pink : PanelKit.Purple;
+            frame.raycastTarget = false;
+            frameObject.transform.SetAsFirstSibling();
+            UnityEngine.UI.Text label = PanelKit.LabelOf(buttonObject);
+            label.fontStyle = FontStyle.BoldAndItalic;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.resizeTextForBestFit = true;
+            label.resizeTextMinSize = all ? 17 : 18;
+            label.resizeTextMaxSize = all ? 23 : 22;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            float width = buttonObject.GetComponent<RectTransform>().rect.width;
+            float height = buttonObject.GetComponent<RectTransform>().rect.height;
+            PanelKit.PlaceTop(label.rectTransform, all ? 92 : 27, height*.28f,
+                width-(all ? 111 : 50), Mathf.Max(34,height*.47f));
+            if (all)
+            {
+                GameObject heart = new GameObject("RerollHeart", typeof(RectTransform));
+                heart.transform.SetParent(buttonObject.transform,false);
+                float heartSize = Mathf.Min(80, Mathf.Max(40,height-14));
+                PanelKit.PlaceTop(heart.GetComponent<RectTransform>(), 15, (height-heartSize)*.5f, heartSize, heartSize);
+                var glyph = heart.AddComponent<BattleReferenceFrame038>();
+                glyph.Kind = BattleReferenceFrame038.FrameKind.Heart;
+                glyph.raycastTarget = false;
+            }
+            buttonObject.AddComponent<LobbyHotspotFeedback>().Configure(all
+                ? LobbyHotspotFeedback.VisualKind.CallToAction : LobbyHotspotFeedback.VisualKind.Entry);
+        }
+
         private void BuildDiceConsole()
         {
             // 实时战斗回收了原底部指令框与其下方 56px 空白：骰子台加高、骰面放大，
@@ -937,7 +995,7 @@ namespace ChoSiren.Panels
             float diceLeft = realtime ? 10f : 36f;
             float statusTop = realtime ? 234f : 184f;
             float buttonTop = realtime ? 286f : 214f;
-            float buttonH = realtime ? 64f : 42f;
+            float buttonH = realtime ? 96f : 48f;
             GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(7, 6, 20, 218), 0);
             PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 1116, 680, consoleH);
             StylePunkPlate(console.GetComponent<Image>(), new Color32(185, 64, 249, 255));
@@ -996,26 +1054,16 @@ namespace ChoSiren.Panels
 
             }
 
-            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投已选0颗", 20,
-                PanelKit.ButtonDark, PanelKit.White, RerollDice, 12);
+            rerollButton = kit.NewButton("DiceReroll", console.transform, "重投已选0颗", 22,
+                PanelKit.ButtonDark, PanelKit.White, RerollDice, 0);
             PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(),
-                realtime ? 24f : 36f, buttonTop, realtime ? 290f : 292f, buttonH);
-            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "全部重投", 20,
-                PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 12);
+                realtime ? 12f : 24f, buttonTop, realtime ? 262f : 270f, buttonH);
+            energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "全部重投", 23,
+                PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 0);
             PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(),
-                realtime ? 374f : 352f, buttonTop, realtime ? 290f : 292f, buttonH);
-            StylePunkPlate(rerollButton.GetComponent<Image>(), new Color32(196, 90, 255, 255));
-            StylePunkPlate(energyRerollButton.GetComponent<Image>(), PanelKit.Pink);
-            PanelKit.LabelOf(rerollButton).fontStyle = FontStyle.BoldAndItalic;
-            PanelKit.LabelOf(energyRerollButton).fontStyle = FontStyle.BoldAndItalic;
-            if (realtime)
-            {
-                // 两颗重投键之间的粉色爱心块（参考 09-15 战斗图），纯装饰不吃点击。
-                Text heart = kit.NewPlacedText(console.transform, "♥", 38, PanelKit.Pink,
-                    318, buttonTop - 2, 52, buttonH + 4, TextAnchor.MiddleCenter, FontStyle.Bold);
-                heart.gameObject.name = "RerollHeart";
-                kit.AddOutline(heart.gameObject, new Color32(255, 120, 216, 160), 2f);
-            }
+                realtime ? 285f : 309f, buttonTop, realtime ? 383f : 350f, buttonH);
+            BuildReferenceRerollButton(rerollButton, false);
+            BuildReferenceRerollButton(energyRerollButton, true);
             Text diceHint = kit.NewPlacedText(console.transform,
                 battle.IsRealtime
                     ? "点骰子标记“待重投”，再按下方“重投已选”按钮；没点的保留"

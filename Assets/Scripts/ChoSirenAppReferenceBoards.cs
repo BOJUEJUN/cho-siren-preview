@@ -59,6 +59,7 @@ namespace ChoSiren
                     PlaceTop(image.GetComponent<RectTransform>(), 0, 5.8f, 720, 100);
                     image.GetComponent<Image>().preserveAspect = true;
                     image.GetComponent<Image>().raycastTarget = false;
+                    image.AddComponent<UiBottomEdgeFade038>();
                     image.transform.SetAsFirstSibling();
                     visual = image.transform;
                 }
@@ -71,9 +72,9 @@ namespace ChoSiren
             if (profile.Find("TeamAverageLevel") == null)
                 BoardText038(profile, "TeamAverageLevel", "队伍等级 " + TeamAverageLevel, 11, Muted, 87, 35, 105, 18);
             // Numbers sit after the original small icons, with a clear independent + zone.
-            PlaceTop(diamondText.rectTransform, 60, 10, 41, 30);
-            PlaceTop(goldText.rectTransform, 46, 9, 59, 30);
-            PlaceTop(staminaText.rectTransform, 42, 10, 65, 30);
+            PlaceTop(diamondText.rectTransform, 60, 17, 41, 30);
+            PlaceTop(goldText.rectTransform, 46, 16, 59, 30);
+            PlaceTop(staminaText.rectTransform, 42, 17, 65, 30);
             foreach (Text value in new[] { diamondText, goldText, staminaText })
             {
                 value.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -197,7 +198,7 @@ namespace ChoSiren
             BoardText038(root, "ScreenSubtitle", $"已拥有 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} · 本页 {page.VisibleCount} 名",
                 18, White, 46, 307, 735, 32);
             string[] names = { "MemberRoleFilter", "MemberRaceFilter", "MemberOwnedFilter" };
-            string[] labels = { "职业：" + (role.Length == 0 ? "全部" : role), "种族：" + (race.Length == 0 ? "全部" : race), "只看已拥有：" + (memberOwnedOnly ? "开" : "关") };
+            string[] labels = { "职业：" + (role.Length == 0 ? "全部" : role), "种族：" + (race.Length == 0 ? "全部" : race), "仅已拥有：" + (memberOwnedOnly ? "开" : "关") };
             for (int i = 0; i < 3; i++)
             {
                 int filter = i;
@@ -208,12 +209,15 @@ namespace ChoSiren
                     else memberOwnedOnly = !memberOwnedOnly;
                     memberPageIndex = 0; ShowScreen("members");
                 });
-                BoardText038(button.transform, "Label", labels[i], 17, White, 0, 0, 238, 53, TextAnchor.MiddleCenter);
+                Text filterLabel = BoardText038(button.transform, "Label", labels[i], 17, White,
+                    28, 9, 182, 35, TextAnchor.MiddleCenter);
+                PanelKit.EnableBestFit(filterLabel, 15);
+                filterLabel.verticalOverflow = VerticalWrapMode.Truncate;
             }
             GameObject search = NewImage("MemberSearch", root, null, Color.clear);
             PlaceTop(search.GetComponent<RectTransform>(), 42, 419, 733, 61);
             search.GetComponent<Image>().raycastTarget = true;
-            Text placeholder = BoardText038(search.transform, "Placeholder", "⌕  搜索成员名称，输入后按回车", 17, Muted, 15, 0, 690, 60);
+            Text placeholder = BoardText038(search.transform, "Placeholder", "◇  搜索成员名称，输入后按回车", 17, Muted, 15, 0, 690, 60);
             Text value = BoardText038(search.transform, "Value", memberSearchQuery, 18, White, 15, 0, 690, 60);
             InputField input = search.AddComponent<InputField>();
             input.targetGraphic = search.GetComponent<Image>(); input.textComponent = value; input.placeholder = placeholder;
@@ -229,10 +233,22 @@ namespace ChoSiren
                 if (!model.IsUnlocked(index))
                 {
                     BuildLockedMemberCard(card, 143, 269);
+                    card.AddComponent<RectMask2D>();
+                    Image silhouette = card.transform.Find("LockedSilhouette").GetComponent<Image>();
+                    PlaceTop(silhouette.rectTransform, 10, 24, 123, 174);
+                    Text lockedName = card.transform.Find("LockedName").GetComponent<Text>();
+                    PlaceTop(lockedName.rectTransform, 12, 202, 119, 28);
+                    lockedName.fontSize = 16;
+                    lockedName.verticalOverflow = VerticalWrapMode.Truncate;
+                    PanelKit.EnableBestFit(lockedName, 14);
+                    Text lockedProgress = card.transform.Find("LockedProgress").GetComponent<Text>();
+                    PlaceTop(lockedProgress.rectTransform, 12, 234, 119, 22);
+                    lockedProgress.fontSize = 11;
+                    lockedProgress.verticalOverflow = VerticalWrapMode.Truncate;
+                    PanelKit.EnableBestFit(lockedProgress, 10);
                     Sprite unknown = ReferenceArt038.Load("Art/Reference038/unknown-member-038");
                     if (unknown != null)
                     {
-                        Image silhouette = card.transform.Find("LockedSilhouette").GetComponent<Image>();
                         silhouette.sprite = unknown;
                         silhouette.color = White;
                         card.transform.Find("CareerGlow").gameObject.SetActive(false);

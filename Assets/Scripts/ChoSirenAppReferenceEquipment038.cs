@@ -38,11 +38,23 @@ namespace ChoSiren
             portraitClip.GetComponent<Image>().raycastTarget = false;
             portraitClip.AddComponent<RectMask2D>();
             GameObject portrait = NewImage("EquipmentPortrait", portraitClip.transform, Resources.Load<Sprite>(m.ResourcePath), White);
-            PlaceTop(portrait.GetComponent<RectTransform>(), -215, -62, 648, 1000);
+            PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(), portraitClip.GetComponent<RectTransform>(), m.Id);
             portrait.GetComponent<Image>().preserveAspect = true;
             portrait.GetComponent<Image>().raycastTarget = false;
-            BoardText038(selector.transform, "EquipmentMemberName", $"{m.Name} · 等级 {model.LevelOf(member)}", 27, White, 13, 416, 345, 40);
-            BoardText038(selector.transform, "EquipmentMemberPower", $"战力 {model.PowerOf(member):N0}", 21, White, 13, 457, 345, 33);
+            // The portrait aperture ends above a white torn edge. Keep both live rows
+            // on their own quiet inset instead of laying small text over that edge.
+            GameObject memberPlaque = NewImage("EquipmentMemberPlaque", selector.transform, null,
+                new Color32(13, 7, 35, 248));
+            PlaceTop(memberPlaque.GetComponent<RectTransform>(), 18, 340, 332, 114);
+            memberPlaque.GetComponent<Image>().raycastTarget = false;
+            Text memberName = BoardText038(memberPlaque.transform, "EquipmentMemberName",
+                $"{m.Name} · 等级 {model.LevelOf(member)}", 25, White, 16, 15, 300, 40);
+            PanelKit.EnableBestFit(memberName, 20);
+            memberName.verticalOverflow = VerticalWrapMode.Truncate;
+            Text memberPower = BoardText038(memberPlaque.transform, "EquipmentMemberPower",
+                $"战力 {model.PowerOf(member):N0}", 21, Cyan, 16, 65, 300, 34);
+            PanelKit.EnableBestFit(memberPower, 18);
+            memberPower.verticalOverflow = VerticalWrapMode.Truncate;
             BoardButton038("EquipmentChooseMember", root, new Rect(712, 442, 137, 244), () => OpenOwnedMemberPicker(0, 0, true));
             BoardText038(root, "EquipmentItemName", GameModel.AccessoryNames[item], 30, White, 442, 268, 305, 48);
             GameObject selectedArt = NewImage("EquipmentSelectedArt", root, AccessoryItemSprite(item), White);

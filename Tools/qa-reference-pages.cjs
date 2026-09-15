@@ -31,6 +31,10 @@ const path = require('node:path');
     await page.mouse.click(p.x, p.y);
     await page.waitForTimeout(1100);
   }
+  async function idle() {
+    await page.mouse.move(2, 2);
+    await page.waitForTimeout(250);
+  }
   async function capture(name) {
     const file = path.join(output, name + '.png');
     await canvas.screenshot({ path: file });
@@ -44,16 +48,65 @@ const path = require('node:path');
     while (artDownloads.size < 9 && Date.now() < artDeadline) await page.waitForTimeout(250);
     if (artDownloads.size !== 9) throw new Error('Expected nine complete original PNG downloads');
     await page.waitForTimeout(4500);
+    await idle();
     await capture('lobby');
+    await click(675, 50);
+    await idle();
+    await capture('settings');
+    await click(605, 490);
+    // Sweep every measured navigation hit zone with a real pointer.
+    for (const [name,x,y] of [['team',84,1399],['members',220,1407],['lobby',351,1411],['accessory',486,1407],['audition',627,1400]]) {
+      const n = await point(x,y);
+      await page.mouse.move(n.x,n.y);
+      await page.waitForTimeout(200);
+      await capture('nav-hover-' + name);
+      await idle();
+    }
     // These are the measured nonuniform lobby hit zones used across pages.
     const destinations = [['team',84,1399],['members',220,1407],['accessory',486,1407],['audition',627,1400]];
     for (const [name,x,y] of destinations) {
       await click(x,y);
+      await idle();
       await capture(name);
+      const navHover = await point(351,1411);
+      await page.mouse.move(navHover.x,navHover.y);
+      await page.waitForTimeout(250);
+      await capture('nav-hover-on-' + name);
+      await idle();
       if (name === 'members') {
-        await click(85,480);
-        await capture('profile');
-        await click(675,77);
+        for (let member = 0; member < 4; member++) {
+          await click(85 + member * 132,480);
+          await idle();
+          await capture(member === 0 ? 'profile' : 'profile-member-' + member);
+          await click(675,77);
+        }
+      }
+      if (name === 'accessory') {
+        for (let member = 1; member < 4; member++) {
+          await click(190,350); await idle(); await capture('accessory-member-' + member);
+        }
+      }
+      if (name === 'audition') {
+        const nx = await point(660,1060);
+        await page.mouse.move(nx.x,nx.y); await page.waitForTimeout(300);
+        await capture('audition-next-hover');
+        await page.mouse.down(); await page.waitForTimeout(160);
+        await capture('audition-next-pressed');
+        await page.mouse.up(); await page.waitForTimeout(500);
+        await capture('audition-next-released');
+        await idle(); await capture('audition-next');
+        const pv = await point(420,1060);
+        await page.mouse.move(pv.x,pv.y); await page.waitForTimeout(300);
+        await capture('audition-prev-hover');
+        await page.mouse.down(); await page.waitForTimeout(160);
+        await capture('audition-prev-pressed');
+        await page.mouse.up(); await page.waitForTimeout(500);
+        await capture('audition-prev-released');
+        await idle(); await capture('audition-previous');
+        // Channel memory: online advances to 3/10, offline shows 1/10, online restores 3/10.
+        await click(660,1060); await click(660,1060);
+        await click(535,200); await idle(); await capture('audition-offline');
+        await click(215,200); await idle(); await capture('audition-return-online');
       }
       await click(351,1411);
     }

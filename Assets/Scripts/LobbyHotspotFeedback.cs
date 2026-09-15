@@ -4,404 +4,237 @@ using UnityEngine.UI;
 
 namespace ChoSiren
 {
-    /// <summary>
-    /// Visible pointer feedback for the 0.3.8 lobby's transparent hotspots. The approved
-    /// golden remains untouched; this component only animates a zero-alpha child effect.
-    /// </summary>
+    /// <summary>Subtle edges for baked artwork and tactile motion for separate live image layers.</summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Button))]
     public sealed class LobbyHotspotFeedback : MonoBehaviour, IPointerEnterHandler,
         IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
-        public enum VisualKind
-        {
-            Entry,
-            CallToAction,
-            Navigation,
-            CurrencyPlus,
-            Profile,
-            Settings,
-        }
+        public enum VisualKind { Entry, CallToAction, Navigation, CurrencyPlus, Profile, Settings }
 
         private Button button;
-        private RectTransform effectRoot;
+        private RectTransform effectRoot, glyphRect;
         private CanvasGroup effectGroup;
         private LobbyHotspotAccentGraphic accent;
         private VisualKind kind;
-        private bool hovered;
-        private bool pressed;
-        private float currentAlpha;
-        private float currentScale = 1f;
-        private float currentRotation;
-        private float phase;
+        private bool hovered, pressed;
+        private float sweep = 1f;
+        private readonly TactileFeedbackTween motion = new TactileFeedbackTween();
+        private readonly TactileVisualMotion visuals = new TactileVisualMotion();
 
-        private void Awake()
-        {
-            button = GetComponent<Button>();
-        }
+        private void Awake() { button = GetComponent<Button>(); }
 
         public void Configure(VisualKind visualKind, Sprite glyph = null)
         {
+            visuals.Restore();
             kind = visualKind;
             BuildEffect(glyph);
+            visuals.Capture(transform);
             ResetImmediately();
         }
 
-        /// <summary>
-        /// Positions navigation feedback in the approved 0.3.8 artwork coordinate space.
-        /// The input rectangle deliberately remains larger and must never drive the
-        /// underline's visual center or baseline.
-        /// </summary>
+        /// <summary>The underline's measured centre/baseline remain independent of input and icon motion.</summary>
         public void ConfigureNavigationVisual(float centerFromLeft, float baselineFromTop, float width)
         {
             if (kind != VisualKind.Navigation || accent == null) return;
-
             RectTransform rect = accent.rectTransform;
             rect.anchorMin = rect.anchorMax = new Vector2(0f, 1f);
-            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(.5f, .5f);
             rect.anchoredPosition = new Vector2(centerFromLeft, -baselineFromTop);
             rect.sizeDelta = new Vector2(width, 8f);
             accent.SetVerticesDirty();
         }
 
-        private void OnEnable()
-        {
-            hovered = false;
-            pressed = false;
-            ResetImmediately();
-        }
+        private void OnEnable() => ResetImmediately();
+        private void OnDisable() => ResetImmediately();
 
         private void LateUpdate()
         {
-            if (effectRoot == null || effectGroup == null) return;
-
-            bool interactable = button != null && button.IsInteractable();
-            if (!interactable)
+            if (effectGroup == null) return;
+            if (button == null || !button.enabled || !button.IsInteractable())
+            { ResetImmediately(); return; }
+            motion.Update(pressed ? 2 : hovered ? 1 : 0, Time.unscaledDeltaTime);
+            effectGroup.alpha = motion.Alpha;
+            visuals.Apply(motion.Scale, motion.Lift);
+            // A plus overlay is a visual child too; never rotate or enlarge the entire hit rectangle.
+            if (glyphRect != null) glyphRect.localScale = Vector3.one * motion.Scale;
+            if (accent != null && hovered && sweep < 1f)
             {
-                hovered = false;
-                pressed = false;
+                sweep = Mathf.Min(1f, sweep + Time.unscaledDeltaTime / .30f);
+                accent.Phase = sweep;
             }
-
-            float targetAlpha = pressed && interactable ? 1f : hovered && interactable ? HoverAlpha(kind) : 0f;
-            float targetScale = pressed && interactable ? PressScale(kind) : hovered && interactable ? HoverScale(kind) : 1f;
-            float targetRotation = pressed && interactable ? PressRotation(kind) :
-                hovered && interactable ? HoverRotation(kind) : 0f;
-            float response = pressed ? 30f : hovered ? 22f : 18f;
-            float blend = 1f - Mathf.Exp(-response * Time.unscaledDeltaTime);
-
-            currentAlpha = Mathf.Lerp(currentAlpha, targetAlpha, blend);
-            currentScale = Mathf.Lerp(currentScale, targetScale, blend);
-            currentRotation = Mathf.LerpAngle(currentRotation, targetRotation, blend);
-
-            if (Mathf.Abs(currentAlpha - targetAlpha) < 0.001f) currentAlpha = targetAlpha;
-            if (Mathf.Abs(currentScale - targetScale) < 0.0005f) currentScale = targetScale;
-            if (Mathf.Abs(Mathf.DeltaAngle(currentRotation, targetRotation)) < 0.05f)
-                currentRotation = targetRotation;
-
-            effectGroup.alpha = currentAlpha;
-            effectRoot.localScale = Vector3.one * currentScale;
-            effectRoot.localRotation = Quaternion.Euler(0f, 0f, currentRotation);
-
-            if (accent != null && hovered && interactable)
-            {
-                phase = Mathf.Repeat(phase + Time.unscaledDeltaTime * (kind == VisualKind.CallToAction ? 0.9f : 0.55f), 1f);
-                accent.Phase = phase;
-            }
-        }
-
-        private void OnDisable()
-        {
-            hovered = false;
-            pressed = false;
-            ResetImmediately();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (button != null && button.IsInteractable()) hovered = true;
+            if (button == null || !button.enabled || !button.IsInteractable()) return;
+            hovered = true; sweep = 0f;
+            visuals.Capture(transform);
+            if (accent != null) accent.Phase = 0f;
         }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            hovered = false;
-            pressed = false;
-        }
-
+        public void OnPointerExit(PointerEventData eventData) { hovered = false; pressed = false; }
         public void OnPointerDown(PointerEventData eventData)
-        {
-            if (button != null && button.IsInteractable()) pressed = true;
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            pressed = false;
-        }
+        { if (eventData.button == PointerEventData.InputButton.Left && button != null && button.IsInteractable()) pressed = true; }
+        public void OnPointerUp(PointerEventData eventData) { pressed = false; }
 
         private void BuildEffect(Sprite glyph)
         {
             Transform existing = transform.Find("InteractionFx");
-            if (existing != null) Destroy(existing.gameObject);
-
-            GameObject rootObject = new GameObject("InteractionFx", typeof(RectTransform), typeof(CanvasGroup));
-            rootObject.layer = gameObject.layer;
-            rootObject.transform.SetParent(transform, false);
-            effectRoot = rootObject.GetComponent<RectTransform>();
-            effectRoot.anchorMin = Vector2.zero;
-            effectRoot.anchorMax = Vector2.one;
-            effectRoot.offsetMin = Vector2.zero;
-            effectRoot.offsetMax = Vector2.zero;
-            effectRoot.pivot = new Vector2(0.5f, 0.5f);
-
-            effectGroup = rootObject.GetComponent<CanvasGroup>();
-            effectGroup.alpha = 0f;
-            effectGroup.interactable = false;
-            effectGroup.blocksRaycasts = false;
-
+            if (existing != null) { existing.gameObject.SetActive(false); Destroy(existing.gameObject); }
+            accent = null; glyphRect = null;
+            GameObject root = new GameObject("InteractionFx", typeof(RectTransform), typeof(CanvasGroup));
+            root.layer = gameObject.layer;
+            root.transform.SetParent(transform, false);
+            effectRoot = root.GetComponent<RectTransform>();
+            effectRoot.anchorMin = Vector2.zero; effectRoot.anchorMax = Vector2.one;
+            effectRoot.offsetMin = effectRoot.offsetMax = Vector2.zero;
+            effectGroup = root.GetComponent<CanvasGroup>();
+            effectGroup.alpha = 0f; effectGroup.interactable = false; effectGroup.blocksRaycasts = false;
             if (kind == VisualKind.CurrencyPlus && glyph != null)
             {
-                GameObject glyphObject = new GameObject("HoverGlyph", typeof(RectTransform),
-                    typeof(CanvasRenderer), typeof(Image));
-                glyphObject.layer = gameObject.layer;
-                glyphObject.transform.SetParent(effectRoot, false);
-                RectTransform glyphRect = glyphObject.GetComponent<RectTransform>();
-                glyphRect.anchorMin = glyphRect.anchorMax = new Vector2(0.5f, 0.5f);
-                glyphRect.pivot = new Vector2(0.5f, 0.5f);
+                GameObject node = new GameObject("HoverGlyph", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                node.layer = gameObject.layer; node.transform.SetParent(effectRoot, false);
+                glyphRect = node.GetComponent<RectTransform>();
+                glyphRect.anchorMin = glyphRect.anchorMax = glyphRect.pivot = Vector2.one * .5f;
                 glyphRect.anchoredPosition = Vector2.zero;
-                glyphRect.sizeDelta = new Vector2(glyph.rect.width, glyph.rect.height) * (720f / 821f);
-                Image glyphImage = glyphObject.GetComponent<Image>();
-                glyphImage.sprite = glyph;
-                glyphImage.color = Color.white;
-                glyphImage.preserveAspect = true;
-                glyphImage.useSpriteMesh = true;
-                glyphImage.raycastTarget = false;
+                glyphRect.sizeDelta = glyph.rect.size * (720f / 821f);
+                Image image = node.GetComponent<Image>();
+                image.sprite = glyph; image.color = new Color32(217, 206, 255, 240);
+                image.preserveAspect = true; image.useSpriteMesh = true; image.raycastTarget = false;
             }
             else
             {
-                GameObject accentObject = new GameObject(AccentName(kind), typeof(RectTransform),
-                    typeof(CanvasRenderer), typeof(LobbyHotspotAccentGraphic));
-                accentObject.layer = gameObject.layer;
-                accentObject.transform.SetParent(effectRoot, false);
-                RectTransform accentRect = accentObject.GetComponent<RectTransform>();
-                accentRect.anchorMin = Vector2.zero;
-                accentRect.anchorMax = Vector2.one;
-                accentRect.offsetMin = Vector2.zero;
-                accentRect.offsetMax = Vector2.zero;
-                accent = accentObject.GetComponent<LobbyHotspotAccentGraphic>();
-                accent.Configure(kind);
-                accent.raycastTarget = false;
+                GameObject node = new GameObject(AccentName(kind), typeof(RectTransform), typeof(CanvasRenderer), typeof(LobbyHotspotAccentGraphic));
+                node.layer = gameObject.layer; node.transform.SetParent(effectRoot, false);
+                RectTransform rect = node.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                accent = node.GetComponent<LobbyHotspotAccentGraphic>(); accent.Configure(kind);
             }
-
-            rootObject.transform.SetAsLastSibling();
+            root.transform.SetAsLastSibling();
         }
 
         private void ResetImmediately()
         {
-            currentAlpha = 0f;
-            currentScale = 1f;
-            currentRotation = 0f;
-            phase = 0f;
+            hovered = pressed = false; sweep = 1f; motion.Reset(); visuals.Restore();
             if (effectGroup != null) effectGroup.alpha = 0f;
-            if (effectRoot != null)
-            {
-                effectRoot.localScale = Vector3.one;
-                effectRoot.localRotation = Quaternion.identity;
-            }
-            if (accent != null) accent.Phase = 0f;
+            if (glyphRect != null) glyphRect.localScale = Vector3.one;
+            if (accent != null) accent.Phase = 1f;
         }
 
-        private static string AccentName(VisualKind visualKind)
+        private static string AccentName(VisualKind visualKind) => visualKind switch
         {
-            return visualKind switch
-            {
-                VisualKind.CallToAction => "CrystalAccent",
-                VisualKind.Navigation => "HoverUnderline",
-                VisualKind.Profile => "AvatarRing",
-                VisualKind.Settings => "GearRing",
-                _ => "HoverAccent",
-            };
-        }
-
-        private static float HoverAlpha(VisualKind visualKind)
-        {
-            return visualKind switch
-            {
-                VisualKind.Entry => 0.72f,
-                VisualKind.CallToAction => 0.85f,
-                VisualKind.Navigation => 0.78f,
-                VisualKind.CurrencyPlus => 0.92f,
-                VisualKind.Profile => 0.80f,
-                VisualKind.Settings => 0.85f,
-                _ => 0.75f,
-            };
-        }
-
-        private static float HoverScale(VisualKind visualKind)
-        {
-            return visualKind switch
-            {
-                VisualKind.Entry => 1.012f,
-                VisualKind.CallToAction => 1.018f,
-                VisualKind.Navigation => 1f,
-                VisualKind.CurrencyPlus => 1.16f,
-                VisualKind.Profile => 1.04f,
-                VisualKind.Settings => 1.06f,
-                _ => 1.02f,
-            };
-        }
-
-        private static float PressScale(VisualKind visualKind)
-        {
-            return visualKind switch
-            {
-                VisualKind.Entry => 0.965f,
-                VisualKind.CallToAction => 0.95f,
-                VisualKind.Navigation => 1f,
-                VisualKind.CurrencyPlus => 0.78f,
-                VisualKind.Profile => 0.90f,
-                VisualKind.Settings => 0.86f,
-                _ => 0.95f,
-            };
-        }
-
-        private static float HoverRotation(VisualKind visualKind)
-        {
-            return visualKind == VisualKind.Profile ? 8f : visualKind == VisualKind.Settings ? 14f : 0f;
-        }
-
-        private static float PressRotation(VisualKind visualKind)
-        {
-            return visualKind == VisualKind.Profile ? -4f : visualKind == VisualKind.Settings ? -8f : 0f;
-        }
+            VisualKind.CallToAction => "CrystalAccent",
+            VisualKind.Navigation => "HoverUnderline",
+            VisualKind.Profile => "AvatarRing",
+            VisualKind.Settings => "GearRing",
+            _ => "HoverAccent",
+        };
     }
 
-    /// <summary>Procedural, unfilled accents: no lobby pixels or rectangular backgrounds are copied.</summary>
+    /// <summary>Unfilled, feathered slanted edges; one sweep per entry, with no looping flash.</summary>
     internal sealed class LobbyHotspotAccentGraphic : MaskableGraphic
     {
         private LobbyHotspotFeedback.VisualKind kind;
-        private float phase;
-
+        private float phase = 1f;
         public float Phase
         {
             get => phase;
-            set
-            {
-                if (Mathf.Abs(phase - value) < 0.001f) return;
-                phase = value;
-                SetVerticesDirty();
-            }
+            set { if (Mathf.Abs(phase - value) < .001f) return; phase = value; SetVerticesDirty(); }
         }
-
         public void Configure(LobbyHotspotFeedback.VisualKind visualKind)
         {
-            kind = visualKind;
-            color = visualKind == LobbyHotspotFeedback.VisualKind.Navigation
-                ? new Color32(235, 219, 255, 255)
-                : new Color32(176, 93, 255, 255);
-            raycastTarget = false;
-            SetVerticesDirty();
+            kind = visualKind; color = new Color32(197, 157, 248, 230);
+            raycastTarget = false; SetVerticesDirty();
         }
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
-            vh.Clear();
-            Rect rect = GetPixelAdjustedRect();
-            if (rect.width <= 0f || rect.height <= 0f) return;
-
+            vh.Clear(); Rect rect = GetPixelAdjustedRect();
+            if (rect.width <= 0 || rect.height <= 0) return;
             switch (kind)
             {
                 case LobbyHotspotFeedback.VisualKind.Navigation:
-                    DrawNavigation(vh, rect);
+                    SoftLine(vh, Point(rect, .12f, .5f), Point(rect, .88f, .5f), 1.6f, new Color32(175, 213, 255, 225));
                     break;
                 case LobbyHotspotFeedback.VisualKind.Profile:
-                    DrawRing(vh, rect, new Vector2(rect.xMin + rect.width * 0.23f, rect.center.y),
-                        Mathf.Min(rect.height * 0.39f, rect.width * 0.19f), 2.2f, 36);
+                    Arc(vh, new Vector2(rect.xMin + rect.width * .23f, rect.center.y),
+                        Mathf.Min(rect.height * .39f, rect.width * .19f));
                     break;
                 case LobbyHotspotFeedback.VisualKind.Settings:
-                    DrawRing(vh, rect, rect.center, Mathf.Min(rect.width, rect.height) * 0.31f, 2.2f, 32);
+                    Arc(vh, rect.center, Mathf.Min(rect.width, rect.height) * .31f);
+                    break;
+                case LobbyHotspotFeedback.VisualKind.CurrencyPlus:
+                    SoftLine(vh, Point(rect, .35f, .22f), Point(rect, .68f, .22f), 1.3f, color);
+                    break;
+                case LobbyHotspotFeedback.VisualKind.CallToAction:
+                    DrawCrystal(vh, rect);
                     break;
                 default:
-                    DrawCornerAccents(vh, rect,
-                        kind == LobbyHotspotFeedback.VisualKind.CallToAction ? 0.19f : 0.14f);
-                    DrawMovingGlint(vh, rect);
+                    DrawEntry(vh, rect);
                     break;
             }
         }
 
-        private void DrawCornerAccents(VertexHelper vh, Rect rect, float lengthRatio)
+        private void DrawEntry(VertexHelper vh, Rect rect)
         {
-            float shortSide = Mathf.Min(rect.width, rect.height);
-            float inset = Mathf.Clamp(shortSide * 0.035f, 5f, 12f);
-            float length = Mathf.Clamp(shortSide * lengthRatio, 18f, 70f);
-            float thickness = Mathf.Clamp(shortSide * 0.012f, 2f, 4f);
-            float left = rect.xMin + inset;
-            float right = rect.xMax - inset;
-            float bottom = rect.yMin + inset;
-            float top = rect.yMax - inset;
-
-            AddLine(vh, new Vector2(left, top), new Vector2(left + length, top), thickness, color);
-            AddLine(vh, new Vector2(left, top), new Vector2(left, top - length), thickness, color);
-            AddLine(vh, new Vector2(right, top), new Vector2(right - length, top), thickness, color);
-            AddLine(vh, new Vector2(right, top), new Vector2(right, top - length), thickness, color);
-            AddLine(vh, new Vector2(left, bottom), new Vector2(left + length, bottom), thickness, color);
-            AddLine(vh, new Vector2(left, bottom), new Vector2(left, bottom + length), thickness, color);
-            AddLine(vh, new Vector2(right, bottom), new Vector2(right - length, bottom), thickness, color);
-            AddLine(vh, new Vector2(right, bottom), new Vector2(right, bottom + length), thickness, color);
+            Vector2 tl = Point(rect, .035f, .80f), tr = Point(rect, .90f, .975f);
+            Vector2 bl = Point(rect, .11f, .04f), br = Point(rect, .97f, .20f);
+            SoftLine(vh, Vector2.Lerp(tl, tr, .10f), Vector2.Lerp(tl, tr, .55f), 1.15f, color);
+            SoftLine(vh, Vector2.Lerp(bl, br, .43f), Vector2.Lerp(bl, br, .89f), 1.15f, new Color32(135, 197, 249, 165));
+            Sweep(vh, tl, tr);
         }
 
-        private void DrawMovingGlint(VertexHelper vh, Rect rect)
+        private void DrawCrystal(VertexHelper vh, Rect rect)
         {
-            float travel = Mathf.Lerp(rect.xMin + rect.width * 0.16f, rect.xMax - rect.width * 0.16f, phase);
-            float half = Mathf.Clamp(rect.width * 0.055f, 12f, 30f);
-            Color32 glint = new Color32(117, 232, 255, 235);
-            AddLine(vh, new Vector2(travel - half, rect.yMin + rect.height * 0.12f),
-                new Vector2(travel + half, rect.yMin + rect.height * 0.18f), 2f, glint);
+            // Asymmetric CTA triangle matches the long upper-right crystal tip and lower point.
+            Vector2 left = Point(rect, .045f, .43f), tip = Point(rect, .95f, .95f), bottom = Point(rect, .48f, .035f);
+            SoftLine(vh, Vector2.Lerp(left, tip, .08f), Vector2.Lerp(left, tip, .73f), 1.35f, color);
+            SoftLine(vh, Vector2.Lerp(left, bottom, .12f), Vector2.Lerp(left, bottom, .72f), 1.2f, new Color32(147, 186, 255, 160));
+            SoftLine(vh, Vector2.Lerp(bottom, tip, .10f), Vector2.Lerp(bottom, tip, .37f), 1.1f, new Color32(183, 139, 248, 120));
+            Sweep(vh, left, tip);
         }
 
-        private void DrawNavigation(VertexHelper vh, Rect rect)
+        private void Sweep(VertexHelper vh, Vector2 start, Vector2 end)
         {
-            float width = rect.width * Mathf.Lerp(0.62f, 0.94f,
-                0.5f + 0.5f * Mathf.Sin(phase * Mathf.PI * 2f));
-            float y = rect.center.y;
-            Color32 cyan = new Color32(121, 226, 255, 245);
-            AddLine(vh, new Vector2(rect.center.x - width * 0.5f, y),
-                new Vector2(rect.center.x + width * 0.5f, y), 2.5f, cyan);
+            if (phase <= 0 || phase >= 1) return;
+            float envelope = Mathf.Sin(phase * Mathf.PI);
+            Color tint = new Color(.75f, .90f, 1f, envelope * .85f);
+            SoftLine(vh, Vector2.Lerp(start, end, Mathf.Max(0, phase - .08f)),
+                Vector2.Lerp(start, end, Mathf.Min(1, phase + .08f)), 1.65f, tint);
         }
 
-        private void DrawRing(VertexHelper vh, Rect rect, Vector2 center, float radius, float thickness, int segments)
+        private void Arc(VertexHelper vh, Vector2 center, float radius)
         {
-            float pulse = 1f + 0.035f * Mathf.Sin(phase * Mathf.PI * 2f);
-            float radiusX = radius * pulse;
-            float radiusY = Mathf.Min(radius, rect.height * 0.40f) * pulse;
-            for (int index = 0; index < segments; index++)
+            const int segments = 20;
+            for (int i = 0; i < segments; i++)
             {
-                float a = index * Mathf.PI * 2f / segments;
-                float b = (index + 1) * Mathf.PI * 2f / segments;
-                Vector2 start = center + new Vector2(Mathf.Cos(a) * radiusX, Mathf.Sin(a) * radiusY);
-                Vector2 end = center + new Vector2(Mathf.Cos(b) * radiusX, Mathf.Sin(b) * radiusY);
-                AddLine(vh, start, end, thickness, color);
+                float a = Mathf.Lerp(.15f, 1.3f, i / (float)segments) * Mathf.PI;
+                float b = Mathf.Lerp(.15f, 1.3f, (i + 1) / (float)segments) * Mathf.PI;
+                SoftLine(vh, center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * radius,
+                    center + new Vector2(Mathf.Cos(b), Mathf.Sin(b)) * radius, 1.2f, color);
             }
         }
 
-        private static void AddLine(VertexHelper vh, Vector2 start, Vector2 end, float thickness, Color32 tint)
+        private static Vector2 Point(Rect rect, float x, float y) => new Vector2(rect.xMin + rect.width * x, rect.yMin + rect.height * y);
+        private static void SoftLine(VertexHelper vh, Vector2 a, Vector2 b, float thickness, Color tint)
         {
-            Vector2 direction = end - start;
-            if (direction.sqrMagnitude < 0.001f) return;
-            Vector2 normal = new Vector2(-direction.y, direction.x).normalized * (thickness * 0.5f);
+            Color halo = tint; halo.a *= .055f;
+            AddLine(vh, a, b, thickness + 5f, halo);
+            halo.a = tint.a * .13f; AddLine(vh, a, b, thickness + 2f, halo);
+            AddLine(vh, a, b, thickness, tint);
+        }
+        private static void AddLine(VertexHelper vh, Vector2 a, Vector2 b, float width, Color32 tint)
+        {
+            Vector2 delta = b - a;
+            if (delta.sqrMagnitude < .001f) return;
+            Vector2 normal = new Vector2(-delta.y, delta.x).normalized * (width * .5f);
             int first = vh.currentVertCount;
-            AddVertex(vh, start - normal, tint);
-            AddVertex(vh, start + normal, tint);
-            AddVertex(vh, end + normal, tint);
-            AddVertex(vh, end - normal, tint);
-            vh.AddTriangle(first, first + 1, first + 2);
-            vh.AddTriangle(first, first + 2, first + 3);
+            AddVertex(vh, a - normal, tint); AddVertex(vh, a + normal, tint);
+            AddVertex(vh, b + normal, tint); AddVertex(vh, b - normal, tint);
+            vh.AddTriangle(first, first + 1, first + 2); vh.AddTriangle(first, first + 2, first + 3);
         }
-
         private static void AddVertex(VertexHelper vh, Vector2 position, Color32 tint)
-        {
-            UIVertex vertex = UIVertex.simpleVert;
-            vertex.position = position;
-            vertex.color = tint;
-            vh.AddVert(vertex);
-        }
+        { UIVertex v = UIVertex.simpleVert; v.position = position; v.color = tint; vh.AddVert(v); }
     }
 }

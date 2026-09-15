@@ -237,7 +237,11 @@ namespace ChoSiren
             MapBoardHit("Back", page, 12, 15, 96, 100, Close);
             NewPlacedText(page, "第01章", 23, Pink, 145, 25, 300, 35, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(page, "踏梦迷踪", 38, White, 135, 62, 355, 64, TextAnchor.MiddleLeft, FontStyle.Bold);
-            staminaText = NewPlacedText(page, string.Empty, 24, White, 625, 30, 196, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Image staminaIcon = NewImage("StaminaIcon", page, Resources.Load<Sprite>("Art/UI/ResourceStamina-C"), White);
+            PlaceTop(staminaIcon.rectTransform, 633, 30, 44, 44);
+            staminaIcon.preserveAspect = true; staminaIcon.raycastTarget = false;
+            staminaText = NewPlacedText(page, string.Empty, 24, new Color32(255, 186, 235, 255),
+                687, 30, 126, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             storyChapterLabel = NewPlacedText(page, string.Empty, 20, Pink, 65, 207, 300, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
             MapBoardHit("StoryChapter-01", page, 24, 210, 370, 190, OpenStoryChapter01);
             Vector2[] centers = {
@@ -293,23 +297,17 @@ namespace ChoSiren
 
         private GameObject MapBoardHit(string name, Transform parent, float x, float y, float w, float h, UnityEngine.Events.UnityAction action)
         {
-            GameObject hit = NewPanelButton(name, parent, Color.clear, 0, action);
+            // Build this hit directly: legacy NewPanelButton adds root-scaling EventTriggers.
+            GameObject hit = NewPanel(name, parent, Color.clear, 0);
             PlaceTop(hit.GetComponent<RectTransform>(), x, y, w, h);
-            hit.GetComponent<Button>().transition = Selectable.Transition.None;
             Image visual = hit.GetComponent<Image>();
-            var trigger = hit.GetComponent<UnityEngine.EventSystems.EventTrigger>();
-            trigger.triggers.Clear(); // Keep the authored hit region fixed; only the overlay changes.
-            void Feedback(UnityEngine.EventSystems.EventTriggerType type, Color color)
-            {
-                var entry = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = type };
-                entry.callback.AddListener(_ => visual.color = color); trigger.triggers.Add(entry);
-            }
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerEnter, new Color(.7f,.3f,1f,.18f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerDown, new Color(.2f,.1f,.6f,.35f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerUp, new Color(.7f,.3f,1f,.18f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerExit, Color.clear);
-            Feedback(UnityEngine.EventSystems.EventTriggerType.Select, new Color(.7f,.3f,1f,.18f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.Deselect, Color.clear);
+            visual.raycastTarget = true;
+            Button button = hit.AddComponent<Button>();
+            button.targetGraphic = visual;
+            button.transition = Selectable.Transition.None;
+            button.onClick.AddListener(action);
+            hit.AddComponent<LobbyHotspotFeedback>().Configure(name == "StartChallenge"
+                ? LobbyHotspotFeedback.VisualKind.CallToAction : LobbyHotspotFeedback.VisualKind.Entry);
             return hit;
         }
 
@@ -400,8 +398,9 @@ namespace ChoSiren
             GameObject stamina = NewPanel("Stamina", header.transform, new Color32(12, 21, 54, 220), 23);
             PlaceTop(stamina.GetComponent<RectTransform>(), 530, 28, 166, 48);
             AddGlassOutline(stamina, new Color32(135, 147, 232, 70), 1f);
-            NewPlacedText(stamina.transform, "体力", 15, new Color32(255, 166, 225, 255),
-                14, 4, 44, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Image staminaIcon = NewImage("StaminaIcon", stamina.transform, Resources.Load<Sprite>("Art/UI/ResourceStamina-C"), White);
+            PlaceTop(staminaIcon.rectTransform, 12, 7, 34, 34);
+            staminaIcon.preserveAspect = true; staminaIcon.raycastTarget = false;
             staminaText = NewPlacedText(stamina.transform, string.Empty, 20, White,
                 56, 4, 96, 40, TextAnchor.MiddleRight, FontStyle.Bold);
 
@@ -752,8 +751,10 @@ namespace ChoSiren
             for (int index = 0; index < rewards.Count; index++)
             {
                 ChapterStarRewardView view = rewards[index];
-                GameObject row = NewPanel($"StarRewardRow-{view.RequiredStars}", card.transform,
-                    new Color32(23, 22, 72, 225), 22);
+                Image rowImage = NewImage($"StarRewardRow-{view.RequiredStars}", card.transform,
+                    ReferencePunkFx.SlashPanel(false), new Color32(29, 18, 55, 245));
+                rowImage.type = Image.Type.Sliced;
+                GameObject row = rowImage.gameObject;
                 PlaceTop(row.GetComponent<RectTransform>(), 35, 226 + index * 204, 590, 174);
                 AddGlassOutline(row, view.Claimable
                     ? new Color32(255, 104, 211, 205)
@@ -814,8 +815,10 @@ namespace ChoSiren
             for (int index = 0; index < tasks.Count; index++)
             {
                 ChapterTaskView view = tasks[index];
-                GameObject row = NewPanel($"ChapterTaskRow-{view.Id}", card.transform,
-                    new Color32(23, 22, 72, 225), 22);
+                Image rowImage = NewImage($"ChapterTaskRow-{view.Id}", card.transform,
+                    ReferencePunkFx.SlashPanel(false), new Color32(29, 18, 55, 245));
+                rowImage.type = Image.Type.Sliced;
+                GameObject row = rowImage.gameObject;
                 PlaceTop(row.GetComponent<RectTransform>(), 35, 232 + index * 200, 590, 170);
                 AddGlassOutline(row, view.Claimable
                     ? new Color32(91, 218, 255, 200)
@@ -872,14 +875,37 @@ namespace ChoSiren
             blockerButton.targetGraphic = blocker;
             blockerButton.onClick.AddListener(CloseChapterModal);
 
-            GameObject card = NewPanel("ModalCard", modalRoot.transform, new Color32(12, 13, 51, 249), 30);
+            // Same dark-purple slanted frame family as the settings/confirm modals.
+            Image cardImage = NewImage("ModalCard", modalRoot.transform,
+                ReferencePunkFx.SlashPanel(false), new Color32(151, 96, 218, 235));
+            cardImage.type = Image.Type.Sliced;
+            cardImage.raycastTarget = true;
+            GameObject card = cardImage.gameObject;
             PlaceTop(card.GetComponent<RectTransform>(), 30, top, 660, height);
-            card.GetComponent<Image>().raycastTarget = true;
-            AddGlassOutline(card, new Color32(188, 112, 255, 220), 2f);
+            Image fill = NewImage("ObsidianPlate", card.transform,
+                ReferencePunkFx.SlashPanel(false), new Color32(12, 7, 28, 253));
+            fill.type = Image.Type.Sliced;
+            fill.raycastTarget = false;
+            Stretch(fill.rectTransform, 2, 2, -2, -2);
+            fill.transform.SetAsFirstSibling();
+            ReferencePunkFx.Beam(card.transform, "TopShard", new Vector2(18, 14), new Vector2(193, 3), 2,
+                new Color32(236, 218, 255, 220));
+            ReferencePunkFx.Beam(card.transform, "BottomShard", new Vector2(469, height - 3),
+                new Vector2(644, height - 15), 2, new Color32(157, 144, 247, 210));
 
-            GameObject close = NewButton("CloseChapterModal", card.transform, "×", 28,
-                new Color32(61, 39, 106, 244), White, CloseChapterModal, 18);
+            Image closeImage = NewImage("CloseChapterModal", card.transform,
+                ReferencePunkFx.SlashPanel(false), new Color32(35, 19, 59, 255));
+            closeImage.type = Image.Type.Sliced;
+            closeImage.raycastTarget = true;
+            GameObject close = closeImage.gameObject;
             PlaceTop(close.GetComponent<RectTransform>(), 586, 18, 52, 52);
+            Button closeButton = close.AddComponent<Button>();
+            closeButton.targetGraphic = closeImage;
+            closeButton.transition = Selectable.Transition.None;
+            closeButton.onClick.AddListener(CloseChapterModal);
+            NewPlacedText(close.transform, "×", 28, White, 0, 0, 52, 52,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            close.AddComponent<LobbyHotspotFeedback>().Configure(LobbyHotspotFeedback.VisualKind.Settings);
             return card;
         }
 

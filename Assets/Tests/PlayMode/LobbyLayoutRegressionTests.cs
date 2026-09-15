@@ -10,8 +10,8 @@ namespace ChoSiren.Tests
 {
     /// <summary>
     /// Coordinate-level regression coverage for the portrait lobby composition.
-    /// These checks intentionally avoid screenshots and text preferred-size metrics so the
-    /// results do not depend on GPU output, DPI, or the font installed on the test machine.
+    /// Geometry and live glyph checks use the game's imported font and reference canvas;
+    /// screenshot acceptance remains a separate check of the authored artwork.
     /// </summary>
     public sealed class LobbyLayoutRegressionTests
     {
@@ -721,11 +721,25 @@ namespace ChoSiren.Tests
 
             RectTransform safe = RequireRect("SafeArea");
             string[] destinations = { "members", "team", "accessory", "lobby", "audition" };
+            var sourceTextures = new Texture[ids.Length];
+            var sourceSpriteRects = new Rect[ids.Length];
+            var sourceFonts = new Font[ids.Length];
+            var glyphBounds = new Rect[ids.Length];
+            var chinese = new[] { "团队", "成员", "大厅", "饰品", "选秀" };
             foreach (string destination in destinations)
             {
                 RequireButtonRect("Nav-" + destination).GetComponent<Button>().onClick.Invoke();
                 Canvas.ForceUpdateCanvases();
                 yield return null;
+                RectTransform backdrop = RequireRect("SharedNavigationBackdrop038");
+                AssertTopLeftBounds(safe, backdrop, 0, 1290, 720, 246, 1f,
+                    "所有页面必须覆盖旧烘焙导航，底板顶部延伸到渐隐区域");
+                Image backdropImage = backdrop.GetComponent<Image>();
+                Assert.That(backdropImage.sprite, Is.Not.Null);
+                Assert.That(backdropImage.raycastTarget, Is.False);
+                Assert.That(backdropImage.color.a, Is.GreaterThan(.95f));
+                Assert.That(backdrop.GetSiblingIndex(), Is.EqualTo(0), "底板不能盖在导航文字或按钮之上");
+                int selectedCount = 0;
 
                 for (int index = 0; index < ids.Length; index++)
                 {
@@ -747,11 +761,10 @@ namespace ChoSiren.Tests
                     Assert.That(screenCenterY, Is.EqualTo(LobbyNavUnderlineBaseline038).Within(1f),
                         ids[index] + " 的反馈线必须和大厅选中光条共用基线。 ");
 
-                    if (destination != "lobby")
                     {
                         Image visual = button.GetComponentsInChildren<Image>(true)
                             .FirstOrDefault(image => image.name.EndsWith("VisualV2"));
-                        Assert.That(visual, Is.Not.Null, ids[index] + " 非大厅导航缺少视觉素材。 ");
+                        Assert.That(visual, Is.Not.Null, ids[index] + " 所有页面（含大厅）都必须有真实导航素材。 ");
                         Assert.That(visual.gameObject.activeInHierarchy && visual.enabled, Is.True,
                             ids[index] + " 非大厅导航素材必须实际可见。 ");
                         Assert.That(visual.sprite, Is.Not.Null,
@@ -778,11 +791,44 @@ namespace ChoSiren.Tests
                             ids[index] + " 非大厅可见素材中心必须与 0.3.8 首页实测中心一致。 ");
 
                         Text chineseLabel = button.Find("Label").GetComponent<Text>();
+                        Assert.That(chineseLabel.enabled && chineseLabel.gameObject.activeInHierarchy, Is.True);
+                        Assert.That(chineseLabel.text, Is.EqualTo(chinese[index]));
+                        Assert.That(chineseLabel.font, Is.Not.Null);
                         Assert.That(chineseLabel.fontSize, Is.GreaterThanOrEqualTo(18), "底栏中文不可缩成微小烘焙字。");
                         Assert.That(chineseLabel.color.a, Is.GreaterThan(.9f));
                         Assert.That(chineseLabel.preferredHeight, Is.LessThanOrEqualTo(chineseLabel.rectTransform.rect.height));
                         AssertTopLeftBounds(safe, chineseLabel.rectTransform, LobbyNavLabelCenters038[index] - 38f,
                             1432f, 76f, 28f, 1f, "各页中文标签必须共享清晰字号和坐标");
+                        Rect generated = GeneratedGlyphBounds(chineseLabel, safe);
+                        Assert.That(generated.width, Is.GreaterThan(20f), "必须生成真实中文字符，不能用空 Label 通过几何检测");
+                        Assert.That(generated.height, Is.GreaterThan(10f));
+                        if (sourceTextures[index] == null)
+                        {
+                            sourceTextures[index] = visual.sprite.texture;
+                            sourceSpriteRects[index] = visual.sprite.rect;
+                            sourceFonts[index] = chineseLabel.font;
+                            glyphBounds[index] = generated;
+                        }
+                        else
+                        {
+                            Assert.That(visual.sprite.texture, Is.SameAs(sourceTextures[index]));
+                            Assert.That(visual.sprite.rect, Is.EqualTo(sourceSpriteRects[index]), "各页不可裁出不同部分的导航图标");
+                            Assert.That(chineseLabel.font, Is.SameAs(sourceFonts[index]));
+                            Assert.That(Vector2.Distance(generated.center, glyphBounds[index].center), Is.LessThan(.5f),
+                                "真实字符轮廓基线必须跨页一致，不只比较父节点");
+                            Assert.That(Vector2.Distance(generated.size, glyphBounds[index].size), Is.LessThan(.5f));
+                        }
+                        Image selected = button.Find("Highlight").GetComponent<Image>();
+                        Assert.That(selected.enabled, Is.True, "大厅也必须使用真实选中线，不能依赖旧图烘焙线");
+                        Assert.That(selected.raycastTarget, Is.False);
+                        Rect selectedBounds = RectRelativeTo(safe, selected.rectTransform);
+                        Assert.That(selectedBounds.center.x, Is.EqualTo(underlineRect.center.x).Within(.5f));
+                        Assert.That(selectedBounds.center.y, Is.EqualTo(underlineRect.center.y).Within(.5f));
+                        Assert.That(selected.color.a > .5f, Is.EqualTo(destination == ids[index]));
+                        if (selected.color.a > .5f) selectedCount++;
+                        for (int other = 0; other < index; other++)
+                            Assert.That(RectRelativeTo(safe, button).Overlaps(RectRelativeTo(safe,
+                                RequireButtonRect("Nav-" + ids[other]))), Is.False);
 
                         Text[] englishLiveText = button.GetComponentsInChildren<Text>(true)
                             .Where(text => !string.IsNullOrWhiteSpace(text.text) && text.text.Any(character =>
@@ -792,6 +838,82 @@ namespace ChoSiren.Tests
                         Assert.That(englishLiveText, Is.Empty,
                             ids[index] + " 非大厅导航不得在图片素材上额外叠加英文 live Text 节点。 ");
                     }
+                }
+                Assert.That(selectedCount, Is.EqualTo(1));
+            }
+        }
+
+        private static Rect GeneratedGlyphBounds(Text label, RectTransform space)
+        {
+            var vertices = label.cachedTextGenerator.verts;
+            Assert.That(vertices.Count, Is.GreaterThanOrEqualTo(8), "当前字体必须真正生成两个汉字的网格");
+            Vector2 min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            Vector2 max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            // TextGenerator appends an unused terminal quad on some Unity versions.
+            int count = Mathf.Min(label.text.Length * 4, vertices.Count);
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 world = label.rectTransform.TransformPoint(vertices[i].position / label.pixelsPerUnit);
+                Vector2 point = space.InverseTransformPoint(world);
+                min = Vector2.Min(min, point); max = Vector2.Max(max, point);
+            }
+            return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
+        [UnityTest]
+        public IEnumerator SharedHudNumbersStayAlignedAndHeaderFadeDoesNotDistortTheAuthoredStrip()
+        {
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.GetComponent<CanvasScaler>().enabled = false;
+            canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(720, 1536);
+            foreach (string page in new[] { "team", "members", "lobby", "accessory", "audition" })
+            {
+                RequireButtonRect("Nav-" + page).GetComponent<Button>().onClick.Invoke();
+                Canvas.ForceUpdateCanvases();
+                yield return null;
+                RectTransform safe = RequireRect("SafeArea");
+                float[] centers = new string[] { "Diamonds", "Gold", "Stamina" }.Select(name =>
+                {
+                    Text number = RequireRect(name).GetComponent<Text>();
+                    Assert.That(number.enabled && number.gameObject.activeInHierarchy, Is.True);
+                    Assert.That(number.font, Is.Not.Null);
+                    Assert.That(number.cachedTextGenerator.lineCount, Is.EqualTo(1), name + " 应保持单行");
+                    Assert.That(number.preferredHeight, Is.LessThanOrEqualTo(number.rectTransform.rect.height + .5f));
+                    AssertContained(number.transform.parent as RectTransform, number.rectTransform, name);
+                    return safe.rect.yMax - RectRelativeTo(safe, number.rectTransform).center.y;
+                }).ToArray();
+                Assert.That(centers.Max() - centers.Min(), Is.LessThanOrEqualTo(.5f), "三项资源数字必须共用水平中线");
+                Assert.That(centers[0], Is.EqualTo(52f).Within(.5f), "数字不能再贴在图标框上沿");
+                if (page == "lobby") continue; // Lobby already owns the full authored background.
+                Image header = RequireRect("ReferenceHeader038").GetComponent<Image>();
+                Assert.That(header.raycastTarget, Is.False);
+                UiBottomEdgeFade038 fade = header.GetComponent<UiBottomEdgeFade038>();
+                Assert.That(fade, Is.Not.Null);
+                Assert.That(fade.isActiveAndEnabled, Is.True);
+                using (var mesh = new VertexHelper())
+                {
+                    Vector3[] positions = { new Vector3(0, 0), new Vector3(0, 100),
+                        new Vector3(720, 100), new Vector3(720, 0) };
+                    Vector2[] uvs = { new Vector2(.2f,.3f), new Vector2(.2f,.9f),
+                        new Vector2(.8f,.9f), new Vector2(.8f,.3f) };
+                    for (int i = 0; i < 4; i++) mesh.AddVert(positions[i], Color.white, uvs[i]);
+                    mesh.AddTriangle(0,1,2); mesh.AddTriangle(2,3,0);
+                    fade.ModifyMesh(mesh);
+                    bool intermediateAlpha = false;
+                    for (int i = 0; i < mesh.currentVertCount; i++)
+                    {
+                        UIVertex vertex = default; mesh.PopulateUIVertex(ref vertex, i);
+                        float y = vertex.position.y / 100f;
+                        Assert.That(vertex.position.x, Is.InRange(0f,720f));
+                        Assert.That(y, Is.InRange(0f,1f));
+                        Assert.That(vertex.uv0.x, Is.EqualTo(Mathf.Lerp(.2f,.8f,vertex.position.x / 720f)).Within(.001f));
+                        Assert.That(vertex.uv0.y, Is.EqualTo(Mathf.Lerp(.3f,.9f,y)).Within(.001f), "渐隐不得裁图或拉伸UV");
+                        if (y == 0) Assert.That(vertex.color.a, Is.Zero, "下沿必须融入页面，不能保留硬边");
+                        if (y >= .3f) Assert.That(vertex.color.a, Is.EqualTo(255), "图标和文字所在的主体必须保持不透明");
+                        if (vertex.color.a > 0 && vertex.color.a < 255) intermediateAlpha = true;
+                    }
+                    Assert.That(intermediateAlpha, Is.True, "必须有真正的渐变过渡，不能只是裁掉底行");
                 }
             }
         }
@@ -918,6 +1040,28 @@ namespace ChoSiren.Tests
             Vector2 originalPosition = hotspot.anchoredPosition;
             Vector2 originalSize = hotspot.sizeDelta;
             Vector3 originalScale = hotspot.localScale;
+            Image navVisual = hotspotName.StartsWith("Nav-")
+                ? hotspot.GetComponentsInChildren<Image>().First(image => image.name.EndsWith("VisualV2")) : null;
+            Vector3 navRestPosition = navVisual != null ? navVisual.rectTransform.localPosition : Vector3.zero;
+            Vector3 navRestScale = navVisual != null ? navVisual.rectTransform.localScale : Vector3.one;
+            RectTransform[] fixedNavParts = navVisual == null ? new RectTransform[0] : new[]
+            {
+                (RectTransform)hotspot.Find("Label"), (RectTransform)hotspot.Find("Highlight"),
+                (RectTransform)hotspot.Find("InteractionFx/HoverUnderline"),
+            };
+            Vector3[] fixedPositions = fixedNavParts.Select(part => part.localPosition).ToArray();
+            Vector3[] fixedScales = fixedNavParts.Select(part => part.localScale).ToArray();
+            void AssertAnchorsUnchanged()
+            {
+                Assert.That(hotspot.anchoredPosition, Is.EqualTo(originalPosition));
+                Assert.That(hotspot.localScale, Is.EqualTo(originalScale));
+                for (int i = 0; i < fixedNavParts.Length; i++)
+                {
+                    Assert.That(fixedNavParts[i].localPosition, Is.EqualTo(fixedPositions[i]),
+                        fixedNavParts[i].name + " 不得跟随图标运动，文字和光条必须保持同一基线");
+                    Assert.That(fixedNavParts[i].localScale, Is.EqualTo(fixedScales[i]));
+                }
+            }
             Graphic[] decorations = hotspot.GetComponentsInChildren<Graphic>(true)
                 .Where(graphic => graphic != button.targetGraphic)
                 .ToArray();
@@ -933,6 +1077,12 @@ namespace ChoSiren.Tests
             ExecuteEvents.Execute<IPointerEnterHandler>(hotspot.gameObject, pointer,
                 ExecuteEvents.pointerEnterHandler);
             yield return new WaitForSecondsRealtime(0.16f);
+            AssertAnchorsUnchanged();
+            if (navVisual != null)
+            {
+                Assert.That(navVisual.rectTransform.localScale.x, Is.GreaterThan(navRestScale.x), "hover必须让实际图标响应");
+                Assert.That(navVisual.rectTransform.localPosition.y, Is.GreaterThan(navRestPosition.y));
+            }
             Graphic visible = MostVisibleFeedback(hotspot, button.targetGraphic);
             Assert.That(visible, Is.Not.Null,
                 $"{hotspotName} 悬停后必须出现玩家看得到的 Graphic/CanvasGroup 反馈。");
@@ -943,6 +1093,9 @@ namespace ChoSiren.Tests
             ExecuteEvents.Execute<IPointerDownHandler>(hotspot.gameObject, pointer,
                 ExecuteEvents.pointerDownHandler);
             yield return new WaitForSecondsRealtime(0.08f);
+            AssertAnchorsUnchanged();
+            if (navVisual != null)
+                Assert.That(navVisual.rectTransform.localScale.x, Is.LessThan(navRestScale.x), "press必须反馈在实际图标上");
             FeedbackVisualState pressed = CaptureFeedbackState(visible, hotspot);
             Assert.That(FeedbackChanged(hover, pressed), Is.True,
                 $"{hotspotName} pointer down 必须产生可观察的压下或闪光状态。");
@@ -950,6 +1103,7 @@ namespace ChoSiren.Tests
             ExecuteEvents.Execute<IPointerUpHandler>(hotspot.gameObject, pointer,
                 ExecuteEvents.pointerUpHandler);
             yield return new WaitForSecondsRealtime(0.12f);
+            AssertAnchorsUnchanged();
             FeedbackVisualState released = CaptureFeedbackState(visible, hotspot);
             Assert.That(FeedbackChanged(pressed, released), Is.True,
                 $"{hotspotName} pointer up 必须从按压态恢复为悬停态。");
@@ -957,6 +1111,12 @@ namespace ChoSiren.Tests
             ExecuteEvents.Execute<IPointerExitHandler>(hotspot.gameObject, pointer,
                 ExecuteEvents.pointerExitHandler);
             yield return new WaitForSecondsRealtime(0.3f);
+            AssertAnchorsUnchanged();
+            if (navVisual != null)
+            {
+                Assert.That(Vector3.Distance(navVisual.rectTransform.localPosition, navRestPosition), Is.LessThan(.001f));
+                Assert.That(Vector3.Distance(navVisual.rectTransform.localScale, navRestScale), Is.LessThan(.001f));
+            }
             Assert.That(MaxEffectiveAlpha(hotspot, button.targetGraphic), Is.LessThanOrEqualTo(0.01f),
                 $"{hotspotName} pointer exit 后必须恢复完全透明，保持静止画面 1:1。");
             Assert.That(button.IsInteractable(), Is.True,
@@ -1001,7 +1161,7 @@ namespace ChoSiren.Tests
 
         private static Graphic MostVisibleFeedback(RectTransform hotspot, Graphic targetGraphic)
         {
-            return hotspot.GetComponentsInChildren<Graphic>(true)
+            return hotspot.Find("InteractionFx").GetComponentsInChildren<Graphic>(true)
                 .Where(graphic => graphic != targetGraphic)
                 .OrderByDescending(graphic => EffectiveAlpha(graphic, hotspot))
                 .FirstOrDefault(graphic => EffectiveAlpha(graphic, hotspot) > 0.01f);
@@ -1009,7 +1169,7 @@ namespace ChoSiren.Tests
 
         private static float MaxEffectiveAlpha(RectTransform hotspot, Graphic targetGraphic)
         {
-            return hotspot.GetComponentsInChildren<Graphic>(true)
+            return hotspot.Find("InteractionFx").GetComponentsInChildren<Graphic>(true)
                 .Where(graphic => graphic != targetGraphic)
                 .Select(graphic => EffectiveAlpha(graphic, hotspot))
                 .DefaultIfEmpty(0f)

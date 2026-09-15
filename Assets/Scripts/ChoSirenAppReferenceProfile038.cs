@@ -49,16 +49,25 @@ namespace ChoSiren
                 CloseModal(); back?.Invoke();
             });
 
-            // A masked live bust fills the blank portrait aperture without stretching.
-            GameObject portraitFrame = NewImage("PortraitFrame", page, null, Color.clear);
+            // Clip to the authored aperture, including its angled left and bottom edges.
+            GameObject portraitFrame = new GameObject("PortraitFrame", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfilePortraitMask038), typeof(Mask));
+            portraitFrame.transform.SetParent(page, false);
             RectTransform portraitRect = portraitFrame.GetComponent<RectTransform>();
-            PlaceTop(portraitRect, 49, 142, 380, 583);
-            portraitFrame.GetComponent<Image>().raycastTarget = false;
-            portraitFrame.AddComponent<RectMask2D>();
+            PlaceTop(portraitRect, 35, 70, 425, 710);
+            portraitFrame.GetComponent<ProfilePortraitMask038>().raycastTarget = false;
+            portraitFrame.GetComponent<Mask>().showMaskGraphic = false;
             GameObject portrait = NewImage("Portrait", portraitFrame.transform, Resources.Load<Sprite>(member.ResourcePath), White);
             Image portraitImage = portrait.GetComponent<Image>();
             portraitImage.raycastTarget = false;
             PanelKit.FrameBustPortrait(portraitImage, portraitRect, member.Id);
+            portraitImage.rectTransform.anchoredPosition += Vector2.down * 90f;
+            GameObject portraitRim = new GameObject("PortraitAuthoredRim", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfilePortraitRim038));
+            portraitRim.transform.SetParent(page, false);
+            PlaceTop(portraitRim.GetComponent<RectTransform>(), 35, 70, 425, 710);
+            portraitRim.GetComponent<ProfilePortraitRim038>().Source = board;
+            portraitRim.GetComponent<ProfilePortraitRim038>().raycastTarget = false;
             BoardText038(page, "MemberCareerTagText", $"{member.Career} · 等级 {level}", 23, White, 77, 723, 338, 43);
 
             BoardText038(page, "MemberOwnershipStatus", "已签约成员", 20, Pink, 480, 102, 250, 35);
@@ -95,15 +104,39 @@ namespace ChoSiren
             }
 
             GameObject passive = ProfileGroup038(page, "MemberCaptainPanel", new Rect(53, 1300, 394, 104));
-            BoardText038(passive.transform, "CaptainEffectDescription", CaptainEffectCopy(member.Race), 18, Muted,
-                9, 3, 374, 59).verticalOverflow = VerticalWrapMode.Truncate;
+            GameObject passiveFrame = new GameObject("CaptainPassiveFrame", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            passiveFrame.transform.SetParent(passive.transform, false);
+            PlaceTop(passiveFrame.GetComponent<RectTransform>(), 6, 9, 78, 82);
+            passiveFrame.GetComponent<ProfileEmblemFrame038>().color = new Color32(158, 86, 239, 255);
+            passiveFrame.GetComponent<ProfileEmblemFrame038>().raycastTarget = false;
+            var passiveIcon = SkillIconVisuals.Create(passiveFrame.transform, "CaptainPassiveIcon", "被动爆发", string.Empty, Purple);
+            passiveIcon.Kind = SkillIconKind.Burst;
+            PlaceTop(passiveIcon.rectTransform, 20, 22, 38, 38);
+            Text passiveCopy = BoardText038(passive.transform, "CaptainEffectDescription", CaptainEffectCopy(member.Race), 17, Muted,
+                95, 3, 292, 59);
+            passiveCopy.verticalOverflow = VerticalWrapMode.Truncate;
+            PanelKit.EnableBestFit(passiveCopy, 14);
             GameObject appoint = BoardButton038("AppointCaptain", passive.transform, new Rect(220, 65, 168, 36),
                 () => ConfirmCaptain(memberIndex));
             appoint.GetComponent<Button>().interactable = !captain;
             BoardText038(appoint.transform, "Label", captain ? "当前队长" : inTeam ? "设为队长" : "上阵并任命", 19, Cyan,
                 0, 0, 168, 36, TextAnchor.MiddleCenter);
 
-            BoardText038(page, "MemberStatAffection", affection.ToString(), 60, Pink, 518, 1240, 115, 83);
+            Sprite gemHeart = ProfileGemHeart038();
+            GameObject affectionFrame = NewImage("MemberAffectionHeartFrame", page, gemHeart, White);
+            PlaceTop(affectionFrame.GetComponent<RectTransform>(), 500, 1217, 145, 137);
+            affectionFrame.GetComponent<Image>().preserveAspect = true;
+            affectionFrame.GetComponent<Image>().raycastTarget = false;
+            GameObject heartInset = new GameObject("MemberAffectionHeartInset", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            heartInset.transform.SetParent(page, false);
+            PlaceTop(heartInset.GetComponent<RectTransform>(), 527, 1242, 93, 79);
+            ProfileEmblemFrame038 heartShape = heartInset.GetComponent<ProfileEmblemFrame038>();
+            heartShape.SolidHeart = true; heartShape.color = new Color32(18, 6, 40, 245); heartShape.raycastTarget = false;
+            Text affectionNumber = BoardText038(page, "MemberStatAffection", affection.ToString(), 54, Pink,
+                530, 1241, 87, 70, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(affectionNumber, 36);
             BoardText038(page, "MemberAffectionTier", model.AffectionTierOf(memberIndex), 27, White, 643, 1247, 143, 55);
             BoardText038(page, "MemberAffectionProgress", $"{affection}/{GameModel.MaxAffection}", 18, Muted, 634, 1306, 153, 34, TextAnchor.MiddleRight);
             ProfileBar038(page, "MemberAffectionBar", 522, 1347, 260, 9, affection / (float)GameModel.MaxAffection, Pink);
@@ -118,9 +151,13 @@ namespace ChoSiren
             PlaceTop(currency.GetComponent<RectTransform>(), 455, 1460, 58, 64);
             currency.GetComponent<Image>().preserveAspect = true; currency.GetComponent<Image>().raycastTarget = false;
             BoardText038(page, "MemberTrainingGoldBalance", model.Save.Gold.ToString("N0"), 16, White, 434, 1540, 104, 37, TextAnchor.MiddleCenter);
-            BoardText038(page, "MemberNormalAttack", normalName, 19, Cyan, 551, 1475, 98, 49, TextAnchor.MiddleCenter);
-            BoardText038(page, "MemberNormalAttackDescription", normalEffect, 12, Muted, 547, 1532, 105, 45, TextAnchor.MiddleCenter)
-                .verticalOverflow = VerticalWrapMode.Truncate;
+            Text normalTitle = BoardText038(page, "MemberNormalAttack", normalName, 17, Cyan, 551, 1470, 98, 30, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(normalTitle, 14);
+            normalTitle.verticalOverflow = VerticalWrapMode.Truncate;
+            Text normalDescription = BoardText038(page, "MemberNormalAttackDescription", normalEffect, 12, Muted,
+                549, 1510, 103, 54, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(normalDescription, 10);
+            normalDescription.verticalOverflow = VerticalWrapMode.Truncate;
             BoardText038(page, "MemberLevelLabel", $"等级\n{level}", 23, White, 664, 1466, 100, 93, TextAnchor.MiddleCenter);
 
             GameObject train = BoardButton038("Train", page, new Rect(30, 1636, 200, 114), () =>
@@ -186,6 +223,14 @@ namespace ChoSiren
             GameObject card = ProfileGroup038(parent, name + "Card", new Rect(0, y, 416, 139));
             var icon = SkillIconVisuals.Create(card.transform, name + "Icon", skill, effect, accent);
             PlaceTop(icon.rectTransform, 13, 23, 88, 88);
+            if (icon.Kind == SkillIconKind.Charm && ProfileGemHeart038() != null)
+            {
+                icon.color = Color.clear;
+                GameObject gem = NewImage(name + "GemArt", card.transform, ProfileGemHeart038(), White);
+                PlaceTop(gem.GetComponent<RectTransform>(), 7, 15, 101, 105);
+                gem.GetComponent<Image>().preserveAspect = true;
+                gem.GetComponent<Image>().raycastTarget = false;
+            }
             BoardText038(card.transform, name, skill, 25, White, 125, 7, 275, 38);
             Text description = BoardText038(card.transform, name + "Description", effect, 19, Muted,
                 124, 48, 276, 84, TextAnchor.UpperLeft);
@@ -215,6 +260,21 @@ namespace ChoSiren
             Rect bounds = button.GetComponent<RectTransform>().rect;
             BoardText038(button.transform, "Label", caption, 16, Color.clear,
                 3, 3, bounds.width - 6, bounds.height - 6, TextAnchor.MiddleCenter);
+        }
+
+        private Sprite profileHeartGem038;
+        private Sprite ProfileGemHeart038()
+        {
+            if (profileHeartGem038 != null) return profileHeartGem038;
+            Sprite source = Resources.Load<Sprite>("Art/AccessoryAI/Items/accessory-heart-necklace-ai-v1");
+            if (source == null) return null;
+            Rect r = source.rect;
+            profileHeartGem038 = Sprite.Create(source.texture,
+                new Rect(r.x + r.width * .07f, r.y + r.height * .10f, r.width * .70f, r.height * .43f),
+                new Vector2(.5f,.5f), source.pixelsPerUnit, 0, SpriteMeshType.FullRect);
+            profileHeartGem038.name = "ProfileNativeGemHeart038";
+            profileHeartGem038.hideFlags = HideFlags.DontSave;
+            return profileHeartGem038;
         }
     }
 }

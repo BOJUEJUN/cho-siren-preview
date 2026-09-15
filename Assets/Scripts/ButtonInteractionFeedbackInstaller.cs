@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ChoSiren
@@ -32,13 +33,34 @@ namespace ChoSiren
             for (int index = 0; index < buttons.Length; index++)
             {
                 Button candidate = buttons[index];
-                if (candidate == null || candidate.GetComponent<ButtonInteractionFeedback>() != null ||
-                    candidate.GetComponent<LobbyHotspotFeedback>() != null) continue;
+                if (candidate == null) continue;
+                ButtonInteractionFeedback existing = candidate.GetComponent<ButtonInteractionFeedback>();
+                // Respect authored feedback and unrelated event callbacks. Never clear EventTrigger entries.
+                if (candidate.GetComponent<LobbyHotspotFeedback>() != null || HasCustomPointerFeedback(candidate))
+                {
+                    if (existing != null) { existing.enabled = false; Destroy(existing); }
+                    continue;
+                }
+                if (existing != null) continue;
                 candidate.gameObject.AddComponent<ButtonInteractionFeedback>();
                 installed++;
             }
 
             return installed;
+        }
+
+        private static bool HasCustomPointerFeedback(Button candidate)
+        {
+            EventTrigger trigger = candidate.GetComponent<EventTrigger>();
+            if (trigger == null || !trigger.enabled || trigger.triggers == null) return false;
+            foreach (EventTrigger.Entry entry in trigger.triggers)
+            {
+                if (entry == null) continue;
+                if (entry.eventID == EventTriggerType.PointerEnter || entry.eventID == EventTriggerType.PointerExit ||
+                    entry.eventID == EventTriggerType.PointerDown || entry.eventID == EventTriggerType.PointerUp ||
+                    entry.eventID == EventTriggerType.Select || entry.eventID == EventTriggerType.Deselect) return true;
+            }
+            return false;
         }
     }
 }

@@ -125,6 +125,47 @@ namespace ChoSiren.Panels
             return barSprite;
         }
 
+        private static readonly Dictionary<int, Sprite> SlashPanels = new Dictionary<int, Sprite>();
+
+        /// <summary>Sliced panel with two diagonally cut corners (BL + TR); mirror swaps the pair.</summary>
+        public static Sprite SlashPanel(bool mirror)
+        {
+            int key = mirror ? 1 : 0;
+            if (SlashPanels.TryGetValue(key, out Sprite cached) && cached != null) return cached;
+            const int size = 64;
+            const float cut = 17f;
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float px = x + .5f;
+                    float py = y + .5f;
+                    float d = mirror ? (size - px) + py : px + py;
+                    float inside = Mathf.Min(
+                        Mathf.Clamp01(2f * size - cut - d + .8f),
+                        Mathf.Clamp01(d - cut + .8f));
+                    pixels[y * size + x] = new Color32(255, 255, 255,
+                        (byte)Mathf.RoundToInt(Mathf.Clamp01(inside) * 255f));
+                }
+            }
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false, true)
+            {
+                name = "PunkSlashPanel-Texture",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave,
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, size, size),
+                new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(15, 15, 15, 15));
+            sprite.name = "PunkSlashPanel" + (mirror ? "-M" : string.Empty);
+            sprite.hideFlags = HideFlags.HideAndDontSave;
+            SlashPanels[key] = sprite;
+            return sprite;
+        }
+
         /// <summary>Soft radial glow (shared, cached).</summary>
         public static Sprite Glow()
         {

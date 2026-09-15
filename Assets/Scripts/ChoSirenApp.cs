@@ -352,7 +352,6 @@ namespace ChoSiren
             navHighlights.Clear();
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
             string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
-            bool goldenLobby = currentScreen == "lobby";
             Rect[] goldenHitRects038 =
             {
                 new Rect(18f, 1328f, 132f, 143f),
@@ -385,6 +384,7 @@ namespace ChoSiren
             navRoot.pivot = new Vector2(0.5f, 0f);
             navRoot.offsetMin = new Vector2(12f, 34f);
             navRoot.offsetMax = new Vector2(-12f, 218f);
+            BuildSharedNavigationBackdrop038();
             // v2 bakes icon + label into one PNG per destination. The shared visual strip
             // is [17,1329,684,168] on screen, i.e. (5,11,136.8,168) per item inside navRoot.
             string[] navArt =
@@ -419,8 +419,8 @@ namespace ChoSiren
                     ResumeMediaAfterUserGesture();
                 });
 
-                Sprite art = goldenLobby ? null : NavigationIconOnly038(navArt[index]);
-                if (!goldenLobby && art != null)
+                Sprite art = NavigationIconOnly038(navArt[index]);
+                if (art != null)
                 {
                     GameObject visual = NewVisualV2(navVisualNames[index], buttonObject.transform, art);
                     Rect visualBounds = goldenVisualRects038[index];
@@ -431,7 +431,7 @@ namespace ChoSiren
                     visualImage.preserveAspect = true;
                     visual.transform.SetAsFirstSibling();
                 }
-                else if (!goldenLobby)
+                else
                 {
                     GameObject icon = NewImage("Icon", buttonObject.transform, NavIconSprite(index),
                         selected ? White : new Color32(197, 183, 218, 215));
@@ -445,9 +445,8 @@ namespace ChoSiren
                     iconImage.useSpriteMesh = true;
                 }
 
-                // Labels are baked into the nav art; keep the live node transparent for
-                // accessibility/tests once the baked strip is present.
-                Color labelColor = goldenLobby ? Color.clear : White;
+                // All five pages use the same actual icon, Chinese label and baseline.
+                Color labelColor = White;
                 Text label = NewText("Label", buttonObject.transform, labels[index], 18,
                     labelColor, FontStyle.Normal, TextAnchor.MiddleCenter);
                 PlaceTop(label.rectTransform, goldenLabelCenters038[index] - hit.x - 38,
@@ -455,10 +454,11 @@ namespace ChoSiren
 
                 GameObject highlight = NewImage("Highlight", buttonObject.transform, null,
                     selected ? Pink : Color.clear);
-                highlight.GetComponent<Image>().enabled = !goldenLobby;
+                highlight.GetComponent<Image>().enabled = true;
                 RectTransform highlightRect = highlight.GetComponent<RectTransform>();
+                // 3px bar centred on the same baseline as the 8px hover underline.
                 PlaceTop(highlightRect, goldenLabelCenters038[index] - hit.x - goldenUnderlineWidth038 * .5f,
-                    goldenUnderlineBaseline038 - hit.y, goldenUnderlineWidth038, 3f);
+                    goldenUnderlineBaseline038 - hit.y - 1.5f, goldenUnderlineWidth038, 3f);
                 navHighlights.Add(highlight.GetComponent<Image>());
                 AttachLobbyHotspotFeedback(buttonObject, LobbyHotspotFeedback.VisualKind.Navigation);
                 LobbyHotspotFeedback navFeedback = buttonObject.GetComponent<LobbyHotspotFeedback>();
@@ -951,7 +951,7 @@ namespace ChoSiren
             overlay.GetComponent<Image>().raycastTarget = true;
             modalObject = overlay;
 
-            GameObject panel = NewPanel("Panel", overlay.transform, new Color32(29, 23, 76, 252), 28);
+            GameObject panel = NewModalPunkPanel("Panel", overlay.transform, 600, 490);
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
@@ -969,8 +969,9 @@ namespace ChoSiren
                 CloseModal();
                 primaryAction?.Invoke();
             };
-            GameObject primary = NewButton("Primary", panel.transform, primaryLabel, 18, Pink, White, confirmed);
+            GameObject primary = NewModalPunkButton("Primary", panel.transform, primaryLabel, 18, confirmed, Pink);
             PlaceTop(primary.GetComponent<RectTransform>(), 170, 360, 260, 64);
+            StyleModalClose(close);
         }
 
         private void OpenSettings()
@@ -981,15 +982,20 @@ namespace ChoSiren
             overlay.GetComponent<Image>().raycastTarget = true;
             modalObject = overlay;
 
-            GameObject panel = NewPanel("Panel", overlay.transform, new Color32(29, 23, 76, 252), 28);
+            GameObject panel = NewModalPunkPanel("Panel", overlay.transform, 600, 650);
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(600, 720);
+            panelRect.sizeDelta = new Vector2(600, 650);
 
-            NewPlacedText(panel.transform, "游戏设置", 30, White, 35, 28, 400, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
+            GameObject gear = NewImage("SettingsEmblem", panel.transform,
+                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), new Color32(208, 176, 255, 255));
+            PlaceTop(gear.GetComponent<RectTransform>(), 38, 32, 42, 42);
+            gear.GetComponent<UnityEngine.UI.Image>().preserveAspect = true;
+            NewPlacedText(panel.transform, "游戏设置", 30, White, 96, 28, 380, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
             GameObject close = NewButton("Close", panel.transform, "×", 28, Color.clear, White, CloseModal);
             PlaceTop(close.GetComponent<RectTransform>(), 520, 22, 50, 50);
+            StyleModalClose(close);
 
             SettingsRow(panel.transform, "音乐", model.Save.MusicEnabled ? "已开启" : "已关闭", 115, () =>
             {
@@ -1009,14 +1015,11 @@ namespace ChoSiren
                 OpenSettings();
             });
 
-            NewPlacedText(panel.transform, "画面采用固定比例与安全区适配，电脑、网页和安卓设备共用同一布局。",
-                15, Muted, 45, 405, 510, 72, TextAnchor.UpperLeft);
-
-            GameObject reset = NewButton("Reset", panel.transform, "清除本机存档", 16,
-                new Color32(108, 49, 89, 255), White, () =>
+            NewPlacedText(panel.transform, "存档管理", 16, Muted, 45, 404, 330, 28, TextAnchor.MiddleLeft);
+            GameObject reset = NewModalPunkButton("Reset", panel.transform, "清除本机存档", 17, () =>
             {
                 OpenInfoModal("确认清除本机存档？",
-                    "这会删除本机的培养、资源和通关记录，无法撤销。\n\n确认后从 1-1 重新开始，成员回到 1 级，后续关卡锁定，通关星级清零。\n\n不想清除，请点右上角 ×。",
+                    "这会永久删除本机的培养、资源和通关记录。\n\n成员回到 1 级，关卡从 1-1 重新开始。\n\n关闭此窗口即可取消。",
                     "确认清除并重新开始", () =>
                 {
                     model.Reset();
@@ -1024,20 +1027,69 @@ namespace ChoSiren
                     ShowScreen("lobby");
                     Toast("已重新开始：成员 1 级，仅开放 1-1");
                 });
-            });
-            PlaceTop(reset.GetComponent<RectTransform>(), 150, 525, 300, 58);
+            }, new Color32(196, 83, 143, 255));
+            PlaceTop(reset.GetComponent<RectTransform>(), 40, 445, 520, 62);
 
-            GameObject done = NewButton("Done", panel.transform, "完成", 18, Pink, White, CloseModal);
-            PlaceTop(done.GetComponent<RectTransform>(), 150, 620, 300, 62);
+            GameObject done = NewModalPunkButton("Done", panel.transform, "完成", 21, CloseModal, Purple);
+            PlaceTop(done.GetComponent<RectTransform>(), 160, 551, 280, 62);
         }
 
         private void SettingsRow(Transform parent, string title, string value, int y, UnityEngine.Events.UnityAction action)
         {
-            GameObject row = NewPanel($"Setting-{title}", parent, new Color32(52, 43, 102, 220), 16);
+            GameObject row = NewImage($"Setting-{title}", parent, SlashPanelSprite(false), new Color32(29, 18, 55, 245));
+            row.GetComponent<UnityEngine.UI.Image>().type = UnityEngine.UI.Image.Type.Sliced;
             PlaceTop(row.GetComponent<RectTransform>(), 40, y, 520, 70);
             NewPlacedText(row.transform, title, 18, White, 20, 12, 220, 45, TextAnchor.MiddleLeft, FontStyle.Bold);
-            GameObject toggle = NewButton("Toggle", row.transform, value, 16, Purple, White, action);
+            ReferencePunkFx.Beam(row.transform, "SettingRule", new Vector2(18, 69), new Vector2(496, 69), 1,
+                new Color32(153, 97, 228, 72));
+            GameObject toggle = NewModalPunkButton("Toggle", row.transform, value, 16, action,
+                value == "已关闭" ? Muted : Cyan);
             PlaceTop(toggle.GetComponent<RectTransform>(), 335, 10, 165, 50);
+        }
+
+        private GameObject NewModalPunkPanel(string name, Transform parent, float width, float height)
+        {
+            GameObject panel = NewImage(name, parent, SlashPanelSprite(false), new Color32(151, 96, 218, 235));
+            var edge = panel.GetComponent<UnityEngine.UI.Image>();
+            edge.type = UnityEngine.UI.Image.Type.Sliced; edge.raycastTarget = true;
+            panel.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+            GameObject fill = NewImage("ObsidianPlate", panel.transform, SlashPanelSprite(false), new Color32(12, 7, 28, 253));
+            fill.GetComponent<UnityEngine.UI.Image>().type = UnityEngine.UI.Image.Type.Sliced;
+            Stretch(fill.GetComponent<RectTransform>(), 2, 2, -2, -2);
+            GameObject waveform = NewImage("SoundWaveDetail", panel.transform, WaveformSprite(), new Color32(159, 91, 239, 65));
+            PlaceTop(waveform.GetComponent<RectTransform>(), width - 258, 27, 148, 44);
+            ReferencePunkFx.Beam(panel.transform, "HeaderEdge", new Vector2(35, 93), new Vector2(width - 35, 93), 1.5f,
+                new Color32(165, 103, 240, 138));
+            ReferencePunkFx.Beam(panel.transform, "TopShard", new Vector2(18, 14), new Vector2(193, 3), 2,
+                new Color32(236, 218, 255, 220));
+            ReferencePunkFx.Beam(panel.transform, "BottomShard", new Vector2(width - 191, height - 3), new Vector2(width - 16, height - 15), 2,
+                new Color32(157, 144, 247, 210));
+            return panel;
+        }
+
+        private GameObject NewModalPunkButton(string name, Transform parent, string caption, int fontSize,
+            UnityEngine.Events.UnityAction action, Color accent)
+        {
+            GameObject button = NewButton(name, parent, caption, fontSize, new Color32(35, 19, 59, 255), White, action);
+            var face = button.GetComponent<UnityEngine.UI.Image>();
+            face.sprite = SlashPanelSprite(false); face.type = UnityEngine.UI.Image.Type.Sliced;
+            button.GetComponent<UnityEngine.UI.Button>().transition = UnityEngine.UI.Selectable.Transition.None;
+            GameObject line = NewImage("ButtonEdge", button.transform, SlashPanelSprite(false), accent);
+            line.GetComponent<UnityEngine.UI.Image>().type = UnityEngine.UI.Image.Type.Sliced;
+            Stretch(line.GetComponent<RectTransform>());
+            line.transform.SetAsFirstSibling();
+            GameObject inner = NewImage("ButtonInset", line.transform, SlashPanelSprite(false), new Color32(29, 15, 50, 255));
+            inner.GetComponent<UnityEngine.UI.Image>().type = UnityEngine.UI.Image.Type.Sliced;
+            Stretch(inner.GetComponent<RectTransform>(), 1.5f, 1.5f, -1.5f, -1.5f);
+            button.AddComponent<LobbyHotspotFeedback>().Configure(LobbyHotspotFeedback.VisualKind.Entry);
+            return button;
+        }
+
+        private void StyleModalClose(GameObject close)
+        {
+            close.GetComponent<UnityEngine.UI.Image>().sprite = null;
+            close.GetComponent<UnityEngine.UI.Button>().transition = UnityEngine.UI.Selectable.Transition.None;
+            close.AddComponent<LobbyHotspotFeedback>().Configure(LobbyHotspotFeedback.VisualKind.Settings);
         }
 
         private void AdvanceStory()

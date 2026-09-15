@@ -113,6 +113,7 @@ namespace ChoSiren.Panels
         // lightweight pool and candidate states inside the unchanged global HUD/navigation shell.
         private int interviewPoolIndex;
         private int interviewCandidateIndex;
+        private readonly int[] interviewChannelPositions = new int[2];
         private GameObject interviewContent;
         private string displayedInterviewCycle;
         private float nextInterviewRefreshCheck;
@@ -272,9 +273,6 @@ namespace ChoSiren.Panels
             portrait.preserveAspect = true;
             portrait.raycastTarget = false;
 
-            Text count = kit.NewPlacedText(page, $"{interviewCandidateIndex + 1:00}/{candidates.Count}", 25,
-                PanelKit.Purple, 83, 454, 260, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            count.name = "CandidateCounter";
             Text name = kit.NewPlacedText(page, member.Name, 55, PanelKit.White,
                 80, 498, 355, 84, TextAnchor.MiddleLeft, FontStyle.Bold);
             name.name = "CandidateName";
@@ -319,13 +317,7 @@ namespace ChoSiren.Panels
             kit.NewPlacedText(page, $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期", 16,
                 PanelKit.Gold, 106, 1192, 350, 40, TextAnchor.MiddleLeft);
 
-            GameObject previous = InterviewBoardHotspot("PreviousCandidate", page, 433, 805, 55, 80,
-                () => MoveInterviewCandidate(-1));
-            GameObject next = InterviewBoardHotspot("NextCandidate", page, 788, 805, 55, 80,
-                () => MoveInterviewCandidate(1));
-            kit.NewPlacedText(previous.transform, "‹", 46, PanelKit.White, 0, 0, 55, 80, TextAnchor.MiddleCenter);
-            kit.NewPlacedText(next.transform, "›", 46, PanelKit.White, 0, 0, 55, 80, TextAnchor.MiddleCenter);
-            previous.GetComponent<Button>().interactable = next.GetComponent<Button>().interactable = candidates.Count > 1;
+            BuildAuthoredCandidateNavigation(page, candidates.Count);
             int cost = InterviewCost(memberIndex);
             kit.NewPlacedText(page, TeamNeedsCareer(career) ? $"团队缺少{career} · 推荐" : $"{InterviewShortRace(member, memberIndex)} · 阵容适配",
                 21, PanelKit.Gold, 73, 1344, 390, 43, TextAnchor.MiddleLeft).name = "CandidateRecommendation";
@@ -350,21 +342,44 @@ namespace ChoSiren.Panels
             GameObject hit = kit.NewButton(name, parent, string.Empty, 12, Color.clear, PanelKit.White, action, 0);
             PanelKit.PlaceTop(hit.GetComponent<RectTransform>(), x, y, width, height);
             hit.GetComponent<Button>().transition = Selectable.Transition.None;
-            Image feedback = hit.GetComponent<Image>();
-            var events = hit.AddComponent<UnityEngine.EventSystems.EventTrigger>();
-            void Feedback(UnityEngine.EventSystems.EventTriggerType type, Color color)
-            {
-                var entry = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = type };
-                entry.callback.AddListener(_ => feedback.color = color);
-                events.triggers.Add(entry);
-            }
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerEnter, new Color(.6f, .35f, 1f, .16f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerDown, new Color(.3f, .1f, .7f, .3f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerUp, new Color(.6f, .35f, 1f, .16f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerExit, Color.clear);
-            Feedback(UnityEngine.EventSystems.EventTriggerType.Select, new Color(.6f, .35f, 1f, .16f));
-            Feedback(UnityEngine.EventSystems.EventTriggerType.Deselect, Color.clear);
+            hit.AddComponent<LobbyHotspotFeedback>().Configure(name == "SignCandidate"
+                ? LobbyHotspotFeedback.VisualKind.CallToAction : LobbyHotspotFeedback.VisualKind.Entry);
             return hit;
+        }
+
+        private void BuildAuthoredCandidateNavigation(RectTransform page, int count)
+        {
+            // Keep browsing next to the portrait, clear of the five-stat panel and contract.
+            GameObject strip = kit.NewPanel("CandidateNavigation", page, new Color32(13, 12, 45, 235), 16);
+            PanelKit.PlaceTop(strip.GetComponent<RectTransform>(), 465, 1220, 373, 112);
+            strip.GetComponent<Image>().raycastTarget = false;
+            Outline border = strip.AddComponent<Outline>();
+            border.effectColor = new Color32(118, 91, 229, 210);
+            border.effectDistance = new Vector2(1, -1);
+            Text counter = kit.NewPlacedText(strip.transform, $"{interviewCandidateIndex + 1} / {count}",
+                31, PanelKit.White, 91, 12, 191, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
+            counter.name = "CandidateCounter"; counter.raycastTarget = false;
+            Text hint = kit.NewPlacedText(strip.transform, "切换候选成员", 16, PanelKit.Cyan,
+                91, 65, 191, 30, TextAnchor.MiddleCenter);
+            hint.raycastTarget = false;
+            for (int direction = -1; direction <= 1; direction += 2)
+            {
+                int step = direction;
+                GameObject hit = InterviewBoardHotspot(step < 0 ? "PreviousCandidate" : "NextCandidate",
+                    strip.transform, step < 0 ? 7 : 282, 8, 84, 96, () => MoveInterviewCandidate(step));
+                hit.GetComponent<Button>().interactable = count > 1;
+                Image visual = kit.NewImage("CandidateArrowVisualV2", hit.transform, kit.RoundedSprite(12),
+                    step < 0 ? new Color32(61, 27, 113, 255) : new Color32(31, 54, 118, 255));
+                PanelKit.Stretch(visual.rectTransform);
+                visual.raycastTarget = false;
+                visual.transform.SetAsFirstSibling();
+                Text arrow = kit.NewPlacedText(visual.transform, step < 0 ? "‹" : "›", 44, PanelKit.White,
+                    0, 0, 84, 62, TextAnchor.MiddleCenter, FontStyle.Bold);
+                arrow.raycastTarget = false;
+                Text label = kit.NewPlacedText(visual.transform, step < 0 ? "上一位" : "下一位", 16,
+                    PanelKit.White, 0, 64, 84, 29, TextAnchor.MiddleCenter);
+                label.raycastTarget = false;
+            }
         }
 
         private void BuildInterviewTabs(Transform parent, bool compact)
@@ -661,8 +676,8 @@ namespace ChoSiren.Panels
                 new Color32(255, 105, 212, 140));
 
             Text recommend = kit.NewPlacedText(action.transform, TeamNeedsCareer(career)
-                    ? $"✦ 团队缺少{career} · 推荐"
-                    : $"✦ {InterviewRace(member, memberIndex)} · 阵容适配",
+                    ? $"★ 团队缺少{career} · 推荐"
+                    : $"★ {InterviewRace(member, memberIndex)} · 阵容适配",
                 15, new Color32(255, 210, 117, 255), 18, 12, 610, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             recommend.name = "CandidateRecommendation";
@@ -721,8 +736,9 @@ namespace ChoSiren.Panels
         private void SelectInterviewPool(int index)
         {
             if (index == interviewPoolIndex) return;
+            interviewChannelPositions[interviewPoolIndex] = interviewCandidateIndex;
             interviewPoolIndex = Mathf.Clamp(index, 0, 1);
-            interviewCandidateIndex = 0;
+            interviewCandidateIndex = interviewChannelPositions[interviewPoolIndex];
             RebuildInterview();
         }
 
@@ -731,6 +747,7 @@ namespace ChoSiren.Panels
             List<int> candidates = InterviewCandidates();
             if (candidates.Count <= 1) return;
             interviewCandidateIndex = (interviewCandidateIndex + direction + candidates.Count) % candidates.Count;
+            interviewChannelPositions[interviewPoolIndex] = interviewCandidateIndex;
             RebuildInterview();
         }
 
@@ -883,6 +900,7 @@ namespace ChoSiren.Panels
             if (!embeddedMode || model == null || Time.unscaledTime < nextInterviewRefreshCheck) return;
             nextInterviewRefreshCheck = Time.unscaledTime + 1f;
             if (displayedInterviewCycle == model.CurrentInterviewCycle) return;
+            Array.Clear(interviewChannelPositions, 0, interviewChannelPositions.Length);
             interviewCandidateIndex = 0;
             RebuildInterview();
         }
