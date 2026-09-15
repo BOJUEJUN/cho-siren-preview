@@ -31,9 +31,16 @@ namespace ChoSiren.Editor
             // immediately so desktop/source assets remain untouched.
             const string heroFrames = "Assets/Resources/Art/HeroFrames";
             const string excludedHeroFrames = "Assets/Editor/HeroFrames-WebGL-Excluded";
-            bool movedHeroFrames = TemporarilyMoveAsset(heroFrames, excludedHeroFrames);
+            bool movedHeroFrames = false;
+            bool movedReferenceArt = false;
+            const string referenceArt = "Assets/Resources/Art/Reference038";
+            const string excludedReferenceArt = "Assets/Editor/Reference038-WebGL-Excluded";
+            using var streamedArt = new ReferenceArtWebBuild();
             try
             {
+                streamedArt.Prepare();
+                movedHeroFrames = TemporarilyMoveAsset(heroFrames, excludedHeroFrames);
+                movedReferenceArt = TemporarilyMoveAsset(referenceArt, excludedReferenceArt);
                 // WebGL's Bee/IL2CPP graph is sensitive to assets changing while a build is
                 // running. A clean cache keeps reproducible release builds from inheriting
                 // a stale dependency graph after parallel art imports.
@@ -41,6 +48,8 @@ namespace ChoSiren.Editor
             }
             finally
             {
+                if (movedReferenceArt)
+                    RestoreMovedAsset(excludedReferenceArt, referenceArt);
                 if (movedHeroFrames)
                     RestoreMovedAsset(excludedHeroFrames, heroFrames);
             }

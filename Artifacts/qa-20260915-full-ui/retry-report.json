@@ -1,0 +1,15 @@
+{
+  "failed": true,
+  "downloaded": [
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/8ab4893e9196caec-team-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/bab486ea17c7d0d2-members-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/788f5fd710788b47-profile-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/469e3df444e6ed73-accessory-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/cb80fe0f55921812-lobby-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/3fe60bee0888465c-audition-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/05f9becbbf47b614-map-board-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/af6274c42b789fd4-battle-stage-038.png",
+    "http://127.0.0.1:8793/StreamingAssets/Reference038/cb5eaa49338ced91-unknown-member-038.png"
+  ],
+  "errors": []
+}

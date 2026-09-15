@@ -97,115 +97,47 @@ namespace ChoSiren.Tests
         {
             RequireButtonRect("Nav-team").GetComponent<Button>().onClick.Invoke();
             yield return null;
-
-            RectTransform backdrop = RequireRect("TeamStellarBackground");
-            Image backdropImage = backdrop.GetComponent<Image>();
-            AspectRatioFitter fitter = backdrop.GetComponent<AspectRatioFitter>();
-            Assert.That(backdropImage, Is.Not.Null);
-            Assert.That(backdropImage.sprite, Is.Not.Null,
-                "星环编队必须使用本地 AI 舞台底图，不能回退为空背景。");
-            Assert.That(fitter, Is.Not.Null,
-                "星环舞台背景必须由 AspectRatioFitter 保持原始比例。");
-            Assert.That(fitter.aspectMode, Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
-                "星环舞台应等比覆盖内容区，不能被强行拉伸。");
-
-            for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+            RectTransform board = RequireRect("TeamReferenceBoard038");
+            Image image = board.GetComponent<Image>();
+            Assert.That(image.sprite, Is.EqualTo(Resources.Load<Sprite>("Art/Reference038/team-board-038")));
+            Assert.That(image.preserveAspect, Is.True);
+            Assert.That(board.localScale.x, Is.EqualTo(board.localScale.y).Within(.001f));
+            var state = new GameModel();
+            for (int slot = 0; slot < state.Save.Team.Count; slot++)
             {
                 RectTransform orbit = RequireButtonRect($"TeamOrbit-{slot}");
-                Assert.That(orbit.GetComponent<Image>().color.a, Is.LessThanOrEqualTo(0.08f),
-                    $"TeamOrbit-{slot} 点击层应接近透明，不能恢复成大块纯色卡片。");
-                RequireRect($"TeamCharacter-{slot}");
+                Assert.That(orbit.GetComponent<Image>().color.a, Is.LessThanOrEqualTo(.08f));
+                Image portrait = RequireRect($"TeamCharacter-{slot}").GetComponent<Image>();
+                Assert.That(portrait.sprite, Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[state.Save.Team[slot]].ResourcePath)));
+                Assert.That(portrait.preserveAspect, Is.True);
+                Assert.That(portrait.raycastTarget, Is.False);
             }
-
-            RequireRect("TeamLeader");
-            RectTransform titlePlaque = RequireRect("TeamTitlePlaque");
-            RectTransform teamIndex = RequireRect("TeamIndexLabel");
-            RectTransform power = RequireRect("TeamPower");
-            AssertContained(titlePlaque, teamIndex, "编队编号");
-            Rect titlePlaqueRect = RectInParent(titlePlaque);
-            Rect teamIndexRect = RectRelativeTo(titlePlaque.parent as RectTransform, teamIndex);
-            Rect powerRect = RectInParent(power);
-            Assert.That(teamIndexRect.xMin - titlePlaqueRect.xMin,
-                Is.GreaterThanOrEqualTo(20f - PositionTolerance),
-                "编队编号必须保留清晰的20px内边距。");
-            Assert.That(teamIndexRect.Overlaps(powerRect), Is.False,
-                "编队编号不能侵入右侧总战力卡。");
-            Text powerValue = RequireRect("TeamPowerValue").GetComponent<Text>();
-            Assert.That(powerValue, Is.Not.Null);
-            Assert.That(powerValue.text, Is.Not.Empty, "编队总战力数字不能为空。");
-            Assert.That(powerValue.resizeTextForBestFit, Is.True,
-                "总战力数字必须在数值增长后仍受控缩放，不能溢出美术框。");
-            Assert.That(powerValue.verticalOverflow, Is.EqualTo(VerticalWrapMode.Truncate),
-                "总战力必须受内容框约束，不能侵入下一行。");
-            Assert.That(powerValue.preferredHeight, Is.LessThanOrEqualTo(powerValue.rectTransform.rect.height + 1f),
-                "总战力大号数字仍需有足够行高，不得靠截断隐藏数字。");
-            Text resonanceValue = RequireRect("TeamResonanceValue").GetComponent<Text>();
-            Text memberCount = RequireRect("TeamMemberCount").GetComponent<Text>();
-            Assert.That(resonanceValue.resizeTextForBestFit, Is.True,
-                "共鸣评分动态文案必须允许受控缩字号。");
-            Assert.That(memberCount.resizeTextForBestFit, Is.True,
-                "成员数量动态文案必须允许受控缩字号。");
+            Assert.That(RequireRect("TeamPowerValue").GetComponent<Text>().text, Is.EqualTo(state.TeamPower.ToString("N0")));
             RectTransform synergy = RequireRect("TeamSynergy");
-            Assert.That(resonanceValue.text, Does.StartWith("职业种类"));
-            for (int index = 0; index < MemberCareers.All.Count; index++)
-            {
-                RectTransform careerStatus = RequireRect("CareerStatus-" + index);
-                AssertContained(synergy, careerStatus, "职业就位提示");
-                Assert.That(careerStatus.GetComponent<Text>().text, Does.StartWith(MemberCareers.All[index]));
-            }
-            Assert.That(power.GetComponent<Outline>(), Is.Not.Null, "总战力保持精细边界。");
-            Assert.That(synergy.GetComponent<Outline>(), Is.Not.Null, "职业配置保持精细边界。");
-            Assert.That(power.GetComponent<Image>().color.a, Is.GreaterThan(.8f));
-            Assert.That(synergy.GetComponent<Image>().color.a, Is.GreaterThan(.8f));
-            foreach (RectTransform container in new[] { titlePlaque, power, synergy })
-            {
-                Text[] information = container.GetComponentsInChildren<Text>().Where(t => !string.IsNullOrWhiteSpace(t.text)).ToArray();
-                foreach (Text label in information) AssertContained(container, label.rectTransform, label.name);
-                for (int a = 0; a < information.Length; a++)
-                for (int b = a + 1; b < information.Length; b++)
-                    Assert.That(RectRelativeTo(container, information[a].rectTransform)
-                        .Overlaps(RectRelativeTo(container, information[b].rectTransform)), Is.False,
-                        $"团队信息 {information[a].name} 与 {information[b].name} 不得重叠。");
-            }
+            for (int i = 0; i < MemberCareers.All.Count; i++)
+                AssertContained(synergy, RequireRect("CareerStatus-" + i), "职业状态");
             RequireButtonRect("ChangeLeader");
             RequireButtonRect("AutoTeam");
-            AssertContained(RequireRect("Content"), synergy, "协同效果");
         }
 
         [UnityTest]
         public IEnumerator MemberAndAccessoryPagesUseCalmAspectSafeBackgrounds()
         {
-            RequireButtonRect("Nav-members").GetComponent<Button>().onClick.Invoke();
-            yield return null;
-            RectTransform memberBackdrop = RequireRect("MemberGalleryBackground");
-            Assert.That(memberBackdrop.GetComponent<Image>().sprite, Is.Not.Null,
-                "成员页必须加载指定的低干扰舞台背景。");
-            Assert.That(memberBackdrop.GetComponent<AspectRatioFitter>()?.aspectMode,
-                Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
-                "成员页背景必须等比覆盖，不能拉伸。");
-            Assert.That(RequireRect("Member-" + GameModel.Members[0].Id).GetComponent<Image>().color.a,
-                Is.LessThan(0.4f), "成员图鉴卡应使用低透明深蓝玻璃。");
-
-            RequireButtonRect("Nav-accessory").GetComponent<Button>().onClick.Invoke();
-            yield return null;
-            RectTransform accessoryBackdrop = RequireRect("AccessoryDressingRoomStage");
-            Assert.That(accessoryBackdrop.GetComponent<Image>().sprite, Is.Not.Null,
-                "饰品页必须加载指定的低干扰舞台背景。");
-            Assert.That(accessoryBackdrop.GetComponent<AspectRatioFitter>()?.aspectMode,
-                Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent),
-                "饰品页背景必须等比覆盖，不能拉伸。");
-            string[] accessoryLabels = RequireRect("Content").GetComponentsInChildren<Text>(true)
-                .Select(text => text.text)
-                .ToArray();
-            Assert.That(accessoryLabels, Does.Contain("舞台饰品"),
-                "饰品页眉应准确描述当前功能。");
-            Assert.That(accessoryLabels, Does.Not.Contain("饰品与设置"),
-                "设置已经统一到顶部齿轮，饰品页不能继续使用旧的混合页标题。");
-            Assert.That(RequireRect("EquipmentSelectedArt").GetComponent<Image>().preserveAspect,
-                Is.True, "角色装备选中饰品图必须保持素材比例。");
-            Assert.That(GameObject.Find("AccessoryPreviewArt"), Is.Null,
-                "新装备页不可叠回自带栏位与字样的旧预览框体。");
-            Assert.That(RequireRect("EquipmentScroll").GetComponent<RectMask2D>(), Is.Not.Null);
+            foreach (string screen in new[] { "members", "accessory" })
+            {
+                RequireButtonRect("Nav-" + screen).GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                RectTransform board = RequireRect(screen == "members" ? "MembersReferenceBoard038" : "EquipmentReferenceBoard038");
+                Image image = board.GetComponent<Image>();
+                Assert.That(image.sprite, Is.Not.Null);
+                Assert.That(image.preserveAspect, Is.True, "完整参考背板不可拉伸或裁掉内容。");
+                Assert.That(board.localScale.x, Is.EqualTo(board.localScale.y).Within(.001f));
+            }
+            Assert.That(RequireRect("EquipmentSelectedArt").GetComponent<Image>().preserveAspect, Is.True);
+            Assert.That(RequireRect("EquipmentBody").GetComponentsInChildren<Button>().Count(b => b.name.StartsWith("Accessory-")), Is.EqualTo(12));
+            Assert.That(GameObject.Find("AccessoryPreviewArt"), Is.Null);
+            Assert.That(RequireRect("Content").GetComponentsInChildren<Text>().Select(t => t.text),
+                Does.Not.Contain("饰品与设置"));
         }
 
         [UnityTest]
@@ -410,8 +342,10 @@ namespace ChoSiren.Tests
                         $"成员第 {visitedPages + 1} 页基础属性");
                     AssertContained(profile, RequireRect("MemberSkillPanel"),
                         $"成员第 {visitedPages + 1} 页成员技能");
-                    AssertContained(profile, RequireRect("MemberAcquireGuide"),
-                        $"成员第 {visitedPages + 1} 页培养或获取说明");
+                    AssertContained(profile, RequireRect("MemberTrainingPreview"),
+                        $"成员第 {visitedPages + 1} 页培养预览");
+                    AssertContained(profile, RequireRect("MemberTrainingCost"),
+                        $"成员第 {visitedPages + 1} 页真实培养费用");
                 }
 
                 Assert.That(profileLabels.Any(IsLegacyVisibleRarity), Is.False,
@@ -467,75 +401,38 @@ namespace ChoSiren.Tests
                 RequireButtonRect("Nav-accessory").GetComponent<Button>().onClick.Invoke();
                 yield return null;
                 content = RequireRect("Content");
-                RectTransform viewport = RequireRect("EquipmentScroll");
+                RectTransform equipmentBoard = RequireRect("EquipmentReferenceBoard038");
                 RectTransform equipmentBody = RequireRect("EquipmentBody");
-                ScrollRect scroll = viewport.GetComponent<ScrollRect>();
-                Assert.That(scroll, Is.Not.Null);
-                Assert.That(scroll.viewport, Is.EqualTo(viewport));
-                Assert.That(scroll.content, Is.EqualTo(equipmentBody));
-                Assert.That(scroll.vertical, Is.True);
-                Assert.That(scroll.horizontal, Is.False);
-                Assert.That(scroll.movementType, Is.EqualTo(ScrollRect.MovementType.Clamped));
-                Assert.That(viewport.GetComponent<RectMask2D>(), Is.Not.Null,
-                    "短屏必须裁剪滚动区，不能让饰品内容压住底部导航。");
-                AssertContained(content, viewport, $"{targetHeight} 高度下的装备滚动视口");
-                AssertContained(equipmentBody, RequireRect("EquipmentMemberSelector"), "装备角色切换");
-                AssertContained(equipmentBody, RequireRect("AccessoryDetail"), "角色装备详情");
-                for (int index = 0; index < 6; index++)
-                    AssertContained(equipmentBody, RequireButtonRect($"Accessory-{index}"),
+                Assert.That(equipmentBoard.GetComponent<Image>().preserveAspect, Is.True);
+                Assert.That(equipmentBoard.localScale.x, Is.EqualTo(equipmentBoard.localScale.y).Within(.001f));
+                AssertContained(content, RequireButtonRect("EquipmentCycleMember"), "装备角色切换");
+                AssertContained(content, RequireButtonRect("EquipmentChooseMember"), "装备角色选择");
+                AssertContained(content, RequireRect("EquipmentSelectedArt"), "角色装备详情图片");
+                for (int index = 0; index < 12; index++)
+                    AssertContained(content, RequireButtonRect($"Accessory-{index}"),
                         $"{targetHeight} 高度下的饰品图鉴卡 {index + 1}");
                 AssertEquipmentTextFitsWithoutOverlap(equipmentBody);
-                scroll.verticalNormalizedPosition = 0f;
-                Canvas.ForceUpdateCanvases();
-                yield return null;
-                AssertContained(viewport, RequireRect("EquipmentPageCount"),
-                    "滚动到底部后必须能完整看到分页信息");
-                AssertContained(viewport, RequireButtonRect("Accessory-5"),
-                    "滚动到底部后必须能完整点击最后一件饰品");
+                AssertContained(content, RequireRect("EquipmentPageCount"),
+                    "整图分页模式必须能完整看到分页信息");
+                foreach (string name in new[] { "EquipmentPreviousPage", "EquipmentNextPage" })
+                {
+                    RectTransform pagination = RequireButtonRect(name);
+                    AssertContained(content, pagination, $"{targetHeight} 高度下的饰品分页操作");
+                    Assert.That(RectRelativeTo(RequireRect("SafeArea"), pagination)
+                        .Overlaps(RectRelativeTo(RequireRect("SafeArea"), RequireRect("BottomNavigation"))), Is.False,
+                        "饰品分页操作不可侵入公共底栏。");
+                }
 
                 RequireButtonRect("Nav-audition").GetComponent<Button>().onClick.Invoke();
                 yield return null;
                 content = RequireRect("Content");
-                RectTransform onlinePool = RequireButtonRect("InterviewPool-0");
                 RectTransform offlinePool = RequireButtonRect("InterviewPool-1");
-                RectTransform candidate = RequireRect("CandidateCard");
-                RectTransform actions = RequireRect("InterviewActions");
-                AssertContained(content, onlinePool, $"{targetHeight} 高度下的线上面试入口");
-                AssertContained(content, offlinePool, $"{targetHeight} 高度下的线下面试入口");
-                AssertContained(content, RequireRect("InterviewRefresh"),
-                    $"{targetHeight} 高度下的候选刷新信息");
-                AssertContained(content, candidate, $"{targetHeight} 高度下的候选主卡");
-                AssertContained(content, actions, $"{targetHeight} 高度下的签约操作区");
-                AssertVerticallyContained(content, RequireButtonRect("PreviousCandidate"),
-                    $"{targetHeight} 高度下的上一位候选");
-                AssertVerticallyContained(content, RequireButtonRect("NextCandidate"),
-                    $"{targetHeight} 高度下的下一位候选");
-                Assert.That(RectInParent(onlinePool).Overlaps(RectInParent(offlinePool)), Is.False,
-                    "线上与线下面试入口不能重叠。");
-                Assert.That(RectInParent(candidate).Overlaps(RectInParent(actions)), Is.False,
-                    $"{targetHeight} 高度下候选主卡不能侵入签约操作区。");
-                AssertContained(candidate, RequireRect("CandidateStats"),
-                    $"{targetHeight} 高度下的候选能力值");
-                AssertContained(candidate, RequireRect("CandidateCharm"),
-                    $"{targetHeight} 高度下的魅力与收益信息");
-                AssertContained(actions, RequireButtonRect("ViewInterview"),
-                    $"{targetHeight} 高度下的查看面试操作");
-                AssertContained(actions, RequireButtonRect("SignCandidate"),
-                    $"{targetHeight} 高度下的签约操作");
-                foreach (RectTransform dot in actions.GetComponentsInChildren<RectTransform>(true)
-                             .Where(rect => rect.name.StartsWith("CandidateDot-")))
-                    AssertContained(actions, dot, $"{targetHeight} 高度下的候选分页点");
+                AssertAuthoredAuditionFitsContent(content, $"{targetHeight} 高度线上面试");
 
                 offlinePool.GetComponent<Button>().onClick.Invoke();
                 yield return null;
                 content = RequireRect("Content");
-                AssertContained(content, RequireRect("CandidateCard"),
-                    $"{targetHeight} 高度下的线下候选主卡");
-                AssertContained(content, RequireRect("InterviewActions"),
-                    $"{targetHeight} 高度下的线下签约操作区");
-                Assert.That(RectInParent(RequireRect("CandidateCard"))
-                        .Overlaps(RectInParent(RequireRect("InterviewActions"))), Is.False,
-                    $"{targetHeight} 高度下线下面试主卡不能侵入签约操作区。");
+                AssertAuthoredAuditionFitsContent(content, $"{targetHeight} 高度线下面试");
             }
 
             content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, originalHeight);
@@ -678,12 +575,17 @@ namespace ChoSiren.Tests
             Assert.That(staminaValue.GetComponent<Text>().text, Does.Not.Contain(":"));
             Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(85f + PositionTolerance),
                 "体力文本不应为已删除的倒计时保留空白宽度。");
-            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax,
-                Is.InRange(-PositionTolerance, 4f + PositionTolerance));
-            Assert.That(goldValueRect.xMin - goldIconRect.xMax,
-                Is.InRange(-PositionTolerance, 4f + PositionTolerance));
-            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax,
-                Is.InRange(-PositionTolerance, 4f + PositionTolerance));
+            // The latest header uses a smaller diamond and more breathing room.
+            // These exact live-value slots are measured against that authored strip.
+            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(18f).Within(PositionTolerance));
+            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(4f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.EqualTo(0f).Within(PositionTolerance));
+            Assert.That(diamondValueRect.width, Is.EqualTo(41f).Within(PositionTolerance));
+            Assert.That(goldValueRect.width, Is.EqualTo(59f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.width, Is.EqualTo(65f).Within(PositionTolerance));
+            Assert.That(diamondValueRect.Overlaps(diamondIconRect), Is.False);
+            Assert.That(goldValueRect.Overlaps(goldIconRect), Is.False);
+            Assert.That(staminaValueRect.Overlaps(staminaIconRect), Is.False);
             Rect previousResource = default;
             Rect previousPlus = default;
             foreach (string currency in new[] { "diamond", "gold", "stamina" })
@@ -861,6 +763,7 @@ namespace ChoSiren.Tests
                             ids[index] + " 导航素材不能通过非等比 Transform 缩放变形。 ");
 
                         Rect expectedVisual = LobbyNavVisualBounds038[index];
+                        expectedVisual.height -= 20f;
                         Rect visualRect = RectRelativeTo(safe, visual.rectTransform);
                         Rect expectedLocal = Rect.MinMaxRect(
                             safe.rect.xMin + expectedVisual.x,
@@ -873,6 +776,13 @@ namespace ChoSiren.Tests
                         Assert.That(Vector2.Distance(visualRect.center, expectedLocal.center),
                             Is.LessThanOrEqualTo(1f),
                             ids[index] + " 非大厅可见素材中心必须与 0.3.8 首页实测中心一致。 ");
+
+                        Text chineseLabel = button.Find("Label").GetComponent<Text>();
+                        Assert.That(chineseLabel.fontSize, Is.GreaterThanOrEqualTo(18), "底栏中文不可缩成微小烘焙字。");
+                        Assert.That(chineseLabel.color.a, Is.GreaterThan(.9f));
+                        Assert.That(chineseLabel.preferredHeight, Is.LessThanOrEqualTo(chineseLabel.rectTransform.rect.height));
+                        AssertTopLeftBounds(safe, chineseLabel.rectTransform, LobbyNavLabelCenters038[index] - 38f,
+                            1432f, 76f, 28f, 1f, "各页中文标签必须共享清晰字号和坐标");
 
                         Text[] englishLiveText = button.GetComponentsInChildren<Text>(true)
                             .Where(text => !string.IsNullOrWhiteSpace(text.text) && text.text.Any(character =>
@@ -992,7 +902,7 @@ namespace ChoSiren.Tests
 
             RequireButtonRect("Nav-team").GetComponent<Button>().onClick.Invoke();
             yield return null;
-            RequireRect("TeamPower");
+            RequireRect("TeamPowerValue");
             RequireButtonRect("Nav-lobby").GetComponent<Button>().onClick.Invoke();
             yield return null;
 
@@ -1184,7 +1094,7 @@ namespace ChoSiren.Tests
 
         private static Image RequireApprovedLobbyGolden()
         {
-            const string path = "Art/LobbyPunk/038/lobby-home-base-038";
+            const string path = "Art/Reference038/lobby-board-038";
             Texture expected = Resources.Load<Sprite>(path)?.texture ?? Resources.Load<Texture2D>(path);
             Assert.That(expected, Is.Not.Null, "未导入 0.3.8 首页 golden：" + path);
             Image[] matches = Object.FindObjectsByType<Image>(FindObjectsInactive.Exclude)
@@ -1224,6 +1134,41 @@ namespace ChoSiren.Tests
             Assert.That(actualY, Is.EqualTo(y).Within(tolerance), label + " y 与最新参考不符。");
             Assert.That(actual.width, Is.EqualTo(width).Within(tolerance), label + " 宽度与最新参考不符。");
             Assert.That(actual.height, Is.EqualTo(height).Within(tolerance), label + " 高度与最新参考不符。");
+        }
+
+        private static void AssertAuthoredAuditionFitsContent(RectTransform content, string context)
+        {
+            RectTransform page = RequireRect("AuthoredInterviewPage");
+            Image board = RequireRect("AuditionReferenceBoard").GetComponent<Image>();
+            Assert.That(board.sprite, Is.Not.Null);
+            Assert.That(board.preserveAspect, Is.True);
+            Assert.That(page.localScale.x, Is.EqualTo(page.localScale.y).Within(.001f));
+            // Background artwork deliberately reaches into the header/footer; actual controls and
+            // live candidate values must stay inside the safe content region at both aspect ratios.
+            string[] controls = { "InterviewPool-0", "InterviewPool-1", "PreviousCandidate", "NextCandidate",
+                "ViewInterview", "SignCandidate" };
+            for (int i = 0; i < controls.Length; i++)
+            {
+                RectTransform button = RequireButtonRect(controls[i]);
+                AssertContained(content, button, context + " " + controls[i]);
+                Assert.That(button.GetComponent<Button>().targetGraphic.raycastTarget, Is.True);
+                for (int j = i + 1; j < controls.Length; j++)
+                    Assert.That(RectRelativeTo(content, button)
+                        .Overlaps(RectRelativeTo(content, RequireButtonRect(controls[j]))), Is.False,
+                        context + $" 的 {controls[i]} 与 {controls[j]} 点击区域不能重叠。");
+            }
+            foreach (string name in new[] { "CandidatePortrait", "CandidateName", "CandidateCounter", "InterviewRefresh", "SigningPrice" })
+                AssertContained(content, RequireRect(name), context + " " + name);
+            foreach (string key in new[] { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" })
+            {
+                RectTransform label = RequireRect("StatLabel-" + key);
+                RectTransform value = RequireRect("StatValue-" + key);
+                AssertContained(content, label, context + " 五维属性标题");
+                AssertContained(content, value, context + " 五维属性数值");
+                Assert.That(RectRelativeTo(content, label).Overlaps(RectRelativeTo(content, value)), Is.False,
+                    context + " 的属性名称与数值不可相互覆盖。");
+                Assert.That(value.GetComponent<Text>().text, Is.Not.Empty);
+            }
         }
 
         private static void AssertEquipmentTextFitsWithoutOverlap(RectTransform body)

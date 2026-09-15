@@ -40,12 +40,12 @@ namespace ChoSiren.Tests
         public IEnumerator AllSixtySixItemsHaveImagesAndAreReachableAcrossSixTwelveItemPages()
         {
             Assert.That(GameModel.AccessoryNames.Length, Is.EqualTo(66));
-            Assert.That(Require("EquipmentScroll").GetComponent<ScrollRect>().scrollSensitivity, Is.GreaterThanOrEqualTo(32));
+            Assert.That(Require("EquipmentReferenceBoard038").GetComponent<Image>().preserveAspect, Is.True);
             for (int page = 0; page < 6; page++)
             {
                 int[] expected = Enumerable.Range(page * 12, Mathf.Min(12, 66 - page * 12)).ToArray();
                 Assert.That(VisibleIds(), Is.EqualTo(expected), "饰品分页不能重复或漏掉条目");
-                Assert.That(Label("EquipmentPageCount"), Is.EqualTo($"{page + 1} / 6 · 共 66 件"));
+                Assert.That(Label("EquipmentPageCount"), Is.EqualTo($"{page + 1}/6"));
                 Assert.That(Require("EquipmentPreviousPage").GetComponent<Button>().interactable, Is.EqualTo(page > 0));
                 Assert.That(Require("EquipmentNextPage").GetComponent<Button>().interactable, Is.EqualTo(page < 5));
                 foreach (int item in expected)
@@ -85,7 +85,7 @@ namespace ChoSiren.Tests
                 Assert.That(Require("EquipmentCategoryFilter").GetComponentInChildren<Text>().text, Is.EqualTo("类别：" + category));
                 int[] matches = Enumerable.Range(0,66).Where(i => category == "全部" || GameModel.AccessoryCategory(i) == category).ToArray();
                 Assert.That(VisibleIds(), Is.EqualTo(matches.Take(12).ToArray()));
-                Assert.That(Label("EquipmentPageCount"), Is.EqualTo($"1 / {Mathf.Max(1, Mathf.CeilToInt(matches.Length / 12f))} · 共 {matches.Length} 件"));
+                Assert.That(Label("EquipmentPageCount"), Is.EqualTo($"1/{Mathf.Max(1, Mathf.CeilToInt(matches.Length / 12f))}"));
                 Assert.That(Require("EquipmentPreviousPage").GetComponent<Button>().interactable, Is.False);
             }
         }
@@ -97,7 +97,7 @@ namespace ChoSiren.Tests
             yield return null;
             Assert.That(VisibleIds(), Is.EqualTo(model.Save.OwnedAccessories.OrderBy(i=>i).ToArray()));
             Assert.That(VisibleIds().All(model.OwnsAccessory), Is.True);
-            Assert.That(Label("EquipmentPageCount"), Is.EqualTo($"1 / 1 · 共 {model.Save.OwnedAccessories.Count} 件"));
+            Assert.That(Label("EquipmentPageCount"), Is.EqualTo("1/1"));
             string emptyCategory = GameModel.AccessoryCategories.First(c => c != "全部" &&
                 !model.Save.OwnedAccessories.Any(i => GameModel.AccessoryCategory(i) == c));
             for (int guard=0; guard<GameModel.AccessoryCategories.Length; guard++)
@@ -107,7 +107,7 @@ namespace ChoSiren.Tests
             }
             Assert.That(VisibleIds(), Is.Empty);
             Assert.That(Label("EquipmentEmpty"), Is.EqualTo("暂无符合筛选条件的饰品"));
-            Assert.That(Label("EquipmentPageCount"), Is.EqualTo("1 / 1 · 共 0 件"));
+            Assert.That(Label("EquipmentPageCount"), Is.EqualTo("1/1"));
             Assert.That(Require("EquipmentPreviousPage").GetComponent<Button>().interactable, Is.False);
             Assert.That(Require("EquipmentNextPage").GetComponent<Button>().interactable, Is.False);
             int original = model.Save.Team[0];
@@ -140,7 +140,7 @@ namespace ChoSiren.Tests
             Click("QuickEquip");
             yield return null;
             Assert.That(model.EquippedAccessoryFor(member), Is.EqualTo(1));
-            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("战斗属性 · 未装备→已装备"));
+            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("队伍战力 · 未装备→已装备"));
             Assert.That(Label("AccessoryDelta-3"), Is.EqualTo($"{baselinePower:N0}→{expectedPower:N0}"));
             Assert.That(Label("AccessoryPowerChange"), Is.EqualTo($"已生效 +{expectedPower - baselinePower:N0}"),
                 "装备状态应解释已生效收益，不可伪装成卸下后的负变化");
@@ -151,7 +151,42 @@ namespace ChoSiren.Tests
             yield return null;
             Assert.That(model.EquippedAccessoryFor(member), Is.EqualTo(-1));
             Assert.That(Label("PlayerLevel"), Is.EqualTo($"战力 {baselinePower:N0}"));
-            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("战斗属性 · 当前→装备后"));
+            Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("队伍战力 · 当前→装备后"));
+        }
+
+        [UnityTest]
+        public IEnumerator MemberSwitchRevealsSelectedCardPageSoActionsStayReachable()
+        {
+            // 二号成员装备第 6 页的饰品；再找一个无装备成员验证选中回退。
+            int equipped = model.Save.UnlockedMembers.First(m => m != model.Save.Team[0]);
+            model.Save.OwnedAccessories.Add(60);
+            Assert.That(model.EquipAccessoryForMember(equipped, 60, out string equipMessage), Is.True, equipMessage);
+            int bare = model.Save.UnlockedMembers.First(m => model.EquippedAccessoryFor(m) < 0);
+            Assert.That(bare, Is.Not.EqualTo(equipped));
+
+            for (int page = 0; page < 5; page++) { Click("EquipmentNextPage"); yield return null; }
+            Assert.That(VisibleIds(), Is.EqualTo(Enumerable.Range(60, 6).ToArray()));
+
+            // 切到无装备成员：选中回退到第 0 件，网格必须跟到该卡所在页，
+            // 否则详情条显示的饰品没有 QuickEquip/QuickUpgrade 任何操作入口。
+            Click("EquipmentChooseMember"); yield return null;
+            Click("PickMember-" + bare); yield return null;
+            Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[bare].Name));
+            Assert.That(VisibleIds(), Does.Contain(0), "换人后选中卡必须留在可见页，否则没有穿戴/卸下入口。");
+            Assert.That(GameObject.Find("QuickEquip"), Is.Not.Null, "选中卡可见时必须提供快捷操作。");
+
+            // 切到穿戴着第 6 页饰品的成员：网格必须跟到第 6 页并给出「卸下」。
+            Click("EquipmentChooseMember"); yield return null;
+            Click("PickMember-" + equipped); yield return null;
+            Assert.That(VisibleIds(), Does.Contain(60));
+            Assert.That(Label("EquipmentItemName"), Is.EqualTo(GameModel.AccessoryNames[60]));
+            Assert.That(Require("QuickEquip").GetComponentInChildren<Text>().text, Is.EqualTo("卸下"));
+
+            // 离开饰品页再返回：成员、选中项与所在页保持一致。
+            Click("Nav-lobby"); yield return null;
+            Click("Nav-accessory"); yield return null;
+            Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[equipped].Name));
+            Assert.That(VisibleIds(), Does.Contain(60));
         }
 
         private static int[] VisibleIds() => Require("EquipmentBody").GetComponentsInChildren<Button>()

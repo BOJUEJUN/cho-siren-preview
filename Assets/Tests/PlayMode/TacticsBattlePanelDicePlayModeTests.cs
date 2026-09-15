@@ -16,7 +16,7 @@ namespace ChoSiren.Tests
     public sealed class TacticsBattlePanelDicePlayModeTests
     {
         [Test]
-        public void TacticalCommandsAreDistinctFixedNamesAndUsableBeforeEnemyCast()
+        public void RealtimeCommandsRemoveStrikeAndKeepGuardUsableWithPauseProtection()
         {
             var root = new GameObject("Tactical Commands", typeof(RectTransform));
             try
@@ -25,17 +25,23 @@ namespace ChoSiren.Tests
                 battle.EnableRealtime(new Dictionary<string, string> { { "player", "魅族" } }, "player");
                 var panel = TacticsBattlePanel.Open(root.transform, new GameModel(), battle, null);
                 Invoke(panel, "RefreshRealtimeCommands");
-                var strike = FindRect(panel.transform, "TacticalInterrupt");
                 var guard = FindRect(panel.transform, "TacticalGuard");
-                Assert.That(strike.GetComponent<Button>().interactable, Is.True);
+                Assert.That(panel.GetComponentsInChildren<Transform>(true)
+                    .Any(item => item.name == "TacticalInterrupt"), Is.False,
+                    "Removed strike must not survive as an invisible selectable or callback.");
                 Assert.That(guard.GetComponent<Button>().interactable, Is.True);
-                Assert.That(strike.anchoredPosition.x + strike.sizeDelta.x, Is.LessThan(guard.anchoredPosition.x));
-                strike.GetComponent<Button>().onClick.Invoke();
-                Assert.That(battle.InterruptCooldownRemaining, Is.EqualTo(12000));
-                Assert.That(strike.GetComponentInChildren<Text>().text, Is.EqualTo("破招突袭"));
+                Assert.That(battle.InterruptCooldownRemaining, Is.Zero);
                 Invoke(panel, "TogglePause");
                 guard.GetComponent<Button>().onClick.Invoke();
                 Assert.That(battle.GuardCooldownRemaining, Is.Zero);
+                Invoke(panel, "TogglePause");
+                Invoke(panel, "RefreshRealtimeCommands");
+                guard.GetComponent<Button>().onClick.Invoke();
+                Assert.That(battle.GuardCooldownRemaining, Is.GreaterThan(0));
+                Assert.That(guard.GetComponent<Button>().interactable, Is.False);
+                Assert.That(battle.InterruptCooldownRemaining, Is.Zero);
+                Assert.That(panel.GetComponentsInChildren<Selectable>(true)
+                    .Any(item => item.name == "TacticalInterrupt"), Is.False);
                 Assert.That(panel.GetComponentsInChildren<Text>(true).Any(t => t.text.Contains("等待敌人蓄力")), Is.False);
             }
             finally { Object.DestroyImmediate(root); }
@@ -116,6 +122,10 @@ namespace ChoSiren.Tests
             try
             {
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(), null);
+                Text phaseLabel = GetField<Text>(panel, "phaseText");
+                phaseLabel.text = "第 1/3 波";
+                Assert.That(phaseLabel.preferredHeight, Is.LessThanOrEqualTo(phaseLabel.rectTransform.rect.height),
+                    "波次行必须装下真实中文字体，不能只剩时间可见。");
                 RectTransform[] controls = { FindRect(panel.transform, "AutoToggle"),
                     FindRect(panel.transform, "SpeedToggle"), FindRect(panel.transform, "PauseToggle") };
                 foreach (RectTransform control in controls)
@@ -143,14 +153,18 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void BottomSurfaceHidesBakedUiAndStatusNeverCoversDiceOrFaces()
+        public void CleanStageKeepsAspectRatioAndStatusNeverCoversDiceOrFaces()
         {
             GameObject root = new GameObject("Battle Bottom Test", typeof(RectTransform));
             try
             {
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(4), null);
                 RectTransform surface = FindRect(panel.transform, "BattleCommandSurface");
-                Assert.That(surface.GetComponent<Image>().color.a, Is.EqualTo(1f), "旧背景光圈必须完全遮盖");
+                Image stageArt = FindRect(panel.transform, "BattleStageArt").GetComponent<Image>();
+                Assert.That(stageArt.preserveAspect, Is.True, "舞台原图必须等比显示");
+                Assert.That(stageArt.sprite, Is.Not.Null);
+                Assert.That(stageArt.sprite.texture.name, Is.EqualTo("battle-stage-038"));
+                Assert.That(surface.GetComponent<Image>().color.a, Is.LessThan(1f), "干净的新舞台应在操作区后延续");
                 Assert.That(Top(surface), Is.LessThanOrEqualTo(840));
                 Assert.That(Top(surface) + surface.rect.height, Is.GreaterThanOrEqualTo(1536));
                 Text rosterTitle = FindRect(panel.transform, "TeamRoster").GetComponent<Text>();
@@ -224,7 +238,9 @@ namespace ChoSiren.Tests
                     "出战成员标题不能压在第一排成员卡上。 ");
                 Assert.That(cardBottom, Is.LessThanOrEqualTo(Top(dice)),
                     "成员头像必须在骰子上方，不能覆盖骰子。 ");
-                Assert.That(diceBottom, Is.LessThanOrEqualTo(deckTop));
+                Assert.That(deck.gameObject.activeInHierarchy, Is.False,
+                    "实时模式彻底停用页尾指令容器，不靠移到画布外隐藏");
+                Assert.That(skillBar.gameObject.activeInHierarchy, Is.False);
                 RectTransform cueArea = FindRect(panel.transform, "CombatCueArea");
                 Assert.That(Top(cueArea) + cueArea.rect.height, Is.LessThanOrEqualTo(Top(dice)),
                     "攻击连线裁切范围不能进入骰子操作区。");
@@ -253,7 +269,9 @@ namespace ChoSiren.Tests
                 RectTransform teamHealth = FindRect(previewBoard, "TeamHealthSummary");
                 AssertNoOverlap(teamHealth, preview.rectTransform,
                     "队伍总生命摘要不能覆盖目标预览说明。");
-                Assert.That(teamHealth.gameObject.activeInHierarchy, Is.True);
+                Assert.That(teamHealth.gameObject.activeInHierarchy, Is.False);
+                Assert.That(previewBoard.gameObject.activeSelf, Is.False);
+                Assert.That(preview.gameObject.activeInHierarchy, Is.False);
 
                 RectTransform reroll = FindRect(panel.transform, "DiceReroll");
                 RectTransform energyReroll = FindRect(panel.transform, "EnergyReroll");
@@ -297,7 +315,11 @@ namespace ChoSiren.Tests
 
                 Assert.That(console.color.b, Is.GreaterThan(console.color.r),
                     "骰子台应使用冷色深玻璃，不再以大面积洋红色抢过舞台主体。");
-                Assert.That(console.color.a, Is.GreaterThan(0.9f));
+                Assert.That(console.color.a, Is.InRange(.70f, .90f),
+                    "最新参考使用黑色半透明底，保留舞台纹理且不形成实色大块。");
+                Assert.That(Mathf.Max(console.color.r, console.color.g, console.color.b), Is.LessThan(.12f));
+                Assert.That(console.GetComponent<Outline>(), Is.Null,
+                    "不能对整个半透明底重复描边填色；发光必须局限在边线上。");
                 Assert.That(glow.color.a, Is.LessThanOrEqualTo(0.08f),
                     "骰子台氛围光必须克制，不能重新把整块面板染成高饱和色。");
                 Assert.That(diceHitArea.sprite, Is.Null,
@@ -339,6 +361,8 @@ namespace ChoSiren.Tests
                 Assert.That(summary.text, Does.Contain("普攻与小技能自动"));
                 Assert.That(summary.text, Does.Contain("大招"));
                 Assert.That(summary.text, Does.Not.Contain("秒"), "摘要里不能再出现技能倒计时。");
+                Assert.That(summary.gameObject.activeInHierarchy, Is.False,
+                    "自动普攻和大招能量不再作为页尾文字显示，技能详情入口仍可用。");
                 Assert.That(FindRect(panel.transform, "AbilityDetails").GetComponent<Button>().interactable, Is.True,
                     "角色能力详情入口必须保留。");
                 FindRect(panel.transform, "AbilityDetails").GetComponent<Button>().onClick.Invoke();

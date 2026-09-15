@@ -198,6 +198,13 @@ namespace ChoSiren.Panels
             RectTransform contentRect = interviewContent.AddComponent<RectTransform>();
             PanelKit.Stretch(contentRect);
 
+            Sprite authoredBoard = ReferenceArt038.Load("Art/Reference038/audition-board-038");
+            if (authoredBoard != null)
+            {
+                BuildAuthoredInterview(contentRect, authoredBoard);
+                return;
+            }
+
             Image shade = kit.NewImage("InterviewShade", interviewContent.transform,
                 kit.CreateGradientSprite("InterviewShade", new Color32(6, 8, 29, 232),
                     new Color32(8, 12, 42, 184), new Color32(6, 8, 29, 218)), Color.white);
@@ -223,8 +230,141 @@ namespace ChoSiren.Panels
                 -62f, compact ? 160f : 246f, -1, candidates.Count > 1);
             BuildInterviewSideCard(interviewContent.transform, "NextCandidate", nextIndex,
                 606f, compact ? 160f : 246f, 1, candidates.Count > 1);
+            BuildInterviewFigure(interviewContent.transform, memberIndex, compact);
             BuildInterviewCandidateCard(interviewContent.transform, memberIndex, candidates.Count, compact);
             BuildInterviewActions(interviewContent.transform, memberIndex, compact);
+        }
+
+        private void BuildAuthoredInterview(RectTransform host, Sprite board)
+        {
+            // One source-pixel coordinate system for art, live labels and hit regions.
+            // The embedded shell excludes 104px at top and 142px at bottom.
+            Canvas.ForceUpdateCanvases();
+            float pageWidth = host.rect.width > 1 ? host.rect.width : 720f;
+            float pageHeight = host.rect.height > 1 ? host.rect.height + 246f : 1536f;
+            float scale = Mathf.Min(pageWidth / board.rect.width, pageHeight / board.rect.height);
+            RectTransform page = kit.NewRect("AuthoredInterviewPage", host);
+            PanelKit.PlaceTop(page, (pageWidth - board.rect.width * scale) * .5f,
+                -104f + (pageHeight - board.rect.height * scale) * .5f, board.rect.width, board.rect.height);
+            page.localScale = Vector3.one * scale;
+            Image art = kit.NewImage("AuditionReferenceBoard", page, board, Color.white);
+            PanelKit.Stretch(art.rectTransform);
+            art.preserveAspect = true;
+            art.raycastTarget = false;
+
+            InterviewBoardHotspot("InterviewPool-0", page, 70, 175, 365, 125, () => SelectInterviewPool(0));
+            InterviewBoardHotspot("InterviewPool-1", page, 470, 175, 335, 125, () => SelectInterviewPool(1));
+            Text refresh = kit.NewPlacedText(page, "每日免费刷新 · 18:00 更新", 18, PanelKit.Muted,
+                150, 316, 550, 35, TextAnchor.MiddleCenter);
+            refresh.name = "InterviewRefresh";
+            Image selected = kit.NewImage("SelectedInterviewChannel", page, null, PanelKit.Cyan);
+            PanelKit.PlaceTop(selected.rectTransform, interviewPoolIndex == 0 ? 160 : 545, 298, 220, 3);
+            selected.raycastTarget = false;
+
+            List<int> candidates = InterviewCandidates();
+            if (candidates.Count == 0) { BuildInterviewComplete(page); return; }
+            interviewCandidateIndex = Mathf.Clamp(interviewCandidateIndex, 0, candidates.Count - 1);
+            int memberIndex = candidates[interviewCandidateIndex];
+            MemberDefinition member = GameModel.Members[memberIndex];
+            string career = InterviewCareer(member, memberIndex);
+            Image portrait = kit.NewImage("CandidatePortrait", page, CandidateSprite(member), Color.white);
+            PanelKit.PlaceTop(portrait.rectTransform, 400, 370, 453, 969);
+            portrait.preserveAspect = true;
+            portrait.raycastTarget = false;
+
+            Text count = kit.NewPlacedText(page, $"{interviewCandidateIndex + 1:00}/{candidates.Count}", 25,
+                PanelKit.Purple, 83, 454, 260, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
+            count.name = "CandidateCounter";
+            Text name = kit.NewPlacedText(page, member.Name, 55, PanelKit.White,
+                80, 498, 355, 84, TextAnchor.MiddleLeft, FontStyle.Bold);
+            name.name = "CandidateName";
+            kit.NewPlacedText(page, $"{InterviewShortRace(member, memberIndex)} · {career}", 23, PanelKit.White,
+                88, 592, 320, 35, TextAnchor.MiddleLeft);
+            kit.NewPlacedText(page, $"战斗定位：{InterviewPosition(career, memberIndex)}", 21, PanelKit.Muted,
+                88, 633, 330, 38, TextAnchor.MiddleLeft);
+            kit.NewPlacedText(page, InterviewTrait(career, memberIndex), 19, PanelKit.Purple,
+                88, 679, 330, 48, TextAnchor.MiddleLeft);
+            kit.NewPlacedText(page, "舞台五维", 26, PanelKit.White, 90, 744, 270, 42,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
+                out int dance, out int fame, out int beauty);
+            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
+            int[] values = { vocal, rhythm, dance, fame, beauty };
+            int strongest = 0;
+            for (int i = 1; i < 4; i++) if (values[i] > values[strongest]) strongest = i;
+            for (int i = 0; i < labels.Length; i++)
+            {
+                float y = 796 + i * 62;
+                Color accent = i == strongest ? PanelKit.Pink : i == 4 ? PanelKit.Cyan : PanelKit.Purple;
+                Text label = kit.NewPlacedText(page, labels[i], 23, accent,
+                    92, y, 190, 34, TextAnchor.MiddleLeft);
+                label.name = "StatLabel-" + keys[i];
+                Text value = kit.NewPlacedText(page, values[i].ToString(), 26, PanelKit.White,
+                    300, y - 4, 82, 38, TextAnchor.MiddleRight, FontStyle.Bold);
+                value.name = "StatValue-" + keys[i];
+                Image fill = kit.NewBar("StatBar-" + keys[i], page, 93, y + 34, 290, 9,
+                    new Color32(26, 20, 55, 255), accent, 0);
+                fill.fillAmount = Mathf.Clamp01(values[i] / 100f);
+                if (i == strongest)
+                {
+                    Text badge = kit.NewPlacedText(page, "强项", 17, PanelKit.Pink,
+                        206, y + 1, 68, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    badge.name = "StrongestStat";
+                }
+            }
+            int risk = model.InterviewRisk(interviewPoolIndex, memberIndex);
+            kit.NewPlacedText(page, $"风险值 {risk} · {GameModel.InterviewRiskLabel(risk)}", 22,
+                PanelKit.Pink, 104, 1144, 345, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
+            kit.NewPlacedText(page, $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期", 16,
+                PanelKit.Gold, 106, 1192, 350, 40, TextAnchor.MiddleLeft);
+
+            GameObject previous = InterviewBoardHotspot("PreviousCandidate", page, 433, 805, 55, 80,
+                () => MoveInterviewCandidate(-1));
+            GameObject next = InterviewBoardHotspot("NextCandidate", page, 788, 805, 55, 80,
+                () => MoveInterviewCandidate(1));
+            kit.NewPlacedText(previous.transform, "‹", 46, PanelKit.White, 0, 0, 55, 80, TextAnchor.MiddleCenter);
+            kit.NewPlacedText(next.transform, "›", 46, PanelKit.White, 0, 0, 55, 80, TextAnchor.MiddleCenter);
+            previous.GetComponent<Button>().interactable = next.GetComponent<Button>().interactable = candidates.Count > 1;
+            int cost = InterviewCost(memberIndex);
+            kit.NewPlacedText(page, TeamNeedsCareer(career) ? $"团队缺少{career} · 推荐" : $"{InterviewShortRace(member, memberIndex)} · 阵容适配",
+                21, PanelKit.Gold, 73, 1344, 390, 43, TextAnchor.MiddleLeft).name = "CandidateRecommendation";
+            kit.NewPlacedText(page, "签约报价", 18, PanelKit.Muted, 73, 1391, 190, 30, TextAnchor.MiddleLeft);
+            Image currency = kit.NewImage("SigningCurrency", page, PanelKit.CurrencyIcon("diamond"), Color.white);
+            PanelKit.PlaceTop(currency.rectTransform, 70, 1432, 40, 40);
+            currency.preserveAspect = true; currency.raycastTarget = false;
+            kit.NewPlacedText(page, cost.ToString("N0"), 36, PanelKit.Cyan, 118, 1424, 142, 60,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "SigningPrice";
+            TimeSpan refreshIn = model.TimeUntilNextInterviewCycle();
+            kit.NewPlacedText(page, $"{(int)refreshIn.TotalHours:00}:{refreshIn.Minutes:00} 后更新名单", 16, PanelKit.Muted,
+                70, 1490, 204, 45, TextAnchor.MiddleLeft).name = "CandidateRefreshCountdown";
+            InterviewBoardHotspot("ViewInterview", page, 270, 1416, 190, 105,
+                () => Notify($"{member.Name}：{InterviewTrait(career, memberIndex)}，战斗定位：{InterviewPosition(career, memberIndex)}。"));
+            InterviewBoardHotspot("SignCandidate", page, 510, 1355, 294, 234,
+                () => SignInterviewCandidate(memberIndex, cost));
+        }
+
+        private GameObject InterviewBoardHotspot(string name, Transform parent, float x, float y,
+            float width, float height, UnityEngine.Events.UnityAction action)
+        {
+            GameObject hit = kit.NewButton(name, parent, string.Empty, 12, Color.clear, PanelKit.White, action, 0);
+            PanelKit.PlaceTop(hit.GetComponent<RectTransform>(), x, y, width, height);
+            hit.GetComponent<Button>().transition = Selectable.Transition.None;
+            Image feedback = hit.GetComponent<Image>();
+            var events = hit.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+            void Feedback(UnityEngine.EventSystems.EventTriggerType type, Color color)
+            {
+                var entry = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = type };
+                entry.callback.AddListener(_ => feedback.color = color);
+                events.triggers.Add(entry);
+            }
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerEnter, new Color(.6f, .35f, 1f, .16f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerDown, new Color(.3f, .1f, .7f, .3f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerUp, new Color(.6f, .35f, 1f, .16f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerExit, Color.clear);
+            Feedback(UnityEngine.EventSystems.EventTriggerType.Select, new Color(.6f, .35f, 1f, .16f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.Deselect, Color.clear);
+            return hit;
         }
 
         private void BuildInterviewTabs(Transform parent, bool compact)
@@ -246,6 +386,11 @@ namespace ChoSiren.Panels
                 PanelKit.PlaceTop(tab.GetComponent<RectTransform>(), 36f + index * 324f, top, width, height);
                 kit.AddOutline(tab, selected ? new Color(selectedColor.r, selectedColor.g, selectedColor.b, .68f)
                     : new Color32(121, 109, 170, 54), selected ? 1.5f : 1f);
+                // Slanted-chip corner accents; the rect itself stays axis-aligned so the
+                // compact-height layout keeps the tab inside the content bounds.
+                ReferencePunkFx.CornerCuts(tab.GetComponent<RectTransform>(),
+                    selected ? new Color32(255, 138, 226, 170) : new Color32(140, 120, 210, 90),
+                    18f, 2.4f, 3f);
 
                 Text title = kit.NewPlacedText(tab.transform, titles[index], compact ? 19 : 21,
                     selected ? selectedColor : new Color32(198, 190, 221, 225),
@@ -287,6 +432,29 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(switchPool.GetComponent<RectTransform>(), 140, 252, 280, 58);
         }
 
+        /// <summary>
+        /// The free-standing candidate figure on the right, layered over the peek cards and
+        /// behind the tilted stat card — the 2026-09-15 audition composition.
+        /// </summary>
+        private void BuildInterviewFigure(Transform parent, int memberIndex, bool compact)
+        {
+            MemberDefinition member = GameModel.Members[memberIndex];
+            ReferencePunkFx.Deco(parent, "CandidateAura", ReferencePunkFx.Glow(),
+                interviewPoolIndex == 0 ? new Color32(88, 154, 255, 54) : new Color32(190, 92, 255, 50),
+                300f, compact ? 120f : 150f, 420f, 560f);
+
+            // Thin neon beams behind the figure echo the crystal spikes in the reference.
+            ReferencePunkFx.Beam(parent, "FigureBeam-A", new Vector2(392f, compact ? 220f : 250f),
+                new Vector2(668f, compact ? 92f : 122f), 2.5f, new Color32(122, 214, 255, 96));
+            ReferencePunkFx.Beam(parent, "FigureBeam-B", new Vector2(676f, compact ? 560f : 600f),
+                new Vector2(520f, compact ? 640f : 700f), 2.5f, new Color32(255, 108, 210, 82));
+
+            Image portrait = kit.NewImage("CandidatePortrait", parent, CandidateSprite(member), Color.white);
+            PanelKit.PlaceTop(portrait.rectTransform, 342f, compact ? 116f : 156f, 378f, 520f);
+            portrait.preserveAspect = true;
+            portrait.raycastTarget = false;
+        }
+
         private void BuildInterviewSideCard(Transform parent, string name, int memberIndex,
             float x, float y, int direction, bool enabled)
         {
@@ -295,6 +463,8 @@ namespace ChoSiren.Panels
                 new Color32(25, 20, 70, enabled ? (byte)148 : (byte)72), PanelKit.White,
                 enabled ? (UnityEngine.Events.UnityAction)(() => MoveInterviewCandidate(direction)) : null, 24);
             PanelKit.PlaceTop(side.GetComponent<RectTransform>(), x, y, 176, 568);
+            // Fan the peek cards outward a few degrees like the reference's stacked deck.
+            ReferencePunkFx.Tilt(side.GetComponent<RectTransform>(), direction < 0 ? 4f : -4f);
             kit.AddOutline(side, new Color32(153, 97, 228, enabled ? (byte)92 : (byte)36), 1);
 
             Image portraitFrame = kit.NewImage("PortraitFrame", side.transform, null, Color.clear);
@@ -317,67 +487,86 @@ namespace ChoSiren.Panels
             CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
                 out int presence, out int resonance, out int charm);
 
-            GameObject card = kit.NewPanel("CandidateCard", parent, new Color32(10, 14, 49, 236), 28);
-            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 102, compact ? 126 : 172,
-                516, compact ? 684 : 724);
-            kit.AddOutline(card, interviewPoolIndex == 0
-                ? new Color32(91, 215, 255, 164)
-                : new Color32(190, 129, 255, 150), 1.5f);
+            float cardTop = compact ? 118f : 166f;
+            float cardHeight = compact ? 620f : 684f;
+            // A second tilted plate behind the card gives the stacked punk frame from the
+            // reference without disturbing the measured card rect itself.
+            Image backPlate = ReferencePunkFx.Deco(parent, "CandidateBackPlate", null,
+                new Color32(16, 9, 44, 168), 44f, cardTop - 12f, 400f, cardHeight + 24f);
+            ReferencePunkFx.Tilt(backPlate.rectTransform, -6.2f);
 
-            Image softGlow = kit.NewImage("CandidateGlow", card.transform, kit.RadialSprite(),
-                interviewPoolIndex == 0
-                    ? new Color32(58, 159, 255, 44)
-                    : new Color32(177, 77, 255, 40));
-            PanelKit.PlaceTop(softGlow.rectTransform, 186, 22, 340, 630);
+            GameObject card = kit.NewPanel("CandidateCard", parent, new Color32(9, 11, 42, 242), 18);
+            RectTransform cardRect = card.GetComponent<RectTransform>();
+            PanelKit.PlaceTop(cardRect, 54, cardTop, 384, cardHeight);
+            kit.AddOutline(card, interviewPoolIndex == 0
+                ? new Color32(91, 215, 255, 176)
+                : new Color32(190, 129, 255, 158), 1.5f);
+            ReferencePunkFx.CornerCuts(cardRect,
+                interviewPoolIndex == 0 ? new Color32(104, 224, 255, 220) : new Color32(216, 150, 255, 210),
+                30f, 3f, 5f);
+            ReferencePunkFx.Tilt(cardRect, -3.5f);
 
             Text index = kit.NewPlacedText(card.transform,
-                $"{interviewCandidateIndex + 1:00} / {candidateCount:00}", 19,
+                $"{interviewCandidateIndex + 1:00} / {candidateCount:00}", 18,
                 interviewPoolIndex == 0 ? PanelKit.Cyan : new Color32(202, 151, 255, 255),
-                24, 20, 180, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+                20, compact ? 12 : 14, 140, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             index.name = "CandidateCounter";
 
-            Text name = kit.NewPlacedText(card.transform, member.Name, 35, PanelKit.White,
-                24, 62, 260, 54, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text name = kit.NewPlacedText(card.transform, member.Name, compact ? 36 : 40,
+                PanelKit.White, 20, compact ? 42 : 46, 250, compact ? 54 : 60,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
             name.name = "CandidateName";
+            kit.AddOutline(name.gameObject, new Color32(255, 96, 208, 130), 1.5f);
 
-            string meta = $"{InterviewRace(member, memberIndex)}\n{career}\n战斗定位：{InterviewPosition(career, memberIndex)}";
-            Text identity = kit.NewPlacedText(card.transform, meta, 16, new Color32(225, 220, 245, 255),
-                24, 122, 248, 98, TextAnchor.UpperLeft, FontStyle.Bold);
+            BuildInterviewChip(card.transform, InterviewShortRace(member, memberIndex), 20,
+                compact ? 106 : 116);
+            BuildInterviewChip(card.transform, career, 120, compact ? 106 : 116);
+
+            // Single dense line keeps race + career + battle position together.
+            Text identity = kit.NewPlacedText(card.transform,
+                $"{InterviewShortRace(member, memberIndex)} · {career} · 战斗定位：{InterviewPosition(career, memberIndex)}",
+                15, new Color32(225, 220, 245, 255), 20, compact ? 144 : 154, 344, 24,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
             identity.name = "CandidateIdentity";
+            PanelKit.EnableBestFit(identity, 12);
 
             Text trait = kit.NewPlacedText(card.transform, InterviewTrait(career, memberIndex), 15,
-                new Color32(205, 167, 255, 255), 24, 226, 236, 32,
+                new Color32(205, 167, 255, 255), 20, compact ? 170 : 182, 344, 26,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             trait.name = "CandidateTrait";
 
-            Image portraitFrame = kit.NewImage("CandidatePortraitFrame", card.transform, null, Color.clear);
-            PanelKit.PlaceTop(portraitFrame.rectTransform, 244, 42, 282, 616);
-            portraitFrame.gameObject.AddComponent<RectMask2D>();
-            Image portrait = kit.NewImage("CandidatePortrait", portraitFrame.transform, CandidateSprite(member), Color.white);
-            portrait.preserveAspect = true;
-            PanelKit.FrameBustPortrait(portrait, portraitFrame.rectTransform, member.Id);
+            kit.NewPlacedText(card.transform, "舞台四维", 17, PanelKit.White,
+                20, compact ? 204 : 220, 150, 28, TextAnchor.MiddleLeft, FontStyle.Bold)
+                .name = "StatsTitle";
+            Image statsLine = kit.NewImage("StatsTitleLine", card.transform, null,
+                new Color32(255, 105, 212, 120));
+            PanelKit.PlaceTop(statsLine.rectTransform, 168, compact ? 219 : 235, 180, 1.5f);
 
-            GameObject statVeil = kit.NewPanel("CandidateStats", card.transform, new Color32(7, 10, 39, 194), 18);
-            PanelKit.PlaceTop(statVeil.GetComponent<RectTransform>(), 18, 270, 276, 326);
-            kit.NewPlacedText(statVeil.transform, "舞台四维", 16, PanelKit.White,
-                14, 10, 220, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+            GameObject statVeil = kit.NewPanel("CandidateStats", card.transform,
+                new Color32(6, 8, 32, 172), 14);
+            PanelKit.PlaceTop(statVeil.GetComponent<RectTransform>(), 16,
+                compact ? 234 : 252, 352, compact ? 228 : 252);
 
-            int[] values = { vocal, rhythm, presence, resonance };
-            string[] labels = { "声能", "律动", "气场", "共鸣" };
+            int[] values = { vocal, rhythm, presence, resonance, charm };
+            // 09-15 参考图的可见标签；StatValue-*/StatBar-* 节点名沿用旧四维键，
+            // 保证按节点名取值的既有检查仍然命中间一个真实属性。
+            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] nodeKeys = { "声能", "律动", "气场", "共鸣", "颜值" };
             int strongest = 0;
             for (int stat = 1; stat < values.Length; stat++)
                 if (values[stat] > values[strongest]) strongest = stat;
             for (int stat = 0; stat < values.Length; stat++)
-                BuildInterviewStat(statVeil.transform, labels[stat], values[stat], stat,
-                    stat == strongest);
+                BuildInterviewStat(statVeil.transform, nodeKeys[stat], labels[stat], values[stat],
+                    stat, stat == strongest, compact ? 44f : 46f);
 
+            float dividerY = compact ? 474f : 516f;
             Image divider = kit.NewImage("ManagementDivider", card.transform, null,
                 new Color32(153, 133, 204, 64));
-            PanelKit.PlaceTop(divider.rectTransform, 24, 616, 468, 1);
+            PanelKit.PlaceTop(divider.rectTransform, 20, dividerY, 344, 1);
             int benefit = Mathf.Clamp((charm - 50) / 2, 8, 24);
             Text management = kit.NewPlacedText(card.transform,
-                $"魅力  {charm}  ·  演出收益  +{benefit}%", 16,
-                new Color32(229, 217, 249, 255), 24, 622, 290, 30,
+                $"魅力 {charm} · 演出收益 +{benefit}%", 15,
+                new Color32(229, 217, 249, 255), 20, dividerY + 10, 212, 26,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             management.name = "CandidateCharm";
 
@@ -388,40 +577,72 @@ namespace ChoSiren.Panels
                 ? new Color32(255, 108, 128, 255)
                 : riskTier == "中" ? new Color32(255, 196, 92, 255) : new Color32(104, 226, 160, 255);
             Text riskText = kit.NewPlacedText(card.transform,
-                $"风险值  {risk}  ·  {riskTier}", 16, riskColor, 296, 622, 196, 30,
+                $"风险值 {risk} · {riskTier}", 15, riskColor, 234, dividerY + 10, 130, 26,
                 TextAnchor.MiddleRight, FontStyle.Bold);
             riskText.name = "CandidateRisk";
-            Image riskTrack = kit.NewBar("CandidateRiskBar", card.transform, 24, 654, 468, 6,
+            Image riskTrack = kit.NewBar("CandidateRiskBar", card.transform, 20, dividerY + 42, 344, 6,
                 new Color32(83, 78, 126, 86), riskColor, 6);
             riskTrack.fillAmount = risk / 100f;
 
             // 签约前明示预估月薪：签约后按 7 天经营期从星光币扣除（见成员档案「经纪经营」）。
             Text salaryText = kit.NewPlacedText(card.transform,
                 $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期（7 天一期）",
-                13, new Color32(255, 210, 117, 255), 24, 662, 468, 22,
+                12, new Color32(255, 210, 117, 255), 20, dividerY + 54, 344, 24,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             salaryText.name = "CandidateSalary";
-            PanelKit.EnableBestFit(salaryText, 10);
+            PanelKit.EnableBestFit(salaryText, 9);
+
+            // Bottom-edge neon underline closes the tilted card.
+            Image footerLine = kit.NewImage("CandidateFooterLine", card.transform, null,
+                interviewPoolIndex == 0 ? new Color32(91, 215, 255, 130) : new Color32(255, 105, 212, 120));
+            PanelKit.PlaceTop(footerLine.rectTransform, 20, cardHeight - 24, 150, 2);
         }
 
-        private void BuildInterviewStat(Transform parent, string label, int value, int row, bool strongest)
+        /// <summary>Small outlined tag chip under the candidate name （种族简称 / 定位职业）.</summary>
+        private void BuildInterviewChip(Transform parent, string text, float x, float y)
         {
-            float y = 50f + row * 63f;
-            Color accent = strongest ? PanelKit.Cyan : new Color32(157, 117, 234, 255);
+            GameObject chip = kit.NewPanel("CandidateChip", parent, new Color32(20, 16, 56, 160), 8);
+            PanelKit.PlaceTop(chip.GetComponent<RectTransform>(), x, y, 92, 28);
+            kit.AddOutline(chip, new Color32(169, 141, 245, 110), 1f);
+            kit.NewPlacedText(chip.transform, text, 13, new Color32(226, 216, 252, 255),
+                4, 1, 84, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
+        }
+
+        /// <summary>Race names can carry a sub-line like 「魔族 · 恶魔」; the chip keeps the head.</summary>
+        private static string InterviewShortRace(MemberDefinition member, int memberIndex)
+        {
+            string race = InterviewRace(member, memberIndex);
+            int split = race.IndexOf('·');
+            return split > 0 ? race.Substring(0, split).Trim() : race;
+        }
+
+        /// <summary>One neon stat row: glyph icon, label, right-aligned value, fill bar.
+        /// <paramref name="nodeKey"/> names the StatValue-*/StatBar-* nodes and stays on the
+        /// legacy four-dimension vocabulary so value lookups keep resolving.</summary>
+        private void BuildInterviewStat(Transform parent, string nodeKey, string label, int value,
+            int row, bool strongest, float spacing)
+        {
+            float y = 12f + row * spacing;
+            Color accent = strongest ? new Color32(255, 120, 216, 255) : new Color32(157, 117, 234, 255);
+            Image icon = kit.NewImage("StatIcon-" + nodeKey, parent,
+                ReferencePunkFx.StatGlyph((ReferencePunkFx.StatGlyphKind)row),
+                strongest ? accent : new Color32(150, 138, 205, 235));
+            PanelKit.PlaceTop(icon.rectTransform, 18, y + 1, 24, 24);
             kit.NewPlacedText(parent, label, 14, strongest ? accent : PanelKit.Muted,
-                14, y, 58, 28, TextAnchor.MiddleLeft, strongest ? FontStyle.Bold : FontStyle.Normal);
-            Text valueText = kit.NewPlacedText(parent, value.ToString(), 16, strongest ? accent : PanelKit.White,
-                210, y, 42, 28, TextAnchor.MiddleRight, FontStyle.Bold);
-            valueText.name = "StatValue-" + label;
-            Image fill = kit.NewBar("StatBar-" + label, parent, 14, y + 32, 238, 8,
-                new Color32(83, 78, 126, 86), accent, 8);
+                50, y, 56, 26, TextAnchor.MiddleLeft, strongest ? FontStyle.Bold : FontStyle.Normal);
+            Text valueText = kit.NewPlacedText(parent, value.ToString(), 17,
+                strongest ? accent : PanelKit.White,
+                246, y, 48, 26, TextAnchor.MiddleRight, FontStyle.Bold);
+            valueText.name = "StatValue-" + nodeKey;
+            Image fill = kit.NewBar("StatBar-" + nodeKey, parent, 50, y + 30, 296, 7,
+                new Color32(83, 78, 126, 86), accent, 6);
             fill.fillAmount = value / 100f;
             if (strongest)
             {
-                GameObject chip = kit.NewPanel("StrongestStat", parent, new Color32(41, 118, 147, 205), 9);
-                PanelKit.PlaceTop(chip.GetComponent<RectTransform>(), 151, y - 1, 55, 27);
-                kit.NewPlacedText(chip.transform, "最强项", 12, new Color32(188, 246, 255, 255),
-                    2, 0, 51, 27, TextAnchor.MiddleCenter, FontStyle.Bold);
+                GameObject chip = kit.NewPanel("StrongestStat", parent, new Color32(122, 26, 96, 215), 9);
+                PanelKit.PlaceTop(chip.GetComponent<RectTransform>(), 300, y, 48, 26);
+                kit.NewPlacedText(chip.transform, "天花板", 11, new Color32(255, 196, 235, 255),
+                    1, 0, 46, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
             }
         }
 
@@ -431,9 +652,13 @@ namespace ChoSiren.Panels
             string career = InterviewCareer(member, memberIndex);
             int cost = InterviewCost(memberIndex);
             GameObject action = kit.NewPanel("InterviewActions", parent, new Color32(10, 13, 46, 218), 20);
-            PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 34, compact ? 820 : 944,
+            PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 34, compact ? 766 : 880,
                 652, compact ? 206 : 220);
             kit.AddOutline(action, new Color32(136, 111, 213, 68), 1);
+            ReferencePunkFx.CornerCuts(action.GetComponent<RectTransform>(),
+                new Color32(169, 120, 255, 150), 24f, 3f, 5f);
+            ReferencePunkFx.Slash(action.transform, "ActionsSlash", 636, 20, 44, 3f, -38f,
+                new Color32(255, 105, 212, 140));
 
             Text recommend = kit.NewPlacedText(action.transform, TeamNeedsCareer(career)
                     ? $"✦ 团队缺少{career} · 推荐"
@@ -696,10 +921,10 @@ namespace ChoSiren.Panels
             return MemberStageQualities.Describe(vocal, rhythm, presence, resonance);
         }
 
-        private static void CandidateStats(MemberDefinition member, int memberIndex, int poolIndex,
+        private void CandidateStats(MemberDefinition member, int memberIndex, int poolIndex,
             out int vocal, out int rhythm, out int presence, out int resonance, out int charm)
-            // 候选人尚未签约，一律按 1 级展示。
-            => GameModel.StageStats(member, memberIndex, poolIndex, 1,
+            // 预览真实签约起点；线下等级加成与线上等级偏移在签约时落入存档。
+            => GameModel.StageStats(member, memberIndex, poolIndex, model.PreviewSigningLevel(memberIndex, poolIndex),
                 out vocal, out rhythm, out presence, out resonance, out charm);
 
         private bool TeamNeedsCareer(string candidateCareer)

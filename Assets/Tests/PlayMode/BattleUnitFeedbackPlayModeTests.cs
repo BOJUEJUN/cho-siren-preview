@@ -326,7 +326,7 @@ namespace ChoSiren.Tests
 
         [TestCase(false)]
         [TestCase(true)]
-        public void HealthSummariesUseCurrentWaveOrBossAndSeparatelyReportTheWholeTeam(bool bossEncounter)
+        public void HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(bool bossEncounter)
         {
             using (var fixture = new Fixture(bossEncounter))
             {
@@ -347,7 +347,8 @@ namespace ChoSiren.Tests
                 long teamHp = players.Sum(unit => (long)unit.Hp);
                 long teamMax = players.Sum(unit => (long)unit.MaxHp);
                 Text summary = Find(fixture.Panel.transform, "TeamHealthSummary").GetComponent<Text>();
-                Assert.That(summary.gameObject.activeInHierarchy, Is.True);
+                Assert.That(summary.gameObject.activeInHierarchy, Is.False,
+                    "实时战斗已按设计移除队伍总生命页尾，不能仅移动到画布外。");
                 Assert.That(summary.text, Does.Contain($"{teamHp:N0}/{teamMax:N0}"));
                 Assert.That(summary.text, Does.Contain("存活 4/4"));
             }

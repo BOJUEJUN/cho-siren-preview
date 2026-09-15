@@ -382,7 +382,7 @@ namespace ChoSiren.Panels
         private void ReadStats(int member, int level, out int vocal, out int rhythm,
             out int presence, out int resonance)
         {
-            GameModel.StageStats(GameModel.Members[member], member, 1, level,
+            GameModel.StageStats(GameModel.Members[member], member, model.SigningChannelOf(member) == 0 ? 0 : 1, level,
                 out vocal, out rhythm, out presence, out resonance, out _);
         }
 

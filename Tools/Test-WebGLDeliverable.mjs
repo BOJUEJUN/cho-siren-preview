@@ -56,6 +56,20 @@ const assets = assetNames.map((name) => {
 });
 
 const referenced = new Set(assetNames);
+const artManifestPath = join(buildPath, 'StreamingAssets', 'Reference038', 'manifest.json');
+let referenceArt = [];
+if (existsSync(artManifestPath)) {
+  const manifest = JSON.parse(readFileSync(artManifestPath, 'utf8'));
+  if (manifest.entries?.length !== 9 || new Set(manifest.entries.map(e => e.key)).size !== 9)
+    fail('Reference038 清单必须包含九张不同的界面素材');
+  referenceArt = manifest.entries.map(entry => {
+    if (!/^Reference038\/[0-9a-f]{16}-[a-z0-9-]+\.png$/.test(entry.file)) fail('不安全的界面素材路径');
+    const bytes = readFileSync(join(buildPath, 'StreamingAssets', entry.file));
+    const sha256 = createHash('sha256').update(bytes).digest('hex');
+    if (!entry.file.includes(sha256.slice(0, 16))) fail('界面素材内容哈希不符: ' + entry.file);
+    return { file: entry.file, bytes: bytes.length, sha256 };
+  });
+}
 const unexpected = readdirSync(join(buildPath, 'Build'), { withFileTypes: true })
   .filter(entry => entry.isDirectory() || !referenced.has(entry.name))
   .map(entry => entry.name);
@@ -71,4 +85,5 @@ console.log(JSON.stringify({
   preferredDataLimitBytes: recommendedDataLimit,
   lobbyVideo: { file: 'StreamingAssets/Lobby/lobby-loop.mp4', bytes: statSync(lobbyVideoPath).size },
   assets,
+  referenceArt,
 }, null, 2));

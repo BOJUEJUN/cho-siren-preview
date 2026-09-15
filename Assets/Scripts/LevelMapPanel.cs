@@ -36,13 +36,15 @@ namespace ChoSiren
             public Outline Outline;
             public Text StageLabel;
             public Text StatusLabel;
+            public Image Tag;
+            public Image LockIcon;
         }
 
         private sealed class RouteView
         {
             public int TargetStage;
-            public Image Glow;
-            public Image Core;
+            public List<Image> Glow;
+            public List<Image> Core;
             public Image Marker;
         }
 
@@ -91,6 +93,7 @@ namespace ChoSiren
         private Sprite stageNodeSprite;
         private Sprite rewardChestSprite;
         private Sprite actionFrameSprite;
+        private bool authoredMap;
         private GameObject modalRoot;
         private GameObject toastObject;
         private Text toastText;
@@ -199,12 +202,115 @@ namespace ChoSiren
             rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
             actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
 
+            Sprite board = ReferenceArt038.Load("Art/Reference038/map-board-038");
+            if (board != null)
+            {
+                authoredMap = true;
+                BuildAuthoredMap(board);
+                BuildToast();
+                return;
+            }
+
             BuildBackdrop();
             BuildHeader();
             BuildMap();
             BuildDetails();
             BuildChapterDock();
             BuildToast();
+        }
+
+        private void BuildAuthoredMap(Sprite board)
+        {
+            Image blocker = NewImage("LevelMapInputBlocker", transform, null, new Color32(7, 4, 20, 255));
+            Stretch(blocker.rectTransform); blocker.raycastTarget = true;
+            Canvas.ForceUpdateCanvases();
+            RectTransform host = (RectTransform)transform;
+            float w = host.rect.width > 1 ? host.rect.width : 720f;
+            float h = host.rect.height > 1 ? host.rect.height : 1536f;
+            float scale = Mathf.Min(w / board.rect.width, h / board.rect.height);
+            RectTransform page = NewObject("AuthoredMapPage", transform).AddComponent<RectTransform>();
+            PlaceTop(page, (w - board.rect.width * scale) * .5f, (h - board.rect.height * scale) * .5f,
+                board.rect.width, board.rect.height);
+            page.localScale = Vector3.one * scale;
+            Image art = NewImage("MapReferenceBoard", page, board, Color.white);
+            Stretch(art.rectTransform); art.preserveAspect = true; art.raycastTarget = false;
+            MapBoardHit("Back", page, 12, 15, 96, 100, Close);
+            NewPlacedText(page, "第01章", 23, Pink, 145, 25, 300, 35, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(page, "踏梦迷踪", 38, White, 135, 62, 355, 64, TextAnchor.MiddleLeft, FontStyle.Bold);
+            staminaText = NewPlacedText(page, string.Empty, 24, White, 625, 30, 196, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
+            storyChapterLabel = NewPlacedText(page, string.Empty, 20, Pink, 65, 207, 300, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
+            MapBoardHit("StoryChapter-01", page, 24, 210, 370, 190, OpenStoryChapter01);
+            Vector2[] centers = {
+                new Vector2(256,1182), new Vector2(393,1073), new Vector2(360,974),
+                new Vector2(486,855), new Vector2(482,756), new Vector2(451,650),
+                new Vector2(565,543), new Vector2(497,453), new Vector2(560,337), new Vector2(671,217)
+            };
+            for (int i = 0; i < centers.Length; i++)
+            {
+                int stage = i + 1;
+                Vector2 c = centers[i];
+                GameObject node = MapBoardHit($"Level-1-{stage}", page, c.x - 82, c.y - 33, 164, 66, () => SelectStage(stage));
+                Image glow = NewImage($"Glow-1-{stage}", node.transform, null, new Color(.7f,.25f,1f,.15f));
+                PlaceTop(glow.rectTransform, 12, 51, 138, 3); glow.raycastTarget = false;
+                Image lockIcon = NewImage("LockIcon", node.transform,
+                    ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Lock), White);
+                PlaceTop(lockIcon.rectTransform, 18, 17, 20, 24); lockIcon.raycastTarget = false;
+                Text label = NewPlacedText(node.transform, $"1-{stage}", 27, White, 36, 6, 106, 42,
+                    TextAnchor.MiddleCenter, FontStyle.Bold); label.name = "StageLabel";
+                Text status = NewPlacedText(node.transform, string.Empty, 12, Pink, 43, 44, 100, 18,
+                    TextAnchor.MiddleCenter, FontStyle.Bold); status.name = "StatusLabel";
+                nodeViews[stage] = new NodeView { Stage=stage, Button=node.GetComponent<Button>(),
+                    Background=node.GetComponent<Image>(), Glow=glow, StageLabel=label,
+                    StatusLabel=status, LockIcon=lockIcon };
+            }
+            GameObject selected = NewObject("SelectedLevel", page);
+            PlaceTop(selected.AddComponent<RectTransform>(), 54, 1284, 490, 325);
+            stageText = NewPlacedText(selected.transform, string.Empty, 40, White, 8, 0, 126, 55, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageTitleText = NewPlacedText(selected.transform, string.Empty, 29, White, 138, 5, 327, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+            stageStatusText = NewPlacedText(selected.transform, string.Empty, 18, Pink, 14, 58, 445, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            progressText = NewPlacedText(selected.transform, string.Empty, 16, Muted, 14, 93, 445, 42, TextAnchor.MiddleLeft);
+            equipmentDropText = NewPlacedText(selected.transform, string.Empty, 15, Cyan, 14, 132, 445, 35, TextAnchor.MiddleLeft);
+            equipmentDropText.name = "StageDropSummary";
+            GameObject drops = MapBoardHit("StageDropPreview", selected.transform, 10, 172, 456, 108, OpenDropPreview);
+            dropPreviewIcons = drops.transform;
+            staminaCostText = NewPlacedText(selected.transform, string.Empty, 15, Pink, 8, 286, 130, 30, TextAnchor.MiddleLeft);
+            diamondRewardText = NewPlacedText(selected.transform, string.Empty, 15, Cyan, 156, 286, 135, 30, TextAnchor.MiddleLeft);
+            goldRewardText = NewPlacedText(selected.transform, string.Empty, 15, White, 300, 286, 155, 30, TextAnchor.MiddleLeft);
+            GameObject start = MapBoardHit("StartChallenge", page, 576, 1324, 256, 284, StartChallenge);
+            startButton = start.GetComponent<Button>(); startBackground = start.GetComponent<Image>();
+            // The authored 开始挑战 remains the primary caption; this live sublabel can say 再次挑战.
+            startLabel = NewPlacedText(start.transform, string.Empty, 17, White, 32, 232, 190, 35, TextAnchor.MiddleCenter);
+            startLabel.name = "Label";
+            GameObject rewards = MapBoardHit("ChapterRewards", page, 28, 1697, 275, 92, OpenChapterRewards);
+            NewPlacedText(rewards.transform, "章节奖励", 24, White, 20, 2, 218, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
+            rewardSummaryText = NewPlacedText(rewards.transform, string.Empty, 15, Muted, 15, 51, 245, 29, TextAnchor.MiddleCenter);
+            rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 234, 5);
+            GameObject tasks = MapBoardHit("ChapterTasks", page, 355, 1697, 260, 92, OpenChapterTasks);
+            NewPlacedText(tasks.transform, "章节任务", 24, White, 10, 2, 224, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
+            taskSummaryText = NewPlacedText(tasks.transform, string.Empty, 15, Muted, 10, 51, 230, 29, TextAnchor.MiddleCenter);
+            taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 222, 5);
+        }
+
+        private GameObject MapBoardHit(string name, Transform parent, float x, float y, float w, float h, UnityEngine.Events.UnityAction action)
+        {
+            GameObject hit = NewPanelButton(name, parent, Color.clear, 0, action);
+            PlaceTop(hit.GetComponent<RectTransform>(), x, y, w, h);
+            hit.GetComponent<Button>().transition = Selectable.Transition.None;
+            Image visual = hit.GetComponent<Image>();
+            var trigger = hit.GetComponent<UnityEngine.EventSystems.EventTrigger>();
+            trigger.triggers.Clear(); // Keep the authored hit region fixed; only the overlay changes.
+            void Feedback(UnityEngine.EventSystems.EventTriggerType type, Color color)
+            {
+                var entry = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = type };
+                entry.callback.AddListener(_ => visual.color = color); trigger.triggers.Add(entry);
+            }
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerEnter, new Color(.7f,.3f,1f,.18f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerDown, new Color(.2f,.1f,.6f,.35f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerUp, new Color(.7f,.3f,1f,.18f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.PointerExit, Color.clear);
+            Feedback(UnityEngine.EventSystems.EventTriggerType.Select, new Color(.7f,.3f,1f,.18f));
+            Feedback(UnityEngine.EventSystems.EventTriggerType.Deselect, Color.clear);
+            return hit;
         }
 
         private void BuildBackdrop()
@@ -312,6 +418,11 @@ namespace ChoSiren
                 new Color32(4, 12, 35, 148), 18, OpenStoryChapter01);
             PlaceTop(chapterTitle.GetComponent<RectTransform>(), 24, 136, 292, 108);
             AddGlassOutline(chapterTitle, new Color32(133, 166, 239, 70), 1f);
+            // The reference card leans with the route; the click target is the rect, so the
+            // visual tilt keeps the same hit area.
+            ReferencePunkFx.Tilt(chapterTitle.GetComponent<RectTransform>(), -2.5f);
+            ReferencePunkFx.CornerCuts(chapterTitle.GetComponent<RectTransform>(),
+                new Color32(255, 138, 226, 150), 22f, 3f, 4f);
             storyChapterLabel = NewPlacedText(chapterTitle.transform, "主线剧情 · 第一章", 13,
                 new Color32(255, 145, 220, 255), 18, 12, 246, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(chapterTitle.transform, "欲望都市", 29, White,
@@ -374,6 +485,24 @@ namespace ChoSiren
                 stageNodeSprite, frameTint, () => SelectStage(stage));
             RectTransform rect = node.GetComponent<RectTransform>();
             PlaceTop(rect, center.x - width * 0.5f, center.y - height * 0.5f, width, height);
+            // The reference plaques all lean the same way; rotating the button rect keeps the
+            // pointer target attached to the visual.
+            ReferencePunkFx.Tilt(rect, -6f);
+
+            Image tag = NewImage("NodeTag", node.transform, RoundedSprite(3),
+                state == LevelState.Locked
+                    ? new Color32(120, 132, 178, 160)
+                    : state == LevelState.Current
+                        ? new Color32(255, 112, 220, 235)
+                        : new Color32(104, 198, 255, 205));
+            PlaceTop(tag.rectTransform, 5, height * 0.16f, 6, height * 0.68f);
+
+            Image lockIcon = NewImage("LockIcon", node.transform,
+                ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Lock),
+                new Color32(226, 232, 255, 235));
+            PlaceTop(lockIcon.rectTransform, width * 0.5f - 30f, height * 0.12f, 17, 19);
+            lockIcon.enabled = state == LevelState.Locked;
+
             Text nodeLabel = NewPlacedText(node.transform, $"1-{stage}",
                 state == LevelState.Current ? 24 : 22, White,
                 8, height * 0.08f, width - 16, height * 0.42f, TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -406,6 +535,8 @@ namespace ChoSiren
                 Outline = outline,
                 StageLabel = nodeLabel,
                 StatusLabel = statusLabel,
+                Tag = tag,
+                LockIcon = lockIcon,
             };
             nodeViews[stage] = view;
             if (state == LevelState.Current) currentGlow = glow;
@@ -416,6 +547,10 @@ namespace ChoSiren
             GameObject card = NewPanel("SelectedLevel", transform, Glass, 28);
             PlaceTop(card.GetComponent<RectTransform>(), 20, 1100, 680, 318);
             AddGlassOutline(card, new Color32(132, 164, 238, 126), 1.5f);
+            ReferencePunkFx.CornerCuts(card.GetComponent<RectTransform>(),
+                new Color32(255, 122, 222, 170), 30f, 3.5f, 5f);
+            ReferencePunkFx.Slash(card.transform, "SelectedLevelSlash", 652, 16, 52, 3.5f, -40f,
+                new Color32(126, 214, 255, 150));
 
             Image topAccent = NewImage("SelectedLevelAccent", card.transform, null,
                 new Color32(255, 91, 207, 225));
@@ -450,6 +585,9 @@ namespace ChoSiren
             // Image.preserveAspect aligns its drawing using the RectTransform pivot.
             // Center the authored frame as well as the label, including hover/press scaling.
             CenterPivot(start.GetComponent<RectTransform>());
+            // The reference CTA leans into the card; pivot is already centred so the measured
+            // pivot stays (0.5, 0.5) and only the visual rotates.
+            start.GetComponent<RectTransform>().localEulerAngles = new Vector3(0f, 0f, -4f);
             startButton = start.GetComponent<Button>();
             startBackground = start.GetComponent<Image>();
             startLabel = NewPlacedText(start.transform, "开始挑战", 20, White,
@@ -541,7 +679,8 @@ namespace ChoSiren
             }
             IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
             int count = Mathf.Min(5, candidates.Count);
-            float width = 632f / Mathf.Max(1, count);
+            float previewWidth = authoredMap ? 456f : 632f;
+            float width = previewWidth / Mathf.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 int candidateIndex = candidates.Count > 5 && i >= 3 ? candidates.Count - 5 + i : i;
@@ -571,6 +710,8 @@ namespace ChoSiren
             GameObject dock = NewPanel("ChapterControlDock", transform, new Color32(4, 12, 36, 236), 24);
             PlaceTop(dock.GetComponent<RectTransform>(), 20, 1430, 680, 88);
             AddGlassOutline(dock, new Color32(122, 157, 231, 98), 1.25f);
+            ReferencePunkFx.CornerCuts(dock.GetComponent<RectTransform>(),
+                new Color32(168, 128, 255, 150), 22f, 3f, 4f);
 
             GameObject rewards = NewPanelButton("ChapterRewards", dock.transform,
                 new Color32(10, 23, 55, 228), 20, OpenChapterRewards);
@@ -984,6 +1125,11 @@ namespace ChoSiren
                 : state == LevelState.Cleared
                     ? new Color32(210, 224, 255, 235)
                     : White;
+            if (authoredMap)
+            {
+                startBackground.color = Color.clear;
+                startLabel.text = state == LevelState.Cleared ? "再次挑战" : string.Empty;
+            }
 
             int claimableRewards = model.ChapterOneClaimableStarRewardCount;
             rewardSummaryText.text = claimableRewards > 0 ? $"{claimableRewards} 项奖励可领取" : "查看星级奖励";
@@ -1004,6 +1150,16 @@ namespace ChoSiren
                 NodeView view = pair.Value;
                 view.State = StateFor(view.Stage);
                 bool selected = view.Stage == selectedStage;
+                if (view.LockIcon != null) view.LockIcon.enabled = view.State == LevelState.Locked;
+                if (authoredMap)
+                {
+                    view.Background.color = Color.clear;
+                    view.Glow.enabled = selected || view.State == LevelState.Current;
+                    view.StageLabel.color = view.State == LevelState.Locked ? Muted : White;
+                    view.StatusLabel.text = view.State == LevelState.Cleared
+                        ? new string('★', Mathf.Clamp(model.StarsOf($"stage-1-{view.Stage}"), 1, 3)) : string.Empty;
+                    continue;
+                }
                 if (view.State == LevelState.Locked)
                 {
                     view.Glow.enabled = false;
@@ -1012,9 +1168,14 @@ namespace ChoSiren
                     view.StatusLabel.text = StateLabel(view.State);
                     view.StatusLabel.color = new Color32(215, 219, 242, 255);
                     view.Outline.effectColor = new Color32(111, 127, 177, 105);
+                    if (view.Tag != null) view.Tag.color = new Color32(120, 132, 178, 160);
                     continue;
                 }
 
+                if (view.Tag != null)
+                    view.Tag.color = view.State == LevelState.Current || selected
+                        ? new Color32(255, 112, 220, 235)
+                        : new Color32(104, 198, 255, 205);
                 view.Glow.enabled = selected || view.State == LevelState.Current;
                 if (view.State == LevelState.Current) currentGlow = view.Glow;
                 int stars = model.StarsOf($"stage-1-{view.Stage}");
@@ -1035,12 +1196,16 @@ namespace ChoSiren
             {
                 RouteView route = routeViews[index];
                 bool future = StateFor(route.TargetStage) == LevelState.Locked;
-                route.Glow.color = future
+                Color glowColor = future
                     ? new Color32(94, 118, 175, 34)
                     : new Color32(255, 98, 218, 58);
-                route.Core.color = future
+                Color lineColor = future
                     ? new Color32(159, 177, 219, 145)
                     : new Color32(232, 220, 255, 235);
+                for (int segment = 0; segment < route.Glow.Count; segment++)
+                    route.Glow[segment].color = glowColor;
+                for (int segment = 0; segment < route.Core.Count; segment++)
+                    route.Core[segment].color = lineColor;
                 route.Marker.color = future
                     ? new Color32(166, 181, 216, 180)
                     : new Color32(255, 214, 246, 255);
@@ -1099,8 +1264,24 @@ namespace ChoSiren
         {
             Color glowColor = future ? new Color32(94, 118, 175, 34) : new Color32(255, 98, 218, 58);
             Color lineColor = future ? new Color32(159, 177, 219, 145) : new Color32(232, 220, 255, 235);
-            Image glow = AddLine(parent, from, to, 11f, glowColor);
-            Image core = AddLine(parent, from, to, 3f, lineColor);
+
+            // Lightning bolt: two sharp jags around the midpoint instead of one straight wire.
+            Vector2 delta = to - from;
+            Vector2 perp = delta.sqrMagnitude > 0.01f
+                ? new Vector2(-delta.y, delta.x).normalized
+                : Vector2.right;
+            float side = routeViews.Count % 2 == 0 ? 1f : -1f;
+            Vector2 apexA = Vector2.Lerp(from, to, 0.36f) + perp * (17f * side);
+            Vector2 apexB = Vector2.Lerp(from, to, 0.64f) - perp * (12f * side);
+            Vector2[] spine = { from, apexA, apexB, to };
+
+            var glow = new List<Image>();
+            var core = new List<Image>();
+            for (int segment = 0; segment < spine.Length - 1; segment++)
+            {
+                glow.Add(AddLine(parent, spine[segment], spine[segment + 1], 11f, glowColor));
+                core.Add(AddLine(parent, spine[segment], spine[segment + 1], 3f, lineColor));
+            }
 
             Vector2 middle = Vector2.Lerp(from, to, 0.5f);
             Image marker = NewImage("RouteMarker", parent, RoundedSprite(5), future

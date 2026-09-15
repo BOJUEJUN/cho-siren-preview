@@ -14,6 +14,9 @@ namespace ChoSiren
         private int equipmentPage;
         private string equipmentCategory = "全部";
         private bool equipmentOwnedOnly;
+        private int lastEquipmentMember = -1;
+        private int lastEquipmentAccessory = -1;
+        private bool equipmentRevealSelection;
         private Action memberProfileReturn;
         private GameObject ProgressionModal(string name, string title, float height = 750)
         {
@@ -74,7 +77,7 @@ namespace ChoSiren
                             return;
                         }
                         if (equipmentSelection)
-                        { equipmentMember = member; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(member)); ShowScreen("accessory"); return; }
+                        { equipmentMember = member; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(member)); equipmentRevealSelection = true; ShowScreen("accessory"); return; }
                         int targetSlot = replacement ? model.Save.Team.IndexOf(member) : slot;
                         model.ReplaceTeamSlot(targetSlot, replacement ? slot : member, out string message); ShowScreen("team"); Toast(message);
                     });
@@ -167,200 +170,14 @@ namespace ChoSiren
             });
             FlowButton(card.transform, "CancelExchange", "取消", 322, 262, 268, 66, () => OpenCurrency(currency));
         }
-        private void BuildPersonalEquipment()
-        {
-            BuildAccessoryStageBackdrop();
-            ScreenTitle("角色装备", "舞台饰品", "七个部位 · 同部位一件 · 属性相加，不连乘");
-            if (!model.IsUnlocked(equipmentMember)) equipmentMember = model.Save.Team[0];
-            if (selectedAccessoryIndex < 0 || selectedAccessoryIndex >= GameModel.AccessoryNames.Length)
-                selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(equipmentMember));
-            int member = equipmentMember;
-            GameObject viewport = NewImage("EquipmentScroll", contentRoot, null, Color.clear);
-            RectTransform vr = viewport.GetComponent<RectTransform>();
-            Stretch(vr, 20, 0, -20, -104);
-            viewport.AddComponent<RectMask2D>();
-            GameObject body = NewImage("EquipmentBody", viewport.transform, null, Color.clear);
-            int[] inventory = Enumerable.Range(0, GameModel.AccessoryNames.Length)
-                .Where(i => (equipmentCategory == "全部" || GameModel.AccessoryCategory(i) == equipmentCategory)
-                    && (!equipmentOwnedOnly || model.OwnsAccessory(i))).ToArray();
-            // 筛选后选中项若不在当前列表，回退到列表首件，保证操作按钮始终绑在可见卡上。
-            if (inventory.Length > 0 && !inventory.Contains(selectedAccessoryIndex))
-                selectedAccessoryIndex = inventory[0];
-            int item = selectedAccessoryIndex;
-            int pageCount = Math.Max(1, (inventory.Length + 11) / 12);
-            equipmentPage = Mathf.Clamp(equipmentPage, 0, pageCount - 1);
-            int[] visibleItems = inventory.Skip(equipmentPage * 12).Take(12).ToArray();
-            float inventoryBottom = 336 + Mathf.CeilToInt(visibleItems.Length / 3f) * 178;
-            PlaceTop(body.GetComponent<RectTransform>(), 0, 0, 680, inventoryBottom + 66);
-            ScrollRect scroll = viewport.AddComponent<ScrollRect>();
-            scroll.viewport = vr;
-            scroll.content = body.GetComponent<RectTransform>();
-            scroll.horizontal = false;
-            scroll.scrollSensitivity = 48f;
-            scroll.movementType = ScrollRect.MovementType.Clamped;
-            Transform root = body.transform;
-
-            // 角色主角区：大胸像立绘 + 名字/战力/穿戴槽，整块点击换人。
-            GameObject selector = NewPanel("EquipmentMemberSelector", root, Glass, 20);
-            PlaceTop(selector.GetComponent<RectTransform>(), 0, 0, 680, 168);
-            FlowButton(selector.transform, "EquipmentChooseMember", "选择角色", 518, 14, 150, 44, () => OpenOwnedMemberPicker(0, 0, true));
-            GameObject cycle = NewButton("EquipmentCycleMember", selector.transform, string.Empty, 1, Color.clear, White,
-                () => CycleEquipmentMember(1));
-            PlaceTop(cycle.GetComponent<RectTransform>(), 0, 0, 500, 168);
-            GameObject portraitFrame = NewImage("EquipmentPortraitFrame", cycle.transform, null, Color.clear);
-            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 12, 8, 128, 152);
-            portraitFrame.GetComponent<Image>().raycastTarget = false;
-            portraitFrame.AddComponent<RectMask2D>();
-            GameObject portrait = NewImage("EquipmentPortrait", portraitFrame.transform,
-                Resources.Load<Sprite>(GameModel.Members[member].ResourcePath), White);
-            portrait.GetComponent<Image>().preserveAspect = true;
-            portrait.GetComponent<Image>().raycastTarget = false;
-            ChoSiren.Panels.PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
-                portraitFrame.GetComponent<RectTransform>(), GameModel.Members[member].Id);
-            int current = model.EquippedAccessoryInSlot(member, GameModel.AccessoryCategory(item));
-            FlowText(cycle.transform, "EquipmentMemberName", $"{GameModel.Members[member].Name} · 等级 {model.LevelOf(member)}",
-                24, 152, 10, 340, 36).raycastTarget = false;
-            FlowText(cycle.transform, "EquipmentMemberStatus",
-                $"{MemberDeploymentLabel(member)} · 战力 {model.PowerOf(member):N0} · 点击换角色",
-                15, 152, 48, 340, 22, Cyan).raycastTarget = false;
-            int[] worn = model.EquippedAccessoriesFor(member);
-            FlowText(cycle.transform, "EquipmentWornCount", $"已穿戴 {worn.Length}/7", 14, 152, 74, 120, 20, Muted).raycastTarget = false;
-            string[] slotOrder = { "耳饰", "项链", "手环", "戒指", "发饰", "挂饰", "舞台" };
-            for (int s = 0; s < 7; s++)
-            {
-                int slotItem = model.EquippedAccessoryInSlot(member, slotOrder[s]);
-                GameObject slotChip = NewImage("EquipmentSlot-" + s, cycle.transform,
-                    RoundedSprite(8),
-                    slotItem >= 0 ? new Color32(56, 44, 96, 245) : new Color32(40, 46, 88, 235));
-                PlaceTop(slotChip.GetComponent<RectTransform>(), 152 + s * 48, 100, 42, 52);
-                slotChip.GetComponent<Image>().raycastTarget = false;
-                if (slotItem >= 0)
-                {
-                    GameObject slotArt = NewImage("SlotArt", slotChip.transform, AccessoryItemSprite(slotItem), White);
-                    PlaceTop(slotArt.GetComponent<RectTransform>(), 4, 3, 34, 34);
-                    slotArt.GetComponent<Image>().preserveAspect = true;
-                    slotArt.GetComponent<Image>().raycastTarget = false;
-                }
-                // 空槽显示大号暗色部位字，有装备则字压底+上图标。
-                Text slotLabel = FlowText(slotChip.transform, "SlotLabel", slotOrder[s][0].ToString(),
-                    slotItem >= 0 ? 10 : 15,
-                    0, slotItem >= 0 ? 38 : 16, 42, slotItem >= 0 ? 12 : 22,
-                    slotItem >= 0 ? Cyan : new Color(1, 1, 1, .22f));
-                slotLabel.raycastTarget = false;
-                slotLabel.alignment = TextAnchor.MiddleCenter;
-            }
-
-            GameObject detail = NewPanel("AccessoryDetail", root, new Color32(18, 23, 54, 245), 22);
-            PlaceTop(detail.GetComponent<RectTransform>(), 0, 176, 680, 96);
-            GameObject icon = NewImage("EquipmentSelectedArt", detail.transform, AccessoryItemSprite(item), White);
-            PlaceTop(icon.GetComponent<RectTransform>(), 14, 16, 60, 60);
-            icon.GetComponent<Image>().preserveAspect = true;
-            FlowText(detail.transform, "EquipmentItemName", GameModel.AccessoryNames[item], 20, 86, 10, 250, 30, AccessoryRarityColor(item));
-            int owner = model.AccessoryOwner(item);
-            string state = !model.OwnsAccessory(item) ? "尚未获得" : owner < 0 ? "未装备" : $"{GameModel.Members[owner].Name} 使用中";
-            bool canUpgrade = model.CanUpgradeAccessory(item, out int upgradeGold);
-            string upgradeHint = !model.OwnsAccessory(item) ? string.Empty
-                : model.AccessoryUpgradeLevel(item) >= 3 ? " · 已满级"
-                : canUpgrade ? $" · 下级{upgradeGold}金" : $" · 下级{upgradeGold}金·不足";
-            FlowText(detail.transform, "EquipmentItemOwner", $"{state} · 强化 +{model.AccessoryUpgradeLevel(item)}{upgradeHint}", 13, 86, 41, 250, 19, Cyan);
-            FlowText(detail.transform, "EquipmentItemQuality", $"{GameModel.AccessoryRarityNameOf(item)} · {GameModel.AccessoryStatDescription(item)}",
-                13, 86, 63, 250, 19, AccessoryRarityColor(item));
-            bool wearingSelected = current == item;
-            CombatStats before = wearingSelected ? model.PreviewEquipmentStats(member, member, item, true) : model.StatsOf(member);
-            CombatStats after = model.PreviewEquipmentStats(member, member, item);
-            string[] names = { "生命", "攻击", "防御", "队伍战力" };
-            int baselinePower = wearingSelected ? model.PreviewEquipmentTeamPower(member, item, true) : model.TeamPower;
-            int[] oldValues = { before.Hp, before.Attack, before.Defense, baselinePower };
-            int[] newValues = { after.Hp, after.Attack, after.Defense, model.PreviewEquipmentTeamPower(member, item) };
-            int delta = newValues[3] - baselinePower;
-            FlowText(detail.transform, "EquipmentCompareHeading", wearingSelected ? "战斗属性 · 未装备→已装备" : "战斗属性 · 当前→装备后", 11, 348, 8, 160, 18, Muted);
-            FlowText(detail.transform, "AccessoryPowerChange", $"{(wearingSelected ? "已生效" : "战力")} {(delta > 0 ? "+" : "")}{delta:N0}", 14, 516, 6, 148, 22, delta >= 0 ? Cyan : Pink);
-            // 属性对比压成右侧 2×2 紧凑格，不再单独占一整行。
-            for (int row = 0; row < 4; row++)
-            {
-                float cx = 348 + (row % 2) * 166, cy = 30 + (row / 2) * 32;
-                FlowText(detail.transform, "AccessoryStatName-" + row, names[row], 11, cx, cy, 46, 22, Muted);
-                FlowText(detail.transform, "AccessoryDelta-" + row, $"{oldValues[row]:N0}→{newValues[row]:N0}", 15, cx + 50, cy, 112, 22,
-                    newValues[row] >= oldValues[row] ? Cyan : Pink);
-            }
-            FlowText(root, "EquipmentInventoryTitle", $"饰品收藏 {model.Save.OwnedAccessories.Count}/{GameModel.AccessoryNames.Length}", 21, 8, 284, 396, 38);
-            FlowButton(root, "EquipmentCategoryFilter", "类别：" + equipmentCategory, 412, 284, 128, 38, () =>
-            {
-                string[] categories = new[] { "全部" }.Concat(GameModel.AccessoryCategories.Where(c => c != "全部")).ToArray();
-                equipmentCategory = categories[(Array.IndexOf(categories, equipmentCategory) + 1) % categories.Length];
-                equipmentPage = 0; ShowScreen("accessory");
-            });
-            FlowButton(root, "EquipmentOwnedFilter", equipmentOwnedOnly ? "只看拥有：开" : "只看拥有：关", 548, 284, 132, 38, () =>
-            { equipmentOwnedOnly = !equipmentOwnedOnly; equipmentPage = 0; ShowScreen("accessory"); });
-            for (int slot = 0; slot < visibleItems.Length; slot++)
-            {
-                int i = visibleItems[slot];
-                int captured = i;
-                float x = slot % 3 * 230, y = 336 + slot / 3 * 178;
-                GameObject card = FlowButton(root, "Accessory-" + i, string.Empty, x, y, 220, 166, () =>
-                { selectedAccessoryIndex = captured; ShowScreen("accessory"); });
-                card.GetComponent<Image>().color = i == item ? new Color32(72, 50, 115, 250) : new Color32(27, 32, 64, 245);
-                GameObject art = NewImage("ItemArt", card.transform, AccessoryItemSprite(i), model.OwnsAccessory(i) ? White : new Color(1, 1, 1, .4f));
-                PlaceTop(art.GetComponent<RectTransform>(), 73, 6, 74, 72);
-                art.GetComponent<Image>().preserveAspect = true;
-                FlowText(card.transform, "ItemName", GameModel.AccessoryNames[i], 18, 12, 82, 196, 29, AccessoryRarityColor(i));
-                // 品质+属性压成一行窄卡文案：去掉空格分隔并用 BestFit 兜底，避免传说三属性被行高裁切。
-                Text quality = FlowText(card.transform, "ItemQuality",
-                    GameModel.AccessoryRarityNameOf(i) + "·" + GameModel.AccessoryStatDescription(i)
-                        .Replace(" · ", "·").Replace("攻击 ", "攻").Replace("防御 ", "防"),
-                    12, 8, 113, 204, 22, AccessoryRarityColor(i));
-                ChoSiren.Panels.PanelKit.EnableBestFit(quality, 10);
-                int wearer = model.AccessoryOwner(i);
-                if (i == item)
-                {
-                    // 装备/卸下/强化操作绑定在选中卡上，不再用详情面板底部的大按钮行。
-                    bool owns = model.OwnsAccessory(i);
-                    string quickLabel = !owns ? "去关卡"
-                        : current == i ? "卸下"
-                        : wearer >= 0 ? "转移" : "装备";
-                    if (wearer == member) quickLabel = "卸下";
-                    GameObject quick = NewButton("QuickEquip", card.transform, quickLabel, 12,
-                        current == i || wearer == member ? new Color32(148, 62, 88, 252) : new Color32(126, 62, 181, 252), White, () =>
-                        {
-                            if (!model.OwnsAccessory(captured)) { OpenLevelMap(); return; }
-                            model.EquipAccessoryForMember(member, captured, out string message);
-                            ShowScreen("accessory"); Toast(message);
-                        });
-                    PlaceTop(quick.GetComponent<RectTransform>(), 12, 136, owns ? 112 : 196, 28);
-                    if (owns)
-                    {
-                        bool canUp = model.CanUpgradeAccessory(captured, out int upGold);
-                        GameObject upgrade = NewButton("QuickUpgrade", card.transform,
-                            model.AccessoryUpgradeLevel(captured) >= 3 ? "满级" : $"强化·{upGold}", 12,
-                            new Color32(158, 116, 52, 252), White, () =>
-                            {
-                                model.UpgradeAccessory(captured, out string message);
-                                ShowScreen("accessory"); Toast(message);
-                            });
-                        PlaceTop(upgrade.GetComponent<RectTransform>(), 132, 136, 76, 28);
-                        upgrade.GetComponent<Button>().interactable = canUp;
-                        if (!canUp) upgrade.GetComponent<Image>().color = new Color32(72, 70, 96, 252);
-                    }
-                }
-                else
-                {
-                    FlowText(card.transform, "ItemStatus", !model.OwnsAccessory(i) ? $"掉落：{GameModel.AccessorySource(i)}" : wearer < 0 ? "已拥有 · 空闲" : $"装备：{GameModel.Members[wearer].Name}", 14, 12, 137, 196, 25, Cyan);
-                }
-            }
-            if (visibleItems.Length == 0)
-                FlowText(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 18, 16, inventoryBottom, 648, 36, Muted);
-            FlowButton(root, "EquipmentPreviousPage", "上一页", 12, inventoryBottom + 16, 180, 40,
-                () => { equipmentPage = Math.Max(0, equipmentPage - 1); RefreshEquipmentCollection(); }).GetComponent<Button>().interactable = equipmentPage > 0;
-            FlowText(root, "EquipmentPageCount", $"{equipmentPage + 1} / {pageCount} · 共 {inventory.Length} 件", 17, 202, inventoryBottom + 16, 270, 40, Muted);
-            FlowButton(root, "EquipmentNextPage", "下一页", 484, inventoryBottom + 16, 180, 40,
-                () => { equipmentPage = Math.Min(pageCount - 1, equipmentPage + 1); RefreshEquipmentCollection(); }).GetComponent<Button>().interactable = equipmentPage + 1 < pageCount;
-        }
+        private void BuildPersonalEquipment() => BuildEquipmentBoard038();
 
         private void CycleEquipmentMember(int direction)
         {
             var owned = model.Save.UnlockedMembers;
             equipmentMember = owned[(owned.IndexOf(equipmentMember) + direction + owned.Count) % owned.Count];
             selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(equipmentMember));
+            equipmentRevealSelection = true;
             ShowScreen("accessory");
         }
 

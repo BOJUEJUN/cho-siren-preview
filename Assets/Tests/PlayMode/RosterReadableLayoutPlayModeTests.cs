@@ -83,8 +83,9 @@ namespace ChoSiren.Tests
             Assert.That(GameObject.Find("MemberModal"), Is.Not.Null);
             Assert.That(Require("Train").GetComponent<Button>(), Is.Not.Null);
             Assert.That(Require("MemberEquipment").GetComponent<Button>(), Is.Not.Null);
-            Assert.That(Require("Team").GetComponentInChildren<Text>().text, Is.EqualTo("更换成员"));
-            Require("Team").GetComponent<Button>().onClick.Invoke();
+            Assert.That(Require("Team").GetComponentInChildren<Text>().text, Is.EqualTo("移出编队"));
+            Assert.That(Require("ReplaceTeamMember").GetComponentInChildren<Text>().text, Does.StartWith("更换成员"));
+            Require("ReplaceTeamMember").GetComponent<Button>().onClick.Invoke();
             yield return null;
             Assert.That(GameObject.Find("TeamMemberPicker"), Is.Not.Null);
             Require("CloseProgression").GetComponent<Button>().onClick.Invoke();
@@ -106,15 +107,18 @@ namespace ChoSiren.Tests
             Require("Nav-team").GetComponent<Button>().onClick.Invoke();
             yield return null;
             Canvas.ForceUpdateCanvases();
-            foreach (string container in new[] { "TeamTitlePlaque", "TeamPower", "TeamSynergy" })
+            var board = Require("TeamReferenceBoard038").GetComponent<Image>();
+            Assert.That(board.sprite, Is.Not.Null);
+            Assert.That(board.preserveAspect, Is.True, "整页美术背板必须保持源图比例。");
+            var model = new GameModel();
+            Assert.That(Require("TeamPowerValue").GetComponent<Text>().text, Is.EqualTo(model.TeamPower.ToString("N0")));
+            for (int slot = 0; slot < model.Save.Team.Count; slot++)
             {
-                GameObject panel = Require(container);
-                Assert.That(panel.GetComponent<Outline>(), Is.Not.Null);
-                Assert.That(panel.GetComponent<Image>().sprite?.texture.name, Does.Not.Contain("-ai-"));
+                GameObject panel = Require("TeamLabel-" + slot);
+                Assert.That(panel.transform.Find("MemberName").GetComponent<Text>().text,
+                    Is.EqualTo(GameModel.Members[model.Save.Team[slot]].Name));
                 AssertTextRectsContainedAndSeparated(panel);
             }
-            Assert.That(Require("TeamAttributes").GetComponent<Text>().text, Is.EqualTo("职业自由搭配"));
-            Assert.That(Require("TeamStellarBackground").GetComponent<Image>().sprite, Is.Not.Null);
         }
 
         [UnityTest]
@@ -157,8 +161,18 @@ namespace ChoSiren.Tests
             }
             Assert.That(Require("MemberSkillPrimaryIcon").GetComponent<SkillIconGraphic>().Kind,
                 Is.Not.EqualTo(Require("MemberSkillSecondaryIcon").GetComponent<SkillIconGraphic>().Kind));
-            foreach (string name in new[] { "MemberStatPanel", "MemberAcquireGuide" })
-                AssertTextRectsContainedAndSeparated(Require(name));
+            AssertTextRectsContainedAndSeparated(Require("MemberStatPanel"));
+            var model = new GameModel();
+            int level = model.LevelOf(0);
+            model.CanTrain(0, out int cost, out _);
+            Text preview = Require("MemberTrainingPreview").GetComponent<Text>();
+            Text price = Require("MemberTrainingCost").GetComponent<Text>();
+            Assert.That(preview.text, Does.StartWith("等级 " + level));
+            Assert.That(price.text, Does.Contain(model.Save.Gold.ToString("N0")));
+            Assert.That(price.text, Does.Contain(cost.ToString("N0")));
+            Assert.That(preview.preferredHeight, Is.LessThanOrEqualTo(preview.rectTransform.rect.height));
+            Assert.That(price.preferredHeight, Is.LessThanOrEqualTo(price.rectTransform.rect.height));
+            Assert.That(GameObject.Find("MemberAcquireGuide"), Is.Null, "已拥有角色应显示真实培养信息，而非获取引导。");
         }
 
         [TestCase("狐影瞬击", "两段共120%伤害", SkillIconKind.Slash)]

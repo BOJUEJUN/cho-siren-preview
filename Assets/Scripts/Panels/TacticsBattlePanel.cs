@@ -19,7 +19,7 @@ namespace ChoSiren.Panels
     /// </summary>
     public sealed class TacticsBattlePanel : MonoBehaviour
     {
-        private const float EnemyCellWidth = 152f;
+        private const float EnemyCellWidth = 206f;
         private const float EnemyCellHeight = 112f;
         private const float PlayerCellWidth = 158f;
         // One real roster, directly above the dice. No duplicate portraits on the stage.
@@ -84,9 +84,9 @@ namespace ChoSiren.Panels
             public void OnPointerExit(PointerEventData eventData) => Exit?.Invoke();
         }
 
-        private static readonly Color CellIdle = new Color32(13, 16, 38, 255);
+        private static readonly Color CellIdle = new Color32(7, 5, 20, 230);
         private static readonly Color CellEmpty = new Color32(18, 16, 52, 150);
-        private static readonly Color CellEnemy = new Color32(27, 17, 43, 255);
+        private static readonly Color CellEnemy = new Color32(10, 4, 23, 236);
         private static readonly Color AnchorTint = new Color32(80, 220, 255, 40);
         private static readonly Color AffectedTint = new Color32(255, 82, 194, 58);
         private static readonly Color DiceIdle = new Color32(220, 235, 255, 235);
@@ -198,9 +198,12 @@ namespace ChoSiren.Panels
         private float presentationClock;
         private SkillEffectPresentation skillEffects;
         private AttackTrajectoryPresentation attackTrajectories;
-        private GameObject interruptButton;
         private GameObject guardButton;
-        private Text strikeHint;
+        private Text enemyHealthCaption;
+        private Text enemyDefeatedText;
+        private Sprite punkPlateSprite;
+        private Texture2D punkPlateTexture;
+        private readonly List<Image> healthWaveBars = new List<Image>();
         private Text guardHint;
         private string commandFeedback;
         private int commandFeedbackUntil;
@@ -301,7 +304,8 @@ namespace ChoSiren.Panels
         private void LoadBattleAiArt()
         {
             // Reuse clean stage art: the old image had obsolete HP cards baked into its pixels.
-            battleStageSprite = LoadRuntimeSprite("Art/GachaAI/gacha-calm-stage-bg-ai-v2-20260903");
+            battleStageSprite = LoadRuntimeSprite("Art/Reference038/battle-stage-038")
+                ?? LoadRuntimeSprite("Art/GachaAI/gacha-calm-stage-bg-ai-v2-20260903");
             userBossSprite = LoadRuntimeSprite("Art/BattleUser/boss-throne-user-v1");
             for (int index = 0; index < userDiceFaceSprites.Length; index++)
                 userDiceFaceSprites[index] = LoadRuntimeSprite($"Art/BattleUser/dice-face-{index + 1}-user-v1");
@@ -319,6 +323,8 @@ namespace ChoSiren.Panels
 
         private Sprite LoadRuntimeSprite(string resourcePath)
         {
+            if (resourcePath.StartsWith("Art/Reference038/", StringComparison.Ordinal))
+                return ReferenceArt038.Load(resourcePath); // Cache-owned; never add to runtimeSprites.
             Sprite imported = Resources.Load<Sprite>(resourcePath);
             if (imported != null) return imported;
             Texture2D texture = Resources.Load<Texture2D>(resourcePath);
@@ -333,58 +339,111 @@ namespace ChoSiren.Panels
         private void BuildBattleArtBackdrop()
         {
             Image art = kit.NewImage("BattleStageArt", transform, battleStageSprite, PanelKit.White);
-            PanelKit.PlaceTop(art.rectTransform, 0, 0, 720, 836);
-            art.preserveAspect = false;
+            PanelKit.PlaceTop(art.rectTransform, 0, 0, 720, 1536);
+            art.preserveAspect = true;
             art.raycastTarget = false;
 
             battleReadabilityVeil = kit.NewImage("BattleReadabilityVeil", transform, null,
-                new Color32(3, 4, 22, 46));
+                new Color32(3, 4, 22, 12));
             PanelKit.Stretch(battleReadabilityVeil.rectTransform);
             battleReadabilityVeil.raycastTarget = false;
 
-            // The authored backdrop contains obsolete dice pedestals and four oversized rings.
-            // Cover that entire band once; transparent cards must not reveal a second UI underneath.
+            // The new stage has no baked controls. Keep its crystal floor visible behind the deck.
             Image commandSurface = kit.NewImage("BattleCommandSurface", transform, null,
-                new Color32(8, 9, 27, 255));
+                new Color32(8, 9, 27, 92));
             PanelKit.PlaceTop(commandSurface.rectTransform, 0, 836, 720, 700);
             commandSurface.raycastTarget = false;
         }
 
+        // Geometry-only plates: keep the hit box stable while the visible silhouette is slashed.
+        // Portraits, numbers and input never get nonuniformly scaled or tilted with the frame.
+        private Sprite PunkPlateSprite()
+        {
+            if (punkPlateSprite != null) return punkPlateSprite;
+            const int size = 128;
+            var pixels = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float fy = y / (float)(size - 1), fx = x / (float)(size - 1);
+                float edge = Mathf.Min(fx - .10f * fy, .90f + .10f * fy - fx) * size;
+                pixels[y * size + x] = new Color32(255, 255, 255,
+                    (byte)Mathf.RoundToInt(Mathf.Clamp01(edge + .5f) * 255));
+            }
+            punkPlateTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            { name = "BattlePunkPlate", wrapMode = TextureWrapMode.Clamp };
+            punkPlateTexture.SetPixels32(pixels);
+            punkPlateTexture.Apply(false, true);
+            punkPlateSprite = Sprite.Create(punkPlateTexture, new Rect(0, 0, size, size), Vector2.one * .5f, 100);
+            runtimeSprites.Add(punkPlateSprite);
+            return punkPlateSprite;
+        }
+
+        private void StylePunkPlate(Image image, Color accent)
+        {
+            image.sprite = PunkPlateSprite();
+            image.type = Image.Type.Simple;
+            RectTransform rect = image.rectTransform;
+            float w = rect.sizeDelta.x, h = rect.sizeDelta.y;
+            Vector2[] points = { new Vector2(w * .10f, 1), new Vector2(w - 1, 1),
+                new Vector2(w * .90f, h - 1), new Vector2(1, h - 1) };
+            for (int i = 0; i < points.Length; i++)
+                ReferencePunkFx.Beam(rect, "PunkFrameEdge-" + i, points[i], points[(i + 1) % points.Length],
+                    i % 2 == 0 ? 2.8f : 1.5f, accent);
+            ReferencePunkFx.Beam(rect, "PunkFrameWhiteSlash", new Vector2(w * .14f, 5),
+                new Vector2(w * .61f, 5), 1.5f, new Color32(231, 220, 255, 216));
+            ReferencePunkFx.Slash(rect, "PunkFrameAccent", w * .90f, h * .82f,
+                Mathf.Min(40, h * .4f), 4, 57, accent);
+        }
+
         private void BuildHeader()
         {
-            Image header = kit.NewImage("BattleHud", transform, null, new Color32(4, 7, 28, 168));
-            PanelKit.PlaceTop(header.rectTransform, 0, 0, 720, 132);
+            Image header = kit.NewImage("BattleHud", transform, null, new Color32(4, 7, 28, 96));
+            PanelKit.PlaceTop(header.rectTransform, 0, 0, 720, 196);
             header.raycastTarget = true;
             StageDefinition stage = battle.Stage;
             Image topLine = kit.NewImage("BossHudTopGlow", header.transform, kit.RoundedSprite(3),
                 new Color32(255, 52, 182, 190));
             PanelKit.PlaceTop(topLine.rectTransform, 18, 2, 684, 3);
-            Image hpFrame = kit.NewImage("BossHpFrame", header.transform, kit.RoundedSprite(14),
-                new Color32(54, 20, 79, 232));
-            PanelKit.PlaceTop(hpFrame.rectTransform, 14, 88, 692, 32);
-            hpFrame.type = Image.Type.Sliced;
-            kit.AddOutline(hpFrame.gameObject, new Color32(255, 77, 193, 128), 1.5f);
+            Image hpFrame = kit.NewImage("BossHpFrame", header.transform, null,
+                new Color32(54, 20, 79, 132));
+            PanelKit.PlaceTop(hpFrame.rectTransform, 18, 174, 684, 9);
 
             kit.NewPlacedText(header.transform, stage.UsesRealtime ? stage.EncounterLabel : "♥ 首领", 13, PanelKit.Pink, 18, 10, 130, 22,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            Text stageTitle = kit.NewPlacedText(header.transform, stage.Name, 22, PanelKit.White,
-                18, 31, 252, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text stageTitle = kit.NewPlacedText(header.transform, stage.Name, 29, PanelKit.White,
+                18, 27, 252, 38, TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
             stageTitle.gameObject.name = "BattleStageTitle";
             PanelKit.EnableBestFit(stageTitle, 18);
 
             GameObject phaseBadge = kit.NewPanel("BossPhaseBadge", header.transform,
                 new Color32(35, 24, 84, 224), 18);
             PanelKit.PlaceTop(phaseBadge.GetComponent<RectTransform>(), 282, 12, 150, 66);
-            kit.AddOutline(phaseBadge, new Color32(155, 115, 255, 84), 1f);
-            phaseText = kit.NewPlacedText(phaseBadge.transform, "阶段 1/3", 18, PanelKit.Gold, 6, 3, 138, 28,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
+            StylePunkPlate(phaseBadge.GetComponent<Image>(), PanelKit.Gold);
+            phaseBadge.GetComponent<Image>().color = new Color32(12, 7, 29, 226);
+            phaseText = kit.NewPlacedText(phaseBadge.transform, "阶段 1/3", 22, PanelKit.Gold, 6, 0, 138, 36,
+                TextAnchor.MiddleCenter, FontStyle.BoldAndItalic);
+            PanelKit.EnableBestFit(phaseText, 16);
             timerText = kit.NewPlacedText(phaseBadge.transform, "剩余 01:00", 16, PanelKit.Muted, 6, 34, 138, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
 
-            enemyHpFill = kit.NewBar("EnemyHp", header.transform, 18, 93, 684, 22,
-                new Color32(43, 17, 64, 255), new Color32(255, 42, 153, 255), 11);
-            enemyHpText = kit.NewPlacedText(header.transform, string.Empty, 13, PanelKit.White, 18, 91, 684, 24,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
+            enemyHpFill = kit.NewBar("EnemyHp", header.transform, 18, 176, 684, 4,
+                new Color32(43, 17, 64, 255), new Color32(255, 42, 153, 255), 1);
+            enemyHealthCaption = kit.NewPlacedText(header.transform, "本波敌方生命", 19, PanelKit.Pink,
+                215, 93, 290, 29, TextAnchor.MiddleCenter, FontStyle.BoldAndItalic);
+            enemyHpText = kit.NewPlacedText(header.transform, string.Empty, 29, PanelKit.White, 170, 119, 380, 42,
+                TextAnchor.MiddleCenter, FontStyle.BoldAndItalic);
+            PanelKit.EnableBestFit(enemyHpText, 18);
+            enemyDefeatedText = kit.NewPlacedText(header.transform, string.Empty, 17, PanelKit.Pink,
+                536, 134, 162, 29, TextAnchor.MiddleRight, FontStyle.BoldAndItalic);
+            for (int i = 0; i < 114; i++)
+            {
+                float height = 3 + Mathf.Abs(Mathf.Sin(i * 1.31f) * Mathf.Cos(i * .37f)) * 27;
+                Image wave = kit.NewImage("EnemyHealthWave-" + i, header.transform, null, PanelKit.Pink);
+                PanelKit.PlaceTop(wave.rectTransform, 19 + i * 6, 178 - height / 2, 3, height);
+                wave.raycastTarget = false;
+                healthWaveBars.Add(wave);
+            }
             kit.AddOutline(enemyHpText.gameObject, new Color32(24, 5, 40, 210), 1f);
             turnText = kit.NewPlacedText(header.transform, battle.IsRealtime ? "实时演出" : "第 1 回合", 14, PanelKit.Muted, 18, 60, 252, 22,
                 TextAnchor.MiddleLeft);
@@ -405,7 +464,7 @@ namespace ChoSiren.Panels
                 if (unit.Side == BattleSide.Enemy && (unit.Definition.Id == "siren-queen" ||
                     !battle.Stage.UsesRealtime && bossUnitId < 0)) bossUnitId = unit.Id;
             Image stage = kit.NewImage("EnemyStage", transform, null, new Color32(4, 5, 24, 0));
-            PanelKit.PlaceTop(stage.rectTransform, 0, 132, 720, 700);
+            PanelKit.PlaceTop(stage.rectTransform, 0, 196, 720, 636);
             stage.raycastTarget = false;
             enemyStageRoot = stage.rectTransform;
 
@@ -451,10 +510,10 @@ namespace ChoSiren.Panels
             chargeArt.raycastTarget = false;
             chargeArt.gameObject.SetActive(false);
 
-            // 竖屏 720x1536 下让方形 Boss 立绘占满 700 高舞台；仍完整位于 EnemyStage 内，
-            // 不侵入顶部 HUD、出战成员卡或骰子台。
+            // The header now owns 196 pixels. Fit the square rig inside the remaining stage,
+            // preserving a dominant boss without crossing into the command strip.
             RectTransform rig = kit.NewRect("BossMotionRig", stage.transform);
-            PanelKit.PlaceTop(rig, 10, 0, 700, 700);
+            PanelKit.PlaceTop(rig, 44, 0, 632, 632);
             PanelKit.CenterPivot(rig);
             Image echo = kit.NewImage("BossHitEcho", rig, userBossSprite, new Color32(255, 50, 190, 0));
             PanelKit.Stretch(echo.rectTransform);
@@ -528,16 +587,21 @@ namespace ChoSiren.Panels
 
             GameObject stageCaption = kit.NewPanel("BossStageCaption", stage.transform,
                 new Color32(9, 8, 38, 188), 14);
-            PanelKit.PlaceTop(stageCaption.GetComponent<RectTransform>(), 20, 10, 680, 64);
-            kit.AddOutline(stageCaption, new Color32(255, 76, 198, 76), 1f);
+            PanelKit.PlaceTop(stageCaption.GetComponent<RectTransform>(), 20, 10, 430, 64);
+            StylePunkPlate(stageCaption.GetComponent<Image>(), new Color32(165, 75, 255, 255));
+            stageCaption.GetComponent<Image>().color = new Color32(9, 8, 30, 206);
             captainNameText = kit.NewPlacedText(stageCaption.transform, "当前队长", 17, PanelKit.White,
-                14, 5, 400, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+                14, 5, 396, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             captainNameText.gameObject.name = "CurrentCaptain";
             captainEffectText = kit.NewPlacedText(stageCaption.transform, string.Empty, 14, PanelKit.Cyan,
-                14, 32, 430, 24, TextAnchor.MiddleLeft);
+                14, 32, 396, 24, TextAnchor.MiddleLeft);
             captainEffectText.gameObject.name = "CaptainEffect";
-            kit.NewPlacedText(stageCaption.transform, battle.IsRealtime ? "普攻自动释放\n满能量点头像放大招" : "点击高亮目标", 14, PanelKit.Muted,
-                476, 8, 190, 48, TextAnchor.MiddleRight).gameObject.name = "BattleControlInstruction";
+            Image instructionPlate = kit.NewImage("BattleInstructionPlate", stage.transform, null, new Color32(9, 8, 30, 206));
+            PanelKit.PlaceTop(instructionPlate.rectTransform, 470, 10, 230, 64);
+            StylePunkPlate(instructionPlate, new Color32(165, 75, 255, 255));
+            instructionPlate.raycastTarget = false;
+            kit.NewPlacedText(instructionPlate.transform, battle.IsRealtime ? "普攻自动释放\n满能量点头像放大招" : "点击高亮目标", 14, PanelKit.Muted,
+                14, 8, 202, 48, TextAnchor.MiddleRight).gameObject.name = "BattleControlInstruction";
 
             Text bossState = kit.NewPlacedText(stage.transform, string.Empty, 15, PanelKit.Pink,
                 210, 88, 300, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -580,8 +644,8 @@ namespace ChoSiren.Panels
                 RectTransform motionRoot = kit.NewRect("EnemyMotion-" + unit.Id, anchor);
                 motionRoot.anchorMin = motionRoot.anchorMax = new Vector2(.5f, 1f);
                 motionRoot.pivot = new Vector2(.5f, .5f);
-                motionRoot.sizeDelta = new Vector2(220, battle.Stage.HasBossPhases ? 190 : 340);
-                motionRoot.anchoredPosition = new Vector2(0, battle.Stage.HasBossPhases ? -172 : -248);
+                motionRoot.sizeDelta = new Vector2(300, battle.Stage.HasBossPhases ? 190 : 408);
+                motionRoot.anchoredPosition = new Vector2(0, battle.Stage.HasBossPhases ? -172 : -272);
                 Image figure = kit.NewImage("EnemyFigure-" + unit.Id, motionRoot,
                     EnemySprite(unit.Definition.Id), PanelKit.White);
                 PanelKit.Stretch(figure.rectTransform);
@@ -631,12 +695,12 @@ namespace ChoSiren.Panels
             {
                 BattleUnit unit = active[index];
                 bool bossAdds = battle.Stage.HasBossPhases;
-                float width = Mathf.Min(260, 680f / Mathf.Max(1, active.Count));
+                float width = Mathf.Min(320, 680f / Mathf.Max(1, active.Count));
                 float left = (720 - active.Count * width) / 2 + index * width;
                 RectTransform anchor = enemyAnchors[unit.Id];
-                PanelKit.PlaceTop(anchor, left, bossAdds ? 385 : 140, width, bossAdds ? 280 : 440);
+                PanelKit.PlaceTop(anchor, left, bossAdds ? 321 : 94, width, bossAdds ? 280 : 476);
                 RectTransform motionRect = enemyMotions[unit.Id].GetComponent<RectTransform>();
-                motionRect.sizeDelta = new Vector2(Mathf.Min(220, width - 12), bossAdds ? 190 : 340);
+                motionRect.sizeDelta = new Vector2(Mathf.Min(300, width - 12), bossAdds ? 190 : 408);
             }
         }
 
@@ -668,6 +732,7 @@ namespace ChoSiren.Panels
             float left = player ? 22f + col * 170f : 548f;
             float top = player ? 1082f + row * 164f : 310f + (row * 3 + col) * 62f;
             PanelKit.PlaceTop(rect, left, top, width, height);
+            StylePunkPlate(root.GetComponent<Image>(), player ? new Color32(175, 86, 255, 255) : PanelKit.Pink);
             CanvasGroup group = root.AddComponent<CanvasGroup>();
             Image background = root.GetComponent<Image>();
             background.raycastTarget = true;
@@ -704,16 +769,15 @@ namespace ChoSiren.Panels
             ornament.preserveAspect = true;
             ornament.raycastTarget = false;
 
-            Image highlight = kit.NewImage("Highlight", root.transform, kit.RoundedSprite(12), AnchorTint);
-            highlight.type = Image.Type.Sliced;
+            Image highlight = kit.NewImage("Highlight", root.transform, PunkPlateSprite(), AnchorTint);
             PanelKit.Stretch(highlight.rectTransform);
             highlight.enabled = false;
 
             // 玩家卡名字 11pt(排版钳到12)：名字行 100..120 夹在头像(至100)与护盾/血条(119起)之间，
             // 20px 行高容纳 BestFit 后 12pt 的真实行高。
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 11 : 16, PanelKit.White,
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 11 : 21, PanelKit.White,
                 player ? 10 : 8, player ? 100 : 3, width - (player ? 20 : 16), player ? 20 : 26,
-                player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
+                player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, player ? FontStyle.Bold : FontStyle.BoldAndItalic);
             unitName.gameObject.name = "UnitName";
             PanelKit.EnableBestFit(unitName, 11);
             Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 8, player ? 122 : 34,
@@ -746,7 +810,10 @@ namespace ChoSiren.Panels
                 Group = group,
                 Background = background,
                 Highlight = highlight,
-                Outline = kit.AddOutline(root, new Color32(166, 112, 255, 0), 2),
+                // Outline on a filled translucent plate repeats the full polygon four times,
+                // flooding the card with cyan. Only the narrow edge receives selection glow.
+                Outline = kit.AddOutline(root.transform.Find("PunkFrameEdge-0").gameObject,
+                    new Color32(166, 112, 255, 0), 2),
                 Portrait = portrait,
                 Ornament = ornament,
                 Name = unitName,
@@ -811,22 +878,11 @@ namespace ChoSiren.Panels
             if (battle.IsRealtime)
             {
                 PanelKit.PlaceTop(eventText.rectTransform, 14, 27, 248, 22);
-                interruptButton = kit.NewButton("TacticalInterrupt", strip.transform, "破招突袭", 16,
-                    new Color32(77, 58, 26, 255), CombatFeedbackPalette.Control, () =>
-                    {
-                        if (!paused && !closing && battle.TryTacticalStrike())
-                        {
-                            commandFeedback = battle.LastTacticalStrikeBrokeCast
-                                ? "破招成功 · 破甲4秒" : "突袭已释放 · 12秒冷却";
-                            commandFeedbackUntil = battle.ElapsedMilliseconds + 2500;
-                        }
-                        RefreshRealtimeCommands();
-                    }, 10);
-                PanelKit.PlaceTop(interruptButton.GetComponent<RectTransform>(), 274, 2, 190, 50);
-                PanelKit.PlaceTop(PanelKit.LabelOf(interruptButton).rectTransform, 4, 1, 182, 26);
-                PanelKit.EnableBestFit(PanelKit.LabelOf(interruptButton), 12);
-                strikeHint = kit.NewPlacedText(interruptButton.transform, "攻击 / 打断时破甲", 11, PanelKit.Gold,
-                    4, 28, 182, 18, TextAnchor.MiddleCenter);
+                // Removed command: do not create an invisible Selectable or retain its callback.
+                actorText.gameObject.SetActive(false);
+                eventText.gameObject.SetActive(false);
+                // The strip itself collapses to an invisible anchor so no empty glass bar shows.
+                strip.GetComponent<Image>().color = new Color32(12, 11, 47, 0);
                 guardButton = kit.NewButton("TacticalGuard", strip.transform, "应急守护", 16,
                     new Color32(24, 61, 88, 255), CombatFeedbackPalette.Shield, () =>
                     {
@@ -838,9 +894,12 @@ namespace ChoSiren.Panels
                         RefreshRealtimeCommands();
                     }, 10);
                 PanelKit.PlaceTop(guardButton.GetComponent<RectTransform>(), 476, 2, 190, 50);
+                StylePunkPlate(guardButton.GetComponent<Image>(), CombatFeedbackPalette.Shield);
                 PanelKit.PlaceTop(PanelKit.LabelOf(guardButton).rectTransform, 4, 1, 182, 26);
                 guardHint = kit.NewPlacedText(guardButton.transform, "全队减伤50% · 3秒", 11, CombatFeedbackPalette.Shield,
                     4, 28, 182, 18, TextAnchor.MiddleCenter);
+                ReferencePunkFx.CornerCuts(guardButton.GetComponent<RectTransform>(),
+                    new Color32(122, 214, 255, 190), 18f, 2.4f, 2f);
             }
             PanelKit.EnableBestFit(actorText, 16);
             PanelKit.EnableBestFit(eventText, 14);
@@ -866,20 +925,22 @@ namespace ChoSiren.Panels
         private void BuildDiceConsole()
         {
             // 实时战斗回收了原底部指令框与其下方 56px 空白：骰子台加高、骰面放大，
-            // 台面→提示行→队伍生命三段连续排布，不再出现夹在中间的空盒子。
+            // 台面→提示行→骰面→重投键四段连续排布。09-15 版式再撤掉队伍总生命条与
+            // 底部说明行，骰子台继续向下延伸把空隙收干净。
             bool realtime = battle.IsRealtime;
-            float consoleH = realtime ? 306f : 264f;
-            float hintTop = realtime ? 52f : 50f;
+            float consoleH = realtime ? 396f : 264f;
+            float hintTop = realtime ? 60f : 50f;
             float hintH = realtime ? 28f : 26f;
-            float faceTop = realtime ? 90f : 76f;
-            float dieSize = realtime ? 112f : 104f;
-            float gap = realtime ? 16f : 22f;
-            float statusTop = realtime ? 208f : 184f;
-            float buttonTop = realtime ? 246f : 214f;
-            float buttonH = realtime ? 48f : 42f;
-            GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(12, 14, 35, 255), 24);
+            float faceTop = realtime ? 100f : 76f;
+            float dieSize = realtime ? 124f : 104f;
+            float gap = realtime ? 10f : 22f;
+            float diceLeft = realtime ? 10f : 36f;
+            float statusTop = realtime ? 234f : 184f;
+            float buttonTop = realtime ? 286f : 214f;
+            float buttonH = realtime ? 64f : 42f;
+            GameObject console = kit.NewPanel("DiceConsole", transform, new Color32(7, 6, 20, 218), 0);
             PanelKit.PlaceTop(console.GetComponent<RectTransform>(), 20, 1116, 680, consoleH);
-            kit.AddOutline(console, new Color32(102, 218, 255, 92), 1.25f);
+            StylePunkPlate(console.GetComponent<Image>(), new Color32(185, 64, 249, 255));
             Image consoleGlow = kit.NewImage("DiceConsoleGlow", console.transform, kit.RadialSprite(),
                 new Color32(120, 79, 255, 16));
             PanelKit.PlaceTop(consoleGlow.rectTransform, 0, 0, 680, consoleH);
@@ -905,7 +966,7 @@ namespace ChoSiren.Panels
                 int captured = index;
                 GameObject die = kit.NewButton("Dice-" + index, console.transform, "?", 38,
                     Color.clear, PanelKit.White, () => ToggleDie(captured), 20);
-                PanelKit.PlaceTop(die.GetComponent<RectTransform>(), 36 + index * (dieSize + gap), faceTop, dieSize, dieSize);
+                PanelKit.PlaceTop(die.GetComponent<RectTransform>(), diceLeft + index * (dieSize + gap), faceTop, dieSize, dieSize);
                 Image dieArt = die.GetComponent<Image>();
                 // The button remains a full-size invisible hit target. The authored diamond die is the only visible art.
                 dieArt.sprite = null;
@@ -921,7 +982,7 @@ namespace ChoSiren.Panels
                 faceArt.raycastTarget = false;
                 Outline outline = kit.AddOutline(faceArt.gameObject, new Color32(96, 220, 255, 90), 1f);
                 Text held = kit.NewPlacedText(console.transform, "", 16, PanelKit.Gold,
-                    36 + index * (dieSize + gap), statusTop, dieSize, 24,
+                    diceLeft + index * (dieSize + gap), statusTop, dieSize, 24,
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 held.gameObject.name = "DiceStatus-" + index;
                 diceButtons.Add(die);
@@ -937,10 +998,24 @@ namespace ChoSiren.Panels
 
             rerollButton = kit.NewButton("DiceReroll", console.transform, "重投已选0颗", 20,
                 PanelKit.ButtonDark, PanelKit.White, RerollDice, 12);
-            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(), 36, buttonTop, 292, buttonH);
+            PanelKit.PlaceTop(rerollButton.GetComponent<RectTransform>(),
+                realtime ? 24f : 36f, buttonTop, realtime ? 290f : 292f, buttonH);
             energyRerollButton = kit.NewButton("EnergyReroll", console.transform, "全部重投", 20,
                 PanelKit.ButtonDark, PanelKit.White, EnergyRerollDice, 12);
-            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(), 352, buttonTop, 292, buttonH);
+            PanelKit.PlaceTop(energyRerollButton.GetComponent<RectTransform>(),
+                realtime ? 374f : 352f, buttonTop, realtime ? 290f : 292f, buttonH);
+            StylePunkPlate(rerollButton.GetComponent<Image>(), new Color32(196, 90, 255, 255));
+            StylePunkPlate(energyRerollButton.GetComponent<Image>(), PanelKit.Pink);
+            PanelKit.LabelOf(rerollButton).fontStyle = FontStyle.BoldAndItalic;
+            PanelKit.LabelOf(energyRerollButton).fontStyle = FontStyle.BoldAndItalic;
+            if (realtime)
+            {
+                // 两颗重投键之间的粉色爱心块（参考 09-15 战斗图），纯装饰不吃点击。
+                Text heart = kit.NewPlacedText(console.transform, "♥", 38, PanelKit.Pink,
+                    318, buttonTop - 2, 52, buttonH + 4, TextAnchor.MiddleCenter, FontStyle.Bold);
+                heart.gameObject.name = "RerollHeart";
+                kit.AddOutline(heart.gameObject, new Color32(255, 120, 216, 160), 2f);
+            }
             Text diceHint = kit.NewPlacedText(console.transform,
                 battle.IsRealtime
                     ? "点骰子标记“待重投”，再按下方“重投已选”按钮；没点的保留"
@@ -959,12 +1034,13 @@ namespace ChoSiren.Panels
                 // the members they describe, instead of a full-width deck pinned to the bottom.
                 // ▼ is already part of the shipped font subset (StoryPanel uses it); a fresher
                 // glyph like ▾ would only exist after the next font rebuild and render as tofu.
-                // 配色与同排的破招突袭/应急守护同一套玻璃感，避免孤立的深色块。
+                // 配色与战术条的应急守护同一套玻璃感，避免孤立的深色块。
                 GameObject details = kit.NewButton("AbilityDetails", transform, "角色能力 ▼", 15,
                     new Color32(38, 46, 96, 235), new Color32(198, 214, 255, 255), OpenAbilityDetails, 9);
                 PanelKit.PlaceTop(details.GetComponent<RectTransform>(),
                     536, PlayerRosterLabelTop - 3, 164, 36);
-                kit.AddOutline(details, new Color32(122, 158, 235, 96), 1f);
+                StylePunkPlate(details.GetComponent<Image>(), new Color32(169, 93, 250, 255));
+                details.GetComponent<Image>().color = new Color32(12, 7, 29, 226);
             }
             RefreshDiceUi();
         }
@@ -978,17 +1054,17 @@ namespace ChoSiren.Panels
             bool realtime = battle.IsRealtime;
             GameObject frame = kit.NewPanel("SkillCommandDeck", transform,
                 realtime ? new Color32(12, 14, 35, 0) : new Color32(12, 14, 35, 255), 16);
-            // 实时模式紧贴骰子台底部（1116+306），不再与队伍生命条之间留出空盒子。
-            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, realtime ? 1430 : 1386,
+            PanelKit.PlaceTop(frame.GetComponent<RectTransform>(), 20, 1386,
                 680, realtime ? 34 : 92);
             if (!realtime) kit.AddOutline(frame, new Color32(114, 207, 255, 76), 1.25f);
             skillWaitingText = kit.NewPlacedText(frame.transform, "等待演出开始", realtime ? 15 : 20,
                 PanelKit.Muted, 18, realtime ? 3 : 14, 644, realtime ? 28 : 64, TextAnchor.MiddleCenter);
             skillWaitingText.gameObject.name = "SkillWaitingState";
             skillBar = kit.NewRect("SkillBar", transform);
-            // 实时模式下技能按钮容器不使用，跟着提示行收进 1434-1460，
-            // 避免越过上移后的队伍生命条(1472)。回合制保持原位承载技能按钮。
-            PanelKit.PlaceTop(skillBar, 24, realtime ? 1434 : 1390, 672, realtime ? 26 : 84);
+            PanelKit.PlaceTop(skillBar, 24, 1390, 672, realtime ? 26 : 84);
+            // Legacy turn-based layout remains available; realtime owns no footer instruction UI.
+            frame.SetActive(!realtime);
+            skillBar.gameObject.SetActive(!realtime);
         }
 
         /// <summary>Compact secondary surface for the selected character's two active skills.</summary>
@@ -1052,6 +1128,12 @@ namespace ChoSiren.Panels
             retreatButton = kit.NewButton("PauseToggle", transform, "暂停", 20, PanelKit.ButtonDark,
                 PanelKit.White, TogglePause, 12);
             PanelKit.PlaceTop(retreatButton.GetComponent<RectTransform>(), 622, 20, 78, 52);
+            foreach (GameObject control in new[] { autoButton, speedButton, retreatButton })
+            {
+                StylePunkPlate(control.GetComponent<Image>(), new Color32(173, 99, 252, 255));
+                control.GetComponent<Image>().color = new Color32(10, 6, 29, 232);
+                PanelKit.LabelOf(control).fontStyle = FontStyle.BoldAndItalic;
+            }
 
             Image pauseShade = kit.NewImage("PauseOverlay", transform, null, new Color32(3, 5, 24, 168));
             PanelKit.Stretch(pauseShade.rectTransform);
@@ -1105,8 +1187,7 @@ namespace ChoSiren.Panels
                 "【队长与骰型】\n" +
                 "骰型给全队持续加成：人鱼=护盾、恶魔=叠毒、魅族=追击、血精灵=穿甲，数值随骰型变化。队长倒下由下一位存活成员接任，不刷新骰子、能量或冷却。\n\n" +
                 "【战术指令】\n" +
-                "破招突袭：150% 攻击，12 秒冷却；命中蓄力中的敌人可打断并破甲 30% 持续 4 秒。\n" +
-                "应急守护：全队减伤 50% 持续 3 秒，18 秒冷却。点敌人可指定集火/突袭目标。",
+                "应急守护：全队减伤 50% 持续 3 秒，18 秒冷却。点敌人可指定集火目标。",
                 15, PanelKit.Muted, 34, 76, 572, 780, TextAnchor.UpperLeft);
             body.gameObject.name = "RulesBody";
             body.lineSpacing = 1.12f;
@@ -1153,9 +1234,8 @@ namespace ChoSiren.Panels
         private void BuildPreview()
         {
             GameObject panel = kit.NewPanel("PreviewBoard", transform, new Color32(18, 15, 56, 64), 12);
-            // 实时模式上移贴住提示行（1430+34），把原来的空白收干净。
             PanelKit.PlaceTop(panel.GetComponent<RectTransform>(), 20,
-                battle.IsRealtime ? 1472 : 1486, 680, battle.IsRealtime ? 50 : 46);
+                1486, 680, battle.IsRealtime ? 50 : 46);
             teamHpFill = kit.NewBar("TeamHealth", panel.transform, 8, 2, 664, 18,
                 new Color32(24, 57, 56, 255), new Color32(67, 206, 154, 255), 8);
             teamHpText = kit.NewPlacedText(panel.transform, string.Empty, 13, PanelKit.White,
@@ -1165,6 +1245,7 @@ namespace ChoSiren.Panels
                 PanelKit.Muted, 12, 23, 656, 21, TextAnchor.MiddleCenter);
             previewText.gameObject.name = "TargetPreview";
             PanelKit.EnableBestFit(previewText, 14);
+            panel.SetActive(!battle.IsRealtime);
         }
 
         private void BuildLog()
@@ -1444,22 +1525,13 @@ namespace ChoSiren.Panels
             // The top toggle is the single authority for ultimate release mode; the simulator keeps
             // all energy, so switching never refunds or double-spends a charge.
             battle.AutoCastUltimates = autoMode;
-            if (interruptButton != null)
+            if (guardButton != null)
             {
-                BattleUnit threat = battle.InterruptTarget;
-                float cooldown = battle.InterruptCooldownRemaining / 1000f;
                 bool available = !paused && !closing && battle.TacticalActor != null;
-                bool ready = available && cooldown <= 0 && battle.TacticalStrikeTarget != null;
-                PanelKit.SetButtonState(interruptButton, ready, new Color32(77, 58, 26, 255));
-                PanelKit.LabelOf(interruptButton).text = "破招突袭";
-                var target = battle.TacticalStrikeTarget;
-                strikeHint.text = cooldown > 0 ? $"冷却 {cooldown:0.0}秒" : battle.CastRemaining(target) > 0
-                    ? "时机！打断并破甲" : "攻击 / 打断时破甲";
                 float guardCooldown = battle.GuardCooldownRemaining / 1000f;
-                PanelKit.SetButtonState(guardButton, available && guardCooldown <= 0, new Color32(24, 61, 88, 255));
+                PanelKit.SetButtonState(guardButton, available && guardCooldown <= 0, new Color32(6, 21, 42, 240));
                 guardHint.text = guardCooldown > 0 ? $"冷却 {guardCooldown:0.0}秒" : "全队减伤50% · 3秒";
                 if (commandFeedbackUntil > battle.ElapsedMilliseconds) eventText.text = commandFeedback;
-                else if (threat != null) eventText.text = $"危险 · {battle.EnemyThreatName(threat)}";
                 else eventText.text = "点敌人集火 · 战术可主动释放";
             }
             if (inputActor == null || !inputActor.Alive)
@@ -2520,16 +2592,19 @@ namespace ChoSiren.Panels
                 ? Color.Lerp(new Color32(255, 34, 116, 255), new Color32(255, 154, 48, 255),
                     0.5f + Mathf.Sin(presentationClock * 6f) * 0.5f)
                 : Color.Lerp(new Color32(255, 72, 208, 255), new Color32(255, 44, 143, 255), 1f - normalized);
-            enemyHpText.text = boss != null
-                ? $"BOSS · {boss.Definition.Name}  {Mathf.RoundToInt(normalized * 100f)}%  {current:N0}/{maximum:N0}"
-                : $"本波敌方生命  {current:N0}/{maximum:N0}  · 已击败 {defeatedCount}/{enemyCount}";
+            enemyHpText.text = $"{current:N0}/{maximum:N0}";
+            enemyHealthCaption.text = boss != null ? boss.Definition.Name : "本波敌方生命";
+            enemyDefeatedText.text = $"已击败 {defeatedCount}/{enemyCount}";
+            for (int i = 0; i < healthWaveBars.Count; i++)
+                healthWaveBars[i].color = i / (float)healthWaveBars.Count <= normalized
+                    ? enemyHpFill.color : new Color32(69, 28, 90, 150);
             if (boss != null && !boss.Alive && aliveEnemies > 0)
                 enemyHpText.text = $"Boss 已倒下 · 还需清理 {aliveEnemies} 名护卫";
             enemyHpText.color = normalized <= 0.3f ? new Color32(255, 225, 174, 255) : PanelKit.White;
             if (battleReadabilityVeil != null)
             {
                 Color veil = battleReadabilityVeil.color;
-                veil.a = 46f / 255f;
+                veil.a = 12f / 255f;
                 battleReadabilityVeil.color = veil;
             }
             if (bossPresentation != null) bossPresentation.SetHealthRatio(normalized);
@@ -3369,6 +3444,7 @@ namespace ChoSiren.Panels
 
         private void OnDestroy()
         {
+            if (punkPlateTexture != null) Destroy(punkPlateTexture);
             closing = true;
             StopAllCoroutines();
             for (int index = 0; index < runtimeSprites.Count; index++)

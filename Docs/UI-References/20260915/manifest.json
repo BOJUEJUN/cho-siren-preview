@@ -1,0 +1,18 @@
+{
+  "team": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/team.jpg",
+  "members": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/members.jpg",
+  "audition": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/audition.jpg",
+  "map": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/map.jpg",
+  "profile": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/profile.jpg",
+  "battle": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/battle.jpg",
+  "lobby": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/lobby.png",
+  "accessories": "/Users/bojuejun/cho-siren-unity/Docs/UI-References/20260915/accessories.png",
+  "overrides": [
+    "Bottom nav Chinese only",
+    "Dynamic character stats: 声波、说唱、舞蹈、名气、颜值 from audition source",
+    "Battle: remove manual-combat explanation card and 破招突袭 button; preserve 应急守护",
+    "Battle: remove bottom team-total-health bar and bottom automatic-skill/energy/click-instruction text",
+    "Keep individual health bars and actual combat state",
+    "Preserve real interactions; do not bake sample values into static screenshots"
+  ]
+}

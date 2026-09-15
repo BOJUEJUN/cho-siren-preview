@@ -25,8 +25,9 @@ namespace ChoSiren
             GameObject heroLayer = NewObject("HeroLayer", contentRoot);
             Stretch(heroLayer.AddComponent<RectTransform>());
 
+            Sprite latest = ReferenceArt038.Load("Art/Reference038/lobby-board-038");
             GameObject golden = NewImage("LobbyHomeGolden038", safeRoot,
-                AiUiSprite("Art/LobbyPunk/038/lobby-home-base-038"), White);
+                latest != null ? latest : AiUiSprite("Art/LobbyPunk/038/lobby-home-base-038"), White);
             RectTransform goldenRect = golden.GetComponent<RectTransform>();
             Stretch(goldenRect);
             Image goldenImage = golden.GetComponent<Image>();
@@ -63,6 +64,7 @@ namespace ChoSiren
             responsiveLayout.Configure(cardLayerRect);
 
             golden.transform.SetAsFirstSibling();
+
             cardLayer.transform.SetAsLastSibling();
 
             if (lobbyVideoObject != null) lobbyVideoObject.SetActive(false);

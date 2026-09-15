@@ -188,24 +188,19 @@ namespace ChoSiren.Tests
                 Does.StartWith(GameModel.Members[0].Name));
             int originalFirstAttack = model.StatsOf(0).Attack;
             int originalSecondAttack = model.StatsOf(1).Attack;
-            int originalSecondHp = model.StatsOf(1).Hp;
-            Text quality = RequireActiveObject("EquipmentItemQuality").GetComponent<Text>();
-            Assert.That(quality.text, Does.Contain("生命").And.Contain("4%"), "品质行应携带饰品属性加成说明。");
+            Text quality = RequireActiveObject("Accessory-1").transform.Find("ItemQuality").GetComponent<Text>();
+            Assert.That(quality.text, Is.EqualTo(GameModel.AccessoryRarityNameOf(1) + " · " + GameModel.AccessoryCategory(1)),
+                "当前选中饰品的品质和类别必须对应真实物品。");
             Assert.That(quality.preferredHeight, Is.LessThanOrEqualTo(quality.rectTransform.rect.height));
-            foreach (Text text in RequireActiveObject("AccessoryDetail").GetComponentsInChildren<Text>())
+            foreach (Text text in RequireActiveObject("EquipmentBody").GetComponentsInChildren<Text>())
             {
                 Assert.That(text.text, Does.Not.Contain("套装"));
                 Assert.That(text.text, Does.Not.Contain("暴击率"));
             }
-            for (int row = 0; row < 4; row++)
-            {
-                Text statName = RequireActiveObject("AccessoryStatName-" + row).GetComponent<Text>();
-                Text delta = RequireActiveObject("AccessoryDelta-" + row).GetComponent<Text>();
-                Assert.That(statName.preferredHeight, Is.LessThanOrEqualTo(statName.rectTransform.rect.height));
-                Assert.That(delta.preferredHeight, Is.LessThanOrEqualTo(delta.rectTransform.rect.height));
-                Assert.That(delta.text, Does.Contain("→"), "对比列应显示 旧→新 数值。");
-                Assert.That(delta.fontSize, Is.GreaterThanOrEqualTo(15));
-            }
+            AssertEquipmentStageStatsFor(0);
+            Text powerPreview = RequireActiveObject("AccessoryDelta-3").GetComponent<Text>();
+            Assert.That(powerPreview.preferredHeight, Is.LessThanOrEqualTo(powerPreview.rectTransform.rect.height));
+            Assert.That(powerPreview.fontSize, Is.GreaterThanOrEqualTo(15));
             Click("QuickEquip");
             yield return null;
             var equipped = new GameModel();
@@ -229,10 +224,10 @@ namespace ChoSiren.Tests
                 "浏览另一角色不能自动移动已装备饰品。");
             Click("Accessory-1");
             yield return null;
-            Assert.That(RequireActiveObject("AccessoryDelta-0").GetComponent<Text>().text,
-                Does.StartWith(originalSecondHp.ToString("N0") + "→"));
-            Assert.That(RequireActiveObject("AccessoryDelta-1").GetComponent<Text>().text,
-                Does.EndWith("→" + equipped.StatsOf(1, 1).Attack.ToString("N0")));
+            AssertEquipmentStageStatsFor(1);
+            Assert.That(RequireActiveObject("AccessoryDelta-3").GetComponent<Text>().text,
+                Is.EqualTo($"{equipped.TeamPower:N0}→{equipped.TeamPowerWithMemberAccessory(1, 1):N0}"),
+                "转移预览必须使用真实队伍战力，并计算原持有者卸下后的变化。");
             Assert.That(RequireActiveObject("QuickEquip").GetComponentInChildren<Text>().text,
                 Is.EqualTo("转移"));
             Click("QuickEquip");
@@ -305,7 +300,7 @@ namespace ChoSiren.Tests
         {
             Click("Nav-team");
             yield return null;
-            RequireActiveObject("TeamPower");
+            RequireActiveObject("TeamPowerValue");
             AssertActiveUiUsesChineseOnly();
 
             Click("Nav-members");
@@ -324,8 +319,8 @@ namespace ChoSiren.Tests
             RequireActiveObject("Accessory-0");
             RequireActiveObject("Accessory-5");
             RequireActiveObject("EquipmentSelectedArt");
-            RequireActiveObject("AccessoryDetail");
-            RequireActiveObject("EquipmentScroll");
+            RequireActiveObject("EquipmentItemName");
+            RequireActiveObject("EquipmentReferenceBoard038");
             RequireActiveObject("EquipmentInventoryTitle");
             AssertActiveUiUsesChineseOnly();
 
@@ -337,11 +332,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("Nav-members");
             RequireActiveObject("InterviewPool-0");
             RequireActiveObject("InterviewPool-1");
-            RequireActiveObject("CandidateCard");
-            RequireActiveObject("CandidatePortrait");
-            RequireActiveObject("CandidateStats");
-            RequireActiveObject("InterviewActions");
-            RequireActiveObject("SignCandidate");
+            AssertAuthoredAuditionCandidate();
             AssertInactiveOrMissing("BalanceDiamond");
             AssertInactiveOrMissing("BalanceGold");
             AssertInactiveOrMissing("PullTen");
@@ -370,6 +361,10 @@ namespace ChoSiren.Tests
             yield return null;
             GachaPanel panel = Object.FindAnyObjectByType<GachaPanel>();
             Assert.That(panel, Is.Not.Null);
+            AssertAuthoredAuditionCandidate();
+            Assert.That(panel.InterviewPoolIndex, Is.Zero);
+            float onlineIndicatorX = RequireActiveObject("SelectedInterviewChannel")
+                .GetComponent<RectTransform>().anchoredPosition.x;
             AssertActiveUiUsesChineseOnly();
 
             string firstName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
@@ -381,11 +376,23 @@ namespace ChoSiren.Tests
             Click("InterviewPool-1");
             yield return null;
             Assert.That(panel.InterviewPoolIndex, Is.EqualTo(1));
-            Assert.That(RequireActiveObject("ViewInterview").transform.Find("Label").GetComponent<Text>().text,
-                Is.EqualTo("开始现场面试"));
+            AssertAuthoredAuditionCandidate();
+            Assert.That(RequireActiveObject("SelectedInterviewChannel").GetComponent<RectTransform>()
+                .anchoredPosition.x, Is.GreaterThan(onlineIndicatorX),
+                "切换线下面试后选中指示必须跟随频道移动，不能只改变内部状态。");
             string offlineName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
             string beforeCounter = RequireActiveObject("CandidateCounter").GetComponent<Text>().text;
             int beforeCount = int.Parse(beforeCounter.Split('/')[1].Trim());
+            int diamondsBefore = new GameModel().Save.Diamonds;
+            int quotedCost = int.Parse(RequireActiveObject("SigningPrice").GetComponent<Text>().text.Replace(",", ""));
+
+            // The button title is printed in the reference art; verify its real click behavior.
+            Click("ViewInterview");
+            yield return null;
+            Assert.That(RequireActiveObject("Toast").GetComponentInChildren<Text>().text,
+                Does.Contain(offlineName));
+            Assert.That(new GameModel().Save.Diamonds, Is.EqualTo(diamondsBefore),
+                "查看面试资料不能扣除签约费用。");
 
             Click("SignCandidate");
             yield return null;
@@ -393,8 +400,12 @@ namespace ChoSiren.Tests
                 "签约必须先弹花费确认，不能直接扣款或跳档案。");
             Assert.That(RequireActiveObject("SignConfirmCost").GetComponent<Text>().text,
                 Does.Contain("星钻"));
+            Assert.That(new GameModel().Save.Diamonds, Is.EqualTo(diamondsBefore),
+                "显示确认卡不能提前扣款。");
             Click("SignConfirm");
             yield return null;
+            Assert.That(new GameModel().Save.Diamonds, Is.EqualTo(diamondsBefore - quotedCost),
+                "确认签约必须只扣除当前候选人的报价一次。");
             Assert.That(RequireActiveObject("SignResultCard"), Is.Not.Null,
                 "确认后应展示签约成功卡而不是直接跳档案。");
             Assert.That(RequireActiveObject("SignResultName").GetComponent<Text>().text,
@@ -424,8 +435,7 @@ namespace ChoSiren.Tests
             string afterCounter = RequireActiveObject("CandidateCounter").GetComponent<Text>().text;
             Assert.That(int.Parse(afterCounter.Split('/')[1].Trim()), Is.EqualTo(beforeCount - 1),
                 "签约后只能移除当前候选，不能补入新人或重排当日名单。");
-            Assert.That(Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
-                .Count(item => item.name == "CandidateCard"), Is.EqualTo(1));
+            AssertAuthoredAuditionCandidate();
             AssertActiveUiUsesChineseOnly();
 
             Click("Nav-lobby");
@@ -436,14 +446,16 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator MemberDossierShowsRealBattleAttributesAndKeepsSkillColumnsSeparate()
+        public IEnumerator MemberDossierShowsRealStageAttributesAndKeepsSkillRowsSeparate()
         {
             Click("Nav-members");
             yield return null;
             Click("Member-xingli");
             yield return null;
             int xingliIndex = System.Array.FindIndex(GameModel.Members, member => member.Id == "xingli");
-            GameModel.StageStats(GameModel.Members[xingliIndex], xingliIndex, 1, 1,
+            var stageState = new GameModel();
+            GameModel.StageStats(GameModel.Members[xingliIndex], xingliIndex,
+                stageState.SigningChannelOf(xingliIndex) == 0 ? 0 : 1, stageState.LevelOf(xingliIndex),
                 out int vocal, out _, out _, out _, out _);
             Assert.That(RequireActiveObject("MemberStatVocal").GetComponent<Text>().text,
                 Is.EqualTo(vocal.ToString()));
@@ -464,8 +476,8 @@ namespace ChoSiren.Tests
                 return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
             }
             Rect firstRect = InSkillPanel(first), secondRect = InSkillPanel(second);
-            Assert.That(firstRect.xMax, Is.LessThan(secondRect.xMin),
-                "两项技能须在共同技能面板坐标中左右分列，不能比较各自卡片内的局部坐标。");
+            Assert.That(firstRect.yMin, Is.GreaterThan(secondRect.yMax),
+                "参考设计的两项技能须在共同面板坐标中上下排列，主技能位于次技能之上。");
             Rect firstCard = InSkillPanel(first.parent as RectTransform);
             Rect secondCard = InSkillPanel(second.parent as RectTransform);
             Assert.That(firstCard.Overlaps(secondCard), Is.False, "两个完整技能卡不能重叠。");
@@ -524,7 +536,9 @@ namespace ChoSiren.Tests
             Assert.That(RequireActiveObject("MemberPower").GetComponent<Text>().text,
                 Does.Contain($"等级 {level + 1}"));
             int xingliIndex = System.Array.FindIndex(GameModel.Members, member => member.Id == "xingli");
-            GameModel.StageStats(GameModel.Members[xingliIndex], xingliIndex, 1, level + 1,
+            var stageState = new GameModel();
+            GameModel.StageStats(GameModel.Members[xingliIndex], xingliIndex,
+                stageState.SigningChannelOf(xingliIndex) == 0 ? 0 : 1, level + 1,
                 out int vocal, out _, out _, out _, out _);
             Assert.That(RequireActiveObject("MemberStatVocal").GetComponent<Text>().text,
                 Is.EqualTo(vocal.ToString()));
@@ -593,7 +607,7 @@ namespace ChoSiren.Tests
             RequireActiveObject("MemberModal");
             Button button = RequireActiveObject("Train").GetComponent<Button>();
             Assert.That(button.interactable, Is.False);
-            Assert.That(button.transform.Find("Label").GetComponent<Text>().text, Is.EqualTo("星光币不足"));
+            Assert.That(button.transform.Find("StateLabel").GetComponent<Text>().text, Is.EqualTo("星光币不足"));
             GameSave saved = JsonUtility.FromJson<GameSave>(PlayerPrefs.GetString(SaveKey));
             Assert.That(saved.Gold, Is.GreaterThanOrEqualTo(0));
             Assert.That(saved.Gold, Is.LessThan(BattleSimulator.TrainingCostAtLevel(saved.MemberLevels[0])));
@@ -603,7 +617,7 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator AuditionCandidateUsesLocalArtAndOneHighlightedStrongestStat()
+        public IEnumerator AuditionCandidateUsesLocalArtAndAccurateFiveStageStats()
         {
             Click("Nav-audition");
             yield return null;
@@ -613,10 +627,8 @@ namespace ChoSiren.Tests
             Assert.That(portrait.enabled, Is.True);
             Assert.That(portrait.sprite, Is.Not.Null, "候选卡必须加载本地角色素材。");
             Assert.That(portrait.preserveAspect, Is.True, "候选立绘不能拉伸。");
-            Assert.That(Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
-                    .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
-                "舞台四维只能强调当前候选人的一个最强项。");
-            RequireActiveObject("CandidateCharm");
+            AssertAuthoredAuditionCandidate();
+            RequireActiveObject("StatValue-Charm");
             RequireActiveObject("CandidateRecommendation");
             RequireActiveObject("SigningPrice");
 
@@ -877,6 +889,60 @@ namespace ChoSiren.Tests
             Assert.That(Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
                     .Count(image => image.sprite != null && image.sprite.texture == expected), Is.EqualTo(1),
                 "底栏中文必须来自唯一的 0.3.8 整图，不能回退到旧英文分层素材。");
+        }
+
+        private static void AssertEquipmentStageStatsFor(int memberIndex)
+        {
+            var state = new GameModel();
+            GameModel.StageStats(GameModel.Members[memberIndex], memberIndex,
+                state.SigningChannelOf(memberIndex) == 0 ? 0 : 1, state.LevelOf(memberIndex),
+                out int vocal, out int rap, out int dance, out int fame, out int beauty);
+            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            int[] values = { vocal, rap, dance, fame, beauty };
+            for (int i = 0; i < labels.Length; i++)
+            {
+                Text stat = RequireActiveObject("EquipmentStageStat-" + i).GetComponent<Text>();
+                Assert.That(stat.text, Is.EqualTo($"{labels[i]} {values[i]}"),
+                    "饰品页不能把旧生命/攻击数值改个名称冒充舞台五维。");
+                Assert.That(stat.preferredHeight, Is.LessThanOrEqualTo(stat.rectTransform.rect.height));
+            }
+        }
+
+        private static void AssertAuthoredAuditionCandidate()
+        {
+            GachaPanel panel = Object.FindAnyObjectByType<GachaPanel>();
+            Assert.That(panel, Is.Not.Null);
+            RequireActiveObject("AuthoredInterviewPage");
+            Image board = RequireActiveObject("AuditionReferenceBoard").GetComponent<Image>();
+            Assert.That(board.sprite, Is.Not.Null);
+            Assert.That(board.preserveAspect, Is.True);
+            Assert.That(Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
+                .Count(item => item.name == "AuditionReferenceBoard"), Is.EqualTo(1),
+                "频道切换和签约后只能保留一张当前选秀底板。");
+            Image portrait = RequireActiveObject("CandidatePortrait").GetComponent<Image>();
+            Assert.That(portrait.sprite, Is.Not.Null);
+            Assert.That(portrait.preserveAspect, Is.True);
+            string candidateName = RequireActiveObject("CandidateName").GetComponent<Text>().text;
+            int memberIndex = System.Array.FindIndex(GameModel.Members, member => member.Name == candidateName);
+            Assert.That(memberIndex, Is.GreaterThanOrEqualTo(0), "候选人必须对应真实成员。");
+            var stageState = new GameModel();
+            GameModel.StageStats(GameModel.Members[memberIndex], memberIndex, panel.InterviewPoolIndex,
+                stageState.PreviewSigningLevel(memberIndex, panel.InterviewPoolIndex),
+                out int vocal, out int rhythm, out int dance, out int fame, out int beauty);
+            string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
+            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            int[] values = { vocal, rhythm, dance, fame, beauty };
+            for (int i = 0; i < keys.Length; i++)
+            {
+                Assert.That(RequireActiveObject("StatLabel-" + keys[i]).GetComponent<Text>().text,
+                    Is.EqualTo(labels[i]));
+                Assert.That(RequireActiveObject("StatValue-" + keys[i]).GetComponent<Text>().text,
+                    Is.EqualTo(values[i].ToString()), "舞台数值必须来自当前成员和当前面试频道。");
+            }
+            Assert.That(IsInteractable("ViewInterview"), Is.True);
+            Assert.That(IsInteractable("SignCandidate"), Is.True);
+            Assert.That(IsInteractable("InterviewPool-0"), Is.True);
+            Assert.That(IsInteractable("InterviewPool-1"), Is.True);
         }
 
         private static void Click(string objectName)
