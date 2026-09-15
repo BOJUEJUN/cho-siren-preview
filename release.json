@@ -1,18 +1,20 @@
 {
   "version": "0.3.8",
-  "name": "底栏五项跨页面对齐与动画基线修复",
+  "name": "底栏可见素材像素校准",
   "date": "2026-09-15",
-  "sourceCommit": "a56de6b",
+  "sourceCommit": "e42df09",
   "buildDirectory": "Builds/WebGL",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "e44dc70",
-  "savePolicy": "保留现有存档；新增经纪经营字段由 Normalize 自动迁移，旧档不追缴任何月薪",
+  "previousWebCommit": "60ade41",
+  "savePolicy": "保留现有存档；仅调整首页底栏视觉素材与交互反馈坐标",
   "validation": {
-    "unityTestsPlayMode": 142,
-    "unityTestsPlayModePassed": 142,
-    "visibleHoverHotspots": 14,
+    "focusedPlayModeTests": 3,
+    "focusedPlayModePassed": 3,
+    "browserPagesCaptured": 5,
+    "browserPageErrors": 0,
     "bottomNavigationMeasuredHitAreas": 5,
-    "bottomNavigationPagesAligned": 5,
+    "bottomNavigationVisualRectsCalibrated": 5,
+    "bottomNavigationChineseOnly": true,
     "bottomNavigationSharedUnderlineBaseline": true,
     "referencePixelsChangedAtRest": 0
   }
