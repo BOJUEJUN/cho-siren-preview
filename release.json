@@ -1,20 +1,22 @@
 {
   "version": "0.3.8",
-  "name": "战斗重投修复与底栏校准",
+  "name": "全套界面与无损美术加载",
   "date": "2026-09-15",
-  "sourceCommit": "17a41ca",
+  "sourceCommit": "d5afe1f",
   "buildDirectory": "Builds/WebGL",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "ca4ab5a",
+  "previousWebCommit": "aab3738",
   "savePolicy": "保留现有存档与已拥有角色；不合规旧阵容仅在开战前提示调整",
   "validation": {
-    "battleFormationRegressionPassed": 4,
-    "relatedBattleTestsPassed": 138,
-    "lobbyLayoutRegressionPassed": 15,
+    "targetedPlayModePassed": 92,
+    "loaderRegressionPassed": 12,
     "cleanWebGLBuild": true,
-    "localBrowserPagesCaptured": 5,
+    "localBrowserPagesCaptured": 8,
     "localBrowserPageErrors": 0,
+    "originalPngFilesVerified": 9,
+    "originalPngRetryRecovered": true,
     "bottomNavigationMeasuredRegions": 5,
     "visiblePointerFeedback": true
-  }
+  },
+  "visualStatus": "八页已接入并实测；非大厅导航造型、部分人物特写和骰子外形仍与参考有差异，持续对照优化"
 }
