@@ -1,21 +1,20 @@
 {
   "version": "0.3.8",
-  "name": "底栏可见素材像素校准",
+  "name": "战斗重投修复与底栏校准",
   "date": "2026-09-15",
-  "sourceCommit": "e42df09",
+  "sourceCommit": "17a41ca",
   "buildDirectory": "Builds/WebGL",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "60ade41",
-  "savePolicy": "保留现有存档；仅调整首页底栏视觉素材与交互反馈坐标",
+  "previousWebCommit": "ca4ab5a",
+  "savePolicy": "保留现有存档与已拥有角色；不合规旧阵容仅在开战前提示调整",
   "validation": {
-    "focusedPlayModeTests": 3,
-    "focusedPlayModePassed": 3,
-    "browserPagesCaptured": 5,
-    "browserPageErrors": 0,
-    "bottomNavigationMeasuredHitAreas": 5,
-    "bottomNavigationVisualRectsCalibrated": 5,
-    "bottomNavigationChineseOnly": true,
-    "bottomNavigationSharedUnderlineBaseline": true,
-    "referencePixelsChangedAtRest": 0
+    "battleFormationRegressionPassed": 4,
+    "relatedBattleTestsPassed": 138,
+    "lobbyLayoutRegressionPassed": 15,
+    "cleanWebGLBuild": true,
+    "localBrowserPagesCaptured": 5,
+    "localBrowserPageErrors": 0,
+    "bottomNavigationMeasuredRegions": 5,
+    "visiblePointerFeedback": true
   }
 }
