@@ -331,11 +331,11 @@ namespace ChoSiren
             // Do not derive them from an equal-width strip or stretch them to another hit grid.
             Rect[] goldenVisualRects038 =
             {
-                new Rect(18.375f, 1316.39f, 132f, 143f),
-                new Rect(153.92f, 1323.635f, 118f, 128f),
-                new Rect(276.55f, 1313.135f, 142f, 149f),
-                new Rect(417.55f, 1323.2f, 125f, 128f),
-                new Rect(528.815f, 1321.35f, 147f, 148f),
+                new Rect(18.375f, 1325.225f, 132f, 143f),
+                new Rect(153.92f, 1337.81f, 118f, 128f),
+                new Rect(276.55f, 1319.87f, 142f, 149f),
+                new Rect(417.55f, 1337.375f, 125f, 128f),
+                new Rect(528.815f, 1328.415f, 147f, 148f),
             };
             float[] goldenLabelCenters038 = { 84.63f, 212.67f, 347.28f, 479.27f, 602.05f };
             const float goldenUnderlineBaseline038 = 1473.09f;

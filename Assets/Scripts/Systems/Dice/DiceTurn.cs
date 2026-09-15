@@ -16,6 +16,7 @@ namespace ChoSiren.Systems.Dice
         private readonly IReadOnlyList<int> readOnlyValues;
         private readonly IReadOnlyList<bool> readOnlyHeld;
         private bool begun;
+        private bool freeRerollGranted;
         private int legacyRerolls = InitialRerolls;
         private long energyMicros;
         private const long EnergyScale = 1000000;
@@ -197,8 +198,12 @@ namespace ChoSiren.Systems.Dice
 
         public void GrantFreeReroll()
         {
-            // A rescue reroll may arrive after the normal quota is spent; it is its own allowance.
-            if (IsBattleSession) FreeRerolls = Math.Min(1, FreeRerolls + 1);
+            // A rescue reroll may arrive after the normal quota is spent, but it is one allowance
+            // for this battle object. Consuming it must not let a later same-race successor grant
+            // it again and turn a repeated-race formation into an unlimited reroll chain.
+            if (!IsBattleSession || freeRerollGranted) return;
+            freeRerollGranted = true;
+            FreeRerolls = 1;
         }
 
         /// <summary>Changes command capability without rerolling or refilling any battle budget.</summary>

@@ -1006,7 +1006,9 @@ namespace ChoSiren
                 return;
             }
 
-            Save.Team.Add(memberIndex);
+            var nextTeam = new List<int>(Save.Team) { memberIndex };
+            if (!ValidateTeamComposition(nextTeam, out message)) return;
+            Save.Team = nextTeam;
             SaveState();
             message = $"{Members[memberIndex].Name} 已加入当前编队";
         }
@@ -1576,6 +1578,10 @@ namespace ChoSiren
                 message = "关卡尚未解锁，请先完成前一关";
                 return null;
             }
+
+            // Do not silently rewrite an older save: keep all owned members and ask the player to
+            // adjust only the active formation before this battle snapshot is created.
+            if (!ValidateTeamComposition(Save.Team, out message)) return null;
 
             bool stateChanged = Tick();
             if (Save.Stamina < stage.StaminaCost)
