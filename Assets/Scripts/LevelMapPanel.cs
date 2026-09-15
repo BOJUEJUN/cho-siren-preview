@@ -234,16 +234,22 @@ namespace ChoSiren
             page.localScale = Vector3.one * scale;
             Image art = NewImage("MapReferenceBoard", page, board, Color.white);
             Stretch(art.rectTransform); art.preserveAspect = true; art.raycastTarget = false;
-            MapBoardHit("Back", page, 12, 15, 96, 100, Close);
+            GameObject back = MapBoardHit("Back", page, 12, 15, 96, 100, Close);
+            BakedRegionMotion038.Attach(back, art, new Rect(3f, 3f, 102f, 112f));
             NewPlacedText(page, "第01章", 23, Pink, 145, 25, 300, 35, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(page, "踏梦迷踪", 38, White, 135, 62, 355, 64, TextAnchor.MiddleLeft, FontStyle.Bold);
             Image staminaIcon = NewImage("StaminaIcon", page, Resources.Load<Sprite>("Art/UI/ResourceStamina-C"), White);
-            PlaceTop(staminaIcon.rectTransform, 633, 30, 44, 44);
+            PlaceTop(staminaIcon.rectTransform, 620, 30, 44, 44);
             staminaIcon.preserveAspect = true; staminaIcon.raycastTarget = false;
             staminaText = NewPlacedText(page, string.Empty, 24, new Color32(255, 186, 235, 255),
-                687, 30, 126, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
+                672, 30, 124, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
             storyChapterLabel = NewPlacedText(page, string.Empty, 20, Pink, 65, 207, 300, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            MapBoardHit("StoryChapter-01", page, 24, 210, 370, 190, OpenStoryChapter01);
+            GameObject story = MapBoardHit("StoryChapter-01", page, 24, 210, 370, 190,
+                OpenStoryChapter01);
+            // The 欲望都市 burst is bigger than the hit; bind the full silhouette and let the
+            // live 主线剧情 label ride along in place (it keeps its page parent).
+            BakedRegionMotion038.Attach(story, art, new Rect(2f, 138f, 388f, 320f),
+                storyChapterLabel.transform);
             Vector2[] centers = {
                 new Vector2(256,1182), new Vector2(393,1073), new Vector2(360,974),
                 new Vector2(486,855), new Vector2(482,756), new Vector2(451,650),
@@ -266,6 +272,10 @@ namespace ChoSiren
                 nodeViews[stage] = new NodeView { Stage=stage, Button=node.GetComponent<Button>(),
                     Background=node.GetComponent<Image>(), Glow=glow, StageLabel=label,
                     StatusLabel=status, LockIcon=lockIcon };
+                // Baked node plaque + its live labels/glow move as one body; children keep
+                // their parents so node.Find("StageLabel") paths stay intact.
+                BakedRegionMotion038.Attach(node, art,
+                    new Rect(c.x - 82f, c.y - 33f, 164f, 66f));
             }
             GameObject selected = NewObject("SelectedLevel", page);
             PlaceTop(selected.AddComponent<RectTransform>(), 54, 1284, 490, 325);
@@ -285,14 +295,19 @@ namespace ChoSiren
             // The authored 开始挑战 remains the primary caption; this live sublabel can say 再次挑战.
             startLabel = NewPlacedText(start.transform, string.Empty, 17, White, 32, 232, 190, 35, TextAnchor.MiddleCenter);
             startLabel.name = "Label";
+            // The 开始挑战 burst silhouette extends well past the measured hit.
+            BakedRegionMotion038.Attach(start, art, new Rect(552f, 1308f, 302f, 354f));
             GameObject rewards = MapBoardHit("ChapterRewards", page, 28, 1697, 275, 92, OpenChapterRewards);
             NewPlacedText(rewards.transform, "章节奖励", 24, White, 20, 2, 218, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
             rewardSummaryText = NewPlacedText(rewards.transform, string.Empty, 15, Muted, 15, 51, 245, 29, TextAnchor.MiddleCenter);
             rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 234, 5);
+            // Baked dock plaques: live labels + badge ride along in place.
+            BakedRegionMotion038.Attach(rewards, art, new Rect(6f, 1672f, 302f, 124f));
             GameObject tasks = MapBoardHit("ChapterTasks", page, 355, 1697, 260, 92, OpenChapterTasks);
             NewPlacedText(tasks.transform, "章节任务", 24, White, 10, 2, 224, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
             taskSummaryText = NewPlacedText(tasks.transform, string.Empty, 15, Muted, 10, 51, 230, 29, TextAnchor.MiddleCenter);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 222, 5);
+            BakedRegionMotion038.Attach(tasks, art, new Rect(320f, 1672f, 346f, 124f));
         }
 
         private GameObject MapBoardHit(string name, Transform parent, float x, float y, float w, float h, UnityEngine.Events.UnityAction action)

@@ -49,19 +49,29 @@ namespace ChoSiren
             RectTransform logoRect = logo.AddComponent<RectTransform>();
             responsiveLayout.Add(logoRect, LobbyLogoSpec, LobbyLogoSpec, false);
 
-            Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "PracticeRoom",
+            GameObject practiceRoom = Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "PracticeRoom",
                 PracticeHitSpec, new Rect(8f, 0f, 220f, 150f), OpenLobbyPractice);
-            Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "AlbumProduction",
+            GameObject albumProduction = Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "AlbumProduction",
                 AlbumHitSpec, new Rect(244f, 0f, 220f, 150f), () => Toast("专辑制作即将开放"));
             GameObject albumLockState = NewObject("LockedState", cardLayer.transform.Find("AlbumProduction"));
             albumLockState.AddComponent<RectTransform>();
-            Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "Tasks",
+            GameObject tasks = Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "Tasks",
                 TasksHitSpec, new Rect(480f, 0f, 220f, 150f), OpenDailyTasks);
-            Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "LiveOnStage",
+            GameObject liveOnStage = Build038LobbyHotspot(cardLayer.transform, responsiveLayout, "LiveOnStage",
                 StageHitSpec, new Rect(8f, 160f, 316f, 180f), OpenLevelMap);
 
             responsiveLayout.Add(faceRect, FaceSafeSpec, new Rect(710f, 0f, 8f, 8f), false);
             responsiveLayout.Configure(cardLayerRect);
+
+            // Whole-body feedback for the four baked entry zones: the slice region is
+            // derived from each control's real footprint on the displayed board, since
+            // these specs live in 720x1290 design space, not board pixels. The three
+            // stacked cards touch, so only the isolated CTA gets edge bleed margin.
+            Canvas.ForceUpdateCanvases();
+            MainBakedMotion038AttachFootprint(practiceRoom, goldenImage, 0f);
+            MainBakedMotion038AttachFootprint(albumProduction, goldenImage, 0f);
+            MainBakedMotion038AttachFootprint(tasks, goldenImage, 0f);
+            MainBakedMotion038AttachFootprint(liveOnStage, goldenImage, 12f);
 
             golden.transform.SetAsFirstSibling();
 
@@ -73,7 +83,7 @@ namespace ChoSiren
             FinishStartupLoading();
         }
 
-        private void Build038LobbyHotspot(Transform parent, LobbyPunkResponsiveLayout layout,
+        private GameObject Build038LobbyHotspot(Transform parent, LobbyPunkResponsiveLayout layout,
             string objectName, Rect spec, Rect fallback, UnityEngine.Events.UnityAction action)
         {
             GameObject hotspot = NewImage(objectName, parent, null, Color.clear);
@@ -93,6 +103,7 @@ namespace ChoSiren
                     ? LobbyHotspotFeedback.VisualKind.CallToAction
                     : LobbyHotspotFeedback.VisualKind.Entry);
             layout.Add(rect, spec, fallback, false);
+            return hotspot;
         }
 
         private static void AttachLobbyHotspotFeedback(GameObject hotspot,

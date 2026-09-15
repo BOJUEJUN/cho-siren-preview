@@ -58,7 +58,7 @@
       "PortraitResourcePath": "Art/Members/member-yaoguang",
       "ThumbnailResourcePath": "Art/Members/member-yaoguang",
       "BasePower": 7560,
-      "StartingLevel": 52,
+      "StartingLevel": 16,
       "InitiallyUnlocked": false
     },
     {
@@ -70,7 +70,7 @@
       "PortraitResourcePath": "Art/Members/member-hupo",
       "ThumbnailResourcePath": "Art/Members/member-hupo",
       "BasePower": 7210,
-      "StartingLevel": 49,
+      "StartingLevel": 14,
       "InitiallyUnlocked": false
     },
     {
@@ -82,7 +82,7 @@
       "PortraitResourcePath": "Art/Members/member-xianyue",
       "ThumbnailResourcePath": "Art/Members/member-xianyue",
       "BasePower": 6860,
-      "StartingLevel": 46,
+      "StartingLevel": 12,
       "InitiallyUnlocked": false
     },
     {
@@ -94,7 +94,7 @@
       "PortraitResourcePath": "Art/Members/member-chuxue",
       "ThumbnailResourcePath": "Art/Members/member-chuxue",
       "BasePower": 6530,
-      "StartingLevel": 43,
+      "StartingLevel": 10,
       "InitiallyUnlocked": false
     },
     {
@@ -106,7 +106,7 @@
       "PortraitResourcePath": "Art/Members/member-chengxia",
       "ThumbnailResourcePath": "Art/Members/member-chengxia",
       "BasePower": 6240,
-      "StartingLevel": 40,
+      "StartingLevel": 8,
       "InitiallyUnlocked": false
     },
     {

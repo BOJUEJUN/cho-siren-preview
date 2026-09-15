@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using ChoSiren.Panels;
+using ChoSiren.Systems.Economy;
 using ChoSiren.Systems.Presentation;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,57 +31,234 @@ namespace ChoSiren
             return rect;
         }
 
+        /// <summary>
+        /// HeaderPolish038: every page keeps its own authored header chrome — the
+        /// lobby board bakes the complete header, the team/members boards bake empty
+        /// band frames, and clean-top pages (accessory/audition/others) receive the
+        /// native v2 plaque/pill/gear artwork. No cropped strip is pasted anymore, so
+        /// nothing rectangular can seam against the page art. Only live values,
+        /// icons, avatars, plus tiles and the gear overlay are positioned here.
+        /// </summary>
+        private sealed class HeaderPolish038Layout
+        {
+            public Rect Profile;
+            public Rect Avatar;      // local to Profile
+            public Rect Name;        // local to Profile
+            public Rect Level;       // local to Profile
+            public Rect Power;       // local to Profile
+            public Rect[] Pills = new Rect[3];
+            public Rect[] Icons = new Rect[3];   // local to pill; baked-icon pages use it as the marker anchor
+            public Rect[] Values = new Rect[3];  // local to pill
+            public Rect[] Tiles = new Rect[3];   // bar coordinates; hit rect equals the visible tile
+            public Rect Settings;
+            public Rect Gear;        // local to Settings
+            public bool NativeChrome;
+            public bool LiveIcons;
+
+            public static HeaderPolish038Layout For(string screen)
+            {
+                switch (screen)
+                {
+                    case "team": return Band(
+                        profile: new Rect(0, 0, 205, 72), avatar: new Rect(-12, -32, 84, 84),
+                        name: new Rect(86, 8, 114, 20), level: new Rect(86, 30, 110, 14),
+                        power: new Rect(86, 46, 114, 16),
+                        pills: new[] { new Rect(216, 14, 132, 56), new Rect(358, 14, 120, 56), new Rect(488, 14, 140, 56) },
+                        icons: new[] { new Rect(16, 13, 30, 30), new Rect(14, 13, 30, 30), new Rect(14, 13, 30, 30) },
+                        values: new[] { new Rect(48, 15, 34, 26), new Rect(46, 15, 34, 26), new Rect(48, 15, 54, 26) },
+                        tiles: new[] { new Rect(300, 24, 36, 36), new Rect(440, 24, 36, 36), new Rect(592, 24, 36, 36) },
+                        settings: new Rect(634, 6, 72, 64), gear: new Rect(13, 17, 48, 50));
+                    case "members": return Band(
+                        profile: new Rect(0, 0, 215, 62), avatar: new Rect(26, -26, 72, 72),
+                        name: new Rect(108, 4, 100, 20), level: new Rect(108, 26, 96, 14),
+                        power: new Rect(108, 42, 100, 16),
+                        pills: new[] { new Rect(222, 0, 128, 46), new Rect(354, 0, 122, 46), new Rect(478, 0, 124, 46) },
+                        icons: new[] { new Rect(10, 8, 28, 28), new Rect(10, 8, 28, 28), new Rect(10, 8, 28, 28) },
+                        values: new[] { new Rect(40, 9, 48, 26), new Rect(40, 9, 44, 26), new Rect(40, 9, 44, 26) },
+                        tiles: new[] { new Rect(312, 5, 36, 36), new Rect(440, 5, 36, 36), new Rect(564, 5, 36, 36) },
+                        settings: new Rect(630, 0, 72, 50), gear: new Rect(22, -8, 48, 50));
+                    case "lobby": return new HeaderPolish038Layout
+                    {
+                        Profile = new Rect(7, 10, 194, 90),
+                        Avatar = new Rect(10, 14, 58, 58),
+                        Name = new Rect(90, 10, 104, 24),
+                        Level = new Rect(90, 36, 100, 15),
+                        Power = new Rect(90, 53, 104, 17),
+                        Pills = new[] { new Rect(209, 20, 137, 53), new Rect(356, 21, 141, 52), new Rect(498, 20, 140, 55) },
+                        Icons = new[] { new Rect(28, 8, 30, 40), new Rect(14, 8, 24, 40), new Rect(4, 10, 24, 40) },
+                        Values = new[] { new Rect(59, 18, 34, 30), new Rect(40, 17, 46, 30), new Rect(30, 18, 54, 30) },
+                        Tiles = new[] { new Rect(304, 36, 36, 36), new Rect(446, 35, 36, 36), new Rect(587, 35, 36, 36) },
+                        Settings = new Rect(640, 7, 67, 80),
+                        Gear = new Rect(-6, 23, 52, 54),
+                        NativeChrome = false,
+                        LiveIcons = false,
+                    };
+                    default: return new HeaderPolish038Layout
+                    {
+                        Profile = new Rect(4, 8, 204, 70),
+                        Avatar = new Rect(18, 15, 40, 40),
+                        Name = new Rect(80, 6, 116, 22),
+                        Level = new Rect(80, 30, 110, 15),
+                        Power = new Rect(80, 46, 114, 17),
+                        Pills = new[] { new Rect(209, 16, 136, 30), new Rect(353, 16, 136, 30), new Rect(497, 16, 136, 30) },
+                        Icons = new[] { new Rect(10, 0, 30, 30), new Rect(10, 0, 30, 30), new Rect(10, 0, 30, 30) },
+                        Values = new[] { new Rect(44, 2, 50, 26), new Rect(44, 2, 50, 26), new Rect(44, 2, 50, 26) },
+                        Tiles = new[] { new Rect(305, 13, 36, 36), new Rect(449, 13, 36, 36), new Rect(593, 13, 36, 36) },
+                        Settings = new Rect(642, 6, 66, 64),
+                        Gear = new Rect(2, 2, 52, 54),
+                        NativeChrome = true,
+                        LiveIcons = false,
+                    };
+                }
+            }
+
+            private static HeaderPolish038Layout Band(Rect profile, Rect avatar, Rect name,
+                Rect level, Rect power, Rect[] pills, Rect[] icons, Rect[] values, Rect[] tiles,
+                Rect settings, Rect gear)
+            {
+                return new HeaderPolish038Layout
+                {
+                    Profile = profile, Avatar = avatar, Name = name, Level = level, Power = power,
+                    Pills = pills, Icons = icons, Values = values, Tiles = tiles,
+                    Settings = settings, Gear = gear,
+                    NativeChrome = false,
+                    LiveIcons = true,
+                };
+            }
+        }
+
         private void ConfigureReferenceHeader038(bool active)
         {
             Transform bar = safeRoot.Find("TopBar");
             if (bar == null) return;
+            HeaderPolish038Layout layout = HeaderPolish038Layout.For(currentScreen);
+
+            // The pasted 100px lobby strip is gone for good; delete any stale node.
+            Transform strip = bar.Find("ReferenceHeader038");
+            if (strip != null)
+            {
+                strip.gameObject.SetActive(false);
+                Destroy(strip.gameObject);
+            }
             foreach (Transform node in bar.GetComponentsInChildren<Transform>(true))
             {
-                if (node.name.EndsWith("VisualV2") || node.name == "AvatarMask" ||
-                    node.name == "ReferenceHudIcon" || node.name == "ReferencePlus")
+                if (node.name == "ReferenceHudIcon" || node.name == "ReferencePlus")
                     node.gameObject.SetActive(false);
             }
-            // Reuse the approved header strip as an authored UI panel. Its icon/frame
-            // pixels and spacing are identical on every page; only values are live.
-            Transform visual = bar.Find("ReferenceHeader038");
-            if (visual == null)
-            {
-                Sprite source = ReferenceArt038.Load("Art/Reference038/lobby-board-038");
-                if (source != null)
-                {
-                    Rect sourceRect = source.rect;
-                    float height = sourceRect.width * 100f / 720f;
-                    Sprite strip = Sprite.Create(source.texture,
-                        new Rect(sourceRect.x, sourceRect.yMax - height, sourceRect.width, height),
-                        new Vector2(.5f, .5f), source.pixelsPerUnit, 0, SpriteMeshType.FullRect);
-                    strip.name = "ReferenceHeaderStrip038";
-                    strip.hideFlags = HideFlags.DontSave;
-                    GameObject image = NewImage("ReferenceHeader038", bar, strip, White);
-                    PlaceTop(image.GetComponent<RectTransform>(), 0, 5.8f, 720, 100);
-                    image.GetComponent<Image>().preserveAspect = true;
-                    image.GetComponent<Image>().raycastTarget = false;
-                    image.AddComponent<UiBottomEdgeFade038>();
-                    image.transform.SetAsFirstSibling();
-                    visual = image.transform;
-                }
-            }
-            if (visual != null) visual.gameObject.SetActive(currentScreen != "lobby");
-            Text name = bar.Find("Profile/PlayerName")?.GetComponent<Text>();
-            if (name != null) { PlaceTop(name.rectTransform, 87, 10, 103, 26); name.fontSize = 17; name.fontStyle = FontStyle.Normal; }
-            PlaceTop(teamLevelText.rectTransform, 87, 53, 104, 23);
+
+            // Clip header chrome to the bar so band-page art clipped at the screen top
+            // (avatar ring, gear tips, tiles) never bleeds above the safe area.
+            if (bar.GetComponent<RectMask2D>() == null) bar.gameObject.AddComponent<RectMask2D>();
+
             Transform profile = bar.Find("Profile");
-            if (profile.Find("TeamAverageLevel") == null)
-                BoardText038(profile, "TeamAverageLevel", "队伍等级 " + TeamAverageLevel, 11, Muted, 87, 35, 105, 18);
-            // Numbers sit after the original small icons, with a clear independent + zone.
-            PlaceTop(diamondText.rectTransform, 60, 17, 41, 30);
-            PlaceTop(goldText.rectTransform, 46, 16, 59, 30);
-            PlaceTop(staminaText.rectTransform, 42, 17, 65, 30);
-            foreach (Text value in new[] { diamondText, goldText, staminaText })
+            if (profile == null) return;
+            PlaceTop((RectTransform)profile, layout.Profile.x, layout.Profile.y,
+                layout.Profile.width, layout.Profile.height);
+            if (profile.GetComponent<RectMask2D>() == null) profile.gameObject.AddComponent<RectMask2D>();
+            Transform profileVisual = profile.Find("ProfileVisualV2");
+            if (profileVisual != null)
             {
+                profileVisual.gameObject.SetActive(layout.NativeChrome);
+                if (layout.NativeChrome) Stretch((RectTransform)profileVisual);
+            }
+            Transform avatarMask = profile.Find("AvatarMask");
+            if (avatarMask != null)
+            {
+                avatarMask.gameObject.SetActive(true);
+                PlaceTop((RectTransform)avatarMask, layout.Avatar.x, layout.Avatar.y,
+                    layout.Avatar.width, layout.Avatar.height);
+            }
+            Text name = profile.Find("PlayerName")?.GetComponent<Text>();
+            if (name != null)
+            {
+                PlaceTop(name.rectTransform, layout.Name.x, layout.Name.y,
+                    layout.Name.width, layout.Name.height);
+                name.alignment = TextAnchor.MiddleLeft;
+                name.fontSize = 17;
+                name.fontStyle = FontStyle.Bold;
+                name.horizontalOverflow = HorizontalWrapMode.Overflow;
+            }
+            Text level = profile.Find("TeamAverageLevel")?.GetComponent<Text>();
+            if (level == null)
+                level = BoardText038(profile, "TeamAverageLevel", "LV." + TeamAverageLevel,
+                    11, Muted, layout.Level.x, layout.Level.y, layout.Level.width, layout.Level.height);
+            PlaceTop(level.rectTransform, layout.Level.x, layout.Level.y,
+                layout.Level.width, layout.Level.height);
+            level.alignment = TextAnchor.MiddleLeft;
+            level.fontSize = 11;
+            level.horizontalOverflow = HorizontalWrapMode.Overflow;
+            PlaceTop(teamLevelText.rectTransform, layout.Power.x, layout.Power.y,
+                layout.Power.width, layout.Power.height);
+            teamLevelText.alignment = TextAnchor.MiddleLeft;
+            teamLevelText.fontSize = 13;
+            teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+
+            string[] currencies = { CurrencyIds.Diamond, CurrencyIds.Gold, CurrencyIds.Stamina };
+            string[] iconNames = { "DiamondIcon", "GoldIcon", "StaminaIcon" };
+            string[] iconPaths = { "Art/UI/ResourceDiamond-C", "Art/UI/ResourceGold-C", "Art/UI/ResourceStamina-C" };
+            Text[] values = { diamondText, goldText, staminaText };
+            for (int i = 0; i < currencies.Length; i++)
+            {
+                Transform pill = bar.Find("Currency-" + currencies[i]);
+                if (pill == null) continue;
+                Rect pillRect = layout.Pills[i];
+                PlaceTop((RectTransform)pill, pillRect.x, pillRect.y, pillRect.width, pillRect.height);
+                Transform visual = pill.Find(currencies[i] == CurrencyIds.Diamond ? "DiamondVisualV2" :
+                    currencies[i] == CurrencyIds.Gold ? "GoldVisualV2" : "StaminaVisualV2");
+                if (visual != null)
+                {
+                    visual.gameObject.SetActive(layout.NativeChrome);
+                    if (layout.NativeChrome) Stretch((RectTransform)visual);
+                }
+
+                Rect iconRect = layout.Icons[i];
+                Transform icon = pill.Find(iconNames[i]);
+                if (icon == null) icon = NewObject(iconNames[i], pill).transform;
+                icon.gameObject.SetActive(true);
+                Image iconImage = icon.GetComponent<Image>();
+                if (layout.LiveIcons)
+                {
+                    if (iconImage == null)
+                    {
+                        iconImage = icon.gameObject.AddComponent<Image>();
+                        iconImage.sprite = Resources.Load<Sprite>(iconPaths[i]);
+                        iconImage.preserveAspect = true;
+                        iconImage.useSpriteMesh = true;
+                        iconImage.raycastTarget = false;
+                    }
+                    iconImage.enabled = true;
+                }
+                else if (iconImage != null) iconImage.enabled = false;
+                RectTransform iconTransform = icon as RectTransform ??
+                    icon.gameObject.AddComponent<RectTransform>();
+                PlaceTop(iconTransform, iconRect.x, iconRect.y, iconRect.width, iconRect.height);
+
+                Rect valueRect = layout.Values[i];
+                Text value = values[i];
+                PlaceTop(value.rectTransform, valueRect.x, valueRect.y, valueRect.width, valueRect.height);
+                value.alignment = TextAnchor.MiddleCenter;
                 value.horizontalOverflow = HorizontalWrapMode.Overflow;
                 value.resizeTextForBestFit = true;
                 value.resizeTextMinSize = 10;
+
+                Rect tileRect = layout.Tiles[i];
+                Transform plus = bar.Find("CurrencyPlus-" + currencies[i]);
+                if (plus != null)
+                    PlaceTop((RectTransform)plus, tileRect.x, tileRect.y, tileRect.width, tileRect.height);
             }
+
+            Transform settings = bar.Find("Settings");
+            if (settings == null) return;
+            PlaceTop((RectTransform)settings, layout.Settings.x, layout.Settings.y,
+                layout.Settings.width, layout.Settings.height);
+            Transform gear = settings.Find("SettingsVisualV2");
+            if (gear != null)
+            {
+                gear.gameObject.SetActive(true);
+                PlaceTop((RectTransform)gear, layout.Gear.x, layout.Gear.y,
+                    layout.Gear.width, layout.Gear.height);
+            }
+
             foreach (Text label in bar.GetComponentsInChildren<Text>(true)) label.enabled = true;
             foreach (LobbyHotspotFeedback feedback in bar.GetComponentsInChildren<LobbyHotspotFeedback>(true)) feedback.enabled = true;
             UpdateTopBar();
@@ -116,6 +294,76 @@ namespace ChoSiren
             button.onClick.AddListener(() => { action?.Invoke(); ResumeMediaAfterUserGesture(); });
             AttachLobbyHotspotFeedback(obj, LobbyHotspotFeedback.VisualKind.Entry);
             return obj;
+        }
+
+        // ------------------------------------------------------------------
+        // MainBakedMotion038 — binding layer that hands baked-board controls to the
+        // core BakedRegionMotion038 whole-body feedback. Hit RectTransforms never
+        // move; the overlay slice is pixel-identical at rest and scales on hover.
+
+        /// <summary>Attach whole-body feedback for a control whose art sits at a known
+        /// board-pixel region. extras are page-level nodes that must move with it.
+        /// The overlay group is then moved to the bottom of the button's own stack so
+        /// live children (labels, portraits, chips) stay visible above the opaque
+        /// slice — the component animates children in place, so Find paths, sibling
+        /// order among the children, and dynamic labels are all preserved.</summary>
+        private void MainBakedMotion038Attach(GameObject button, Image board,
+            Rect regionInBoardPixels, params Transform[] extras)
+        {
+            if (button == null || board == null) return;
+            if (BakedRegionMotion038.Attach(button, board, regionInBoardPixels, extras) == null)
+                return;
+            Transform body = button.transform.Find(BakedRegionMotion038.BodyName);
+            if (body != null) body.SetAsFirstSibling();
+        }
+
+        /// <summary>Attach using the button's current footprint on the displayed board —
+        /// required for the lobby, where hotspots are laid out in 720x1290 design space
+        /// while the board PNG is 862x1825. The derived region is the exact board art
+        /// under the control, whatever the aspect/letterbox mapping is.</summary>
+        private void MainBakedMotion038AttachFootprint(GameObject button, Image board,
+            float inflateBoardPixels, params Transform[] extras)
+        {
+            Rect? region = MainBakedMotion038Footprint(button, board, inflateBoardPixels);
+            if (region.HasValue)
+                MainBakedMotion038Attach(button, board, region.Value, extras);
+        }
+
+        private Rect? MainBakedMotion038Footprint(GameObject button, Image board, float inflate)
+        {
+            if (button == null || board == null || board.sprite == null) return null;
+            RectTransform host = button.transform as RectTransform;
+            if (host == null) return null;
+            RectTransform boardRect = board.rectTransform;
+            Sprite sprite = board.sprite;
+            Rect boardLocal = boardRect.rect;
+            float fit = Mathf.Min(boardLocal.width / sprite.rect.width,
+                boardLocal.height / sprite.rect.height);
+            if (fit <= 0f) return null;
+            Vector2 boardCentre = new Vector2(boardLocal.width * (.5f - boardRect.pivot.x),
+                boardLocal.height * (.5f - boardRect.pivot.y));
+            Vector3[] corners = new Vector3[4];
+            host.GetWorldCorners(corners);
+            float minX = float.MaxValue, minY = float.MaxValue;
+            float maxX = float.MinValue, maxY = float.MinValue;
+            for (int i = 0; i < 4; i++)
+            {
+                Vector3 local = boardRect.InverseTransformPoint(corners[i]);
+                float px = (local.x - boardCentre.x) / fit + sprite.rect.width * .5f;
+                float py = sprite.rect.height * .5f - (local.y - boardCentre.y) / fit;
+                minX = Mathf.Min(minX, px); maxX = Mathf.Max(maxX, px);
+                minY = Mathf.Min(minY, py); maxY = Mathf.Max(maxY, py);
+            }
+            return Rect.MinMaxRect(
+                Mathf.Max(0f, minX - inflate), Mathf.Max(0f, minY - inflate),
+                Mathf.Min(sprite.rect.width, maxX + inflate),
+                Mathf.Min(sprite.rect.height, maxY + inflate));
+        }
+
+        private static Rect MainBakedMotion038Inflate(Rect rect, float boardPixels)
+        {
+            return new Rect(rect.x - boardPixels, rect.y - boardPixels,
+                rect.width + boardPixels * 2f, rect.height + boardPixels * 2f);
         }
 
         private void BuildTeamBoard038()

@@ -30,8 +30,10 @@ namespace ChoSiren.Panels
         private readonly List<Image> rings = new List<Image>(3);
         private Text actionText;
         private Text quoteText;
+        private GameObject startObject;
         private Text startLabel;
         private Button startButton;
+        private GameObject motionObject;
         private Text reduceMotionLabel;
         private GameObject resultGroup;
         private Text resultHeadline;
@@ -103,15 +105,17 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(veil.rectTransform);
             veil.raycastTarget = false;
 
-            kit.NewHeader(transform, "训练室", "紧凑练习", Close, "PracticeBack");
+            SecondaryTasks038Chrome.Header(kit, transform, "训练室", "紧凑练习", "PracticeBack", Close);
         }
 
         private void BuildCard()
         {
             MemberDefinition member = GameModel.Members[memberIndex];
-            GameObject card = kit.NewPanel("PracticeCard", transform, new Color32(14, 18, 48, 246), 26);
+            GameObject card = SecondaryTasks038Chrome.Plate(kit, transform, "PracticeCard",
+                new Color32(13, 10, 38, 246), new Color32(122, 160, 224, 90));
             PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 30, 130, 660, 1020);
-            kit.AddOutline(card, new Color32(122, 160, 224, 90), 1f);
+            ReferencePunkFx.CornerCuts(card.GetComponent<RectTransform>(),
+                new Color32(104, 224, 255, 140), 30f, 3f, 5f);
 
             // Portrait slot reuses the existing live portrait; the glow is the same radial
             // sprite family used by the audition/gacha stage so no new art is required.
@@ -119,10 +123,10 @@ namespace ChoSiren.Panels
                 new Color32(96, 150, 255, 70));
             PanelKit.PlaceTop(portraitGlow.rectTransform, 6, 10, 300, 360);
 
-            GameObject portraitFrame = kit.NewPanel("PracticePortraitFrame", card.transform,
-                new Color32(10, 14, 42, 220), 20);
+            GameObject portraitFrame = SecondaryTasks038Chrome.Plate(kit, card.transform,
+                "PracticePortraitFrame", new Color32(10, 14, 42, 220), new Color32(120, 220, 255, 120));
             PanelKit.PlaceTop(portraitFrame.GetComponent<RectTransform>(), 28, 24, 264, 340);
-            // 胸部以上取景：圆角框遮罩 + 按成员取景表定位。
+            // 胸部以上取景：斜切框遮罩 + 按成员取景表定位。
             portraitFrame.AddComponent<Mask>().showMaskGraphic = true;
             Image portrait = kit.NewImage("PracticePortrait", portraitFrame.transform,
                 Resources.Load<Sprite>(member.ResourcePath), Color.white);
@@ -155,23 +159,22 @@ namespace ChoSiren.Panels
             quoteText = kit.NewPlacedText(card.transform, string.Empty, 16, PanelKit.Gold,
                 312, 208, 320, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
             quoteText.name = "PracticeQuoteGold";
+            PanelKit.EnableBestFit(quoteText, 11);
             Text noDiamond = kit.NewPlacedText(card.transform, "不消耗星钻 · 升级只扣星光币", 14,
                 new Color32(120, 255, 170, 255), 312, 240, 320, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             noDiamond.name = "PracticeNoDiamond";
 
-            GameObject start = kit.NewButton("StartPractice", card.transform, "开始练习", 20,
-                new Color32(201, 92, 148, 255), PanelKit.White, StartPractice, 20);
-            PanelKit.PlaceTop(start.GetComponent<RectTransform>(), 312, 282, 320, 76);
-            startButton = start.GetComponent<Button>();
-            startLabel = start.transform.Find("Label") != null
-                ? start.transform.Find("Label").GetComponent<Text>() : null;
+            startObject = SecondaryTasks038Chrome.Button(card.transform, "StartPractice", "开始练习", 20,
+                StartPractice, ModalPolish038ButtonStyle.Primary);
+            PanelKit.PlaceTop(startObject.GetComponent<RectTransform>(), 312, 282, 320, 76);
+            startButton = startObject.GetComponent<Button>();
+            startLabel = SecondaryTasks038Chrome.LabelOf(startObject);
             if (startLabel != null) startLabel.name = "StartPracticeLabel";
 
-            GameObject motion = kit.NewButton("PracticeReduceMotion", card.transform, string.Empty, 15,
-                new Color32(38, 46, 82, 245), PanelKit.White, ToggleReduceMotion, 16);
-            PanelKit.PlaceTop(motion.GetComponent<RectTransform>(), 312, 374, 320, 52);
-            reduceMotionLabel = motion.transform.Find("Label") != null
-                ? motion.transform.Find("Label").GetComponent<Text>() : null;
+            motionObject = SecondaryTasks038Chrome.Button(card.transform, "PracticeReduceMotion",
+                string.Empty, 15, ToggleReduceMotion, ModalPolish038ButtonStyle.Secondary);
+            PanelKit.PlaceTop(motionObject.GetComponent<RectTransform>(), 312, 374, 320, 52);
+            reduceMotionLabel = SecondaryTasks038Chrome.LabelOf(motionObject);
             if (reduceMotionLabel != null) reduceMotionLabel.name = "PracticeReduceMotionLabel";
             RefreshReduceMotionLabel();
 
@@ -180,18 +183,26 @@ namespace ChoSiren.Panels
                 "练习只提升当前成员，消耗沿用现有星光币公式；升级不消耗星钻。\n完整训练室 Q 版歌舞为后续扩展，本轮先交付可玩的轻量练习反馈。",
                 13, PanelKit.Muted, 28, 900, 604, 70, TextAnchor.UpperLeft);
 
-            GameObject done = kit.NewButton("PracticeDone", transform, "完成 · 返回档案", 18,
-                new Color32(70, 46, 118, 245), PanelKit.White, Close, 20);
+            GameObject done = SecondaryTasks038Chrome.Button(transform, "PracticeDone", "完成 · 返回档案",
+                18, Close, ModalPolish038ButtonStyle.Secondary);
             PanelKit.PlaceTop(done.GetComponent<RectTransform>(), 30, 1168, 660, 62);
         }
 
         private void BuildResultGroup(Transform parent)
         {
-            resultGroup = kit.NewPanel("PracticeResult", parent, new Color32(10, 14, 40, 236), 20);
+            resultGroup = SecondaryTasks038Chrome.Plate(kit, parent, "PracticeResult",
+                new Color32(10, 14, 40, 236), new Color32(120, 220, 255, 110));
             PanelKit.PlaceTop(resultGroup.GetComponent<RectTransform>(), 28, 452, 604, 430);
-            kit.AddOutline(resultGroup, new Color32(120, 220, 255, 110), 1f);
+            ReferencePunkFx.CornerCuts(resultGroup.GetComponent<RectTransform>(),
+                new Color32(120, 220, 255, 150), 22f, 2.4f, 4f);
             kit.NewPlacedText(resultGroup.transform, "练习结果 · 前后对比", 15, PanelKit.White,
                 18, 12, 568, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Image resultGlyph = kit.NewImage("ResultGlyph", resultGroup.transform,
+                ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Gem),
+                new Color32(120, 220, 255, 220));
+            PanelKit.PlaceTop(resultGlyph.rectTransform, 560, 14, 22, 22);
+            resultGlyph.preserveAspect = true;
+            resultGlyph.raycastTarget = false;
             resultHeadline = kit.NewPlacedText(resultGroup.transform, string.Empty, 19, PanelKit.Cyan,
                 18, 44, 568, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
             resultHeadline.name = "PracticeResultHeadline";
@@ -228,10 +239,12 @@ namespace ChoSiren.Panels
                 ? $"本次消耗 星光币 {quoteGold:N0} · 持有 {model.Save.Gold:N0}"
                 : reason;
             quoteText.color = canTrain ? PanelKit.Gold : PanelKit.Pink;
-            if (startButton != null) startButton.interactable = canTrain;
-            if (startLabel != null)
-                startLabel.text = canTrain ? (lastOutcome == null ? "开始练习" : "再练一次")
-                    : model.LevelOf(memberIndex) >= GameModel.MaxMemberLevel ? "已满级" : "星光币不足";
+            string startText = canTrain ? (lastOutcome == null ? "开始练习" : "再练一次")
+                : model.LevelOf(memberIndex) >= GameModel.MaxMemberLevel ? "已满级" : "星光币不足";
+            SecondaryTasks038Chrome.SetState(startObject, canTrain,
+                canTrain ? ModalPolish038Chrome.AccentPink : SecondaryTasks038Chrome.EdgeDisabled,
+                canTrain ? new Color32(44, 17, 56, 250) : SecondaryTasks038Chrome.InsetDisabled,
+                PanelKit.White, startText);
             if (plan.DiamondCost != 0)
                 quoteText.text += " · 异常：出现星钻消耗";
         }
@@ -242,6 +255,10 @@ namespace ChoSiren.Panels
                 reduceMotionLabel.text = reduceMotion
                     ? $"减弱动画：开 · {MemberTrainingPractice.ReducedDurationSeconds:0.##} 秒"
                     : $"减弱动画：关 · {MemberTrainingPractice.StandardDurationSeconds:0.##} 秒";
+            SecondaryTasks038Chrome.SetState(motionObject, true,
+                reduceMotion ? SecondaryTasks038Chrome.EdgeCyan : SecondaryTasks038Chrome.EdgeViolet,
+                reduceMotion ? SecondaryTasks038Chrome.InsetCyan : SecondaryTasks038Chrome.InsetViolet,
+                PanelKit.White);
         }
 
         public void ToggleReduceMotion()

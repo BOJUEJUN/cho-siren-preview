@@ -64,11 +64,15 @@ namespace ChoSiren
         }
     }
 
-    // The passive frame is a six-sided outline. A filled heart serves only as a
-    // dark inner face behind the affection number; the outer gem is existing RGBA art.
+    // The passive frame is a six-sided outline. SolidHeart draws a filled heart as the
+    // dark face behind the affection number; HeartRing draws the heart outline around it;
+    // SolidHex fills the same six-sided emblem; Slant>0 draws a slanted chip quad.
     public sealed class ProfileEmblemFrame038 : MaskableGraphic
     {
         public bool SolidHeart;
+        public bool HeartRing;
+        public bool SolidHex;
+        public float Slant;
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear();
@@ -80,12 +84,47 @@ namespace ChoSiren
                 for (int i = 0; i < count; i++)
                 {
                     float t = i * Mathf.PI * 2f / count;
-                    float x = 16f * Mathf.Pow(Mathf.Sin(t), 3);
-                    float y = 13f*Mathf.Cos(t) - 5f*Mathf.Cos(2*t) - 2f*Mathf.Cos(3*t) - Mathf.Cos(4*t);
-                    mesh.AddVert(new Vector2(rect.center.x + x / 34f * rect.width,
-                        rect.yMin + (y + 17f) / 31f * rect.height), color, Vector2.zero);
+                    mesh.AddVert(HeartPoint(rect, t, 1f), color, Vector2.zero);
                 }
                 for (int i = 0; i < count; i++) mesh.AddTriangle(0,i+1,(i+1)%count+1);
+                return;
+            }
+            if (HeartRing)
+            {
+                const int count = 48;
+                const float inner = .80f;
+                for (int i = 0; i < count; i++)
+                {
+                    float t = i * Mathf.PI * 2f / count;
+                    mesh.AddVert(HeartPoint(rect, t, 1f), color, Vector2.zero);
+                    mesh.AddVert(HeartPoint(rect, t, inner), color, Vector2.zero);
+                }
+                for (int i = 0; i < count; i++)
+                {
+                    int a = i * 2, b = ((i + 1) % count) * 2;
+                    mesh.AddTriangle(a,a+1,b+1); mesh.AddTriangle(a,b+1,b);
+                }
+                return;
+            }
+            if (SolidHex)
+            {
+                mesh.AddVert(rect.center, color, Vector2.zero);
+                for (int i = 0; i < 6; i++)
+                {
+                    float angle = (30 + i * 60) * Mathf.Deg2Rad;
+                    Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    mesh.AddVert(rect.center + Vector2.Scale(direction, rect.size) * .47f, color, Vector2.zero);
+                }
+                for (int i = 0; i < 6; i++) mesh.AddTriangle(0,i+1,(i+1)%6+1);
+                return;
+            }
+            if (Slant > 0f)
+            {
+                mesh.AddVert(new Vector2(rect.xMin - Slant, rect.yMin), color, Vector2.zero);
+                mesh.AddVert(new Vector2(rect.xMin + Slant, rect.yMax), color, Vector2.zero);
+                mesh.AddVert(new Vector2(rect.xMax + Slant, rect.yMax), color, Vector2.zero);
+                mesh.AddVert(new Vector2(rect.xMax - Slant, rect.yMin), color, Vector2.zero);
+                mesh.AddTriangle(0,1,2); mesh.AddTriangle(0,2,3);
                 return;
             }
             for (int i = 0; i < 6; i++)
@@ -100,6 +139,14 @@ namespace ChoSiren
                 int a = i * 2, b = ((i+1)%6)*2;
                 mesh.AddTriangle(a,b,b+1); mesh.AddTriangle(a,b+1,a+1);
             }
+        }
+
+        private static Vector2 HeartPoint(Rect rect, float t, float scale)
+        {
+            float x = 16f * Mathf.Pow(Mathf.Sin(t), 3);
+            float y = 13f*Mathf.Cos(t) - 5f*Mathf.Cos(2*t) - 2f*Mathf.Cos(3*t) - Mathf.Cos(4*t);
+            Vector2 point = new Vector2(x / 34f * rect.width, (y + 17f) / 31f * rect.height - rect.height * .5f);
+            return rect.center + point * scale;
         }
     }
 }

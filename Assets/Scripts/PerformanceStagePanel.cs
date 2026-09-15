@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ChoSiren.Panels;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace ChoSiren
@@ -27,11 +27,8 @@ namespace ChoSiren
 
         private static readonly Color White = new Color32(249, 247, 255, 255);
         private static readonly Color Muted = new Color32(202, 194, 229, 255);
-        private static readonly Color Pink = new Color32(255, 82, 194, 255);
         private static readonly Color Cyan = new Color32(80, 220, 255, 255);
-        private static readonly Color Purple = new Color32(145, 83, 223, 255);
 
-        private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
         private readonly List<UnityEngine.Object> generatedAssets = new List<UnityEngine.Object>();
 
         private GameModel model;
@@ -153,10 +150,13 @@ namespace ChoSiren
         {
             Image header = NewImage("PerformanceHeader", transform, null, new Color32(5, 10, 40, 232));
             PlaceTop(header.rectTransform, 0, 0, 720, 112);
+            ReferencePunkFx.Beam(header.transform, "HeaderBeam", new Vector2(0f, 111f),
+                new Vector2(720f, 111f), 1.4f, SecondaryStory038Chrome.CutViolet);
 
-            GameObject back = NewButton("Back", header.transform, "返回", 17,
-                new Color32(71, 47, 119, 240), White, AbortPerformance, 18);
-            PlaceTop(back.GetComponent<RectTransform>(), 18, 27, 88, 56);
+            SecondaryStory038Action back = SecondaryStory038Chrome.GlassAction(header.transform,
+                "Back", "返回", 17, SecondaryStory038Chrome.SocketUtility,
+                SecondaryStory038Chrome.EdgeViolet, AbortPerformance, mirror: true);
+            PlaceTop(back.Root.GetComponent<RectTransform>(), 18, 27, 88, 56);
 
             NewPlacedText(header.transform, "现场演出", 13, new Color32(255, 174, 226, 255),
                 128, 18, 190, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -168,8 +168,9 @@ namespace ChoSiren
             comboText = NewPlacedText(header.transform, "连击 0", 14, new Color32(255, 174, 226, 255),
                 350, 57, 190, 25, TextAnchor.MiddleRight, FontStyle.Bold);
 
-            GameObject stamina = NewPanel("Stamina", header.transform, new Color32(44, 30, 91, 240), 18);
-            PlaceTop(stamina.GetComponent<RectTransform>(), 558, 28, 144, 54);
+            Image stamina = SecondaryStory038Chrome.Plate(header.transform, "Stamina",
+                new Color32(44, 30, 91, 240), false, 14f, SecondaryStory038Chrome.CutCyan,
+                558, 28, 144, 54);
             NewPlacedText(stamina.transform, $"体力 {model.Save.Stamina}/{GameModel.MaxStamina}", 15, White,
                 8, 7, 128, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
@@ -190,8 +191,9 @@ namespace ChoSiren
             hero.useSpriteMesh = true;
             heroBaseY = heroRect.anchoredPosition.y;
 
-            GameObject banner = NewPanel("RoundBanner", transform, new Color32(18, 18, 62, 178), 22);
-            PlaceTop(banner.GetComponent<RectTransform>(), 116, 704, 488, 72);
+            Image banner = SecondaryStory038Chrome.Plate(transform, "RoundBanner",
+                new Color32(18, 18, 62, 178), false, 20f, SecondaryStory038Chrome.CutPink,
+                116, 704, 488, 72);
             noteText = NewPlacedText(banner.transform, "节拍 1 / 6", 15, new Color32(255, 179, 229, 255),
                 16, 8, 160, 25, TextAnchor.MiddleLeft, FontStyle.Bold);
             judgementText = NewPlacedText(banner.transform, "准备应援", 25, White,
@@ -200,25 +202,29 @@ namespace ChoSiren
 
         private void BuildTimingTrack()
         {
-            GameObject trackPanel = NewPanel("TimingPanel", transform, new Color32(12, 14, 54, 184), 26);
-            PlaceTop(trackPanel.GetComponent<RectTransform>(), 38, 796, 644, 236);
+            Image trackPanel = SecondaryStory038Chrome.Plate(transform, "TimingPanel",
+                new Color32(12, 14, 54, 184), false, 24f, SecondaryStory038Chrome.CutCyan,
+                38, 796, 644, 236);
 
             NewPlacedText(trackPanel.transform, "节拍到达中心高亮区时点击", 15, Muted,
                 22, 16, 600, 28, TextAnchor.MiddleCenter);
 
-            Image track = NewImage("TimingTrack", transform, RoundedSprite(14), new Color32(65, 54, 122, 245));
+            Image track = NewImage("TimingTrack", transform, ReferencePunkFx.SlashPanel(false),
+                new Color32(65, 54, 122, 245));
             PlaceTop(track.rectTransform, TrackLeft, 877, TrackWidth, 34);
             track.type = Image.Type.Sliced;
 
-            targetGlow = NewImage("PerfectZoneGlow", transform, RoundedSprite(16), new Color32(255, 91, 209, 115));
+            targetGlow = NewImage("PerfectZoneGlow", transform, ReferencePunkFx.SlashPanel(true),
+                new Color32(255, 91, 209, 115));
             PlaceTop(targetGlow.rectTransform, 316, 858, 88, 72);
             targetGlow.type = Image.Type.Sliced;
 
-            Image perfectZone = NewImage("PerfectZone", transform, RoundedSprite(10), new Color32(255, 196, 237, 245));
+            Image perfectZone = NewImage("PerfectZone", transform, ReferencePunkFx.SlashPanel(false),
+                new Color32(255, 196, 237, 245));
             PlaceTop(perfectZone.rectTransform, 338, 870, 44, 48);
             perfectZone.type = Image.Type.Sliced;
 
-            Image marker = NewImage("BeatMarker", transform, RoundedSprite(14), Cyan);
+            Image marker = NewImage("BeatMarker", transform, ReferencePunkFx.SlashPanel(true), Cyan);
             markerRect = marker.rectTransform;
             PlaceTop(markerRect, TrackLeft - 13, 861, 26, 66);
             marker.type = Image.Type.Sliced;
@@ -226,17 +232,17 @@ namespace ChoSiren
             hintText = NewPlacedText(trackPanel.transform, "等待节拍…", 14, new Color32(128, 221, 255, 255),
                 22, 132, 600, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
 
-            GameObject tap = NewButton("PerformanceTap", transform, "♫  点击应援  ♫", 30,
-                new Color32(231, 45, 174, 252), White, TapBeat, 32);
-            PlaceTop(tap.GetComponent<RectTransform>(), 94, 1058, 532, 142);
-            tapButton = tap.GetComponent<Button>();
-            tapButtonImage = tap.GetComponent<Image>();
-            Outline outline = tap.AddComponent<Outline>();
-            outline.effectColor = new Color32(255, 176, 232, 135);
-            outline.effectDistance = new Vector2(0, 5);
+            SecondaryStory038Action tap = SecondaryStory038Chrome.GlassAction(transform,
+                "PerformanceTap", "♫  点击应援  ♫", 30, SecondaryStory038Chrome.SocketStage,
+                SecondaryStory038Chrome.EdgeStage, TapBeat, playClick: false);
+            PlaceTop(tap.Root.GetComponent<RectTransform>(), 94, 1058, 532, 142);
+            tap.Face.color = SecondaryStory038Chrome.FaceStage;
+            tapButton = tap.Button;
+            tapButtonImage = tap.Edge;
 
-            GameObject stats = NewPanel("StageStats", transform, new Color32(18, 20, 62, 176), 24);
-            PlaceTop(stats.GetComponent<RectTransform>(), 46, 1234, 628, 104);
+            Image stats = SecondaryStory038Chrome.Plate(transform, "StageStats",
+                new Color32(18, 20, 62, 176), false, 20f, SecondaryStory038Chrome.CutPink,
+                46, 1234, 628, 104);
             NewPlacedText(stats.transform, "完美", 13, new Color32(255, 165, 225, 255),
                 18, 16, 160, 22, TextAnchor.MiddleCenter, FontStyle.Bold);
             NewPlacedText(stats.transform, "优秀", 13, Cyan,
@@ -253,39 +259,40 @@ namespace ChoSiren
 
         private void BuildResult()
         {
-            Image overlay = NewImage("PerformanceResult", transform, null, new Color32(3, 4, 23, 232));
-            Stretch(overlay.rectTransform);
-            overlay.raycastTarget = true;
-            resultOverlay = overlay.gameObject;
+            ModalPolish038Frame frame = ModalPolish038Chrome.Begin(transform, "PerformanceResult",
+                "演出完成", "现场演出 · 结算", null, 610f);
+            resultOverlay = frame.Overlay;
 
-            GameObject panel = NewPanel("ResultCard", overlay.transform, new Color32(39, 27, 91, 252), 30);
-            RectTransform panelRect = panel.GetComponent<RectTransform>();
-            panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.pivot = Vector2.one * 0.5f;
-            panelRect.sizeDelta = new Vector2(610, 720);
+            GameObject card = new GameObject("ResultCard", typeof(RectTransform));
+            card.transform.SetParent(frame.Body, false);
+            Stretch(card.GetComponent<RectTransform>());
 
-            NewPlacedText(panel.transform, "演出完成", 14, new Color32(255, 174, 226, 255),
-                45, 38, 520, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
-            resultGradeText = NewPlacedText(panel.transform, "卓越", 70, White,
-                45, 82, 520, 150, TextAnchor.MiddleCenter, FontStyle.Bold);
+            resultGradeText = NewPlacedText(card.transform, "卓越", 56, White,
+                40, 8, 402, 80, TextAnchor.MiddleCenter, FontStyle.Bold);
             resultGradeText.horizontalOverflow = HorizontalWrapMode.Overflow;
             resultGradeText.verticalOverflow = VerticalWrapMode.Overflow;
             Outline gradeOutline = resultGradeText.gameObject.AddComponent<Outline>();
             gradeOutline.effectColor = new Color32(255, 74, 196, 150);
             gradeOutline.effectDistance = new Vector2(0, 4);
-            NewPlacedText(panel.transform, "演出评级", 17, Muted,
-                45, 230, 520, 32, TextAnchor.MiddleCenter);
-            resultStatsText = NewPlacedText(panel.transform, string.Empty, 20, White,
-                55, 292, 500, 112, TextAnchor.UpperCenter, FontStyle.Bold);
+            NewPlacedText(card.transform, "演出评级", 15, Muted,
+                40, 90, 402, 24, TextAnchor.MiddleCenter);
+            ModalPolish038Chrome.Divider(card.transform, "GradeBeam", 40, 126, 402);
+            resultStatsText = NewPlacedText(card.transform, string.Empty, 19, White,
+                30, 140, 422, 104, TextAnchor.UpperCenter, FontStyle.Bold);
+            resultStatsText.lineSpacing = 1.15f;
 
-            GameObject reward = NewPanel("Reward", panel.transform, new Color32(96, 58, 147, 230), 22);
-            PlaceTop(reward.GetComponent<RectTransform>(), 48, 430, 514, 112);
-            resultRewardText = NewPlacedText(reward.transform, string.Empty, 17, White,
-                20, 14, 474, 82, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Image reward = SecondaryStory038Chrome.Plate(card.transform, "Reward",
+                new Color32(96, 58, 147, 190), false, 16f, SecondaryStory038Chrome.CutGold,
+                30, 258, 422, 96);
+            NewPlacedText(reward.transform, "演出奖励", 12, new Color32(255, 205, 96, 255),
+                12, 8, 398, 18, TextAnchor.MiddleCenter, FontStyle.Bold);
+            resultRewardText = NewPlacedText(reward.transform, string.Empty, 16, White,
+                16, 28, 390, 60, TextAnchor.MiddleCenter, FontStyle.Bold);
+            ModalPolish038Chrome.EnableBestFit(resultRewardText, 11);
 
-            GameObject done = NewButton("ReturnLobby", panel.transform, "返回大厅", 21, Pink, White,
-                ReturnToLobby, 24);
-            PlaceTop(done.GetComponent<RectTransform>(), 140, 592, 330, 70);
+            GameObject done = ModalPolish038Chrome.ActionButton(card.transform, "ReturnLobby",
+                "返回大厅", 20, ReturnToLobby, ModalPolish038ButtonStyle.Primary);
+            PlaceTop(done.GetComponent<RectTransform>(), 91, 420, 300, 64);
             resultOverlay.SetActive(false);
         }
 
@@ -512,35 +519,6 @@ namespace ChoSiren
             return NewSprite(texture, new Rect(0, 0, size, size), Vector2.one * 0.5f, Vector4.zero);
         }
 
-        private Sprite RoundedSprite(int radius)
-        {
-            radius = Mathf.Clamp(radius, 4, 32);
-            if (roundedSprites.TryGetValue(radius, out Sprite cached)) return cached;
-            const int size = 64;
-            Texture2D texture = NewTexture($"Performance-Rounded-{radius}", size, size);
-            Color32[] pixels = new Color32[size * size];
-            float r = radius;
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    float nearestX = Mathf.Clamp(x + 0.5f, r, size - r);
-                    float nearestY = Mathf.Clamp(y + 0.5f, r, size - r);
-                    float distance = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f),
-                        new Vector2(nearestX, nearestY));
-                    byte alpha = (byte)Mathf.RoundToInt(Mathf.Clamp01(r - distance + 0.5f) * 255f);
-                    pixels[y * size + x] = new Color32(255, 255, 255, alpha);
-                }
-            }
-
-            texture.SetPixels32(pixels);
-            texture.Apply(false, true);
-            Sprite sprite = NewSprite(texture, new Rect(0, 0, size, size), Vector2.one * 0.5f,
-                new Vector4(radius, radius, radius, radius));
-            roundedSprites[radius] = sprite;
-            return sprite;
-        }
-
         private Texture2D NewTexture(string name, int width, int height)
         {
             Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
@@ -580,35 +558,6 @@ namespace ChoSiren
             image.color = color;
             image.raycastTarget = false;
             return image;
-        }
-
-        private GameObject NewPanel(string name, Transform parent, Color color, int radius)
-        {
-            Image image = NewImage(name, parent, RoundedSprite(radius), color);
-            image.type = Image.Type.Sliced;
-            return image.gameObject;
-        }
-
-        private GameObject NewButton(string name, Transform parent, string label, int fontSize, Color background,
-            Color foreground, UnityAction action, int radius)
-        {
-            GameObject result = NewPanel(name, parent, background, radius);
-            Image image = result.GetComponent<Image>();
-            image.raycastTarget = true;
-            Button button = result.AddComponent<Button>();
-            button.targetGraphic = image;
-            ColorBlock colors = button.colors;
-            colors.normalColor = Color.white;
-            colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f, 1f);
-            colors.pressedColor = new Color(0.80f, 0.80f, 0.90f, 1f);
-            colors.selectedColor = Color.white;
-            colors.colorMultiplier = 1f;
-            button.colors = colors;
-            button.onClick.AddListener(action);
-            Text text = NewText("Label", result.transform, label, fontSize, foreground, FontStyle.Bold,
-                TextAnchor.MiddleCenter);
-            Stretch(text.rectTransform, 6, 4, -6, -4);
-            return result;
         }
 
         private Text NewText(string name, Transform parent, string value, int size, Color color, FontStyle style,

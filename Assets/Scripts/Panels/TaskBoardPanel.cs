@@ -29,17 +29,24 @@ namespace ChoSiren.Panels
         private const float RowGap = 12f;
         private const float ListTop = 238f;
         private const float ListBottom = 52f;
+        private const float ProgressX = 24f;
+        private const float ProgressY = 58f;
+        private const float ProgressWidth = 330f;
+        private const float ProgressHeight = 14f;
         private static readonly Color RowGlass = new Color32(15, 14, 54, 108);
 
         private sealed class RowView
         {
             public TaskView Task;
             public Image ProgressFill;
+            public Image ProgressMarker;
             public Text ProgressText;
             public GameObject ClaimButton;
             public Text ClaimLabel;
             public Image RowBackground;
             public Image Accent;
+            public Image ClaimGlow;
+            public Outline Edge;
         }
 
         private readonly List<RowView> rows = new List<RowView>();
@@ -54,14 +61,14 @@ namespace ChoSiren.Panels
 
         private GameObject tabDaily;
         private GameObject tabWeekly;
+        private Image tabDailyGlyph;
+        private Image tabWeeklyGlyph;
         private GameObject claimAllButton;
-        private Text claimAllLabel;
         private Text summaryText;
         private GameObject checkInButton;
-        private Text checkInLabel;
         private RectTransform listViewport;
         private RectTransform listContent;
-        private Text emptyText;
+        private GameObject emptyState;
         private Text hintText;
 
         public static TaskBoardPanel Open(Transform host, GameModel gameModel, ITaskBoardService taskService,
@@ -94,29 +101,28 @@ namespace ChoSiren.Panels
             model.Changed += HandleModelChanged;
             BuildStageBackdrop();
 
-            GameObject header = kit.NewHeader(transform, "活跃奖励", "任务面板", Close);
-            claimAllButton = kit.NewButton("ClaimAll", header.transform, "一键领取", 15, PanelKit.Pink,
-                PanelKit.White, ClaimAll, 18);
+            GameObject header = SecondaryTasks038Chrome.Header(kit, transform, "活跃奖励", "任务面板",
+                "Back", Close);
+            claimAllButton = SecondaryTasks038Chrome.Button(header.transform, "ClaimAll", "一键领取",
+                15, ClaimAll, ModalPolish038ButtonStyle.Primary);
             PanelKit.PlaceTop(claimAllButton.GetComponent<RectTransform>(), 540, 27, 162, 56);
-            claimAllLabel = PanelKit.LabelOf(claimAllButton);
 
-            tabDaily = kit.NewButton("TabDaily", transform, "每日任务", 17, PanelKit.ButtonDark, PanelKit.White,
-                () => SelectCadence(TaskCadence.Daily), 18);
+            tabDaily = SecondaryTasks038Chrome.Button(transform, "TabDaily", "每日任务", 17,
+                () => SelectCadence(TaskCadence.Daily), ModalPolish038ButtonStyle.Secondary);
             PanelKit.PlaceTop(tabDaily.GetComponent<RectTransform>(), 20, 126, 335, 56);
-            tabWeekly = kit.NewButton("TabWeekly", transform, "每周任务", 17, PanelKit.ButtonDark, PanelKit.White,
-                () => SelectCadence(TaskCadence.Weekly), 18);
+            tabDailyGlyph = AddTabGlyph(tabDaily);
+            tabWeekly = SecondaryTasks038Chrome.Button(transform, "TabWeekly", "每周任务", 17,
+                () => SelectCadence(TaskCadence.Weekly), ModalPolish038ButtonStyle.Secondary);
             PanelKit.PlaceTop(tabWeekly.GetComponent<RectTransform>(), 365, 126, 335, 56);
+            tabWeeklyGlyph = AddTabGlyph(tabWeekly);
 
             summaryText = kit.NewPlacedText(transform, string.Empty, 13, PanelKit.Muted, 24, 192, 470, 34,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             PanelKit.EnableBestFit(summaryText, 10);
 
-            checkInButton = kit.NewButton("CheckInTaskChip", transform, string.Empty, 13,
-                new Color32(91, 49, 151, 205),
-                PanelKit.White, CheckIn, 14);
+            checkInButton = SecondaryTasks038Chrome.Button(transform, "CheckInTaskChip", string.Empty,
+                13, CheckIn, ModalPolish038ButtonStyle.Ghost);
             PanelKit.PlaceTop(checkInButton.GetComponent<RectTransform>(), 510, 190, 190, 38);
-            checkInLabel = PanelKit.LabelOf(checkInButton);
-            PanelKit.EnableBestFit(checkInLabel, 10);
 
             BuildList();
 
@@ -194,9 +200,25 @@ namespace ChoSiren.Panels
             scroll.movementType = ScrollRect.MovementType.Clamped;
             scroll.scrollSensitivity = 40f;
 
-            emptyText = kit.NewPlacedText(listViewport, "本周期暂无任务", 17, PanelKit.Muted, 0, 120, 680, 40,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
-            emptyText.gameObject.SetActive(false);
+            emptyState = ModalPolish038Chrome.StateBlock(listViewport, "TaskEmpty",
+                ModalPolish038StateKind.Empty, "本周期暂无任务",
+                "周期刷新后会开放新的任务与奖励");
+            PanelKit.PlaceCentered(emptyState.GetComponent<RectTransform>(), 560f, 120f);
+            emptyState.SetActive(false);
+        }
+
+        /// <summary>Spark marker inside the tab body so it scales with the press feedback.</summary>
+        private Image AddTabGlyph(GameObject tab)
+        {
+            Transform body = tab.transform.Find("Body");
+            if (body == null) return null;
+            Image glyph = kit.NewImage("TabGlyph", body,
+                ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Spark),
+                SecondaryTasks038Chrome.EdgeSelected);
+            PanelKit.PlaceTop(glyph.rectTransform, 14f, 16f, 24f, 24f);
+            glyph.preserveAspect = true;
+            glyph.raycastTarget = false;
+            return glyph;
         }
 
         private void RebuildRows(List<TaskView> tasks)
@@ -234,7 +256,7 @@ namespace ChoSiren.Panels
             rows.Clear();
 
             int count = tasks == null ? 0 : tasks.Count;
-            emptyText.gameObject.SetActive(count == 0);
+            if (emptyState != null) emptyState.SetActive(count == 0);
             listContent.sizeDelta = new Vector2(0, ListContentHeight(count));
             for (int index = 0; index < count; index++) rows.Add(BuildRow(tasks[index], index));
         }
@@ -249,49 +271,68 @@ namespace ChoSiren.Panels
         private RowView BuildRow(TaskView task, int index)
         {
             TaskDefinition definition = task.Definition;
-            GameObject row = kit.NewPanel("Task-" + definition.Id, listContent, RowGlass, 22);
+            GameObject row = SecondaryTasks038Chrome.Plate(kit, listContent, "Task-" + definition.Id,
+                RowGlass, new Color32(104, 224, 255, 70));
             PanelKit.PlaceTop(row.GetComponent<RectTransform>(), 0, index * (RowHeight + RowGap), 680, RowHeight);
-            kit.AddOutline(row, new Color32(166, 112, 255, 62), 1f);
-            Image accent = kit.NewImage("Accent", row.transform, kit.RoundedSprite(3), PanelKit.Cyan);
-            PanelKit.PlaceTop(accent.rectTransform, 0, 18, 4, 96);
+            Image accent = ReferencePunkFx.Slash(row.transform, "Accent", 13f, 66f, 108f, 4f, 78f,
+                PanelKit.Cyan);
 
             Text title = kit.NewPlacedText(row.transform, definition.Title, 18, PanelKit.White,
-                24, 16, 400, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+                30, 16, 386, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
             PanelKit.EnableBestFit(title, 13);
-            kit.NewPlacedText(row.transform, definition.Cadence == TaskCadence.Weekly ? "每周" : "每日", 12,
-                new Color32(255, 173, 226, 255), 430, 20, 60, 22, TextAnchor.MiddleLeft, FontStyle.Bold);
 
-            Image fill = kit.NewBar("Progress", row.transform, 24, 58, 330, 14,
-                new Color32(66, 54, 117, 255), PanelKit.Cyan, 7);
-            Text progress = kit.NewPlacedText(row.transform, string.Empty, 13, PanelKit.White, 362, 50, 120, 30,
+            GameObject cadence = SecondaryTasks038Chrome.Plate(kit, row.transform, "Cadence",
+                new Color32(35, 24, 80, 170), new Color32(166, 112, 255, 70), true);
+            PanelKit.PlaceTop(cadence.GetComponent<RectTransform>(), 424, 17, 80, 26);
+            kit.NewPlacedText(cadence.transform, definition.Cadence == TaskCadence.Weekly ? "每周" : "每日",
+                12, new Color32(255, 173, 226, 255), 0, 0, 80, 26,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+
+            Image fill = SecondaryTasks038Chrome.Progress(kit, row.transform, "Progress",
+                ProgressX, ProgressY, ProgressWidth, ProgressHeight,
+                new Color32(30, 26, 74, 190), PanelKit.Cyan, out Image marker);
+            Text progress = kit.NewPlacedText(row.transform, string.Empty, 13, PanelKit.White, 362, 50, 132, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
+            PanelKit.EnableBestFit(progress, 10);
 
-            GameObject reward = kit.NewPanel("Reward", row.transform, new Color32(30, 25, 76, 118), 14);
+            GameObject reward = SecondaryTasks038Chrome.Plate(kit, row.transform, "Reward",
+                new Color32(30, 25, 76, 150), new Color32(255, 205, 96, 60), true);
             PanelKit.PlaceTop(reward.GetComponent<RectTransform>(), 24, 86, 250, 36);
             string currency = definition.Reward != null ? definition.Reward.Currency : string.Empty;
             int amount = definition.Reward != null ? definition.Reward.Amount : 0;
             Sprite icon = PanelKit.CurrencyIcon(currency);
-            Image iconImage = kit.NewImage("Icon", reward.transform, icon ?? kit.RoundedSprite(6),
+            Image iconImage = kit.NewImage("Icon", reward.transform,
+                icon ?? ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Gem),
                 icon != null ? Color.white : PanelKit.CurrencyColor(currency));
-            PanelKit.PlaceTop(iconImage.rectTransform, 8, 6, 24, 24);
+            PanelKit.PlaceTop(iconImage.rectTransform, 10, 6, 24, 24);
             iconImage.preserveAspect = true;
-            kit.NewPlacedText(reward.transform, $"{PanelKit.CurrencyName(currency)} ×{amount:N0}", 14,
-                PanelKit.White, 40, 0, 200, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text rewardText = kit.NewPlacedText(reward.transform,
+                $"{PanelKit.CurrencyName(currency)} ×{amount:N0}", 14, PanelKit.White,
+                42, 0, 200, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
+            PanelKit.EnableBestFit(rewardText, 10);
+
+            Image glow = kit.NewImage("ClaimGlow", row.transform, kit.RadialSprite(),
+                new Color32(255, 82, 194, 0));
+            PanelKit.PlaceTop(glow.rectTransform, 500, 16, 190, 100);
+            glow.raycastTarget = false;
 
             string taskId = definition.Id;
-            GameObject claim = kit.NewButton("Claim-" + taskId, row.transform, "领取", 17, PanelKit.Pink,
-                PanelKit.White, () => Claim(taskId), 18);
+            GameObject claim = SecondaryTasks038Chrome.Button(row.transform, "Claim-" + taskId, "领取",
+                17, () => Claim(taskId), ModalPolish038ButtonStyle.Primary);
             PanelKit.PlaceTop(claim.GetComponent<RectTransform>(), 532, 38, 124, 56);
 
             RowView view = new RowView
             {
                 Task = task,
                 ProgressFill = fill,
+                ProgressMarker = marker,
                 ProgressText = progress,
                 ClaimButton = claim,
-                ClaimLabel = PanelKit.LabelOf(claim),
+                ClaimLabel = SecondaryTasks038Chrome.LabelOf(claim),
                 RowBackground = row.GetComponent<Image>(),
                 Accent = accent,
+                ClaimGlow = glow,
+                Edge = row.GetComponent<Outline>(),
             };
             ApplyRowState(view);
             return view;
@@ -302,35 +343,49 @@ namespace ChoSiren.Panels
             TaskView task = view.Task;
             int target = Mathf.Max(1, task.Definition.Target);
             int progress = Mathf.Clamp(task.Progress, 0, target);
-            view.ProgressFill.fillAmount = progress / (float)target;
+            float amount = progress / (float)target;
+            view.ProgressFill.fillAmount = amount;
             view.ProgressText.text = $"{progress}/{target}";
 
             if (task.Claimed)
             {
-                view.ClaimLabel.text = "已领取";
-                view.ClaimLabel.color = new Color32(196, 190, 220, 255);
-                PanelKit.SetButtonState(view.ClaimButton, false, new Color32(74, 70, 104, 235));
+                SecondaryTasks038Chrome.SetState(view.ClaimButton, false,
+                    SecondaryTasks038Chrome.EdgeDisabled, SecondaryTasks038Chrome.InsetDisabled,
+                    new Color32(196, 190, 220, 255), "已领取");
                 view.RowBackground.color = new Color32(13, 12, 43, 88);
                 view.ProgressFill.color = new Color32(140, 132, 180, 255);
                 view.Accent.color = new Color32(126, 119, 164, 180);
+                if (view.Edge != null) view.Edge.effectColor = new Color32(126, 119, 164, 50);
+                if (view.ClaimGlow != null) view.ClaimGlow.color = new Color32(255, 82, 194, 0);
+                SecondaryTasks038Chrome.SetProgressMarker(view.ProgressMarker,
+                    ProgressX, ProgressY, ProgressWidth, ProgressHeight, amount,
+                    new Color32(140, 132, 180, 255));
             }
             else if (task.Claimable)
             {
-                view.ClaimLabel.text = "领取";
-                view.ClaimLabel.color = PanelKit.White;
-                PanelKit.SetButtonState(view.ClaimButton, true, PanelKit.Pink);
+                SecondaryTasks038Chrome.SetState(view.ClaimButton, true,
+                    ModalPolish038Chrome.AccentPink, new Color32(44, 17, 56, 250),
+                    PanelKit.White, "领取");
                 view.RowBackground.color = new Color32(39, 21, 88, 132);
                 view.ProgressFill.color = PanelKit.Pink;
                 view.Accent.color = PanelKit.Pink;
+                if (view.Edge != null) view.Edge.effectColor = new Color32(255, 138, 226, 110);
+                if (view.ClaimGlow != null) view.ClaimGlow.color = new Color32(255, 82, 194, 44);
+                SecondaryTasks038Chrome.SetProgressMarker(view.ProgressMarker,
+                    ProgressX, ProgressY, ProgressWidth, ProgressHeight, amount, PanelKit.Pink);
             }
             else
             {
-                view.ClaimLabel.text = "进行中";
-                view.ClaimLabel.color = new Color32(214, 206, 236, 255);
-                PanelKit.SetButtonState(view.ClaimButton, false, new Color32(88, 66, 138, 235));
+                SecondaryTasks038Chrome.SetState(view.ClaimButton, false,
+                    SecondaryTasks038Chrome.EdgeViolet, SecondaryTasks038Chrome.InsetViolet,
+                    new Color32(214, 206, 236, 255), "进行中", .62f);
                 view.RowBackground.color = RowGlass;
                 view.ProgressFill.color = PanelKit.Cyan;
                 view.Accent.color = PanelKit.Cyan;
+                if (view.Edge != null) view.Edge.effectColor = new Color32(104, 224, 255, 70);
+                if (view.ClaimGlow != null) view.ClaimGlow.color = new Color32(255, 82, 194, 0);
+                SecondaryTasks038Chrome.SetProgressMarker(view.ProgressMarker,
+                    ProgressX, ProgressY, ProgressWidth, ProgressHeight, amount, PanelKit.Cyan);
             }
         }
 
@@ -399,10 +454,16 @@ namespace ChoSiren.Panels
         {
             if (kit == null) return;
             bool daily = cadence == TaskCadence.Daily;
-            PanelKit.SetButtonState(tabDaily, true, daily ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
-            PanelKit.SetButtonState(tabWeekly, true, daily ? PanelKit.ButtonDark : new Color32(116, 43, 177, 252));
-            PanelKit.LabelOf(tabDaily).color = daily ? PanelKit.White : PanelKit.Muted;
-            PanelKit.LabelOf(tabWeekly).color = daily ? PanelKit.Muted : PanelKit.White;
+            SecondaryTasks038Chrome.SetState(tabDaily, true,
+                daily ? SecondaryTasks038Chrome.EdgeSelected : SecondaryTasks038Chrome.EdgeIdle,
+                daily ? SecondaryTasks038Chrome.InsetSelected : SecondaryTasks038Chrome.InsetIdle,
+                daily ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle);
+            SecondaryTasks038Chrome.SetState(tabWeekly, true,
+                !daily ? SecondaryTasks038Chrome.EdgeSelected : SecondaryTasks038Chrome.EdgeIdle,
+                !daily ? SecondaryTasks038Chrome.InsetSelected : SecondaryTasks038Chrome.InsetIdle,
+                !daily ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle);
+            if (tabDailyGlyph != null) tabDailyGlyph.gameObject.SetActive(daily);
+            if (tabWeeklyGlyph != null) tabWeeklyGlyph.gameObject.SetActive(!daily);
 
             List<TaskView> tasks = service.TaskViews(cadence) ?? new List<TaskView>();
             RebuildRows(tasks);
@@ -420,13 +481,18 @@ namespace ChoSiren.Panels
                 : $"{(daily ? "今日" : "本周")}完成 {completed}/{tasks.Count} · 已领取 {claimedCount}";
 
             int claimable = service.ClaimableTaskCount;
-            claimAllLabel.text = claimable > 0 ? $"一键领取 ({claimable})" : "一键领取";
-            PanelKit.SetButtonState(claimAllButton, claimable > 0, claimable > 0 ? PanelKit.Pink : PanelKit.Disabled);
+            SecondaryTasks038Chrome.SetState(claimAllButton, claimable > 0,
+                claimable > 0 ? ModalPolish038Chrome.AccentPink : SecondaryTasks038Chrome.EdgeDisabled,
+                claimable > 0 ? new Color32(44, 17, 56, 250) : SecondaryTasks038Chrome.InsetDisabled,
+                claimable > 0 ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle,
+                claimable > 0 ? $"一键领取 ({claimable})" : "一键领取", .58f);
 
             bool canCheckIn = !model.HasCheckedInToday;
-            checkInLabel.text = canCheckIn ? $"签到任务 · 连续 {model.Save.CheckInDay} 天" : "签到任务 · 已完成";
-            PanelKit.SetButtonState(checkInButton, canCheckIn,
-                canCheckIn ? new Color32(91, 49, 151, 205) : new Color32(69, 62, 103, 190));
+            SecondaryTasks038Chrome.SetState(checkInButton, canCheckIn,
+                canCheckIn ? SecondaryTasks038Chrome.EdgeGold : SecondaryTasks038Chrome.EdgeDisabled,
+                canCheckIn ? SecondaryTasks038Chrome.InsetGold : SecondaryTasks038Chrome.InsetDisabled,
+                canCheckIn ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle,
+                canCheckIn ? $"签到任务 · 连续 {model.Save.CheckInDay} 天" : "签到任务 · 已完成", .6f);
         }
 
         // ------------------------------------------------------------------ lifecycle

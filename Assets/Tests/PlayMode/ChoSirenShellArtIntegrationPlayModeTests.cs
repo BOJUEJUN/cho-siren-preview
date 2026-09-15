@@ -144,11 +144,19 @@ namespace ChoSiren.Tests
             Assert.That(golden.rectTransform.rect.width, Is.EqualTo(720f).Within(.5f));
             Assert.That(golden.rectTransform.rect.height, Is.EqualTo(1536f).Within(.5f));
 
-            UnityEngine.UI.Image[] visibleLegacyLayers = Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
-                .Where(image => image.name.EndsWith("VisualV2") && image.color.a > .001f)
-                .ToArray();
-            Assert.That(visibleLegacyLayers, Is.Empty,
-                "0.3.8 整图已经包含头像、字体、资源条、入口、CTA 与底栏；旧 V2 分层不得再次叠画造成设计漂移。");
+            // 授权底板是纯插画，不含任何界面铬件：底栏/资源/入口图标必须由实时覆盖层提供。
+            // 每个导航按钮只允许一个可见图标层，避免旧 V2 分层与实时图标叠画造成设计漂移。
+            string[] navIds = { "team", "members", "lobby", "accessory", "audition" };
+            for (int index = 0; index < navIds.Length; index++)
+            {
+                Transform nav = Require("Nav-" + navIds[index]).transform;
+                UnityEngine.UI.Image[] icons = nav.GetComponentsInChildren<UnityEngine.UI.Image>(true)
+                    .Where(image => image.name.EndsWith("VisualV2") || image.name == "Icon")
+                    .Where(image => image.color.a > .001f)
+                    .ToArray();
+                Assert.That(icons.Length, Is.EqualTo(1),
+                    $"Nav-{navIds[index]} 必须且只能有一个实时图标层，不能叠画。");
+            }
 
             // Named values remain available to gameplay code while the approved golden owns presentation.
             Assert.That(Require("Diamonds").GetComponent<Text>(), Is.Not.Null);
@@ -190,23 +198,57 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator TeamInformationUsesQuietFramesAndPreservesSuppliedStageAndActions()
+        public IEnumerator TeamBoardRendersLiveDataInsideAuthoredSafeZones()
         {
             Click("Nav-team");
             yield return null;
 
-            AssertQuietInformationPanel("TeamTitlePlaque");
-            AssertQuietInformationPanel("TeamPower");
-            AssertQuietInformationPanel("TeamSynergy");
-            Assert.That(Require("TeamStellarBackground").GetComponent<Image>().sprite, Is.Not.Null);
-            AssertSpriteTexture("ChangeLeader", "Art/TeamAI/UI/team-action-cyan-ai-v2");
-            AssertSpriteTexture("AutoTeam", "Art/TeamAI/UI/team-action-pink-ai-v2");
-            AssertSpriteTexture("TeamSwapIcon", "Art/TeamAI/UI/team-swap-ai-v2");
+            // 0.3.8 战队页使用授权整图背板 + 量出的安全区内实时文字；
+            // 旧 quiet-panel/AI 贴图布局已被移除，不得回归。
+            Image board = Require("TeamReferenceBoard038").GetComponent<Image>();
+            Assert.That(board.sprite, Is.Not.Null, "战队页必须显示授权整图背板。");
+            Assert.That(GameObject.Find("TeamTitlePlaque"), Is.Null, "旧标题框不得回归。");
+            Assert.That(GameObject.Find("TeamStellarBackground"), Is.Null, "旧星辉背景不得回归。");
+            Assert.That(GameObject.Find("TeamSwapIcon"), Is.Null, "旧换阵图标不得回归。");
 
-            Assert.That(Require("TeamPowerValue").GetComponent<Text>()?.text, Is.Not.Empty,
-                "简洁信息框仍必须保留可读的实时战力。");
-            Assert.That(Require("ChangeLeader").transform.Find("Label")?.GetComponent<Text>()?.text,
-                Is.EqualTo("更换队长"));
+            var model = new GameModel();
+            int count = Mathf.Min(GameModel.TeamCapacity, model.Save.Team.Count);
+            Assert.That(Require("TeamPowerValue").GetComponent<Text>().text,
+                Is.EqualTo(model.TeamPower.ToString("N0")), "战力卡必须显示真实总战力。");
+            Assert.That(Require("TeamResonanceValue").GetComponent<Text>().text,
+                Does.Contain("职业种类"));
+            Assert.That(Require("TeamMemberCount").GetComponent<Text>().text,
+                Is.EqualTo($"成员 {count}/{GameModel.TeamCapacity}"));
+
+            for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+            {
+                Button orbit = Require("TeamOrbit-" + slot).GetComponent<Button>();
+                Assert.That(orbit.IsInteractable(), Is.True, $"TeamOrbit-{slot} 必须可点击。");
+                Assert.That(orbit.targetGraphic.raycastTarget, Is.True);
+                Assert.That(orbit.targetGraphic.color.a, Is.LessThanOrEqualTo(.001f),
+                    $"TeamOrbit-{slot} 命中区不得覆盖原图。");
+            }
+            int leader = model.Save.Team[0];
+            Image portrait = Require("TeamCharacter-0").GetComponent<Image>();
+            Assert.That(portrait.sprite, Is.Not.Null, "队长位必须渲染真实立绘。");
+            Assert.That(portrait.raycastTarget, Is.False, "立绘不得抢占命中区。");
+            Transform leaderTag = Require("TeamLabel-0").transform;
+            Assert.That(leaderTag.Find("MemberName").GetComponent<Text>().text,
+                Is.EqualTo(GameModel.Members[leader].Name), "铭牌必须显示真实成员名。");
+            Assert.That(leaderTag.Find("MemberPower").GetComponent<Text>().text,
+                Does.Contain("战力"), "铭牌必须显示真实战力。");
+
+            Assert.That(Require("TeamAttributes").GetComponent<Text>().text,
+                Is.EqualTo("职业自由搭配"));
+            Assert.That(Require("CareerStatus-0").GetComponent<Text>().text,
+                Does.Contain("人"), "职业配置卡必须显示真实在职人数。");
+
+            foreach (string action in new[] { "ChangeLeader", "AutoTeam" })
+            {
+                Button button = Require(action).GetComponent<Button>();
+                Assert.That(button.IsInteractable(), Is.True, action + " 必须可点击。");
+                Assert.That(button.targetGraphic.raycastTarget, Is.True);
+            }
         }
 
         [UnityTest]
@@ -254,12 +296,13 @@ namespace ChoSiren.Tests
             AssertSpriteTexture("EquipmentSelectedArt", itemPaths[0]);
             Click("EquipmentChooseMember");
             yield return null;
-            Click("PickMember-1");
-            yield return null;
-            int next = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(selectedMember) + 1)
+            Require("EquipmentPolish038Selector");
+            int nextMember = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(selectedMember) + 1)
                 % model.Save.UnlockedMembers.Count];
+            Click("EquipmentPolish038Member-" + nextMember);
+            yield return null;
             Assert.That(Require("EquipmentMemberName").GetComponent<Text>().text,
-                Does.StartWith(GameModel.Members[next].Name));
+                Does.StartWith(GameModel.Members[nextMember].Name));
             Click("Accessory-2");
             yield return null;
             AssertSpriteTexture("EquipmentSelectedArt", itemPaths[2]);
@@ -317,28 +360,14 @@ namespace ChoSiren.Tests
             Transform ownedPortrait = Require("MemberModal").transform.Find("Panel/PortraitFrame/Portrait");
             Assert.That(ownedPortrait, Is.Not.Null);
             AssertSpriteTexture(ownedPortrait.gameObject, GameModel.Members[0].ResourcePath);
-            Require("MemberSectionBaseStats");
-            Require("MemberSectionNormalAttack");
+            Require("MemberStatPanel");
             Require("MemberNormalAttack");
-            Require("MemberSectionActiveSkills");
-            Require("CaptainEffectTitle");
+            Require("MemberNormalAttackDescription");
+            Require("MemberSkillPanel");
+            Require("CaptainPassiveTitle");
             Require("Train");
             Require("Team");
             Assert.That(GameObject.Find("AcquireMember"), Is.Null);
-        }
-
-        private static void AssertQuietInformationPanel(string name)
-        {
-            var panel = Require(name);
-            Image image = panel.GetComponent<Image>();
-            Assert.That(image, Is.Not.Null);
-            Assert.That(image.color.a, Is.GreaterThan(.8f), "信息区需要足够背景对比度：" + name);
-            Assert.That(image.sprite?.texture.name ?? string.Empty, Does.Not.Contain("-ai-"),
-                "信息框不得再使用会干扰动态文字的旧AI装饰框：" + name);
-            Outline edge = panel.GetComponent<Outline>();
-            Assert.That(edge, Is.Not.Null);
-            Assert.That(edge.effectDistance.magnitude, Is.LessThanOrEqualTo(2f));
-            Assert.That(panel.GetComponentsInChildren<Text>().Any(t => !string.IsNullOrWhiteSpace(t.text)), Is.True);
         }
 
         private static float LeftInParent(GameObject target)
@@ -368,11 +397,18 @@ namespace ChoSiren.Tests
 
         private static UnityEngine.UI.Image RequireApprovedLobbyGolden()
         {
-            const string path = "Art/LobbyPunk/038/lobby-home-base-038";
-            Texture expected = Resources.Load<Sprite>(path)?.texture ?? Resources.Load<Texture2D>(path);
-            Assert.That(expected, Is.Not.Null, "未导入 0.3.8 首页 golden：" + path);
+            // 首页优先显示授权 Reference038 整页底板；缺失时才回退旧 golden。
+            const string authoredPath = "Art/Reference038/lobby-board-038";
+            const string fallbackPath = "Art/LobbyPunk/038/lobby-home-base-038";
+            Texture authored = Resources.Load<Sprite>(authoredPath)?.texture
+                ?? Resources.Load<Texture2D>(authoredPath);
+            Texture fallback = Resources.Load<Sprite>(fallbackPath)?.texture
+                ?? Resources.Load<Texture2D>(fallbackPath);
+            Assert.That(authored != null || fallback != null, Is.True,
+                "未导入 0.3.8 首页底板：" + authoredPath);
             UnityEngine.UI.Image[] matches = Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
-                .Where(image => image.sprite != null && image.sprite.texture == expected)
+                .Where(image => image.sprite != null &&
+                    (image.sprite.texture == authored || image.sprite.texture == fallback))
                 .ToArray();
             Assert.That(matches.Length, Is.EqualTo(1), "首页必须且只能显示一张 0.3.8 golden 整图。");
             return matches[0];

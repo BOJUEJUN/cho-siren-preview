@@ -41,18 +41,25 @@ namespace ChoSiren.Tests
             RectTransform button = FindNamed<RectTransform>(map.transform, "StartChallenge");
             Text label = button.Find("Label").GetComponent<Text>();
             label.text = caption;
-            Assert.That(button.pivot, Is.EqualTo(Vector2.one * .5f),
-                "等比图片必须使用中心pivot，否则背景靠左而文字居中。");
-            Assert.That(label.rectTransform.anchoredPosition.x + label.rectTransform.rect.width * .5f,
-                Is.EqualTo(button.rect.width * .5f));
-            Assert.That(-label.rectTransform.anchoredPosition.y + label.rectTransform.rect.height * .5f,
-                Is.EqualTo(button.rect.height * .5f));
-            Sprite frame = button.GetComponent<Image>().sprite;
-            float renderedWidth = Mathf.Min(button.rect.width, button.rect.height * frame.rect.width / frame.rect.height);
-            Assert.That(label.preferredWidth, Is.LessThan(renderedWidth * .66f),
-                "实际字形必须留在宝石与发光边框内侧，不能仅检查按钮矩形。");
-            Assert.That(label.preferredHeight, Is.LessThanOrEqualTo(label.rectTransform.rect.height));
-            Assert.That(label.resizeTextForBestFit, Is.True);
+            Assert.That(button.rect.width, Is.GreaterThan(200f));
+            Assert.That(button.rect.height, Is.GreaterThan(200f));
+            // 授权整页把开始挑战爆发图烘进底板：命中矩形保持透明，自身不再绘制框图。
+            Image hitImage = button.GetComponent<Image>();
+            Assert.That(hitImage.color.a, Is.LessThan(0.05f),
+                "开始挑战框图已烘进底板，命中区不应再叠原生框。");
+            RectTransform labelRect = label.rectTransform;
+            Assert.That(labelRect.anchoredPosition.x, Is.GreaterThanOrEqualTo(0f));
+            Assert.That(-labelRect.anchoredPosition.y, Is.GreaterThanOrEqualTo(0f));
+            Assert.That(labelRect.anchoredPosition.x + labelRect.rect.width,
+                Is.LessThanOrEqualTo(button.rect.width));
+            Assert.That(-labelRect.anchoredPosition.y + labelRect.rect.height,
+                Is.LessThanOrEqualTo(button.rect.height));
+            Assert.That(label.preferredWidth, Is.LessThan(labelRect.rect.width),
+                "实际字形必须留在授权爆发图内侧，不能仅检查按钮矩形。");
+            Assert.That(label.preferredHeight, Is.LessThanOrEqualTo(labelRect.rect.height + 1f));
+            Assert.That(button.GetComponent<BakedRegionMotion038>(), Is.Not.Null,
+                "整幅爆发美术必须随按压整体缩放。");
+            Assert.That(button.Find("BakedRegionBody/RegionArt"), Is.Not.Null);
         }
 
         [TestCase(0, 1)]
@@ -152,12 +159,20 @@ namespace ChoSiren.Tests
                 Assert.That(Resources.Load<Sprite>(retainedAiResources[index]), Is.Not.Null,
                     $"章节地图保留素材未导入：{retainedAiResources[index]}");
 
-            Assert.That(FindNamed<Image>(map.transform, "Level-1-1").sprite,
-                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[0])));
-            Assert.That(FindNamed<Image>(map.transform, "StartChallenge").sprite,
-                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[2])));
-            Assert.That(FindNamed<Image>(map.transform, "ChapterRewardsIcon").sprite,
-                Is.SameAs(Resources.Load<Sprite>(retainedAiResources[1])));
+            // 授权整页把台座/按钮美术烘进底板：命中区自身透明，整区切片负责展示与整体缩放。
+            Transform firstNode = FindNamed<Transform>(map.transform, "Level-1-1");
+            Assert.That(firstNode.GetComponent<Image>().color.a, Is.LessThan(0.05f),
+                "关卡台座已烘进底板，命中区不应再叠原生框图。");
+            Assert.That(firstNode.GetComponent<BakedRegionMotion038>(), Is.Not.Null,
+                "台座美术必须随按压整体缩放。");
+            Assert.That(firstNode.Find("BakedRegionBody/RegionArt"), Is.Not.Null);
+            Assert.That(FindNamed<Image>(map.transform, "StartChallenge").color.a, Is.LessThan(0.05f));
+            Assert.That(FindNamed<Transform>(map.transform, "StartChallenge")
+                .GetComponent<BakedRegionMotion038>(), Is.Not.Null);
+            Transform rewardsEntry = FindNamed<Transform>(map.transform, "ChapterRewards");
+            Assert.That(rewardsEntry.GetComponent<BakedRegionMotion038>(), Is.Not.Null);
+            Assert.That(map.GetComponentsInChildren<Text>(true).Any(text => text.text == "章节奖励"), Is.True,
+                "章节奖励入口的实时文案必须保留。");
             Assert.That(map.GetComponentsInChildren<Transform>(true)
                 .Any(item => item.name == "ChapterTasksIcon"), Is.False,
                 "章节任务入口左侧不应再显示装饰按钮素材。 ");
@@ -166,22 +181,32 @@ namespace ChoSiren.Tests
             Assert.That(FindNamed<Text>(FindNamed<Transform>(map.transform, "Level-1-2"), "StatusLabel").text,
                 Is.EqualTo("★★★"), "通关节点应显示该关最佳星数。 ");
 
-            Assert.That(FindNamed<Transform>(map.transform, "ChapterControlDock"), Is.Not.Null);
-            RectTransform dock = FindNamed<RectTransform>(map.transform, "ChapterControlDock");
-            Assert.That(dock.sizeDelta.y, Is.EqualTo(88f).Within(0.01f),
-                "章节底栏应保持为紧凑的奖励与任务双入口。 ");
+            // 章节奖励/任务烘成底板左右双牌，替代旧的玻璃底栏。
+            RectTransform rewardsPlaque = rewardsEntry.GetComponent<RectTransform>();
+            RectTransform tasksPlaque = FindNamed<RectTransform>(map.transform, "ChapterTasks");
+            Assert.That(-rewardsPlaque.anchoredPosition.y, Is.GreaterThan(1600f),
+                "章节双入口必须落在底板底带内。");
+            Assert.That(rewardsPlaque.anchoredPosition.x + rewardsPlaque.rect.width,
+                Is.LessThanOrEqualTo(tasksPlaque.anchoredPosition.x),
+                "章节奖励必须位于章节任务左侧。");
+            Assert.That(map.GetComponentsInChildren<Text>(true).Any(text => text.text == "章节任务"), Is.True);
             RectTransform detail = FindNamed<RectTransform>(map.transform, "SelectedLevel");
             RectTransform drops = FindNamed<RectTransform>(map.transform, "StageDropPreview");
             RectTransform start = FindNamed<RectTransform>(map.transform, "StartChallenge");
-            Assert.That(-detail.anchoredPosition.y + detail.rect.height, Is.LessThan(-dock.anchoredPosition.y));
-            Assert.That(-drops.anchoredPosition.y + drops.rect.height, Is.LessThan(-start.anchoredPosition.y));
+            Assert.That(-drops.anchoredPosition.y + drops.rect.height,
+                Is.LessThanOrEqualTo(detail.rect.height),
+                "掉落预览必须留在关卡详情卡片内侧。");
+            Assert.That(start.anchoredPosition.x,
+                Is.GreaterThanOrEqualTo(detail.anchoredPosition.x + detail.rect.width),
+                "开始挑战不得与关卡详情卡片横向重叠。");
             Image[] previewIcons = drops.GetComponentsInChildren<Image>().Where(image => image.name.StartsWith("DropIcon-")).ToArray();
             Assert.That(previewIcons.Length, Is.EqualTo(5));
             Assert.That(previewIcons.All(image => image.rectTransform.rect.width >= 64), Is.True,
                 "奖励图标需至少64设计像素，不能退回32像素缩略图。");
             RectTransform backButton = FindNamed<RectTransform>(map.transform, "Back");
-            Assert.That(backButton.sizeDelta, Is.EqualTo(new Vector2(48, 48)));
-            Assert.That(FindNamed<Image>(map.transform, "BackChevron-1"), Is.Not.Null);
+            Assert.That(backButton.rect.width, Is.GreaterThanOrEqualTo(80f),
+                "返回命中区必须保留足够大的可点范围。");
+            Assert.That(backButton.GetComponent<BakedRegionMotion038>(), Is.Not.Null);
             string[] hiddenControls = { "ChapterProgressAIFrame", "ChapterDifficulty", "StarMilestones" };
             Transform[] descendants = map.GetComponentsInChildren<Transform>(true);
             for (int index = 0; index < hiddenControls.Length; index++)
@@ -210,10 +235,16 @@ namespace ChoSiren.Tests
             LevelMapPanel map = LevelMapPanel.Open(host.transform, model);
             Transform lockedNode = FindNamed<Transform>(map.transform, "Level-1-2");
 
-            Assert.That(FindNamed<Text>(lockedNode, "StageLabel").text, Is.EqualTo("1-2"));
-            Assert.That(FindNamed<Text>(lockedNode, "StatusLabel").text, Is.EqualTo("锁定"));
-            Assert.That(FindNamed<Image>(lockedNode, "Level-1-2").color.a, Is.GreaterThan(0.85f),
-                "锁定节点的完整台座不应被淡化到难以辨认。 ");
+            Text stageNumber = FindNamed<Text>(lockedNode, "StageLabel");
+            Assert.That(stageNumber.text, Is.EqualTo("1-2"));
+            Assert.That(stageNumber.color.a, Is.GreaterThan(0.9f),
+                "锁定节点的关卡号必须保持可辨认。 ");
+            // 授权底板里锁定态由锁形图标表达，不再叠加文字条。
+            Assert.That(FindNamed<Text>(lockedNode, "StatusLabel").text, Is.Empty);
+            Assert.That(FindNamed<Image>(lockedNode, "LockIcon").enabled, Is.True,
+                "锁定节点必须点亮锁形图标。");
+            Assert.That(lockedNode.Find("BakedRegionBody/RegionArt"), Is.Not.Null,
+                "锁定台座的完整烘焙帧必须通过区域切片保持可见。");
         }
 
         [Test]
@@ -222,19 +253,14 @@ namespace ChoSiren.Tests
             GameModel model = CreateModel();
 
             LevelMapPanel map = LevelMapPanel.Open(host.transform, model);
-            AssertReadabilityVeil(map.transform, "LevelMapReadabilityVeil");
-            Image mapBackground = FindNamed<Image>(map.transform, "NightGradient");
-            Assert.That(mapBackground.raycastTarget, Is.False, "关卡背景不能吞掉功能区点击。");
-            Image userCity = FindNamed<Image>(map.transform, "Chapter01UserCityBackground");
-            Assert.That(userCity.sprite, Is.Not.Null, "应加载用户确认的第一章夜城底图。");
-            Assert.That(userCity.preserveAspect, Is.True, "第一章夜城底图不能被竖屏拉伸。");
-            Assert.That(userCity.raycastTarget, Is.False, "第一章夜城底图不能吞掉关卡节点点击。");
-            AspectRatioFitter cityCover = userCity.GetComponent<AspectRatioFitter>();
-            Assert.That(cityCover, Is.Not.Null);
-            Assert.That(cityCover.aspectMode, Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent));
-            Assert.That(cityCover.aspectRatio,
-                Is.EqualTo(userCity.sprite.rect.width / userCity.sprite.rect.height).Within(0.001f));
-            AssertGlass(FindNamed<Image>(map.transform, "SelectedLevel"), 0.94f, "关卡详情");
+            // 授权整页底板本身就是已压暗构图：它替代旧的渐变+夜城+轻纱三层叠加。
+            Image mapBackground = FindNamed<Image>(map.transform, "MapReferenceBoard");
+            Assert.That(mapBackground.sprite, Is.Not.Null, "应加载授权的章节地图底板。");
+            Assert.That(mapBackground.preserveAspect, Is.True, "授权底板不能被竖屏拉伸。");
+            Assert.That(mapBackground.raycastTarget, Is.False, "底板不能吞掉关卡节点点击。");
+            Assert.That(FindNamed<Transform>(map.transform, "LevelMapInputBlocker"), Is.Not.Null,
+                "底板之外需要独立的输入拦截层。");
+            Assert.That(FindNamed<Transform>(map.transform, "SelectedLevel"), Is.Not.Null);
             AssertBright(FindNamed<Text>(FindNamed<Transform>(map.transform, "StartChallenge"), "Label"), "开始挑战");
             UnityEngine.Object.DestroyImmediate(map.gameObject);
 
@@ -393,9 +419,15 @@ namespace ChoSiren.Tests
 
             RectTransform card = FindNamed<RectTransform>(panel.transform, "CandidateCard");
             RectTransform actions = FindNamed<RectTransform>(panel.transform, "InterviewActions");
-            Assert.That(-card.anchoredPosition.y + card.rect.height, Is.LessThanOrEqualTo(1290f));
-            Assert.That(-actions.anchoredPosition.y + actions.rect.height, Is.LessThanOrEqualTo(1290f),
-                "候选操作区必须留在中部内容区，不能遮挡原底部导航。");
+            // 斜卡使用中心 pivot：真实底边 = -anchored.y + 高·(1-pivot.y)，不能用旧枢轴公式。
+            Assert.That(-card.anchoredPosition.y + card.rect.height * (1f - card.pivot.y),
+                Is.LessThanOrEqualTo(1290f));
+            // 授权整页把签约区烘进 y1400–1668 的契约构图；透明命中区对齐该烘区，
+            // 不得再套用旧内容面板 1290 上限。
+            Assert.That(-actions.anchoredPosition.y, Is.GreaterThanOrEqualTo(1380f),
+                "签约操作区必须落在授权契约带内。");
+            Assert.That(-actions.anchoredPosition.y + actions.rect.height, Is.LessThanOrEqualTo(1670f),
+                "签约操作区不得越出授权契约带。");
             Assert.That(FindNamed<Transform>(panel.transform, "PreviousCandidate"), Is.Not.Null);
             Assert.That(FindNamed<Transform>(panel.transform, "NextCandidate"), Is.Not.Null);
 
@@ -410,15 +442,18 @@ namespace ChoSiren.Tests
             Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
                 Does.Match("治疗|增益|输出|共鸣|破甲|护盾"), "候选资料必须在职能之后给出阵容定位。");
 
-            string[] stats = { "声能", "律动", "气场", "共鸣" };
-            for (int index = 0; index < stats.Length; index++)
+            string[] statKeys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
+            string[] statNames = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            for (int index = 0; index < statKeys.Length; index++)
             {
-                int value = int.Parse(FindNamed<Text>(panel.transform, "StatValue-" + stats[index]).text);
-                Assert.That(value, Is.InRange(55, 98));
+                Assert.That(FindNamed<Text>(panel.transform, "StatLabel-" + statKeys[index]).text,
+                    Is.EqualTo(statNames[index]), "五维标签必须使用真实舞台属性名。");
+                int value = int.Parse(FindNamed<Text>(panel.transform, "StatValue-" + statKeys[index]).text);
+                Assert.That(value, Is.InRange(30, 68), "线上池五维读数必须落在渠道区间内。");
             }
             Assert.That(panel.GetComponentsInChildren<Transform>(true)
                     .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
-                "四维只突出一个最强项，避免所有属性同时抢视觉焦点。");
+                "五维只突出一个最强项，避免所有属性同时抢视觉焦点。");
             Assert.That(FindNamed<Text>(panel.transform, "CandidateTrait").text,
                 Does.StartWith("舞台特质 · "),
                 "面试素质必须来自舞台四维，不能把战斗技能名当成面试素质。");

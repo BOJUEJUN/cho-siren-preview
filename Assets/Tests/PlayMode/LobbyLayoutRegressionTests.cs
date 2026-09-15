@@ -575,14 +575,14 @@ namespace ChoSiren.Tests
             Assert.That(staminaValue.GetComponent<Text>().text, Does.Not.Contain(":"));
             Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(85f + PositionTolerance),
                 "体力文本不应为已删除的倒计时保留空白宽度。");
-            // The latest header uses a smaller diamond and more breathing room.
-            // These exact live-value slots are measured against that authored strip.
-            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(18f).Within(PositionTolerance));
-            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(4f).Within(PositionTolerance));
-            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.EqualTo(0f).Within(PositionTolerance));
-            Assert.That(diamondValueRect.width, Is.EqualTo(41f).Within(PositionTolerance));
-            Assert.That(goldValueRect.width, Is.EqualTo(59f).Within(PositionTolerance));
-            Assert.That(staminaValueRect.width, Is.EqualTo(65f).Within(PositionTolerance));
+            // HeaderPolish038: values sit between the baked icon cores and the
+            // independent plus tiles, never touching either edge.
+            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(1f).Within(PositionTolerance));
+            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(2f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.EqualTo(2f).Within(PositionTolerance));
+            Assert.That(diamondValueRect.width, Is.EqualTo(34f).Within(PositionTolerance));
+            Assert.That(goldValueRect.width, Is.EqualTo(46f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.width, Is.EqualTo(54f).Within(PositionTolerance));
             Assert.That(diamondValueRect.Overlaps(diamondIconRect), Is.False);
             Assert.That(goldValueRect.Overlaps(goldIconRect), Is.False);
             Assert.That(staminaValueRect.Overlaps(staminaIconRect), Is.False);
@@ -602,6 +602,23 @@ namespace ChoSiren.Tests
                     $"{currency} 的加号点击区不能窄到难以点击。");
                 Assert.That(plusRect.height, Is.GreaterThanOrEqualTo(36f),
                     $"{currency} 的加号点击区必须覆盖可见加号。");
+                // The approved plus tile is the visible body of the button itself:
+                // exactly one per currency, centred on its own hit rect.
+                Image tile = plus.GetComponentsInChildren<Image>(true)
+                    .FirstOrDefault(image => image.name == "Icon");
+                Assert.That(tile, Is.Not.Null, $"{currency} 的加号必须显示独立的授权晶格。");
+                Assert.That(tile.sprite, Is.EqualTo(
+                    Resources.Load<Sprite>("Art/LobbyPunk/038/header-plus-tile-038")),
+                    $"{currency} 的加号必须使用批准的新晶格图，不得再画旧+。");
+                Assert.That(tile.raycastTarget, Is.False);
+                Rect tileInPlus = RectRelativeTo(plus, tile.rectTransform);
+                Assert.That(Vector2.Distance(tileInPlus.center, plus.rect.center),
+                    Is.LessThanOrEqualTo(PositionTolerance),
+                    $"{currency} 的加号图必须与点击区同心。");
+                Rect valueInGroup = RectInParent(RequireRect(
+                    currency == "diamond" ? "Diamonds" : currency == "gold" ? "Gold" : "Stamina"));
+                Assert.That(plusRect.xMin - valueInGroup.xMax, Is.GreaterThanOrEqualTo(-PositionTolerance),
+                    $"{currency} 的数值不得被加号遮住。");
                 if (currency != "diamond")
                 {
                     Assert.That(groupRect.Overlaps(previousResource), Is.False,
@@ -858,7 +875,7 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator SharedHudNumbersStayAlignedAndHeaderFadeDoesNotDistortTheAuthoredStrip()
+        public IEnumerator HeaderUsesAuthoredChromePerPageWithoutPastedStripAndAlignedValues()
         {
             Canvas canvas = Object.FindAnyObjectByType<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
@@ -870,6 +887,8 @@ namespace ChoSiren.Tests
                 Canvas.ForceUpdateCanvases();
                 yield return null;
                 RectTransform safe = RequireRect("SafeArea");
+                Assert.That(GameObject.Find("ReferenceHeader038"), Is.Null,
+                    page + " 不得再贴整段大厅裁条覆盖背景。");
                 float[] centers = new string[] { "Diamonds", "Gold", "Stamina" }.Select(name =>
                 {
                     Text number = RequireRect(name).GetComponent<Text>();
@@ -880,37 +899,35 @@ namespace ChoSiren.Tests
                     AssertContained(number.transform.parent as RectTransform, number.rectTransform, name);
                     return safe.rect.yMax - RectRelativeTo(safe, number.rectTransform).center.y;
                 }).ToArray();
-                Assert.That(centers.Max() - centers.Min(), Is.LessThanOrEqualTo(.5f), "三项资源数字必须共用水平中线");
-                Assert.That(centers[0], Is.EqualTo(52f).Within(.5f), "数字不能再贴在图标框上沿");
-                if (page == "lobby") continue; // Lobby already owns the full authored background.
-                Image header = RequireRect("ReferenceHeader038").GetComponent<Image>();
-                Assert.That(header.raycastTarget, Is.False);
-                UiBottomEdgeFade038 fade = header.GetComponent<UiBottomEdgeFade038>();
-                Assert.That(fade, Is.Not.Null);
-                Assert.That(fade.isActiveAndEnabled, Is.True);
-                using (var mesh = new VertexHelper())
+                Assert.That(centers.Max() - centers.Min(), Is.LessThanOrEqualTo(.5f),
+                    page + " 三项资源数字必须共用水平中线");
+
+                // Live header body per page: avatar, name/level/power, clear gear body.
+                Assert.That(RequireRect("AvatarMask").gameObject.activeInHierarchy, Is.True,
+                    page + " 必须显示实时头像。");
+                Assert.That(RequireRect("PlayerName").GetComponent<Text>().enabled, Is.True,
+                    page + " 必须显示真实玩家名。");
+                Assert.That(RequireRect("TeamAverageLevel").GetComponent<Text>().enabled, Is.True,
+                    page + " 必须显示真实等级。");
+                Image gear = RequireRect("SettingsVisualV2").GetComponent<Image>();
+                Assert.That(gear.gameObject.activeInHierarchy && gear.enabled, Is.True,
+                    page + " 设置齿轮必须有清晰可见的视觉本体。");
+                Assert.That(gear.sprite, Is.Not.Null, page + " 设置齿轮缺少本体图。");
+
+                // Exactly one approved tile per currency, centred on its own hit rect.
+                foreach (string currency in new[] { "diamond", "gold", "stamina" })
                 {
-                    Vector3[] positions = { new Vector3(0, 0), new Vector3(0, 100),
-                        new Vector3(720, 100), new Vector3(720, 0) };
-                    Vector2[] uvs = { new Vector2(.2f,.3f), new Vector2(.2f,.9f),
-                        new Vector2(.8f,.9f), new Vector2(.8f,.3f) };
-                    for (int i = 0; i < 4; i++) mesh.AddVert(positions[i], Color.white, uvs[i]);
-                    mesh.AddTriangle(0,1,2); mesh.AddTriangle(2,3,0);
-                    fade.ModifyMesh(mesh);
-                    bool intermediateAlpha = false;
-                    for (int i = 0; i < mesh.currentVertCount; i++)
-                    {
-                        UIVertex vertex = default; mesh.PopulateUIVertex(ref vertex, i);
-                        float y = vertex.position.y / 100f;
-                        Assert.That(vertex.position.x, Is.InRange(0f,720f));
-                        Assert.That(y, Is.InRange(0f,1f));
-                        Assert.That(vertex.uv0.x, Is.EqualTo(Mathf.Lerp(.2f,.8f,vertex.position.x / 720f)).Within(.001f));
-                        Assert.That(vertex.uv0.y, Is.EqualTo(Mathf.Lerp(.3f,.9f,y)).Within(.001f), "渐隐不得裁图或拉伸UV");
-                        if (y == 0) Assert.That(vertex.color.a, Is.Zero, "下沿必须融入页面，不能保留硬边");
-                        if (y >= .3f) Assert.That(vertex.color.a, Is.EqualTo(255), "图标和文字所在的主体必须保持不透明");
-                        if (vertex.color.a > 0 && vertex.color.a < 255) intermediateAlpha = true;
-                    }
-                    Assert.That(intermediateAlpha, Is.True, "必须有真正的渐变过渡，不能只是裁掉底行");
+                    RectTransform plus = RequireButtonRect("CurrencyPlus-" + currency);
+                    Image[] tiles = plus.GetComponentsInChildren<Image>(true)
+                        .Where(image => image.name == "Icon").ToArray();
+                    Assert.That(tiles.Length, Is.EqualTo(1),
+                        page + "/" + currency + " 必须恰好只有一个加号图。");
+                    Assert.That(tiles[0].sprite, Is.EqualTo(
+                        Resources.Load<Sprite>("Art/LobbyPunk/038/header-plus-tile-038")));
+                    Rect tileInPlus = RectRelativeTo(plus, tiles[0].rectTransform);
+                    Assert.That(Vector2.Distance(tileInPlus.center, plus.rect.center),
+                        Is.LessThanOrEqualTo(PositionTolerance),
+                        page + "/" + currency + " 加号图必须与点击区同心。");
                 }
             }
         }
@@ -1126,6 +1143,66 @@ namespace ChoSiren.Tests
                 $"{hotspotName} 的输入区域不能被反馈动画缩放。");
         }
 
+        [UnityTest]
+        public IEnumerator PlusTileCenterStaysFixedThroughHoverPressRelease()
+        {
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.GetComponent<CanvasScaler>().enabled = false;
+            canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(720, 1536);
+            Canvas.ForceUpdateCanvases();
+            yield return null;
+
+            PointerEventData pointer = new PointerEventData(EventSystem.current)
+            {
+                button = PointerEventData.InputButton.Left,
+            };
+            RectTransform bar = RequireRect("TopBar");
+            foreach (string currency in new[] { "diamond", "gold", "stamina" })
+            {
+                RectTransform plus = RequireButtonRect("CurrencyPlus-" + currency);
+                RectTransform tile = plus.Find("Icon") as RectTransform;
+                Assert.That(tile, Is.Not.Null, currency + " 加号缺少独立晶格本体。");
+                Vector2 hitPosition = plus.anchoredPosition;
+                Vector2 hitSize = plus.sizeDelta;
+                Vector3 hitScale = plus.localScale;
+                Vector2 restCenter = RectRelativeTo(bar, tile).center;
+
+                ExecuteEvents.Execute<IPointerEnterHandler>(plus.gameObject, pointer,
+                    ExecuteEvents.pointerEnterHandler);
+                yield return new WaitForSecondsRealtime(0.2f);
+                Vector2 hoverCenter = RectRelativeTo(bar, tile).center;
+                Assert.That(Vector2.Distance(hoverCenter, restCenter), Is.LessThanOrEqualTo(.01f),
+                    currency + " 悬停时加号中心不得漂移。");
+                Assert.That(tile.localScale.x, Is.GreaterThan(1.001f),
+                    currency + " 悬停必须让晶格本体轻微放大，而不只是发光。");
+
+                ExecuteEvents.Execute<IPointerDownHandler>(plus.gameObject, pointer,
+                    ExecuteEvents.pointerDownHandler);
+                yield return new WaitForSecondsRealtime(0.1f);
+                Vector2 pressCenter = RectRelativeTo(bar, tile).center;
+                Assert.That(Vector2.Distance(pressCenter, restCenter), Is.LessThanOrEqualTo(.01f),
+                    currency + " 按下时加号中心不得漂移。");
+                Assert.That(tile.localScale.x, Is.LessThan(.999f),
+                    currency + " 按下必须让晶格本体内收。");
+
+                ExecuteEvents.Execute<IPointerUpHandler>(plus.gameObject, pointer,
+                    ExecuteEvents.pointerUpHandler);
+                ExecuteEvents.Execute<IPointerExitHandler>(plus.gameObject, pointer,
+                    ExecuteEvents.pointerExitHandler);
+                yield return new WaitForSecondsRealtime(0.3f);
+                Vector2 exitCenter = RectRelativeTo(bar, tile).center;
+                Assert.That(Vector2.Distance(exitCenter, restCenter), Is.LessThanOrEqualTo(.01f),
+                    currency + " 退出后加号中心必须回到原位。");
+                Assert.That(plus.anchoredPosition, Is.EqualTo(hitPosition),
+                    currency + " 加号点击区不得被反馈移动。");
+                Assert.That(plus.sizeDelta, Is.EqualTo(hitSize));
+                Assert.That(plus.localScale, Is.EqualTo(hitScale));
+                Assert.That(tile.localScale.x, Is.EqualTo(1f).Within(.001f),
+                    currency + " 退出后晶格本体必须恢复原大小。");
+            }
+        }
+
         private struct FeedbackVisualState
         {
             public float Alpha;
@@ -1239,9 +1316,9 @@ namespace ChoSiren.Tests
             string[] currencies = { "diamond", "gold", "stamina" };
             float[,] plusBounds =
             {
-                { 306.9f, 36.6f, 36.8f, 42.1f },
-                { 456.0f, 37.5f, 33.3f, 42.1f },
-                { 593.7f, 37.5f, 36.8f, 43.0f },
+                { 304f, 36f, 36f, 36f },
+                { 446f, 35f, 36f, 36f },
+                { 587f, 35f, 36f, 36f },
             };
             for (int index = 0; index < currencies.Length; index++)
                 AssertTopLeftBounds(safe, RequireButtonRect("CurrencyPlus-" + currencies[index]),

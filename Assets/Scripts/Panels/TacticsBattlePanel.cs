@@ -183,6 +183,8 @@ namespace ChoSiren.Panels
         private Text diceEnergyText;
         private GameObject rerollButton;
         private GameObject energyRerollButton;
+        private Text rerollLabel;
+        private Text energyRerollLabel;
         private Sprite battleStageSprite;
         private readonly Sprite[] userDiceFaceSprites = new Sprite[6];
         private Sprite userBossSprite;
@@ -905,6 +907,8 @@ namespace ChoSiren.Panels
                     4, 28, 182, 18, TextAnchor.MiddleCenter);
                 ReferencePunkFx.CornerCuts(guardButton.GetComponent<RectTransform>(),
                     new Color32(122, 214, 255, 190), 18f, 2.4f, 2f);
+                RectTransform guardVisuals = GroupButtonVisuals(guardButton, "GuardVisualGroup");
+                guardButton.AddComponent<BattlePolish038ButtonMotion>().Configure(guardVisuals);
             }
             PanelKit.EnableBestFit(actorText, 16);
             PanelKit.EnableBestFit(eventText, 14);
@@ -976,8 +980,35 @@ namespace ChoSiren.Panels
                 glyph.Kind = BattleReferenceFrame038.FrameKind.Heart;
                 glyph.raycastTarget = false;
             }
+            if (all) energyRerollLabel = label; else rerollLabel = label;
             buttonObject.AddComponent<LobbyHotspotFeedback>().Configure(all
                 ? LobbyHotspotFeedback.VisualKind.CallToAction : LobbyHotspotFeedback.VisualKind.Entry);
+            // Frame, caption, heart and accent layer move as one authored body; the
+            // button's own RectTransform stays fixed so the hit area never drifts.
+            RectTransform visualGroup = GroupButtonVisuals(buttonObject,
+                all ? "AllRerollVisualGroup" : "SelectedRerollVisualGroup");
+            buttonObject.AddComponent<BattlePolish038ButtonMotion>().Configure(visualGroup);
+        }
+
+        /// <summary>
+        /// Moves every current child (frame art, captions, glyphs, accent fx) under a
+        /// centered container the same size as the button. Children keep their authored
+        /// top-left coordinates; scaling the container scales the whole visual group.
+        /// </summary>
+        private RectTransform GroupButtonVisuals(GameObject buttonObject, string groupName)
+        {
+            RectTransform buttonRect = buttonObject.GetComponent<RectTransform>();
+            GameObject groupObject = new GameObject(groupName, typeof(RectTransform));
+            RectTransform group = groupObject.GetComponent<RectTransform>();
+            group.SetParent(buttonObject.transform, false);
+            group.anchorMin = group.anchorMax = group.pivot = new Vector2(.5f, .5f);
+            group.sizeDelta = buttonRect.rect.size;
+            group.anchoredPosition = Vector2.zero;
+            var children = new List<Transform>();
+            foreach (Transform child in buttonObject.transform) children.Add(child);
+            foreach (Transform child in children) child.SetParent(group, false);
+            group.SetAsFirstSibling();
+            return group;
         }
 
         private void BuildDiceConsole()
@@ -1089,6 +1120,8 @@ namespace ChoSiren.Panels
                     536, PlayerRosterLabelTop - 3, 164, 36);
                 StylePunkPlate(details.GetComponent<Image>(), new Color32(169, 93, 250, 255));
                 details.GetComponent<Image>().color = new Color32(12, 7, 29, 226);
+                RectTransform abilityVisuals = GroupButtonVisuals(details, "AbilityVisualGroup");
+                details.AddComponent<BattlePolish038ButtonMotion>().Configure(abilityVisuals);
             }
             RefreshDiceUi();
         }
@@ -2862,7 +2895,7 @@ namespace ChoSiren.Panels
             if (rerollButton != null)
             {
                 int rerolls = active ? diceTurn.RerollsRemaining : 0;
-                PanelKit.LabelOf(rerollButton).text = battleSession
+                rerollLabel.text = battleSession
                     ? $"重投已选{selected}颗" : $"重投未保留 · {rerolls}次";
                 bool usable = rerolls > 0 && (!battleSession || selected > 0);
                 PanelKit.SetButtonState(rerollButton, awaitingInput && usable,
@@ -2870,7 +2903,7 @@ namespace ChoSiren.Panels
             }
             if (energyRerollButton != null)
             {
-                PanelKit.LabelOf(energyRerollButton).text = !battleSession
+                energyRerollLabel.text = !battleSession
                     ? active && diceTurn.Energy >= DiceTurn.MaxEnergy ? "能量重投 · 就绪" : "能量重投 · 充能中"
                     : active && diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次" : "全部重投";
                 bool energyUsable = active && (battleSession ? diceTurn.CanReroll
@@ -2882,10 +2915,10 @@ namespace ChoSiren.Panels
             {
                 diceHandText.text = $"{diceTurn.Hand.DisplayName} · 累计 ×{diceTurn.DamageMultiplierPermille / 1000f:0.###}";
                 bool canReroll = awaitingInput && !paused && !awaitingDiceLanding && diceTurn.CanReroll;
-                PanelKit.LabelOf(rerollButton).text = $"重投已选{selected}颗";
+                rerollLabel.text = $"重投已选{selected}颗";
                 PanelKit.SetButtonState(rerollButton, canReroll && selected > 0,
                     canReroll && selected > 0 ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
-                PanelKit.LabelOf(energyRerollButton).text = diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次"
+                energyRerollLabel.text = diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次"
                     : diceTurn.RerollsRemaining > 0 ? $"全部重投 · 剩{diceTurn.RerollsRemaining}次"
                     : diceTurn.EarnedRerolls < diceTurn.BattleRerollLimit ? $"全部重投 · 充能{diceTurn.Energy}%"
                     : "本场重投已用完";

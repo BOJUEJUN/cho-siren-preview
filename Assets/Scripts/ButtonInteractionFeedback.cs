@@ -122,12 +122,18 @@ namespace ChoSiren
             foreach (Image image in host.GetComponentsInChildren<Image>(true))
             {
                 string name = image.name;
-                bool artwork = name.EndsWith("VisualV2") || name == "Icon" || name == "Portrait" || name == "ItemArt" || name.StartsWith("TeamCharacter-");
+                bool artwork = name.EndsWith("VisualV2") || name == "Icon" || name == "Portrait" || name == "ItemArt" || name == "Avatar" || name.StartsWith("TeamCharacter-");
                 if (!artwork || image.transform == host || image.sprite == null || image.raycastTarget || !image.isActiveAndEnabled) continue;
                 if (image.GetComponentInParent<Button>()?.transform != host) continue;
+                // A BakedRegionMotion038 on this button already scales every child as
+                // one unit; animating the image again would double the motion.
+                if (image.GetComponentInParent<BakedRegionMotion038>() != null) continue;
                 Add(image.rectTransform);
             }
         }
+
+        private static bool DrivenByBakedRegionMotion(Transform t)
+            => t != null && t.GetComponentInParent<BakedRegionMotion038>() != null;
 
         private void Add(RectTransform rect)
         {
@@ -141,6 +147,19 @@ namespace ChoSiren
             foreach (Part part in parts)
             {
                 if (part.Rect == null) continue;
+                if (DrivenByBakedRegionMotion(part.Rect))
+                {
+                    // A BakedRegionMotion038 on an ancestor now drives this node's
+                    // transform each frame. Clear only our own residual (what we last
+                    // wrote vs baseline) — comparing the live transform to baseline
+                    // would fight the other driver's per-frame writes.
+                    if ((part.LastScale - part.Scale).sqrMagnitude > .000001f)
+                        part.Rect.localScale = part.Scale;
+                    if ((part.LastPosition - part.Position).sqrMagnitude > .000001f)
+                        part.Rect.anchoredPosition = part.Position;
+                    part.LastScale = part.Scale; part.LastPosition = part.Position;
+                    continue;
+                }
                 // An external responsive-layout change becomes the new baseline.
                 if ((part.Rect.localScale - part.LastScale).sqrMagnitude > .000001f) part.Scale = part.Rect.localScale;
                 if ((part.Rect.anchoredPosition - part.LastPosition).sqrMagnitude > .000001f) part.Position = part.Rect.anchoredPosition;

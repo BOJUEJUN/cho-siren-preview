@@ -13,9 +13,10 @@ namespace ChoSiren
         public enum VisualKind { Entry, CallToAction, Navigation, CurrencyPlus, Profile, Settings }
 
         private Button button;
-        private RectTransform effectRoot, glyphRect;
+        private RectTransform effectRoot;
         private CanvasGroup effectGroup;
         private LobbyHotspotAccentGraphic accent;
+        private CanvasGroup plusTint;
         private VisualKind kind;
         private bool hovered, pressed;
         private float sweep = 1f;
@@ -55,9 +56,10 @@ namespace ChoSiren
             { ResetImmediately(); return; }
             motion.Update(pressed ? 2 : hovered ? 1 : 0, Time.unscaledDeltaTime);
             effectGroup.alpha = motion.Alpha;
-            visuals.Apply(motion.Scale, motion.Lift);
-            // A plus overlay is a visual child too; never rotate or enlarge the entire hit rectangle.
-            if (glyphRect != null) glyphRect.localScale = Vector3.one * motion.Scale;
+            // HeaderPolish038: the plus tile body scales around its own fixed centre;
+            // it must never lift or drift, so currency pluses drop the vertical lift.
+            visuals.Apply(motion.Scale, kind == VisualKind.CurrencyPlus ? 0f : motion.Lift);
+            if (plusTint != null) plusTint.alpha = motion.Alpha;
             if (accent != null && hovered && sweep < 1f)
             {
                 sweep = Mathf.Min(1f, sweep + Time.unscaledDeltaTime / .30f);
@@ -81,7 +83,7 @@ namespace ChoSiren
         {
             Transform existing = transform.Find("InteractionFx");
             if (existing != null) { existing.gameObject.SetActive(false); Destroy(existing.gameObject); }
-            accent = null; glyphRect = null;
+            accent = null; plusTint = null;
             GameObject root = new GameObject("InteractionFx", typeof(RectTransform), typeof(CanvasGroup));
             root.layer = gameObject.layer;
             root.transform.SetParent(transform, false);
@@ -90,26 +92,33 @@ namespace ChoSiren
             effectRoot.offsetMin = effectRoot.offsetMax = Vector2.zero;
             effectGroup = root.GetComponent<CanvasGroup>();
             effectGroup.alpha = 0f; effectGroup.interactable = false; effectGroup.blocksRaycasts = false;
+            GameObject node = new GameObject(AccentName(kind), typeof(RectTransform), typeof(CanvasRenderer), typeof(LobbyHotspotAccentGraphic));
+            node.layer = gameObject.layer; node.transform.SetParent(effectRoot, false);
+            RectTransform rect = node.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            accent = node.GetComponent<LobbyHotspotAccentGraphic>(); accent.Configure(kind);
+            // HeaderPolish038: the approved plus tile brightens through a same-sprite
+            // tint pinned to the tile child, so the feedback visibly alters the
+            // authored body while the tile centre stays exactly where it was.
             if (kind == VisualKind.CurrencyPlus && glyph != null)
             {
-                GameObject node = new GameObject("HoverGlyph", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-                node.layer = gameObject.layer; node.transform.SetParent(effectRoot, false);
-                glyphRect = node.GetComponent<RectTransform>();
-                glyphRect.anchorMin = glyphRect.anchorMax = glyphRect.pivot = Vector2.one * .5f;
-                glyphRect.anchoredPosition = Vector2.zero;
-                glyphRect.sizeDelta = glyph.rect.size * (720f / 821f);
-                Image image = node.GetComponent<Image>();
-                image.sprite = glyph; image.color = new Color32(217, 206, 255, 240);
-                image.preserveAspect = true; image.useSpriteMesh = true; image.raycastTarget = false;
-            }
-            else
-            {
-                GameObject node = new GameObject(AccentName(kind), typeof(RectTransform), typeof(CanvasRenderer), typeof(LobbyHotspotAccentGraphic));
-                node.layer = gameObject.layer; node.transform.SetParent(effectRoot, false);
-                RectTransform rect = node.GetComponent<RectTransform>();
-                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
-                rect.offsetMin = rect.offsetMax = Vector2.zero;
-                accent = node.GetComponent<LobbyHotspotAccentGraphic>(); accent.Configure(kind);
+                Transform tile = transform.Find("Icon");
+                if (tile != null)
+                {
+                    GameObject tint = new GameObject("HoverTint", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                    tint.layer = gameObject.layer; tint.transform.SetParent(tile, false);
+                    RectTransform tintRect = tint.GetComponent<RectTransform>();
+                    tintRect.anchorMin = Vector2.zero; tintRect.anchorMax = Vector2.one;
+                    tintRect.offsetMin = tintRect.offsetMax = Vector2.zero;
+                    Image image = tint.GetComponent<Image>();
+                    image.sprite = glyph; image.color = new Color32(190, 244, 255, 128);
+                    image.preserveAspect = true; image.raycastTarget = false;
+                    CanvasGroup tintGroup = tint.AddComponent<CanvasGroup>();
+                    tintGroup.interactable = false; tintGroup.blocksRaycasts = false;
+                    tintGroup.alpha = 0f;
+                    plusTint = tintGroup;
+                }
             }
             root.transform.SetAsLastSibling();
         }
@@ -118,7 +127,7 @@ namespace ChoSiren
         {
             hovered = pressed = false; sweep = 1f; motion.Reset(); visuals.Restore();
             if (effectGroup != null) effectGroup.alpha = 0f;
-            if (glyphRect != null) glyphRect.localScale = Vector3.one;
+            if (plusTint != null) plusTint.alpha = 0f;
             if (accent != null) accent.Phase = 1f;
         }
 

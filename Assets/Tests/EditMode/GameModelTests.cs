@@ -138,7 +138,11 @@ namespace ChoSiren.Tests
             Assert.That(GameModel.Members[2].Id, Is.EqualTo("wubai"));
             Assert.That(GameModel.Members[2].Career, Is.EqualTo("门面"));
             CollectionAssert.AreEqual(previousTeam, reloaded.Save.Team);
-            CollectionAssert.AreEqual(previousLevels, reloaded.Save.MemberLevels.Take(previousLevels.Length));
+            // 已解锁成员的等级原样保留；未签约成员的存储等级只是招募基准（从未可训练），
+            // 随图鉴招募回调只降不升地压到新基准。
+            CollectionAssert.AreEqual(previousLevels.Take(4), reloaded.Save.MemberLevels.Take(4));
+            CollectionAssert.AreEqual(new[] { 16, 14, 12, 10, 8 },
+                reloaded.Save.MemberLevels.Skip(4).Take(5));
         }
 
         [Test]
@@ -1161,7 +1165,7 @@ namespace ChoSiren.Tests
                 DailyPerformances = -3,
                 CheckInDay = 0,
                 StoryProgress = 500,
-                UnlockedMembers = new List<int> { -1, 0, 0, 99 },
+                UnlockedMembers = new List<int> { -1, 0, 0, 99, 1 },
                 MemberLevels = new List<int> { -5, 500 },
                 Team = new List<int> { 99, 0, 0 },
                 EquippedAccessory = 99,
@@ -1182,7 +1186,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.DailyPerformances, Is.Zero);
             Assert.That(model.Save.CheckInDay, Is.EqualTo(1));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.MaxStoryProgress));
-            Assert.That(model.Save.UnlockedMembers, Is.EqualTo(new[] { 0 }));
+            Assert.That(model.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1 }));
             Assert.That(model.Save.Team, Is.EqualTo(new[] { 0 }));
             Assert.That(model.Save.MemberLevels.Count, Is.EqualTo(GameModel.Members.Length));
             Assert.That(model.Save.MemberLevels[0], Is.EqualTo(1));
@@ -1197,7 +1201,7 @@ namespace ChoSiren.Tests
             Assert.That(model.TeamPower, Is.GreaterThan(0));
 
             GameModel reloaded = CreateModel();
-            Assert.That(reloaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0 }));
+            Assert.That(reloaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1 }));
             Assert.That(reloaded.Save.EquippedAccessory, Is.EqualTo(-1));
         }
 

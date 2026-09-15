@@ -253,17 +253,33 @@ namespace ChoSiren.Panels
             art.preserveAspect = true;
             art.raycastTarget = false;
 
-            InterviewBoardHotspot("InterviewPool-0", page, 70, 175, 365, 125, () => SelectInterviewPool(0));
-            InterviewBoardHotspot("InterviewPool-1", page, 470, 175, 335, 125, () => SelectInterviewPool(1));
+            GameObject pool0 = InterviewBoardHotspot("InterviewPool-0", page, 48, 185, 400, 120,
+                () => SelectInterviewPool(0));
+            GameObject pool1 = InterviewBoardHotspot("InterviewPool-1", page, 480, 185, 350, 120,
+                () => SelectInterviewPool(1));
+            Text poolSubtitle0 = kit.NewPlacedText(page, "视频候选 · 预算较低", 15,
+                new Color32(205, 232, 255, 235), 95, 258, 330, 28, TextAnchor.MiddleCenter);
+            poolSubtitle0.name = "PoolSubtitle-0";
+            Text poolSubtitle1 = kit.NewPlacedText(page, "当面试镜 · 预算较高", 15,
+                new Color32(233, 208, 255, 235), 490, 258, 330, 28, TextAnchor.MiddleCenter);
+            poolSubtitle1.name = "PoolSubtitle-1";
             Text refresh = kit.NewPlacedText(page, "每日免费刷新 · 18:00 更新", 18, PanelKit.Muted,
                 150, 316, 550, 35, TextAnchor.MiddleCenter);
             refresh.name = "InterviewRefresh";
-            Image selected = kit.NewImage("SelectedInterviewChannel", page, null, PanelKit.Cyan);
-            PanelKit.PlaceTop(selected.rectTransform, interviewPoolIndex == 0 ? 160 : 545, 298, 220, 3);
+            Image selected = kit.NewImage("SelectedInterviewChannel", page, null,
+                interviewPoolIndex == 0 ? PanelKit.Cyan : new Color32(202, 151, 255, 255));
+            PanelKit.PlaceTop(selected.rectTransform, interviewPoolIndex == 0 ? 165 : 540, 290, 210, 4);
             selected.raycastTarget = false;
+            // Tab plaques are baked into the board: bind each hit to its art region so the
+            // whole plaque reacts; the live subtitle and selected underline ride along as
+            // in-place extras (they keep their page parent and Find paths).
+            BakedRegionMotion038.Attach(pool0, art, new Rect(30f, 172f, 430f, 158f),
+                poolSubtitle0.transform, interviewPoolIndex == 0 ? selected.transform : null);
+            BakedRegionMotion038.Attach(pool1, art, new Rect(458f, 172f, 390f, 158f),
+                poolSubtitle1.transform, interviewPoolIndex == 1 ? selected.transform : null);
 
             List<int> candidates = InterviewCandidates();
-            if (candidates.Count == 0) { BuildInterviewComplete(page); return; }
+            if (candidates.Count == 0) { BuildInterviewComplete(page, 70f, 520f); return; }
             interviewCandidateIndex = Mathf.Clamp(interviewCandidateIndex, 0, candidates.Count - 1);
             int memberIndex = candidates[interviewCandidateIndex];
             MemberDefinition member = GameModel.Members[memberIndex];
@@ -273,67 +289,138 @@ namespace ChoSiren.Panels
             portrait.preserveAspect = true;
             portrait.raycastTarget = false;
 
-            Text name = kit.NewPlacedText(page, member.Name, 55, PanelKit.White,
-                80, 498, 355, 84, TextAnchor.MiddleLeft, FontStyle.Bold);
-            name.name = "CandidateName";
-            kit.NewPlacedText(page, $"{InterviewShortRace(member, memberIndex)} · {career}", 23, PanelKit.White,
-                88, 592, 320, 35, TextAnchor.MiddleLeft);
-            kit.NewPlacedText(page, $"战斗定位：{InterviewPosition(career, memberIndex)}", 21, PanelKit.Muted,
-                88, 633, 330, 38, TextAnchor.MiddleLeft);
-            kit.NewPlacedText(page, InterviewTrait(career, memberIndex), 19, PanelKit.Purple,
-                88, 679, 330, 48, TextAnchor.MiddleLeft);
-            kit.NewPlacedText(page, "舞台五维", 26, PanelKit.White, 90, 744, 270, 42,
+            BuildAuthoredCandidateCard(page, member, memberIndex, career);
+            BuildAuthoredCandidateNavigation(page, candidates.Count, art);
+            BuildAuthoredContract(page, member, memberIndex, career, art);
+        }
+
+        /// <summary>
+        /// 姓名/档案/五维整组挂在 CandidateCard 下并随授权斜卡 -3.5° 微倾，使文字行与
+        /// 属性条与卡面平行；全部元素留在暗色卡面安全区内。
+        /// </summary>
+        private void BuildAuthoredCandidateCard(RectTransform page, MemberDefinition member,
+            int memberIndex, string career)
+        {
+            RectTransform card = kit.NewRect("CandidateCard", page);
+            PanelKit.PlaceTop(card, 55, 430, 390, 800);
+            ReferencePunkFx.Tilt(card, -3.5f);
+
+            kit.NewPlacedText(card, member.Name, 50, PanelKit.White, 22, 58, 330, 84,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateName";
+            Text identity = kit.NewPlacedText(card,
+                $"{InterviewShortRace(member, memberIndex)} · {career} · 战斗定位：{InterviewPosition(career, memberIndex)}",
+                17, new Color32(225, 220, 245, 255), 22, 150, 340, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
+            identity.name = "CandidateIdentity";
+            PanelKit.EnableBestFit(identity, 11);
+            kit.NewPlacedText(card, InterviewTrait(career, memberIndex), 16,
+                new Color32(205, 167, 255, 255), 22, 186, 340, 34,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateTrait";
+
+            kit.NewPlacedText(card, "舞台五维", 22, PanelKit.White, 22, 232, 180, 36,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "StatsTitle";
+            ReferencePunkFx.Beam(card, "StatsTitleBeam", new Vector2(150, 260), new Vector2(360, 260),
+                1.5f, new Color32(255, 105, 212, 140));
+
             CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
                 out int dance, out int fame, out int beauty);
-            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
             string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
+            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
             int[] values = { vocal, rhythm, dance, fame, beauty };
-            int strongest = 0;
-            for (int i = 1; i < 4; i++) if (values[i] > values[strongest]) strongest = i;
-            for (int i = 0; i < labels.Length; i++)
+            var glyphs = new[]
             {
-                float y = 796 + i * 62;
-                Color accent = i == strongest ? PanelKit.Pink : i == 4 ? PanelKit.Cyan : PanelKit.Purple;
-                Text label = kit.NewPlacedText(page, labels[i], 23, accent,
-                    92, y, 190, 34, TextAnchor.MiddleLeft);
-                label.name = "StatLabel-" + keys[i];
-                Text value = kit.NewPlacedText(page, values[i].ToString(), 26, PanelKit.White,
-                    300, y - 4, 82, 38, TextAnchor.MiddleRight, FontStyle.Bold);
-                value.name = "StatValue-" + keys[i];
-                Image fill = kit.NewBar("StatBar-" + keys[i], page, 93, y + 34, 290, 9,
+                ReferencePunkFx.StatGlyphKind.Wave, ReferencePunkFx.StatGlyphKind.Note,
+                ReferencePunkFx.StatGlyphKind.Spark, ReferencePunkFx.StatGlyphKind.Mic,
+                ReferencePunkFx.StatGlyphKind.Gem,
+            };
+            int strongest = 0;
+            for (int i = 1; i < values.Length; i++) if (values[i] > values[strongest]) strongest = i;
+            for (int i = 0; i < keys.Length; i++)
+            {
+                float y = 284 + i * 58;
+                bool lead = i == strongest;
+                Color accent = lead ? PanelKit.Pink : i == 4 ? PanelKit.Cyan : PanelKit.Purple;
+                Image icon = kit.NewImage("StatIcon-" + keys[i], card,
+                    ReferencePunkFx.StatGlyph(glyphs[i]),
+                    lead ? accent : new Color32(178, 166, 224, 235));
+                PanelKit.PlaceTop(icon.rectTransform, 22, y + 2, 26, 26);
+                icon.raycastTarget = false;
+                kit.NewPlacedText(card, labels[i], 19, lead ? accent : PanelKit.Muted,
+                    56, y, 80, 30, TextAnchor.MiddleLeft,
+                    lead ? FontStyle.Bold : FontStyle.Normal).name = "StatLabel-" + keys[i];
+                if (lead)
+                    kit.NewPlacedText(card, "强项", 15, accent, 142, y, 56, 28,
+                        TextAnchor.MiddleLeft, FontStyle.Bold).name = "StrongestStat";
+                kit.NewPlacedText(card, values[i].ToString(), 22, PanelKit.White,
+                    252, y - 2, 90, 32, TextAnchor.MiddleRight, FontStyle.Bold)
+                    .name = "StatValue-" + keys[i];
+                Image fill = kit.NewBar("StatBar-" + keys[i], card, 56, y + 34, 286, 8,
                     new Color32(26, 20, 55, 255), accent, 0);
                 fill.fillAmount = Mathf.Clamp01(values[i] / 100f);
-                if (i == strongest)
-                {
-                    Text badge = kit.NewPlacedText(page, "强项", 17, PanelKit.Pink,
-                        206, y + 1, 68, 32, TextAnchor.MiddleCenter, FontStyle.Bold);
-                    badge.name = "StrongestStat";
-                }
             }
-            int risk = model.InterviewRisk(interviewPoolIndex, memberIndex);
-            kit.NewPlacedText(page, $"风险值 {risk} · {GameModel.InterviewRiskLabel(risk)}", 22,
-                PanelKit.Pink, 104, 1144, 345, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
-            kit.NewPlacedText(page, $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期", 16,
-                PanelKit.Gold, 106, 1192, 350, 40, TextAnchor.MiddleLeft);
 
-            BuildAuthoredCandidateNavigation(page, candidates.Count);
+            ReferencePunkFx.Beam(card, "ManagementBeam", new Vector2(22, 588), new Vector2(360, 588),
+                1.2f, new Color32(153, 133, 204, 96));
+            kit.NewPlacedText(card,
+                $"魅力 {beauty} · 收益 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期",
+                17, new Color32(229, 217, 249, 255), 22, 600, 330, 30,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateCharm";
+            int risk = model.InterviewRisk(interviewPoolIndex, memberIndex);
+            string riskTier = GameModel.InterviewRiskLabel(risk);
+            Color32 riskColor = riskTier == "高" ? new Color32(255, 108, 128, 255)
+                : riskTier == "中" ? new Color32(255, 196, 92, 255) : new Color32(104, 226, 160, 255);
+            kit.NewPlacedText(card, $"风险值 {risk} · {riskTier}", 16, riskColor,
+                22, 634, 200, 30, TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRisk";
+            Image riskFill = kit.NewBar("CandidateRiskBar", card, 22, 668, 310, 8,
+                new Color32(83, 78, 126, 86), riskColor, 6);
+            riskFill.fillAmount = risk / 100f;
+            Text salary = kit.NewPlacedText(card,
+                $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期（7 天一期）",
+                14, PanelKit.Gold, 22, 686, 350, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+            salary.name = "CandidateSalary";
+            PanelKit.EnableBestFit(salary, 10);
+            kit.NewPlacedText(card, TeamNeedsCareer(career) ? $"★ 团队缺少{career} · 推荐"
+                    : $"★ {InterviewShortRace(member, memberIndex)} · 阵容适配",
+                16, PanelKit.Gold, 22, 724, 355, 36,
+                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRecommendation";
+        }
+
+        /// <summary>
+        /// 契约条与「签约」大按钮已烘进整页美术：报价/倒计时/两个动作按实测位置叠加为
+        /// 透明命中区 + 实时数值。容器命名沿用 InterviewActions 语义。
+        /// </summary>
+        private void BuildAuthoredContract(RectTransform page, MemberDefinition member,
+            int memberIndex, string career, Image board)
+        {
+            RectTransform actions = kit.NewRect("InterviewActions", page);
+            PanelKit.PlaceTop(actions, 15, 1400, 830, 268);
             int cost = InterviewCost(memberIndex);
-            kit.NewPlacedText(page, TeamNeedsCareer(career) ? $"团队缺少{career} · 推荐" : $"{InterviewShortRace(member, memberIndex)} · 阵容适配",
-                21, PanelKit.Gold, 73, 1344, 390, 43, TextAnchor.MiddleLeft).name = "CandidateRecommendation";
-            kit.NewPlacedText(page, "签约报价", 18, PanelKit.Muted, 73, 1391, 190, 30, TextAnchor.MiddleLeft);
-            Image currency = kit.NewImage("SigningCurrency", page, PanelKit.CurrencyIcon("diamond"), Color.white);
-            PanelKit.PlaceTop(currency.rectTransform, 70, 1432, 40, 40);
+            kit.NewPlacedText(actions, "签约报价", 15, PanelKit.Muted,
+                30, 18, 150, 26, TextAnchor.MiddleLeft);
+            Image currency = kit.NewImage("SigningCurrency", actions,
+                PanelKit.CurrencyIcon("diamond"),
+                PanelKit.CurrencyIcon("diamond") != null ? Color.white : PanelKit.CurrencyColor("diamond"));
+            PanelKit.PlaceTop(currency.rectTransform, 30, 48, 38, 38);
             currency.preserveAspect = true; currency.raycastTarget = false;
-            kit.NewPlacedText(page, cost.ToString("N0"), 36, PanelKit.Cyan, 118, 1424, 142, 60,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "SigningPrice";
+            kit.NewPlacedText(actions, cost.ToString("N0"), 30, PanelKit.Cyan,
+                76, 42, 150, 50, TextAnchor.MiddleLeft, FontStyle.Bold).name = "SigningPrice";
             TimeSpan refreshIn = model.TimeUntilNextInterviewCycle();
-            kit.NewPlacedText(page, $"{(int)refreshIn.TotalHours:00}:{refreshIn.Minutes:00} 后更新名单", 16, PanelKit.Muted,
-                70, 1490, 204, 45, TextAnchor.MiddleLeft).name = "CandidateRefreshCountdown";
-            InterviewBoardHotspot("ViewInterview", page, 270, 1416, 190, 105,
+            kit.NewPlacedText(actions,
+                $"{(int)refreshIn.TotalHours:00}:{refreshIn.Minutes:00} 后更新名单",
+                14, PanelKit.Muted, 30, 102, 200, 52, TextAnchor.UpperLeft)
+                .name = "CandidateRefreshCountdown";
+
+            string detailLabel = interviewPoolIndex == 0 ? "查看视频面试" : "开始现场面试";
+            GameObject view = InterviewBoardHotspot("ViewInterview", actions, 253, 100, 195, 105,
                 () => Notify($"{member.Name}：{InterviewTrait(career, memberIndex)}，战斗定位：{InterviewPosition(career, memberIndex)}。"));
-            InterviewBoardHotspot("SignCandidate", page, 510, 1355, 294, 234,
+            Text viewLabel = PanelKit.LabelOf(view);
+            if (viewLabel != null) { viewLabel.text = detailLabel; viewLabel.color = Color.clear; }
+            GameObject sign = InterviewBoardHotspot("SignCandidate", actions, 455, 10, 360, 218,
                 () => SignInterviewCandidate(memberIndex, cost));
+            // Both contract buttons are baked art: the hex button and the 签约 burst move as
+            // whole bodies (silhouette exceeds the hits), while the fixed hit rects stay put.
+            BakedRegionMotion038.Attach(view, board, new Rect(247f, 1495f, 222f, 140f));
+            BakedRegionMotion038.Attach(sign, board, new Rect(445f, 1388f, 400f, 278f));
         }
 
         private GameObject InterviewBoardHotspot(string name, Transform parent, float x, float y,
@@ -347,38 +434,36 @@ namespace ChoSiren.Panels
             return hit;
         }
 
-        private void BuildAuthoredCandidateNavigation(RectTransform page, int count)
+        /// <summary>
+        /// 上一位/计数/下一位三块铭牌已烘进授权整页美术（源像素约 y1250–1419）。
+        /// 这里只叠真实命中区、方向高光 chevron 和实时计数，不再画任何底板。
+        /// </summary>
+        private void BuildAuthoredCandidateNavigation(RectTransform page, int count, Image board)
         {
-            // Keep browsing next to the portrait, clear of the five-stat panel and contract.
-            GameObject strip = kit.NewPanel("CandidateNavigation", page, new Color32(13, 12, 45, 235), 16);
-            PanelKit.PlaceTop(strip.GetComponent<RectTransform>(), 465, 1220, 373, 112);
-            strip.GetComponent<Image>().raycastTarget = false;
-            Outline border = strip.AddComponent<Outline>();
-            border.effectColor = new Color32(118, 91, 229, 210);
-            border.effectDistance = new Vector2(1, -1);
-            Text counter = kit.NewPlacedText(strip.transform, $"{interviewCandidateIndex + 1} / {count}",
-                31, PanelKit.White, 91, 12, 191, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
+            RectTransform strip = kit.NewRect("CandidateNavigation", page);
+            PanelKit.PlaceTop(strip, 30, 1250, 790, 150);
+            Text counter = kit.NewPlacedText(strip, $"{interviewCandidateIndex + 1} / {count}",
+                34, PanelKit.White, 330, 48, 160, 68, TextAnchor.MiddleCenter, FontStyle.Bold);
             counter.name = "CandidateCounter"; counter.raycastTarget = false;
-            Text hint = kit.NewPlacedText(strip.transform, "切换候选成员", 16, PanelKit.Cyan,
-                91, 65, 191, 30, TextAnchor.MiddleCenter);
-            hint.raycastTarget = false;
             for (int direction = -1; direction <= 1; direction += 2)
             {
                 int step = direction;
                 GameObject hit = InterviewBoardHotspot(step < 0 ? "PreviousCandidate" : "NextCandidate",
-                    strip.transform, step < 0 ? 7 : 282, 8, 84, 96, () => MoveInterviewCandidate(step));
+                    strip, step < 0 ? 10 : 530, 5, step < 0 ? 300 : 280, 140,
+                    () => MoveInterviewCandidate(step));
                 hit.GetComponent<Button>().interactable = count > 1;
-                Image visual = kit.NewImage("CandidateArrowVisualV2", hit.transform, kit.RoundedSprite(12),
-                    step < 0 ? new Color32(61, 27, 113, 255) : new Color32(31, 54, 118, 255));
-                PanelKit.Stretch(visual.rectTransform);
+                Image visual = kit.NewImage("CandidateArrowVisualV2", hit.transform,
+                    AuditionPolish038.Chevron(step < 0), Color.white);
+                PanelKit.PlaceTop(visual.rectTransform, step < 0 ? 14 : 216, 43, 42, 54);
+                visual.preserveAspect = true;
                 visual.raycastTarget = false;
                 visual.transform.SetAsFirstSibling();
-                Text arrow = kit.NewPlacedText(visual.transform, step < 0 ? "‹" : "›", 44, PanelKit.White,
-                    0, 0, 84, 62, TextAnchor.MiddleCenter, FontStyle.Bold);
-                arrow.raycastTarget = false;
-                Text label = kit.NewPlacedText(visual.transform, step < 0 ? "上一位" : "下一位", 16,
-                    PanelKit.White, 0, 64, 84, 29, TextAnchor.MiddleCenter);
-                label.raycastTarget = false;
+                // Baked plaque + live chevron move as one body (TactileVisualMotion skips
+                // children under a BakedRegionMotion038 host, so the arrow is not animated
+                // twice); the hit rect itself never moves.
+                BakedRegionMotion038.Attach(hit, board, step < 0
+                    ? new Rect(60f, 1245f, 295f, 170f)
+                    : new Rect(505f, 1245f, 340f, 170f));
             }
         }
 
@@ -430,10 +515,10 @@ namespace ChoSiren.Panels
             refresh.name = "InterviewRefresh";
         }
 
-        private void BuildInterviewComplete(Transform parent)
+        private void BuildInterviewComplete(Transform parent, float x = 80f, float y = 280f)
         {
             GameObject complete = kit.NewPanel("InterviewComplete", parent, new Color32(20, 23, 67, 188), 26);
-            PanelKit.PlaceTop(complete.GetComponent<RectTransform>(), 80, 280, 560, 350);
+            PanelKit.PlaceTop(complete.GetComponent<RectTransform>(), x, y, 560, 350);
             kit.AddOutline(complete, new Color32(153, 97, 228, 98), 1);
             kit.NewPlacedText(complete.transform, "本期候选已全部签约", 28, PanelKit.White,
                 30, 76, 500, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -755,57 +840,60 @@ namespace ChoSiren.Panels
 
         private void SignInterviewCandidate(int memberIndex, int cost) => ShowSignConfirm(memberIndex, cost);
 
+        /// <summary>
+        /// 签约确认：水晶面板 + 候选人立绘槽 + 实际费用/余额/后果。余额不足时确认键
+        /// 锁定并显示星钻缺口；任何路径都不在确认前扣款或解锁。
+        /// </summary>
         private void ShowSignConfirm(int memberIndex, int cost)
         {
             CloseSignModal();
             MemberDefinition member = GameModel.Members[memberIndex];
             string career = InterviewCareer(member, memberIndex);
-            Image overlay = kit.NewImage("SignConfirmOverlay", transform, null, new Color32(3, 4, 23, 232));
-            PanelKit.Stretch(overlay.rectTransform);
-            overlay.raycastTarget = true;
-            signModal = overlay.gameObject;
+            ModalPolish038Frame frame = kit.NewModal038(transform, "SignConfirmOverlay",
+                "确认签约", "星光签约 · 候选确认", CloseSignModal, 620f, "SignModalClose");
+            frame.Panel.gameObject.name = "SignConfirmCard";
+            signModal = frame.Overlay;
+            Transform body = frame.Body;
 
-            GameObject card = kit.NewPanel("SignConfirmCard", overlay.transform, new Color32(14, 17, 52, 252), 24);
-            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 60, 340, 600, 560);
-            kit.AddOutline(card, new Color32(136, 111, 213, 130), 1.5f);
-            kit.NewPlacedText(card.transform, "确认签约", 24, PanelKit.White, 40, 20, 520, 40,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
-            Image frame = kit.NewImage("PortraitFrame", card.transform, null, Color.clear);
-            PanelKit.PlaceTop(frame.rectTransform, 220, 68, 160, 150);
-            frame.raycastTarget = false;
-            frame.gameObject.AddComponent<RectMask2D>();
-            Image portrait = kit.NewImage("Portrait", frame.transform, CandidateSprite(member), PanelKit.White);
-            portrait.preserveAspect = true;
-            portrait.raycastTarget = false;
-            PanelKit.FrameBustPortrait(portrait, frame.rectTransform, member.Id);
-            kit.NewPlacedText(card.transform, $"{member.Name} · {career}", 22, PanelKit.White,
-                40, 226, 520, 36, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignConfirmName";
-            kit.NewPlacedText(card.transform,
+            ModalPolish038Chrome.PortraitSlot(body, "CandidatePortraitSlot", CandidateSprite(member),
+                member.Id, 175f, 6f, 140f, 140f, Color.white);
+            kit.NewPlacedText(body, $"{member.Name} · {career}", 22, PanelKit.White,
+                0, 154, 490, 34, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignConfirmName";
+            kit.NewPlacedText(body,
                 $"{InterviewRace(member, memberIndex)} · 战斗定位：{InterviewPosition(career, memberIndex)}",
-                14, PanelKit.Muted, 40, 264, 520, 26, TextAnchor.MiddleCenter);
-            Image cur = kit.NewImage("SignCostIcon", card.transform, PanelKit.CurrencyIcon("diamond"),
+                13, PanelKit.Muted, 0, 192, 490, 26, TextAnchor.MiddleCenter);
+            Image costIcon = kit.NewImage("SignCostIcon", body, PanelKit.CurrencyIcon("diamond"),
                 PanelKit.CurrencyIcon("diamond") != null ? Color.white : PanelKit.CurrencyColor("diamond"));
-            PanelKit.PlaceTop(cur.rectTransform, 168, 312, 34, 34);
-            cur.raycastTarget = false;
-            kit.NewPlacedText(card.transform, $"签约费用  星钻 {cost:N0}", 20,
-                PanelKit.CurrencyColor("diamond"), 210, 306, 350, 44,
+            PanelKit.PlaceTop(costIcon.rectTransform, 95, 230, 32, 32);
+            costIcon.preserveAspect = true; costIcon.raycastTarget = false;
+            kit.NewPlacedText(body, $"签约费用  星钻 {cost:N0}", 19,
+                PanelKit.CurrencyColor("diamond"), 138, 226, 330, 40,
                 TextAnchor.MiddleLeft, FontStyle.Bold).name = "SignConfirmCost";
             int balance = model.Save.Diamonds;
             bool affordable = balance >= cost;
-            kit.NewPlacedText(card.transform,
+            kit.NewPlacedText(body,
                 affordable ? $"当前余额 {balance:N0} · 签约后剩 {balance - cost:N0}"
                     : $"星钻不足 · 当前 {balance:N0} · 还差 {cost - balance:N0}",
-                13, affordable ? PanelKit.Muted : PanelKit.Pink, 40, 354, 520, 24,
-                TextAnchor.MiddleCenter).name = "SignConfirmBalance";
-            kit.NewPlacedText(card.transform, "签约后进入成员页 · 按 7 天经营期结算预估月薪",
-                12, PanelKit.Muted, 40, 382, 520, 24, TextAnchor.MiddleCenter);
-            GameObject cancel = kit.NewButton("SignCancel", card.transform, "再想想", 18,
-                PanelKit.ButtonDark, PanelKit.White, CloseSignModal, 16);
-            PanelKit.PlaceTop(cancel.GetComponent<RectTransform>(), 30, 456, 260, 64);
-            GameObject confirm = kit.NewButton("SignConfirm", card.transform, "确认签约", 20,
-                new Color32(92, 65, 191, 245), PanelKit.White, () => ConfirmSign(memberIndex, cost), 16);
-            PanelKit.PlaceTop(confirm.GetComponent<RectTransform>(), 310, 456, 260, 64);
-            confirm.GetComponent<Button>().interactable = affordable;
+                13, affordable ? PanelKit.Muted : ModalPolish038Chrome.AccentDanger,
+                0, 270, 490, 26, TextAnchor.MiddleCenter).name = "SignConfirmBalance";
+            float detailY = 302f;
+            if (!affordable)
+            {
+                GameObject hint = kit.NewModal038State(body, "SignInsufficientHint",
+                    ModalPolish038StateKind.Locked, "星钻不足",
+                    "可通过章节奖励与演出结算获取星钻");
+                PanelKit.PlaceTop(hint.GetComponent<RectTransform>(), 20, 300, 450, 58);
+                detailY = 368f;
+            }
+            kit.NewPlacedText(body, "签约后进入成员页 · 按 7 天经营期结算预估月薪",
+                12, PanelKit.Muted, 0, detailY, 490, 24, TextAnchor.MiddleCenter);
+            GameObject cancel = kit.NewModal038Button(body, "SignCancel", "再想想", 18,
+                CloseSignModal, ModalPolish038ButtonStyle.Secondary);
+            PanelKit.PlaceTop(cancel.GetComponent<RectTransform>(), 30, 500, 200, 64);
+            GameObject confirm = kit.NewModal038Button(body, "SignConfirm", "确认签约", 20,
+                () => ConfirmSign(memberIndex, cost), ModalPolish038ButtonStyle.Primary);
+            PanelKit.PlaceTop(confirm.GetComponent<RectTransform>(), 260, 500, 200, 64);
+            ModalPolish038Chrome.SetActionEnabled(confirm, affordable);
         }
 
         private void ConfirmSign(int memberIndex, int cost)
@@ -827,42 +915,43 @@ namespace ChoSiren.Panels
             ShowSignedCard(memberIndex);
         }
 
+        /// <summary>
+        /// 签约成功：立绘结果卡 + 实际等级/定位/预估月薪，可继续面试或跳转成员档案。
+        /// 只在真实扣款成功后由 ConfirmSign 调用。
+        /// </summary>
         private void ShowSignedCard(int memberIndex)
         {
             CloseSignModal();
             MemberDefinition member = GameModel.Members[memberIndex];
-            Image overlay = kit.NewImage("SignResultOverlay", transform, null, new Color32(3, 4, 23, 232));
-            PanelKit.Stretch(overlay.rectTransform);
-            overlay.raycastTarget = true;
-            signModal = overlay.gameObject;
+            string career = InterviewCareer(member, memberIndex);
+            ModalPolish038Frame frame = kit.NewModal038(transform, "SignResultOverlay",
+                "签约成功", "星光签约 · 已完成", CloseSignModal, 620f, "SignModalClose");
+            frame.Panel.gameObject.name = "SignResultCard";
+            signModal = frame.Overlay;
+            Transform body = frame.Body;
 
-            GameObject card = kit.NewPanel("SignResultCard", overlay.transform, new Color32(14, 17, 52, 252), 24);
-            PanelKit.PlaceTop(card.GetComponent<RectTransform>(), 60, 380, 600, 480);
-            kit.AddOutline(card, new Color32(255, 210, 117, 130), 1.5f);
-            kit.NewPlacedText(card.transform, "签约成功", 26, new Color32(255, 210, 117, 255), 40, 24, 520, 44,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
-            Image frame = kit.NewImage("PortraitFrame", card.transform, null, Color.clear);
-            PanelKit.PlaceTop(frame.rectTransform, 220, 84, 160, 150);
-            frame.raycastTarget = false;
-            frame.gameObject.AddComponent<RectMask2D>();
-            Image portrait = kit.NewImage("Portrait", frame.transform, CandidateSprite(member), PanelKit.White);
-            portrait.preserveAspect = true;
-            portrait.raycastTarget = false;
-            PanelKit.FrameBustPortrait(portrait, frame.rectTransform, member.Id);
-            kit.NewPlacedText(card.transform, $"{member.Name} 已加入团队", 22, PanelKit.White,
-                40, 244, 520, 36, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignResultName";
-            kit.NewPlacedText(card.transform, "可在成员页查看档案并编队上阵",
-                13, PanelKit.Muted, 40, 284, 520, 26, TextAnchor.MiddleCenter);
-            GameObject stay = kit.NewButton("SignResultStay", card.transform, "继续面试", 18,
-                PanelKit.ButtonDark, PanelKit.White, CloseSignModal, 16);
-            PanelKit.PlaceTop(stay.GetComponent<RectTransform>(), 30, 380, 260, 64);
-            GameObject view = kit.NewButton("SignResultProfile", card.transform, "查看档案", 20,
-                new Color32(92, 65, 191, 245), PanelKit.White, () =>
+            ModalPolish038Chrome.PortraitSlot(body, "ResultPortraitSlot", CandidateSprite(member),
+                member.Id, 175f, 8f, 140f, 140f, Color.white);
+            kit.NewPlacedText(body, $"{member.Name} 已加入团队", 22, PanelKit.White,
+                0, 156, 490, 34, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignResultName";
+            kit.NewPlacedText(body,
+                $"等级 Lv.{model.LevelOf(memberIndex)} · 战斗定位：{InterviewPosition(career, memberIndex)}",
+                13, PanelKit.Muted, 0, 196, 490, 26, TextAnchor.MiddleCenter);
+            GameObject hint = kit.NewModal038State(body, "SignResultHint",
+                ModalPolish038StateKind.Confirm, "签约完成",
+                $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期 · 可在成员页查看档案并编队上阵");
+            PanelKit.PlaceTop(hint.GetComponent<RectTransform>(), 20, 238, 450, 64);
+            GameObject stay = kit.NewModal038Button(body, "SignResultStay", "继续面试", 18,
+                CloseSignModal, ModalPolish038ButtonStyle.Secondary);
+            PanelKit.PlaceTop(stay.GetComponent<RectTransform>(), 30, 500, 200, 64);
+            GameObject view = kit.NewModal038Button(body, "SignResultProfile", "查看档案", 20,
+                () =>
                 {
                     CloseSignModal();
                     onSigned?.Invoke(memberIndex);
-                }, 16);
-            PanelKit.PlaceTop(view.GetComponent<RectTransform>(), 310, 380, 260, 64);
+                }, ModalPolish038ButtonStyle.Primary);
+            PanelKit.PlaceTop(view.GetComponent<RectTransform>(), 260, 500, 200, 64);
+            ModalPolish038Chrome.PlaySuccess();
         }
 
         private void CloseSignModal()

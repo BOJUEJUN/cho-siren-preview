@@ -740,10 +740,15 @@ namespace ChoSiren
         /// 线下 quote worth paying — before this the two channels showed identical stats.</summary>
         public static int InterviewChannelStatDelta(int poolIndex) => poolIndex == 0 ? -9 : 6;
 
+        /// <summary>舞台五维量表上限：候选卡进度条与档案读数都按 /100 折算，培养到顶恰好读满。</summary>
+        public const int StageStatMax = 100;
+
         /// <summary>
         /// 舞台四维 + 魅力的确定性公式：成员身份唯一决定（memberIndex 散列 + 职业加成 +
-        /// 渠道修正），并随等级成长（每级 +2）。面试预览传 poolIndex 与 level=1；
-        /// 档案/练习页传 poolIndex=1 与真实等级，与「舞台四维」术语全局统一。
+        /// 渠道修正），并随等级成长（每两级 +1，1→100 级共 +49）。面试预览传 poolIndex 与
+        /// 签约起点等级；档案/练习页传 poolIndex=1 与真实等级，与「舞台四维」术语全局统一。
+        /// 签约读数被渠道区间压低（线上约 30–55、线下约 40–70），培养沿 0–100 量表上行，
+        /// 招募与成长全程都不会超过 <see cref="StageStatMax"/>。
         /// </summary>
         public static void StageStats(MemberDefinition member, int memberIndex, int poolIndex,
             int level, out int vocal, out int rhythm, out int presence, out int resonance,
@@ -752,19 +757,28 @@ namespace ChoSiren
             string career = member == null || string.IsNullOrWhiteSpace(member.Career)
                 ? "未指定" : member.Career;
             int powerBias = member == null ? 0 : Mathf.Clamp((member.BasePower - 6200) / 500, 0, 10);
-            // 线上是低价视频初筛，天花板压低；线下贵得多，买的是更高的下限与唯一的顶级区间。
+            // 线上是低价视频初筛，读数压低；线下贵得多，买的是更高的下限、更高的起点等级
+            // 与唯一的顶级区间——两池读数差就是报价差的实际含义。
             bool online = poolIndex == 0;
             int shift = InterviewChannelStatDelta(poolIndex);
-            int floor = online ? 55 : 64;
-            int ceiling = online ? 83 : 98;
-            int levelGain = Mathf.Max(0, level - 1) * 2;
-            vocal = Mathf.Clamp(68 + memberIndex * 7 % 19 + powerBias + (career == "主唱" ? 10 : 0) + shift, floor, ceiling) + levelGain;
-            rhythm = Mathf.Clamp(64 + memberIndex * 5 % 21 + powerBias + (career == "主舞" ? 11 : 0) + shift, floor, ceiling) + levelGain;
-            presence = Mathf.Clamp(70 + memberIndex * 3 % 20 + powerBias + (career == "Rapper" ? 7 : 0) + shift, floor, ceiling) + levelGain;
-            resonance = Mathf.Clamp(66 + memberIndex * 9 % 20 + powerBias + (career == MemberCareers.Face ? 10 : 0) + shift, floor, ceiling) + levelGain;
-            charm = Mathf.Clamp(72 + memberIndex * 4 % 18 + powerBias + (online ? -10 : 5),
-                online ? 62 : 72, online ? 84 : 96) + levelGain;
+            int floor = online ? 30 : 36;
+            int ceiling = online ? 55 : 66;
+            int levelGain = Mathf.Max(0, level - 1) / 2;
+            vocal = StageStatAt(38 + memberIndex * 7 % 15 + powerBias + (career == "主唱" ? 8 : 0) + shift,
+                floor, ceiling, levelGain);
+            rhythm = StageStatAt(36 + memberIndex * 5 % 16 + powerBias + (career == "主舞" ? 9 : 0) + shift,
+                floor, ceiling, levelGain);
+            presence = StageStatAt(38 + memberIndex * 3 % 16 + powerBias + (career == "Rapper" ? 6 : 0) + shift,
+                floor, ceiling, levelGain);
+            resonance = StageStatAt(37 + memberIndex * 9 % 16 + powerBias + (career == MemberCareers.Face ? 8 : 0) + shift,
+                floor, ceiling, levelGain);
+            charm = StageStatAt(40 + memberIndex * 4 % 15 + powerBias + (online ? -8 : 4),
+                online ? 32 : 40, online ? 58 : 68, levelGain);
         }
+
+        /// <summary>渠道区间约束签约底数，再把训练成长叠在 0–100 量表内。</summary>
+        private static int StageStatAt(int rawBase, int floor, int ceiling, int levelGain) =>
+            Mathf.Clamp(Mathf.Clamp(rawBase, floor, ceiling) + levelGain, 1, StageStatMax);
 
         /// <summary>Risk 0–100 for a candidate as presented in a channel. Deterministic per member
         /// so it never flickers, then nudged by channel: the bargain 线上 pool carries more risk,
@@ -2442,6 +2456,14 @@ namespace ChoSiren
             while (Save.MemberSigningChannel.Count < Members.Length) Save.MemberSigningChannel.Add(-1);
             if (Save.MemberSigningChannel.Count > Members.Length)
                 Save.MemberSigningChannel.RemoveRange(Members.Length, Save.MemberSigningChannel.Count - Members.Length);
+
+            // 未签约成员的存储等级只是入队前的招募基准（训练与签约都要求已解锁），不是玩家投入。
+            // 图鉴回调招募基准时把超过新基准的旧种子压下来，让旧存档候选池同样获得培养空间；
+            // 只降不升（新档全员 1 级起步的契约不受影响），已解锁或签过渠道的成员一律不动。
+            // 幂等：第二次载入 min 结果不变。
+            for (int index = 0; index < Members.Length; index++)
+                if (!Save.UnlockedMembers.Contains(index) && Save.MemberSigningChannel[index] == -1)
+                    Save.MemberLevels[index] = Math.Min(Save.MemberLevels[index], DefaultLevel(index));
 
             Save.SalarySettlementNotice ??= string.Empty;
 

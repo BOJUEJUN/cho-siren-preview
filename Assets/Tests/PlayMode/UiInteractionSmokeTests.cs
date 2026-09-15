@@ -216,7 +216,8 @@ namespace ChoSiren.Tests
 
             Click("EquipmentChooseMember");
             yield return null;
-            Click("PickMember-1");
+            RequireActiveObject("EquipmentPolish038Selector");
+            Click("EquipmentPolish038Member-1");
             yield return null;
             Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[1].Name));
@@ -842,7 +843,8 @@ namespace ChoSiren.Tests
         {
             HashSet<string> allowedGameTokens = new HashSet<string>
             {
-                "SSR", "SR", "R", "S", "A", "B", "C", "Rapper", "DJ",
+                // LV.N 是授权顶栏的等级徽章写法，与 SSR/DJ 一样属于约定俗成的游戏记号。
+                "SSR", "SR", "R", "S", "A", "B", "C", "Rapper", "DJ", "LV",
             };
             Text[] labels = Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude);
             for (int labelIndex = 0; labelIndex < labels.Length; labelIndex++)
@@ -883,11 +885,18 @@ namespace ChoSiren.Tests
 
         private static void AssertApprovedLobbyGoldenIsVisible()
         {
-            const string path = "Art/LobbyPunk/038/lobby-home-base-038";
-            Texture expected = Resources.Load<Sprite>(path)?.texture ?? Resources.Load<Texture2D>(path);
-            Assert.That(expected, Is.Not.Null, "未导入 0.3.8 首页 golden：" + path);
+            // 首页优先显示授权 Reference038 整页底板；缺失时才回退旧 golden。
+            const string authoredPath = "Art/Reference038/lobby-board-038";
+            const string fallbackPath = "Art/LobbyPunk/038/lobby-home-base-038";
+            Texture authored = Resources.Load<Sprite>(authoredPath)?.texture
+                ?? Resources.Load<Texture2D>(authoredPath);
+            Texture fallback = Resources.Load<Sprite>(fallbackPath)?.texture
+                ?? Resources.Load<Texture2D>(fallbackPath);
+            Assert.That(authored != null || fallback != null, Is.True,
+                "未导入 0.3.8 首页底板：" + authoredPath);
             Assert.That(Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Exclude)
-                    .Count(image => image.sprite != null && image.sprite.texture == expected), Is.EqualTo(1),
+                    .Count(image => image.sprite != null &&
+                        (image.sprite.texture == authored || image.sprite.texture == fallback)), Is.EqualTo(1),
                 "底栏中文必须来自唯一的 0.3.8 整图，不能回退到旧英文分层素材。");
         }
 

@@ -328,7 +328,7 @@ namespace ChoSiren
         // ------------------------------------------------------------------
         // team — central stellar orbit stage
 
-        private void BuildTeamReference() => BuildTeamBoard038();
+        private void BuildTeamReference() => BuildRosterPolish038TeamBoard();
 
         /// <summary>
         /// One orbit slot on the stellar stage. The hit rect stays unrotated so the
@@ -423,7 +423,7 @@ namespace ChoSiren
         // ------------------------------------------------------------------
         // members — slanted roster grid
 
-        private void BuildMembersReference() => BuildMembersBoard038();
+        private void BuildMembersReference() => BuildRosterPolish038MembersBoard();
 
         private void MemberFilterButtonReference(string name, string label, int x, int y, int width,
             UnityEngine.Events.UnityAction action, bool mirror = false, bool selected = false)

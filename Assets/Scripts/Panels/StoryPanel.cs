@@ -78,8 +78,7 @@ namespace ChoSiren.Panels
         private Text bodyText;
         private Text continueHint;
         private RectTransform choiceLayer;
-        private GameObject autoButton;
-        private GameObject skipButton;
+        private SecondaryStory038Action autoControl;
         private GameObject historyOverlay;
         private Text historyText;
         private RectTransform historyContent;
@@ -162,23 +161,29 @@ namespace ChoSiren.Panels
         {
             Image bar = kit.NewImage("TopBar", transform, null, new Color32(5, 10, 38, 170));
             PanelKit.PlaceTop(bar.rectTransform, 0, 0, 720, 76);
+            ReferencePunkFx.Beam(bar.transform, "TopBarBeam", new Vector2(0f, 75f),
+                new Vector2(720f, 75f), 1.4f, SecondaryStory038Chrome.CutViolet);
 
-            GameObject back = kit.NewButton("Back", bar.transform, "返回", 15, PanelKit.ButtonDark, PanelKit.White,
-                Leave, 16);
-            PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 18, 14, 86, 48);
+            SecondaryStory038Action back = SecondaryStory038Chrome.GlassAction(bar.transform, "Back",
+                "返回", 15, SecondaryStory038Chrome.SocketUtility, SecondaryStory038Chrome.EdgeViolet,
+                Leave, mirror: true);
+            PanelKit.PlaceTop(back.Root.GetComponent<RectTransform>(), 18, 14, 86, 48);
 
             titleText = kit.NewPlacedText(bar.transform, runner.Script.Title, 15, PanelKit.White, 116, 14, 260, 48,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
+            PanelKit.EnableBestFit(titleText, 10);
 
-            autoButton = kit.NewButton("AutoPlay", bar.transform, "自动", 15, PanelKit.ButtonDark, PanelKit.White,
-                ToggleAuto, 16);
-            PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 392, 14, 92, 48);
-            skipButton = kit.NewButton("Skip", bar.transform, "跳过", 15, PanelKit.ButtonDark, PanelKit.White,
-                SkipToDecision, 16);
-            PanelKit.PlaceTop(skipButton.GetComponent<RectTransform>(), 496, 14, 92, 48);
-            GameObject historyButton = kit.NewButton("History", bar.transform, "记录", 15, PanelKit.ButtonDark,
-                PanelKit.White, ShowHistory, 16);
-            PanelKit.PlaceTop(historyButton.GetComponent<RectTransform>(), 600, 14, 102, 48);
+            autoControl = SecondaryStory038Chrome.GlassAction(bar.transform, "AutoPlay", "自动", 15,
+                SecondaryStory038Chrome.SocketUtility, SecondaryStory038Chrome.EdgeViolet, ToggleAuto);
+            PanelKit.PlaceTop(autoControl.Root.GetComponent<RectTransform>(), 392, 14, 92, 48);
+            SecondaryStory038Action skip = SecondaryStory038Chrome.GlassAction(bar.transform, "Skip",
+                "跳过", 15, SecondaryStory038Chrome.SocketUtility, SecondaryStory038Chrome.EdgeViolet,
+                SkipToDecision, mirror: true);
+            PanelKit.PlaceTop(skip.Root.GetComponent<RectTransform>(), 496, 14, 92, 48);
+            SecondaryStory038Action historyButton = SecondaryStory038Chrome.GlassAction(bar.transform,
+                "History", "记录", 15, SecondaryStory038Chrome.SocketUtility,
+                SecondaryStory038Chrome.EdgeViolet, ShowHistory);
+            PanelKit.PlaceTop(historyButton.Root.GetComponent<RectTransform>(), 600, 14, 102, 48);
         }
 
         private void BuildSlots()
@@ -195,9 +200,9 @@ namespace ChoSiren.Panels
                 PanelKit.Stretch(portrait.rectTransform);
                 portrait.preserveAspect = true;
 
-                GameObject silhouette = kit.NewPanel("Silhouette", root, new Color32(20, 16, 58, 215), 32);
-                PanelKit.PlaceTop(silhouette.GetComponent<RectTransform>(), 60, 160, 200, 640);
-                kit.AddOutline(silhouette, new Color32(166, 112, 255, 120), 2);
+                GameObject silhouette = SecondaryStory038Chrome.Plate(root, "Silhouette",
+                    new Color32(20, 16, 58, 215), index % 2 == 1, 24f,
+                    SecondaryStory038Chrome.CutViolet, 60, 160, 200, 640).gameObject;
                 Image head = kit.NewImage("Head", silhouette.transform, kit.RadialSprite(), new Color32(120, 90, 200, 180));
                 PanelKit.PlaceTop(head.rectTransform, 40, 50, 120, 120);
                 Text silhouetteName = kit.NewPlacedText(silhouette.transform, string.Empty, 18, PanelKit.White, 10, 300,
@@ -221,23 +226,27 @@ namespace ChoSiren.Panels
 
         private void BuildDialogue()
         {
-            dialogueBox = kit.NewButton("DialogueBox", transform, string.Empty, 12, new Color32(10, 11, 42, 190),
-                PanelKit.White, DialogueClicked, 28);
+            SecondaryStory038Action dialogue = SecondaryStory038Chrome.GlassAction(transform,
+                "DialogueBox", null, 12, SecondaryStory038Chrome.SocketDark,
+                SecondaryStory038Chrome.EdgeViolet, DialogueClicked);
+            dialogueBox = dialogue.Root;
             PanelKit.PlaceTop(dialogueBox.GetComponent<RectTransform>(), 20, 1050, 680, 372);
-            kit.AddOutline(dialogueBox, new Color32(166, 112, 255, 160), 2);
-            PanelKit.LabelOf(dialogueBox).gameObject.SetActive(false);
+            Transform face = dialogue.Body;
 
-            nameTag = kit.NewPanel("NameTag", dialogueBox.transform, PanelKit.Pink, 16);
-            PanelKit.PlaceTop(nameTag.GetComponent<RectTransform>(), 28, -24, 240, 50);
+            nameTag = SecondaryStory038Chrome.Plate(face, "NameTag", PanelKit.Pink, false, 12f,
+                new Color32(255, 190, 235, 130), 28, -24, 240, 50).gameObject;
             nameText = kit.NewPlacedText(nameTag.transform, string.Empty, 19, PanelKit.White, 12, 0, 216, 50,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
+            PanelKit.EnableBestFit(nameText, 12);
 
-            bodyText = kit.NewPlacedText(dialogueBox.transform, string.Empty, 21, PanelKit.White, 36, 48, 608, 268,
+            bodyText = kit.NewPlacedText(face, string.Empty, 21, PanelKit.White, 36, 48, 608, 268,
                 TextAnchor.UpperLeft);
             bodyText.lineSpacing = 1.3f;
 
-            continueHint = kit.NewPlacedText(dialogueBox.transform, "▼", 18, new Color32(255, 173, 226, 255), 600, 318,
+            continueHint = kit.NewPlacedText(face, "▼", 18, new Color32(255, 173, 226, 255), 600, 318,
                 48, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
+
+            dialogue.Sheen.transform.SetAsLastSibling();
         }
 
         private void BuildChoices()
@@ -249,16 +258,15 @@ namespace ChoSiren.Panels
 
         private void BuildHistory()
         {
-            Image overlay = kit.NewImage("HistoryPanel", transform, null, new Color32(3, 4, 23, 236));
-            PanelKit.Stretch(overlay.rectTransform);
-            overlay.raycastTarget = true;
-            historyOverlay = overlay.gameObject;
+            ModalPolish038Frame frame = ModalPolish038Chrome.Begin(transform, "HistoryPanel",
+                "已读台词", "剧情记录", HideHistory, 620f, "HistoryClose");
+            historyOverlay = frame.Overlay;
 
-            kit.NewPlacedText(overlay.transform, "已读台词", 24, PanelKit.White, 40, 40, 640, 44,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
+            GameObject listPlate = ModalPolish038Chrome.RowPlate(frame.Body, "HistoryFrame");
+            SecondaryStory038Chrome.Stretch(listPlate.GetComponent<RectTransform>(), 2f, 2f, -2f, -2f);
 
-            RectTransform viewport = kit.NewRect("HistoryList", overlay.transform);
-            PanelKit.PlaceTop(viewport, 40, 100, 640, 1280);
+            RectTransform viewport = kit.NewRect("HistoryList", listPlate.transform);
+            SecondaryStory038Chrome.Stretch(viewport, 10f, 10f, -10f, -10f);
             Image viewportImage = viewport.gameObject.AddComponent<Image>();
             viewportImage.color = new Color(0f, 0f, 0f, 0.001f);
             viewport.gameObject.AddComponent<RectMask2D>();
@@ -280,9 +288,6 @@ namespace ChoSiren.Panels
             scroll.movementType = ScrollRect.MovementType.Clamped;
             scroll.scrollSensitivity = 40f;
 
-            GameObject close = kit.NewButton("HistoryClose", overlay.transform, "关闭", 19, PanelKit.Pink,
-                PanelKit.White, HideHistory, 22);
-            PanelKit.PlaceTop(close.GetComponent<RectTransform>(), 200, 1410, 320, 66);
             historyOverlay.SetActive(false);
         }
 
@@ -379,10 +384,11 @@ namespace ChoSiren.Panels
             for (int index = 0; index < count; index++)
             {
                 int captured = index;
-                GameObject button = kit.NewButton("Choice-" + index, choiceLayer, line.Choices[index].Text, 18,
-                    new Color32(23, 20, 72, 190), PanelKit.White, () => Choose(captured), 22);
+                GameObject button = SecondaryStory038Chrome.GlassAction(choiceLayer,
+                    "Choice-" + index, line.Choices[index].Text, 18,
+                    SecondaryStory038Chrome.SocketChoice, SecondaryStory038Chrome.EdgePink,
+                    () => Choose(captured), mirror: index % 2 == 1).Root;
                 PanelKit.PlaceTop(button.GetComponent<RectTransform>(), 100, top + index * (height + gap), 520, height);
-                kit.AddOutline(button, new Color32(255, 126, 226, 200), 2);
                 choiceButtons.Add(button);
             }
         }
@@ -474,8 +480,10 @@ namespace ChoSiren.Panels
         private void ToggleAuto()
         {
             autoMode = !autoMode;
-            PanelKit.LabelOf(autoButton).text = autoMode ? "自动：开" : "自动";
-            PanelKit.SetButtonState(autoButton, true, autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
+            SecondaryStory038Chrome.SetActionFace(autoControl,
+                autoMode ? SecondaryStory038Chrome.EdgePink : SecondaryStory038Chrome.EdgeViolet,
+                autoMode ? SecondaryStory038Chrome.FaceToggleOn : SecondaryStory038Chrome.FaceDark,
+                autoMode ? "自动：开" : "自动");
             if (autoMode && !typing) ScheduleAuto();
             else if (!autoMode) CancelAuto();
             Notify(autoMode ? "已开启自动播放" : "已关闭自动播放");

@@ -515,6 +515,37 @@ namespace ChoSiren.Panels
                 src.height * scale * (1f - top));
         }
 
+        // ---------------------------------------------------------------- 0.3.8 modal chrome
+
+        /// <summary>Approved illustrated crystal modal backdrop (opaque, native 3:4).</summary>
+        public Sprite ModalBackdrop038() => ModalPolish038Chrome.BackdropSprite();
+
+        /// <summary>
+        /// Common 0.3.8 modal foundation for every panel owner (signing, equipment selector,
+        /// chapter modals, resource panels): overlay + crystal panel + centered title + close +
+        /// safe Body rect. Content goes inside <see cref="ModalPolish038Frame.Body"/>.
+        /// </summary>
+        public ModalPolish038Frame NewModal038(Transform host, string overlayName, string title,
+            string eyebrow, UnityEngine.Events.UnityAction onClose, float panelWidth,
+            string closeName = "CloseProgression", bool titleVisible = true)
+            => ModalPolish038Chrome.Begin(host, overlayName, title, eyebrow, onClose,
+                panelWidth, closeName, titleVisible);
+
+        /// <summary>Slashed action button with body hover/press/release feedback.</summary>
+        public GameObject NewModal038Button(Transform parent, string name, string label,
+            int fontSize, UnityEngine.Events.UnityAction action,
+            ModalPolish038ButtonStyle style = ModalPolish038ButtonStyle.Primary)
+            => ModalPolish038Chrome.ActionButton(parent, name, label, fontSize, action, style);
+
+        /// <summary>Empty/error/locked/confirm/info state block for modal content.</summary>
+        public GameObject NewModal038State(Transform parent, string name,
+            ModalPolish038StateKind kind, string title, string detail)
+            => ModalPolish038Chrome.StateBlock(parent, name, kind, title, detail);
+
+        /// <summary>Quiet slashed row plate for list rows inside modals.</summary>
+        public GameObject NewModal038Row(Transform parent, string name, bool mirror = false)
+            => ModalPolish038Chrome.RowPlate(parent, name, mirror);
+
         /// <summary>拉伸铺满 frame 并等比居中——饰品等非成员图在遮罩框内的兜底摆法。</summary>
         public static void FitInsideFrame(Image image)
         {

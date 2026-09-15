@@ -64,32 +64,66 @@ namespace ChoSiren
             return lockedSilhouetteSprite;
         }
 
-        /// <summary>Roster grid card for a not-yet-signed member: silhouette + remaining count only.</summary>
+        /// <summary>
+        /// Roster grid card for a not-yet-signed member: silhouette + remaining count only.
+        /// RosterPolish038: the whole block is lowered into a balanced composition and the
+        /// authored glitch silhouette is clipped to the card's slanted window so no
+        /// rectangular seam crosses the jagged frame. The procedural bust stays as the
+        /// direct "LockedSilhouette" child — it is the reveal contract and the fallback
+        /// whenever the authored art is missing.
+        /// </summary>
         private void BuildLockedMemberCard(GameObject card, int width, int height)
         {
             GameObject glow = NewImage("CareerGlow", card.transform, StageGlowSprite(),
                 new Color32(96, 108, 168, 40));
-            PlaceTop(glow.GetComponent<RectTransform>(), 3, 3, width - 6, 148);
+            PlaceTop(glow.GetComponent<RectTransform>(), 3, 3, width - 6,
+                Mathf.RoundToInt(height * .62f));
+
+            // Balanced vertical rhythm: ~9% top margin, ~55% window, labels centred below.
+            float wx = 6f, ww = width - 12f;
+            float wy = Mathf.Round(height * .085f);
+            float wh = Mathf.Round(height * .55f);
 
             GameObject silhouette = NewImage("LockedSilhouette", card.transform, LockedSilhouetteSprite(),
                 LockedSilhouetteTint);
-            PlaceTop(silhouette.GetComponent<RectTransform>(), 4, 4, width - 8, 145);
+            PlaceTop(silhouette.GetComponent<RectTransform>(), wx, wy, ww, wh);
             silhouette.GetComponent<Image>().preserveAspect = true;
             silhouette.GetComponent<Image>().raycastTarget = false;
 
-            Text mark = NewPlacedText(card.transform, MemberRosterVisibility.LockedSilhouetteMark, 42,
-                LockedSilhouetteMark, 4, 48, width - 8, 56, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Text mark = NewPlacedText(card.transform, MemberRosterVisibility.LockedSilhouetteMark, 40,
+                LockedSilhouetteMark, wx, wy + wh * .30f, ww, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
             mark.name = "LockedMark";
 
-            Text name = NewPlacedText(card.transform, MemberRosterVisibility.LockedName, 17,
-                new Color32(198, 192, 226, 255), 7, 160, width - 14, 27,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
+            Sprite art = ReferenceArt038.Load("Art/Reference038/unknown-member-038");
+            if (art != null)
+            {
+                GameObject clip = RosterPolish038Clip(card.transform, "RosterPolish038Clip",
+                    wx, wy, ww, wh);
+                GameObject image = NewImage("RosterPolish038LockedArt", clip.transform, art, White);
+                // Cover-fit: fill the window width and let the clip take the slanted edges.
+                float artHeight = ww * art.rect.height / Mathf.Max(1f, art.rect.width);
+                PlaceTop(image.GetComponent<RectTransform>(), 0, 0, ww, Mathf.Max(wh, artHeight));
+                image.GetComponent<Image>().raycastTarget = false;
+                glow.SetActive(false);
+                mark.gameObject.SetActive(false);
+            }
+
+            float labelY = wy + wh + 8f;
+            Text name = NewPlacedText(card.transform, MemberRosterVisibility.LockedName, 16,
+                new Color32(198, 192, 226, 255), 8, labelY, width - 16, 26,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
             name.name = "LockedName";
+            PanelKit.EnableBestFit(name, 13);
+            name.horizontalOverflow = HorizontalWrapMode.Overflow;
+            name.verticalOverflow = VerticalWrapMode.Truncate;
             Text progress = NewPlacedText(card.transform,
                 MemberRosterVisibility.LockedCardTitle(MemberRosterVisibility.RemainingCount(
                     model.Save.UnlockedMembers.Count, GameModel.Members.Length)),
-                12, Muted, 7, 185, width - 14, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
+                11, Muted, 8, labelY + 28f, width - 16, 22, TextAnchor.MiddleCenter, FontStyle.Bold);
             progress.name = "LockedProgress";
+            PanelKit.EnableBestFit(progress, 10);
+            progress.horizontalOverflow = HorizontalWrapMode.Overflow;
+            progress.verticalOverflow = VerticalWrapMode.Truncate;
 
             Outline edge = card.AddComponent<Outline>();
             edge.effectColor = new Color32(95, 111, 165, 58);

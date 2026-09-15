@@ -744,56 +744,7 @@ namespace ChoSiren
         /// <summary>v0.3.4 深入交流结果弹窗：立绘 + 羁绊文案 + 好感度变化，返回原档案。</summary>
         private void OpenDeepTalkResult(int memberIndex, int teamSlot, string dialogue,
             int affectionBefore, int affectionAfter)
-        {
-            MemberDefinition member = GameModel.Members[memberIndex];
-            CloseModal();
-
-            GameObject overlay = NewImage("DeepTalkModal", safeRoot, null, new Color32(3, 4, 20, 220));
-            Stretch(overlay.GetComponent<RectTransform>());
-            overlay.GetComponent<Image>().raycastTarget = true;
-            modalObject = overlay;
-
-            GameObject panel = NewPanel("Panel", overlay.transform, new Color32(26, 14, 40, 253), 28);
-            RectTransform panelRect = panel.GetComponent<RectTransform>();
-            panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(560, 640);
-            AddQuietPanelEdge(panel);
-
-            GameObject portraitFrame = NewImage("PortraitFrame", panel.transform, null, Color.clear);
-            PlaceTop(portraitFrame.GetComponent<RectTransform>(), 28, 28, 204, 288);
-            portraitFrame.AddComponent<RectMask2D>();
-            GameObject portrait = NewImage("Portrait", portraitFrame.transform,
-                Resources.Load<Sprite>(member.ResourcePath), White);
-            Image portraitImage = portrait.GetComponent<Image>();
-            portraitImage.preserveAspect = true;
-            PanelKit.FrameBustPortrait(portraitImage,
-                portraitFrame.GetComponent<RectTransform>(), member.Id);
-
-            NewPlacedText(panel.transform, "深入交流 · 羁绊时刻", 22, new Color32(255, 183, 229, 255),
-                248, 44, 292, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(panel.transform, member.Name, 30, White,
-                248, 84, 292, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(panel.transform, $"{MemberRace(member, memberIndex)} · {member.Career}", 15, Pink,
-                250, 132, 290, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-
-            Text dialogueText = NewPlacedText(panel.transform, dialogue, 17, White,
-                28, 340, 504, 176, TextAnchor.UpperLeft);
-            dialogueText.name = "DeepTalkDialogue";
-            dialogueText.lineSpacing = 1.25f;
-
-            Text affectionGain = NewPlacedText(panel.transform,
-                $"好感度 {affectionBefore} → {affectionAfter}（+{affectionAfter - affectionBefore}） · 明日可再来",
-                16, new Color32(111, 255, 194, 255), 28, 528, 504, 30,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
-            affectionGain.name = "DeepTalkAffectionResult";
-            PanelKit.EnableBestFit(affectionGain, 13);
-
-            GameObject back = NewButton("BackToProfile", panel.transform, "返回档案", 17,
-                new Color32(63, 57, 108, 245), White, () => OpenTeamMember(memberIndex, teamSlot));
-            PlaceTop(back.GetComponent<RectTransform>(), 28, 572, 504, 52);
-            AddQuietPanelEdge(back);
-        }
+            => OpenDeepTalkResult038(memberIndex, teamSlot, dialogue, affectionBefore, affectionAfter);
 
         private void MemberSkillCopy(MemberDefinition member, out string firstName, out string firstEffect,
             out string secondName, out string secondEffect)
@@ -943,95 +894,9 @@ namespace ChoSiren
 
         private void OpenInfoModal(string title, string body, string primaryLabel,
             UnityEngine.Events.UnityAction primaryAction)
-        {
-            CloseModal();
-            GameObject overlay = NewImage("InfoModal", safeRoot, null, new Color32(3, 4, 20, 224));
-            Stretch(overlay.GetComponent<RectTransform>());
-            overlay.GetComponent<Image>().raycastTarget = true;
-            modalObject = overlay;
+            => OpenInfoModal038(title, body, primaryLabel, primaryAction);
 
-            GameObject panel = NewModalPunkPanel("Panel", overlay.transform, 600, 490);
-            RectTransform panelRect = panel.GetComponent<RectTransform>();
-            panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(600, 490);
-
-            NewPlacedText(panel.transform, title, 29, White, 38, 34, 455, 50,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
-            GameObject close = NewButton("Close", panel.transform, "×", 28, Color.clear, White, CloseModal);
-            PlaceTop(close.GetComponent<RectTransform>(), 520, 25, 50, 50);
-            NewPlacedText(panel.transform, body, 17, Muted, 42, 116, 516, 210,
-                TextAnchor.UpperLeft);
-
-            UnityEngine.Events.UnityAction confirmed = () =>
-            {
-                CloseModal();
-                primaryAction?.Invoke();
-            };
-            GameObject primary = NewModalPunkButton("Primary", panel.transform, primaryLabel, 18, confirmed, Pink);
-            PlaceTop(primary.GetComponent<RectTransform>(), 170, 360, 260, 64);
-            StyleModalClose(close);
-        }
-
-        private void OpenSettings()
-        {
-            CloseModal();
-            GameObject overlay = NewImage("SettingsModal", safeRoot, null, new Color32(3, 4, 20, 220));
-            Stretch(overlay.GetComponent<RectTransform>());
-            overlay.GetComponent<Image>().raycastTarget = true;
-            modalObject = overlay;
-
-            GameObject panel = NewModalPunkPanel("Panel", overlay.transform, 600, 650);
-            RectTransform panelRect = panel.GetComponent<RectTransform>();
-            panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRect.pivot = new Vector2(0.5f, 0.5f);
-            panelRect.sizeDelta = new Vector2(600, 650);
-
-            GameObject gear = NewImage("SettingsEmblem", panel.transform,
-                Resources.Load<Sprite>("Art/UI/HudIcons/Settings"), new Color32(208, 176, 255, 255));
-            PlaceTop(gear.GetComponent<RectTransform>(), 38, 32, 42, 42);
-            gear.GetComponent<UnityEngine.UI.Image>().preserveAspect = true;
-            NewPlacedText(panel.transform, "游戏设置", 30, White, 96, 28, 380, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
-            GameObject close = NewButton("Close", panel.transform, "×", 28, Color.clear, White, CloseModal);
-            PlaceTop(close.GetComponent<RectTransform>(), 520, 22, 50, 50);
-            StyleModalClose(close);
-
-            SettingsRow(panel.transform, "音乐", model.Save.MusicEnabled ? "已开启" : "已关闭", 115, () =>
-            {
-                model.ToggleMusic();
-                ApplyMusicRouting();
-                OpenSettings();
-            });
-            SettingsRow(panel.transform, "音效", model.Save.SfxEnabled ? "已开启" : "已关闭", 205, () =>
-            {
-                model.ToggleSfx();
-                gameAudio.ApplySettings();
-                OpenSettings();
-            });
-            SettingsRow(panel.transform, "画质", model.Save.QualityLevel == 1 ? "高清" : "流畅", 295, () =>
-            {
-                model.ToggleQuality();
-                OpenSettings();
-            });
-
-            NewPlacedText(panel.transform, "存档管理", 16, Muted, 45, 404, 330, 28, TextAnchor.MiddleLeft);
-            GameObject reset = NewModalPunkButton("Reset", panel.transform, "清除本机存档", 17, () =>
-            {
-                OpenInfoModal("确认清除本机存档？",
-                    "这会永久删除本机的培养、资源和通关记录。\n\n成员回到 1 级，关卡从 1-1 重新开始。\n\n关闭此窗口即可取消。",
-                    "确认清除并重新开始", () =>
-                {
-                    model.Reset();
-                    ApplyMusicRouting();
-                    ShowScreen("lobby");
-                    Toast("已重新开始：成员 1 级，仅开放 1-1");
-                });
-            }, new Color32(196, 83, 143, 255));
-            PlaceTop(reset.GetComponent<RectTransform>(), 40, 445, 520, 62);
-
-            GameObject done = NewModalPunkButton("Done", panel.transform, "完成", 21, CloseModal, Purple);
-            PlaceTop(done.GetComponent<RectTransform>(), 160, 551, 280, 62);
-        }
+        private void OpenSettings() => OpenSettings038();
 
         private void SettingsRow(Transform parent, string title, string value, int y, UnityEngine.Events.UnityAction action)
         {
@@ -1416,17 +1281,13 @@ namespace ChoSiren
                 Mathf.Min(85f, hitRect.width - 56f), 30f);
             ConfigureHudNumber(value);
             value.raycastTarget = false;
-            Rect absolutePlus;
-            if (currency == CurrencyIds.Diamond)
-                absolutePlus = new Rect(306.9f, 36.6f, 36.8f, 42.1f);
-            else if (currency == CurrencyIds.Gold)
-                absolutePlus = new Rect(456f, 37.5f, 33.3f, 42.1f);
-            else
-                absolutePlus = new Rect(593.7f, 37.5f, 36.8f, 43f);
 
+            // HeaderPolish038: one approved opaque plus tile per currency. The Button's
+            // hit rect is the tile itself and ConfigureReferenceHeader038 places it on
+            // each page's authored plus zone; the tile body (never the hit rect) is
+            // what feedback scales around its fixed centre.
             GameObject plus = NewImage("CurrencyPlus-" + currency, parent, null, Color.clear);
-            PlaceTop(plus.GetComponent<RectTransform>(), absolutePlus.x,
-                absolutePlus.y, absolutePlus.width, absolutePlus.height);
+            PlaceTop(plus.GetComponent<RectTransform>(), 306.9f, 36.6f, 36.8f, 42.1f);
             Image plusHit = plus.GetComponent<Image>();
             plusHit.raycastTarget = true;
             Button plusButton = plus.AddComponent<Button>();
@@ -1437,10 +1298,13 @@ namespace ChoSiren
                 ResumeMediaAfterUserGesture();
                 gameAudio?.PlayClick();
             });
-            Sprite plusFeedbackSprite = AiUiSprite(
-                "Art/LobbyPunk/038/lobby-resource-plus-" + currency + "-038");
-            AttachLobbyHotspotFeedback(plus, LobbyHotspotFeedback.VisualKind.CurrencyPlus,
-                plusFeedbackSprite);
+            Sprite plusTile = AiUiSprite("Art/LobbyPunk/038/header-plus-tile-038");
+            GameObject tile = NewImage("Icon", plus.transform, plusTile, White);
+            Stretch(tile.GetComponent<RectTransform>());
+            Image tileImage = tile.GetComponent<Image>();
+            tileImage.preserveAspect = true;
+            tileImage.raycastTarget = false;
+            AttachLobbyHotspotFeedback(plus, LobbyHotspotFeedback.VisualKind.CurrencyPlus, plusTile);
             return value;
         }
 
@@ -1448,24 +1312,6 @@ namespace ChoSiren
         {
             GameObject background = GameObject.Find("Background");
             if (background != null) background.SetActive(!active);
-
-            GameObject topBar = GameObject.Find("TopBar");
-            if (topBar == null) return;
-            foreach (Transform child in topBar.GetComponentsInChildren<Transform>(true))
-            {
-                if (child == topBar.transform) continue;
-                if (child.name.EndsWith("VisualV2") || child.name == "AvatarMask")
-                    child.gameObject.SetActive(!active);
-            }
-            foreach (Text text in topBar.GetComponentsInChildren<Text>(true))
-            {
-                text.enabled = !active;
-            }
-            foreach (LobbyHotspotFeedback feedback in
-                     topBar.GetComponentsInChildren<LobbyHotspotFeedback>(true))
-            {
-                feedback.enabled = active;
-            }
         }
 
         /// <summary>Full-bleed baked artwork node. Always raycastTarget=false so the
@@ -1610,7 +1456,7 @@ namespace ChoSiren
             int cap = model.StaminaCap;
             staminaText.text = $"{model.Save.Stamina}/{cap}";
             Text average = safeRoot.Find("TopBar/Profile/TeamAverageLevel")?.GetComponent<Text>();
-            if (average != null) average.text = "队伍等级 " + TeamAverageLevel;
+            if (average != null) average.text = "LV." + TeamAverageLevel;
         }
 
         private void BuildToast()

@@ -42,7 +42,7 @@ namespace ChoSiren
             page.localScale = Vector3.one * scale;
             panel.GetComponent<Image>().preserveAspect = true;
             panel.GetComponent<Image>().raycastTarget = false;
-            BoardButton038("CloseTop", page, new Rect(768, 58, 77, 82), () =>
+            GameObject close = BoardButton038("CloseTop", page, new Rect(768, 58, 77, 82), () =>
             {
                 Action back = memberProfileReturn;
                 memberProfileReturn = null;
@@ -68,7 +68,13 @@ namespace ChoSiren
             PlaceTop(portraitRim.GetComponent<RectTransform>(), 35, 70, 425, 710);
             portraitRim.GetComponent<ProfilePortraitRim038>().Source = board;
             portraitRim.GetComponent<ProfilePortraitRim038>().raycastTarget = false;
-            BoardText038(page, "MemberCareerTagText", $"{member.Career} · 等级 {level}", 23, White, 77, 723, 338, 43);
+            GameObject careerChip = new GameObject("MemberCareerTagChip", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            careerChip.transform.SetParent(page, false);
+            PlaceTop(careerChip.GetComponent<RectTransform>(), 56, 715, 246, 48);
+            ProfileEmblemFrame038 chipShape = careerChip.GetComponent<ProfileEmblemFrame038>();
+            chipShape.Slant = 9f; chipShape.color = new Color32(10, 6, 30, 235); chipShape.raycastTarget = false;
+            BoardText038(page, "MemberCareerTagText", $"{member.Career} · 等级 {level}", 23, White, 82, 720, 210, 38);
 
             BoardText038(page, "MemberOwnershipStatus", "已签约成员", 20, Pink, 480, 102, 250, 35);
             BoardText038(page, "MemberName", member.Name, 66, White, 481, 142, 297, 94);
@@ -81,10 +87,13 @@ namespace ChoSiren
             string[] infoValues = { member.Career, MemberRaceFamily(member, memberIndex), captain ? "当前队长" : inTeam ? "出战中" : "待命",
                 model.RiskOf(memberIndex).ToString(), $"{model.EstimatedMonthlySalary(memberIndex):N0}/期",
                 model.DeepTalkUnlocked(memberIndex) ? "已解锁" : $"好感{GameModel.DeepTalkAffectionUnlock}解锁" };
+            // Authored table slots sit between separators at y 485/540/583/626/669/711/760;
+            // keep every row inside its slot so the first and last lines clear the frame.
+            float[] infoRowTops = { 494f, 543f, 586f, 629f, 672f, 717f };
             for (int i = 0; i < infoNames.Length; i++)
             {
-                BoardText038(page, "MemberInfoLabel-" + i, infoNames[i], 19, Muted, 499, 488 + 43 * i, 85, 37);
-                BoardText038(page, "MemberInfoValue-" + i, infoValues[i], 20, White, 584, 488 + 43 * i, 209, 37);
+                BoardText038(page, "MemberInfoLabel-" + i, infoNames[i], 19, Muted, 502, infoRowTops[i], 84, 37);
+                BoardText038(page, "MemberInfoValue-" + i, infoValues[i], 20, White, 588, infoRowTops[i], 205, 37);
             }
             BoardText038(page, "MemberStageTrait", $"「 {MemberStageQualities.DominantTrait(vocal, rhythm, dance, fame)} 」",
                 23, Pink, 60, 803, 382, 67, TextAnchor.MiddleCenter);
@@ -103,43 +112,60 @@ namespace ChoSiren
                     160, 3 + i * 49, 116, 43, TextAnchor.MiddleRight);
             }
 
-            GameObject passive = ProfileGroup038(page, "MemberCaptainPanel", new Rect(53, 1300, 394, 104));
+            GameObject passive = ProfileGroup038(page, "MemberCaptainPanel", new Rect(53, 1296, 390, 100));
+            GameObject passiveBadge = new GameObject("CaptainPassiveBadge", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            passiveBadge.transform.SetParent(passive.transform, false);
+            PlaceTop(passiveBadge.GetComponent<RectTransform>(), 10, 20, 62, 62);
+            ProfileEmblemFrame038 badgeFill = passiveBadge.GetComponent<ProfileEmblemFrame038>();
+            badgeFill.SolidHex = true; badgeFill.color = new Color32(44, 18, 88, 255); badgeFill.raycastTarget = false;
             GameObject passiveFrame = new GameObject("CaptainPassiveFrame", typeof(RectTransform),
                 typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
             passiveFrame.transform.SetParent(passive.transform, false);
-            PlaceTop(passiveFrame.GetComponent<RectTransform>(), 6, 9, 78, 82);
+            PlaceTop(passiveFrame.GetComponent<RectTransform>(), 10, 20, 62, 62);
             passiveFrame.GetComponent<ProfileEmblemFrame038>().color = new Color32(158, 86, 239, 255);
             passiveFrame.GetComponent<ProfileEmblemFrame038>().raycastTarget = false;
-            var passiveIcon = SkillIconVisuals.Create(passiveFrame.transform, "CaptainPassiveIcon", "被动爆发", string.Empty, Purple);
+            var passiveIcon = SkillIconVisuals.Create(passive.transform, "CaptainPassiveIcon", "被动爆发", string.Empty,
+                new Color32(205, 150, 255, 255));
             passiveIcon.Kind = SkillIconKind.Burst;
-            PlaceTop(passiveIcon.rectTransform, 20, 22, 38, 38);
-            Text passiveCopy = BoardText038(passive.transform, "CaptainEffectDescription", CaptainEffectCopy(member.Race), 17, Muted,
-                95, 3, 292, 59);
-            passiveCopy.verticalOverflow = VerticalWrapMode.Truncate;
-            PanelKit.EnableBestFit(passiveCopy, 14);
-            GameObject appoint = BoardButton038("AppointCaptain", passive.transform, new Rect(220, 65, 168, 36),
+            PlaceTop(passiveIcon.rectTransform, 25, 35, 32, 32);
+            BoardText038(passive.transform, "CaptainPassiveTitle", "被动 · 队长特性", 20, White, 84, 12, 178, 30);
+            GameObject appoint = BoardButton038("AppointCaptain", passive.transform, new Rect(268, 10, 114, 32),
                 () => ConfirmCaptain(memberIndex));
             appoint.GetComponent<Button>().interactable = !captain;
-            BoardText038(appoint.transform, "Label", captain ? "当前队长" : inTeam ? "设为队长" : "上阵并任命", 19, Cyan,
-                0, 0, 168, 36, TextAnchor.MiddleCenter);
-
-            Sprite gemHeart = ProfileGemHeart038();
-            GameObject affectionFrame = NewImage("MemberAffectionHeartFrame", page, gemHeart, White);
-            PlaceTop(affectionFrame.GetComponent<RectTransform>(), 500, 1217, 145, 137);
-            affectionFrame.GetComponent<Image>().preserveAspect = true;
-            affectionFrame.GetComponent<Image>().raycastTarget = false;
-            GameObject heartInset = new GameObject("MemberAffectionHeartInset", typeof(RectTransform),
+            GameObject appointChip = new GameObject("Chip", typeof(RectTransform),
                 typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
-            heartInset.transform.SetParent(page, false);
-            PlaceTop(heartInset.GetComponent<RectTransform>(), 527, 1242, 93, 79);
-            ProfileEmblemFrame038 heartShape = heartInset.GetComponent<ProfileEmblemFrame038>();
-            heartShape.SolidHeart = true; heartShape.color = new Color32(18, 6, 40, 245); heartShape.raycastTarget = false;
-            Text affectionNumber = BoardText038(page, "MemberStatAffection", affection.ToString(), 54, Pink,
-                530, 1241, 87, 70, TextAnchor.MiddleCenter);
-            PanelKit.EnableBestFit(affectionNumber, 36);
-            BoardText038(page, "MemberAffectionTier", model.AffectionTierOf(memberIndex), 27, White, 643, 1247, 143, 55);
-            BoardText038(page, "MemberAffectionProgress", $"{affection}/{GameModel.MaxAffection}", 18, Muted, 634, 1306, 153, 34, TextAnchor.MiddleRight);
-            ProfileBar038(page, "MemberAffectionBar", 522, 1347, 260, 9, affection / (float)GameModel.MaxAffection, Pink);
+            appointChip.transform.SetParent(appoint.transform, false);
+            PlaceTop(appointChip.GetComponent<RectTransform>(), 0, 0, 114, 32);
+            ProfileEmblemFrame038 appointChipShape = appointChip.GetComponent<ProfileEmblemFrame038>();
+            appointChipShape.Slant = 5f; appointChipShape.color = new Color32(32, 15, 70, 240);
+            appointChipShape.raycastTarget = false;
+            BoardText038(appoint.transform, "Label", captain ? "当前队长" : inTeam ? "设为队长" : "上阵并任命", 15,
+                captain ? Muted : Cyan, 0, 0, 114, 32, TextAnchor.MiddleCenter);
+            Text passiveCopy = BoardText038(passive.transform, "CaptainEffectDescription", CaptainEffectCopy(member.Race), 16, Muted,
+                84, 46, 298, 48);
+            passiveCopy.verticalOverflow = VerticalWrapMode.Truncate;
+            PanelKit.EnableBestFit(passiveCopy, 12);
+
+            // Containing heart: neon rim + dark face, current affection number inside it.
+            GameObject heartRim = new GameObject("MemberAffectionHeartRim", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            heartRim.transform.SetParent(page, false);
+            PlaceTop(heartRim.GetComponent<RectTransform>(), 494, 1214, 142, 134);
+            ProfileEmblemFrame038 rimShape = heartRim.GetComponent<ProfileEmblemFrame038>();
+            rimShape.HeartRing = true; rimShape.color = Pink; rimShape.raycastTarget = false;
+            GameObject heartCore = new GameObject("MemberAffectionHeartCore", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            heartCore.transform.SetParent(page, false);
+            PlaceTop(heartCore.GetComponent<RectTransform>(), 508, 1228, 114, 106);
+            ProfileEmblemFrame038 coreShape = heartCore.GetComponent<ProfileEmblemFrame038>();
+            coreShape.SolidHeart = true; coreShape.color = new Color32(22, 8, 48, 250); coreShape.raycastTarget = false;
+            Text affectionNumber = BoardText038(page, "MemberStatAffection", affection.ToString(), 46, White,
+                506, 1240, 118, 66, TextAnchor.MiddleCenter);
+            PanelKit.EnableBestFit(affectionNumber, 30);
+            BoardText038(page, "MemberAffectionTier", $"· {model.AffectionTierOf(memberIndex)}", 27, White, 650, 1256, 148, 42);
+            BoardText038(page, "MemberAffectionProgress", $"{affection} / {GameModel.MaxAffection}", 18, Muted, 676, 1218, 136, 30, TextAnchor.MiddleRight);
+            ProfileBar038(page, "MemberAffectionBar", 496, 1354, 304, 8, affection / (float)GameModel.MaxAffection, Pink);
 
             BoardText038(page, "MemberTrainingPreview", atCap ? $"等级 {level} · 已达到等级上限" : $"等级 {level} → {level + 1} · 仅提升当前成员",
                 20, White, 57, 1492, 353, 47);
@@ -163,8 +189,8 @@ namespace ChoSiren
             GameObject train = BoardButton038("Train", page, new Rect(30, 1636, 200, 114), () =>
             { if (model.CanTrain(memberIndex, out _, out _)) OpenTrainingPractice(memberIndex, teamSlot); });
             train.GetComponent<Button>().interactable = canTrain;
-            ProfileSemanticLabel038(train, canTrain ? "练习升级" : atCap ? "已满级" : "星光币不足");
-            if (!canTrain) ProfileActionState038(train.transform, atCap ? "已满级" : "星光币不足", 200);
+            ProfileSemanticLabel038(train, "练习升级");
+            if (!canTrain) ProfileActionState038(train.transform, atCap ? "已满级" : "星光币不足", 200, true);
 
             GameObject team = BoardButton038("Team", page, new Rect(258, 1636, 177, 114), () =>
             {
@@ -174,12 +200,13 @@ namespace ChoSiren
                 Toast(message); CloseModal(); ShowScreen(currentScreen);
             });
             ProfileSemanticLabel038(team, inTeam ? "移出编队" : "加入编队");
+            GameObject replace = null;
             if (teamSlot >= 0)
             {
-                GameObject replace = BoardButton038("ReplaceTeamMember", page, new Rect(582, 571, 211, 37),
+                // This action occupies the existing deployment row's value slot (y 586-623).
+                replace = BoardButton038("ReplaceTeamMember", page, new Rect(588, 587, 205, 34),
                     () => OpenTeamSlotPicker(teamSlot));
-                BoardText038(replace.transform, "Label", "更换成员 ›", 20, Cyan, 2, 2, 207, 33, TextAnchor.MiddleRight);
-                // This action occupies the existing deployment row's value slot.
+                BoardText038(replace.transform, "Label", "更换成员 ›", 20, Cyan, 2, 1, 201, 32, TextAnchor.MiddleRight);
                 Transform deployment = page.Find("MemberInfoValue-2");
                 if (deployment != null) deployment.gameObject.SetActive(false);
             }
@@ -204,10 +231,34 @@ namespace ChoSiren
                 if (!model.DeepTalk(memberIndex, out string message, out string dialogue)) { Toast(message); return; }
                 OpenDeepTalkResult(memberIndex, teamSlot, dialogue, before, model.AffectionOf(memberIndex));
             });
+            bool deepBlocked = model.DeepTalkUsedToday(memberIndex) || !model.DeepTalkUnlocked(memberIndex);
             string deepState = model.DeepTalkUsedToday(memberIndex) ? "今日已交流"
                 : model.DeepTalkUnlocked(memberIndex) ? "深入交流" : $"好感{GameModel.DeepTalkAffectionUnlock}解锁";
-            ProfileSemanticLabel038(deep, deepState);
-            ProfileActionState038(deep.transform, deepState, 176);
+            ProfileSemanticLabel038(deep, "羁绊");
+            ProfileActionState038(deep.transform, deepState, 176, deepBlocked);
+
+            // Whole-body baked feedback: each parallelogram's frame+lettering plus its
+            // live state chip/labels move as one unit (children are animated in place,
+            // so transform.Find("StateChip"/"StateLabel"/"Label") keeps resolving).
+            // JoinTeamCaption is a page-level sibling of Team — passed as an extra so
+            // it still rides with the button it covers.
+            Image profileBoard = panel.GetComponent<Image>();
+            MainBakedMotion038Attach(close, profileBoard,
+                MainBakedMotion038Inflate(new Rect(768, 58, 77, 82), 4f));
+            MainBakedMotion038Attach(appoint, profileBoard,
+                MainBakedMotion038Inflate(new Rect(321, 1306, 114, 32), 2f));
+            MainBakedMotion038Attach(train, profileBoard,
+                MainBakedMotion038Inflate(new Rect(30, 1636, 200, 114), 4f));
+            MainBakedMotion038Attach(team, profileBoard,
+                MainBakedMotion038Inflate(new Rect(258, 1636, 177, 114), 4f),
+                page.Find("JoinTeamCaption"));
+            if (replace != null)
+                MainBakedMotion038Attach(replace, profileBoard,
+                    MainBakedMotion038Inflate(new Rect(588, 587, 205, 34), 3f));
+            MainBakedMotion038Attach(equipment, profileBoard,
+                MainBakedMotion038Inflate(new Rect(454, 1636, 170, 114), 4f));
+            MainBakedMotion038Attach(deep, profileBoard,
+                MainBakedMotion038Inflate(new Rect(652, 1640, 176, 110), 4f));
         }
 
         private GameObject ProfileGroup038(Transform parent, string name, Rect bounds)
@@ -249,9 +300,20 @@ namespace ChoSiren
             fill.GetComponent<Image>().raycastTarget = false;
         }
 
-        private void ProfileActionState038(Transform parent, string label, float width)
+        private void ProfileActionState038(Transform parent, string label, float width, bool blocked)
         {
-            BoardText038(parent, "StateLabel", label, 16, Muted, 5, 99, width - 10, 26, TextAnchor.MiddleCenter);
+            // Visible state chip inside the parallelogram's lower interior — under the
+            // baked lettering, above the frame's bottom edge (board y ~1700-1740).
+            GameObject chip = new GameObject("StateChip", typeof(RectTransform),
+                typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
+            chip.transform.SetParent(parent, false);
+            PlaceTop(chip.GetComponent<RectTransform>(), 32, 72, width - 70, 26);
+            ProfileEmblemFrame038 chipShape = chip.GetComponent<ProfileEmblemFrame038>();
+            chipShape.Slant = 4f;
+            chipShape.color = new Color32(48, 20, 96, 230);
+            chipShape.raycastTarget = false;
+            BoardText038(parent, "StateLabel", label, 15, blocked ? Pink : Cyan,
+                32, 72, width - 70, 26, TextAnchor.MiddleCenter);
         }
 
         private void ProfileSemanticLabel038(GameObject button, string caption)

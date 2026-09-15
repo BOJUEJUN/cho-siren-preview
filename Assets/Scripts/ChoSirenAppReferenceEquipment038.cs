@@ -27,35 +27,38 @@ namespace ChoSiren
             int[] visible = inventory.Skip(equipmentPage * 12).Take(12).ToArray();
             // Keep the authored pagination above the common, measured bottom-nav strip.
             RectTransform board = ReferenceBoard038("EquipmentReferenceBoard038", "Art/Reference038/accessory-board-038", 120);
+            Image equipmentBoard = board.GetComponent<Image>();
             GameObject body = NewImage("EquipmentBody", board, null, Color.clear);
             RectTransform root = body.GetComponent<RectTransform>();
             Stretch(root);
             body.GetComponent<Image>().raycastTarget = false;
             MemberDefinition m = GameModel.Members[member];
             GameObject selector = BoardButton038("EquipmentCycleMember", root, new Rect(22, 194, 378, 491), () => CycleEquipmentMember(1));
-            GameObject portraitClip = NewImage("EquipmentPortraitClip", selector.transform, null, Color.clear);
-            PlaceTop(portraitClip.GetComponent<RectTransform>(), 0, 0, 378, 412);
-            portraitClip.GetComponent<Image>().raycastTarget = false;
-            portraitClip.AddComponent<RectMask2D>();
-            GameObject portrait = NewImage("EquipmentPortrait", portraitClip.transform, Resources.Load<Sprite>(m.ResourcePath), White);
-            PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(), portraitClip.GetComponent<RectTransform>(), m.Id);
+            GameObject portrait = NewImage("EquipmentPortrait", selector.transform, Resources.Load<Sprite>(m.ResourcePath), White);
+            PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(), selector.GetComponent<RectTransform>(), m.Id);
             portrait.GetComponent<Image>().preserveAspect = true;
             portrait.GetComponent<Image>().raycastTarget = false;
-            // The portrait aperture ends above a white torn edge. Keep both live rows
-            // on their own quiet inset instead of laying small text over that edge.
-            GameObject memberPlaque = NewImage("EquipmentMemberPlaque", selector.transform, null,
-                new Color32(13, 7, 35, 248));
-            PlaceTop(memberPlaque.GetComponent<RectTransform>(), 18, 340, 332, 114);
+            // Diagonal vertex dissolve: the bust melts into the aperture glow, no waist cut.
+            portrait.AddComponent<EquipmentPolish038PortraitFade>();
+            // Authored crystalline rim with a jagged transparent window replaces the square clip.
+            GameObject aperture = NewImage("EquipmentPolish038Aperture", selector.transform,
+                Resources.Load<Sprite>("Art/Reference038/EquipmentPolish038-aperture-overlay"), White);
+            PlaceTop(aperture.GetComponent<RectTransform>(), 0, 0, 378, 491);
+            aperture.GetComponent<Image>().raycastTarget = false;
+            // Slanted crystalline ribbon at the aperture base carries name/level/power.
+            GameObject memberPlaque = NewImage("EquipmentMemberPlaque", selector.transform,
+                EquipmentPolish038Sprites.Plaque(), White);
+            PlaceTop(memberPlaque.GetComponent<RectTransform>(), 4, 376, 348, 113);
             memberPlaque.GetComponent<Image>().raycastTarget = false;
             Text memberName = BoardText038(memberPlaque.transform, "EquipmentMemberName",
-                $"{m.Name} · 等级 {model.LevelOf(member)}", 25, White, 16, 15, 300, 40);
-            PanelKit.EnableBestFit(memberName, 20);
+                $"{m.Name} · 等级 {model.LevelOf(member)}", 23, White, 58, 14, 250, 38);
+            PanelKit.EnableBestFit(memberName, 18);
             memberName.verticalOverflow = VerticalWrapMode.Truncate;
             Text memberPower = BoardText038(memberPlaque.transform, "EquipmentMemberPower",
-                $"战力 {model.PowerOf(member):N0}", 21, Cyan, 16, 65, 300, 34);
-            PanelKit.EnableBestFit(memberPower, 18);
+                $"战力 {model.PowerOf(member):N0}", 18, Cyan, 64, 54, 240, 30);
+            PanelKit.EnableBestFit(memberPower, 15);
             memberPower.verticalOverflow = VerticalWrapMode.Truncate;
-            BoardButton038("EquipmentChooseMember", root, new Rect(712, 442, 137, 244), () => OpenOwnedMemberPicker(0, 0, true));
+            GameObject chooseMember = BoardButton038("EquipmentChooseMember", root, new Rect(712, 442, 137, 244), () => OpenEquipmentMemberSelector());
             BoardText038(root, "EquipmentItemName", GameModel.AccessoryNames[item], 30, White, 442, 268, 305, 48);
             GameObject selectedArt = NewImage("EquipmentSelectedArt", root, AccessoryItemSprite(item), White);
             PlaceTop(selectedArt.GetComponent<RectTransform>(), 440, 321, 278, 205);
@@ -91,11 +94,11 @@ namespace ChoSiren
             {
                 int index = visible[slot];
                 int wearer = model.AccessoryOwner(index);
-                GameObject card = BoardButton038("Accessory-" + index, root,
-                    new Rect(44 + (slot % 3) * 270, 786 + (slot / 3) * 190, 233, 180), () =>
+                Rect cardRect = new Rect(44 + (slot % 3) * 270, 786 + (slot / 3) * 190, 233, 180);
+                GameObject card = BoardButton038("Accessory-" + index, root, cardRect, () =>
                     { selectedAccessoryIndex = index; ShowScreen("accessory"); });
                 GameObject art = NewImage("ItemArt", card.transform, AccessoryItemSprite(index), model.OwnsAccessory(index) ? White : new Color(1, 1, 1, .6f));
-                PlaceTop(art.GetComponent<RectTransform>(), 47, 0, 145, 82);
+                PlaceTop(art.GetComponent<RectTransform>(), 44, 0, 145, 82);
                 art.GetComponent<Image>().preserveAspect = true;
                 art.GetComponent<Image>().raycastTarget = false;
                 BoardText038(card.transform, "ItemName", GameModel.AccessoryNames[index], 20, AccessoryRarityColor(index), 5, 84, 228, 30);
@@ -110,6 +113,8 @@ namespace ChoSiren
                         model.EquipAccessoryForMember(member, index, out string message); RefreshEquipmentCollection(); Toast(message);
                     });
                     BoardText038(equip.transform, "Label", !owns ? "去关卡" : wearer == member ? "卸下" : wearer >= 0 ? "转移" : "装备", 17, Cyan, 0, 0, 108, 29, TextAnchor.MiddleCenter);
+                    MainBakedMotion038Attach(equip, equipmentBoard,
+                        MainBakedMotion038Inflate(new Rect(cardRect.x + 3, cardRect.y + 145, 108, 30), 2f));
                     if (owns)
                     {
                         bool can = model.CanUpgradeAccessory(index, out int cost);
@@ -117,17 +122,41 @@ namespace ChoSiren
                         { model.UpgradeAccessory(index, out string message); RefreshEquipmentCollection(); Toast(message); });
                         upgrade.GetComponent<Button>().interactable = can;
                         BoardText038(upgrade.transform, "Label", model.AccessoryUpgradeLevel(index) >= 3 ? "已满级" : $"强化 {cost}", 15, can ? White : Muted, 0, 0, 113, 29, TextAnchor.MiddleCenter);
+                        MainBakedMotion038Attach(upgrade, equipmentBoard,
+                            MainBakedMotion038Inflate(new Rect(cardRect.x + 116, cardRect.y + 145, 113, 30), 2f));
                     }
                 }
                 else BoardText038(card.transform, "ItemStatus", !model.OwnsAccessory(index) ? "掉落：" + GameModel.AccessorySource(index)
                     : wearer < 0 ? "已拥有 · 空闲" : "装备：" + GameModel.Members[wearer].Name, 14, Cyan, 5, 145, 227, 30);
+                // Whole-card motion: baked card frame slice plus ItemArt/captions move
+                // together. Nested Quick* buttons carry Selectable, so core skips them —
+                // their hit rects stay fixed and their own direct-hover bindings remain.
+                MainBakedMotion038Attach(card, equipmentBoard,
+                    MainBakedMotion038Inflate(cardRect, 2f));
             }
             if (visible.Length == 0) BoardText038(root, "EquipmentEmpty", "暂无符合筛选条件的饰品", 25, White, 100, 931, 660, 64, TextAnchor.MiddleCenter);
-            BoardButton038("EquipmentPreviousPage", root, new Rect(87, 1566, 219, 72), () =>
-            { equipmentPage = Math.Max(0, equipmentPage - 1); RefreshEquipmentCollection(); }).GetComponent<Button>().interactable = equipmentPage > 0;
+            GameObject previousPage = BoardButton038("EquipmentPreviousPage", root, new Rect(87, 1566, 219, 72), () =>
+            { equipmentPage = Math.Max(0, equipmentPage - 1); RefreshEquipmentCollection(); });
+            previousPage.GetComponent<Button>().interactable = equipmentPage > 0;
             BoardText038(root, "EquipmentPageCount", $"{equipmentPage + 1}/{pageCount}", 22, White, 372, 1576, 95, 42, TextAnchor.MiddleCenter);
-            BoardButton038("EquipmentNextPage", root, new Rect(548, 1566, 240, 72), () =>
-            { equipmentPage = Math.Min(pageCount - 1, equipmentPage + 1); RefreshEquipmentCollection(); }).GetComponent<Button>().interactable = equipmentPage + 1 < pageCount;
+            GameObject nextPage = BoardButton038("EquipmentNextPage", root, new Rect(548, 1566, 240, 72), () =>
+            { equipmentPage = Math.Min(pageCount - 1, equipmentPage + 1); RefreshEquipmentCollection(); });
+            nextPage.GetComponent<Button>().interactable = equipmentPage + 1 < pageCount;
+
+            // Whole-body baked feedback for the board-art controls; accessory cards keep
+            // their existing live ItemArt motion (native body), so they are not re-bound.
+            MainBakedMotion038Attach(selector, equipmentBoard,
+                MainBakedMotion038Inflate(new Rect(22, 194, 378, 491), 4f));
+            MainBakedMotion038Attach(chooseMember, equipmentBoard,
+                MainBakedMotion038Inflate(new Rect(712, 442, 137, 244), 4f));
+            MainBakedMotion038Attach(category, equipmentBoard,
+                MainBakedMotion038Inflate(new Rect(383, 720, 200, 43), 3f));
+            MainBakedMotion038Attach(owned, equipmentBoard,
+                MainBakedMotion038Inflate(new Rect(604, 720, 220, 43), 3f));
+            MainBakedMotion038Attach(previousPage, equipmentBoard,
+                MainBakedMotion038Inflate(new Rect(87, 1566, 219, 72), 4f));
+            MainBakedMotion038Attach(nextPage, equipmentBoard,
+                MainBakedMotion038Inflate(new Rect(548, 1566, 240, 72), 4f));
         }
     }
 }
