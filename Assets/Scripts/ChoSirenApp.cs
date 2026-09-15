@@ -326,6 +326,17 @@ namespace ChoSiren
                 new Rect(424f, 1343f, 125f, 128f),
                 new Rect(554f, 1326f, 147f, 148f),
             };
+            // Keep visible art placement independent from pointer hit testing. These are
+            // the per-item icon/frame/Chinese-label bounds measured from the 0.3.8 lobby.
+            // Do not derive them from an equal-width strip or stretch them to another hit grid.
+            Rect[] goldenVisualRects038 =
+            {
+                new Rect(18.375f, 1316.39f, 132f, 143f),
+                new Rect(153.92f, 1323.635f, 118f, 128f),
+                new Rect(276.55f, 1313.135f, 142f, 149f),
+                new Rect(417.55f, 1323.2f, 125f, 128f),
+                new Rect(528.815f, 1321.35f, 147f, 148f),
+            };
             float[] goldenLabelCenters038 = { 84.63f, 212.67f, 347.28f, 479.27f, 602.05f };
             const float goldenUnderlineBaseline038 = 1473.09f;
             const float goldenUnderlineWidth038 = 87.7f;
@@ -377,8 +388,13 @@ namespace ChoSiren
                 if (!goldenLobby && art != null)
                 {
                     GameObject visual = NewVisualV2(navVisualNames[index], buttonObject.transform, art);
-                    Stretch(visual.GetComponent<RectTransform>());
-                    visual.GetComponent<Image>().preserveAspect = true;
+                    Rect visualBounds = goldenVisualRects038[index];
+                    PlaceTop(visual.GetComponent<RectTransform>(),
+                        visualBounds.x - hit.x, visualBounds.y - hit.y,
+                        visualBounds.width, visualBounds.height);
+                    Image visualImage = visual.GetComponent<Image>();
+                    visualImage.preserveAspect = true;
+                    visualImage.useSpriteMesh = true;
                     visual.transform.SetAsFirstSibling();
                 }
                 else if (!goldenLobby)

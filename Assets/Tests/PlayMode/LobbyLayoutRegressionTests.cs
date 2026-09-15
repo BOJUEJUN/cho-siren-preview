@@ -30,6 +30,18 @@ namespace ChoSiren.Tests
             new Rect(554f, 1326f, 147f, 148f),
         };
 
+        // Visible sprite placement is calibrated separately from input. These offsets
+        // reverse the drift observed in the deployed 720x1536 capture while preserving
+        // each source asset's measured size and the larger touch-friendly hit rectangle.
+        private static readonly Rect[] LobbyNavVisualBounds038 =
+        {
+            new Rect(18.375f, 1316.39f, 132f, 143f),
+            new Rect(153.92f, 1323.635f, 118f, 128f),
+            new Rect(276.55f, 1313.135f, 142f, 149f),
+            new Rect(417.55f, 1323.20f, 125f, 128f),
+            new Rect(528.815f, 1321.35f, 147f, 148f),
+        };
+
         private static readonly float[] LobbyNavLabelCenters038 =
         {
             84.63f, 212.67f, 347.28f, 479.27f, 602.05f,
@@ -838,8 +850,37 @@ namespace ChoSiren.Tests
                         Image visual = button.GetComponentsInChildren<Image>(true)
                             .FirstOrDefault(image => image.name.EndsWith("VisualV2"));
                         Assert.That(visual, Is.Not.Null, ids[index] + " 非大厅导航缺少视觉素材。 ");
+                        Assert.That(visual.gameObject.activeInHierarchy && visual.enabled, Is.True,
+                            ids[index] + " 非大厅导航素材必须实际可见。 ");
+                        Assert.That(visual.sprite, Is.Not.Null,
+                            ids[index] + " 非大厅导航素材不能回退为空 Image。 ");
                         Assert.That(visual.preserveAspect, Is.True,
                             ids[index] + " 导航素材必须保持原比例，不能随热区拉伸。 ");
+                        Assert.That(visual.rectTransform.localScale.x,
+                            Is.EqualTo(visual.rectTransform.localScale.y).Within(0.001f),
+                            ids[index] + " 导航素材不能通过非等比 Transform 缩放变形。 ");
+
+                        Rect expectedVisual = LobbyNavVisualBounds038[index];
+                        Rect visualRect = RectRelativeTo(safe, visual.rectTransform);
+                        Rect expectedLocal = Rect.MinMaxRect(
+                            safe.rect.xMin + expectedVisual.x,
+                            safe.rect.yMax - expectedVisual.y - expectedVisual.height,
+                            safe.rect.xMin + expectedVisual.x + expectedVisual.width,
+                            safe.rect.yMax - expectedVisual.y);
+                        AssertTopLeftBounds(safe, visual.rectTransform, expectedVisual.x, expectedVisual.y,
+                            expectedVisual.width, expectedVisual.height, 1f,
+                            destination + " 页面底栏 " + ids[index] + " 可见素材");
+                        Assert.That(Vector2.Distance(visualRect.center, expectedLocal.center),
+                            Is.LessThanOrEqualTo(1f),
+                            ids[index] + " 非大厅可见素材中心必须与 0.3.8 首页实测中心一致。 ");
+
+                        Text[] englishLiveText = button.GetComponentsInChildren<Text>(true)
+                            .Where(text => !string.IsNullOrWhiteSpace(text.text) && text.text.Any(character =>
+                                character >= 'A' && character <= 'Z' ||
+                                character >= 'a' && character <= 'z'))
+                            .ToArray();
+                        Assert.That(englishLiveText, Is.Empty,
+                            ids[index] + " 非大厅导航不得在图片素材上额外叠加英文 live Text 节点。 ");
                     }
                 }
             }
