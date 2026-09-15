@@ -394,7 +394,6 @@ namespace ChoSiren
                         visualBounds.width, visualBounds.height);
                     Image visualImage = visual.GetComponent<Image>();
                     visualImage.preserveAspect = true;
-                    visualImage.useSpriteMesh = true;
                     visual.transform.SetAsFirstSibling();
                 }
                 else if (!goldenLobby)
