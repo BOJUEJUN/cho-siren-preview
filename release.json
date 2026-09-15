@@ -1,22 +1,27 @@
 {
   "version": "0.3.8",
-  "name": "全套界面与无损美术加载",
+  "name": "0.3.8 反馈修正：共享导航与实机验收",
   "date": "2026-09-15",
-  "sourceCommit": "d5afe1f",
-  "buildDirectory": "Builds/WebGL",
+  "sourceCommit": "7b816a8",
+  "buildDirectory": "/private/tmp/cho-webgl-full-ui-038",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "aab3738",
+  "previousWebCommit": "d35b6a7",
   "savePolicy": "保留现有存档与已拥有角色；不合规旧阵容仅在开战前提示调整",
   "validation": {
-    "targetedPlayModePassed": 92,
+    "targetedPlayModePassed": 95,
+    "auditionPlayModePassed": 10,
     "loaderRegressionPassed": 12,
     "cleanWebGLBuild": true,
-    "localBrowserPagesCaptured": 8,
+    "localBrowserPagesCaptured": 39,
     "localBrowserPageErrors": 0,
+    "localBrowserFailedRequests": 0,
     "originalPngFilesVerified": 9,
-    "originalPngRetryRecovered": true,
     "bottomNavigationMeasuredRegions": 5,
+    "navHoverCapturedOnNonLobbyPages": 4,
+    "candidateArrowFeedbackStatesCaptured": true,
+    "channelPositionMemoryVerifiedInBrowser": true,
+    "profilePortraitsInspected": 4,
     "visiblePointerFeedback": true
   },
-  "visualStatus": "八页已接入并实测；非大厅导航造型、部分人物特写和骰子外形仍与参考有差异，持续对照优化"
+  "visualStatus": "八页已接入并在真实浏览器逐页验收；共享导航、斜切悬停反馈、选秀翻页与渠道记忆、档案多边形裁切、紫黑斜切弹窗均已实机确认。箭头反馈按设计要求较为克制。"
 }
