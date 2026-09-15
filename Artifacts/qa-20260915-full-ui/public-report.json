@@ -1,0 +1,33 @@
+{
+  "url": "https://bojuejun.github.io/cho-siren-preview/?deploy=d35b6a7",
+  "capturedAt": "2026-09-15T12:31:58.870Z",
+  "shots": [
+    "/tmp/cho-browser-public-038-d35b6a7/lobby.png",
+    "/tmp/cho-browser-public-038-d35b6a7/team.png",
+    "/tmp/cho-browser-public-038-d35b6a7/members.png",
+    "/tmp/cho-browser-public-038-d35b6a7/profile.png",
+    "/tmp/cho-browser-public-038-d35b6a7/accessory.png",
+    "/tmp/cho-browser-public-038-d35b6a7/audition.png",
+    "/tmp/cho-browser-public-038-d35b6a7/lobby-hover.png",
+    "/tmp/cho-browser-public-038-d35b6a7/lobby-pressed.png",
+    "/tmp/cho-browser-public-038-d35b6a7/lobby-exit.png",
+    "/tmp/cho-browser-public-038-d35b6a7/map.png",
+    "/tmp/cho-browser-public-038-d35b6a7/battle.png",
+    "/tmp/cho-browser-public-038-d35b6a7/battle-guard-attempt.png",
+    "/tmp/cho-browser-public-038-d35b6a7/battle-reroll-attempt.png"
+  ],
+  "errors": [],
+  "failedRequests": [],
+  "artDownloads": [
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/cb80fe0f55921812-lobby-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/bab486ea17c7d0d2-members-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/8ab4893e9196caec-team-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/788f5fd710788b47-profile-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/469e3df444e6ed73-accessory-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/3fe60bee0888465c-audition-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/05f9becbbf47b614-map-board-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/af6274c42b789fd4-battle-stage-038.png",
+    "https://bojuejun.github.io/cho-siren-preview/StreamingAssets/Reference038/cb5eaa49338ced91-unknown-member-038.png"
+  ],
+  "note": "Screenshots require visual review; captured click attempts alone do not prove gameplay action success."
+}

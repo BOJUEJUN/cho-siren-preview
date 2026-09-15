@@ -9,6 +9,8 @@
 
 Evidence: `Artifacts/qa-20260915-full-ui/`. Public verification is recorded separately after deployment.
 
+Public deployment `d35b6a7` (source `d5afe1f`) was verified on 2026-09-15 at 20:31 CST: all eight screens opened in an isolated Chrome profile, all nine original PNGs loaded, and no page errors or failed requests were recorded. Public HTML, version manifest, reference-art manifest and `/motion/index.html` match the staged files byte-for-byte. See `public-report.json`. The separate motion share URL remains available.
+
 ## Remaining visual differences
 
 This is a playable page overhaul, not a claim of pixel-identical reconstruction. Non-lobby navigation art, the original member portrait resolution, several live numerical/name fonts, and the battle dice silhouettes still differ from the supplied mockups. Dynamic members and values intentionally follow the save rather than copying the mockup. These differences remain visible in the image progress board for further refinement. No iPhone Safari device verification is claimed.
