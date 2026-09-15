@@ -384,7 +384,6 @@ namespace ChoSiren
             navRoot.pivot = new Vector2(0.5f, 0f);
             navRoot.offsetMin = new Vector2(12f, 34f);
             navRoot.offsetMax = new Vector2(-12f, 218f);
-            BuildSharedNavigationBackdrop038();
             // v2 bakes icon + label into one PNG per destination. The shared visual strip
             // is [17,1329,684,168] on screen, i.e. (5,11,136.8,168) per item inside navRoot.
             string[] navArt =

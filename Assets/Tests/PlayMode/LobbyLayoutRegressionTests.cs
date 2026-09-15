@@ -731,14 +731,11 @@ namespace ChoSiren.Tests
                 RequireButtonRect("Nav-" + destination).GetComponent<Button>().onClick.Invoke();
                 Canvas.ForceUpdateCanvases();
                 yield return null;
-                RectTransform backdrop = RequireRect("SharedNavigationBackdrop038");
-                AssertTopLeftBounds(safe, backdrop, 0, 1290, 720, 246, 1f,
-                    "所有页面必须覆盖旧烘焙导航，底板顶部延伸到渐隐区域");
-                Image backdropImage = backdrop.GetComponent<Image>();
-                Assert.That(backdropImage.sprite, Is.Not.Null);
-                Assert.That(backdropImage.raycastTarget, Is.False);
-                Assert.That(backdropImage.color.a, Is.GreaterThan(.95f));
-                Assert.That(backdrop.GetSiblingIndex(), Is.EqualTo(0), "底板不能盖在导航文字或按钮之上");
+                RectTransform navigation = RequireRect("BottomNavigation");
+                Assert.That(navigation.Find("SharedNavigationBackdrop038"), Is.Null,
+                    destination + " 页面不得再生成不透明底板，连续净版背景必须直接衬在真实导航图标之下。");
+                Assert.That(navigation.childCount, Is.EqualTo(ids.Length),
+                    destination + " 页面底栏只能保留五个导航入口，不能新增遮挡层。");
                 int selectedCount = 0;
 
                 for (int index = 0; index < ids.Length; index++)
