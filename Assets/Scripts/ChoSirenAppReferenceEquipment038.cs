@@ -41,8 +41,13 @@ namespace ChoSiren
             // Diagonal vertex dissolve: the bust melts into the aperture glow, no waist cut.
             portrait.AddComponent<EquipmentPolish038PortraitFade>();
             // Authored crystalline rim with a jagged transparent window replaces the square clip.
-            GameObject aperture = NewImage("EquipmentPolish038Aperture", selector.transform,
-                Resources.Load<Sprite>("Art/Reference038/EquipmentPolish038-aperture-overlay"), White);
+            // Lives outside Art/Reference038: WebGL builds stream that folder separately and
+            // exclude it from Resources, so a path under it would load null in the player.
+            Sprite apertureSprite = Resources.Load<Sprite>("Art/EquipmentPolish038-aperture-overlay");
+            GameObject aperture = NewImage("EquipmentPolish038Aperture", selector.transform, apertureSprite,
+                apertureSprite == null ? Color.clear : White);
+            if (apertureSprite == null)
+                Debug.LogError("EquipmentPolish038 aperture overlay sprite missing; hiding instead of rendering an opaque quad.");
             PlaceTop(aperture.GetComponent<RectTransform>(), 0, 0, 378, 491);
             aperture.GetComponent<Image>().raycastTarget = false;
             // Slanted crystalline ribbon at the aperture base carries name/level/power.

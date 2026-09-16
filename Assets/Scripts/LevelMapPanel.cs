@@ -55,6 +55,45 @@ namespace ChoSiren
         private static readonly Color Glass = new Color32(8, 18, 48, 232);
         private const int ChapterStageCount = GameModel.ChapterOneStageCount;
 
+        // Control silhouettes traced on map-board-038.png (858x1834, top-left origin).
+        // The magenta starburst, cyan CTA burst, and dock plaques interleave with
+        // neighbouring art, so each slice is vertex-clipped to its own contour and the
+        // shared seam decor (gap shard x335-348, long shard y1640-1670) stays static.
+        private static readonly Vector2[] MapStorySilhouette =
+        {
+            new Vector2(8f, 242f), new Vector2(25f, 195f), new Vector2(58f, 168f),
+            new Vector2(140f, 160f), new Vector2(230f, 142f), new Vector2(310f, 128f),
+            new Vector2(398f, 124f), new Vector2(430f, 158f), new Vector2(432f, 205f),
+            new Vector2(415f, 245f), new Vector2(436f, 278f), new Vector2(412f, 312f),
+            new Vector2(428f, 342f), new Vector2(390f, 368f), new Vector2(360f, 395f),
+            new Vector2(300f, 412f), new Vector2(215f, 432f), new Vector2(168f, 443f),
+            new Vector2(118f, 447f), new Vector2(72f, 442f), new Vector2(33f, 422f),
+            new Vector2(12f, 393f), new Vector2(5f, 340f), new Vector2(8f, 290f),
+        };
+        private static readonly Vector2[] MapStartSilhouette =
+        {
+            new Vector2(575f, 1355f), new Vector2(640f, 1300f), new Vector2(720f, 1282f),
+            new Vector2(795f, 1300f), new Vector2(832f, 1342f), new Vector2(855f, 1425f),
+            new Vector2(848f, 1500f), new Vector2(858f, 1565f), new Vector2(838f, 1622f),
+            new Vector2(800f, 1650f), new Vector2(745f, 1682f), new Vector2(700f, 1665f),
+            new Vector2(648f, 1665f), new Vector2(575f, 1645f), new Vector2(518f, 1652f),
+            new Vector2(545f, 1595f), new Vector2(568f, 1575f), new Vector2(560f, 1500f),
+            new Vector2(548f, 1440f), new Vector2(562f, 1405f),
+        };
+        private static readonly Vector2[] MapRewardsSilhouette =
+        {
+            new Vector2(15f, 1692f), new Vector2(180f, 1680f), new Vector2(312f, 1672f),
+            new Vector2(330f, 1692f), new Vector2(318f, 1762f), new Vector2(296f, 1794f),
+            new Vector2(20f, 1800f), new Vector2(10f, 1790f), new Vector2(8f, 1745f),
+            new Vector2(10f, 1700f),
+        };
+        private static readonly Vector2[] MapTasksSilhouette =
+        {
+            new Vector2(352f, 1688f), new Vector2(500f, 1680f), new Vector2(660f, 1678f),
+            new Vector2(688f, 1690f), new Vector2(695f, 1745f), new Vector2(688f, 1795f),
+            new Vector2(365f, 1798f), new Vector2(352f, 1788f), new Vector2(348f, 1740f),
+        };
+
         private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
         private readonly Dictionary<int, NodeView> nodeViews = new Dictionary<int, NodeView>();
         private readonly List<RouteView> routeViews = new List<RouteView>();
@@ -246,10 +285,10 @@ namespace ChoSiren
             storyChapterLabel = NewPlacedText(page, string.Empty, 20, Pink, 65, 207, 300, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
             GameObject story = MapBoardHit("StoryChapter-01", page, 24, 210, 370, 190,
                 OpenStoryChapter01);
-            // The 欲望都市 burst is bigger than the hit; bind the full silhouette and let the
-            // live 主线剧情 label ride along in place (it keeps its page parent).
-            BakedRegionMotion038.Attach(story, art, new Rect(2f, 138f, 388f, 320f),
-                storyChapterLabel.transform);
+            // The 欲望都市 burst is bigger than the hit; bind the traced silhouette and let
+            // the live 主线剧情 label ride along in place (it keeps its page parent).
+            BakedRegionMotion038.Attach(story, art, new Rect(3f, 122f, 435f, 327f), 3f,
+                MapStorySilhouette, storyChapterLabel.transform);
             Vector2[] centers = {
                 new Vector2(256,1182), new Vector2(393,1073), new Vector2(360,974),
                 new Vector2(486,855), new Vector2(482,756), new Vector2(451,650),
@@ -295,19 +334,24 @@ namespace ChoSiren
             // The authored 开始挑战 remains the primary caption; this live sublabel can say 再次挑战.
             startLabel = NewPlacedText(start.transform, string.Empty, 17, White, 32, 232, 190, 35, TextAnchor.MiddleCenter);
             startLabel.name = "Label";
-            // The 开始挑战 burst silhouette extends well past the measured hit.
-            BakedRegionMotion038.Attach(start, art, new Rect(552f, 1308f, 302f, 354f));
+            // The 开始挑战 burst silhouette extends well past the measured hit; the traced
+            // polygon keeps the burst's own shards while the SelectedLevel frame stays put.
+            BakedRegionMotion038.Attach(start, art, new Rect(508f, 1278f, 352f, 406f), 3f,
+                MapStartSilhouette);
             GameObject rewards = MapBoardHit("ChapterRewards", page, 28, 1697, 275, 92, OpenChapterRewards);
             NewPlacedText(rewards.transform, "章节奖励", 24, White, 20, 2, 218, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
             rewardSummaryText = NewPlacedText(rewards.transform, string.Empty, 15, Muted, 15, 51, 245, 29, TextAnchor.MiddleCenter);
             rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 234, 5);
-            // Baked dock plaques: live labels + badge ride along in place.
-            BakedRegionMotion038.Attach(rewards, art, new Rect(6f, 1672f, 302f, 124f));
+            // Baked dock plaques: live labels + badge ride along in place; the traced
+            // silhouettes leave the shared gap shard and seam decor static.
+            BakedRegionMotion038.Attach(rewards, art, new Rect(6f, 1670f, 326f, 132f), 3f,
+                MapRewardsSilhouette);
             GameObject tasks = MapBoardHit("ChapterTasks", page, 355, 1697, 260, 92, OpenChapterTasks);
             NewPlacedText(tasks.transform, "章节任务", 24, White, 10, 2, 224, 49, TextAnchor.MiddleCenter, FontStyle.Bold);
             taskSummaryText = NewPlacedText(tasks.transform, string.Empty, 15, Muted, 10, 51, 230, 29, TextAnchor.MiddleCenter);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 222, 5);
-            BakedRegionMotion038.Attach(tasks, art, new Rect(320f, 1672f, 346f, 124f));
+            BakedRegionMotion038.Attach(tasks, art, new Rect(346f, 1676f, 351f, 124f), 3f,
+                MapTasksSilhouette);
         }
 
         private GameObject MapBoardHit(string name, Transform parent, float x, float y, float w, float h, UnityEngine.Events.UnityAction action)
@@ -645,14 +689,19 @@ namespace ChoSiren
             for (int i = 0; i < candidates.Count; i++)
             {
                 StageLootCandidate candidate = candidates[i];
-                GameObject tile = NewPanel("LootCandidate-" + candidate.ItemId, body.transform,
-                    new Color32(26, 30, 67, 245), 14);
+                // Angular ModalPolish038 plate — keeps the modal's slash-frame family instead
+                // of the old rounded rect; the rarity rim is recoloured onto the plate's own
+                // outline so higher tiers still get the heavier edge.
+                GameObject tile = ModalPolish038Chrome.RowPlate(body.transform,
+                    "LootCandidate-" + candidate.ItemId, (i & 1) == 1);
                 PlaceTop(tile.GetComponent<RectTransform>(), i % 2 * 312, i / 2 * 170, 292, 156);
                 int lootAccessory = GameModel.AccessoryIndexForItem(candidate.ItemId);
                 Color tierAccent = RewardItemVisuals.AccentFor(candidate.ItemId);
-                // Higher tiers get a heavier rim so rarity reads before the text does.
-                AddGlassOutline(tile, tierAccent, lootAccessory >= 0 &&
-                    GameModel.AccessoryRarityOf(lootAccessory) >= GameModel.AccessoryRarity.Epic ? 2 : 1);
+                Outline tierRim = tile.GetComponent<Outline>();
+                tierRim.effectColor = tierAccent;
+                float rim = lootAccessory >= 0 &&
+                    GameModel.AccessoryRarityOf(lootAccessory) >= GameModel.AccessoryRarity.Epic ? 2f : 1f;
+                tierRim.effectDistance = new Vector2(rim, -rim);
                 RewardItemVisuals.CreateIcon(tile.transform, candidate.ItemId, "RewardArt", 10, 16, 58);
                 NewPlacedText(tile.transform, candidate.Name, 18, tierAccent, 80, 10, 132, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
                 if (lootAccessory >= 0)
@@ -672,7 +721,7 @@ namespace ChoSiren
 
         private void BuildFirstReward(Transform parent, string name, string itemId, string label, float x, bool claimed)
         {
-            GameObject tile = NewPanel(name, parent, new Color32(28, 33, 72, 245), 14);
+            GameObject tile = ModalPolish038Chrome.RowPlate(parent, name);
             PlaceTop(tile.GetComponent<RectTransform>(), x, 126, 292, 116);
             Image icon = RewardItemVisuals.CreateIcon(tile.transform, itemId, "RewardArt", 14, 20, 68);
             if (claimed) icon.color = new Color(1, 1, 1, .45f);

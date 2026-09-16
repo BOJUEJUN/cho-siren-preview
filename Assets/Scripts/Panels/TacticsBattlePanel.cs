@@ -20,7 +20,7 @@ namespace ChoSiren.Panels
     public sealed class TacticsBattlePanel : MonoBehaviour
     {
         private const float EnemyCellWidth = 206f;
-        private const float EnemyCellHeight = 112f;
+        private const float EnemyCellHeight = 120f;
         private const float PlayerCellWidth = 158f;
         // One real roster, directly above the dice. No duplicate portraits on the stage.
         // 180 keeps the 98 px portrait and adds a dedicated blue ultimate-energy row.
@@ -782,29 +782,34 @@ namespace ChoSiren.Panels
 
             // Live member names keep the reference card's separate 20px name band,
             // fully below the portrait (ends y100) and clear of the shield/HP rows.
-            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 21, PanelKit.White,
-                player ? 10 : 8, player ? 100 : 3, width - (player ? 20 : 16), player ? 20 : 26,
+            // Enemy plates: the plate is a sheared quad — top-left corner beveled, top edge
+            // diagonal (ceiling ~y15 at the name's left edge falling to ~y10 at its right),
+            // so the name needs a real left inset plus a lowered band; rows below shift down
+            // coherently inside the slightly taller plate. Player cards unchanged.
+            Text unitName = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 16, PanelKit.White,
+                player ? 10 : 24, player ? 100 : 14, width - (player ? 20 : 50), player ? 20 : 30,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, player ? FontStyle.Bold : FontStyle.BoldAndItalic);
             unitName.gameObject.name = "UnitName";
+            unitName.verticalOverflow = VerticalWrapMode.Overflow;
             PanelKit.EnableBestFit(unitName, player ? 12 : 11);
-            Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 8, player ? 122 : 34,
-                width - (player ? 24 : 16), player ? 7 : 6,
+            Image hpFill = kit.NewBar("Hp", root.transform, player ? 12 : 18, player ? 122 : 48,
+                width - (player ? 24 : 34), player ? 7 : 6,
                 new Color32(66, 54, 117, 255), player ? PanelKit.Cyan : PanelKit.Pink, 5);
             Text hpText = kit.NewPlacedText(root.transform, string.Empty, player ? 12 : 13, PanelKit.Muted,
-                player ? 10 : 8, player ? 129 : 42, width - (player ? 20 : 16), player ? 18 : 20,
+                player ? 10 : 17, player ? 129 : 55, width - (player ? 20 : 34), player ? 18 : 18,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft);
             hpText.gameObject.name = "UnitHpText";
-            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 12 : 8, player ? 119 : 30,
-                width - (player ? 24 : 16), 3,
+            Image shieldFill = kit.NewBar("Shield", root.transform, player ? 12 : 18, player ? 119 : 44,
+                width - (player ? 24 : 34), 3,
                 new Color32(50, 60, 110, 255), new Color32(150, 230, 255, 255), 3);
             GameObject shieldTrack = shieldFill.transform.parent.gameObject;
             Text status = kit.NewPlacedText(root.transform, string.Empty, 12, PanelKit.Gold,
-                8, player ? 170 : 62, width - 16, player ? 10 : 20,
+                player ? 8 : 13, player ? 170 : 74, width - (player ? 16 : 38), player ? 10 : 18,
                 player ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft, FontStyle.Bold);
             status.gameObject.name = "UnitStatus";
             PanelKit.EnableBestFit(status, 8);
-            Text fallen = kit.NewPlacedText(root.transform, "倒下", 14, new Color32(196, 190, 220, 255), 4, player ? 31 : 22,
-                width - 8, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Text fallen = kit.NewPlacedText(root.transform, "倒下", 14, new Color32(196, 190, 220, 255), player ? 4 : 22, player ? 31 : 26,
+                width - (player ? 8 : 46), 26, TextAnchor.MiddleCenter, FontStyle.Bold);
             fallen.gameObject.SetActive(false);
 
             CellView view = new CellView
@@ -833,11 +838,11 @@ namespace ChoSiren.Panels
             };
             if (!player)
             {
-                view.CastFill = kit.NewBar("EnemyCast", root.transform, 8, 103, width - 16, 5,
+                view.CastFill = kit.NewBar("EnemyCast", root.transform, 11, 113, width - 46, 4,
                     new Color32(70, 53, 25, 200), CombatFeedbackPalette.Control, 2);
                 view.CastFill.transform.parent.gameObject.SetActive(false);
                 view.CastLabel = kit.NewPlacedText(root.transform, "", 11, CombatFeedbackPalette.Control,
-                    8, 81, width - 16, 20, TextAnchor.MiddleLeft, FontStyle.Bold);
+                    11, 93, width - 38, 18, TextAnchor.MiddleLeft, FontStyle.Bold);
                 view.CastLabel.gameObject.name = "EnemyCastIntent";
             }
             if (player)
@@ -968,8 +973,10 @@ namespace ChoSiren.Panels
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
             float width = buttonObject.GetComponent<RectTransform>().rect.width;
             float height = buttonObject.GetComponent<RectTransform>().rect.height;
-            PanelKit.PlaceTop(label.rectTransform, all ? 92 : 27, height*.28f,
-                width-(all ? 111 : 50), Mathf.Max(34,height*.47f));
+            // Caption stays inside the frame's pink hatch marks at the right shard; the
+            // all-reroll caption keeps a gap to both the hatch and the heart plate.
+            PanelKit.PlaceTop(label.rectTransform, all ? 94 : 27, height*.28f,
+                width-(all ? 179 : 92), Mathf.Max(34,height*.47f));
             if (all)
             {
                 GameObject heart = new GameObject("RerollHeart", typeof(RectTransform));
@@ -1423,7 +1430,17 @@ namespace ChoSiren.Panels
             recoveryActions.SetActive(false);
             GameObject lootButton = kit.NewButton("VictoryEquipment", card.transform, "查看获得的装备", 16,
                 PanelKit.ButtonDark, PanelKit.Cyan, () => OpenRecovery("accessory"), 10);
-            PanelKit.PlaceTop(lootButton.GetComponent<RectTransform>(), 140, 568, 330, 36);
+            PanelKit.PlaceTop(lootButton.GetComponent<RectTransform>(), 140, 562, 330, 40);
+            Image lootFrame = lootButton.GetComponent<Image>();
+            lootFrame.sprite = skillButtonFrameSprite;
+            lootFrame.type = Image.Type.Simple;
+            lootFrame.preserveAspect = false;
+            Image lootGlass = kit.NewImage("ResultButtonGlass", lootButton.transform, kit.RoundedSprite(20),
+                new Color32(48, 24, 88, 128));
+            PanelKit.Stretch(lootGlass.rectTransform, 10, 9, -10, -9);
+            lootGlass.type = Image.Type.Sliced;
+            lootGlass.raycastTarget = false;
+            lootGlass.transform.SetAsFirstSibling();
             lootButton.SetActive(false);
             resultOverlay.SetActive(false);
         }

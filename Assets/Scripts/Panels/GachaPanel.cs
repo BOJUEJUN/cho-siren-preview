@@ -57,6 +57,40 @@ namespace ChoSiren.Panels
         private static readonly Color RColor = new Color32(43, 48, 92, 250);
         private const string AiArtRoot = "Art/GachaAI/";
         private const string AiUiRoot = "Art/GachaAI/UI/";
+
+        // Control silhouettes traced on audition-board-038.png (853x1844, top-left origin).
+        // The prev/next plaques interleave with the counter's spikes and the 签约 burst's
+        // left shard reaches past the old rect, so each slice is vertex-clipped to its own
+        // contour; the counter spikes and shared seams stay static.
+        private static readonly Vector2[] AuditionPreviousSilhouette =
+        {
+            new Vector2(88f, 1342f), new Vector2(112f, 1300f), new Vector2(150f, 1282f),
+            new Vector2(255f, 1278f), new Vector2(332f, 1288f), new Vector2(345f, 1298f),
+            new Vector2(330f, 1345f), new Vector2(318f, 1390f), new Vector2(305f, 1396f),
+            new Vector2(150f, 1397f), new Vector2(108f, 1398f), new Vector2(96f, 1386f),
+        };
+        private static readonly Vector2[] AuditionNextSilhouette =
+        {
+            new Vector2(512f, 1295f), new Vector2(562f, 1265f), new Vector2(695f, 1285f),
+            new Vector2(712f, 1292f), new Vector2(738f, 1338f), new Vector2(705f, 1385f),
+            new Vector2(665f, 1398f), new Vector2(618f, 1400f), new Vector2(560f, 1392f),
+            new Vector2(508f, 1386f), new Vector2(502f, 1340f),
+        };
+        private static readonly Vector2[] AuditionViewSilhouette =
+        {
+            new Vector2(258f, 1558f), new Vector2(285f, 1518f), new Vector2(305f, 1510f),
+            new Vector2(448f, 1510f), new Vector2(462f, 1520f), new Vector2(482f, 1558f),
+            new Vector2(462f, 1595f), new Vector2(445f, 1600f), new Vector2(295f, 1602f),
+            new Vector2(275f, 1592f),
+        };
+        private static readonly Vector2[] AuditionSignSilhouette =
+        {
+            new Vector2(545f, 1448f), new Vector2(795f, 1398f), new Vector2(838f, 1408f),
+            new Vector2(856f, 1465f), new Vector2(848f, 1545f), new Vector2(866f, 1572f),
+            new Vector2(848f, 1612f), new Vector2(835f, 1645f), new Vector2(700f, 1668f),
+            new Vector2(640f, 1680f), new Vector2(555f, 1662f), new Vector2(528f, 1648f),
+            new Vector2(452f, 1568f), new Vector2(449f, 1556f),
+        };
         private static readonly Color DetailGlass = new Color32(17, 27, 75, 124);
         private static readonly Color ActionGlass = new Color32(23, 32, 88, 142);
         private static readonly Color TenPullGlass = new Color32(36, 22, 82, 146);
@@ -266,17 +300,25 @@ namespace ChoSiren.Panels
             Text refresh = kit.NewPlacedText(page, "每日免费刷新 · 18:00 更新", 18, PanelKit.Muted,
                 150, 316, 550, 35, TextAnchor.MiddleCenter);
             refresh.name = "InterviewRefresh";
-            Image selected = kit.NewImage("SelectedInterviewChannel", page, null,
-                interviewPoolIndex == 0 ? PanelKit.Cyan : new Color32(202, 151, 255, 255));
-            PanelKit.PlaceTop(selected.rectTransform, interviewPoolIndex == 0 ? 165 : 540, 290, 210, 4);
+            // Selection marker: a saturated underline plus a soft radial glow under the
+            // active plaque — unmistakable at 720w while the baked tab art stays untouched.
+            Color channelColor = interviewPoolIndex == 0 ? PanelKit.Cyan : new Color32(202, 151, 255, 255);
+            float channelX = interviewPoolIndex == 0 ? 147f : 542f;
+            Image selGlow = ReferencePunkFx.Deco(page, "SelectedChannelGlow",
+                ReferencePunkFx.Glow(), new Color(channelColor.r, channelColor.g, channelColor.b, .45f),
+                channelX - 37f, 276f, 300f, 40f);
+            Image selected = kit.NewImage("SelectedInterviewChannel", page, null, channelColor);
+            PanelKit.PlaceTop(selected.rectTransform, channelX, 290, 226, 10);
             selected.raycastTarget = false;
             // Tab plaques are baked into the board: bind each hit to its art region so the
-            // whole plaque reacts; the live subtitle and selected underline ride along as
+            // whole plaque reacts; the live subtitle and selection marker ride along as
             // in-place extras (they keep their page parent and Find paths).
             BakedRegionMotion038.Attach(pool0, art, new Rect(30f, 172f, 430f, 158f),
-                poolSubtitle0.transform, interviewPoolIndex == 0 ? selected.transform : null);
+                poolSubtitle0.transform, interviewPoolIndex == 0 ? selected.transform : null,
+                interviewPoolIndex == 0 ? selGlow.transform : null);
             BakedRegionMotion038.Attach(pool1, art, new Rect(458f, 172f, 390f, 158f),
-                poolSubtitle1.transform, interviewPoolIndex == 1 ? selected.transform : null);
+                poolSubtitle1.transform, interviewPoolIndex == 1 ? selected.transform : null,
+                interviewPoolIndex == 1 ? selGlow.transform : null);
 
             List<int> candidates = InterviewCandidates();
             if (candidates.Count == 0) { BuildInterviewComplete(page, 70f, 520f); return; }
@@ -319,7 +361,7 @@ namespace ChoSiren.Panels
 
             kit.NewPlacedText(card, "舞台五维", 22, PanelKit.White, 22, 232, 180, 36,
                 TextAnchor.MiddleLeft, FontStyle.Bold).name = "StatsTitle";
-            ReferencePunkFx.Beam(card, "StatsTitleBeam", new Vector2(150, 260), new Vector2(360, 260),
+            ReferencePunkFx.Beam(card, "StatsTitleBeam", new Vector2(150, 260), new Vector2(306, 260),
                 1.5f, new Color32(255, 105, 212, 140));
 
             CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
@@ -359,29 +401,31 @@ namespace ChoSiren.Panels
                 fill.fillAmount = Mathf.Clamp01(values[i] / 100f);
             }
 
-            ReferencePunkFx.Beam(card, "ManagementBeam", new Vector2(22, 588), new Vector2(360, 588),
+            // Bottom block: the baked card's lower-left is cut by a jagged frame slash, so
+            // these rows sit deeper inside the dark interior than the stat rows above.
+            ReferencePunkFx.Beam(card, "ManagementBeam", new Vector2(122, 588), new Vector2(345, 588),
                 1.2f, new Color32(153, 133, 204, 96));
             kit.NewPlacedText(card,
                 $"魅力 {beauty} · 收益 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期",
-                17, new Color32(229, 217, 249, 255), 22, 600, 330, 30,
+                17, new Color32(229, 217, 249, 255), 130, 600, 258, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateCharm";
             int risk = model.InterviewRisk(interviewPoolIndex, memberIndex);
             string riskTier = GameModel.InterviewRiskLabel(risk);
             Color32 riskColor = riskTier == "高" ? new Color32(255, 108, 128, 255)
                 : riskTier == "中" ? new Color32(255, 196, 92, 255) : new Color32(104, 226, 160, 255);
             kit.NewPlacedText(card, $"风险值 {risk} · {riskTier}", 16, riskColor,
-                22, 634, 200, 30, TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRisk";
-            Image riskFill = kit.NewBar("CandidateRiskBar", card, 22, 668, 310, 8,
+                130, 634, 180, 30, TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRisk";
+            Image riskFill = kit.NewBar("CandidateRiskBar", card, 130, 668, 232, 8,
                 new Color32(83, 78, 126, 86), riskColor, 6);
             riskFill.fillAmount = risk / 100f;
             Text salary = kit.NewPlacedText(card,
                 $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期（7 天一期）",
-                14, PanelKit.Gold, 22, 686, 350, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                14, PanelKit.Gold, 134, 686, 254, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
             salary.name = "CandidateSalary";
             PanelKit.EnableBestFit(salary, 10);
             kit.NewPlacedText(card, TeamNeedsCareer(career) ? $"★ 团队缺少{career} · 推荐"
                     : $"★ {InterviewShortRace(member, memberIndex)} · 阵容适配",
-                16, PanelKit.Gold, 22, 724, 355, 36,
+                16, PanelKit.Gold, 140, 724, 246, 34,
                 TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRecommendation";
         }
 
@@ -418,9 +462,13 @@ namespace ChoSiren.Panels
             GameObject sign = InterviewBoardHotspot("SignCandidate", actions, 455, 10, 360, 218,
                 () => SignInterviewCandidate(memberIndex, cost));
             // Both contract buttons are baked art: the hex button and the 签约 burst move as
-            // whole bodies (silhouette exceeds the hits), while the fixed hit rects stay put.
-            BakedRegionMotion038.Attach(view, board, new Rect(247f, 1495f, 222f, 140f));
-            BakedRegionMotion038.Attach(sign, board, new Rect(445f, 1388f, 400f, 278f));
+            // whole bodies clipped to their traced silhouettes, while the fixed hit rects
+            // stay put. The sign burst's left shard (x432) and the hex's right tip share a
+            // ~25px occluded strip — each keeps its own contour intact.
+            BakedRegionMotion038.Attach(view, board, new Rect(256f, 1508f, 228f, 96f), 3f,
+                AuditionViewSilhouette);
+            BakedRegionMotion038.Attach(sign, board, new Rect(430f, 1386f, 440f, 296f), 3f,
+                AuditionSignSilhouette);
         }
 
         private GameObject InterviewBoardHotspot(string name, Transform parent, float x, float y,
@@ -460,10 +508,12 @@ namespace ChoSiren.Panels
                 visual.transform.SetAsFirstSibling();
                 // Baked plaque + live chevron move as one body (TactileVisualMotion skips
                 // children under a BakedRegionMotion038 host, so the arrow is not animated
-                // twice); the hit rect itself never moves.
+                // twice); the hit rect itself never moves. The traced silhouette keeps the
+                // counter's interleaved spikes static.
                 BakedRegionMotion038.Attach(hit, board, step < 0
-                    ? new Rect(60f, 1245f, 295f, 170f)
-                    : new Rect(505f, 1245f, 340f, 170f));
+                        ? new Rect(86f, 1275f, 264f, 133f)
+                        : new Rect(500f, 1263f, 240f, 139f),
+                    3f, step < 0 ? AuditionPreviousSilhouette : AuditionNextSilhouette);
             }
         }
 

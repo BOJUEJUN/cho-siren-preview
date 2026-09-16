@@ -38,9 +38,9 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator HeaderKeepsDynamicResourceActionsNonOverlappingAndOmitsMail()
+        public IEnumerator HeaderKeepsDynamicResourceActionsNonOverlappingWithLiveMail()
         {
-            string[] groups = { "Currency-diamond", "Currency-gold", "Currency-stamina", "Settings" };
+            string[] groups = { "Currency-diamond", "Currency-gold", "Currency-stamina", "Mail", "Settings" };
             float previousRight = 0;
             foreach (string name in groups)
             {
@@ -63,8 +63,11 @@ namespace ChoSiren.Tests
                 Assert.That(group.GetComponentsInChildren<Text>().Count(t => !string.IsNullOrEmpty(t.text)), Is.EqualTo(1));
             }
             Assert.That(previousRight, Is.LessThan(Require("TopBar").GetComponent<RectTransform>().rect.width));
-            Assert.That(GameObject.Find("Mail"), Is.Null,
-                "最新首页参考没有邮件入口，邮件功能不得继续占用顶部 HUD 空间。");
+            GameObject mail = Require("Mail");
+            Assert.That(mail.activeInHierarchy, Is.True,
+                "统一成员页头部在右侧图标格保留实时邮件入口。");
+            Assert.That(mail.GetComponent<Button>()?.IsInteractable(), Is.True,
+                "邮件入口必须可点击以打开收件箱。");
             yield return null;
         }
 

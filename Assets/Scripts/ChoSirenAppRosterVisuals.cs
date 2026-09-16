@@ -101,6 +101,30 @@ namespace ChoSiren
                 new Rect(635, 948, 178, 77), new Rect(334, 1107, 205, 69) };
             Rect[] targets = { new Rect(327, 382, 201, 413), new Rect(45, 605, 220, 425),
                 new Rect(620, 579, 193, 446), new Rect(291, 806, 250, 370) };
+            // Frame silhouettes in board px: the orbit union rects physically overlap
+            // (each angular frame's spikes reach into the neighbour's rect), so a plain
+            // rectangular slice drags the adjacent frame + record arcs. Each polygon
+            // hugs its own frame+plate; where silhouettes interleave we clip our own
+            // tip rather than cover the neighbour's art.
+            Vector2[][] silhouettes =
+            {
+                new[] { new Vector2(300, 668), new Vector2(340, 618), new Vector2(400, 585),
+                    new Vector2(478, 575), new Vector2(598, 608), new Vector2(570, 690),
+                    new Vector2(548, 798), new Vector2(380, 806), new Vector2(312, 792) },
+                new[] { new Vector2(40, 590), new Vector2(150, 578), new Vector2(330, 685),
+                    new Vector2(348, 712), new Vector2(290, 748), new Vector2(300, 880),
+                    new Vector2(330, 955), new Vector2(330, 1040), new Vector2(60, 1050),
+                    new Vector2(18, 980), new Vector2(16, 700), new Vector2(10, 640) },
+                new[] { new Vector2(480, 605), new Vector2(560, 608), new Vector2(715, 558),
+                    new Vector2(840, 595), new Vector2(838, 715), new Vector2(720, 858),
+                    new Vector2(842, 880), new Vector2(838, 1040), new Vector2(600, 1050),
+                    new Vector2(545, 960), new Vector2(555, 860), new Vector2(478, 792),
+                    new Vector2(490, 700) },
+                new[] { new Vector2(225, 815), new Vector2(300, 800), new Vector2(560, 850),
+                    new Vector2(605, 872), new Vector2(575, 960), new Vector2(615, 1100),
+                    new Vector2(575, 1185), new Vector2(350, 1182), new Vector2(310, 1120),
+                    new Vector2(285, 1040), new Vector2(235, 955), new Vector2(215, 880) },
+            };
             Image teamBoard = root.GetComponent<Image>();
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
             {
@@ -118,7 +142,8 @@ namespace ChoSiren
                 {
                     Text emptyMark = BoardText038(root, "TeamEmpty-" + slot, "+", 46, Cyan,
                         p.x, p.y + p.height * .5f, p.width, 60, TextAnchor.MiddleCenter);
-                    MainBakedMotion038Attach(hit, teamBoard, orbitRegion, emptyMark.transform);
+                    MainBakedMotion038Attach(hit, teamBoard, orbitRegion,
+                        silhouettes[slot], emptyMark.transform);
                     continue;
                 }
                 MemberDefinition m = GameModel.Members[index];
@@ -134,7 +159,7 @@ namespace ChoSiren
                 BoardText038(tag.transform, "MemberName", m.Name, 21, White, 3, 3, label.width - 6, 23);
                 BoardText038(tag.transform, "MemberCareer", $"{m.Career} · 等级 {model.LevelOf(index)}", 13, Pink, 3, 28, label.width - 6, 17);
                 BoardText038(tag.transform, "MemberPower", $"战力 {model.PowerOf(index):N0}", 14, Cyan, 3, 47, label.width - 6, 17);
-                MainBakedMotion038Attach(hit, teamBoard, orbitRegion, tag.transform);
+                MainBakedMotion038Attach(hit, teamBoard, orbitRegion, silhouettes[slot], tag.transform);
             }
 
             // 职业配置卡：透明容器把动态内容收进卡内安全区，避开顶部/右侧锯齿。
@@ -142,7 +167,7 @@ namespace ChoSiren
             PlaceTop(synergy.GetComponent<RectTransform>(), 78, 1290, 690, 150);
             synergy.GetComponent<Image>().raycastTarget = false;
             BoardText038(synergy.transform, "TeamAttributes", "职业自由搭配", 13, Muted,
-                560, 10, 112, 24, TextAnchor.MiddleRight);
+                540, 12, 112, 24, TextAnchor.MiddleRight);
             float[] statusX = { 40f, 188f, 338f, 482f };
             for (int i = 0; i < MemberCareers.All.Count; i++)
             {

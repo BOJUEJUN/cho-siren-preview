@@ -133,9 +133,12 @@ namespace ChoSiren
         /// <summary>Profile portrait slot for a locked member: the same flat generic silhouette.</summary>
         private void BuildLockedMemberPortrait(GameObject panel)
         {
-            GameObject frame = NewPanel("LockedPortraitFrame", panel.transform, new Color32(16, 20, 52, 240), 20);
-            PlaceTop(frame.GetComponent<RectTransform>(), 24, 52, 292, 390);
-            AddQuietPanelEdge(frame);
+            // Angular crystal plate (ModalPolish038 family) instead of the rounded panel —
+            // same slot/name children so the locked reveal contract and tests stay intact.
+            GameObject frame = ModalPolish038Chrome.RowPlate(panel.transform, "LockedPortraitFrame");
+            RectTransform frameRect = frame.GetComponent<RectTransform>();
+            PlaceTop(frameRect, 24, 52, 292, 390);
+            ReferencePunkFx.Tilt(frameRect, -2.5f);
 
             GameObject portrait = NewImage("Portrait", frame.transform, LockedSilhouetteSprite(),
                 LockedSilhouetteTint);
@@ -159,10 +162,9 @@ namespace ChoSiren
             int owned = model.Save.UnlockedMembers.Count;
             int total = GameModel.Members.Length;
 
-            GameObject guidePanel = NewPanel("MemberAcquireGuide", panel.transform,
-                new Color32(20, 26, 73, 220), 18);
+            GameObject guidePanel = ModalPolish038Chrome.RowPlate(panel.transform,
+                "MemberAcquireGuide");
             PlaceTop(guidePanel.GetComponent<RectTransform>(), 28, 458, 564, 300);
-            AddQuietPanelEdge(guidePanel);
             NewPlacedText(guidePanel.transform, "获取方式", 15, new Color32(255, 188, 231, 255),
                 18, 12, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text progress = NewPlacedText(guidePanel.transform,
@@ -180,24 +182,25 @@ namespace ChoSiren
                 13, new Color32(255, 210, 117, 255), 18, 252, 520, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
 
             // 队长特性同样属于未公开内容：这里只给占位说明，不展示真实指挥效果。
-            GameObject captainPanel = NewPanel("MemberCaptainPanel", panel.transform,
-                new Color32(26, 33, 65, 255), 18);
+            GameObject captainPanel = ModalPolish038Chrome.RowPlate(panel.transform,
+                "MemberCaptainPanel");
             PlaceTop(captainPanel.GetComponent<RectTransform>(), 28, 790, 564, 130);
             FlowText(captainPanel.transform, "CaptainEffectTitle", MemberProfileSections.PassiveCaptainTitle,
                 16, 16, 10, 532, 26, Cyan);
             FlowText(captainPanel.transform, "CaptainEffectDescription", "签约后解锁该成员的队长特性。",
                 14, 16, 43, 320, 72, Muted);
-            FlowButton(captainPanel.transform, "AppointCaptain", "签约后可任命", 352, 52, 196, 52,
-                () => { }).GetComponent<Button>().interactable = false;
+            GameObject appoint = ModalPolish038Chrome.ActionButton(captainPanel.transform,
+                "AppointCaptain", "签约后可任命", 15, () => { }, ModalPolish038ButtonStyle.Ghost);
+            PlaceTop(appoint.GetComponent<RectTransform>(), 352, 52, 196, 52);
+            ModalPolish038Chrome.SetActionEnabled(appoint, false);
 
-            GameObject acquire = NewButton("AcquireMember", panel.transform, "前往选秀", 18,
-                Pink, White, () =>
+            GameObject acquire = ModalPolish038Chrome.ActionButton(panel.transform,
+                "AcquireMember", "前往选秀", 18, () =>
                 {
                     CloseModal();
                     ShowScreen("audition");
-                });
+                }, ModalPolish038ButtonStyle.Primary);
             PlaceTop(acquire.GetComponent<RectTransform>(), 154, 950, 312, 60);
-            AddQuietPanelEdge(acquire);
 
         }
 

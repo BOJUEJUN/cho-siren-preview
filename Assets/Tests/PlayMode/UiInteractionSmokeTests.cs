@@ -125,7 +125,12 @@ namespace ChoSiren.Tests
             yield return null;
             AssertInactiveOrMissing("InfoModal");
 
-            AssertInactiveOrMissing("Mail");
+            Click("Mail");
+            yield return null;
+            RequireActiveObject("InfoModal");
+            Click("Primary");
+            yield return null;
+            AssertInactiveOrMissing("InfoModal");
 
             Click("Settings");
             RequireActiveObject("SettingsModal");

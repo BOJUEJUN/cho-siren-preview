@@ -56,7 +56,7 @@ namespace ChoSiren
         /// <summary>Default edge-feather width, in board source pixels.</summary>
         public static BakedRegionMotion038 Attach(GameObject target, Image board,
             Rect regionInBoardPixels, params Transform[] extras)
-            => Attach(target, board, regionInBoardPixels, 3f, extras);
+            => Attach(target, board, regionInBoardPixels, 3f, null, extras);
 
         /// <param name="target">Hit-only button whose visible body lives in the board art.</param>
         /// <param name="board">The authored board Image this page is built on.</param>
@@ -67,6 +67,17 @@ namespace ChoSiren
         /// belong to this control; they are animated in place like the button's children.</param>
         public static BakedRegionMotion038 Attach(GameObject target, Image board,
             Rect regionInBoardPixels, float featherPixels, params Transform[] extras)
+            => Attach(target, board, regionInBoardPixels, featherPixels, null, extras);
+
+        /// <param name="silhouetteBoardPixels">Optional polygon (board source pixels,
+        /// top-left origin) tracing the control's own baked silhouette. When set, the
+        /// slice mesh is tessellated and every vertex outside the polygon fades to zero
+        /// alpha, so neighbouring plaques/spikes/frames that physically interleave the
+        /// rectangular region are NOT dragged. Where silhouettes interleave, prefer
+        /// cutting a tip of the control's own art over covering a neighbour's.</param>
+        public static BakedRegionMotion038 Attach(GameObject target, Image board,
+            Rect regionInBoardPixels, float featherPixels, Vector2[] silhouetteBoardPixels,
+            params Transform[] extras)
         {
             if (target == null || board == null || board.sprite == null || board.sprite.texture == null)
                 return null;
@@ -78,6 +89,13 @@ namespace ChoSiren
             Rect boardLocal = boardRect.rect;
             if (boardLocal.width <= .01f || boardLocal.height <= .01f
                 || sprite.rect.width <= .01f || sprite.rect.height <= .01f) return null;
+            // A traced silhouette may legitimately reach the board edge; the slice itself
+            // must never sample outside the source rect or it would smear edge pixels.
+            regionInBoardPixels = Rect.MinMaxRect(
+                Mathf.Max(0f, regionInBoardPixels.xMin), Mathf.Max(0f, regionInBoardPixels.yMin),
+                Mathf.Min(sprite.rect.width, regionInBoardPixels.xMax),
+                Mathf.Min(sprite.rect.height, regionInBoardPixels.yMax));
+            if (regionInBoardPixels.width <= .01f || regionInBoardPixels.height <= .01f) return null;
             float fit = Mathf.Min(boardLocal.width / sprite.rect.width,
                 boardLocal.height / sprite.rect.height);
             Vector2 boardCentre = new Vector2(boardLocal.width * (.5f - boardRect.pivot.x),
@@ -129,6 +147,21 @@ namespace ChoSiren
                 regionInBoardPixels.width, regionInBoardPixels.height);
             Sprite region = Sprite.Create(sprite.texture, slice, new Vector2(.5f, .5f), 100f);
             float featherLocal = Mathf.Max(0f, featherPixels * unitScale);
+            Vector2[] silhouetteLocal = null;
+            if (silhouetteBoardPixels != null && silhouetteBoardPixels.Length >= 3
+                && regionInBoardPixels.width > .01f && regionInBoardPixels.height > .01f)
+            {
+                silhouetteLocal = new Vector2[silhouetteBoardPixels.Length];
+                for (int i = 0; i < silhouetteBoardPixels.Length; i++)
+                {
+                    Vector2 p = silhouetteBoardPixels[i];
+                    // Board px (top-left origin) -> region-local units (bottom-left origin,
+                    // matching RectTransform.rect space the mesh is generated in).
+                    silhouetteLocal[i] = new Vector2(
+                        (p.x - regionInBoardPixels.x) * unitScale,
+                        (regionInBoardPixels.y + regionInBoardPixels.height - p.y) * unitScale);
+                }
+            }
 
             GameObject art = new GameObject("RegionArt", typeof(RectTransform),
                 typeof(CanvasRenderer), typeof(BakedRegionGraphic038));
@@ -141,6 +174,7 @@ namespace ChoSiren
             BakedRegionGraphic038 artGraphic = art.GetComponent<BakedRegionGraphic038>();
             artGraphic.Region = region;
             artGraphic.Feather = featherLocal;
+            artGraphic.Silhouette = silhouetteLocal;
             artGraphic.raycastTarget = false;
             art.transform.SetAsFirstSibling();
 
@@ -155,6 +189,7 @@ namespace ChoSiren
             BakedRegionGraphic038 sheenGraphic = sheenNode.GetComponent<BakedRegionGraphic038>();
             sheenGraphic.Region = region;
             sheenGraphic.Feather = featherLocal;
+            sheenGraphic.Silhouette = silhouetteLocal;
             sheenGraphic.color = new Color(1f, 1f, 1f, .9f);
             sheenGraphic.raycastTarget = false;
             CanvasGroup sheenGroup = sheenNode.GetComponent<CanvasGroup>();
@@ -314,11 +349,15 @@ namespace ChoSiren
     /// scaled past its baked frame. Texture alpha is sampled normally, preserving any
     /// authored transparent contour inside the slice.
     /// </summary>
-    internal sealed class BakedRegionGraphic038 : MaskableGraphic
+    public sealed class BakedRegionGraphic038 : MaskableGraphic
     {
         public Sprite Region;
         /// <summary>Edge fade width in local units.</summary>
         public float Feather = 3f;
+        /// <summary>Optional silhouette polygon in local rect space (bottom-left origin).
+        /// When set, the quad is tessellated and each vertex fades to zero alpha outside
+        /// the polygon, isolating the slice so neighbouring baked art is not dragged.</summary>
+        public Vector2[] Silhouette;
 
         public override Texture mainTexture =>
             Region != null ? Region.texture : base.mainTexture;
@@ -334,6 +373,11 @@ namespace ChoSiren
             vh.Clear();
             Rect r = rectTransform.rect;
             if (r.width <= 0f || r.height <= 0f || Region == null) return;
+            if (Silhouette != null && Silhouette.Length >= 3)
+            {
+                PopulateSilhouetteMesh(vh, r);
+                return;
+            }
             Vector4 uv = DataUtility.GetOuterUV(Region);
             float fx = Mathf.Min(Feather, r.width * .25f);
             float fy = Mathf.Min(Feather, r.height * .25f);
@@ -371,6 +415,72 @@ namespace ChoSiren
             // Left ring: oBL, oTL, iTL, iBL.
             vh.AddTriangle(first + 0, first + 3, first + 7);
             vh.AddTriangle(first + 7, first + 4, first + 0);
+        }
+
+        /// <summary>
+        /// Tessellates the rect into a grid; every vertex carries alpha = soft polygon
+        /// coverage (signed distance / feather), so art outside the silhouette never
+        /// renders and therefore never moves. Cell size is capped so the soft edge stays
+        /// within a few board pixels of the authored contour.
+        /// </summary>
+        private void PopulateSilhouetteMesh(VertexHelper vh, Rect r)
+        {
+            Vector4 uv = DataUtility.GetOuterUV(Region);
+            int cols = Mathf.Clamp(Mathf.CeilToInt(r.width / 14f), 8, 40);
+            int rows = Mathf.Clamp(Mathf.CeilToInt(r.height / 14f), 8, 40);
+            float fade = Mathf.Max(Feather, 1.5f);
+            int first = vh.currentVertCount;
+            for (int row = 0; row <= rows; row++)
+            {
+                for (int col = 0; col <= cols; col++)
+                {
+                    Vector2 p = new Vector2(
+                        Mathf.Lerp(r.xMin, r.xMax, (float)col / cols),
+                        Mathf.Lerp(r.yMin, r.yMax, (float)row / rows));
+                    // Mesh points live in pivot-centred rect space; the silhouette is
+                    // region-local with a bottom-left origin — shift before testing.
+                    float d = SignedDistanceToPolygon(new Vector2(p.x - r.xMin, p.y - r.yMin));
+                    Color32 tint = color;
+                    tint.a = (byte)Mathf.Clamp(Mathf.RoundToInt(
+                        tint.a * Mathf.Clamp01((d + fade) / (fade * 2f))), 0, 255);
+                    AddVert(vh, p, UvAt(r, uv, p), tint);
+                }
+            }
+            int stride = cols + 1;
+            for (int row = 0; row < rows; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    int bl = first + row * stride + col;
+                    int br = bl + 1, tl = bl + stride, tr = tl + 1;
+                    vh.AddTriangle(bl, tl, tr);
+                    vh.AddTriangle(tr, br, bl);
+                }
+            }
+        }
+
+        /// <summary>Signed distance to the silhouette polygon: positive inside.
+        /// <paramref name="p"/> is in the same space as <see cref="Silhouette"/> —
+        /// region-local units with a bottom-left origin.</summary>
+        private float SignedDistanceToPolygon(Vector2 p)
+        {
+            float minSq = float.MaxValue;
+            bool inside = false;
+            for (int i = 0, j = Silhouette.Length - 1; i < Silhouette.Length; j = i++)
+            {
+                Vector2 a = Silhouette[j], b = Silhouette[i];
+                float dx = b.x - a.x, dy = b.y - a.y;
+                float t = dx * dx + dy * dy < .0001f ? 0f
+                    : Mathf.Clamp01(((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy));
+                float ex = a.x + dx * t - p.x, ey = a.y + dy * t - p.y;
+                float sq = ex * ex + ey * ey;
+                if (sq < minSq) minSq = sq;
+                if (a.y > p.y != b.y > p.y
+                    && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x)
+                    inside = !inside;
+            }
+            float d = Mathf.Sqrt(minSq);
+            return inside ? d : -d;
         }
 
         private static Vector2 UvAt(Rect r, Vector4 uv, Vector2 p) => new Vector2(

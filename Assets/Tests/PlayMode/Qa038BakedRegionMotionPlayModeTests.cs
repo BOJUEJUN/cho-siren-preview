@@ -150,5 +150,54 @@ namespace ChoSiren.Tests.PlayMode
             Assert.Less(label.localScale.x - 1f, .0001f, "children must reset to baseline exactly");
             Assert.AreEqual(new Vector2(160f, 80f), buttonRect.rect.size, "hit rect stayed fixed");
         }
+
+        [UnityTest]
+        public IEnumerator SilhouetteClipZeroesOutsideVertsAndKeepsHitFixed()
+        {
+            // Region covers board px (0,300)-(400,500). The silhouette is the left half
+            // (board px x<=200), so the slice's right half must render zero alpha —
+            // this is what stops a control's slice from dragging a neighbour's baked
+            // art where two silhouettes interleave inside one rectangle.
+            Vector2[] silhouette =
+            {
+                new Vector2(0f, 300f), new Vector2(200f, 300f),
+                new Vector2(200f, 500f), new Vector2(0f, 500f),
+            };
+            BakedRegionMotion038.Attach(buttonGo, boardImage, new Rect(0f, 300f, 400f, 200f),
+                3f, silhouette);
+            yield return null;
+
+            Transform body = buttonGo.transform.Find(BakedRegionMotion038.BodyName);
+            Assert.IsNotNull(body, "BakedRegionBody missing");
+            BakedRegionGraphic038 art = body.Find("RegionArt").GetComponent<BakedRegionGraphic038>();
+            Assert.IsNotNull(art);
+            Assert.IsNotNull(art.Silhouette, "silhouette must reach the slice graphic");
+
+            // Populate the mesh directly through the protected OnPopulateMesh hook and
+            // inspect vertex alpha: the tessellated grid maps local x across the full
+            // region, so verts left of centre are inside the polygon (alpha>0) and
+            // verts right of centre are outside (alpha 0).
+            var populate = typeof(Graphic).GetMethod("OnPopulateMesh",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                null, new[] { typeof(VertexHelper) }, null);
+            Assert.IsNotNull(populate, "OnPopulateMesh must exist");
+            var verts = new System.Collections.Generic.List<UIVertex>();
+            using (var vh = new VertexHelper())
+            {
+                populate.Invoke(art, new object[] { vh });
+                vh.GetUIVertexStream(verts);
+            }
+            Assert.Greater(verts.Count, 64, "silhouette slice must be tessellated, not a quad");
+            Rect r = art.rectTransform.rect;
+            int inside = 0, outside = 0;
+            foreach (UIVertex v in verts)
+            {
+                if (v.position.x < r.xMin + r.width * .35f && v.color.a > 200) inside++;
+                if (v.position.x > r.xMin + r.width * .65f && v.color.a == 0) outside++;
+            }
+            Assert.Greater(inside, 0, "inside the silhouette must stay opaque");
+            Assert.Greater(outside, 0, "outside the silhouette must be fully transparent");
+            Assert.AreEqual(new Vector2(160f, 80f), buttonRect.rect.size, "hit rect stayed fixed");
+        }
     }
 }

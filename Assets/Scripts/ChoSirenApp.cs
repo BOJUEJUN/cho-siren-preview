@@ -337,11 +337,13 @@ namespace ChoSiren
             settingsVisual.transform.SetAsFirstSibling();
             AttachLobbyHotspotFeedback(settings, LobbyHotspotFeedback.VisualKind.Settings);
 
-            // The v2 reference top bar has no inbox entry. The button stays built but
-            // inactive so the inbox feature code remains wired for future placement.
+            // SharedHeaderBand038: the unified members-target header keeps a live
+            // mail entry in the band's right icon cell, left of settings. The
+            // button stays wired to OpenInbox; ConfigureReferenceHeader038 places
+            // it in the shared layout on every common-HUD screen.
             GameObject mail = AddSpriteIconButton(bar.transform, "Mail",
                 Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 0, OpenInbox);
-            mail.SetActive(false);
+            mail.SetActive(true);
 
             UpdateTopBar();
         }
@@ -374,6 +376,14 @@ namespace ChoSiren
             float[] goldenLabelCenters038 = { 84.63f, 212.67f, 347.28f, 479.27f, 602.05f };
             const float goldenUnderlineBaseline038 = 1473.09f;
             const float goldenUnderlineWidth038 = 87.7f;
+            // The measured 0.3.8 art paints the five-item group at x~34.9-652.3
+            // (centre 343.6), i.e. ~16.4px left of the 720 canvas centre. Every
+            // child anchor - icon visual, Chinese label, selected bar and the
+            // shared-baseline hover underline - is positioned relative to this
+            // button, so one offset on the hit rect centres the whole group while
+            // hit/visual/underline stay locked together and the five nonuniform
+            // regions keep their measured shapes.
+            const float navGroupCenterOffsetX038 = 16.4f;
 
             // The 0.3.8 golden is uniformly contained in the full 720x1536 SafeArea.
             // Its five painted destinations are deliberately not an equal-width grid,
@@ -407,7 +417,8 @@ namespace ChoSiren
                 GameObject buttonObject = NewImage($"Nav-{ids[index]}", navRoot, null, Color.clear);
                 RectTransform rect = buttonObject.GetComponent<RectTransform>();
                 Rect hit = goldenHitRects038[index];
-                PlaceTop(rect, hit.x - 12f, hit.y - 1318f, hit.width, hit.height);
+                PlaceTop(rect, hit.x - 12f + navGroupCenterOffsetX038,
+                    hit.y - 1318f, hit.width, hit.height);
                 Image buttonGraphic = buttonObject.GetComponent<Image>();
                 buttonGraphic.raycastTarget = true;
                 Button button = buttonObject.AddComponent<Button>();
@@ -1300,7 +1311,14 @@ namespace ChoSiren
             });
             Sprite plusTile = AiUiSprite("Art/LobbyPunk/038/header-plus-tile-038");
             GameObject tile = NewImage("Icon", plus.transform, plusTile, White);
-            Stretch(tile.GetComponent<RectTransform>());
+            // SharedHeaderBand038: the user-approved compact plus is a subordinate
+            // mark about half the old block size, centred inside the larger fixed
+            // hit rect; the tile child (not the button) is what feedback scales.
+            RectTransform tileRect = tile.GetComponent<RectTransform>();
+            tileRect.anchorMin = tileRect.anchorMax = new Vector2(0.5f, 0.5f);
+            tileRect.pivot = new Vector2(0.5f, 0.5f);
+            tileRect.anchoredPosition = Vector2.zero;
+            tileRect.sizeDelta = new Vector2(18f, 18f);
             Image tileImage = tile.GetComponent<Image>();
             tileImage.preserveAspect = true;
             tileImage.raycastTarget = false;

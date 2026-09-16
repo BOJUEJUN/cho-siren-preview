@@ -19,32 +19,34 @@ namespace ChoSiren.Tests
         private const float PositionTolerance = 0.5f;
 
         // 0.3.8 bottom destinations measured from the visible icon/frame/Chinese-label
-        // groups in lobby-home-base-038.png, converted from 821x1739 to 720x1536.
-        // Keep these non-uniform x positions: the approved artwork is not an equal-column grid.
+        // groups in lobby-home-base-038.png, converted from 821x1739 to 720x1536,
+        // then shifted +16.4px as a group so the painted group centres on the 720
+        // canvas (measured centre was 343.6). Non-uniform x positions preserved.
         private static readonly Rect[] LobbyNavHitBounds038 =
         {
-            new Rect(18f, 1328f, 132f, 143f),
-            new Rect(161f, 1343f, 118f, 128f),
-            new Rect(280f, 1337f, 142f, 149f),
-            new Rect(424f, 1343f, 125f, 128f),
-            new Rect(554f, 1326f, 147f, 148f),
+            new Rect(34.4f, 1328f, 132f, 143f),
+            new Rect(177.4f, 1343f, 118f, 128f),
+            new Rect(296.4f, 1337f, 142f, 149f),
+            new Rect(440.4f, 1343f, 125f, 128f),
+            new Rect(570.4f, 1326f, 147f, 148f),
         };
 
         // Visible sprite placement is calibrated separately from input. These offsets
         // reverse the drift observed in the deployed 720x1536 capture while preserving
         // each source asset's measured size and the larger touch-friendly hit rectangle.
+        // Same +16.4 group shift as the hit bounds: visuals ride on the hit anchors.
         private static readonly Rect[] LobbyNavVisualBounds038 =
         {
-            new Rect(18.375f, 1325.225f, 132f, 143f),
-            new Rect(153.92f, 1337.81f, 118f, 128f),
-            new Rect(276.55f, 1319.87f, 142f, 149f),
-            new Rect(417.55f, 1337.375f, 125f, 128f),
-            new Rect(528.815f, 1328.415f, 147f, 148f),
+            new Rect(34.775f, 1325.225f, 132f, 143f),
+            new Rect(170.32f, 1337.81f, 118f, 128f),
+            new Rect(292.95f, 1319.87f, 142f, 149f),
+            new Rect(433.95f, 1337.375f, 125f, 128f),
+            new Rect(545.215f, 1328.415f, 147f, 148f),
         };
 
         private static readonly float[] LobbyNavLabelCenters038 =
         {
-            84.63f, 212.67f, 347.28f, 479.27f, 602.05f,
+            101.03f, 229.07f, 363.68f, 495.67f, 618.45f,
         };
 
         private const float LobbyNavUnderlineBaseline038 = 1473.09f;
@@ -518,15 +520,18 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator TopBarMatchesLatestReferenceWithoutMailAndKeepsMusicInsideSettings()
+        public IEnumerator TopBarMatchesUnifiedMembersHeaderWithLiveMailAndKeepsMusicInsideSettings()
         {
             RectTransform profile = RequireButtonRect("Profile");
+            RectTransform mail = RequireButtonRect("Mail");
             RectTransform settings = RequireButtonRect("Settings");
-            RectTransform[] controls = { profile, settings };
+            RectTransform[] controls = { profile, mail, settings };
             RectTransform topBar = RequireRect("TopBar");
 
-            Assert.That(GameObject.Find("Mail"), Is.Null,
-                "最新首页参考不显示邮件，顶部不得保留可见按钮或隐藏热区。");
+            Assert.That(mail.gameObject.activeInHierarchy, Is.True,
+                "统一成员页头部在右侧图标格内保留实时邮件入口。");
+            Assert.That(mail.GetComponent<Button>().IsInteractable(), Is.True,
+                "邮件入口必须保持可点击以打开收件箱。");
 
             Assert.That(topBar.GetComponentsInChildren<Transform>(true)
                     .Any(item => item.name == "Music"), Is.False,
@@ -575,14 +580,14 @@ namespace ChoSiren.Tests
             Assert.That(staminaValue.GetComponent<Text>().text, Does.Not.Contain(":"));
             Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(85f + PositionTolerance),
                 "体力文本不应为已删除的倒计时保留空白宽度。");
-            // HeaderPolish038: values sit between the baked icon cores and the
-            // independent plus tiles, never touching either edge.
-            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(1f).Within(PositionTolerance));
-            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(2f).Within(PositionTolerance));
-            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.EqualTo(2f).Within(PositionTolerance));
-            Assert.That(diamondValueRect.width, Is.EqualTo(34f).Within(PositionTolerance));
+            // SharedHeaderBand038: one members-target geometry — values sit between
+            // the live icon sprites and the compact plus tiles, never touching either.
+            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(4f).Within(PositionTolerance));
+            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(4f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.EqualTo(3f).Within(PositionTolerance));
+            Assert.That(diamondValueRect.width, Is.EqualTo(50f).Within(PositionTolerance));
             Assert.That(goldValueRect.width, Is.EqualTo(46f).Within(PositionTolerance));
-            Assert.That(staminaValueRect.width, Is.EqualTo(54f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.width, Is.EqualTo(48f).Within(PositionTolerance));
             Assert.That(diamondValueRect.Overlaps(diamondIconRect), Is.False);
             Assert.That(goldValueRect.Overlaps(goldIconRect), Is.False);
             Assert.That(staminaValueRect.Overlaps(staminaIconRect), Is.False);
@@ -632,8 +637,13 @@ namespace ChoSiren.Tests
                 AssertContained(group, RequireRect(valueName), "数字必须完整落在所属资源信息块内");
                 Assert.That(RequireRect(valueName).GetComponent<Text>().raycastTarget, Is.False);
             }
-            Assert.That(settingsRect.xMin - previousResource.xMax, Is.InRange(-PositionTolerance, 24f),
-                "设置应紧跟体力信息块，不应为已移除的邮件按钮保留空槽。");
+            // The unified band's right icon cell hosts mail then settings: mail sits
+            // between the stamina pill and the gear, and settings hugs its right edge.
+            Rect mailRect = RectInParent(mail);
+            Assert.That(mailRect.xMin - previousResource.xMax, Is.InRange(-PositionTolerance, 24f),
+                "邮件入口应紧跟体力信息块，占据统一头部右侧图标格左半。");
+            Assert.That(settingsRect.xMin - mailRect.xMax, Is.InRange(-PositionTolerance, 4f),
+                "设置应紧跟邮件入口，占据右侧图标格右半。");
 
             settings.GetComponent<Button>().onClick.Invoke();
             yield return null;
@@ -673,7 +683,10 @@ namespace ChoSiren.Tests
             for (int index = 0; index < ids.Length; index++)
             {
                 buttons[index] = RequireButtonRect("Nav-" + ids[index]);
-                AssertContained(navigation, buttons[index], labels[index]);
+                // The centred group's rightmost hit overhangs the invisible nav plate
+                // by ~9px by design; the plate has no visible bounds, so containment
+                // is asserted against the SafeArea canvas instead.
+                AssertContained(safe, buttons[index], labels[index]);
                 Text[] buttonLabels = buttons[index].GetComponentsInChildren<Text>(true)
                     .Where(text => !string.IsNullOrWhiteSpace(text.text))
                     .ToArray();
@@ -889,11 +902,20 @@ namespace ChoSiren.Tests
                 RectTransform safe = RequireRect("SafeArea");
                 Assert.That(GameObject.Find("ReferenceHeader038"), Is.Null,
                     page + " 不得再贴整段大厅裁条覆盖背景。");
+                // SharedHeaderBand038: one shared members-target header geometry on every
+                // page — the ValueMax caps bound the rendered width under Overflow so a
+                // long value ("120/120" = 3.72em) can never slide under the icon or plus
+                // tile; that was the members stamina clip ("20/12").
+                int[] expectedValueMax = { 15, 14, 12 };
+                int currencyIndex = 0;
                 float[] centers = new string[] { "Diamonds", "Gold", "Stamina" }.Select(name =>
                 {
                     Text number = RequireRect(name).GetComponent<Text>();
                     Assert.That(number.enabled && number.gameObject.activeInHierarchy, Is.True);
                     Assert.That(number.font, Is.Not.Null);
+                    Assert.That(number.resizeTextForBestFit, Is.True, page + "/" + name + " 必须启用 bestFit");
+                    Assert.That(number.resizeTextMaxSize, Is.EqualTo(expectedValueMax[currencyIndex++]),
+                        page + "/" + name + " 的渲染上限与版式表不符");
                     Assert.That(number.cachedTextGenerator.lineCount, Is.EqualTo(1), name + " 应保持单行");
                     Assert.That(number.preferredHeight, Is.LessThanOrEqualTo(number.rectTransform.rect.height + .5f));
                     AssertContained(number.transform.parent as RectTransform, number.rectTransform, name);
@@ -905,8 +927,14 @@ namespace ChoSiren.Tests
                 // Live header body per page: avatar, name/level/power, clear gear body.
                 Assert.That(RequireRect("AvatarMask").gameObject.activeInHierarchy, Is.True,
                     page + " 必须显示实时头像。");
-                Assert.That(RequireRect("PlayerName").GetComponent<Text>().enabled, Is.True,
+                Text playerName = RequireRect("PlayerName").GetComponent<Text>();
+                Assert.That(playerName.enabled, Is.True,
                     page + " 必须显示真实玩家名。");
+                // NotoSansSC line height is 1.448em — at 17pt the line needs ~24.6px,
+                // taller than every name band. Truncate drops the whole line in WebGL,
+                // which is how the name vanished on all pages.
+                Assert.That(playerName.verticalOverflow, Is.EqualTo(VerticalWrapMode.Overflow),
+                    page + " 玩家名必须允许垂直溢出，否则整行被 Truncate 丢弃。");
                 Assert.That(RequireRect("TeamAverageLevel").GetComponent<Text>().enabled, Is.True,
                     page + " 必须显示真实等级。");
                 Image gear = RequireRect("SettingsVisualV2").GetComponent<Image>();
@@ -1271,22 +1299,26 @@ namespace ChoSiren.Tests
             RectTransform faceSafeZone, RectTransform[] actions)
         {
             const float tolerance = 3f;
+            // SharedHeaderBand038: one unified members-target header on every
+            // common-HUD screen — profile cell, three resource pills, compact plus
+            // hits, live mail and settings in the right icon cell.
             RectTransform[] headerVisuals =
             {
                 RequireRect("Profile"),
                 RequireRect("Currency-diamond"),
                 RequireRect("Currency-gold"),
                 RequireRect("Currency-stamina"),
+                RequireRect("Mail"),
                 RequireRect("Settings"),
             };
             AssertTopLeftBounds(safe, CombinedRectRelativeTo(safe, headerVisuals),
-                7, 7, 700, 93, tolerance, "顶部 HUD 整组");
-            AssertTopLeftBounds(safe, headerVisuals[0], 7, 10, 194, 90, tolerance, "玩家信息");
-            AssertTopLeftBounds(safe, headerVisuals[1], 209, 20, 137, 53, tolerance, "钻石");
-            AssertTopLeftBounds(safe, headerVisuals[2], 356, 21, 141, 52, tolerance, "金币");
-            AssertTopLeftBounds(safe, headerVisuals[3], 498, 20, 140, 55, tolerance, "体力");
-            AssertTopLeftBounds(safe, headerVisuals[4], 640, 7, 67, 80, tolerance, "设置");
-            Assert.That(GameObject.Find("Mail"), Is.Null, "720x1536 最新参考不得显示 Mail。");
+                0, 0, 716, 62, tolerance, "顶部 HUD 整组");
+            AssertTopLeftBounds(safe, headerVisuals[0], 0, 0, 215, 62, tolerance, "玩家信息");
+            AssertTopLeftBounds(safe, headerVisuals[1], 222, 0, 128, 46, tolerance, "钻石");
+            AssertTopLeftBounds(safe, headerVisuals[2], 354, 0, 122, 46, tolerance, "金币");
+            AssertTopLeftBounds(safe, headerVisuals[3], 478, 0, 124, 46, tolerance, "体力");
+            AssertTopLeftBounds(safe, headerVisuals[4], 610, 2, 52, 44, tolerance, "邮件");
+            AssertTopLeftBounds(safe, headerVisuals[5], 662, 2, 54, 46, tolerance, "设置");
 
             Image golden = RequireApprovedLobbyGolden();
             AssertTopLeftBounds(safe, golden.rectTransform,
@@ -1316,9 +1348,9 @@ namespace ChoSiren.Tests
             string[] currencies = { "diamond", "gold", "stamina" };
             float[,] plusBounds =
             {
-                { 304f, 36f, 36f, 36f },
-                { 446f, 35f, 36f, 36f },
-                { 587f, 35f, 36f, 36f },
+                { 312f, 5f, 36f, 36f },
+                { 440f, 5f, 36f, 36f },
+                { 564f, 5f, 36f, 36f },
             };
             for (int index = 0; index < currencies.Length; index++)
                 AssertTopLeftBounds(safe, RequireButtonRect("CurrencyPlus-" + currencies[index]),

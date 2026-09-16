@@ -51,7 +51,7 @@ namespace ChoSiren.Panels
                 Triangle(mesh,P(.93f,.66f),P(.995f,.95f),P(.78f,.81f),Color.white);
                 Line(mesh,P(.13f,.26f),P(.67f,.12f),2,Color.white);
                 Line(mesh,P(.23f,.92f),P(.77f,.83f),2,Accent);
-                for (int i=0;i<5;i++) Line(mesh,P(.73f+i*.018f,.71f),P(.76f+i*.018f,.52f),2,Accent);
+                for (int i=0;i<5;i++) Line(mesh,P(.80f+i*.016f,.70f),P(.83f+i*.016f,.51f),2,Accent);
             }
             else
             {

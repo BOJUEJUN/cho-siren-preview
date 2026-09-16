@@ -583,7 +583,11 @@ namespace ChoSiren
             overlay.GetComponent<Image>().raycastTarget = true;
             modalObject = overlay;
 
-            GameObject panel = NewPanel("Panel", overlay.transform, new Color32(12, 18, 40, 253), 28);
+            GameObject panel = NewImage("Panel", overlay.transform, SlashPanelSprite(false),
+                new Color32(12, 18, 40, 253));
+            Image panelImage = panel.GetComponent<Image>();
+            panelImage.type = Image.Type.Sliced;
+            panelImage.raycastTarget = true;
             RectTransform panelRect = panel.GetComponent<RectTransform>();
             panelRect.anchorMin = panelRect.anchorMax = new Vector2(0.5f, 0.5f);
             panelRect.pivot = new Vector2(0.5f, 0.5f);

@@ -32,12 +32,15 @@ namespace ChoSiren
         }
 
         /// <summary>
-        /// HeaderPolish038: every page keeps its own authored header chrome — the
-        /// lobby board bakes the complete header, the team/members boards bake empty
-        /// band frames, and clean-top pages (accessory/audition/others) receive the
-        /// native v2 plaque/pill/gear artwork. No cropped strip is pasted anymore, so
-        /// nothing rectangular can seam against the page art. Only live values,
-        /// icons, avatars, plus tiles and the gear overlay are positioned here.
+        /// HeaderPolish038 / SharedHeaderBand038: user-directed unified header. One
+        /// members-target band artwork (HeaderBandMembers038) is drawn at the back of
+        /// the TopBar on every common-HUD screen and covers whatever header the page
+        /// bakes underneath, so lobby/team/native header looks are no longer kept
+        /// per page. One geometry below is the members reference measured on the
+        /// board art: left profile cell + ring, three empty slanted resource frames,
+        /// and the right icon cell that hosts a live mail envelope and the gear.
+        /// Only live values, icons, avatar, compact plus tiles, mail and gear
+        /// overlay are positioned here; hit rects stay fixed while visuals respond.
         /// </summary>
         private sealed class HeaderPolish038Layout
         {
@@ -47,82 +50,42 @@ namespace ChoSiren
             public Rect Level;       // local to Profile
             public Rect Power;       // local to Profile
             public Rect[] Pills = new Rect[3];
-            public Rect[] Icons = new Rect[3];   // local to pill; baked-icon pages use it as the marker anchor
+            public Rect[] Icons = new Rect[3];   // local to pill; the band frames are empty so icons are live
             public Rect[] Values = new Rect[3];  // local to pill
-            public Rect[] Tiles = new Rect[3];   // bar coordinates; hit rect equals the visible tile
+            public Rect[] Tiles = new Rect[3];   // bar coordinates; hit rect stays larger than the compact tile
+            public int[] ValueMax = new int[3];  // per-currency resizeTextMaxSize: bounds the
+                                                 // rendered width so long values ("120/120")
+                                                 // can never reach under the icon or plus tile
             public Rect Settings;
             public Rect Gear;        // local to Settings
+            public Rect Mail;
+            public Rect MailIcon;    // local to Mail
             public bool NativeChrome;
             public bool LiveIcons;
 
             public static HeaderPolish038Layout For(string screen)
             {
-                switch (screen)
-                {
-                    case "team": return Band(
-                        profile: new Rect(0, 0, 205, 72), avatar: new Rect(-12, -32, 84, 84),
-                        name: new Rect(86, 8, 114, 20), level: new Rect(86, 30, 110, 14),
-                        power: new Rect(86, 46, 114, 16),
-                        pills: new[] { new Rect(216, 14, 132, 56), new Rect(358, 14, 120, 56), new Rect(488, 14, 140, 56) },
-                        icons: new[] { new Rect(16, 13, 30, 30), new Rect(14, 13, 30, 30), new Rect(14, 13, 30, 30) },
-                        values: new[] { new Rect(48, 15, 34, 26), new Rect(46, 15, 34, 26), new Rect(48, 15, 54, 26) },
-                        tiles: new[] { new Rect(300, 24, 36, 36), new Rect(440, 24, 36, 36), new Rect(592, 24, 36, 36) },
-                        settings: new Rect(634, 6, 72, 64), gear: new Rect(13, 17, 48, 50));
-                    case "members": return Band(
-                        profile: new Rect(0, 0, 215, 62), avatar: new Rect(26, -26, 72, 72),
-                        name: new Rect(108, 4, 100, 20), level: new Rect(108, 26, 96, 14),
-                        power: new Rect(108, 42, 100, 16),
-                        pills: new[] { new Rect(222, 0, 128, 46), new Rect(354, 0, 122, 46), new Rect(478, 0, 124, 46) },
-                        icons: new[] { new Rect(10, 8, 28, 28), new Rect(10, 8, 28, 28), new Rect(10, 8, 28, 28) },
-                        values: new[] { new Rect(40, 9, 48, 26), new Rect(40, 9, 44, 26), new Rect(40, 9, 44, 26) },
-                        tiles: new[] { new Rect(312, 5, 36, 36), new Rect(440, 5, 36, 36), new Rect(564, 5, 36, 36) },
-                        settings: new Rect(630, 0, 72, 50), gear: new Rect(22, -8, 48, 50));
-                    case "lobby": return new HeaderPolish038Layout
-                    {
-                        Profile = new Rect(7, 10, 194, 90),
-                        Avatar = new Rect(10, 14, 58, 58),
-                        Name = new Rect(90, 10, 104, 24),
-                        Level = new Rect(90, 36, 100, 15),
-                        Power = new Rect(90, 53, 104, 17),
-                        Pills = new[] { new Rect(209, 20, 137, 53), new Rect(356, 21, 141, 52), new Rect(498, 20, 140, 55) },
-                        Icons = new[] { new Rect(28, 8, 30, 40), new Rect(14, 8, 24, 40), new Rect(4, 10, 24, 40) },
-                        Values = new[] { new Rect(59, 18, 34, 30), new Rect(40, 17, 46, 30), new Rect(30, 18, 54, 30) },
-                        Tiles = new[] { new Rect(304, 36, 36, 36), new Rect(446, 35, 36, 36), new Rect(587, 35, 36, 36) },
-                        Settings = new Rect(640, 7, 67, 80),
-                        Gear = new Rect(-6, 23, 52, 54),
-                        NativeChrome = false,
-                        LiveIcons = false,
-                    };
-                    default: return new HeaderPolish038Layout
-                    {
-                        Profile = new Rect(4, 8, 204, 70),
-                        Avatar = new Rect(18, 15, 40, 40),
-                        Name = new Rect(80, 6, 116, 22),
-                        Level = new Rect(80, 30, 110, 15),
-                        Power = new Rect(80, 46, 114, 17),
-                        Pills = new[] { new Rect(209, 16, 136, 30), new Rect(353, 16, 136, 30), new Rect(497, 16, 136, 30) },
-                        Icons = new[] { new Rect(10, 0, 30, 30), new Rect(10, 0, 30, 30), new Rect(10, 0, 30, 30) },
-                        Values = new[] { new Rect(44, 2, 50, 26), new Rect(44, 2, 50, 26), new Rect(44, 2, 50, 26) },
-                        Tiles = new[] { new Rect(305, 13, 36, 36), new Rect(449, 13, 36, 36), new Rect(593, 13, 36, 36) },
-                        Settings = new Rect(642, 6, 66, 64),
-                        Gear = new Rect(2, 2, 52, 54),
-                        NativeChrome = true,
-                        LiveIcons = false,
-                    };
-                }
-            }
-
-            private static HeaderPolish038Layout Band(Rect profile, Rect avatar, Rect name,
-                Rect level, Rect power, Rect[] pills, Rect[] icons, Rect[] values, Rect[] tiles,
-                Rect settings, Rect gear)
-            {
+                // One shared members-target geometry on every common-HUD screen.
+                // Band frames: (222,0,128,46) (354,0,122,46) (478,0,124,46); the
+                // right icon cell spans ~x606-714 and holds mail then settings.
                 return new HeaderPolish038Layout
                 {
-                    Profile = profile, Avatar = avatar, Name = name, Level = level, Power = power,
-                    Pills = pills, Icons = icons, Values = values, Tiles = tiles,
-                    Settings = settings, Gear = gear,
+                    Profile = new Rect(0, 0, 215, 62),
+                    Avatar = new Rect(29, 26, 52, 52),
+                    Name = new Rect(108, 4, 100, 20),
+                    Level = new Rect(108, 26, 96, 14),
+                    Power = new Rect(108, 42, 100, 16),
+                    Pills = new[] { new Rect(222, 0, 128, 46), new Rect(354, 0, 122, 46), new Rect(478, 0, 124, 46) },
+                    Icons = new[] { new Rect(8, 9, 24, 24), new Rect(8, 9, 24, 24), new Rect(8, 9, 24, 24) },
+                    Values = new[] { new Rect(36, 9, 50, 26), new Rect(36, 9, 46, 26), new Rect(35, 9, 48, 26) },
+                    Tiles = new[] { new Rect(312, 5, 36, 36), new Rect(440, 5, 36, 36), new Rect(564, 5, 36, 36) },
+                    Settings = new Rect(662, 2, 54, 46),
+                    Gear = new Rect(0, 0, 48, 46),
+                    Mail = new Rect(610, 2, 52, 44),
+                    MailIcon = new Rect(-5, -7, 58, 58),
                     NativeChrome = false,
                     LiveIcons = true,
+                    ValueMax = new[] { 15, 14, 12 },
                 };
             }
         }
@@ -150,11 +113,38 @@ namespace ChoSiren
             // (avatar ring, gear tips, tiles) never bleeds above the safe area.
             if (bar.GetComponent<RectMask2D>() == null) bar.gameObject.AddComponent<RectMask2D>();
 
+            // SharedHeaderBand038: the members-target band art is the one shared
+            // header on every common-HUD page. Drawn as the bar's rearmost child it
+            // covers each page's own baked header (lobby pill strip, team quad,
+            // empty clean tops) with the unified profile cell, three empty slanted
+            // resource frames and the right icon cell that hosts mail + settings.
+            Transform band = bar.Find("HeaderBandMembers038");
+            if (band == null)
+            {
+                Sprite bandSprite = AiUiSprite("Art/LobbyPunk/038/header-band-members-038");
+                if (bandSprite != null)
+                {
+                    band = NewImage("HeaderBandMembers038", bar, bandSprite, White).transform;
+                    Image created = band.GetComponent<Image>();
+                    created.preserveAspect = false;
+                    created.raycastTarget = false;
+                }
+            }
+            if (band != null)
+            {
+                band.gameObject.SetActive(true);
+                PlaceTop((RectTransform)band, 0f, 0f, 720f, 100f);
+                band.SetAsFirstSibling();
+            }
+
             Transform profile = bar.Find("Profile");
             if (profile == null) return;
             PlaceTop((RectTransform)profile, layout.Profile.x, layout.Profile.y,
                 layout.Profile.width, layout.Profile.height);
-            if (profile.GetComponent<RectMask2D>() == null) profile.gameObject.AddComponent<RectMask2D>();
+            // Avatar discs may protrude below/above the band by design (the baked ring
+            // does); only the bar-level mask may clip them at the screen edge.
+            RectMask2D staleProfileMask = profile.GetComponent<RectMask2D>();
+            if (staleProfileMask != null) staleProfileMask.enabled = false;
             Transform profileVisual = profile.Find("ProfileVisualV2");
             if (profileVisual != null)
             {
@@ -177,6 +167,10 @@ namespace ChoSiren
                 name.fontSize = 17;
                 name.fontStyle = FontStyle.Bold;
                 name.horizontalOverflow = HorizontalWrapMode.Overflow;
+                // NotoSansSC line height is 1.448em: at 17pt the line needs ~24.6px,
+                // taller than every name band — with Truncate Unity drops the whole
+                // line, which is exactly why the name vanished on all pages.
+                name.verticalOverflow = VerticalWrapMode.Overflow;
             }
             Text level = profile.Find("TeamAverageLevel")?.GetComponent<Text>();
             if (level == null)
@@ -240,6 +234,11 @@ namespace ChoSiren
                 value.horizontalOverflow = HorizontalWrapMode.Overflow;
                 value.resizeTextForBestFit = true;
                 value.resizeTextMinSize = 10;
+                // Bound the rendered width: under Overflow, bestFit only checks the
+                // vertical fit, so a long value ("120/120" = 3.72em) rendered at 17
+                // overflowed into the opaque icon/plus tile on members ("20/12").
+                // Capping maxSize makes the worst case impossible on every page.
+                value.resizeTextMaxSize = layout.ValueMax[i];
 
                 Rect tileRect = layout.Tiles[i];
                 Transform plus = bar.Find("CurrencyPlus-" + currencies[i]);
@@ -257,6 +256,24 @@ namespace ChoSiren
                 gear.gameObject.SetActive(true);
                 PlaceTop((RectTransform)gear, layout.Gear.x, layout.Gear.y,
                     layout.Gear.width, layout.Gear.height);
+                Image gearImage = gear.GetComponent<Image>();
+                if (gearImage != null) gearImage.preserveAspect = true;
+            }
+
+            // SharedHeaderBand038: the members icon cell hosts a live mail entry on
+            // its left half and the gear on its right. Mail keeps the existing
+            // OpenInbox route; only visibility/geometry is unified here.
+            Transform mail = bar.Find("Mail");
+            if (mail != null)
+            {
+                mail.gameObject.SetActive(true);
+                PlaceTop((RectTransform)mail, layout.Mail.x, layout.Mail.y,
+                    layout.Mail.width, layout.Mail.height);
+                Transform mailIcon = mail.Find("Icon");
+                if (mailIcon != null)
+                    PlaceTop((RectTransform)mailIcon, layout.MailIcon.x, layout.MailIcon.y,
+                        layout.MailIcon.width, layout.MailIcon.height);
+                AttachLobbyHotspotFeedback(mail.gameObject, LobbyHotspotFeedback.VisualKind.Entry);
             }
 
             foreach (Text label in bar.GetComponentsInChildren<Text>(true)) label.enabled = true;
@@ -317,6 +334,20 @@ namespace ChoSiren
             if (body != null) body.SetAsFirstSibling();
         }
 
+        /// <summary>Attach with an authored silhouette polygon (board source pixels,
+        /// top-left origin). The slice is vertex-clipped to the polygon so neighbouring
+        /// baked art inside the rectangular region is not dragged on hover/press.</summary>
+        private void MainBakedMotion038Attach(GameObject button, Image board,
+            Rect regionInBoardPixels, Vector2[] silhouetteBoardPixels, params Transform[] extras)
+        {
+            if (button == null || board == null) return;
+            if (BakedRegionMotion038.Attach(button, board, regionInBoardPixels, 3f,
+                    silhouetteBoardPixels, extras) == null)
+                return;
+            Transform body = button.transform.Find(BakedRegionMotion038.BodyName);
+            if (body != null) body.SetAsFirstSibling();
+        }
+
         /// <summary>Attach using the button's current footprint on the displayed board —
         /// required for the lobby, where hotspots are laid out in 720x1290 design space
         /// while the board PNG is 862x1825. The derived region is the exact board art
@@ -327,6 +358,17 @@ namespace ChoSiren
             Rect? region = MainBakedMotion038Footprint(button, board, inflateBoardPixels);
             if (region.HasValue)
                 MainBakedMotion038Attach(button, board, region.Value, extras);
+        }
+
+        /// <summary>Footprint attach plus an authored silhouette polygon (board source
+        /// pixels, top-left origin): the runtime-derived slice is vertex-clipped to the
+        /// control's own contour so a neighbour's interleaved baked art stays static.</summary>
+        private void MainBakedMotion038AttachFootprint(GameObject button, Image board,
+            float inflateBoardPixels, Vector2[] silhouetteBoardPixels, params Transform[] extras)
+        {
+            Rect? region = MainBakedMotion038Footprint(button, board, inflateBoardPixels);
+            if (region.HasValue)
+                MainBakedMotion038Attach(button, board, region.Value, silhouetteBoardPixels, extras);
         }
 
         private Rect? MainBakedMotion038Footprint(GameObject button, Image board, float inflate)

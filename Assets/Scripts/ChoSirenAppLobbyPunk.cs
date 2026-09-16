@@ -20,6 +20,42 @@ namespace ChoSiren
         private static readonly Rect StageVisualSpec = StageHitSpec; // Legacy helper remains compile-safe.
         private static readonly Rect FaceSafeSpec = new Rect(318f, 80f, 217f, 267f);     // [318,184,217,267]
 
+        // Card silhouettes traced on lobby-board-038.png (862x1825, top-left origin).
+        // Each follows the card's own burst perimeter; the shared spike field at the
+        // stacked seams is left static instead of being dragged by both neighbours.
+        private static readonly Vector2[] LobbyPracticeSilhouette =
+        {
+            new Vector2(50f, 618f), new Vector2(95f, 630f), new Vector2(140f, 618f),
+            new Vector2(200f, 625f), new Vector2(255f, 612f), new Vector2(300f, 620f),
+            new Vector2(335f, 628f), new Vector2(348f, 655f), new Vector2(350f, 700f),
+            new Vector2(372f, 738f), new Vector2(352f, 775f), new Vector2(382f, 798f),
+            new Vector2(358f, 845f), new Vector2(340f, 880f), new Vector2(300f, 886f),
+            new Vector2(200f, 888f), new Vector2(90f, 886f), new Vector2(58f, 872f),
+            new Vector2(42f, 855f), new Vector2(30f, 830f), new Vector2(32f, 760f),
+            new Vector2(38f, 700f),
+        };
+        private static readonly Vector2[] LobbyAlbumSilhouette =
+        {
+            new Vector2(48f, 958f), new Vector2(95f, 940f), new Vector2(140f, 935f),
+            new Vector2(190f, 930f), new Vector2(240f, 933f), new Vector2(285f, 920f),
+            new Vector2(330f, 930f), new Vector2(358f, 960f), new Vector2(365f, 1010f),
+            new Vector2(360f, 1060f), new Vector2(350f, 1105f), new Vector2(355f, 1140f),
+            new Vector2(330f, 1172f), new Vector2(300f, 1180f), new Vector2(260f, 1183f),
+            new Vector2(200f, 1186f), new Vector2(150f, 1183f), new Vector2(100f, 1176f),
+            new Vector2(70f, 1162f), new Vector2(52f, 1145f), new Vector2(40f, 1110f),
+            new Vector2(35f, 1050f), new Vector2(38f, 995f),
+        };
+        private static readonly Vector2[] LobbyTasksSilhouette =
+        {
+            new Vector2(70f, 1212f), new Vector2(110f, 1205f), new Vector2(160f, 1200f),
+            new Vector2(215f, 1200f), new Vector2(265f, 1198f), new Vector2(300f, 1200f),
+            new Vector2(330f, 1215f), new Vector2(348f, 1245f), new Vector2(362f, 1288f),
+            new Vector2(358f, 1328f), new Vector2(338f, 1353f), new Vector2(300f, 1366f),
+            new Vector2(240f, 1383f), new Vector2(180f, 1388f), new Vector2(122f, 1403f),
+            new Vector2(86f, 1393f), new Vector2(56f, 1338f), new Vector2(47f, 1282f),
+            new Vector2(52f, 1240f),
+        };
+
         private void BuildPunkLobby()
         {
             GameObject heroLayer = NewObject("HeroLayer", contentRoot);
@@ -66,11 +102,13 @@ namespace ChoSiren
             // Whole-body feedback for the four baked entry zones: the slice region is
             // derived from each control's real footprint on the displayed board, since
             // these specs live in 720x1290 design space, not board pixels. The three
-            // stacked cards touch, so only the isolated CTA gets edge bleed margin.
+            // stacked cards' spike halos interleave across the hit seams, so each card
+            // gets its own authored silhouette (board source px) to keep a neighbour's
+            // burst static; the isolated CTA only needs edge bleed margin.
             Canvas.ForceUpdateCanvases();
-            MainBakedMotion038AttachFootprint(practiceRoom, goldenImage, 0f);
-            MainBakedMotion038AttachFootprint(albumProduction, goldenImage, 0f);
-            MainBakedMotion038AttachFootprint(tasks, goldenImage, 0f);
+            MainBakedMotion038AttachFootprint(practiceRoom, goldenImage, 0f, LobbyPracticeSilhouette);
+            MainBakedMotion038AttachFootprint(albumProduction, goldenImage, 0f, LobbyAlbumSilhouette);
+            MainBakedMotion038AttachFootprint(tasks, goldenImage, 0f, LobbyTasksSilhouette);
             MainBakedMotion038AttachFootprint(liveOnStage, goldenImage, 12f);
 
             golden.transform.SetAsFirstSibling();

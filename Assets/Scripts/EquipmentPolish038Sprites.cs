@@ -137,7 +137,7 @@ namespace ChoSiren
                     float d = PolygonDistance(x + .5f, y + .5f, poly);
                     float inside = Mathf.Clamp01(-d + .5f);
                     if (inside <= 0f) { pixels[y * w + x] = new Color32(0, 0, 0, 0); continue; }
-                    float rim = Mathf.Clamp01((-d) / 2f);
+                    float rim = 1f - Mathf.Clamp01((-d) / 2f);
                     Color32 col = rim > .5f ? highlight : (rim > .15f ? edge : fill);
                     pixels[y * w + x] = new Color32(col.r, col.g, col.b, (byte)(col.a * inside));
                 }

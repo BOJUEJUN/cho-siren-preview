@@ -211,12 +211,12 @@ namespace ChoSiren.Tests
                 // Inspecting another member moves the cyan selection frame; the captain keeps gold.
                 SetField(panel, "inputActor", other);
                 Invoke(panel, "RefreshRealtimeCommands");
-                Outline captainOutline = captainCard.GetComponent<Outline>();
+                Outline captainOutline = captainCard.Find("PunkFrameEdge-0").GetComponent<Outline>();
                 Assert.That(captainOutline.effectColor.r, Is.GreaterThan(0.9f));
                 Assert.That(captainOutline.effectColor.g, Is.GreaterThan(0.7f));
                 Assert.That(captainOutline.effectColor.a, Is.GreaterThan(0.5f),
                     "队长必须始终保留金色描边徽章。");
-                Outline otherOutline = otherCard.GetComponent<Outline>();
+                Outline otherOutline = otherCard.Find("PunkFrameEdge-0").GetComponent<Outline>();
                 Assert.That(otherOutline.effectColor.b, Is.GreaterThan(0.8f), "被查看的队员保留青色选中框。");
             }
             finally { Object.DestroyImmediate(root); }

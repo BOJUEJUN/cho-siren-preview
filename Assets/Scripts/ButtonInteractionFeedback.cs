@@ -22,7 +22,7 @@ namespace ChoSiren
         private void Awake()
         {
             button = GetComponent<Button>();
-            GameObject root = new GameObject("ButtonInteractionFx", typeof(RectTransform), typeof(CanvasGroup));
+            GameObject root = new GameObject("ButtonInteractionFx", typeof(RectTransform), typeof(CanvasGroup), typeof(CanvasRenderer));
             root.layer = gameObject.layer;
             root.transform.SetParent(transform, false);
             RectTransform rect = root.GetComponent<RectTransform>();
