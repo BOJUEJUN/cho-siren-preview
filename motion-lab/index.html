@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0c0d14">
+  <title>CHO-SIREN · 五种心动</title>
+  <meta name="description" content="五种首页动效，选一种心动。切换 01–05，亲手体验悬停、按压和开演转场。">
+  <meta property="og:title" content="CHO-SIREN · 五种心动">
+  <meta property="og:description" content="节奏舞台、棱镜全息、漫画暴走、深空失重、绮梦花火。你最喜欢哪一版？">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bojuejun.github.io/cho-siren-preview/motion-lab/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23b9ff6a' d='M32 0 40 24 64 32 40 40 32 64 24 40 0 32 24 24Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-mode="1">
+  <div class="ambient" aria-hidden="true"></div>
+  <header class="masthead">
+    <a class="wordmark" href="#v1" aria-label="CHO-SIREN 动效实验室"><span class="brand-star">✦</span> CHO<span class="wordmark-line">/</span><span>SIREN<small>MOTION STUDIES</small></span></a>
+    <div class="edition"><span class="status-dot"></span> 五种心动 <span class="edition-separator">/</span> <span class="edition-sub">首页交互概念 · VOL. 01</span></div>
+    <button class="quiet-button" id="compare" aria-expanded="false">总览 <span>↗</span></button>
+  </header>
+
+  <main class="studio">
+    <aside class="collection" aria-label="选择动效版本">
+      <div class="eyebrow">SAME SIREN. FIVE FEELINGS.</div>
+      <h1>让首页，<br>有自己的节拍<span>。</span></h1>
+      <p class="intro-copy">五种动态性格，一张熟悉的首页。<br>选一个，亲手感受。</p>
+      <nav id="modes" class="mode-list" aria-label="五个动效方案"></nav>
+      <p class="keyboard-hint"><kbd>1</kbd> — <kbd>5</kbd> 切换方案 <span>·</span> 移动鼠标探索景深</p>
+      <div class="local-note"><span class="tiny-star">✳</span> PUBLIC DEMO <span>仅概念预览</span></div>
+    </aside>
+
+    <section class="preview-column" aria-label="首页交互预览">
+      <div class="monitor-top"><span><i></i> LIVE PREVIEW</span><span id="preview-code">01 / RESONANCE</span></div>
+      <div class="device-wrap">
+        <div class="device-aura" aria-hidden="true"></div>
+        <div class="device" id="device">
+          <div class="scene loading" id="scene" data-mode="1" tabindex="-1" aria-label="可交互的 CHO-SIREN 首页">
+            <div class="world" id="world">
+              <div id="layers"></div>
+              <div class="backfx" aria-hidden="true"><div class="beam beam-a"></div><div class="beam beam-b"></div><div class="orbital orbital-a"></div><div class="orbital orbital-b"></div><div class="aurora"></div><div class="halftone"></div></div>
+              <canvas id="atmosphere" aria-hidden="true"></canvas>
+              <div class="scan-line" aria-hidden="true"></div>
+              <div class="holo-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+              <div class="comic-caption" aria-hidden="true">FEEL THE<br><b>BEAT!</b></div>
+              <div class="orbit-label" aria-hidden="true">SIREN-01 <span>✧</span> IN ORBIT</div>
+              <div class="dream-label" aria-hidden="true">a little magic, a little music.</div>
+              <div class="beat-meter" aria-hidden="true"></div>
+            </div>
+            <div id="hotspots"></div>
+            <canvas id="sparks" aria-hidden="true"></canvas>
+            <div id="impact" class="impact" aria-hidden="true"></div>
+            <div class="load-screen" id="load-screen"><span class="load-star">✦</span><b>准备心动</b><span id="load-progress">正在装载首页图层</span></div>
+            <div class="performance" id="performance" hidden>
+              <div class="performance-grid" aria-hidden="true"></div>
+              <div class="performance-orbit" aria-hidden="true"></div>
+              <div class="show-copy"><span id="show-kicker">THE STAGE IS YOURS</span><h2 id="show-title">全场共振</h2><p id="show-description">这一刻，你就是舞台中心。</p><div class="show-equalizer" aria-hidden="true"></div><button id="return-home">回到首页 <span>↩</span></button><small>动效预演 · 不进入游戏关卡</small></div>
+            </div>
+            <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+            <section class="game-sheet" id="game-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+              <div class="sheet-top"><span id="sheet-category">SIREN CLUB</span><button id="close-sheet" aria-label="关闭面板">×</button></div>
+              <h2 id="sheet-title"></h2><div id="sheet-content"></div>
+              <p class="sheet-footnote">交互概念 · 示例内容</p>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div class="monitor-bottom"><span id="interaction-status" role="status" aria-live="polite">点击画面中的按钮试试看</span><span class="motion-state" id="motion-state">● MOTION ON</span></div>
+    </section>
+
+    <aside class="direction" aria-label="方案说明与预览控制">
+      <div class="direction-heading"><span class="eyebrow">DIRECTION <span id="direction-number">01</span></span><span class="direction-symbol" id="direction-symbol" aria-hidden="true">✦</span></div>
+      <div class="direction-copy"><h2 id="direction-title">节奏舞台</h2><p class="direction-english" id="direction-english">RESONANCE</p><p class="direction-description" id="direction-description"></p></div>
+      <div class="motion-signature" id="motion-signature" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="try-label">试试这些瞬间</div>
+      <ol class="moments" id="moments"></ol>
+      <div class="controls">
+        <div class="control-label"><label for="intensity">动效强度</label><output for="intensity" id="intensity-value">100%</output></div>
+        <input id="intensity" type="range" min="0" max="150" step="10" value="100" aria-label="动效强度">
+        <div class="control-buttons"><button id="pause" aria-pressed="false"><span id="pause-icon">Ⅱ</span> <span id="pause-text">暂停动效</span></button><button id="replay"><span>↻</span> 重播入场</button><button id="sound" aria-pressed="false"><span id="sound-icon">♫</span> <span id="sound-text">音效关</span></button></div>
+      </div>
+      <button class="primary-button" id="trigger-show"><span>体验开演瞬间</span><span>↗</span></button>
+      <button class="favorite-button" id="favorite" aria-pressed="false"><span id="favorite-icon">♡</span> <span id="favorite-text">收藏这个方向</span></button>
+      <p class="direction-footer">自由组合也很好。喜欢某版的入场、<br>另一版的点击，都可以留下。</p>
+    </aside>
+  </main>
+  <footer class="studio-footer"><span>CHO-SIREN <b>©</b> MOTION LAB</span><span>原始分层美术 × 五种动态想象</span><span id="favorite-summary">你的灵感，由你定调。</span></footer>
+
+  <dialog class="overview" id="overview" aria-labelledby="overview-title"><div class="overview-top"><div><span class="eyebrow">FIVE WAYS TO FEEL IT</span><h2 id="overview-title">选一种心动</h2></div><button id="close-overview" class="quiet-button" aria-label="关闭总览">关闭 ×</button></div><div class="overview-grid" id="overview-grid"></div><p>每张卡片都是一个完整交互方向。点击进入后，可以暂停对照原图，也可以把强度推到 150%。</p></dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="layout.js"></script><script src="app.js"></script>
+</body>
+</html>
