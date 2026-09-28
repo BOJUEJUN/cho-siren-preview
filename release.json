@@ -42,12 +42,18 @@
     "sixDiceCombinationCases": 46656,
     "battleNativeRgbaAssets": 37,
     "battleDiceCount": 6,
-    "battlePublicRuntimeVerified": false,
+    "battlePublicRuntimeVerified": true,
     "battleEncounterFollowupPassed": 7,
     "battleConcurrentDownloads": 4,
-    "battleUniqueAssetDownloads": 31
+    "battleUniqueAssetDownloads": 31,
+    "publicBattleMixedEnemyLanesVerified": true,
+    "publicBattleSixthDieSelectiveRerollVerified": true,
+    "publicBattleGuardUltimateAutoSpeedPauseVerified": true,
+    "publicBattleVictoryAndReturnVerified": true,
+    "publicBattleColdAssetLoadMilliseconds": 3696,
+    "publicSingleTabSaveReloadVerified": true
   },
-  "visualStatus": "R13 战斗已在公开站通关并正常返回；R13A 修复非原稿敌人组合重叠并优化首次素材加载，新增站位回归通过，继续公开站验收。未测实体手机。",
+  "visualStatus": "R13A 正式入口已实测：新版 PSD、不同敌人组合独立站位、六骰选择和单颗重投、守护、大招、自动/倍速、暂停/恢复、两波通关结算与返回首页。关闭重复旧游戏标签后结算存档刷新保留。未测实体手机；多游戏标签并发写档仍不支持冲突合并。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
