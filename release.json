@@ -28,14 +28,14 @@
     "rapidSecondDoubleClickRestoresUiInUnity": true,
     "characterClipsPublished": 3,
     "characterMp4H264AacFastStart": true,
-    "publicCharacterDialogueClipVerified": false,
-    "publicCharacterLiveClipVerified": false,
+    "publicCharacterDialogueClipVerified": true,
+    "publicCharacterLiveClipVerified": true,
     "characterTransparentWebmAlpha": true,
     "inlinePortraitReplacementPassedInUnity": true,
-    "publicInlineCutoutVisualVerified": false,
+    "publicInlineCutoutVisualVerified": true,
     "characterOnlyNoAddedControls": true
   },
-  "visualStatus": "R9 移除角色演出的额外面板，点击角色只播放原位透明动画；正式页待部署后复验。",
+  "visualStatus": "R9 正式页已实点两段对白和一段 LIVE：角色在首页原位透明播放，没有新增操作面板，播完恢复原立绘。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
