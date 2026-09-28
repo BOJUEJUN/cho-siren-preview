@@ -153,6 +153,7 @@
       emit(.5, .45, 18, false);
       frameId = requestAnimationFrame(frame);
     } else {
+      window.choSirenCharacter?.close();
       setUiHidden(false);
       cancelAnimationFrame(frameId);
       bursts = [];

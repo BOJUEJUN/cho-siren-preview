@@ -27,8 +27,24 @@ if (!html.includes('new URL("Build/", pageUrl)')) {
 if (!html.includes("navigator.serviceWorker.getRegistrations")) {
   throw new Error("缺少旧 Service Worker 注销逻辑");
 }
-for (const asset of ["home-stage.css", "home-stage.js", "lipstick-cursor.svg"]) {
+for (const asset of ["home-stage.css", "home-stage.js", "character-moments.css",
+  "character-moments.js", "lipstick-cursor.svg"]) {
   if (html.includes(`./${asset}`)) requireFile(join(root, asset));
+}
+if (!html.includes('id="character-moment"') ||
+    !html.includes('./character-moments.js') || !html.includes('./character-moments.css')) {
+  throw new Error("首页缺少角色演出层");
+}
+for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
+  const poster = join(root, "media", `${name}.jpg`);
+  const clip = join(root, "media", `${name}.mp4`);
+  requireFile(poster);
+  requireFile(clip);
+  if (statSync(poster).size < 1000 || statSync(clip).size < 1000 ||
+      statSync(clip).size >= 100 * 1024 * 1024 ||
+      readFileSync(clip).subarray(4, 8).toString() !== "ftyp") {
+    throw new Error(`角色演出文件无效：${name}`);
+  }
 }
 
 const references = [...html.matchAll(/buildAssetUrl\("([^"]+\.(?:data\.unityweb|framework\.js\.unityweb|wasm\.unityweb|loader\.js))"\)/g)]

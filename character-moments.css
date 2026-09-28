@@ -1,0 +1,124 @@
+#character-moment {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(165deg, #30204c, #100923 50%, #170b30);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(.965);
+  transition: opacity .24s ease, transform .38s cubic-bezier(.16, 1, .3, 1), visibility .24s;
+}
+#character-moment.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+}
+#character-moment::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(135deg, transparent 0 32px, #b579ff12 33px 34px);
+}
+.moment-heading {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6.65%;
+  padding: 1.2% 3.5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f995ff77;
+  background: #1c0e32;
+}
+.moment-heading small { display: block; margin-bottom: 2px; color: #fa9ce9; font-size: clamp(8px, 1.7vw, 12px); letter-spacing: .12em; }
+.moment-heading strong { font-size: clamp(12px, 3vw, 21px); letter-spacing: .08em; }
+#moment-close {
+  width: clamp(30px, 6.5vw, 48px);
+  height: clamp(30px, 6.5vw, 48px);
+  border: 1px solid #e5b7ff99;
+  border-radius: 50%;
+  background: #3d1d5c;
+  color: white;
+  font: 300 clamp(24px, 5.5vw, 38px)/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+.moment-frame {
+  position: absolute;
+  top: 6.65%;
+  left: 0;
+  right: 0;
+  bottom: 10%;
+  overflow: hidden;
+  background: #fffaf7;
+}
+.moment-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 2px #8e45cc, inset 0 0 32px #aa72e766;
+  pointer-events: none;
+}
+#moment-video { display: block; width: 100%; height: 100%; object-fit: contain; background: #fffaf7; }
+#moment-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #3c145fcc;
+  box-shadow: 0 0 0 8px #bc74ff4b, 0 0 28px #9942e8;
+  color: #fff;
+  font-size: 27px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .18s, visibility .18s;
+}
+#character-moment.needs-play #moment-play { opacity: 1; visibility: visible; }
+.moment-footer {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10%;
+  display: grid;
+  align-content: center;
+  gap: 7%;
+  padding: 1.1% 3.5% 1.4%;
+  border-top: 1px solid #f995ff77;
+  background: #1c0e32;
+}
+#moment-status { color: #ddc0f2; font-size: clamp(10px, 2vw, 14px); letter-spacing: .06em; }
+.moment-footer nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2%; }
+.moment-footer nav button {
+  min-height: clamp(28px, 5.8vw, 43px);
+  border: 1px solid #a668cb;
+  border-radius: 3px;
+  background: #3c225b;
+  color: #e9cffb;
+  font: 700 clamp(10px, 2.2vw, 16px)/1.2 system-ui, sans-serif;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.moment-footer nav button.is-selected {
+  border-color: #fff;
+  background: linear-gradient(100deg, #a140c6, #eb5bbf);
+  color: #fff;
+  box-shadow: 0 0 16px #ee5ec766;
+}
+#character-moment button:focus-visible { outline: 3px solid #c6ff79; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  #character-moment, #moment-play { transition: none; }
+}
