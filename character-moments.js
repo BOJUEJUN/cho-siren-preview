@@ -1,21 +1,14 @@
 (() => {
   const root = document.querySelector('#character-moment');
   const video = document.querySelector('#moment-video');
-  const title = document.querySelector('#moment-title');
-  const status = document.querySelector('#moment-status');
-  const playButton = document.querySelector('#moment-play');
   const clips = [
-    { src: 'media/catalena-look.webm', title: '她在看着你', status: '对白 01 · 注视' },
-    { src: 'media/catalena-whisper.webm', title: '悄悄话', status: '对白 02 · 耳边的声音' },
-    { src: 'media/catalena-live.webm', title: '第二段表演 LIVE', status: 'LIVE · 只唱歌，不说话' }
+    'media/catalena-look.webm',
+    'media/catalena-whisper.webm',
+    'media/catalena-live.webm'
   ];
-  const buttons = [...root.querySelectorAll('[data-moment]')];
   let active = false;
-  let selected = 0;
-  let audioEnabled = true;
   let concealed = false;
   let sequence = 0;
-  let endTimer = 0;
 
   function setPortraitConcealed(value) {
     if (concealed === value) return;
@@ -23,19 +16,18 @@
     try {
       window.choSirenUnityInstance?.SendMessage('PsdHome20260921',
         'SetCharacterPlayback', value ? 1 : 0);
-    } catch (_) { /* The lobby may have just been left. */ }
+    } catch (_) { /* The player may have just left the homepage. */ }
   }
 
   function close() {
     if (!active && !concealed) return;
     active = false;
     ++sequence;
-    window.clearTimeout(endTimer);
     video.pause();
     video.removeAttribute('src');
     video.load();
     setPortraitConcealed(false);
-    root.classList.remove('is-active', 'needs-play');
+    root.classList.remove('is-active');
     root.setAttribute('aria-hidden', 'true');
   }
 
@@ -44,62 +36,31 @@
     const next = Number(index);
     if (!Number.isInteger(next) || next < 0 || next >= clips.length) return false;
     active = true;
-    selected = next;
-    audioEnabled = !!withAudio;
-    const playSequence = ++sequence;
-    const clip = clips[next];
-    root.dataset.clip = String(next);
-    window.clearTimeout(endTimer);
+    const playback = ++sequence;
     video.pause();
-    setPortraitConcealed(false);
-    video.muted = !audioEnabled;
-    video.src = new URL(clip.src, document.baseURI).href;
+    video.muted = !withAudio;
+    video.src = new URL(clips[next], document.baseURI).href;
     video.load();
-    title.textContent = clip.title;
-    status.textContent = clip.status;
-    buttons.forEach(button => button.classList.toggle('is-selected', Number(button.dataset.moment) === next));
+    root.dataset.clip = String(next);
     root.setAttribute('aria-hidden', 'false');
     root.classList.add('is-active');
-    root.classList.remove('needs-play');
     document.querySelector('#character-dialogue').classList.remove('is-visible');
     const attempt = video.play();
     if (attempt?.catch) attempt.catch(() => {
-      if (active && sequence === playSequence) {
-        root.classList.add('needs-play');
-        status.textContent = '轻触继续 · ' + clip.status;
-      }
+      if (!active || sequence !== playback) return;
+      // A browser may refuse audio when Unity's click callback arrives later;
+      // keep the requested animation available even if sound is blocked.
+      video.muted = true;
+      video.play().catch(close);
     });
     return true;
   }
 
-  function playFromCharacter(lineIndex, withAudio) {
-    return showClip(((lineIndex % clips.length) + clips.length) % clips.length, withAudio);
-  }
-
-  document.querySelector('#moment-close').addEventListener('click', close);
-  root.addEventListener('click', event => {
-    const button = event.target.closest('[data-moment]');
-    if (button && root.contains(button)) showClip(Number(button.dataset.moment), audioEnabled);
-  });
-  playButton.addEventListener('click', () => {
-    const attempt = video.play();
-    if (attempt?.then) attempt.then(() => root.classList.remove('needs-play')).catch(() => {
-      status.textContent = '播放失败，请切换片段重试';
-    });
-  });
   video.addEventListener('playing', () => { if (active) setPortraitConcealed(true); });
-  video.addEventListener('ended', () => {
-    if (!active) return;
-    status.textContent = selected === 2 ? 'LIVE 演出结束' : '对白结束';
-    endTimer = window.setTimeout(close, 1200);
-  });
-  video.addEventListener('error', () => {
-    if (active) {
-      status.textContent = '视频加载失败，点击角色可重试';
-      endTimer = window.setTimeout(close, 1800);
-    }
-  });
+  video.addEventListener('ended', close);
+  video.addEventListener('error', close);
   document.addEventListener('keydown', event => { if (active && event.key === 'Escape') close(); });
-  window.choSirenCharacter = { play: playFromCharacter, close,
-    get active() { return active; }, get selected() { return selected; } };
+  window.choSirenCharacter = { play(index, withAudio) {
+    return showClip(((index % clips.length) + clips.length) % clips.length, withAudio);
+  }, close, get active() { return active; } };
 })();

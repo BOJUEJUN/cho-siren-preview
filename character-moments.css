@@ -10,84 +10,24 @@
 }
 #character-moment.is-active { opacity: 1; visibility: visible; }
 
-/* The video is a transparent cutout sharing the authored portrait footprint. */
+/* Only the transparent character cutout appears over the existing homepage. */
 #moment-video {
   position: absolute;
-  top: 9%;
+  top: 6%;
   left: -3%;
   width: 106%;
-  height: 96%;
+  height: 99%;
   object-fit: fill;
   background: transparent;
   pointer-events: none;
   filter: drop-shadow(0 0 11px rgba(0, 245, 237, .42));
 }
 #character-moment[data-clip="2"] #moment-video {
-  /* The singing source has more headroom than either dialogue source. */
-  top: 3%;
-  height: 102%;
+  /* The singing source has extra headroom; match the same portrait anchor. */
+  top: 0;
+  height: 105%;
 }
-
-.moment-controls {
-  position: absolute;
-  z-index: 2;
-  left: 2.5%;
-  top: 29%;
-  width: clamp(103px, 27%, 176px);
-  padding: 10px 7px 8px;
-  border: 1px solid rgba(219, 132, 255, .7);
-  border-left: 3px solid #ed6dc8;
-  border-radius: 5px 12px 12px 5px;
-  background: linear-gradient(110deg, #140b2de8, #291349d9);
-  box-shadow: 0 7px 25px #14052ab8, inset 0 0 15px #b167e128;
-  color: white;
-  pointer-events: auto;
-  transform: translateX(-125%);
-  transition: transform .32s cubic-bezier(.16, 1, .3, 1);
-}
-#character-moment.is-active .moment-controls { transform: translateX(0); }
-.moment-controls small {
-  display: block;
-  margin-bottom: 3px;
-  color: #f58bd0;
-  font: 700 clamp(7px, 1.3vw, 10px)/1.2 system-ui, sans-serif;
-  letter-spacing: .08em;
-}
-.moment-controls strong {
-  display: block;
-  margin-bottom: 8px;
-  font: 800 clamp(11px, 2.4vw, 16px)/1.2 system-ui, sans-serif;
-}
-.moment-controls nav { display: grid; gap: 5px; }
-.moment-controls button {
-  min-height: 29px;
-  border: 1px solid #9c6bb4;
-  border-radius: 3px;
-  background: #381e59e8;
-  color: #eee4fb;
-  font: 700 clamp(9px, 1.9vw, 13px)/1.2 system-ui, sans-serif;
-  cursor: pointer;
-  transition: background .15s, border-color .15s, transform .15s;
-}
-.moment-controls button:hover { border-color: #fff; transform: translateX(3px); }
-.moment-controls button.is-selected {
-  border-color: #ffd4fc;
-  background: linear-gradient(95deg, #8134bf, #dc4cb9);
-  box-shadow: 0 0 12px #f070d366;
-  color: white;
-}
-#moment-status {
-  display: block;
-  min-height: 22px;
-  margin: 8px 0 4px;
-  color: #eacaf2;
-  font: 500 clamp(8px, 1.5vw, 11px)/1.3 system-ui, sans-serif;
-}
-#moment-close, #moment-play { width: 100%; background: #211137; }
-#moment-play { display: none; }
-#character-moment.needs-play #moment-play { display: block; margin-top: 5px; }
-#character-moment button:focus-visible { outline: 2px solid #c6ff79; outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
-  #character-moment, .moment-controls, .moment-controls button { transition: none; }
+  #character-moment { transition: none; }
 }

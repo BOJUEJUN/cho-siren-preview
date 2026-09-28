@@ -10,8 +10,8 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>CHO-SIREN 幻域魅声</title>
-    <link rel="stylesheet" href="./home-stage.css?v=20260928-r8">
-    <link rel="stylesheet" href="./character-moments.css?v=20260928-r8">
+    <link rel="stylesheet" href="./home-stage.css?v=20260928-r9">
+    <link rel="stylesheet" href="./character-moments.css?v=20260928-r9">
     <style>
       :root {
         color-scheme: dark;
@@ -224,18 +224,6 @@
       </div>
       <section id="character-moment" aria-label="首页角色演出" aria-hidden="true">
         <video id="moment-video" playsinline webkit-playsinline preload="none"></video>
-        <div class="moment-controls">
-          <small>CATALENA / HOME LIVE</small>
-          <strong id="moment-title">角色演出</strong>
-          <nav aria-label="选择角色演出">
-            <button type="button" data-moment="0">对白 01</button>
-            <button type="button" data-moment="1">对白 02</button>
-            <button type="button" data-moment="2">LIVE 唱段</button>
-          </nav>
-          <span id="moment-status" aria-live="polite">在首页演出中</span>
-          <button id="moment-close" type="button" aria-label="结束角色演出">结束演出 ×</button>
-          <button id="moment-play" type="button" aria-label="继续播放角色演出">继续播放 ▶</button>
-        </div>
       </section>
       <div id="character-dialogue" role="status" aria-live="polite"><small>音律少女 / CATALENA</small><span id="character-dialogue-line"></span></div>
       <div id="warning" role="status">
@@ -249,8 +237,8 @@
       </div>
     </main>
 
-    <script src="./home-stage.js?v=20260928-r8"></script>
-    <script src="./character-moments.js?v=20260928-r8"></script>
+    <script src="./home-stage.js?v=20260928-r9"></script>
+    <script src="./character-moments.js?v=20260928-r9"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       // Retire the service worker used by the earlier HTML prototype.  Its root

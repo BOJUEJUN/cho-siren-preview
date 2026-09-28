@@ -35,6 +35,9 @@ if (!html.includes('id="character-moment"') ||
     !html.includes('./character-moments.js') || !html.includes('./character-moments.css')) {
   throw new Error("首页缺少角色演出层");
 }
+if (html.includes('moment-controls') || html.includes('data-moment=')) {
+  throw new Error("角色点击不得覆盖额外的演出菜单或按钮");
+}
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   const clip = join(root, "media", `${name}.webm`);
   requireFile(clip);

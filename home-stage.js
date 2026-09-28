@@ -180,6 +180,9 @@
     const box = input.getBoundingClientRect();
     const x = (event.clientX - box.left) / box.width;
     const y = (event.clientY - box.top) / box.height;
+    // A tap on the heroine now plays her cutout performance.  Do not stack
+    // generic stage sparks on that gesture; the character alone should move.
+    if (x > .32 && x < .74 && y > .16 && y < .5) return;
     const album = x < .45 && y > .50 && y < .76;
     const show = x > .57 && y > .48 && y < .9;
     const color = album ? '#c5ff43' : show ? '#bca4ff' : '#e0ffcd';
