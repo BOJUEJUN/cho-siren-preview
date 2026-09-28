@@ -13,14 +13,19 @@
 /* The video is a transparent cutout sharing the authored portrait footprint. */
 #moment-video {
   position: absolute;
-  top: 12%;
+  top: 9%;
   left: -3%;
   width: 106%;
-  height: 93%;
+  height: 96%;
   object-fit: fill;
   background: transparent;
   pointer-events: none;
   filter: drop-shadow(0 0 11px rgba(0, 245, 237, .42));
+}
+#character-moment[data-clip="2"] #moment-video {
+  /* The singing source has more headroom than either dialogue source. */
+  top: 3%;
+  height: 102%;
 }
 
 .moment-controls {

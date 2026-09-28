@@ -48,6 +48,7 @@
     audioEnabled = !!withAudio;
     const playSequence = ++sequence;
     const clip = clips[next];
+    root.dataset.clip = String(next);
     window.clearTimeout(endTimer);
     video.pause();
     setPortraitConcealed(false);

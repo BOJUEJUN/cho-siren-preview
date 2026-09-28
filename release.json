@@ -1,13 +1,13 @@
 {
   "version": "0.3.8",
-  "releaseId": "PSD-20260928-INLINE-CHARACTER-R7",
-  "name": "首页原位透明角色演出",
+  "releaseId": "PSD-20260928-INLINE-ALIGN-R8",
+  "name": "首页透明角色演出位置对齐",
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
   "sourceState": "local working-tree build based on cb77657; unrelated dirty source preserved",
-  "homepagePatchSha256": "4f25c5e50e1adff6c1b275e6cff84c25ae23e197ef607295499006cfbf74ac16",
-  "previousReleaseId": "PSD-20260928-CHARACTER-MOMENTS-R6",
-  "previousWebCommit": "501450a",
+  "homepagePatchSha256": "c2f0cb95de18e65c4eeed1c494b62400f161653bd794fc2773616244bac4f58e",
+  "previousReleaseId": "PSD-20260928-INLINE-CHARACTER-R7",
+  "previousWebCommit": "d278ce8",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
@@ -34,7 +34,7 @@
     "inlinePortraitReplacementPassedInUnity": true,
     "publicInlineCutoutVisualVerified": false
   },
-  "visualStatus": "R7 Unity 13/13、透明 WebM 与两代 WebGL 包校验通过；公开页播放与图层位置待发布后实点。",
+  "visualStatus": "R7 正式页已点验角色原位播放、透明背景、LIVE 切换与播放结束恢复；R8 调整三段角色位置，待新缓存生效后复验。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
