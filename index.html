@@ -96,17 +96,27 @@
       .lipstick-trail {
         position: absolute;
         z-index: 5;
-        width: 5px;
-        height: 11px;
-        border-radius: 70% 35% 70% 35%;
-        background: #ff9ccc;
-        box-shadow: 0 0 8px #ff65b5, 0 0 15px #ff65b577;
+        width: 7px;
+        height: 7px;
+        background: #ff83bd;
+        transform: rotate(-45deg);
+        filter: drop-shadow(0 0 5px #ff65b5);
         pointer-events: none;
-        animation: lipstick-trail-fade .54s ease-out forwards;
+        animation: lipstick-trail-fade .62s ease-out forwards;
       }
+      .lipstick-trail::before, .lipstick-trail::after {
+        content: "";
+        position: absolute;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: inherit;
+      }
+      .lipstick-trail::before { top: -3.5px; left: 0; }
+      .lipstick-trail::after { top: 0; left: 3.5px; }
 
       @keyframes lipstick-trail-fade {
-        to { opacity: 0; transform: translate(-9px, -26px) rotate(24deg) scale(.25); }
+        to { opacity: 0; transform: translate(-8px, -22px) rotate(-45deg) scale(.28); }
       }
 
       @media (hover: none), (pointer: coarse) {
@@ -287,9 +297,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("166b38d422af755399ac0b21a57d1352.data.unityweb"),
-        frameworkUrl: buildAssetUrl("b83d0275d568d2a4557a6cea866bdd6b.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("07833c06878bfd58c82463902ac2702c.wasm.unityweb"),
+        dataUrl: buildAssetUrl("1222221c7b62ccf6bb58f859752582ad.data.unityweb"),
+        frameworkUrl: buildAssetUrl("c6c0a121260df0b70591cd9f27cbfe0a.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("93c91352e4ad122f9c7b59afb7eb6d2c.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -300,7 +310,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("18d3ed66aa97ad134f359199647eea23.loader.js");
+      loader.src = buildAssetUrl("ee68dda478c672b0fefe70103d206fd7.loader.js");
       loader.onload = async () => {
         try {
           await createUnityInstance(canvas, config, value => {
