@@ -70,6 +70,29 @@
         cursor: url("./lipstick-cursor.svg") 19 3, auto;
       }
 
+      #character-dialogue {
+        position: absolute;
+        z-index: 7;
+        left: 5%;
+        bottom: 17%;
+        width: 90%;
+        min-height: 68px;
+        padding: 11px 15px 13px;
+        border: 1px solid rgba(255, 152, 214, .84);
+        border-radius: 14px;
+        background: #160831;
+        box-shadow: 0 8px 27px #090319aa, inset 3px 0 #ff77bc;
+        color: #fff;
+        pointer-events: none;
+        font-size: clamp(12px, 1.45vw, 20px);
+        line-height: 1.4;
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity .18s, transform .24s;
+      }
+      #character-dialogue.is-visible { opacity: 1; transform: translateY(0); }
+      #character-dialogue small { display: block; margin-bottom: 3px; color: #ff9ed3; font-size: .68em; letter-spacing: .06em; }
+
       .lipstick-trail {
         position: absolute;
         z-index: 5;
@@ -188,6 +211,7 @@
         <div id="stage-beat-meter"></div>
         <canvas id="stage-sparks"></canvas>
       </div>
+      <div id="character-dialogue" role="status" aria-live="polite"><small>音律少女 / CATALENA</small><span id="character-dialogue-line"></span></div>
       <div id="warning" role="status">
         <span id="warning-text"></span>
         <button id="retry" type="button">重新加载</button>
@@ -334,6 +358,38 @@
         trailHost.appendChild(mark);
       }, { passive: true });
       canvas.addEventListener("pointerleave", () => { lastLipstickPoint = null; });
+      // One opaque, accessible dialogue panel covers browsers where the Unity
+      // dialogue is absent or paints below the canvas overlay.
+      const characterDialogue = document.querySelector("#character-dialogue");
+      const characterLine = document.querySelector("#character-dialogue-line");
+      const characterLines = ["呐，今天也愿意和我一起唱吗？", "这束光，一定也会照到你。", "来吧，开始属于我们的舞台！"];
+      let characterLineIndex = 0, characterShowTimer, characterHideTimer;
+      canvas.addEventListener("click", event => {
+        if (!window.choSirenStage?.active) {
+          characterDialogue.classList.remove("is-visible");
+          return;
+        }
+        window.clearTimeout(characterShowTimer);
+        if (event.detail > 1) return;
+        const box = canvas.getBoundingClientRect();
+        const x = (event.clientX - box.left) / box.width;
+        const y = (event.clientY - box.top) / box.height;
+        if (x < .39 || x > .72 || y < .16 || y > .48) {
+          characterDialogue.classList.remove("is-visible");
+          return;
+        }
+        characterShowTimer = window.setTimeout(() => {
+          if (!window.choSirenStage?.active) return;
+          characterLine.textContent = characterLines[characterLineIndex++ % characterLines.length];
+          characterDialogue.classList.add("is-visible");
+          window.clearTimeout(characterHideTimer);
+          characterHideTimer = window.setTimeout(() => characterDialogue.classList.remove("is-visible"), 4500);
+        }, 300);
+      });
+      canvas.addEventListener("dblclick", () => {
+        window.clearTimeout(characterShowTimer);
+        characterDialogue.classList.remove("is-visible");
+      });
       startGame();
     </script>
   </body>
