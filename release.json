@@ -29,11 +29,17 @@
     "approvedInkFrames": 48,
     "approvedInkFrameRate": 30,
     "nativeUiCharacterCompositing": true,
-    "publicRuntimeVerified": false,
+    "publicRuntimeVerified": true,
     "browserDoubleClickGateTestPassed": true,
-    "retryCacheBypassTestPassed": true
+    "retryCacheBypassTestPassed": true,
+    "publicGameAlbumInkVerified": true,
+    "publicGameUiHideVerified": true,
+    "publicGameTransitionVerified": true,
+    "publicInlineCutoutVisualVerified": true,
+    "publicCharacterThreeClipsVerified": true,
+    "publicForegroundDepthVerified": true
   },
-  "visualStatus": "R12 油墨与三段原生视频主站实测通过；补修网页旧对白框、双击恢复与加载重试后，等待最终复验。",
+  "visualStatus": "R12/R12a 正式首页已实测：油墨悬停与选中、三段原位透明视频及播完恢复、双击隐藏/恢复、开始演出进入地图；最终刷新无新增脚本错误。未测实体手机。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
