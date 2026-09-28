@@ -17,7 +17,7 @@
     x: Math.random(), y: Math.random(), v: .5 + Math.random(), s: Math.random(), n: Math.random()
   }));
   const fract = value => value - Math.floor(value);
-  let active = false, time = 0, lastFrame = 0, frameId = 0, width = 0, height = 0;
+  let active = false, uiHidden = false, time = 0, lastFrame = 0, frameId = 0, width = 0, height = 0;
   let bursts = [], rings = [];
   let pointer = { x: .5, y: .45, inside: false };
   let smoothed = { x: .5, y: .45 };
@@ -153,12 +153,18 @@
       emit(.5, .45, 18, false);
       frameId = requestAnimationFrame(frame);
     } else {
+      setUiHidden(false);
       cancelAnimationFrame(frameId);
       bursts = [];
       rings = [];
       atmosphereContext.clearRect(0, 0, width, height);
       sparksContext.clearRect(0, 0, width, height);
     }
+  }
+
+  function setUiHidden(value) {
+    uiHidden = value;
+    stage.classList.toggle('ui-hidden', uiHidden);
   }
 
   input.addEventListener('pointermove', event => {
@@ -182,5 +188,6 @@
   window.addEventListener('resize', resize);
   new ResizeObserver(resize).observe(shell);
   resize();
-  window.choSirenStage = { setActive, get active() { return active; } };
+  window.choSirenStage = { setActive, setUiHidden,
+    get active() { return active; }, get uiHidden() { return uiHidden; } };
 })();

@@ -42,7 +42,9 @@
   width: 15%;
   height: 3.1%;
   opacity: .64;
+  transition: opacity .2s ease;
 }
+#home-stage.ui-hidden #stage-beat-meter { opacity: 0; }
 #stage-beat-meter i {
   width: 9%;
   height: 30%;
