@@ -36,14 +36,14 @@ if (!html.includes('id="character-moment"') ||
   throw new Error("首页缺少角色演出层");
 }
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
-  const poster = join(root, "media", `${name}.jpg`);
-  const clip = join(root, "media", `${name}.mp4`);
-  requireFile(poster);
+  const clip = join(root, "media", `${name}.webm`);
   requireFile(clip);
-  if (statSync(poster).size < 1000 || statSync(clip).size < 1000 ||
+  const bytes = readFileSync(clip);
+  if (statSync(clip).size < 1000 ||
       statSync(clip).size >= 100 * 1024 * 1024 ||
-      readFileSync(clip).subarray(4, 8).toString() !== "ftyp") {
-    throw new Error(`角色演出文件无效：${name}`);
+      bytes.subarray(0, 4).toString("hex") !== "1a45dfa3" ||
+      bytes.indexOf(Buffer.from([0x53, 0xc0, 0x81, 0x01])) < 0) {
+    throw new Error(`透明角色演出文件无效：${name}`);
   }
 }
 
