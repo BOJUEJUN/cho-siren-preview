@@ -12,19 +12,25 @@
   "validation": {
     "cleanWebGLBuild": true,
     "focusedUnityPlayModePassed": 5,
-    "browserHotspotsClicked": 0,
-    "browserPointerFeedbackPassed": 0,
+    "browserHotspotsClicked": 3,
+    "browserPointerFeedbackPassed": 1,
     "loaderRegressionTestsPassed": 12,
     "stagingSafetyTestsPassed": 0,
     "streamedPngHashesVerified": 41,
     "currentAndPreviousBuildAssetsVerified": 8,
     "physicalMobileDeviceTested": false,
-    "previewInteractionBrowserVerified": false,
+    "previewInteractionBrowserVerified": true,
     "psdCompositeReconstructionMeanAbsoluteErrorRgb": [
       5.256,
       4.929,
       5.244
-    ]
+    ],
+    "publicGameHomepageBrowserVerified": true,
+    "publicGameAlbumInkClicked": true,
+    "publicPreviewLayersLoaded": 37,
+    "publicPreviewCharacterDialogueVerified": true,
+    "publicPreviewUiHideVerified": true,
+    "publicPreviewTransitionVerified": true
   },
-  "visualStatus": "最新手工 PSD 的 37 个独立 RGBA 层用于公开五版动效预览；游戏首页保留 32 层与实时数值。专辑绿色原生笔触默认隐藏，点击后显现并轻微不规则波动。浏览器交互复测受本机浏览器权限限制，未声称已验证。"
+  "visualStatus": "最新手工 PSD 的 37 个独立 RGBA 层用于公开五版动效预览；游戏首页保留 32 层与实时数值。专辑绿色原生笔触默认隐藏，点击后显现并轻微不规则波动。GitHub Pages 公开预览与游戏均已在浏览器打开并交互核对；本机 localhost 预览因浏览器权限拒绝未使用。"
 }
