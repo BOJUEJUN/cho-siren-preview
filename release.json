@@ -1,17 +1,17 @@
 {
   "version": "0.3.8",
-  "releaseId": "PSD-20260928-APPROVED-INK-R12",
-  "name": "已确认油墨选中效果与首页交互修复",
+  "releaseId": "PSD-20260928-BATTLE-SIX-DICE-R13",
+  "name": "最新版战斗 PSD 与六骰玩法",
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
   "sourceState": "local working-tree build based on cb77657; unrelated dirty source preserved",
   "homepagePatchSha256": "bd11cdaddcd2b2891e579d58599843f80f6bd80fddcd68d7792f42f4be64a655",
-  "previousReleaseId": "PSD-20260928-CHARACTER-FOREGROUND-R10",
-  "previousWebCommit": "5e2c8cd",
+  "previousReleaseId": "PSD-20260928-APPROVED-INK-R12",
+  "previousWebCommit": "b22678c",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
-    "focusedUnityPlayModePassed": 17,
+    "focusedUnityPlayModePassed": 64,
     "loaderRegressionTestsPassed": 15,
     "currentAndPreviousBuildAssetsVerified": 8,
     "stageOverlayCopiedFromMotionLabV1": true,
@@ -37,9 +37,14 @@
     "publicGameTransitionVerified": true,
     "publicInlineCutoutVisualVerified": true,
     "publicCharacterThreeClipsVerified": true,
-    "publicForegroundDepthVerified": true
+    "publicForegroundDepthVerified": true,
+    "battleRulesEditModePassed": 90,
+    "sixDiceCombinationCases": 46656,
+    "battleNativeRgbaAssets": 37,
+    "battleDiceCount": 6,
+    "battlePublicRuntimeVerified": false
   },
-  "visualStatus": "R12/R12a 正式首页已实测：油墨悬停与选中、三段原位透明视频及播完恢复、双击隐藏/恢复、开始演出进入地图；最终刷新无新增脚本错误。未测实体手机。",
+  "visualStatus": "R13 最新战斗 PSD 已通过 Unity 实际渲染与交互回归：六骰选择和重投、暂停、自动/倍速、守护、首领布局及首页回归。发布后继续验收公开网页。未测实体手机。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
@@ -75,5 +80,7 @@
     "Assets/StreamingAssets/AlbumInkR02/ink-flow-1.png",
     "Assets/StreamingAssets/AlbumInkR02/ink-flow-2.png",
     "Assets/StreamingAssets/AlbumInkR02/ink-flow-3.png"
-  ]
+  ],
+  "battleSourcePsdSha256": "2a447489c66f81e13cb2ee393a93e850d3c92ef37e90f232d0af36705b514a39",
+  "battleSourceSnapshotSha256": "abb0e6bae9a1f4fe9487648274d8af8ee99373ee69b7863123c42c3482a5023a"
 }

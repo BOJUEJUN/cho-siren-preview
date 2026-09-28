@@ -55,6 +55,26 @@ for (const sheet of ink.sheets) {
     throw new Error('油墨图集不匹配或缺少真实 RGBA: ' + sheet.file);
   }
 }
+// Battle assets stay outside the Unity archive: verify every referenced native RGBA
+// component and the six independent dice before allowing a Pages deployment.
+const battleRoot = join(root, 'StreamingAssets', 'BattlePsd928');
+const battleManifest = JSON.parse(readFileSync(join(battleRoot, 'manifest.json'), 'utf8'));
+if (battleManifest.width !== 2946 || battleManifest.height !== 6144 ||
+    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 37 ||
+    battleManifest.sourceSha256 !== '2a447489c66f81e13cb2ee393a93e850d3c92ef37e90f232d0af36705b514a39') {
+  throw new Error('战斗资源不是最新六骰 PSD');
+}
+const battleKeys = new Set();
+for (const entry of battleManifest.entries) {
+  if (!/^[a-f0-9]{16}-[a-z0-9-]+\.png$/.test(entry.file) || battleKeys.has(entry.key))
+    throw new Error('战斗资源路径或键重复');
+  battleKeys.add(entry.key);
+  const bytes = readFileSync(join(battleRoot, entry.file));
+  if (!entry.file.startsWith(createHash('sha256').update(bytes).digest('hex').slice(0, 16) + '-') ||
+      bytes.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' || bytes[25] !== 6 ||
+      entry.width <= 0 || entry.height <= 0) throw new Error('战斗分层图哈希或 RGBA 无效：' + entry.file);
+}
+for (let i = 1; i <= 6; i++) if (!battleKeys.has('die-' + i)) throw new Error('缺少第 ' + i + ' 颗骰子');
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   const clip = join(root, "media", `${name}.webm`);
   requireFile(clip);

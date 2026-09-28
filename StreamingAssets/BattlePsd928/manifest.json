@@ -1,0 +1,344 @@
+{
+  "version": "battle-20260928-latest",
+  "sourceSha256": "2a447489c66f81e13cb2ee393a93e850d3c92ef37e90f232d0af36705b514a39",
+  "width": 2946,
+  "height": 6144,
+  "targetWidth": 720,
+  "targetHeight": 1536,
+  "scaleMode": "contain",
+  "entries": [
+    {
+      "key": "stage",
+      "file": "fc645c95b3956bea-stage.png",
+      "x": 0,
+      "y": 0,
+      "width": 2946,
+      "height": 6144,
+      "note": "background-only blend bake; linear light preserved"
+    },
+    {
+      "key": "member-0",
+      "file": "b2c4159e3c389175-member-0.png",
+      "x": -5,
+      "y": 3670,
+      "width": 714,
+      "height": 1381,
+      "note": "authored card group; hard-light blend baked within component"
+    },
+    {
+      "key": "member-1",
+      "file": "dd47a7d333a849a1-member-1.png",
+      "x": 720,
+      "y": 3665,
+      "width": 710,
+      "height": 1369,
+      "note": "authored card group; hard-light blend baked within component"
+    },
+    {
+      "key": "member-2",
+      "file": "41833956c35516d1-member-2.png",
+      "x": 1473,
+      "y": 3666,
+      "width": 714,
+      "height": 1364,
+      "note": "authored card group; hard-light blend baked within component"
+    },
+    {
+      "key": "member-3",
+      "file": "c75c7faabac7a5a6-member-3.png",
+      "x": 2184,
+      "y": 3898,
+      "width": 714,
+      "height": 1132,
+      "note": "authored card group; hard-light blend baked within component"
+    },
+    {
+      "key": "battle-37",
+      "file": "c35faeb9971dbaaa-battle-37.png",
+      "x": 814,
+      "y": 3788,
+      "width": 616,
+      "height": 975,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-38",
+      "file": "fdef047706ba8b0a-battle-38.png",
+      "x": 1562,
+      "y": 3788,
+      "width": 632,
+      "height": 971,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-39",
+      "file": "830192ff58ef306c-battle-39.png",
+      "x": 59,
+      "y": 3635,
+      "width": 517,
+      "height": 1091,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-40",
+      "file": "014dab24dfe664fb-battle-40.png",
+      "x": 2364,
+      "y": 3998,
+      "width": 438,
+      "height": 688,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-48",
+      "file": "026ecd9553a4ed48-battle-48.png",
+      "x": 871,
+      "y": -92,
+      "width": 1550,
+      "height": 663,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-52",
+      "file": "3f8f98623e19eb5f-battle-52.png",
+      "x": 163,
+      "y": 591,
+      "width": 2674,
+      "height": 204,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-53",
+      "file": "c23857073feb84b2-battle-53.png",
+      "x": 2364,
+      "y": 472,
+      "width": 516,
+      "height": 198,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-55",
+      "file": "795c5b758e43f191-battle-55.png",
+      "x": 2115,
+      "y": 3265,
+      "width": 780,
+      "height": 488,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-56",
+      "file": "6abdf2590973558c-battle-56.png",
+      "x": 2280,
+      "y": 3388,
+      "width": 450,
+      "height": 220,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-57",
+      "file": "3d6be09011c63509-battle-57.png",
+      "x": 451,
+      "y": 915,
+      "width": 989,
+      "height": 509,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-58",
+      "file": "3d6be09011c63509-battle-58.png",
+      "x": 1599,
+      "y": 869,
+      "width": 989,
+      "height": 509,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-62",
+      "file": "c55783edffad3099-battle-62.png",
+      "x": 2666,
+      "y": 165,
+      "width": 125,
+      "height": 162,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-65",
+      "file": "eed9241d1ef00647-battle-65.png",
+      "x": -765,
+      "y": 3150,
+      "width": 1668,
+      "height": 559,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-49",
+      "file": "363e09edf95b763e-battle-49.png",
+      "x": 406,
+      "y": 4999,
+      "width": 2158,
+      "height": 420,
+      "note": "raster sample labels isolated for live model text"
+    },
+    {
+      "key": "control-auto",
+      "file": "d9762aa194c8d14c-control-auto.png",
+      "x": 2020,
+      "y": 150,
+      "width": 375,
+      "height": 272,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "control-speed",
+      "file": "ba2bfdc12898d5d8-control-speed.png",
+      "x": 2395,
+      "y": 128,
+      "width": 261,
+      "height": 271,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "control-pause",
+      "file": "740e221005970f0b-control-pause.png",
+      "x": 2656,
+      "y": 85,
+      "width": 290,
+      "height": 286,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-51",
+      "file": "6e42f272168588e3-battle-51.png",
+      "x": -19,
+      "y": -64,
+      "width": 2965,
+      "height": 988,
+      "note": "header with control artwork split into independent buttons"
+    },
+    {
+      "key": "enemy-0",
+      "file": "672301ac2cc2e12e-enemy-0.png",
+      "x": 366,
+      "y": 1412,
+      "width": 1079,
+      "height": 2017,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "enemy-1",
+      "file": "d776a8f6929bf235-enemy-1.png",
+      "x": 1592,
+      "y": 1328,
+      "width": 877,
+      "height": 2034,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-41",
+      "file": "9c877294e794d2f8-battle-41.png",
+      "x": 191,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-42",
+      "file": "9c877294e794d2f8-battle-42.png",
+      "x": 609,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-43",
+      "file": "9c877294e794d2f8-battle-43.png",
+      "x": 1033,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-44",
+      "file": "9c877294e794d2f8-battle-44.png",
+      "x": 1446,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-45",
+      "file": "9c877294e794d2f8-battle-45.png",
+      "x": 1860,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "battle-46",
+      "file": "9c877294e794d2f8-battle-46.png",
+      "x": 2294,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "die-1",
+      "file": "b8170de48378848e-die-1.png",
+      "x": 221,
+      "y": 5452,
+      "width": 395,
+      "height": 490,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "die-2",
+      "file": "f13196e7a5e885ea-die-2.png",
+      "x": 656,
+      "y": 5458,
+      "width": 380,
+      "height": 491,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "die-3",
+      "file": "3fcf4341407cbebc-die-3.png",
+      "x": 1074,
+      "y": 5459,
+      "width": 378,
+      "height": 484,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "die-4",
+      "file": "4a9810c8d84d6462-die-4.png",
+      "x": 1493,
+      "y": 5466,
+      "width": 374,
+      "height": 477,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "die-5",
+      "file": "0c46693b94f99750-die-5.png",
+      "x": 1909,
+      "y": 5455,
+      "width": 386,
+      "height": 483,
+      "note": "native layer RGBA"
+    },
+    {
+      "key": "die-6",
+      "file": "cad5db1126b98e85-die-6.png",
+      "x": 2340,
+      "y": 5457,
+      "width": 379,
+      "height": 480,
+      "note": "native layer RGBA"
+    }
+  ]
+}
