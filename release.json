@@ -5,7 +5,7 @@
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
   "sourceState": "local working-tree build based on cb77657; unrelated dirty source preserved",
-  "homepagePatchSha256": "fdfa579c8739dba4f7632a231d68eb2b8571e2648d6f1677aa1897123062e4bf",
+  "homepagePatchSha256": "0dcbc3ec609fb2ca95598e46dcc25714d3d797b5d39746f9501f535cd3298058",
   "previousReleaseId": "PSD-20260928-RESONANCE-ROOT",
   "previousWebCommit": "ef7d74a",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
@@ -16,10 +16,11 @@
     "currentAndPreviousBuildAssetsVerified": 8,
     "stageOverlayCopiedFromMotionLabV1": true,
     "stageLifetimeBoundToUnityLobby": true,
-    "publicGameStageVisualVerified": false,
-    "publicGameAlbumInkVerified": false,
-    "publicGameTransitionVerified": false,
-    "physicalMobileDeviceTested": false
+    "publicGameStageVisualVerified": true,
+    "publicGameAlbumInkVerified": true,
+    "publicGameTransitionVerified": true,
+    "physicalMobileDeviceTested": false,
+    "publicGameSceneDialogueVerified": false
   },
-  "visualStatus": "公开首轮复验发现地图残留首页频谱和绿墨过宽；本版已修正并通过 10 项 Unity PlayMode、WebGL 清洁构建和 12 项网页加载器检查，待部署后再次实测。暗喻幻想参考视频拒绝访问，未做逐帧比对。"
+  "visualStatus": "公开主站已点验节奏舞台、专辑默认/悬停/选中、开演地图关闭首页频谱和返回大厅重启舞台。发现角色对白双层气泡后移除网页重复呈现，游戏内对白待本次网页更新后复验。暗喻幻想参考视频拒绝访问，未做逐帧比对。"
 }
