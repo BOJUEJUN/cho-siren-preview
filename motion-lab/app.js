@@ -9,12 +9,19 @@
     {id:5,title:'绮梦花火',en:'DREAM BLOOM',symbol:'❋',color:'#ffc4e8',description:'一场会呼吸的梦。极光慢慢晕开，花瓣掠过发梢，指尖留下一条柔软的光带，让开演变成花火盛放。',moments:['移动指尖，留下渐渐消散的柔光轨迹','悬停入口，感受花瓣般舒展的反馈','点击开演，等待光与花瓣一起盛放'],short:'极光 · 光带 · 花火盛放',show:'为你，盛放',kicker:'LET YOUR DREAMS BLOOM',line:'把这一刻的心动，唱给整个世界听。',impact:'BLOOM'}
   ];
   const LABELS = {Tasks:'任务',AlbumProduction:'专辑制作',PracticeRoom:'练习室',LiveOnStage:'开始演出',Profile:'个人资料','Currency-diamond':'钻石','Currency-gold':'星光币','Currency-stamina':'体力',Mail:'邮件',Settings:'设置','Nav-team':'团队','Nav-members':'成员','Nav-lobby':'大厅','Nav-accessory':'饰品','Nav-audition':'选秀'};
+  const DIALOGUE = [
+    {ja:'ねえ、今日も一緒に歌ってくれる？',zh:'呐，今天也愿意和我一起唱吗？'},
+    {ja:'この光、きっと君にも届くよ。',zh:'这束光，一定也会照到你。'},
+    {ja:'さあ、私たちのステージを始めよう！',zh:'来吧，开始属于我们的舞台！'}
+  ];
+  const HIT_GLYPHS = {Tasks:'✦',AlbumProduction:'♫',PracticeRoom:'♬',LiveOnStage:'★',Profile:'♡',Mail:'✉',Settings:'◈','Nav-team':'✧','Nav-members':'♡','Nav-lobby':'✦','Nav-accessory':'◇','Nav-audition':'✹'};
   const layout = window.HOME_LAYOUT;
   const scene=$('scene'), world=$('world'), body=document.body;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let mode=MODES[0], paused=reduced.matches, intensity=reduced.matches ? 0 : 1;
   let ready=false, performing=false, opening=false, hovering='', pointer={x:.5,y:.45,inside:false}, smoothed={x:.5,y:.45};
   let time=0,lastFrame=0,raf=0,entryTimer,showTimer,impactTimer,toastTimer,previousFocus=null;
+  let uiHidden=false,selectedMenu='',transitionStyle='ring',transitionTimer,hitTimer,dialogueTimer,dialogueIndex=0,dialoguePending=0,suppressDialogueUntil=0,lastTouchTap=null,lastHeart=null,menuTimer;
   let soundOn=false,audioCtx=null, width=360,height=760,dpr=1,trail=[],bursts=[],hoverPulse=0;
   let favorites=[];
   try{favorites=JSON.parse(localStorage.getItem('cho-motion-lab-favorites')||'[]').filter(x=>Number.isInteger(x)&&x>=1&&x<=5);}catch{}
@@ -32,15 +39,18 @@
     layout.elements.forEach((e,i)=>{
       const node=document.createElement('div');
       const char=e.id==='layer-04', outline=e.id==='layer-03';
-      node.className='layer'+(e.action?' action-layer':'')+(char?' character':'')+(outline?' outline':'')+(e.action==='LiveOnStage'?' cta':'');
+      const decor=e.role!=='background'&&!char&&!outline&&e.id!=='layer-05';
+      node.className='layer'+(e.action?' action-layer':'')+(char?' character':'')+(outline?' outline':'')+(decor?' ui-decor':'')+(e.id==='layer-12'?' album-ink':'')+(e.action==='LiveOnStage'?' cta':'');
       position(node,e);node.style.zIndex=e.z;node.style.setProperty('--order',e.action.startsWith('Nav-')?5+i*.15:i*.3);
       const inner=document.createElement('div');inner.className='motion';
       const img=new Image();img.src='assets/home-'+e.id+'.png';img.alt='';img.draggable=false;img.decoding='async';inner.append(img);node.append(inner);$('layers').append(node);
       layerNodes.push({node,inner,img,e,char,outline});
       if(e.action){if(!actionNodes.has(e.action))actionNodes.set(e.action,[]);actionNodes.get(e.action).push(node);}
     });
-    const texts=[['音律少女',515,85,700,106,105,false],['LV. 1',515,198,530,69,78,false],['战力 1003',515,272,680,89,88,false],['390',1480,215,420,124,112,true],['1,200',2395,215,430,124,112,true],['120/120',3320,208,505,124,108,true]];
-    texts.forEach(([text,x,y,w,h,size,center])=>{const el=document.createElement('div');el.className='hud-text'+(center?' center':'');el.textContent=text;position(el,{x,y,w,h});el.style.fontSize=size/layout.width*100+'cqw';$('layers').append(el);});
+    if(!layout.hasRasterHud){
+      const texts=[['音律少女',515,85,700,106,105,false],['LV. 1',515,198,530,69,78,false],['战力 1003',515,272,680,89,88,false],['390',1480,215,420,124,112,true],['1,200',2395,215,430,124,112,true],['120/120',3320,208,505,124,108,true]];
+      texts.forEach(([text,x,y,w,h,size,center])=>{const el=document.createElement('div');el.className='hud-text'+(center?' center':'');el.textContent=text;position(el,{x,y,w,h});el.style.fontSize=size/layout.width*100+'cqw';$('layers').append(el);});
+    }
     layout.hits.forEach(hit=>{
       const el=document.createElement('button');el.className='hotspot';el.dataset.action=hit.id;el.setAttribute('aria-label',LABELS[hit.id]);el.title=LABELS[hit.id];position(el,hit);
       el.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')enterAction(hit.id);});
@@ -57,8 +67,8 @@
     document.querySelectorAll('.motion-signature span').forEach((el,i)=>el.style.setProperty('--n',i+1));
   }
   function setActionClass(action,cls,on){(actionNodes.get(action)||[]).forEach(n=>n.classList.toggle(cls,on));}
-  function enterAction(action){if(!ready||performing||!$('game-sheet').hidden)return;if(hovering&&hovering!==action)leaveAction(hovering);hovering=action;hoverPulse=time;setActionClass(action,'active',true);$('interaction-status').textContent=LABELS[action]+' · 点击体验';}
-  function leaveAction(action){setActionClass(action,'active',false);setActionClass(action,'pressed',false);if(hovering===action)hovering='';if(!performing&&$('game-sheet').hidden)$('interaction-status').textContent='点击画面中的按钮试试看';}
+  function enterAction(action){if(!ready||uiHidden||performing||!$('game-sheet').hidden)return;if(hovering&&hovering!==action)leaveAction(hovering);hovering=action;hoverPulse=time;setActionClass(action,'active',true);$('interaction-status').textContent=LABELS[action]+' · 点击体验';}
+  function leaveAction(action){setActionClass(action,'active',false);setActionClass(action,'pressed',false);if(hovering===action)hovering='';if(!performing&&$('game-sheet').hidden)$('interaction-status').textContent=uiHidden?'双击画面恢复界面':'点击角色对话 · 双击画面隐藏界面';}
   function clearActions(){for(const id of actionNodes.keys()){setActionClass(id,'active',false);setActionClass(id,'pressed',false);}hovering='';}
 
   function buildSelector(){
@@ -69,7 +79,7 @@
   }
   function setMode(id,updateHash=true){
     mode=MODES.find(x=>x.id===Number(id))||MODES[0];
-    stopShow(false);closeSheet(false);clearActions();bursts=[];trail=[];time=0;smoothed={x:.5,y:.45};
+    stopShow(false);closeSheet(false);cancelDialogue();toggleUiHidden(false);setMenuSelection('');clearActions();bursts=[];trail=[];time=0;smoothed={x:.5,y:.45};
     body.dataset.mode=mode.id;scene.dataset.mode=mode.id;
     $('preview-code').textContent='0'+mode.id+' / '+(mode.id===2?'PRISM':mode.id===3?'POP RIOT':mode.id===4?'ZERO G':mode.id===5?'DREAM':'RESONANCE');
     $('direction-number').textContent='0'+mode.id;$('direction-title').textContent=mode.title;$('direction-english').textContent=mode.en;$('direction-symbol').textContent=mode.symbol;
@@ -81,7 +91,7 @@
   }
   function intro(){
     stopShow(false);closeSheet(false);clearActions();clearTimeout(entryTimer);scene.classList.remove('entering');void scene.offsetWidth;
-    scene.classList.add('entering');entryTimer=setTimeout(()=>{scene.classList.remove('entering');if(!hovering&&!performing&&$('game-sheet').hidden)$('interaction-status').textContent='点击画面中的按钮试试看';},2100);
+    scene.classList.add('entering');entryTimer=setTimeout(()=>{scene.classList.remove('entering');if(!hovering&&!performing&&$('game-sheet').hidden)$('interaction-status').textContent=uiHidden?'双击画面恢复界面':'点击角色对话 · 双击画面隐藏界面';},2100);
     if(!paused&&intensity>0)emit(.5,.45,mode.id===3?26:18,false);
     $('interaction-status').textContent=mode.title+' · 入场预览';
   }
@@ -98,18 +108,78 @@
   function togglePause(){paused=!paused;updateMotion();toast(paused?'动效已暂停，按钮仍可操作':'动效继续播放');}
   async function toggleSound(){
     if(!soundOn){try{const AudioClass=window.AudioContext||window.webkitAudioContext;if(!AudioClass)throw Error('Unavailable');audioCtx=audioCtx||new AudioClass();await audioCtx.resume();soundOn=audioCtx.state==='running';if(!soundOn)throw Error('Suspended');}catch{toast('此浏览器暂时无法播放音效');return;}}
-    else soundOn=false;
+    else{soundOn=false;try{speechSynthesis.cancel();}catch{}}
     updateSound();if(soundOn)tone('tap');
   }
   function updateSound(){$('sound').setAttribute('aria-pressed',String(soundOn));$('sound-text').textContent=soundOn?'音效开':'音效关';$('sound-icon').style.opacity=soundOn?'1':'.45';}
   function tone(type){if(!soundOn||!audioCtx||audioCtx.state!=='running')return;const notes=mode.id===1?[220,330,440,660]:mode.id===2?[392,587.33,783.99,1174.66]:mode.id===3?[261.63,329.63,392,523.25]:mode.id===4?[196,293.66,392,587.33]:[329.63,440,493.88,659.25];const count=type==='show'?8:1;for(let i=0;i<count;i++){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=mode.id===3?'triangle':'sine';const start=audioCtx.currentTime+i*.115;o.frequency.setValueAtTime(notes[i%notes.length],start);if(mode.id===4)o.frequency.exponentialRampToValueAtTime(notes[i%notes.length]*1.5,start+.26);g.gain.setValueAtTime(0,start);g.gain.linearRampToValueAtTime(type==='show'?.032:.025,start+.014);g.gain.exponentialRampToValueAtTime(.001,start+.25);o.connect(g).connect(audioCtx.destination);o.start(start);o.stop(start+.3);}}
+
+  function flashHit(action,x,y){
+    if(hitTimer){clearTimeout(hitTimer);for(const id of actionNodes.keys())setActionClass(id,'confirmed',false);}
+    setActionClass(action,'confirmed',true);
+    const fx=$('hit-feedback');fx.style.left=x*100+'%';fx.style.top=y*100+'%';fx.dataset.kind=action.startsWith('Nav-')?'nav':action==='LiveOnStage'?'live':action==='Tasks'||action==='PracticeRoom'?'beat':'detail';
+    fx.querySelector('span').textContent=HIT_GLYPHS[action]||'✦';fx.classList.remove('firing');void fx.offsetWidth;fx.classList.add('firing');
+    hitTimer=setTimeout(()=>{fx.classList.remove('firing');setActionClass(action,'confirmed',false);hitTimer=null;},720);
+  }
+  function setTransition(style){
+    transitionStyle=['ring','petal','shutter'].includes(style)?style:'ring';scene.dataset.transition=transitionStyle;
+    document.querySelectorAll('[data-transition]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.transition===transitionStyle)));
+  }
+  function playTransition(){
+    clearTimeout(transitionTimer);scene.classList.remove('transitioning');void $('transition-wipe').offsetWidth;
+    if(paused||intensity===0)return;
+    scene.classList.add('transitioning');transitionTimer=setTimeout(()=>scene.classList.remove('transitioning'),1250);
+  }
+  function cancelDialogue(){clearTimeout(dialoguePending);clearTimeout(dialogueTimer);$('dialogue').hidden=true;try{speechSynthesis.cancel();}catch{}}
+  function speakDialogue(line){
+    if(!soundOn)return;
+    if(!('speechSynthesis' in window)){$('interaction-status').textContent='当前浏览器没有语音朗读，字幕仍可观看';return;}
+    try{
+      speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(line.ja);utterance.lang='ja-JP';utterance.rate=.92;utterance.pitch=1.12;utterance.volume=.83;
+      const voices=speechSynthesis.getVoices().filter(voice=>/^ja[-_]/i.test(voice.lang));
+      utterance.voice=voices.find(voice=>/kyoko|nanami|female|女性|女声/i.test(voice.name))||voices[0]||null;
+      speechSynthesis.speak(utterance);
+    }catch{$('interaction-status').textContent='当前浏览器未能播放日语语音，字幕仍可观看';}
+  }
+  function showDialogue(){
+    if(!ready||performing||opening||!$('game-sheet').hidden||performance.now()<suppressDialogueUntil)return;
+    const line=DIALOGUE[dialogueIndex++%DIALOGUE.length];const target=$('dialogue-line');target.replaceChildren();
+    const ja=document.createElement('strong'),zh=document.createElement('small');ja.lang='ja';ja.textContent=line.ja;zh.textContent=line.zh;target.append(ja,zh);
+    $('dialogue').hidden=false;scene.classList.remove('speaking');void scene.offsetWidth;scene.classList.add('speaking');
+    emit(.55,.39,18,false);speakDialogue(line);
+    $('interaction-status').textContent=soundOn?'角色日语对白 · 点击切换下一句':'角色对白字幕 · 开启音效可听日语';
+    clearTimeout(dialogueTimer);dialogueTimer=setTimeout(()=>{$('dialogue').hidden=true;scene.classList.remove('speaking');},4500);
+  }
+  function toggleUiHidden(force){
+    const next=typeof force==='boolean'?force:!uiHidden;if(next===uiHidden)return;
+    uiHidden=next;scene.classList.toggle('ui-hidden',uiHidden);$('hotspots').inert=uiHidden||!ready||performing||opening||!$('game-sheet').hidden;
+    if(uiHidden){cancelDialogue();clearActions();$('interaction-status').textContent='已隐藏界面 · 双击画面恢复';}
+    else $('interaction-status').textContent='点击角色对话 · 双击画面隐藏界面';
+  }
+  function addHeartTrail(x,y){
+    if(paused||intensity===0||performing||!$('game-sheet').hidden)return;
+    const rect=scene.getBoundingClientRect(),px=x*rect.width,py=y*rect.height;
+    if(lastHeart&&Math.hypot(px-lastHeart.x,py-lastHeart.y)<18)return;
+    lastHeart={x:px,y:py};const heart=document.createElement('span');heart.className='cursor-heart';heart.textContent=Math.random()>.55?'♥':'✦';heart.style.left=x*100+'%';heart.style.top=y*100+'%';heart.style.setProperty('--drift',Math.round(Math.random()*32-16)+'px');scene.append(heart);setTimeout(()=>heart.remove(),850);
+    const all=scene.querySelectorAll('.cursor-heart');if(all.length>20)all[0].remove();
+  }
+  function setMenuSelection(action){
+    clearTimeout(menuTimer);selectedMenu=action;scene.dataset.selectedMenu=action;
+    for(const [id,nodes] of actionNodes)nodes.forEach(node=>node.classList.toggle('selected',id===action));
+  }
 
   function activate(hit,event){
     if(opening||performing)return;
     const rect=scene.getBoundingClientRect();const isPoint=event&&event.detail!==0;
     const x=isPoint?clamp((event.clientX-rect.left)/rect.width,0,1):(hit.x+hit.w/2)/layout.width;
     const y=isPoint?clamp((event.clientY-rect.top)/rect.height,0,1):(hit.y+hit.h/2)/layout.height;
-    emit(x,y,mode.id===3?34:24,false);tone('tap');
+    flashHit(hit.id,x,y);setMenuSelection(hit.id);emit(x,y,mode.id===3?34:24,false);tone('tap');
+    if(hit.id==='AlbumProduction'){
+      const opener=event?.currentTarget;
+      if(paused||intensity===0)openSheet(hit.id,event?.currentTarget);
+      else menuTimer=setTimeout(()=>openSheet(hit.id,opener),620);
+      return;
+    }
     if(hit.id==='LiveOnStage'){startShow();return;}
     if(hit.id==='Nav-lobby'){intro();toast('已经在大厅 · 重播入场');return;}
     openSheet(hit.id,event?.currentTarget);
@@ -117,15 +187,15 @@
   function showImpact(text){if(paused||intensity===0)return;$('impact').textContent=text;$('impact').classList.remove('fire');void $('impact').offsetWidth;$('impact').classList.add('fire');clearTimeout(impactTimer);impactTimer=setTimeout(()=>$('impact').classList.remove('fire'),750);}
   function startShow(){
     if(!ready||opening||performing)return;closeSheet(false);clearActions();opening=true;previousFocus=document.activeElement;
-    $('trigger-show').disabled=true;$('hotspots').inert=true;$('interaction-status').textContent=mode.title+' · 开演转场';showImpact(mode.impact);emit(.72,.66,100,true);tone('show');
+    toggleUiHidden(false);cancelDialogue();$('trigger-show').disabled=true;$('hotspots').inert=true;$('interaction-status').textContent=mode.title+' · 开演转场';playTransition();showImpact(mode.impact);emit(.72,.66,100,true);tone('show');
     const delay=paused||intensity===0?0:mode.id===3?350:mode.id===5?650:450;
     clearTimeout(showTimer);showTimer=setTimeout(()=>{opening=false;performing=true;scene.classList.add('performing');$('performance').hidden=false;$('return-home').focus({preventScroll:true});emit(.5,.47,110,true);$('interaction-status').textContent='演出预演中 · 可随时返回首页';},delay);
   }
-  function stopShow(restore=true){clearTimeout(showTimer);opening=false;performing=false;scene.classList.remove('performing');$('performance').hidden=true;$('trigger-show').disabled=!ready;$('hotspots').inert=!ready;clearTimeout(impactTimer);$('impact').classList.remove('fire');if(restore)restoreFocus();$('interaction-status').textContent='点击画面中的按钮试试看';}
+  function stopShow(restore=true){clearTimeout(showTimer);clearTimeout(transitionTimer);opening=false;performing=false;scene.classList.remove('performing','transitioning');$('performance').hidden=true;$('trigger-show').disabled=!ready;$('hotspots').inert=!ready||uiHidden;clearTimeout(impactTimer);$('impact').classList.remove('fire');if(restore)restoreFocus();$('interaction-status').textContent=uiHidden?'双击画面恢复界面':'点击角色对话 · 双击画面隐藏界面';}
 
   const row=(symbol,title,sub,end,attrs='')=>`<button class="sheet-row" ${attrs}><span class="row-symbol">${symbol}</span><span><strong>${title}</strong><small>${sub}</small></span><span class="row-end">${end}</span></button>`;
   function openSheet(action,opener){
-    previousFocus=opener||document.activeElement;clearActions();$('sheet-title').textContent=LABELS[action];$('sheet-category').textContent=mode.en+' / '+(action.startsWith('Nav-')?'SIREN CLUB':'BACKSTAGE');
+    previousFocus=opener||document.activeElement;cancelDialogue();clearActions();$('sheet-title').textContent=LABELS[action];$('sheet-category').textContent=mode.en+' / '+(action.startsWith('Nav-')?'SIREN CLUB':'BACKSTAGE');
     let html='';
     if(action==='Tasks')html='<p class="sheet-intro">今天也朝梦想前进一步。</p>'+row('✦','完成一场演出','今日任务 · 1 / 1','领取','data-demo="reward"')+row('♫','进入练习室','今日任务 · 0 / 1','去练习','data-demo="practice"')+row('♡','与成员打个招呼','今日任务 · 0 / 1','去看看','data-demo="members"');
     else if(action==='AlbumProduction')html='<p class="sheet-intro">首张专辑《FIRST LIGHT》<br>给她的声音，选一个心动的方向。</p>'+row('◈','霓虹序曲','电子流行 · 闪耀舞台','选择','data-select="track"')+row('☾','月光来信','轻柔抒情 · 梦中私语','选择','data-select="track"')+row('✹','不设限','流行摇滚 · 热烈自由','选择','data-select="track"')+'<button class="sheet-action" data-demo="record">开始录制预演</button>';
@@ -149,7 +219,7 @@
       if(what==='members')openSheet('Nav-members',previousFocus);
       if(what==='record'){if(!$('sheet-content').querySelector('.selected')){toast('先选一首你喜欢的歌');return;}closeSheet(false);startShow();}
       if(what==='team'){closeSheet();toast('已选定今天的主唱 · 演示效果');emit(.5,.8,35,false);}
-      if(what==='audition'){closeSheet(false);showImpact('NEW STAR');emit(.5,.4,100,true);toast('新星登场！');}
+      if(what==='audition'){closeSheet(false);startShow();}
       if(what==='declaration'){btn.classList.toggle('selected');btn.querySelector('.row-end').textContent=btn.classList.contains('selected')?'♥':'♡';emit(.5,.65,20,false);}
       if(what==='mail'){btn.querySelector('small').textContent='愿你在这里，听见属于自己的声音。';btn.querySelector('.row-end').textContent='已读';}
       if(what==='invitation'){btn.querySelector('small').textContent='留一束追光给我，好吗？今晚见。';btn.querySelector('.row-end').textContent='已读';}
@@ -160,7 +230,7 @@
     }));
   }
   function restoreFocus(){const target=previousFocus?.isConnected&&previousFocus.getClientRects().length&&previousFocus!==body?previousFocus:document.querySelector('.hotspot[data-action="LiveOnStage"]');target?.focus({preventScroll:true});}
-  function closeSheet(restore=true){const wasOpen=!$('game-sheet').hidden;$('game-sheet').hidden=true;$('sheet-backdrop').hidden=true;$('hotspots').inert=!ready||performing||opening;if(wasOpen&&restore)restoreFocus();if(wasOpen)$('interaction-status').textContent='点击画面中的按钮试试看';}
+  function closeSheet(restore=true){const wasOpen=!$('game-sheet').hidden;$('game-sheet').hidden=true;$('sheet-backdrop').hidden=true;$('hotspots').inert=!ready||performing||opening||uiHidden;if(wasOpen&&restore)restoreFocus();if(wasOpen)$('interaction-status').textContent=uiHidden?'双击画面恢复界面':'点击角色对话 · 双击画面隐藏界面';}
   function closeOverview(){$('overview').close();$('compare').setAttribute('aria-expanded','false');}
 
   function resize(){const r=scene.getBoundingClientRect();width=r.width;height=r.height;dpr=Math.min(devicePixelRatio||1,2);canvases.forEach(c=>{c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);});contexts.forEach(c=>c.setTransform(dpr,0,0,dpr,0,0));}
@@ -219,19 +289,27 @@
     raf=requestAnimationFrame(animate);
   }
 
-  buildHome();buildSelector();setMode(Number(location.hash.match(/^#v([1-5])$/)?.[1]||1),false);updateMotion();updateSound();resize();
+  buildHome();buildSelector();setMode(Number(location.hash.match(/^#v([1-5])$/)?.[1]||1),false);setTransition('ring');updateMotion();updateSound();resize();
   $('hotspots').inert=true;$('trigger-show').disabled=true;
-  const imageLoads=layerNodes.map(({img})=>img.decode?img.decode():new Promise((res,rej)=>{img.onload=res;img.onerror=rej;}));
+  const imageLoads=layerNodes.map(({img})=>new Promise((resolve,reject)=>{
+    if(img.complete){img.naturalWidth?resolve():reject(Error('Image failed: '+img.src));return;}
+    img.addEventListener('load',resolve,{once:true});img.addEventListener('error',()=>reject(Error('Image failed: '+img.src)),{once:true});
+  }));
   let loaded=0;imageLoads.forEach(p=>p.then(()=>{$('load-progress').textContent=`正在装载首页图层 · ${++loaded} / ${layerNodes.length}`;},()=>{}));
   Promise.all(imageLoads).then(()=>{ready=true;scene.classList.remove('loading');$('hotspots').inert=false;$('trigger-show').disabled=false;intro();}).catch(()=>{$('load-progress').textContent='图层加载失败，请保留 assets 文件夹后重新打开。';});
   new ResizeObserver(resize).observe(scene);
-  scene.addEventListener('pointermove',e=>{const r=scene.getBoundingClientRect();pointer={x:clamp((e.clientX-r.left)/r.width,0,1),y:clamp((e.clientY-r.top)/r.height,0,1),inside:true};if(mode.id===5&&!paused&&intensity>0){trail.push({x:pointer.x,y:pointer.y,age:0});if(trail.length>32)trail.shift();}});
-  scene.addEventListener('pointerleave',()=>{pointer.inside=false;clearActions();});
+  scene.addEventListener('pointermove',e=>{const r=scene.getBoundingClientRect();pointer={x:clamp((e.clientX-r.left)/r.width,0,1),y:clamp((e.clientY-r.top)/r.height,0,1),inside:true};if(e.pointerType!=='touch'){const cursor=$('scene-cursor');cursor.style.left=pointer.x*100+'%';cursor.style.top=pointer.y*100+'%';cursor.classList.add('visible');if(ready)addHeartTrail(pointer.x,pointer.y);}if(mode.id===5&&!paused&&intensity>0){trail.push({x:pointer.x,y:pointer.y,age:0});if(trail.length>32)trail.shift();}});
+  scene.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')$('scene-cursor').classList.add('down');});
+  scene.addEventListener('pointerup',e=>{if(e.pointerType!=='touch'){$('scene-cursor').classList.remove('down');return;}if(e.target.closest('.hotspot,.game-sheet,.performance'))return;const tap={time:performance.now(),x:e.clientX,y:e.clientY};if(lastTouchTap&&tap.time-lastTouchTap.time<370&&Math.hypot(tap.x-lastTouchTap.x,tap.y-lastTouchTap.y)<32){suppressDialogueUntil=tap.time+500;clearTimeout(dialoguePending);toggleUiHidden();lastTouchTap=null;e.preventDefault();}else lastTouchTap=tap;});
+  scene.addEventListener('dblclick',e=>{if(e.target.closest('.game-sheet,.performance'))return;suppressDialogueUntil=performance.now()+500;clearTimeout(dialoguePending);toggleUiHidden();});
+  $('character-touch').addEventListener('click',e=>{if(e.detail>1||performance.now()<suppressDialogueUntil)return;clearTimeout(dialoguePending);dialoguePending=setTimeout(showDialogue,290);});
+  scene.addEventListener('pointerleave',()=>{pointer.inside=false;lastHeart=null;$('scene-cursor').classList.remove('visible','down');clearActions();});
   window.addEventListener('pointerup',()=>{for(const id of actionNodes.keys())setActionClass(id,'pressed',false);});
   window.addEventListener('blur',()=>{pointer.inside=false;clearActions();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearActions();cancelAnimationFrame(raf);body.classList.add('paused');}else{updateMotion();lastFrame=performance.now();raf=requestAnimationFrame(animate);}});
   window.addEventListener('hashchange',()=>{const n=Number(location.hash.match(/^#v([1-5])$/)?.[1]);if(n&&n!==mode.id)setMode(n,false);});
   $('intensity').addEventListener('input',e=>{intensity=Number(e.target.value)/100;updateMotion();});
+  $('transition-options').querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{setTransition(button.dataset.transition);toast(button.textContent+'转场已选 · 点击开演预览');}));
   $('pause').addEventListener('click',togglePause);$('sound').addEventListener('click',toggleSound);$('replay').addEventListener('click',()=>{intro();tone('tap');});$('trigger-show').addEventListener('click',startShow);$('return-home').addEventListener('click',()=>{stopShow();tone('tap');});
   $('favorite').addEventListener('click',()=>{const has=favorites.includes(mode.id);favorites=has?favorites.filter(x=>x!==mode.id):[...favorites,mode.id].sort();try{localStorage.setItem('cho-motion-lab-favorites',JSON.stringify(favorites));}catch{}updateFavorite();toast(has?'已取消收藏':mode.title+'已收藏，可以继续比较其他方向');});
   $('close-sheet').addEventListener('click',()=>closeSheet());$('sheet-backdrop').addEventListener('click',()=>closeSheet());

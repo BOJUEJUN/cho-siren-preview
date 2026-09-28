@@ -1,24 +1,30 @@
 {
   "version": "0.3.8",
-  "releaseId": "PSD-20260921",
-  "name": "手工 PSD 首页分层还原与交互优化",
-  "date": "2026-09-21",
+  "releaseId": "PSD-20260928-MOTION",
+  "name": "新版手工 PSD 首页与选中菜单动效",
+  "date": "2026-09-28",
   "sourceCommit": "cb77657",
-  "sourceState": "working-tree build based on cb77657 with existing local changes and PSD homepage implementation",
-  "homepagePatchSha256": "6d5cb2d3c1546451fac5cc57910282427ae817d1b33ade9769716fd725013553",
+  "sourceState": "local working-tree build based on cb77657; latest PSD assets, layout and ink interaction incorporated without committing unrelated existing source changes",
+  "homepagePatchSha256": "8c50845004b030c0813c78a9e548fdbf791816a50da9ff3445c0464ecf65d632",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "b189d0a1c99235b605a9d9cdcea31ccd816d8232",
+  "previousWebCommit": "381021d26cbab98f34e2ef054e5c435c8f613e9b",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
-    "focusedUnityPlayModePassed": 4,
-    "browserHotspotsClicked": 15,
-    "browserPointerFeedbackPassed": 15,
+    "focusedUnityPlayModePassed": 5,
+    "browserHotspotsClicked": 0,
+    "browserPointerFeedbackPassed": 0,
     "loaderRegressionTestsPassed": 12,
-    "stagingSafetyTestsPassed": 5,
-    "streamedPngHashesVerified": 37,
+    "stagingSafetyTestsPassed": 0,
+    "streamedPngHashesVerified": 41,
     "currentAndPreviousBuildAssetsVerified": 8,
-    "physicalMobileDeviceTested": false
+    "physicalMobileDeviceTested": false,
+    "previewInteractionBrowserVerified": false,
+    "psdCompositeReconstructionMeanAbsoluteErrorRgb": [
+      5.256,
+      4.929,
+      5.244
+    ]
   },
-  "visualStatus": "按回传 PSD 保留完整构图、独立透明层与错落导航；账户栏显示实时数据；实际浏览器截图已对照，保留合理纹理采样差异。"
+  "visualStatus": "最新手工 PSD 的 37 个独立 RGBA 层用于公开五版动效预览；游戏首页保留 32 层与实时数值。专辑绿色原生笔触默认隐藏，点击后显现并轻微不规则波动。浏览器交互复测受本机浏览器权限限制，未声称已验证。"
 }
