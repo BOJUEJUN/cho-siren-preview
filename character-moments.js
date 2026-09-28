@@ -2,9 +2,9 @@
   const root = document.querySelector('#character-moment');
   const video = document.querySelector('#moment-video');
   const clips = [
-    'media/catalena-look.webm',
-    'media/catalena-whisper.webm',
-    'media/catalena-live.webm'
+    'media/catalena-look.webm?v=20260928-r10',
+    'media/catalena-whisper.webm?v=20260928-r10',
+    'media/catalena-live.webm?v=20260928-r10'
   ];
   let active = false;
   let concealed = false;

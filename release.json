@@ -1,13 +1,13 @@
 {
   "version": "0.3.8",
-  "releaseId": "PSD-20260928-CHARACTER-ONLY-R9",
-  "name": "首页角色点击只播放动画",
+  "releaseId": "PSD-20260928-CHARACTER-FOREGROUND-R10",
+  "name": "角色在 UI 后方高清演出",
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
   "sourceState": "local working-tree build based on cb77657; unrelated dirty source preserved",
-  "homepagePatchSha256": "7534f95af32e78e322a78545c277cdad8ac53a67a15b7fa1fbcc4f889dfacff1",
-  "previousReleaseId": "PSD-20260928-INLINE-ALIGN-R8",
-  "previousWebCommit": "6efca3b",
+  "homepagePatchSha256": "ee803ecdd3bafaa4bb3dcad715e286dc2fa0277e3f2ea6aff0af7d1b299fae82",
+  "previousReleaseId": "PSD-20260928-CHARACTER-ONLY-R9",
+  "previousWebCommit": "10d897d",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
@@ -28,14 +28,18 @@
     "rapidSecondDoubleClickRestoresUiInUnity": true,
     "characterClipsPublished": 3,
     "characterMp4H264AacFastStart": true,
-    "publicCharacterDialogueClipVerified": true,
-    "publicCharacterLiveClipVerified": true,
+    "publicCharacterDialogueClipVerified": false,
+    "publicCharacterLiveClipVerified": false,
     "characterTransparentWebmAlpha": true,
     "inlinePortraitReplacementPassedInUnity": true,
-    "publicInlineCutoutVisualVerified": true,
-    "characterOnlyNoAddedControls": true
+    "publicInlineCutoutVisualVerified": false,
+    "characterOnlyNoAddedControls": true,
+    "characterVideosNativeResolution": true,
+    "foregroundPsdMask720x1536": true,
+    "publicForegroundDepthVerified": false,
+    "publicSharperCharacterVerified": false
   },
-  "visualStatus": "R9 正式页已实点两段对白和一段 LIVE：角色在首页原位透明播放，没有新增操作面板，播完恢复原立绘。",
+  "visualStatus": "R10 以 PSD 前景透明层遮住角色视频并提高视频输出分辨率；正式页待部署后复验。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
@@ -62,6 +66,7 @@
     "Assets/Tests/PlayMode/PsdHomeIntegrationTests.cs",
     "Assets/WebGLTemplates/ChoSirenPortrait/media/catalena-look.webm",
     "Assets/WebGLTemplates/ChoSirenPortrait/media/catalena-whisper.webm",
-    "Assets/WebGLTemplates/ChoSirenPortrait/media/catalena-live.webm"
+    "Assets/WebGLTemplates/ChoSirenPortrait/media/catalena-live.webm",
+    "Assets/WebGLTemplates/ChoSirenPortrait/media/foreground-video-mask.png"
   ]
 }

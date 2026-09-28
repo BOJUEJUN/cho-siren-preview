@@ -38,6 +38,18 @@ if (!html.includes('id="character-moment"') ||
 if (html.includes('moment-controls') || html.includes('data-moment=')) {
   throw new Error("角色点击不得覆盖额外的演出菜单或按钮");
 }
+const momentCss = readFileSync(join(root, 'character-moments.css'), 'utf8');
+if (!momentCss.includes("media/foreground-video-mask.png") ||
+    !momentCss.includes('object-fit: contain') || momentCss.includes('object-fit: fill')) {
+  throw new Error("角色演出必须位于原生 UI 后方且保持原片比例");
+}
+const foregroundMask = join(root, 'media', 'foreground-video-mask.png');
+requireFile(foregroundMask);
+const maskHeader = readFileSync(foregroundMask).subarray(0, 24);
+if (maskHeader.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' ||
+    maskHeader.readUInt32BE(16) !== 720 || maskHeader.readUInt32BE(20) !== 1536) {
+  throw new Error("首页前景遮罩应匹配 720×1536 原始画布");
+}
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   const clip = join(root, "media", `${name}.webm`);
   requireFile(clip);
