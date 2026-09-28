@@ -5,13 +5,13 @@
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
   "sourceState": "local working-tree build based on cb77657; only homepage motion files added/updated, unrelated dirty source preserved",
-  "homepagePatchSha256": "3788a1b21ca87c093b2aea06bf72744f764219dc39c5a67729e78cad25b8839c",
+  "homepagePatchSha256": "8b5eaa3bde16d11ac83b67900cde9185a8507b2f2aff8f8ca030184df10e364b",
   "previousVersion": "0.3.8",
   "previousWebCommit": "73babec",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
-    "focusedUnityPlayModePassed": 8,
+    "focusedUnityPlayModePassed": 9,
     "browserHotspotsClicked": 3,
     "browserPointerFeedbackPassed": 1,
     "loaderRegressionTestsPassed": 12,
@@ -25,17 +25,17 @@
       4.929,
       5.244
     ],
-    "publicGameHomepageBrowserVerified": false,
-    "publicGameAlbumInkClicked": false,
+    "publicGameHomepageBrowserVerified": true,
+    "publicGameAlbumInkClicked": true,
     "publicPreviewLayersLoaded": 37,
     "publicPreviewCharacterDialogueVerified": true,
     "publicPreviewUiHideVerified": true,
     "publicPreviewTransitionVerified": true,
-    "publicGameHoverInkVerified": false,
+    "publicGameHoverInkVerified": true,
     "publicGameLipstickCursorVerified": false,
     "publicGameSceneDialogueVerified": false,
-    "publicGameUiHideVerified": false,
-    "publicGameStageTransitionVerified": false
+    "publicGameUiHideVerified": true,
+    "publicGameStageTransitionVerified": true
   },
-  "visualStatus": "游戏首页根目录集成最新版 PSD、15 个原有入口、悬停/选中不规则绿色油墨、各入口点击反馈、角色中文对白/浏览器日语语音、双击隐藏 UI、开演波纹转场与口红光标。暗喻幻想视频受站点权限限制，动效依据用户截图及文字描述重建；公开浏览器点验待完成。"
+  "visualStatus": "主站根目录公开 WebGL 已点验首页、专辑悬停/选中绿色油墨、双击隐藏/恢复和开演转场进入地图。中文对白加可访问网页呈现层，待发布后浏览器复验；口红光标 SVG 已公开返回 200。暗喻幻想参考视频受浏览器访问权限拒绝，按用户截图和文字描述实现，未作逐帧比对。"
 }
