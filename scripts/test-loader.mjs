@@ -10,7 +10,7 @@ const newer = suffixes.map((suffix, index) => String(index + 1).repeat(32) + suf
 const embedded = [...html.matchAll(/buildAssetUrl\("([^"\r\n]+)"\)/g)].map(match => match[1]);
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError } = {}) {
+async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old" } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [];
   let timerId = 0;
   function element(name) {
@@ -20,14 +20,14 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
     return elements.get(name);
   }
   const context = vm.createContext({ URL, AbortController, console,
-    document: { baseURI: 'https://example.test/cho-siren-preview/?v=old', querySelector: element,
+    document: { baseURI: pageHref, querySelector: element,
       createElement: () => ({}), body: { appendChild: item => appends.push(item) } },
     navigator: { serviceWorker: { getRegistrations: async () => ['cho-siren-preview/', 'another-game/'].map(path => ({
       scope: 'https://example.test/' + path, unregister: async () => unregistered.push(path)
     })) } },
     window: { setTimeout: callback => { timers.set(++timerId, callback); return timerId; },
       clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
-      location: { href: 'https://example.test/cho-siren-preview/?v=old', replace: url => calls.push({ redirect: url }) } },
+      location: { href: pageHref, replace: url => calls.push({ redirect: url }) } },
     fetch: async (url, options) => {
       requests.push({ url, options });
       if (pending) await new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('timeout'))));
@@ -135,4 +135,26 @@ test('legacy retirement worker only reloads this game and clears its own caches'
   assert.equal(unregistered, true);
   assert.deepEqual(cleared, ['cho-siren-v1']);
   assert.deepEqual(navigated, ['https://example.test/cho-siren-preview/?v=old']);
+});
+
+for (const offline of [false, true]) {
+  test(`retry bypasses stale asset caches with ${offline ? 'embedded' : 'fresh'} metadata`, async () => {
+    const run = await boot({ pageHref: 'https://example.test/cho-siren-preview/?retry=test-retry', fetchError: offline });
+    assert.equal(new URL(run.appends[0].src).searchParams.get('retry'), 'test-retry');
+    await run.appends[0].onload();
+    const config = run.calls[0].config;
+    for (const key of ['dataUrl', 'frameworkUrl', 'codeUrl']) assert.equal(new URL(config[key]).searchParams.get('retry'), 'test-retry');
+    assert.equal(config.cacheControl(config.frameworkUrl), 'no-store');
+  });
+}
+test('browser double-click reaches the homepage gesture owner only while home is active', async () => {
+  const run = await boot(), sent = [];
+  run.context.window.choSirenUnityInstance = { SendMessage: (...args) => sent.push(args) };
+  run.context.window.choSirenStage = { active: false };
+  run.elements.get('#unity-canvas').listeners.dblclick();
+  assert.equal(sent.length, 0);
+  run.context.window.choSirenStage.active = true;
+  run.elements.get('#unity-canvas').listeners.dblclick();
+  assert.deepEqual(sent, [['PsdHome20260921', 'ToggleUiFromBrowser']]);
+  assert.ok(!html.includes('id="character-dialogue"'), 'No independent dialogue UI should appear over the character');
 });

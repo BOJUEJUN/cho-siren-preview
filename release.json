@@ -5,14 +5,14 @@
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
   "sourceState": "local working-tree build based on cb77657; unrelated dirty source preserved",
-  "homepagePatchSha256": "a633b46f819e1ff04b931734e7d2b0c096835465a84bae0f121a260ca7fafc9c",
+  "homepagePatchSha256": "bd11cdaddcd2b2891e579d58599843f80f6bd80fddcd68d7792f42f4be64a655",
   "previousReleaseId": "PSD-20260928-CHARACTER-FOREGROUND-R10",
   "previousWebCommit": "5e2c8cd",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
-    "focusedUnityPlayModePassed": 16,
-    "loaderRegressionTestsPassed": 12,
+    "focusedUnityPlayModePassed": 17,
+    "loaderRegressionTestsPassed": 15,
     "currentAndPreviousBuildAssetsVerified": 8,
     "stageOverlayCopiedFromMotionLabV1": true,
     "stageLifetimeBoundToUnityLobby": true,
@@ -29,9 +29,11 @@
     "approvedInkFrames": 48,
     "approvedInkFrameRate": 30,
     "nativeUiCharacterCompositing": true,
-    "publicRuntimeVerified": false
+    "publicRuntimeVerified": false,
+    "browserDoubleClickGateTestPassed": true,
+    "retryCacheBypassTestPassed": true
   },
-  "visualStatus": "本地 16 项 Unity 回归与 7 项媒体生命周期测试通过；等待部署后正式页实测。",
+  "visualStatus": "R12 油墨与三段原生视频主站实测通过；补修网页旧对白框、双击恢复与加载重试后，等待最终复验。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",

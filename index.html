@@ -11,7 +11,7 @@
     <meta http-equiv="Expires" content="0">
     <title>CHO-SIREN 幻域魅声</title>
     <link rel="stylesheet" href="./home-stage.css?v=20260928-r9">
-    <link rel="stylesheet" href="./character-moments.css?v=20260928-r12">
+    <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
     <style>
       :root {
         color-scheme: dark;
@@ -70,29 +70,6 @@
         background: #090625;
         cursor: url("./lipstick-cursor.svg") 19 3, auto;
       }
-
-      #character-dialogue {
-        position: absolute;
-        z-index: 7;
-        left: 5%;
-        bottom: 17%;
-        width: 90%;
-        min-height: 68px;
-        padding: 11px 15px 13px;
-        border: 1px solid rgba(255, 152, 214, .84);
-        border-radius: 14px;
-        background: #160831;
-        box-shadow: 0 8px 27px #090319aa, inset 3px 0 #ff77bc;
-        color: #fff;
-        pointer-events: none;
-        font-size: clamp(12px, 1.45vw, 20px);
-        line-height: 1.4;
-        opacity: 0;
-        transform: translateY(12px);
-        transition: opacity .18s, transform .24s;
-      }
-      #character-dialogue.is-visible { opacity: 1; transform: translateY(0); }
-      #character-dialogue small { display: block; margin-bottom: 3px; color: #ff9ed3; font-size: .68em; letter-spacing: .06em; }
 
       .lipstick-trail {
         position: absolute;
@@ -225,7 +202,6 @@
       <section id="character-moment" aria-label="首页角色演出" aria-hidden="true">
         <video id="moment-video" playsinline webkit-playsinline preload="none"></video>
       </section>
-      <div id="character-dialogue" role="status" aria-live="polite"><small>音律少女 / CATALENA</small><span id="character-dialogue-line"></span></div>
       <div id="warning" role="status">
         <span id="warning-text"></span>
         <button id="retry" type="button">重新加载</button>
@@ -237,8 +213,8 @@
       </div>
     </main>
 
-    <script src="./home-stage.js?v=20260928-r12"></script>
-    <script src="./character-moments.js?v=20260928-r12"></script>
+    <script src="./home-stage.js?v=20260928-r12a"></script>
+    <script src="./character-moments.js?v=20260928-r12a"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       // Retire the service worker used by the earlier HTML prototype.  Its root
@@ -276,7 +252,7 @@
         const isLoadFailure = type === "error" && (
           detail.includes("fetching of the wasm failed") ||
           detail.includes("Failed to download file") ||
-          detail.includes("Failed to fetch")
+          detail.includes("Failed to fetch") || detail.includes("Unable to parse")
         );
         warningText.textContent = isLoadFailure
           ? "游戏资源加载中断。请确认网络稳定后重新加载；手机端建议关闭其他大型应用再试。"
@@ -299,12 +275,18 @@
 
       // All URLs stay relative to the document so GitHub Pages project paths work.
       const buildUrl = new URL("Build/", pageUrl);
-      const buildAssetUrl = filename => new URL(filename, buildUrl).href;
+      const retryToken = new URL(window.location.href).searchParams.get("retry");
+      const buildAssetUrl = filename => {
+        const url = new URL(filename, buildUrl);
+        if (retryToken) url.searchParams.set("retry", retryToken);
+        return url.href;
+      };
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("00f6d6745a1169549578de6fbfb0ca7c.data.unityweb"),
-        frameworkUrl: buildAssetUrl("d30968bfdd1a78559ea24bdd058a98be.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("226bd0eb122e76d2807f375ef7652757.wasm.unityweb"),
+        cacheControl: () => retryToken ? "no-store" : "must-revalidate",
+        dataUrl: buildAssetUrl("0b379053ae92f4df8044166b4deb6afe.data.unityweb"),
+        frameworkUrl: buildAssetUrl("c7c274c17b638447e5f5f20bebd9be70.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("6b5b8d6dbcc58f201529ef15a517f41e.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -315,7 +297,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("d9585bbce31427e93567f62b6f4a57fc.loader.js");
+      loader.src = buildAssetUrl("5547bf6041de56f4d2bf1e3cf5136df9.loader.js");
       loader.onload = async () => {
         try {
           window.choSirenUnityInstance = await createUnityInstance(canvas, config, value => {
@@ -346,7 +328,7 @@
               !suffixes.every(suffix => files.filter(file => file.endsWith(suffix)).length === 1)) {
             throw new Error("Invalid version metadata");
           }
-          const asset = suffix => new URL(files.find(file => file.endsWith(suffix)), buildUrl).href;
+          const asset = suffix => buildAssetUrl(files.find(file => file.endsWith(suffix)));
           config.dataUrl = asset(".data.unityweb");
           config.frameworkUrl = asset(".framework.js.unityweb");
           config.codeUrl = asset(".wasm.unityweb");
@@ -373,41 +355,10 @@
         trailHost.appendChild(mark);
       }, { passive: true });
       canvas.addEventListener("pointerleave", () => { lastLipstickPoint = null; });
-      // One opaque, accessible dialogue panel covers browsers where the Unity
-      // dialogue is absent or paints below the canvas overlay.
-      const characterDialogue = document.querySelector("#character-dialogue");
-      const characterLine = document.querySelector("#character-dialogue-line");
-      const characterLines = ["呐，今天也愿意和我一起唱吗？", "这束光，一定也会照到你。", "来吧，开始属于我们的舞台！"];
-      let characterLineIndex = 0, characterShowTimer, characterHideTimer;
-      canvas.addEventListener("click", event => {
-        if (window.choSirenCharacter?.active) {
-          characterDialogue.classList.remove("is-visible");
-          return;
-        }
-        if (!window.choSirenStage?.active) {
-          characterDialogue.classList.remove("is-visible");
-          return;
-        }
-        window.clearTimeout(characterShowTimer);
-        if (event.detail > 1) return;
-        const box = canvas.getBoundingClientRect();
-        const x = (event.clientX - box.left) / box.width;
-        const y = (event.clientY - box.top) / box.height;
-        if (x < .39 || x > .72 || y < .16 || y > .48) {
-          characterDialogue.classList.remove("is-visible");
-          return;
-        }
-        characterShowTimer = window.setTimeout(() => {
-          if (!window.choSirenStage?.active || window.choSirenCharacter?.active) return;
-          characterLine.textContent = characterLines[characterLineIndex++ % characterLines.length];
-          characterDialogue.classList.add("is-visible");
-          window.clearTimeout(characterHideTimer);
-          characterHideTimer = window.setTimeout(() => characterDialogue.classList.remove("is-visible"), 4500);
-        }, 300);
-      });
       canvas.addEventListener("dblclick", () => {
-        window.clearTimeout(characterShowTimer);
-        characterDialogue.classList.remove("is-visible");
+        if (window.choSirenStage?.active) {
+          window.choSirenUnityInstance?.SendMessage("PsdHome20260921", "ToggleUiFromBrowser");
+        }
       });
       startGame();
     </script>
