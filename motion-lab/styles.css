@@ -89,3 +89,12 @@ body.paused .transition-wipe,body.zero-motion .transition-wipe,body.paused .hit-
 @keyframes transition-shutter-fragment{0%{opacity:0;translate:-130% -10%;scale:.8}23%,59%{opacity:1}100%{opacity:0;translate:125% 12%;scale:1.12}}
 @keyframes transition-fragment-ring{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}24%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(5)}}
 @keyframes transition-fragment-shard{0%{opacity:0;transform:rotate(var(--a)) scale(.1)}27%{opacity:.82}100%{opacity:0;transform:rotate(calc(var(--a) + 100deg)) translateY(-48cqw) scale(1.4)}}
+
+/* Lipstick pointer and preview-only ink: the full torn paint wakes on selection. */
+.scene-cursor{width:7cqw;height:7cqw;transform:translate(-43%,-8%) rotate(-12deg);filter:drop-shadow(0 0 .9cqw #fff5) drop-shadow(0 0 1.5cqw #ff4fa8b0)}
+.scene-cursor.down{transform:translate(-43%,-8%) rotate(-5deg) scale(.88)}
+.scene-cursor img{display:block;width:100%;height:100%}
+.cursor-heart{font-size:2.4cqw;color:#ffc1dd;text-shadow:0 0 1cqw #fff,0 0 1.7cqw #f54296}
+.scene .album-ink.active:not(.selected){opacity:.53!important;animation:album-ink-reveal .42s steps(6,end) both;filter:brightness(1.22)}
+.scene .album-ink.active:not(.selected) .motion{animation:album-ink-flow 4s ease-in-out infinite alternate}
+.scene .album-ink.active:not(.selected)::after{content:"";position:absolute;inset:-7% -8%;background:url(assets/home-layer-12.png) center/100% 100% no-repeat;opacity:.22;mix-blend-mode:screen;filter:blur(1.5cqw);animation:album-ink-echo 4s ease-in-out infinite alternate}

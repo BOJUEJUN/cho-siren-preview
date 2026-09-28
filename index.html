@@ -66,6 +66,28 @@
         height: 100%;
         outline: none;
         background: #090625;
+        cursor: url("./lipstick-cursor.svg") 19 3, auto;
+      }
+
+      .lipstick-trail {
+        position: absolute;
+        z-index: 5;
+        width: 5px;
+        height: 11px;
+        border-radius: 70% 35% 70% 35%;
+        background: #ff9ccc;
+        box-shadow: 0 0 8px #ff65b5, 0 0 15px #ff65b577;
+        pointer-events: none;
+        animation: lipstick-trail-fade .54s ease-out forwards;
+      }
+
+      @keyframes lipstick-trail-fade {
+        to { opacity: 0; transform: translate(-9px, -26px) rotate(24deg) scale(.25); }
+      }
+
+      @media (hover: none), (pointer: coarse) {
+        #unity-canvas { cursor: auto; }
+        .lipstick-trail { display: none; }
       }
 
       #loading {
@@ -232,9 +254,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("f6f3f901b2856198d3c0fd51da453150.data.unityweb"),
-        frameworkUrl: buildAssetUrl("351629cf7086fdb5352d2429b60d7674.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("27f1ea7b6300c39f54b3494ca8bc000c.wasm.unityweb"),
+        dataUrl: buildAssetUrl("16e0229f0ecf9554dc589306e428fd1a.data.unityweb"),
+        frameworkUrl: buildAssetUrl("278468480dc0198da7a14ccc30ad0fd0.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("da718ae0593e5153aec1f5791b857742.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -245,7 +267,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("4d7ee108fbfe99337afc6efa87b576ef.loader.js");
+      loader.src = buildAssetUrl("6bee6ce43923e1766c57e5a1d8691363.loader.js");
       loader.onload = async () => {
         try {
           await createUnityInstance(canvas, config, value => {
@@ -287,6 +309,22 @@
         } finally { window.clearTimeout(timeout); }
         document.body.appendChild(loader);
       }
+      const trailHost = document.querySelector("#game-shell");
+      let lastLipstickPoint = null;
+      canvas.addEventListener("pointermove", event => {
+        if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const box = trailHost.getBoundingClientRect();
+        const point = { x: event.clientX - box.left, y: event.clientY - box.top };
+        if (lastLipstickPoint && Math.hypot(point.x - lastLipstickPoint.x, point.y - lastLipstickPoint.y) < 19) return;
+        lastLipstickPoint = point;
+        const mark = document.createElement("i");
+        mark.className = "lipstick-trail";
+        mark.style.left = `${point.x - 2}px`;
+        mark.style.top = `${point.y + 8}px`;
+        mark.addEventListener("animationend", () => mark.remove(), { once: true });
+        trailHost.appendChild(mark);
+      }, { passive: true });
+      canvas.addEventListener("pointerleave", () => { lastLipstickPoint = null; });
       startGame();
     </script>
   </body>

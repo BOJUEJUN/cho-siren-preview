@@ -160,7 +160,7 @@
     if(paused||intensity===0||performing||!$('game-sheet').hidden)return;
     const rect=scene.getBoundingClientRect(),px=x*rect.width,py=y*rect.height;
     if(lastHeart&&Math.hypot(px-lastHeart.x,py-lastHeart.y)<18)return;
-    lastHeart={x:px,y:py};const heart=document.createElement('span');heart.className='cursor-heart';heart.textContent=Math.random()>.55?'♥':'✦';heart.style.left=x*100+'%';heart.style.top=y*100+'%';heart.style.setProperty('--drift',Math.round(Math.random()*32-16)+'px');scene.append(heart);setTimeout(()=>heart.remove(),850);
+    lastHeart={x:px,y:py};const heart=document.createElement('span');heart.className='cursor-heart';heart.textContent=Math.random()>.72?'✦':'·';heart.style.left=x*100+'%';heart.style.top=y*100+'%';heart.style.setProperty('--drift',Math.round(Math.random()*32-16)+'px');scene.append(heart);setTimeout(()=>heart.remove(),850);
     const all=scene.querySelectorAll('.cursor-heart');if(all.length>20)all[0].remove();
   }
   function setMenuSelection(action){

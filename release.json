@@ -1,17 +1,17 @@
 {
   "version": "0.3.8",
-  "releaseId": "PSD-20260928-MOTION",
-  "name": "新版手工 PSD 首页与选中菜单动效",
+  "releaseId": "PSD-20260928-HOME-FINAL",
+  "name": "最新版 PSD 首页、暗喻幻想风格菜单选中与首页动效",
   "date": "2026-09-28",
   "sourceCommit": "cb77657",
-  "sourceState": "local working-tree build based on cb77657; latest PSD assets, layout and ink interaction incorporated without committing unrelated existing source changes",
-  "homepagePatchSha256": "8c50845004b030c0813c78a9e548fdbf791816a50da9ff3445c0464ecf65d632",
+  "sourceState": "local working-tree build based on cb77657; only homepage motion files added/updated, unrelated dirty source preserved",
+  "homepagePatchSha256": "3788a1b21ca87c093b2aea06bf72744f764219dc39c5a67729e78cad25b8839c",
   "previousVersion": "0.3.8",
-  "previousWebCommit": "381021d26cbab98f34e2ef054e5c435c8f613e9b",
+  "previousWebCommit": "73babec",
   "savePolicy": "保留现有游戏存档与账户数值，不重置进度。",
   "validation": {
     "cleanWebGLBuild": true,
-    "focusedUnityPlayModePassed": 5,
+    "focusedUnityPlayModePassed": 8,
     "browserHotspotsClicked": 3,
     "browserPointerFeedbackPassed": 1,
     "loaderRegressionTestsPassed": 12,
@@ -25,12 +25,17 @@
       4.929,
       5.244
     ],
-    "publicGameHomepageBrowserVerified": true,
-    "publicGameAlbumInkClicked": true,
+    "publicGameHomepageBrowserVerified": false,
+    "publicGameAlbumInkClicked": false,
     "publicPreviewLayersLoaded": 37,
     "publicPreviewCharacterDialogueVerified": true,
     "publicPreviewUiHideVerified": true,
-    "publicPreviewTransitionVerified": true
+    "publicPreviewTransitionVerified": true,
+    "publicGameHoverInkVerified": false,
+    "publicGameLipstickCursorVerified": false,
+    "publicGameSceneDialogueVerified": false,
+    "publicGameUiHideVerified": false,
+    "publicGameStageTransitionVerified": false
   },
-  "visualStatus": "最新手工 PSD 的 37 个独立 RGBA 层用于公开五版动效预览；游戏首页保留 32 层与实时数值。专辑绿色原生笔触默认隐藏，点击后显现并轻微不规则波动。GitHub Pages 公开预览与游戏均已在浏览器打开并交互核对；本机 localhost 预览因浏览器权限拒绝未使用。"
+  "visualStatus": "游戏首页根目录集成最新版 PSD、15 个原有入口、悬停/选中不规则绿色油墨、各入口点击反馈、角色中文对白/浏览器日语语音、双击隐藏 UI、开演波纹转场与口红光标。暗喻幻想视频受站点权限限制，动效依据用户截图及文字描述重建；公开浏览器点验待完成。"
 }
