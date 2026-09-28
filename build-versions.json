@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "current": [
-    "16e0229f0ecf9554dc589306e428fd1a.data.unityweb",
-    "278468480dc0198da7a14ccc30ad0fd0.framework.js.unityweb",
-    "6bee6ce43923e1766c57e5a1d8691363.loader.js",
-    "da718ae0593e5153aec1f5791b857742.wasm.unityweb"
+    "7a2ad88ec6203b72fcc045c9e15ec33a.data.unityweb",
+    "d14dca574144e5b1d63ae39ec1dffb10.framework.js.unityweb",
+    "36135e129183f553cd2c4a7d665d8117.wasm.unityweb",
+    "ce04e1f013ee2119e9affa8ade5ecd35.loader.js"
   ],
   "previous": [
-    "f6f3f901b2856198d3c0fd51da453150.data.unityweb",
-    "351629cf7086fdb5352d2429b60d7674.framework.js.unityweb",
-    "27f1ea7b6300c39f54b3494ca8bc000c.wasm.unityweb",
-    "4d7ee108fbfe99337afc6efa87b576ef.loader.js"
+    "16e0229f0ecf9554dc589306e428fd1a.data.unityweb",
+    "278468480dc0198da7a14ccc30ad0fd0.framework.js.unityweb",
+    "da718ae0593e5153aec1f5791b857742.wasm.unityweb",
+    "6bee6ce43923e1766c57e5a1d8691363.loader.js"
   ]
 }

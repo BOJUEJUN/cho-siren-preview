@@ -10,6 +10,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>CHO-SIREN 幻域魅声</title>
+    <link rel="stylesheet" href="./home-stage.css">
     <style>
       :root {
         color-scheme: dark;
@@ -202,6 +203,13 @@
   <body>
     <main id="game-shell">
       <canvas id="unity-canvas" width="720" height="1536" tabindex="-1"></canvas>
+      <div id="home-stage" aria-hidden="true">
+        <div class="stage-beam stage-beam-a"></div>
+        <div class="stage-beam stage-beam-b"></div>
+        <canvas id="stage-atmosphere"></canvas>
+        <div id="stage-beat-meter"></div>
+        <canvas id="stage-sparks"></canvas>
+      </div>
       <div id="character-dialogue" role="status" aria-live="polite"><small>音律少女 / CATALENA</small><span id="character-dialogue-line"></span></div>
       <div id="warning" role="status">
         <span id="warning-text"></span>
@@ -214,6 +222,7 @@
       </div>
     </main>
 
+    <script src="./home-stage.js"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       // Retire the service worker used by the earlier HTML prototype.  Its root
@@ -277,9 +286,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("16e0229f0ecf9554dc589306e428fd1a.data.unityweb"),
-        frameworkUrl: buildAssetUrl("278468480dc0198da7a14ccc30ad0fd0.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("da718ae0593e5153aec1f5791b857742.wasm.unityweb"),
+        dataUrl: buildAssetUrl("7a2ad88ec6203b72fcc045c9e15ec33a.data.unityweb"),
+        frameworkUrl: buildAssetUrl("d14dca574144e5b1d63ae39ec1dffb10.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("36135e129183f553cd2c4a7d665d8117.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -290,7 +299,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("6bee6ce43923e1766c57e5a1d8691363.loader.js");
+      loader.src = buildAssetUrl("ce04e1f013ee2119e9affa8ade5ecd35.loader.js");
       loader.onload = async () => {
         try {
           await createUnityInstance(canvas, config, value => {
@@ -355,6 +364,7 @@
       const characterLines = ["呐，今天也愿意和我一起唱吗？", "这束光，一定也会照到你。", "来吧，开始属于我们的舞台！"];
       let characterLineIndex = 0, characterShowTimer, characterHideTimer;
       canvas.addEventListener("click", event => {
+        if (!window.choSirenStage?.active) return;
         window.clearTimeout(characterShowTimer);
         if (event.detail > 1) return;
         const box = canvas.getBoundingClientRect();

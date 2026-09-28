@@ -27,6 +27,9 @@ if (!html.includes('new URL("Build/", pageUrl)')) {
 if (!html.includes("navigator.serviceWorker.getRegistrations")) {
   throw new Error("缺少旧 Service Worker 注销逻辑");
 }
+for (const asset of ["home-stage.css", "home-stage.js", "lipstick-cursor.svg"]) {
+  if (html.includes(`./${asset}`)) requireFile(join(root, asset));
+}
 
 const references = [...html.matchAll(/buildAssetUrl\("([^"]+\.(?:data\.unityweb|framework\.js\.unityweb|wasm\.unityweb|loader\.js))"\)/g)]
   .map(match => match[1]);
