@@ -29,7 +29,7 @@
     "approvedInkFrames": 48,
     "approvedInkFrameRate": 30,
     "nativeUiCharacterCompositing": true,
-    "publicRuntimeVerified": false,
+    "publicRuntimeVerified": true,
     "browserDoubleClickGateTestPassed": true,
     "retryCacheBypassTestPassed": true,
     "publicGameAlbumInkVerified": true,
@@ -53,11 +53,15 @@
     "publicBattleColdAssetLoadMilliseconds": 3696,
     "publicSingleTabSaveReloadVerified": true,
     "characterSwitchPlayModePassed": 26,
-    "characterSwitchPublicVerified": false,
+    "characterSwitchPublicVerified": true,
     "smallBossInBattlePlayModeVerified": true,
-    "newCharacterHasVideo": false
+    "newCharacterHasVideo": false,
+    "characterSelectionReloadVerified": true,
+    "characterPlayingVideoStopOnSwitchVerified": true,
+    "smallBossPublicBattleVerified": true,
+    "smallBossPublicVictoryAndReturnVerified": true
   },
-  "visualStatus": "本轮26项相关Unity PlayMode及22项Node回归通过，干净WebGL构建成功。两位角色使用最新PSD原生透明层，角色2无视频；1-5小BOSS为白底源图经imagegen透明背景编辑，1-10首领保持现有图。待公开站实际交互验收。其他历史验证保留自R13A。未做实体手机验收。",
+  "visualStatus": "R14主站实测通过：箭头/横滑切换、播放中切换停止旧视频、刷新保留第二角色、1-4正常通关至1-5、新小BOSS透明显示/受击/随从/三阶段战斗胜利/结算返回首页。新版26项Unity PlayMode及22项Node检查通过。两位首页角色使用PSD原生透明层；第二位没有专属视频。小BOSS是原始白底图经imagegen透明背景编辑，不宣称与PSD逐像素一致。未做实体手机验收。",
   "homepagePatchHashMethod": "SHA-256 of each listed relative path, NUL, file bytes, NUL in listed order",
   "homepagePatchFiles": [
     "Assets/Scripts/ChoSirenApp.cs",
