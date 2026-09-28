@@ -175,23 +175,19 @@
       y: (event.clientY - box.top) / box.height, inside: true };
   }, { passive: true });
   input.addEventListener('pointerleave', () => { pointer.inside = false; }, { passive: true });
-  input.addEventListener('click', event => {
-    if (!active || event.detail > 1) return;
-    const box = input.getBoundingClientRect();
-    const x = (event.clientX - box.left) / box.width;
-    const y = (event.clientY - box.top) / box.height;
-    // A tap on the heroine now plays her cutout performance.  Do not stack
-    // generic stage sparks on that gesture; the character alone should move.
-    if (x > .32 && x < .74 && y > .16 && y < .5) return;
-    const album = x < .45 && y > .50 && y < .76;
-    const show = x > .57 && y > .48 && y < .9;
+  // Only an actual Unity UI action can create a click burst. Character taps,
+  // empty space and double-click UI gestures never enter this path.
+  function playClick(action, x, y) {
+    if (!active || uiHidden) return;
+    const album = action === 'AlbumProduction';
+    const show = action === 'LiveOnStage';
     const color = album ? '#c5ff43' : show ? '#bca4ff' : '#e0ffcd';
     emit(x, y, show ? 100 : album ? 68 : 24, show || album, color);
     rings.push({ x, y, age: 0, life: show ? .8 : .58, color, big: show || album });
-  });
+  }
   window.addEventListener('resize', resize);
   new ResizeObserver(resize).observe(shell);
   resize();
-  window.choSirenStage = { setActive, setUiHidden,
+  window.choSirenStage = { setActive, setUiHidden, playClick,
     get active() { return active; }, get uiHidden() { return uiHidden; } };
 })();

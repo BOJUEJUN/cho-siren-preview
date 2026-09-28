@@ -1,66 +1,112 @@
 (() => {
   const root = document.querySelector('#character-moment');
-  const video = document.querySelector('#moment-video');
-  const clips = [
-    'media/catalena-look.webm?v=20260928-r10',
-    'media/catalena-whisper.webm?v=20260928-r10',
-    'media/catalena-live.webm?v=20260928-r10'
-  ];
-  let active = false;
-  let concealed = false;
-  let sequence = 0;
-
-  function setPortraitConcealed(value) {
-    if (concealed === value) return;
-    concealed = value;
-    try {
-      window.choSirenUnityInstance?.SendMessage('PsdHome20260921',
-        'SetCharacterPlayback', value ? 1 : 0);
-    } catch (_) { /* The player may have just left the homepage. */ }
+  const clips = ['catalena-look', 'catalena-whisper', 'catalena-live'];
+  let current = null, pending = null, sequence = 0;
+  let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
+  const dispose = item => {
+    if (!item) return;
+    clearTimeout(item.timeout);
+    item.video.pause();
+    item.video.removeAttribute('src');
+    item.video.load();
+    item.video.remove();
+  };
+  function status() {
+    root.dataset.state = pending ? 'loading' : current ? 'playing' : 'idle';
+    root.dataset.clip = current ? String(current.index) : '';
   }
-
   function close() {
-    if (!active && !concealed) return;
-    active = false;
     ++sequence;
-    video.pause();
-    video.removeAttribute('src');
-    video.load();
-    setPortraitConcealed(false);
-    root.classList.remove('is-active');
-    root.setAttribute('aria-hidden', 'true');
+    const old = current, loading = pending;
+    current = pending = null;
+    dispose(old); dispose(loading);
+    uploadedVideo = uploadedTexture = null;
+    status();
   }
-
   function showClip(index, withAudio) {
-    if (!active && !window.choSirenStage?.active) return false;
-    const next = Number(index);
-    if (!Number.isInteger(next) || next < 0 || next >= clips.length) return false;
-    active = true;
-    const playback = ++sequence;
-    video.pause();
+    if (!window.choSirenStage?.active) return false;
+    if (!Number.isInteger(index) || index < 0 || index >= clips.length) return false;
+    const request = ++sequence;
+    const oldPending = pending;
+    pending = null;
+    dispose(oldPending);
+    // Each request owns its media element and callbacks. The current frame keeps
+    // rendering until the new clip is actually playing, including on slow networks.
+    const video = document.createElement('video');
+    video.playsInline = true;
+    video.preload = 'auto';
     video.muted = !withAudio;
-    video.src = new URL(clips[next], document.baseURI).href;
-    video.load();
-    root.dataset.clip = String(next);
-    root.setAttribute('aria-hidden', 'false');
-    root.classList.add('is-active');
-    document.querySelector('#character-dialogue').classList.remove('is-visible');
+    video.crossOrigin = 'anonymous';
+    video.src = new URL(`media/${clips[index]}.webm?v=20260928-r10`, document.baseURI).href;
+    const item = { video, index, timeout: 0 };
+    pending = item;
+    root.append(video);
+    status();
+    const fail = () => {
+      if (pending !== item || request !== sequence) return;
+      pending = null;
+      dispose(item);
+      status();
+    };
+    video.addEventListener('playing', () => {
+      if (pending !== item || request !== sequence) return;
+      clearTimeout(item.timeout);
+      const old = current;
+      current = item;
+      pending = null;
+      dispose(old);
+      status();
+    });
+    video.addEventListener('ended', () => {
+      if (current !== item) return;
+      current = null;
+      dispose(item);
+      status();
+    });
+    video.addEventListener('error', () => {
+      if (pending === item) fail();
+      else if (current === item) { current = null; dispose(item); status(); }
+    });
+    item.timeout = setTimeout(fail, 15000);
     const attempt = video.play();
-    if (attempt?.catch) attempt.catch(() => {
-      if (!active || sequence !== playback) return;
-      // A browser may refuse audio when Unity's click callback arrives later;
-      // keep the requested animation available even if sound is blocked.
+    attempt?.catch(() => {
+      if (pending !== item || request !== sequence) return;
       video.muted = true;
-      video.play().catch(close);
+      // A rejected old retry must never close a newer performance.
+      video.play().catch(fail);
     });
     return true;
   }
-
-  video.addEventListener('playing', () => { if (active) setPortraitConcealed(true); });
-  video.addEventListener('ended', close);
-  video.addEventListener('error', close);
-  document.addEventListener('keydown', event => { if (active && event.key === 'Escape') close(); });
-  window.choSirenCharacter = { play(index, withAudio) {
-    return showClip(((index % clips.length) + clips.length) % clips.length, withAudio);
-  }, close, get active() { return active; } };
+  function uploadFrame(gl, texture) {
+    const video = current?.video;
+    if (!video || video.readyState < 2) return false;
+    if (uploadedVideo === video && uploadedTime === video.currentTime && uploadedTexture === texture) return true;
+    const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
+    const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
+    const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
+    try {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      uploadedVideo = video; uploadedTime = video.currentTime; uploadedTexture = texture;
+      root.dataset.renderedFrame = String(video.currentTime);
+      return true;
+    } catch (_) {
+      close();
+      return false;
+    } finally {
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flipped);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, premultiplied);
+      gl.bindTexture(gl.TEXTURE_2D, bound);
+    }
+  }
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
+  window.choSirenCharacter = {
+    play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
+    close, uploadFrame,
+    get active() { return !!(current || pending); },
+    get currentClip() { return current ? current.index : -1; }
+  };
+  status();
 })();

@@ -39,16 +39,21 @@ if (html.includes('moment-controls') || html.includes('data-moment=')) {
   throw new Error("角色点击不得覆盖额外的演出菜单或按钮");
 }
 const momentCss = readFileSync(join(root, 'character-moments.css'), 'utf8');
-if (!momentCss.includes("media/foreground-video-mask.png") ||
-    !momentCss.includes('object-fit: contain') || momentCss.includes('object-fit: fill')) {
-  throw new Error("角色演出必须位于原生 UI 后方且保持原片比例");
+const momentJs = readFileSync(join(root, 'character-moments.js'), 'utf8');
+if (momentCss.includes('mask-image') || !momentCss.includes('opacity: 0') ||
+    !momentJs.includes('uploadFrame') || !momentJs.includes('texSubImage2D')) {
+  throw new Error("角色必须在 Unity 真实 UI 层级绘制，网页仅解码视频");
 }
-const foregroundMask = join(root, 'media', 'foreground-video-mask.png');
-requireFile(foregroundMask);
-const maskHeader = readFileSync(foregroundMask).subarray(0, 24);
-if (maskHeader.subarray(0, 8).toString('hex') !== '89504e470d0a1a0a' ||
-    maskHeader.readUInt32BE(16) !== 720 || maskHeader.readUInt32BE(20) !== 1536) {
-  throw new Error("首页前景遮罩应匹配 720×1536 原始画布");
+const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
+const ink = JSON.parse(readFileSync(join(inkRoot, 'manifest.json'), 'utf8'));
+if (ink.frames !== 48 || ink.fps !== 30 || ink.sheets.length !== 4) throw new Error('油墨动画配置不符');
+for (const sheet of ink.sheets) {
+  if (!/^ink-flow-[0-3]\.png$/.test(sheet.file)) throw new Error('油墨图集路径无效');
+  const bytes = readFileSync(join(inkRoot, sheet.file));
+  if (createHash('sha256').update(bytes).digest('hex') !== sheet.sha256 ||
+      bytes.readUInt32BE(16) !== 2048 || bytes.readUInt32BE(20) !== 1440 || bytes[25] !== 6) {
+    throw new Error('油墨图集不匹配或缺少真实 RGBA: ' + sheet.file);
+  }
 }
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   const clip = join(root, "media", `${name}.webm`);

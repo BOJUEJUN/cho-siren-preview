@@ -1,46 +1,11 @@
+/* Media decoding only. Unity draws the transparent frames between the actual
+   background and UI siblings, so animated menus need no cutout mask. */
 #character-moment {
   position: absolute;
-  inset: 0;
-  z-index: 12;
+  width: 1px;
+  height: 1px;
   overflow: hidden;
-  pointer-events: none;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity .18s ease, visibility .18s;
-  /* Show the live Unity HUD/buttons through this exact PSD-layer matte. The
-     moving character is therefore behind the original interactive UI. */
-  -webkit-mask-image: url('./media/foreground-video-mask.png');
-  mask-image: url('./media/foreground-video-mask.png');
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-}
-#character-moment.is-active { opacity: 1; visibility: visible; }
-#home-stage.ui-hidden + #character-moment {
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-/* Only the transparent character cutout appears over the existing homepage. */
-#moment-video {
-  position: absolute;
-  top: 6%;
-  left: -4%;
-  width: 119%;
-  height: 99%;
-  object-fit: contain;
-  background: transparent;
   pointer-events: none;
 }
-#character-moment[data-clip="2"] #moment-video {
-  /* The singing source has extra headroom; match the same portrait anchor. */
-  top: 0;
-  left: -6%;
-  width: 126%;
-  height: 105%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #character-moment { transition: none; }
-}
+#character-moment video { width: 1px; height: 1px; }

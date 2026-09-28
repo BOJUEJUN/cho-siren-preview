@@ -1,0 +1,32 @@
+{
+  "frames": 48,
+  "fps": 30,
+  "frameWidth": 512,
+  "frameHeight": 480,
+  "sheets": [
+    {
+      "file": "ink-flow-0.png",
+      "sha256": "df2281dc241fbb7b4cb89a8a8012aceeef3b13554330e34576c9c1527265b7d4",
+      "width": 2048,
+      "height": 1440
+    },
+    {
+      "file": "ink-flow-1.png",
+      "sha256": "b7a63ea1a33f94b39b6caa825a3ebf336fe01350a4d629a7d20b46453a88bb04",
+      "width": 2048,
+      "height": 1440
+    },
+    {
+      "file": "ink-flow-2.png",
+      "sha256": "31325c7ccb3ae761a7b25a4239e0b2d3748b03c5aae7910d6cbbffd165a79565",
+      "width": 2048,
+      "height": 1440
+    },
+    {
+      "file": "ink-flow-3.png",
+      "sha256": "06624333a709ca1bc886be60529e062860885d5ca0a3d12962840549932ad1c9",
+      "width": 2048,
+      "height": 1440
+    }
+  ]
+}

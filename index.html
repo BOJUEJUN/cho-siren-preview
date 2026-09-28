@@ -11,7 +11,7 @@
     <meta http-equiv="Expires" content="0">
     <title>CHO-SIREN 幻域魅声</title>
     <link rel="stylesheet" href="./home-stage.css?v=20260928-r9">
-    <link rel="stylesheet" href="./character-moments.css?v=20260928-r10">
+    <link rel="stylesheet" href="./character-moments.css?v=20260928-r12">
     <style>
       :root {
         color-scheme: dark;
@@ -237,8 +237,8 @@
       </div>
     </main>
 
-    <script src="./home-stage.js?v=20260928-r9"></script>
-    <script src="./character-moments.js?v=20260928-r10"></script>
+    <script src="./home-stage.js?v=20260928-r12"></script>
+    <script src="./character-moments.js?v=20260928-r12"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       // Retire the service worker used by the earlier HTML prototype.  Its root
@@ -302,9 +302,9 @@
       const buildAssetUrl = filename => new URL(filename, buildUrl).href;
       const config = {
         arguments: [],
-        dataUrl: buildAssetUrl("8bc50004df056e9e12161d2ecb874e0b.data.unityweb"),
-        frameworkUrl: buildAssetUrl("839cd7989cd2e0cf79059b8bfc61183c.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("9e9ef8e02d47d034a2c527c03a13ba66.wasm.unityweb"),
+        dataUrl: buildAssetUrl("00f6d6745a1169549578de6fbfb0ca7c.data.unityweb"),
+        frameworkUrl: buildAssetUrl("d30968bfdd1a78559ea24bdd058a98be.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("226bd0eb122e76d2807f375ef7652757.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -315,7 +315,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("94f2b6712d577de53c2c2b185fe33c25.loader.js");
+      loader.src = buildAssetUrl("d9585bbce31427e93567f62b6f4a57fc.loader.js");
       loader.onload = async () => {
         try {
           window.choSirenUnityInstance = await createUnityInstance(canvas, config, value => {
