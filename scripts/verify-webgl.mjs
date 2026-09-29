@@ -60,8 +60,8 @@ for (const sheet of ink.sheets) {
 const battleRoot = join(root, 'StreamingAssets', 'BattlePsd928');
 const battleManifest = JSON.parse(readFileSync(join(battleRoot, 'manifest.json'), 'utf8'));
 if (battleManifest.width !== 2946 || battleManifest.height !== 6144 ||
-    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 37 ||
-    battleManifest.sourceSha256 !== '2a447489c66f81e13cb2ee393a93e850d3c92ef37e90f232d0af36705b514a39') {
+    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 44 ||
+    battleManifest.sourceSha256 !== 'c2a83aa1960de149268364118eb6f86a9d5af7b83b8119a5c70a3748ed4864f1') {
   throw new Error('战斗资源不是最新六骰 PSD');
 }
 const battleKeys = new Set();
