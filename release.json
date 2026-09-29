@@ -24,14 +24,21 @@
     "loaderRegressionTestsPassed": 15,
     "characterLifecycleTestsPassed": 7,
     "currentAndPreviousBuildAssetsVerified": 8,
-    "publicRuntimeVerified": false,
-    "battlePublicRuntimeVerified": false,
+    "publicRuntimeVerified": true,
+    "battlePublicRuntimeVerified": true,
     "physicalMobileDeviceTested": false,
     "pauseResumeRaycastVerifiedInUnity": true,
     "ultimateBattleViewGapSeconds": 2,
     "ultimateDurationSeconds": 2.8,
     "publicR15BossVictorySeconds": 108,
-    "publicR15BossVictoryAndReturnVerified": true
+    "publicR15BossVictoryAndReturnVerified": true,
+    "publicR15aNormalVictorySeconds": 90,
+    "publicR15aNormalVictoryFallenCount": 0,
+    "publicR15aPauseDuringUltimateAndResumeVerified": true,
+    "publicR15aSpeedToggleVerified": true,
+    "publicR15aCutInAboveCombatFxVerified": true,
+    "publicR15aVictoryAndReturnVerified": true,
+    "publicBrowserErrorsObserved": 0
   },
-  "visualStatus": "R15公开主站完成1-5大招/守护/重投/三阶段/108秒胜利/返回检查；最终R15A补充大招之间2秒战场间隔及演出高于战斗VFX，44项最终PlayMode通过，等待R15A公开复查。程序插画动画，不含未提供的专用视频或Live2D素材。"
+  "visualStatus": "R15主站实测1-5大招、守护、重投、三阶段、108秒胜利与返回；最终R15A再次从主站进入1-1，演出层级正确，大招中暂停/恢复、2倍速、90秒三星胜利(0阵亡)、结算/返回首页通过。86项规则、44项最终PlayMode与22项网页回归通过。战斗动作为已有插画的程序动画；无战斗专用视频/Live2D素材，实体手机未验收。"
 }
