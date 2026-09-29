@@ -10,7 +10,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>CHO-SIREN 幻域魅声</title>
-    <link rel="stylesheet" href="./home-stage.css?v=20260928-r9">
+    <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
     <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
     <style>
       :root {
@@ -284,9 +284,9 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("0b86c22ac5f12f896116d701c4d1c6a8.data.unityweb"),
-        frameworkUrl: buildAssetUrl("d1fc1c39e3097449e8faaf0084720290.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("5b9376dbb847746a3865f569939a2bc7.wasm.unityweb"),
+        dataUrl: buildAssetUrl("e2dd1290b6ccc5d2cc6e1ab45036d32a.data.unityweb"),
+        frameworkUrl: buildAssetUrl("3085ec3f1ee1e29db75fb8699374a35c.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("7eecc22377942e365eca0b7039949f12.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
@@ -297,7 +297,7 @@
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("2aa607bf3f2fd92ef9a84b705c3d3a95.loader.js");
+      loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
       loader.onload = async () => {
         try {
           window.choSirenUnityInstance = await createUnityInstance(canvas, config, value => {

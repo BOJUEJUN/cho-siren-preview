@@ -6,10 +6,10 @@
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity .5s ease, visibility .5s;
+  transition: none;
   isolation: isolate;
 }
-#home-stage.stage-on { opacity: 1; visibility: visible; }
+#home-stage.stage-on { opacity: 1; visibility: visible; transition: opacity .5s ease; }
 #home-stage .stage-beam {
   position: absolute;
   top: -30%;
