@@ -16,7 +16,7 @@
     "loaderRegressionTestsPassed": 15,
     "characterLifecycleTestsPassed": 7,
     "localWebGLRuntimeVerified": true,
-    "publicRuntimeVerified": false,
+    "publicRuntimeVerified": true,
     "physicalMobileDeviceTested": false,
     "transitionSeconds": 0.76,
     "sceneSwitchSeconds": 0.29,
@@ -26,7 +26,15 @@
       "both characters enter map successfully",
       "return to home input works",
       "no browser console errors"
+    ],
+    "publicInteractions": [
+      "R17 root loaded",
+      "title loops only inside authored left-hand bounds",
+      "current character blue duotone transition opens map",
+      "return to home works",
+      "stage overlay hidden immediately",
+      "no browser console errors"
     ]
   },
-  "visualStatus": "Local WebGL and native captures verified. Primary transition reference is user supplied Arknights/P3R UI video. Root homepage updated; motion-lab unchanged. Public validation pending."
+  "visualStatus": "Public root verified after Pages/quality success for 32627a9. Recorded complete transition into map and return to home. Two character variants checked in local WebGL. Physical mobile devices untested."
 }
