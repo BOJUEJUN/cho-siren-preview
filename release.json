@@ -19,7 +19,7 @@
     "characterLifecycleTestsPassed": 7,
     "battleDiceCount": 6,
     "battleNativeRgbaAssets": 44,
-    "publicRuntimeVerified": false,
+    "publicRuntimeVerified": true,
     "physicalMobileDeviceTested": false,
     "freshLevel1ChapterSamples": 15,
     "freshLevel1ChapterSamplesWon": 13,
@@ -29,7 +29,20 @@
     "ultimateAutoSpacingLogicalSeconds": 4,
     "guardTransparentStateRegression": true,
     "sixthDieRerollAnimationRegression": true,
-    "topPauseResumeRaycastRegression": true
+    "topPauseResumeRaycastRegression": true,
+    "publicBattleStage": "1-3",
+    "publicBattleResult": "victory; 103.3 logical seconds; zero allies down; returned to map and home",
+    "publicInteractions": [
+      "home scrolling title and rotating disc",
+      "home-to-map record transition",
+      "guard activation, pause, expiry and used state",
+      "top pause button resumes through modal",
+      "transparent manual ultimate and portrait retraction",
+      "sixth die selection and reroll animation",
+      "2x speed and auto mode",
+      "two-wave victory and return to home",
+      "no browser console errors"
+    ]
   },
-  "visualStatus": "待公开页面交互验收。待机/就绪/施放收回、被动小立绘、透明大招、守护透明按钮、频谱灯光、连续首页文字与唱片、0.72秒通用唱片转场已通过本地验收。角色动画为程序动画；实体手机未验收。"
+  "visualStatus": "Public R16 root verified in browser: stage 1-3 victory in 103.3 logical seconds with zero allies down; guard state transitions, pause/resume, sixth-die reroll, transparent ultimate, speed/auto, settlement and return to home passed. Seven public resource hashes match local. Character battle animation is procedural. Physical mobile devices untested."
 }
