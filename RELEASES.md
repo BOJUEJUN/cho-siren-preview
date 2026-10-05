@@ -1,5 +1,14 @@
 # CHO-SIREN 网页版本
 
+## WEB-20261005-CACHE-IOS-R17A — 2026-10-05 本机缓存、iPhone 角色视频与主屏幕安装
+
+- 新增资源缓存 Service Worker：只缓存文件名即内容哈希的文件（Build/ 四个构建文件、StreamingAssets 中 16 位哈希前缀的 PNG）；网页、版本清单、manifest、油墨图集和全部视频始终走网络，不会读到旧版本。本地实测首访约 142MB 进入缓存，回访这些文件 0 次下载，服务器只收到 7 个小请求。`?retry=` 重新加载会注销本游戏的 Worker、清空其缓存并完整走网络；版本检查后通知 Worker 只保留当前与上一版构建；旧原型的 cho-siren-v* 缓存照常清理。
+- iPhone/Safari 角色视频：Safari 与所有 iOS 浏览器不支持 VP9 透明 WebM。新增 `media/*.packed.mp4`（左彩色 + 32px 间隔 + 右透明遮罩，原片分辨率，HEVC hvc1 CRF 18 + AAC），由 character-moments.js 在 GPU 上合成后写入 Unity 纹理；合成前后保存并恢复 Unity 的全部 GL 状态，sRGB 纹理写入线性值，存储字节与原上传方式一致。其他浏览器仍用原 VP9 WebM，未重新编码。画质：彩色 PSNR 44–47 dB、遮罩 45–46 dB；独立 WebGL 读回与原上传平均差 1–2 级、透明度相同。`?alphaVideo=packed|webm` 可强制切换；生成脚本 `scripts/build-packed-video.sh`。
+- 主屏幕安装：链接 manifest，新增 180/192/512 PNG、maskable 图标与 apple-touch-icon，以及 iOS 标题和状态栏样式。加载页首次提示约 150MB、建议 Wi-Fi，下载完成后提示正在解压启动（不消耗流量）。
+- 删除未被引用的 `media/*.mp4`（无透明 H.264）与 `*.jpg` 封面，部署少约 27MB。图片全部保持原分辨率与原文件，未做有损处理。
+- 沿用 R17 的 Unity WebGL 包，未重新构建。本地检查 36/36（加载器与缓存 25 项、角色媒体 11 项）；本地 Chromium 实测首访/回访缓存和 iPhone 合成路径（以 VP9 测试副本代替 HEVC，同帧对比无色差）；实体 iPhone 未测。
+- index.html、character-moments.js 与 media/ 来自 Unity 工程 `Assets/WebGLTemplates/ChoSirenPortrait/`，需把 `patches/unity-template-R17A.patch` 应用到模板并复制三个 packed.mp4、删除旧 mp4/jpg，否则下次导出会覆盖本版。
+
 ## PSD-20260928-APPROVED-INK-R12 — 2026-09-28 正式首页油墨与交互修复
 
 - 将已确认的 R02 油墨动画移植到正式首页：48 帧原始 RGBA、30 fps、不规则颗粒边缘；默认隐藏、悬停出现、点击保留，再次点击取消选中。去掉专辑按钮旧圆圈和碎片叠加。

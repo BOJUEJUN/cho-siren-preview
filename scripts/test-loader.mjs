@@ -10,8 +10,10 @@ const newer = suffixes.map((suffix, index) => String(index + 1).repeat(32) + suf
 const embedded = [...html.matchAll(/buildAssetUrl\("([^"\r\n]+)"\)/g)].map(match => match[1]);
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old" } = {}) {
-  const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [];
+async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old",
+  controlled = true, registerFails = false } = {}) {
+  const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
+    registered = [], messages = [];
   let timerId = 0;
   function element(name) {
     if (!elements.has(name)) elements.set(name, { style: {}, textContent: '', listeners: {}, classes: [],
@@ -22,9 +24,17 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
   const context = vm.createContext({ URL, AbortController, console,
     document: { baseURI: pageHref, querySelector: element,
       createElement: () => ({}), body: { appendChild: item => appends.push(item) } },
-    navigator: { serviceWorker: { getRegistrations: async () => ['cho-siren-preview/', 'another-game/'].map(path => ({
-      scope: 'https://example.test/' + path, unregister: async () => unregistered.push(path)
-    })) } },
+    navigator: { serviceWorker: {
+      controller: controlled ? { postMessage: message => messages.push(JSON.parse(JSON.stringify(message))) } : null,
+      addEventListener() {},
+      register: async (url, options) => {
+        if (registerFails) throw new Error('blocked');
+        registered.push({ url, scope: options.scope });
+        return {};
+      },
+      getRegistrations: async () => ['cho-siren-preview/', 'another-game/'].map(path => ({
+        scope: 'https://example.test/' + path, unregister: async () => unregistered.push(path)
+      })) } },
     window: { setTimeout: callback => { timers.set(++timerId, callback); return timerId; },
       clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
       location: { href: pageHref, replace: url => calls.push({ redirect: url }) } },
@@ -43,7 +53,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
   });
   vm.runInContext(script, context);
   await flush(); await flush();
-  return { elements, timers, appends, calls, requests, unregistered, context };
+  return { elements, timers, appends, calls, requests, unregistered, registered, messages, context };
 }
 
 test('cached HTML selects all four fresh assets before starting Unity', async () => {
@@ -88,9 +98,45 @@ test('slow version check times out and starts embedded game once', async () => {
   assert.ok(run.appends[0].src.endsWith(embedded[3]));
 });
 
-test('only the game service worker is retired, not other same-origin projects', async () => {
+test('a normal visit registers the asset worker for this game only', async () => {
   const run = await boot();
+  assert.deepEqual(run.registered, [{ url: 'https://example.test/cho-siren-preview/service-worker.js',
+    scope: 'https://example.test/cho-siren-preview/' }]);
+  assert.deepEqual(run.unregistered, []);
+  assert.deepEqual(run.messages, [{ type: 'keep-builds', files: newer }]);
+  assert.match(run.elements.get('#loading-note').textContent, /150MB.*Wi-Fi/);
+});
+
+test('a first visit waits at most 1.5 s for the new worker before starting Unity', async () => {
+  const run = await boot({ controlled: false });
+  assert.equal(run.appends.length, 0);
+  for (const timer of [...run.timers.values()]) timer();
+  await flush(); await flush();
+  assert.equal(run.appends.length, 1);
+});
+
+test('a browser that refuses the worker starts Unity without waiting', async () => {
+  const run = await boot({ controlled: false, registerFails: true });
+  assert.equal(run.appends.length, 1);
+  assert.deepEqual(run.registered, []);
+});
+
+test('retry drops only this game\'s worker, not other same-origin projects', async () => {
+  const run = await boot({ pageHref: 'https://example.test/cho-siren-preview/?retry=abc' });
   assert.deepEqual(run.unregistered, ['cho-siren-preview/']);
+  assert.deepEqual(run.registered, []);
+});
+
+test('the worker is told to keep the current and previous builds only', async () => {
+  const previous = suffixes.map((suffix, index) => String(index + 5).repeat(32) + suffix);
+  const run = await boot({ metadata: { schemaVersion: 1, current: newer, previous: [...previous, '../../secret'] } });
+  assert.deepEqual(run.messages, [{ type: 'keep-builds', files: [...newer, ...previous] }]);
+});
+
+test('download progress hands over to a no-traffic start-up message', async () => {
+  const run = await boot();
+  await run.appends[0].onload();
+  assert.match(run.elements.get('#loading-note').textContent, /解压.*不消耗流量/);
 });
 
 test('WASM error remains actionable even if a warning or old timer follows', async () => {
@@ -118,23 +164,118 @@ test('loader script failure exposes a retry without starting Unity', async () =>
   assert.equal(run.calls.length, 0);
 });
 
-test('legacy retirement worker only reloads this game and clears its own caches', async () => {
-  const events = {}, cleared = [], navigated = [];
-  let unregistered = false, completion;
-  const worker = readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8');
-  vm.runInNewContext(worker, { URL, caches: { keys: async () => ['cho-siren-v1', 'other-app'],
-    delete: async key => cleared.push(key) }, self: {
-    location: { href: 'https://example.test/cho-siren-preview/service-worker.js' },
-    addEventListener: (type, handler) => { events[type] = handler; },
-    registration: { unregister: async () => { unregistered = true; } },
-    clients: { matchAll: async () => ['https://example.test/cho-siren-preview/?v=old', 'https://example.test/another-game/']
-      .map(url => ({ url, navigate: async target => navigated.push(target) })) }
-  } });
-  events.activate({ waitUntil: promise => { completion = promise; } });
-  await completion;
-  assert.equal(unregistered, true);
-  assert.deepEqual(cleared, ['cho-siren-v1']);
-  assert.deepEqual(navigated, ['https://example.test/cho-siren-preview/?v=old']);
+// --- service-worker.js: content-addressed asset cache ---------------------------------
+const gameBase = 'https://example.test/cho-siren-preview/';
+const dataFile = gameBase + 'Build/' + 'a'.repeat(32) + '.data.unityweb';
+const artFile = gameBase + 'StreamingAssets/Reference038/0123456789abcdef-home-layer-01.png';
+
+function cacheStorage(initial) {
+  const stores = new Map(Object.entries(initial).map(([name, entries]) => [name, new Map(entries)]));
+  const url = key => typeof key === 'string' ? key : key.url;
+  const open = name => {
+    if (!stores.has(name)) stores.set(name, new Map());
+    const map = stores.get(name);
+    return {
+      match: async key => map.get(url(key)),
+      // Like the Cache API, a put replaces the entry and moves it to the end.
+      put: async (key, response) => { map.delete(url(key)); map.set(url(key), response); },
+      keys: async () => [...map.keys()].map(entry => ({ url: entry })),
+      delete: async key => map.delete(url(key))
+    };
+  };
+  return { stores, open: async name => open(name), keys: async () => [...stores.keys()], delete: async name => stores.delete(name) };
+}
+
+function assetWorker({ cached = {}, storageFails = false } = {}) {
+  const events = {}, fetched = [];
+  let claimed = 0;
+  const storage = cacheStorage(cached);
+  const caches = storageFails ? { ...storage, open: async () => { throw new Error('denied'); } } : storage;
+  vm.runInNewContext(readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), {
+    URL, caches,
+    fetch: async request => {
+      fetched.push(request.url);
+      const response = { status: 200, type: 'basic', body: 'network:' + request.url };
+      return { ...response, clone: () => ({ ...response, stored: true }) };
+    },
+    self: { location: { href: gameBase + 'service-worker.js' },
+      addEventListener: (type, handler) => { events[type] = handler; },
+      skipWaiting: async () => {}, clients: { claim: async () => { claimed++; } } }
+  });
+  async function request(url, { method = 'GET', range = false } = {}) {
+    let responded = null;
+    const waits = [];
+    events.fetch({ request: { url, method, headers: { has: name => range && name === 'range' } },
+      respondWith: promise => { responded = promise; }, waitUntil: promise => waits.push(promise) });
+    const response = responded ? await responded : null;
+    await Promise.all(waits);
+    return response;
+  }
+  async function dispatch(type, event = {}) {
+    let done;
+    events[type]({ ...event, waitUntil: promise => { done = promise; } });
+    await done;
+  }
+  return { storage, fetched, request, dispatch, claimed: () => claimed };
+}
+
+test('worker activation deletes only the prototype caches and takes control', async () => {
+  const worker = assetWorker({ cached: { 'cho-siren-v20': [], 'cho-siren-assets-1': [], 'other-app': [] } });
+  await worker.dispatch('activate');
+  assert.deepEqual([...worker.storage.stores.keys()].sort(), ['cho-siren-assets-1', 'other-app']);
+  assert.equal(worker.claimed(), 1);
+});
+
+test('content-addressed build files and art download once, then come from the cache', async () => {
+  const worker = assetWorker();
+  assert.equal((await worker.request(dataFile)).body, 'network:' + dataFile);
+  assert.equal((await worker.request(dataFile)).stored, true);
+  // Unity joins StreamingAssets paths with a double slash; both spellings share one entry.
+  const doubled = artFile.replace('StreamingAssets/', 'StreamingAssets//');
+  await worker.request(doubled);
+  assert.equal((await worker.request(artFile)).stored, true);
+  assert.deepEqual(worker.fetched, [dataFile, doubled]);
+});
+
+test('pages, manifests, unhashed art, media, ranges and other sites bypass the worker', async () => {
+  const worker = assetWorker();
+  for (const url of [gameBase, gameBase + 'index.html', gameBase + 'build-versions.json?_=x',
+    gameBase + 'service-worker.js', gameBase + 'StreamingAssets/Reference038/manifest.json',
+    gameBase + 'StreamingAssets/AlbumInkR02/ink-flow-0.png', gameBase + 'StreamingAssets/Lobby/lobby-loop.mp4',
+    gameBase + 'media/catalena-look.webm?v=1', dataFile + '?v=2', dataFile.replace('cho-siren-preview', 'another-game'),
+    dataFile.replace('example.test', 'cdn.example.test')]) {
+    assert.equal(await worker.request(url), null, url);
+  }
+  assert.equal(await worker.request(dataFile, { method: 'POST' }), null);
+  assert.equal(await worker.request(dataFile, { range: true }), null);
+  assert.deepEqual(worker.fetched, []);
+});
+
+test('retry downloads again and replaces the stored copy', async () => {
+  const worker = assetWorker({ cached: { 'cho-siren-assets-1': [[dataFile, { body: 'damaged' }]] } });
+  assert.equal((await worker.request(dataFile + '?retry=abc')).body, 'network:' + dataFile + '?retry=abc');
+  assert.equal((await worker.request(dataFile)).stored, true);
+  assert.equal(worker.fetched.length, 1);
+});
+
+test('unavailable storage falls back to the network', async () => {
+  const worker = assetWorker({ storageFails: true });
+  assert.equal((await worker.request(dataFile)).body, 'network:' + dataFile);
+});
+
+test('only the builds named by the page stay cached; old art is evicted oldest first', async () => {
+  const keep = 'b'.repeat(32) + '.wasm.unityweb', drop = 'c'.repeat(32) + '.wasm.unityweb';
+  const art = Array.from({ length: 240 }, (_, i) =>
+    [gameBase + `StreamingAssets/Reference038/${i.toString(16).padStart(16, '0')}-layer.png`, { body: i }]);
+  const worker = assetWorker({ cached: { 'cho-siren-assets-1':
+    [[gameBase + 'Build/' + keep, {}], [gameBase + 'Build/' + drop, {}], ...art] } });
+  await worker.dispatch('message', { data: { type: 'keep-builds', files: [keep] } });
+  const entries = () => [...worker.storage.stores.get('cho-siren-assets-1').keys()];
+  assert.ok(entries().includes(gameBase + 'Build/' + keep));
+  assert.ok(!entries().includes(gameBase + 'Build/' + drop));
+  await worker.request(artFile);
+  assert.equal(entries().filter(url => url.includes('/StreamingAssets/')).length, 240);
+  assert.ok(!entries().includes(art[0][0]) && entries().includes(art[1][0]) && entries().includes(artFile));
 });
 
 for (const offline of [false, true]) {

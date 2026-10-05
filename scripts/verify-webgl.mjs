@@ -24,13 +24,17 @@ if (!/--portrait-ratio:\s*720\s*\/\s*1536/.test(html)) {
 if (!html.includes('new URL("Build/", pageUrl)')) {
   throw new Error("WebGL 资源没有使用 GitHub Pages 子路径安全地址");
 }
-if (!html.includes("navigator.serviceWorker.getRegistrations")) {
-  throw new Error("缺少旧 Service Worker 注销逻辑");
+if (!html.includes('new URL("service-worker.js", pageUrl)') ||
+    !html.includes("navigator.serviceWorker.getRegistrations")) {
+  throw new Error("缺少资源缓存 Service Worker 的注册或重新加载时的清理逻辑");
 }
 for (const asset of ["home-stage.css", "home-stage.js", "character-moments.css",
-  "character-moments.js", "lipstick-cursor.svg"]) {
+  "character-moments.js", "lipstick-cursor.svg", "manifest.webmanifest", "favicon.svg",
+  "icons/apple-touch-icon.png"]) {
   if (html.includes(`./${asset}`)) requireFile(join(root, asset));
 }
+const webManifest = JSON.parse(readFileSync(join(root, "manifest.webmanifest"), "utf8"));
+for (const icon of webManifest.icons) requireFile(join(root, icon.src));
 if (!html.includes('id="character-moment"') ||
     !html.includes('./character-moments.js') || !html.includes('./character-moments.css')) {
   throw new Error("首页缺少角色演出层");
@@ -84,6 +88,14 @@ for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
       bytes.subarray(0, 4).toString("hex") !== "1a45dfa3" ||
       bytes.indexOf(Buffer.from([0x53, 0xc0, 0x81, 0x01])) < 0) {
     throw new Error(`透明角色演出文件无效：${name}`);
+  }
+  // Safari/iOS copy: side-by-side colour|alpha HEVC built by scripts/build-packed-video.sh.
+  const packed = join(root, "media", `${name}.packed.mp4`);
+  requireFile(packed);
+  const packedBytes = readFileSync(packed);
+  if (packedBytes.length < 1000 || packedBytes.length >= 100 * 1024 * 1024 ||
+      packedBytes.subarray(4, 8).toString("latin1") !== "ftyp" || packedBytes.indexOf(Buffer.from("hvc1")) < 0) {
+    throw new Error(`iPhone 透明角色演出文件无效：${name}`);
   }
 }
 

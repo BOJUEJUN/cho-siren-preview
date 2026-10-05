@@ -1,0 +1,311 @@
+diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
+index 9df3a7a..df0d92f 100644
+--- a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
++++ b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
+@@ -1,6 +1,23 @@
+ (() => {
+   const root = document.querySelector('#character-moment');
+   const clips = ['catalena-look', 'catalena-whisper', 'catalena-live'];
++  // Safari and every iOS browser drop the alpha channel of VP9 WebM. They get an HEVC
++  // copy packed side by side instead, [colour | PACKED_GAP px | alpha as luma], built
++  // by scripts/build-packed-video.sh and recombined on the GPU in uploadPackedFrame().
++  // ?alphaVideo=packed or ?alphaVideo=webm overrides the choice for testing.
++  const PACKED_GAP = 32;
++  const packedAlpha = (() => {
++    const forced = globalThis.location ? new URL(globalThis.location.href).searchParams.get('alphaVideo') : null;
++    if (forced) return forced === 'packed';
++    const nav = globalThis.navigator || {};
++    const ua = nav.userAgent || '';
++    const appleTouch = /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && nav.maxTouchPoints > 1);
++    const safari = /Version\/[\d.]+.*Safari\//.test(ua) && !/(Chrome|Chromium|CriOS|FxiOS|EdgiOS|Edg|OPR)\//.test(ua);
++    return appleTouch || safari;
++  })();
++  const clipUrl = index => new URL(packedAlpha
++    ? `media/${clips[index]}.packed.mp4?v=20261005-r17a`
++    : `media/${clips[index]}.webm?v=20260928-r10`, document.baseURI).href;
+   let current = null, pending = null, sequence = 0;
+   let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
+   const dispose = item => {
+@@ -37,7 +54,7 @@
+     video.preload = 'auto';
+     video.muted = !withAudio;
+     video.crossOrigin = 'anonymous';
+-    video.src = new URL(`media/${clips[index]}.webm?v=20260928-r10`, document.baseURI).href;
++    video.src = clipUrl(index);
+     const item = { video, index, timeout: 0 };
+     pending = item;
+     root.append(video);
+@@ -81,6 +98,7 @@
+     const video = current?.video;
+     if (!video || video.readyState < 2) return false;
+     if (uploadedVideo === video && uploadedTime === video.currentTime && uploadedTexture === texture) return true;
++    if (packedAlpha) return uploadPackedFrame(gl, texture, video);
+     const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
+     const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
+     const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
+@@ -101,6 +119,121 @@
+       gl.bindTexture(gl.TEXTURE_2D, bound);
+     }
+   }
++  // Draws one packed frame into Unity's texture with the same result as a plain
++  // texSubImage2D of a transparent video (flipped rows, straight alpha). Unity keeps
++  // its own copy of the GL state between frames, so everything touched here is read
++  // first and restored afterwards.
++  const CAPABILITIES = ['BLEND', 'CULL_FACE', 'DEPTH_TEST', 'POLYGON_OFFSET_FILL', 'RASTERIZER_DISCARD',
++    'SAMPLE_ALPHA_TO_COVERAGE', 'SAMPLE_COVERAGE', 'SCISSOR_TEST', 'STENCIL_TEST'];
++  const compositors = new WeakMap();
++  function compositor(gl) {
++    let entry = compositors.get(gl);
++    if (entry) return entry;
++    const shader = (type, source) => {
++      const object = gl.createShader(type);
++      gl.shaderSource(object, source);
++      gl.compileShader(object);
++      if (!gl.getShaderParameter(object, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(object));
++      return object;
++    };
++    const program = gl.createProgram();
++    gl.attachShader(program, shader(gl.VERTEX_SHADER, `#version 300 es
++void main() {
++  gl_Position = vec4(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0, 0.0, 1.0);
++}`));
++    gl.attachShader(program, shader(gl.FRAGMENT_SHADER, `#version 300 es
++precision highp float;
++uniform highp sampler2D uFrame;
++uniform ivec3 uPacking;  // colour width, height, first alpha column
++uniform bool uLinear;    // sRGB target: write linear values so the stored bytes match a plain upload
++out vec4 outColor;
++void main() {
++  ivec2 p = ivec2(gl_FragCoord.xy);
++  ivec2 texel = ivec2(p.x, uPacking.y - 1 - p.y);
++  vec3 rgb = texelFetch(uFrame, texel, 0).rgb;
++  float alpha = texelFetch(uFrame, texel + ivec2(uPacking.z, 0), 0).g;
++  alpha = clamp((alpha - 2.0 / 255.0) * (255.0 / 251.0), 0.0, 1.0);
++  if (uLinear) rgb = mix(rgb / 12.92, pow((rgb + 0.055) / 1.055, vec3(2.4)), step(0.04045, rgb));
++  outColor = vec4(rgb, alpha);
++}`));
++    gl.linkProgram(program);
++    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
++    entry = { program, frame: gl.createTexture(), framebuffer: gl.createFramebuffer(),
++      vertexArray: gl.createVertexArray(), width: 0, height: 0,
++      uFrame: gl.getUniformLocation(program, 'uFrame'), uPacking: gl.getUniformLocation(program, 'uPacking'),
++      uLinear: gl.getUniformLocation(program, 'uLinear') };
++    compositors.set(gl, entry);
++    return entry;
++  }
++  function uploadPackedFrame(gl, texture, video) {
++    const width = (video.videoWidth - PACKED_GAP) / 2, height = video.videoHeight;
++    if (!Number.isInteger(width) || width <= 0 || !height) return false;
++    const saved = {
++      activeTexture: gl.getParameter(gl.ACTIVE_TEXTURE),
++      framebuffer: gl.getParameter(gl.DRAW_FRAMEBUFFER_BINDING),
++      viewport: gl.getParameter(gl.VIEWPORT),
++      program: gl.getParameter(gl.CURRENT_PROGRAM),
++      vertexArray: gl.getParameter(gl.VERTEX_ARRAY_BINDING),
++      unpackBuffer: gl.getParameter(gl.PIXEL_UNPACK_BUFFER_BINDING),
++      flipped: gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL),
++      premultiplied: gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL),
++      colorMask: gl.getParameter(gl.COLOR_WRITEMASK),
++      enabled: CAPABILITIES.map(name => gl.isEnabled(gl[name]))
++    };
++    gl.activeTexture(gl.TEXTURE0);
++    saved.texture = gl.getParameter(gl.TEXTURE_BINDING_2D);
++    saved.sampler = gl.getParameter(gl.SAMPLER_BINDING);
++    try {
++      const c = compositor(gl);
++      gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, null);
++      gl.bindSampler(0, null);
++      gl.bindTexture(gl.TEXTURE_2D, c.frame);
++      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
++      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
++      if (c.width !== video.videoWidth || c.height !== height) {
++        for (const name of ['TEXTURE_MIN_FILTER', 'TEXTURE_MAG_FILTER']) gl.texParameteri(gl.TEXTURE_2D, gl[name], gl.NEAREST);
++        for (const name of ['TEXTURE_WRAP_S', 'TEXTURE_WRAP_T']) gl.texParameteri(gl.TEXTURE_2D, gl[name], gl.CLAMP_TO_EDGE);
++        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, video);
++        c.width = video.videoWidth; c.height = height;
++      } else {
++        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
++      }
++      gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, c.framebuffer);
++      gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
++      if (gl.checkFramebufferStatus(gl.DRAW_FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('target not renderable');
++      const srgb = gl.getFramebufferAttachmentParameter(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
++        gl.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING) === gl.SRGB;
++      for (const name of CAPABILITIES) gl.disable(gl[name]);
++      gl.colorMask(true, true, true, true);
++      gl.viewport(0, 0, width, height);
++      gl.useProgram(c.program);
++      gl.uniform1i(c.uFrame, 0);
++      gl.uniform3i(c.uPacking, width, height, width + PACKED_GAP);
++      gl.uniform1i(c.uLinear, srgb ? 1 : 0);
++      gl.bindVertexArray(c.vertexArray);
++      gl.drawArrays(gl.TRIANGLES, 0, 3);
++      gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
++      uploadedVideo = video; uploadedTime = video.currentTime; uploadedTexture = texture;
++      root.dataset.renderedFrame = String(video.currentTime);
++      return true;
++    } catch (_) {
++      close();
++      return false;
++    } finally {
++      gl.bindVertexArray(saved.vertexArray);
++      gl.useProgram(saved.program);
++      gl.viewport(saved.viewport[0], saved.viewport[1], saved.viewport[2], saved.viewport[3]);
++      gl.colorMask(saved.colorMask[0], saved.colorMask[1], saved.colorMask[2], saved.colorMask[3]);
++      CAPABILITIES.forEach((name, i) => saved.enabled[i] ? gl.enable(gl[name]) : gl.disable(gl[name]));
++      gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, saved.framebuffer);
++      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, saved.flipped);
++      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, saved.premultiplied);
++      gl.bindTexture(gl.TEXTURE_2D, saved.texture);
++      gl.bindSampler(0, saved.sampler);
++      gl.bindBuffer(gl.PIXEL_UNPACK_BUFFER, saved.unpackBuffer);
++      gl.activeTexture(saved.activeTexture);
++    }
++  }
+   document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
+   window.choSirenCharacter = {
+     play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
+diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
+index 4847806..860cce0 100644
+--- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
++++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
+@@ -6,10 +6,15 @@
+     <meta name="theme-color" content="#08061f">
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="mobile-web-app-capable" content="yes">
++    <meta name="apple-mobile-web-app-title" content="幻域魅声">
++    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+     <meta http-equiv="Pragma" content="no-cache">
+     <meta http-equiv="Expires" content="0">
+     <title>CHO-SIREN 幻域魅声</title>
++    <link rel="manifest" href="./manifest.webmanifest">
++    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
++    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+     <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
+     <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
+     <style>
+@@ -148,6 +153,17 @@
+         transition: width 120ms linear;
+       }
+ 
++      .loading-note {
++        justify-self: center;
++        max-width: min(78vw, 300px);
++        min-height: 2.9em;
++        color: rgba(255, 255, 255, 0.58);
++        font-size: 11px;
++        line-height: 1.45;
++        letter-spacing: 0.04em;
++        white-space: pre-line;
++      }
++
+       #warning {
+         position: absolute;
+         z-index: 5;
+@@ -210,33 +226,54 @@
+         <div class="brand">CHO-SIREN</div>
+         <div class="subtitle">幻域魅声 · 正在进入舞台</div>
+         <div class="track"><div id="progress"></div></div>
++        <div id="loading-note" class="loading-note"></div>
+       </div>
+     </main>
+ 
+     <script src="./home-stage.js?v=20260928-r12a"></script>
+-    <script src="./character-moments.js?v=20260928-r12a"></script>
++    <script src="./character-moments.js?v=20261005-r17a"></script>
+     <script>
+       const pageUrl = new URL("./", document.baseURI);
+-      // Retire the service worker used by the earlier HTML prototype.  Its root
+-      // scope would otherwise be able to keep serving stale pre-Unity assets to
+-      // returning players after this site is upgraded to the WebGL build.
+-      if ("serviceWorker" in navigator) {
++      const retryToken = new URL(window.location.href).searchParams.get("retry");
++      const assetCacheName = "cho-siren-assets-1";
++      const workers = "serviceWorker" in navigator ? navigator.serviceWorker : null;
++      // service-worker.js keeps the content-addressed game files (the Unity build and
++      // hashed StreamingAssets art) so returning players start from local storage; it
++      // never caches this page or any manifest. A ?retry= load starts clean instead:
++      // it drops this game's worker and cache, never another project's.
++      let assetWorker = Promise.resolve(null);
++      if (retryToken && workers) {
+         navigator.serviceWorker.getRegistrations()
+           .then(registrations => Promise.all(registrations
+             .filter(registration => registration.scope === pageUrl.href)
+             .map(registration => registration.unregister())))
+           .catch(() => {});
++      } else if (workers && workers.register) {
++        assetWorker = workers.register(new URL("service-worker.js", pageUrl).href,
++          { scope: pageUrl.href, updateViaCache: "none" }).catch(() => null);
+       }
+       if ("caches" in window) {
+         caches.keys()
+-          .then(keys => Promise.all(keys.filter(key => key.startsWith("cho-siren-")).map(key => caches.delete(key))))
++          .then(keys => Promise.all(keys
++            .filter(key => /^cho-siren-v\d+$/.test(key) || (retryToken && key === assetCacheName))
++            .map(key => caches.delete(key))))
+           .catch(() => {});
+       }
++      // On a first visit, give the new worker up to 1.5 s to take control so that
++      // this very load already fills the cache.
++      const assetWorkerControl = !workers || !workers.register || retryToken || workers.controller
++        ? Promise.resolve()
++        : new Promise(resolve => {
++          workers.addEventListener("controllerchange", resolve, { once: true });
++          assetWorker.then(registration => { if (!registration) resolve(); });
++          window.setTimeout(resolve, 1500);
++        });
+ 
+       const shell = document.querySelector("#game-shell");
+       const canvas = document.querySelector("#unity-canvas");
+       const loading = document.querySelector("#loading");
+       const progress = document.querySelector("#progress");
++      const loadingNote = document.querySelector("#loading-note");
+       const warning = document.querySelector("#warning");
+       const warningText = document.querySelector("#warning-text");
+       const retry = document.querySelector("#retry");
+@@ -275,7 +312,6 @@
+ 
+       // All URLs stay relative to the document so GitHub Pages project paths work.
+       const buildUrl = new URL("Build/", pageUrl);
+-      const retryToken = new URL(window.location.href).searchParams.get("retry");
+       const buildAssetUrl = filename => {
+         const url = new URL(filename, buildUrl);
+         if (retryToken) url.searchParams.set("retry", retryToken);
+@@ -302,6 +338,8 @@
+         try {
+           window.choSirenUnityInstance = await createUnityInstance(canvas, config, value => {
+           progress.style.width = `${Math.round(value * 100)}%`;
++          // Downloads end at 0.9; the rest is decompression and engine start-up.
++          if (value >= 0.9) loadingNote.textContent = "资源已就绪，正在解压并启动游戏（不消耗流量）…";
+           });
+           loading.classList.add("is-hidden");
+         } catch (error) { showBanner(String(error), "error"); }
+@@ -333,12 +371,27 @@
+           config.frameworkUrl = asset(".framework.js.unityweb");
+           config.codeUrl = asset(".wasm.unityweb");
+           loader.src = asset(".loader.js");
++          // Cached files of any other Unity build can go.
++          const previous = Array.isArray(version.previous) ? version.previous.filter(file => safe.test(file)) : [];
++          workers?.controller?.postMessage({ type: "keep-builds", files: [...files, ...previous] });
+         } catch (_) {
+           // Offline, slow, or older host: the embedded complete bundle remains valid.
+           // Publication retains the preceding bundle at these immutable URLs.
+         } finally { window.clearTimeout(timeout); }
++        await showDownloadNote();
++        await assetWorkerControl;
+         document.body.appendChild(loader);
+       }
++      async function showDownloadNote() {
++        let cached = false;
++        try {
++          if (!retryToken && "caches" in window) {
++            cached = Boolean(await caches.match(config.dataUrl, { cacheName: assetCacheName }));
++          }
++        } catch (_) {}
++        loadingNote.textContent = cached ? "正在从本机缓存载入…"
++          : "首次进入需下载约 150MB 资源，建议连接 Wi-Fi" + (workers ? "\n下次打开直接读取本机缓存" : "");
++      }
+       const trailHost = document.querySelector("#game-shell");
+       let lastLipstickPoint = null;
+       canvas.addEventListener("pointermove", event => {
