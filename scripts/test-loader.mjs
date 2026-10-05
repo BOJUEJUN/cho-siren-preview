@@ -11,7 +11,7 @@ const embedded = [...html.matchAll(/buildAssetUrl\("([^"\r\n]+)"\)/g)].map(match
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
 async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old",
-  controlled = true, registerFails = false } = {}) {
+  controlled = true, registerFails = false, lobbyReady = true } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
     registered = [], messages = [];
   let timerId = 0;
@@ -37,6 +37,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       })) } },
     window: { setTimeout: callback => { timers.set(++timerId, callback); return timerId; },
       clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
+      choSirenStage: { active: lobbyReady },
       location: { href: pageHref, replace: url => calls.push({ redirect: url }) } },
     fetch: async (url, options) => {
       requests.push({ url, options });
@@ -135,8 +136,39 @@ test('the worker is told to keep the current and previous builds only', async ()
 
 test('download progress hands over to a no-traffic start-up message', async () => {
   const run = await boot();
+  const notes = [];
+  Object.defineProperty(run.elements.get('#loading-note'), 'textContent', { set: text => notes.push(text), get: () => notes.at(-1) });
   await run.appends[0].onload();
-  assert.match(run.elements.get('#loading-note').textContent, /解压.*不消耗流量/);
+  assert.ok(notes.some(text => /解压.*不消耗流量/.test(text)), notes.join(' | '));
+});
+
+test('one loading screen stays up through Unity\'s own asset loading until the lobby is live', async () => {
+  const run = await boot({ lobbyReady: false });
+  const started = run.appends[0].onload();
+  await flush(); await flush();
+  const loading = run.elements.get('#loading'), bar = run.elements.get('#progress').style;
+  assert.ok(!loading.classes.includes('is-hidden'));
+  const engineDone = parseInt(bar.width, 10);
+  assert.ok(engineDone >= 70 && engineDone < 100, bar.width);
+  assert.match(run.elements.get('#loading-note').textContent, /自动进入大厅/);
+  for (let i = 0; i < 20; i++) for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
+  assert.ok(parseInt(bar.width, 10) > engineDone && parseInt(bar.width, 10) < 100, bar.width);
+  assert.ok(!loading.classes.includes('is-hidden'));
+  run.context.window.choSirenStage.active = true;
+  for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
+  await started;
+  assert.equal(bar.width, '100%');
+  assert.equal(run.elements.get('#loading-status').textContent, '正在载入舞台资源 · 100%');
+  assert.ok(loading.classes.includes('is-hidden'));
+});
+
+test('the loading screen gives up waiting for the lobby after a minute', async () => {
+  const run = await boot({ lobbyReady: false });
+  const started = run.appends[0].onload();
+  await flush(); await flush();
+  for (let i = 0; i < 500 && run.timers.size; i++) for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
+  await started;
+  assert.ok(run.elements.get('#loading').classes.includes('is-hidden'));
 });
 
 test('WASM error remains actionable even if a warning or old timer follows', async () => {

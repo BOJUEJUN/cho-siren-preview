@@ -15,6 +15,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+    <link rel="preload" href="./media/loading-stage.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
     <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
     <style>
@@ -107,15 +108,23 @@
         .lipstick-trail { display: none; }
       }
 
+      /* The only loading screen players see: it covers the Unity splash and Unity's
+         own asset-loading scene, and lifts once the lobby is live. Sizes follow the
+         720-wide shell (cqw), with fixed fallbacks for browsers without them. */
+      #game-shell { container-type: inline-size; }
+
       #loading {
         position: absolute;
         inset: 0;
-        display: grid;
-        place-content: center;
-        gap: 16px;
+        z-index: 4;
         text-align: center;
-        background: linear-gradient(180deg, rgba(13, 9, 44, 0.96), rgba(7, 5, 29, 0.98));
-        transition: opacity 240ms ease;
+        background:
+          radial-gradient(ellipse 56% 30% at 50% 36%, rgba(146, 64, 206, 0.62), rgba(146, 64, 206, 0) 72%),
+          radial-gradient(ellipse 64% 10% at 50% 65.5%, rgba(12, 5, 38, 0.62), rgba(12, 5, 38, 0) 100%),
+          linear-gradient(180deg, rgba(8, 6, 31, 0) 55%, rgba(8, 6, 31, 0.55) 100%),
+          url("./media/loading-stage.webp") center / cover no-repeat,
+          #0b0828;
+        transition: opacity 420ms ease;
       }
 
       #loading.is-hidden {
@@ -123,45 +132,87 @@
         pointer-events: none;
       }
 
+      .loading-title {
+        position: absolute;
+        top: 28%;
+        left: 0;
+        right: 0;
+        display: grid;
+        gap: 10px;
+        justify-items: center;
+      }
+
       .brand {
+        color: #ff9fd6;
+        font-size: 12px;
+        font-size: 2.3cqw;
+        font-weight: 700;
+        letter-spacing: 0.32em;
+      }
+
+      .loading-name {
         color: #fff;
-        font-size: clamp(18px, 3.2vw, 28px);
-        font-weight: 750;
-        letter-spacing: 0.12em;
+        font-size: 38px;
+        font-size: 9.4cqw;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-shadow: 0 0 18px rgba(214, 120, 255, 0.85), 0 2px 6px rgba(20, 0, 40, 0.6);
       }
 
       .subtitle {
-        color: rgba(255, 255, 255, 0.62);
-        font-size: 12px;
-        letter-spacing: 0.18em;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 13px;
+        font-size: 2.9cqw;
+        letter-spacing: 0.24em;
+      }
+
+      .loading-progress {
+        position: absolute;
+        top: 61%;
+        left: 0;
+        right: 0;
+        display: grid;
+        gap: 12px;
+        justify-items: center;
       }
 
       .track {
-        width: min(52vw, 260px);
-        height: 5px;
+        width: 66%;
+        height: 8px;
         overflow: hidden;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.14);
+        background: rgba(20, 10, 48, 0.62);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
       }
 
       #progress {
         width: 0;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, #9c6cff, var(--accent));
-        box-shadow: 0 0 18px rgba(255, 105, 191, 0.75);
-        transition: width 120ms linear;
+        background: linear-gradient(90deg, #ff7cc8, var(--accent));
+        box-shadow: 0 0 14px rgba(255, 105, 191, 0.8);
+        transition: width 260ms ease-out;
+      }
+
+      .loading-status {
+        color: #fff;
+        font-size: 13px;
+        font-size: 2.9cqw;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-shadow: 0 1px 4px rgba(20, 0, 40, 0.7);
       }
 
       .loading-note {
-        justify-self: center;
-        max-width: min(78vw, 300px);
+        max-width: 78%;
         min-height: 2.9em;
-        color: rgba(255, 255, 255, 0.58);
+        color: rgba(255, 255, 255, 0.8);
         font-size: 11px;
+        font-size: 2.3cqw;
         line-height: 1.45;
         letter-spacing: 0.04em;
         white-space: pre-line;
+        text-shadow: 0 1px 3px rgba(20, 0, 40, 0.7);
       }
 
       #warning {
@@ -223,10 +274,16 @@
         <button id="retry" type="button">重新加载</button>
       </div>
       <div id="loading">
-        <div class="brand">CHO-SIREN</div>
-        <div class="subtitle">幻域魅声 · 正在进入舞台</div>
-        <div class="track"><div id="progress"></div></div>
-        <div id="loading-note" class="loading-note"></div>
+        <div class="loading-title">
+          <div class="brand">CHO-SIREN</div>
+          <div class="loading-name">幻域魅声</div>
+          <div class="subtitle">通往舞台的星途</div>
+        </div>
+        <div class="loading-progress">
+          <div class="track"><div id="progress"></div></div>
+          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
+          <div id="loading-note" class="loading-note"></div>
+        </div>
       </div>
     </main>
 
@@ -274,6 +331,7 @@
       const loading = document.querySelector("#loading");
       const progress = document.querySelector("#progress");
       const loadingNote = document.querySelector("#loading-note");
+      const loadingStatus = document.querySelector("#loading-status");
       const warning = document.querySelector("#warning");
       const warningText = document.querySelector("#warning-text");
       const retry = document.querySelector("#retry");
@@ -334,13 +392,52 @@
 
       const loader = document.createElement("script");
       loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
+      // One bar from first byte to the lobby: the engine download and start-up fill it
+      // to 70 %, Unity's own asset loading (running hidden underneath, together with
+      // the Unity splash) moves it towards 98 %, and the lobby going live completes it.
+      let shownProgress = 0;
+      function showProgress(value) {
+        shownProgress = Math.max(shownProgress, Math.min(1, value));
+        const percent = Math.round(shownProgress * 100);
+        progress.style.width = `${percent}%`;
+        loadingStatus.textContent = `正在载入舞台资源 · ${percent}%`;
+      }
+      // Every StreamingAssets file Unity finishes nudges the bar, plus a slow creep so it
+      // never stalls. The lobby going active ends the wait; a minute is the upper bound
+      // in case a future build opens on another screen.
+      function untilLobbyReady() {
+        loadingNote.textContent = "正在准备舞台与界面素材，完成后自动进入大厅";
+        return new Promise(resolve => {
+          let files = 0, ticks = 0, observer = null;
+          if (typeof PerformanceObserver === "function") {
+            try {
+              observer = new PerformanceObserver(list => {
+                files += list.getEntries().filter(entry => entry.name.includes("/StreamingAssets/")).length;
+              });
+              observer.observe({ type: "resource", buffered: true });
+            } catch (_) { observer = null; }
+          }
+          const check = () => {
+            showProgress(0.7 + 0.28 * (1 - Math.exp(-(files + ticks * 0.05) / 15)));
+            if (window.choSirenStage?.active || ++ticks > 400) {
+              if (observer) observer.disconnect();
+              resolve();
+            } else {
+              window.setTimeout(check, 150);
+            }
+          };
+          check();
+        });
+      }
       loader.onload = async () => {
         try {
           window.choSirenUnityInstance = await createUnityInstance(canvas, config, value => {
-          progress.style.width = `${Math.round(value * 100)}%`;
+          showProgress(value * 0.7);
           // Downloads end at 0.9; the rest is decompression and engine start-up.
           if (value >= 0.9) loadingNote.textContent = "资源已就绪，正在解压并启动游戏（不消耗流量）…";
           });
+          await untilLobbyReady();
+          showProgress(1);
           loading.classList.add("is-hidden");
         } catch (error) { showBanner(String(error), "error"); }
       };

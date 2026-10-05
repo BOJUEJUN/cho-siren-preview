@@ -30,7 +30,7 @@ if (!html.includes('new URL("service-worker.js", pageUrl)') ||
 }
 for (const asset of ["home-stage.css", "home-stage.js", "character-moments.css",
   "character-moments.js", "lipstick-cursor.svg", "manifest.webmanifest", "favicon.svg",
-  "icons/apple-touch-icon.png"]) {
+  "icons/apple-touch-icon.png", "media/loading-stage.webp"]) {
   if (html.includes(`./${asset}`)) requireFile(join(root, asset));
 }
 const webManifest = JSON.parse(readFileSync(join(root, "manifest.webmanifest"), "utf8"));
