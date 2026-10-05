@@ -15,6 +15,15 @@ requireFile(indexPath);
 requireFile(join(root, ".nojekyll"));
 
 const html = readFileSync(indexPath, "utf8");
+// Every release shows its number on the loading screen; it must match release.json.
+const release = JSON.parse(readFileSync(join(root, "release.json"), "utf8"));
+const releaseCode = (String(release.releaseId).match(/R\d+[A-Z]?$/) || [])[0];
+const versionLabel = `v${release.version} · ${releaseCode}`;
+const packageVersion = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
+if (!releaseCode || !html.includes(`>${versionLabel}<`) ||
+    !html.includes(`productVersion: "${release.version}"`) || packageVersion !== release.version) {
+  throw new Error(`版本号不一致：加载页、productVersion、package.json 应与 release.json 的 ${versionLabel} 相同`);
+}
 if (!/<canvas[^>]+width="720"[^>]+height="1536"/.test(html)) {
   throw new Error("WebGL 画布不是 720×1536 竖屏尺寸");
 }

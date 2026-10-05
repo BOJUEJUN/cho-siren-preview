@@ -1,0 +1,40 @@
+{
+  "version": "0.3.8",
+  "releaseId": "PSD-20260929-HOME-R17",
+  "name": "原稿区域文字循环与蓝白唱片转场",
+  "date": "2026-09-29",
+  "sourceCommit": "cb77657",
+  "sourceState": "scoped working-tree snapshot; unrelated existing work preserved",
+  "sourceSnapshotSha256": "8df2ebc7d30c0c9e7b5874173db2e5f805ab7408db5b08e37f7550b6002dda7c",
+  "previousReleaseId": "PSD-20260929-BATTLE-R16",
+  "previousWebCommit": "2565f90",
+  "previousReleaseRecord": "releases/R16.json",
+  "savePolicy": "保留现有存档与进度；自动测试保存和恢复隔离存档。",
+  "validation": {
+    "cleanWebGLBuild": true,
+    "focusedUnityPlayModePassed": 21,
+    "loaderRegressionTestsPassed": 15,
+    "characterLifecycleTestsPassed": 7,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": true,
+    "physicalMobileDeviceTested": false,
+    "transitionSeconds": 0.76,
+    "sceneSwitchSeconds": 0.29,
+    "localInteractions": [
+      "authored logo moves within original left region",
+      "current character used in transition",
+      "both characters enter map successfully",
+      "return to home input works",
+      "no browser console errors"
+    ],
+    "publicInteractions": [
+      "R17 root loaded",
+      "title loops only inside authored left-hand bounds",
+      "current character blue duotone transition opens map",
+      "return to home works",
+      "stage overlay hidden immediately",
+      "no browser console errors"
+    ]
+  },
+  "visualStatus": "Public root verified after Pages/quality success for 32627a9. Recorded complete transition into map and return to home. Two character variants checked in local WebGL. Physical mobile devices untested."
+}

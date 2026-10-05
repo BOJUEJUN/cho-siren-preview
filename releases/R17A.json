@@ -1,0 +1,24 @@
+{
+  "version": "0.3.8",
+  "releaseId": "WEB-20261005-CACHE-IOS-R17A",
+  "name": "本机缓存、iPhone 角色视频与主屏幕安装",
+  "date": "2026-10-05",
+  "webCommit": "54e9779",
+  "backupBranch": "backup/R17A",
+  "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
+  "sourceCommit": "cb77657",
+  "previousReleaseId": "PSD-20260929-HOME-R17",
+  "previousWebCommit": "8ac56ef",
+  "previousReleaseRecord": "releases/R17.json",
+  "previousBackupBranch": "backup/R17",
+  "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
+  "validation": {
+    "loaderRegressionTestsPassed": 25,
+    "characterLifecycleTestsPassed": 11,
+    "localWebGLRuntimeVerified": true,
+    "publicPagesDeployment": "success",
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 验证回访 0 次下载哈希资源、iPhone 合成路径同帧无色差；线上页面未从本环境访问（网络策略拦截 github.io）。"
+}

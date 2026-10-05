@@ -1,5 +1,12 @@
 # CHO-SIREN 网页版本
 
+## WEB-20261005-RELEASE-LOG-R17C — 2026-10-05 版本号显示与上线备份
+
+- 加载页右下角显示当前上线版本「v0.3.8 · R17C」，发布检查要求它与 release.json、productVersion、package.json 一致，避免上线了却忘记改编号。
+- 每个上线版本建一条备份分支 `backup/<编号>`，已补 `backup/R17`、`backup/R17A`、`backup/R17B`；本环境不允许推送 Git 标签，所以用分支备份。回退方法写在 CLAUDE.md。
+- 补齐发布记录：`releases/R17.json`（原 release.json）、`releases/R17A.json`、`releases/R17B.json`；`release.json` 现为 R17C。
+- 新增 CLAUDE.md，写明用户授权的上线流程：改动验证后直接合并 main，升编号、写记录、建备份分支、确认 Pages 发布成功。
+
 ## WEB-20261005-ONE-LOADER-R17B — 2026-10-05 合并为一个加载页
 
 - 之前进游戏会看到三段：网页加载条 → Unity「Made with Unity」启动画面 → 游戏内「正在载入舞台资源」第二个加载页（中间还有只写「演出」的占位方块）。现在网页加载页一直盖到大厅真正激活（`choSirenStage.active`）才淡出，Unity 启动画面和游戏内加载在下面跑完，玩家只看到一个加载页；最多等 60 秒兜底。

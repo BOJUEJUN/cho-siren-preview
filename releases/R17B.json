@@ -1,22 +1,24 @@
 {
   "version": "0.3.8",
-  "releaseId": "WEB-20261005-RELEASE-LOG-R17C",
-  "name": "加载页显示版本号，上线记录与备份分支",
+  "releaseId": "WEB-20261005-ONE-LOADER-R17B",
+  "name": "合并为一个加载页",
   "date": "2026-10-05",
-  "backupBranch": "backup/R17C",
+  "webCommit": "3edfb4c",
+  "backupBranch": "backup/R17B",
   "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
   "sourceCommit": "cb77657",
-  "previousReleaseId": "WEB-20261005-ONE-LOADER-R17B",
-  "previousWebCommit": "3edfb4c",
-  "previousReleaseRecord": "releases/R17B.json",
-  "previousBackupBranch": "backup/R17B",
+  "previousReleaseId": "WEB-20261005-CACHE-IOS-R17A",
+  "previousWebCommit": "54e9779",
+  "previousReleaseRecord": "releases/R17A.json",
+  "previousBackupBranch": "backup/R17A",
   "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
   "validation": {
     "loaderRegressionTestsPassed": 27,
     "characterLifecycleTestsPassed": 11,
     "localWebGLRuntimeVerified": true,
+    "publicPagesDeployment": "success",
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "加载页右下角显示 v0.3.8 · R17C；发布检查要求它与本文件一致。"
+  "visualStatus": "本地 Chromium 每秒截图确认首访与回访只出现一个加载页，大厅激活时淡出。"
 }

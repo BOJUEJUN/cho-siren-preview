@@ -215,6 +215,16 @@
         text-shadow: 0 1px 3px rgba(20, 0, 40, 0.7);
       }
 
+      /* Live release number (release.json); scripts/verify-webgl.mjs keeps them equal. */
+      .loading-version {
+        position: absolute;
+        right: 12px;
+        bottom: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+      }
+
       #warning {
         position: absolute;
         z-index: 5;
@@ -284,6 +294,7 @@
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
         </div>
+        <div id="loading-version" class="loading-version">v0.3.8 · R17C</div>
       </div>
     </main>
 
