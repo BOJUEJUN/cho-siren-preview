@@ -38,7 +38,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
     window: { setTimeout: callback => { timers.set(++timerId, callback); return timerId; },
       clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
       choSirenStage: { active: lobbyReady },
-      location: { href: pageHref, replace: url => calls.push({ redirect: url }) } },
+      location: { href: pageHref, replace: url => calls.push({ redirect: url }), reload: () => calls.push({ reload: true }) } },
     fetch: async (url, options) => {
       requests.push({ url, options });
       if (pending) await new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('timeout'))));
@@ -330,4 +330,16 @@ test('browser double-click reaches the homepage gesture owner only while home is
   run.elements.get('#unity-canvas').listeners.dblclick();
   assert.deepEqual(sent, [['PsdHome20260921', 'ToggleUiFromBrowser']]);
   assert.ok(!html.includes('id="character-dialogue"'), 'No independent dialogue UI should appear over the character');
+});
+
+test('a lost WebGL context offers a plain reload that keeps the cached game files', async () => {
+  const run = await boot();
+  await run.appends[0].onload();
+  run.elements.get('#unity-canvas').listeners.webglcontextlost();
+  assert.equal(run.elements.get('#warning').style.display, 'block');
+  assert.match(run.elements.get('#warning-text').textContent, /后台/);
+  assert.equal(run.elements.get('#retry').style.display, 'block');
+  run.elements.get('#retry').listeners.click();
+  assert.deepEqual(run.calls.at(-1), { reload: true });
+  assert.ok(!run.calls.some(call => call.redirect));
 });

@@ -324,7 +324,7 @@ index 9df3a7a..57c0fe3 100644
    window.choSirenCharacter = {
      play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
-index 4847806..4c4d92a 100644
+index 4847806..5c874d2 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 @@ -6,10 +6,16 @@
@@ -532,7 +532,18 @@ index 4847806..4c4d92a 100644
        }
  
        #warning {
-@@ -207,36 +310,66 @@
+@@ -165,6 +268,10 @@
+         overflow-wrap: anywhere;
+         max-height: calc(100% - 24px);
+         overflow-y: auto;
++        /* The game area blocks touch gestures and selection; messages stay scrollable and copyable. */
++        touch-action: pan-y;
++        -webkit-user-select: text;
++        user-select: text;
+       }
+ 
+       #retry {
+@@ -207,36 +314,66 @@
          <button id="retry" type="button">重新加载</button>
        </div>
        <div id="loading">
@@ -549,7 +560,7 @@ index 4847806..4c4d92a 100644
 +          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
 +          <div id="loading-note" class="loading-note"></div>
 +        </div>
-+        <div id="loading-version" class="loading-version">v0.3.13</div>
++        <div id="loading-version" class="loading-version">v0.3.14</div>
        </div>
      </main>
  
@@ -608,7 +619,29 @@ index 4847806..4c4d92a 100644
        const warning = document.querySelector("#warning");
        const warningText = document.querySelector("#warning-text");
        const retry = document.querySelector("#retry");
-@@ -275,7 +408,6 @@
+@@ -267,7 +404,21 @@
+         }
+       }
+ 
++      // iOS can take the game's WebGL context away while the page sits in the
++      // background, and Unity cannot rebuild it: the screen goes black or freezes.
++      // A plain reload brings it back quickly from the cached game files, unlike the
++      // network-only retry used for failed downloads.
++      let contextLost = false;
++      canvas.addEventListener("webglcontextlost", () => {
++        contextLost = true;
++        showBanner("游戏画面被系统收回了（通常是在后台放得太久）。点下面的按钮重新载入即可。", "error");
++      });
++
+       retry.addEventListener("click", () => {
++        if (contextLost) {
++          window.location.reload();
++          return;
++        }
+         const refreshed = new URL(window.location.href);
+         refreshed.searchParams.set("retry", Date.now().toString(36));
+         window.location.replace(refreshed.href);
+@@ -275,7 +426,6 @@
  
        // All URLs stay relative to the document so GitHub Pages project paths work.
        const buildUrl = new URL("Build/", pageUrl);
@@ -616,16 +649,16 @@ index 4847806..4c4d92a 100644
        const buildAssetUrl = filename => {
          const url = new URL(filename, buildUrl);
          if (retryToken) url.searchParams.set("retry", retryToken);
-@@ -290,7 +422,7 @@
+@@ -290,7 +440,7 @@
          streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
          companyName: "CHO-SIREN Studio",
          productName: "CHO-SIREN 幻域魅声",
 -        productVersion: "0.3.8",
-+        productVersion: "0.3.13",
++        productVersion: "0.3.14",
          showBanner,
          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
          matchWebGLToCanvasSize: true
-@@ -298,11 +430,52 @@
+@@ -298,11 +448,52 @@
  
        const loader = document.createElement("script");
        loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
@@ -679,7 +712,7 @@ index 4847806..4c4d92a 100644
            loading.classList.add("is-hidden");
          } catch (error) { showBanner(String(error), "error"); }
        };
-@@ -333,12 +506,27 @@
+@@ -333,12 +524,27 @@
            config.frameworkUrl = asset(".framework.js.unityweb");
            config.codeUrl = asset(".wasm.unityweb");
            loader.src = asset(".loader.js");

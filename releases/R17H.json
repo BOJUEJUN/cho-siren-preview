@@ -1,0 +1,23 @@
+{
+  "version": "0.3.13",
+  "releaseId": "WEB-20261006-UNLOCK-R17H",
+  "name": "iPhone 严格播放模式下点角色也有动画：点击时预先解锁播放器",
+  "date": "2026-10-06",
+  "backupBranch": "backup/v0.3.13",
+  "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
+  "sourceCommit": "cb77657",
+  "previousReleaseId": "WEB-20261006-CLIPFIX-R17G",
+  "previousWebCommit": "273400f",
+  "previousReleaseRecord": "releases/R17G.json",
+  "previousBackupBranch": "backup/v0.3.12",
+  "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
+  "validation": {
+    "loaderRegressionTestsPassed": 27,
+    "characterLifecycleTestsPassed": 16,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "Chromium 模拟 iPhone 严格播放模式（不在点击中调用的 play() 一律拒绝）：v0.3.12 点角色两次播放都被拒、没有动画；本版点击时解锁备用播放器，动画带声音播放。播放中再点屏幕不会让当前动画暂停。iPhone 设置 + 触摸走查大厅全部 11 个入口，画面正常、控制台无报错。未在实体 iPhone 上验证。"
+}

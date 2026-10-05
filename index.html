@@ -268,6 +268,10 @@
         overflow-wrap: anywhere;
         max-height: calc(100% - 24px);
         overflow-y: auto;
+        /* The game area blocks touch gestures and selection; messages stay scrollable and copyable. */
+        touch-action: pan-y;
+        -webkit-user-select: text;
+        user-select: text;
       }
 
       #retry {
@@ -320,7 +324,7 @@
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
         </div>
-        <div id="loading-version" class="loading-version">v0.3.13</div>
+        <div id="loading-version" class="loading-version">v0.3.14</div>
       </div>
     </main>
 
@@ -400,7 +404,21 @@
         }
       }
 
+      // iOS can take the game's WebGL context away while the page sits in the
+      // background, and Unity cannot rebuild it: the screen goes black or freezes.
+      // A plain reload brings it back quickly from the cached game files, unlike the
+      // network-only retry used for failed downloads.
+      let contextLost = false;
+      canvas.addEventListener("webglcontextlost", () => {
+        contextLost = true;
+        showBanner("游戏画面被系统收回了（通常是在后台放得太久）。点下面的按钮重新载入即可。", "error");
+      });
+
       retry.addEventListener("click", () => {
+        if (contextLost) {
+          window.location.reload();
+          return;
+        }
         const refreshed = new URL(window.location.href);
         refreshed.searchParams.set("retry", Date.now().toString(36));
         window.location.replace(refreshed.href);
@@ -422,7 +440,7 @@
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.13",
+        productVersion: "0.3.14",
         showBanner,
         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         matchWebGLToCanvasSize: true
