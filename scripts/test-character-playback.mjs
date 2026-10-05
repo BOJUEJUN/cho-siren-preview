@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
 const source=fs.readFileSync(new URL('../character-moments.js',import.meta.url),'utf8');
-function setup(plays=[],globals={}){
+function setup(plays=[],globals={},{webm=false}={}){
   const videos=[],timers=new Map();let id=0;
   const root={dataset:{},append(v){videos.push(v)}};
-  function video(){const events={};return {readyState:3,currentTime:0,events,play(){return plays.shift() || Promise.resolve()},pause(){this.paused=true},load(){},removeAttribute(){},remove(){this.removed=true},addEventListener(k,f){events[k]=f}}}
+  function video(){const events={};return {readyState:3,currentTime:0,events,play(){return plays.shift() || Promise.resolve()},pause(){this.paused=true},load(){},removeAttribute(){},remove(){this.removed=true},addEventListener(k,f){events[k]=f},canPlayType:t=>webm&&t.startsWith('video/webm')?'probably':''}}
   const window={choSirenStage:{active:true}};
   vm.runInNewContext(source,{window,document:{querySelector:()=>root,createElement:()=>video(),addEventListener(){},baseURI:'https://example.test/'},URL,setTimeout:f=>{timers.set(++id,f);return id},clearTimeout:i=>timers.delete(i),...globals});
   return {api:window.choSirenCharacter,root,videos,timers,window};
@@ -32,13 +32,33 @@ test('frame upload preserves Unity GL state and skips duplicate video frame',()=
  });
 
 const iPhone='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/129.0 Mobile/15E148 Safari/604.1';
-test('Safari and iOS load the packed HEVC copy, other browsers keep VP9 alpha',()=>{
- const ios=setup([],{navigator:{userAgent:iPhone}});ios.api.play(0,true);assert.match(ios.videos[0].src,/media\/catalena-look\.packed\.mp4\?v=/);
- const safari=setup([],{navigator:{userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15'}});
- safari.api.play(2,true);assert.match(safari.videos[0].src,/catalena-live\.packed\.mp4/);
- const chrome=setup([],{navigator:{userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36'}});
+test('Safari and iOS load a packed copy (WebM where it plays, else HEVC), other browsers keep VP9 alpha',()=>{
+ const ios=setup([],{navigator:{userAgent:iPhone}},{webm:true});ios.api.play(0,true);assert.match(ios.videos[0].src,/media\/catalena-look\.packed\.webm\?v=/);
+ const oldIos=setup([],{navigator:{userAgent:iPhone}});oldIos.api.play(0,true);assert.match(oldIos.videos[0].src,/media\/catalena-look\.packed\.mp4\?v=/);
+ const safari=setup([],{navigator:{userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15'}},{webm:true});
+ safari.api.play(2,true);assert.match(safari.videos[0].src,/catalena-live\.packed\.webm/);
+ const chrome=setup([],{navigator:{userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36'}},{webm:true});
  chrome.api.play(1,true);assert.match(chrome.videos[0].src,/catalena-whisper\.webm\?v=/);
- const forced=setup([],{location:{href:'https://example.test/?alphaVideo=packed'}});forced.api.play(0,true);assert.match(forced.videos[0].src,/\.packed\.mp4/);
+ const forced=setup([],{location:{href:'https://example.test/?alphaVideo=packed'}});forced.api.play(0,true);assert.match(forced.videos[0].src,/\.packed\.webm/);
+ const forcedMp4=setup([],{location:{href:'https://example.test/?alphaVideo=packed-mp4'}},{webm:true});forcedMp4.api.play(0,true);assert.match(forcedMp4.videos[0].src,/\.packed\.mp4/);
+});
+
+test('a packed copy that fails to load hands over to the next one; the last failure leaves the portrait',()=>{
+ const {api,videos,root}=setup([],{navigator:{userAgent:iPhone}},{webm:true});
+ api.play(0,true);videos[0].events.error();
+ assert.equal(videos[0].removed,true);assert.match(videos[1].src,/catalena-look\.packed\.mp4/);assert.equal(root.dataset.state,'loading');
+ Object.assign(videos[1],{videoWidth:1472,videoHeight:1280});videos[1].events.playing();
+ assert.equal(api.currentClip,0);assert.equal(root.dataset.state,'playing');
+ api.play(1,true);videos[2].events.error();videos[3].events.error();
+ assert.equal(videos.length,4);assert.equal(api.currentClip,0);assert.equal(root.dataset.state,'playing');
+});
+
+test('play() refused as unsupported also moves on to the next copy',async()=>{
+ const unsupported=Object.assign(new Error('format'),{name:'NotSupportedError'});
+ const {api,videos}=setup([Promise.reject(unsupported)],{navigator:{userAgent:iPhone}},{webm:true});
+ api.play(2,true);await Promise.resolve();await Promise.resolve();
+ assert.equal(videos.length,2);assert.match(videos[1].src,/catalena-live\.packed\.mp4/);
+ videos[1].events.playing();assert.equal(api.currentClip,2);
 });
 
 // Minimal WebGL2 double: records what the compositor does and how Unity's state looks.

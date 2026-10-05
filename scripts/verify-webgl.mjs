@@ -104,7 +104,15 @@ for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
       bytes.indexOf(Buffer.from([0x53, 0xc0, 0x81, 0x01])) < 0) {
     throw new Error(`透明角色演出文件无效：${name}`);
   }
-  // Safari/iOS copy: side-by-side colour|alpha HEVC built by scripts/build-packed-video.sh.
+  // Safari/iOS copies: side-by-side colour|alpha built by scripts/build-packed-video.sh,
+  // VP9 WebM first and HEVC MP4 as the fallback.
+  const packedWebm = join(root, "media", `${name}.packed.webm`);
+  requireFile(packedWebm);
+  const packedWebmBytes = readFileSync(packedWebm);
+  if (packedWebmBytes.length < 1000 || packedWebmBytes.length >= 100 * 1024 * 1024 ||
+      packedWebmBytes.subarray(0, 4).toString("hex") !== "1a45dfa3" || packedWebmBytes.indexOf(Buffer.from("V_VP9")) < 0) {
+    throw new Error(`iPhone 透明角色演出文件无效：${name}.packed.webm`);
+  }
   const packed = join(root, "media", `${name}.packed.mp4`);
   requireFile(packed);
   const packedBytes = readFileSync(packed);

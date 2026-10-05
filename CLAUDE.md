@@ -1,6 +1,6 @@
 # CHO-SIREN 网页预览仓库
 
-本仓库就是 GitHub Pages 上线的网页版（https://bojuejun.github.io/cho-siren-preview/），`main` 分支即线上版本，推送后 Pages 自动发布。Unity 工程在别的仓库；`index.html`、`character-moments.js`、`home-stage.*`、`media/` 来自 Unity 工程的 `Assets/WebGLTemplates/ChoSirenPortrait/`，改动后要同步回去（`patches/unity-template-since-R17.patch` 是自 R17 起的累计补丁；新增的 `audio-skin.js`、`media/*.packed.mp4`、`media/*.voice.mp3`、`media/lobby-theme.mp3`、`media/ui-*.wav`、`media/loading-stage.webp` 要一并复制）。
+本仓库就是 GitHub Pages 上线的网页版（https://bojuejun.github.io/cho-siren-preview/），`main` 分支即线上版本，推送后 Pages 自动发布。Unity 工程在别的仓库；`index.html`、`character-moments.js`、`home-stage.*`、`media/` 来自 Unity 工程的 `Assets/WebGLTemplates/ChoSirenPortrait/`，改动后要同步回去（`patches/unity-template-since-R17.patch` 是自 R17 起的累计补丁；新增的 `audio-skin.js`、`media/*.packed.webm`、`media/*.packed.mp4`、`media/*.voice.mp3`、`media/lobby-theme.mp3`、`media/ui-*.wav`、`media/loading-stage.webp` 要一并复制）。
 
 声音：`audio-skin.js` 在运行时把 Unity 生成的占位音乐和音效换成 `scripts/audio/compose_lobby_theme.py` 渲染的版本，开关和音量仍归 Unity 管。Unity 里加入正式配乐（`Assets/Resources/Audio/bgm.*`）后，占位规格不再出现，替换自动失效。
 

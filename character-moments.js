@@ -1,23 +1,47 @@
 (() => {
   const root = document.querySelector('#character-moment');
   const clips = ['catalena-look', 'catalena-whisper', 'catalena-live'];
-  // Safari and every iOS browser drop the alpha channel of VP9 WebM. They get an HEVC
-  // copy packed side by side instead, [colour | PACKED_GAP px | alpha as luma], built
-  // by scripts/build-packed-video.sh and recombined on the GPU in uploadPackedFrame().
-  // ?alphaVideo=packed or ?alphaVideo=webm overrides the choice for testing.
+  // Safari and every iOS browser drop the alpha channel of VP9 WebM. They get a copy
+  // packed side by side instead, [colour | PACKED_GAP px | alpha as luma], built by
+  // scripts/build-packed-video.sh and recombined on the GPU in uploadPackedFrame():
+  // VP9 WebM where WebM plays (the WebKit player that already played the plain clips
+  // on iPhone), HEVC MP4 otherwise, and the next copy in line whenever one fails to
+  // load. ?alphaVideo=webm|packed|packed-mp4 overrides the choice for testing.
   const PACKED_GAP = 32;
-  const packedAlpha = (() => {
-    const forced = globalThis.location ? new URL(globalThis.location.href).searchParams.get('alphaVideo') : null;
-    if (forced) return forced === 'packed';
+  const VARIANTS = {
+    webm: { name: 'webm', packed: false, file: clip => `media/${clip}.webm?v=20260928-r10` },
+    packedWebm: { name: 'packed-webm', packed: true, file: clip => `media/${clip}.packed.webm?v=20261006-r17g` },
+    packedMp4: { name: 'packed-mp4', packed: true, file: clip => `media/${clip}.packed.mp4?v=20261005-r17a` }
+  };
+  const query = name => globalThis.location ? new URL(globalThis.location.href).searchParams.get(name) : null;
+  const variants = (() => {
+    const forced = query('alphaVideo');
+    if (forced === 'webm') return [VARIANTS.webm];
+    if (forced === 'packed-mp4') return [VARIANTS.packedMp4];
+    if (forced === 'packed') return [VARIANTS.packedWebm, VARIANTS.packedMp4];
     const nav = globalThis.navigator || {};
     const ua = nav.userAgent || '';
     const appleTouch = /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && nav.maxTouchPoints > 1);
     const safari = /Version\/[\d.]+.*Safari\//.test(ua) && !/(Chrome|Chromium|CriOS|FxiOS|EdgiOS|Edg|OPR)\//.test(ua);
-    return appleTouch || safari;
+    if (!appleTouch && !safari) return [VARIANTS.webm];
+    const probe = document.createElement('video');
+    const webm = typeof probe.canPlayType === 'function' &&
+      ['video/webm; codecs="vp9"', 'video/webm; codecs="vp09.00.10.08"'].some(type => probe.canPlayType(type) !== '');
+    return webm ? [VARIANTS.packedWebm, VARIANTS.packedMp4] : [VARIANTS.packedMp4];
   })();
-  const clipUrl = index => new URL(packedAlpha
-    ? `media/${clips[index]}.packed.mp4?v=20261005-r17a`
-    : `media/${clips[index]}.webm?v=20260928-r10`, document.baseURI).href;
+  // ?debug=clip prints each clip's lifecycle on screen, for checking a phone without devtools.
+  const debug = (() => {
+    if (query('debug') !== 'clip') return null;
+    const panel = document.createElement('pre');
+    panel.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99;max-height:45%;overflow:hidden;' +
+      'margin:0;padding:6px;font:11px/1.35 monospace;color:#fff;background:rgba(0,0,0,.75);pointer-events:none;white-space:pre-wrap';
+    document.body.append(panel);
+    const start = Date.now();
+    return (...parts) => {
+      panel.textContent = `${((Date.now() - start) / 1000).toFixed(1)}s ${parts.join(' ')}\n${panel.textContent}`.slice(0, 4000);
+    };
+  })();
+  debug?.('clip copies:', variants.map(variant => variant.name).join(' > '), '|', (globalThis.navigator || {}).userAgent);
   let current = null, pending = null, sequence = 0;
   let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
   const dispose = item => {
@@ -47,6 +71,10 @@
   function showClip(index, withAudio) {
     if (!window.choSirenStage?.active) return false;
     if (!Number.isInteger(index) || index < 0 || index >= clips.length) return false;
+    load(index, withAudio, 0);
+    return true;
+  }
+  function load(index, withAudio, variant) {
     const request = ++sequence;
     const oldPending = pending;
     pending = null;
@@ -58,8 +86,16 @@
     video.preload = 'auto';
     video.muted = !withAudio;
     video.crossOrigin = 'anonymous';
-    video.src = clipUrl(index);
-    const item = { video, index, timeout: 0, withAudio: !!withAudio, voiceNeeded: false, voice: null };
+    video.src = new URL(variants[variant].file(clips[index]), document.baseURI).href;
+    const item = { video, index, timeout: 0, packed: variants[variant].packed,
+      withAudio: !!withAudio, voiceNeeded: false, voice: null };
+    if (debug) {
+      debug('load', clips[index], variants[variant].name, withAudio ? 'with sound' : 'muted');
+      for (const type of ['loadedmetadata', 'canplay', 'playing', 'waiting', 'stalled', 'ended']) {
+        video.addEventListener(type, () => debug(type, `${video.videoWidth}x${video.videoHeight}`, `t=${video.currentTime.toFixed(2)}`));
+      }
+      video.addEventListener('error', () => debug('error', video.error && video.error.code, video.error && video.error.message));
+    }
     // When the browser refused to start the video with sound (iOS outside a tap), the
     // clip's voice track plays through Web Audio, restarted at the video's time
     // whenever playback (re)starts.
@@ -73,9 +109,16 @@
     status();
     const fail = () => {
       if (pending !== item || request !== sequence) return;
+      debug?.('gave up on', clips[index]);
       pending = null;
       dispose(item);
       status();
+    };
+    // A copy this browser cannot decode hands over to the next one in line.
+    const fallback = () => {
+      if (pending !== item || request !== sequence) return;
+      if (variant + 1 < variants.length) load(index, withAudio, variant + 1);
+      else fail();
     };
     video.addEventListener('playing', () => {
       if (current === item) { syncVoice(); return; }
@@ -98,25 +141,30 @@
       status();
     });
     video.addEventListener('error', () => {
-      if (pending === item) fail();
+      if (pending === item) fallback();
       else if (current === item) { current = null; dispose(item); status(); }
     });
     item.timeout = setTimeout(fail, 15000);
+    const unsupported = error => error && error.name === 'NotSupportedError';
     const attempt = video.play();
-    attempt?.catch(() => {
+    attempt?.catch(error => {
+      debug?.('play refused:', error && error.name);
       if (pending !== item || request !== sequence) return;
+      if (unsupported(error)) { fallback(); return; }
       video.muted = true;
       item.voiceNeeded = item.withAudio;
       // A rejected old retry must never close a newer performance.
-      video.play().catch(fail);
+      video.play().catch(retryError => {
+        debug?.('muted play refused:', retryError && retryError.name);
+        if (unsupported(retryError)) fallback(); else fail();
+      });
     });
-    return true;
   }
   function uploadFrame(gl, texture) {
     const video = current?.video;
     if (!video || video.readyState < 2) return false;
     if (uploadedVideo === video && uploadedTime === video.currentTime && uploadedTexture === texture) return true;
-    if (packedAlpha) return uploadPackedFrame(gl, texture, video);
+    if (current.packed) return uploadPackedFrame(gl, texture, video);
     const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
     const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
     const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
@@ -234,7 +282,8 @@ void main() {
       uploadedVideo = video; uploadedTime = video.currentTime; uploadedTexture = texture;
       root.dataset.renderedFrame = String(video.currentTime);
       return true;
-    } catch (_) {
+    } catch (error) {
+      debug?.('compositor failed:', error && error.message);
       close();
       return false;
     } finally {
