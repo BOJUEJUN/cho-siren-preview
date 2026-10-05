@@ -1,0 +1,22 @@
+{
+  "version": "0.3.8",
+  "releaseId": "WEB-20261005-RELEASE-LOG-R17C",
+  "name": "加载页显示版本号，上线记录与备份分支",
+  "date": "2026-10-05",
+  "backupBranch": "backup/R17C",
+  "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
+  "sourceCommit": "cb77657",
+  "previousReleaseId": "WEB-20261005-ONE-LOADER-R17B",
+  "previousWebCommit": "3edfb4c",
+  "previousReleaseRecord": "releases/R17B.json",
+  "previousBackupBranch": "backup/R17B",
+  "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
+  "validation": {
+    "loaderRegressionTestsPassed": 27,
+    "characterLifecycleTestsPassed": 11,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "加载页右下角显示 v0.3.8 · R17C；发布检查要求它与本文件一致。"
+}

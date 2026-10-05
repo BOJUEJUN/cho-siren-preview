@@ -1,8 +1,8 @@
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
-index 9df3a7a..df0d92f 100644
+index 9df3a7a..3bd75b3 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
-@@ -1,6 +1,23 @@
+@@ -1,11 +1,30 @@
  (() => {
    const root = document.querySelector('#character-moment');
    const clips = ['catalena-look', 'catalena-whisper', 'catalena-live'];
@@ -26,16 +26,70 @@ index 9df3a7a..df0d92f 100644
    let current = null, pending = null, sequence = 0;
    let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
    const dispose = item => {
-@@ -37,7 +54,7 @@
+     if (!item) return;
+     clearTimeout(item.timeout);
++    item.voice?.stop();
++    item.voice = null;
+     item.video.pause();
+     item.video.removeAttribute('src');
+     item.video.load();
+@@ -14,6 +33,8 @@
+   function status() {
+     root.dataset.state = pending ? 'loading' : current ? 'playing' : 'idle';
+     root.dataset.clip = current ? String(current.index) : '';
++    // The game music steps back while a clip with sound is on screen (audio-skin.js).
++    window.choSirenAudio?.duck(!!current?.withAudio);
+   }
+   function close() {
+     ++sequence;
+@@ -37,8 +58,16 @@
      video.preload = 'auto';
      video.muted = !withAudio;
      video.crossOrigin = 'anonymous';
 -    video.src = new URL(`media/${clips[index]}.webm?v=20260928-r10`, document.baseURI).href;
+-    const item = { video, index, timeout: 0 };
 +    video.src = clipUrl(index);
-     const item = { video, index, timeout: 0 };
++    const item = { video, index, timeout: 0, withAudio: !!withAudio, voiceNeeded: false, voice: null };
++    // When the browser refused to start the video with sound (iOS outside a tap), the
++    // clip's voice track plays through Web Audio, restarted at the video's time
++    // whenever playback (re)starts.
++    const syncVoice = () => {
++      item.voice?.stop();
++      item.voice = item.voiceNeeded && current === item && window.choSirenAudio
++        ? window.choSirenAudio.playVoice(clips[index], () => video.currentTime) : null;
++    };
      pending = item;
      root.append(video);
-@@ -81,6 +98,7 @@
+     status();
+@@ -49,6 +78,7 @@
+       status();
+     };
+     video.addEventListener('playing', () => {
++      if (current === item) { syncVoice(); return; }
+       if (pending !== item || request !== sequence) return;
+       clearTimeout(item.timeout);
+       const old = current;
+@@ -56,7 +86,11 @@
+       pending = null;
+       dispose(old);
+       status();
++      syncVoice();
+     });
++    for (const type of ['waiting', 'pause']) {
++      video.addEventListener(type, () => { item.voice?.stop(); item.voice = null; });
++    }
+     video.addEventListener('ended', () => {
+       if (current !== item) return;
+       current = null;
+@@ -72,6 +106,7 @@
+     attempt?.catch(() => {
+       if (pending !== item || request !== sequence) return;
+       video.muted = true;
++      item.voiceNeeded = item.withAudio;
+       // A rejected old retry must never close a newer performance.
+       video.play().catch(fail);
+     });
+@@ -81,6 +116,7 @@
      const video = current?.video;
      if (!video || video.readyState < 2) return false;
      if (uploadedVideo === video && uploadedTime === video.currentTime && uploadedTexture === texture) return true;
@@ -43,7 +97,7 @@ index 9df3a7a..df0d92f 100644
      const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
      const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
      const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
-@@ -101,6 +119,121 @@
+@@ -101,6 +137,121 @@
        gl.bindTexture(gl.TEXTURE_2D, bound);
      }
    }
@@ -166,7 +220,7 @@ index 9df3a7a..df0d92f 100644
    window.choSirenCharacter = {
      play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
-index 4847806..0cb670a 100644
+index 4847806..87cfb69 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 @@ -6,10 +6,16 @@
@@ -215,7 +269,7 @@ index 4847806..0cb670a 100644
        }
  
        #loading.is-hidden {
-@@ -118,34 +132,87 @@
+@@ -118,34 +132,97 @@
          pointer-events: none;
        }
  
@@ -312,10 +366,20 @@ index 4847806..0cb670a 100644
 +        letter-spacing: 0.04em;
 +        white-space: pre-line;
 +        text-shadow: 0 1px 3px rgba(20, 0, 40, 0.7);
++      }
++
++      /* Live release number (release.json); scripts/verify-webgl.mjs keeps them equal. */
++      .loading-version {
++        position: absolute;
++        right: 12px;
++        bottom: 10px;
++        color: rgba(255, 255, 255, 0.5);
++        font-size: 10px;
++        letter-spacing: 0.06em;
        }
  
        #warning {
-@@ -207,36 +274,64 @@
+@@ -207,36 +284,66 @@
          <button id="retry" type="button">重新加载</button>
        </div>
        <div id="loading">
@@ -332,9 +396,11 @@ index 4847806..0cb670a 100644
 +          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
 +          <div id="loading-note" class="loading-note"></div>
 +        </div>
++        <div id="loading-version" class="loading-version">v0.3.9</div>
        </div>
      </main>
  
++    <script src="./audio-skin.js?v=20261005-r17d"></script>
      <script src="./home-stage.js?v=20260928-r12a"></script>
 -    <script src="./character-moments.js?v=20260928-r12a"></script>
 +    <script src="./character-moments.js?v=20261005-r17a"></script>
@@ -389,7 +455,7 @@ index 4847806..0cb670a 100644
        const warning = document.querySelector("#warning");
        const warningText = document.querySelector("#warning-text");
        const retry = document.querySelector("#retry");
-@@ -275,7 +370,6 @@
+@@ -275,7 +382,6 @@
  
        // All URLs stay relative to the document so GitHub Pages project paths work.
        const buildUrl = new URL("Build/", pageUrl);
@@ -397,7 +463,16 @@ index 4847806..0cb670a 100644
        const buildAssetUrl = filename => {
          const url = new URL(filename, buildUrl);
          if (retryToken) url.searchParams.set("retry", retryToken);
-@@ -298,11 +392,52 @@
+@@ -290,7 +396,7 @@
+         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
+         companyName: "CHO-SIREN Studio",
+         productName: "CHO-SIREN 幻域魅声",
+-        productVersion: "0.3.8",
++        productVersion: "0.3.9",
+         showBanner,
+         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+         matchWebGLToCanvasSize: true
+@@ -298,11 +404,52 @@
  
        const loader = document.createElement("script");
        loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
@@ -451,7 +526,7 @@ index 4847806..0cb670a 100644
            loading.classList.add("is-hidden");
          } catch (error) { showBanner(String(error), "error"); }
        };
-@@ -333,12 +468,27 @@
+@@ -333,12 +480,27 @@
            config.frameworkUrl = asset(".framework.js.unityweb");
            config.codeUrl = asset(".wasm.unityweb");
            loader.src = asset(".loader.js");

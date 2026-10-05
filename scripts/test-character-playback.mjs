@@ -9,7 +9,7 @@ function setup(plays=[],globals={}){
   function video(){const events={};return {readyState:3,currentTime:0,events,play(){return plays.shift() || Promise.resolve()},pause(){this.paused=true},load(){},removeAttribute(){},remove(){this.removed=true},addEventListener(k,f){events[k]=f}}}
   const window={choSirenStage:{active:true}};
   vm.runInNewContext(source,{window,document:{querySelector:()=>root,createElement:()=>video(),addEventListener(){},baseURI:'https://example.test/'},URL,setTimeout:f=>{timers.set(++id,f);return id},clearTimeout:i=>timers.delete(i),...globals});
-  return {api:window.choSirenCharacter,root,videos,timers};
+  return {api:window.choSirenCharacter,root,videos,timers,window};
 }
 test('slow next clip keeps currently displayed character until ready',()=>{const {api,videos}=setup();api.play(0,true);videos[0].events.playing();api.play(1,true);assert.equal(api.currentClip,0);assert.ok(!videos[0].removed);videos[1].events.playing();assert.equal(api.currentClip,1);assert.equal(videos[0].removed,true)});
 test('failed or timed-out next clip retains current character',()=>{const {api,videos,timers}=setup();api.play(0,true);videos[0].events.playing();api.play(1,true);videos[1].events.error();assert.equal(api.currentClip,0);api.play(2,true);[...timers.values()][0]();assert.equal(api.currentClip,0)});
@@ -86,4 +86,28 @@ test('a target Unity cannot render into closes the clip and leaves GL state unto
  const {api}=packedPlayer(),{gl,log,snapshot}=webgl2({complete:false}),before=snapshot();
  assert.equal(api.uploadFrame(gl,'unity-character'),false);
  assert.equal(snapshot(),before);assert.deepEqual(log.draws,[]);assert.equal(api.active,false);
+});
+
+test('a clip refused sound plays its voice through Web Audio and ducks the music until it ends',async()=>{
+ const calls=[],ducks=[];let stops=0;
+ const audio={playVoice:(name,time)=>{calls.push([name,time()]);return {stop(){stops++}}},duck:on=>ducks.push(on)};
+ const {api,videos,window}=setup([Promise.reject(new Error('NotAllowedError'))]);window.choSirenAudio=audio;
+ api.play(0,true);await Promise.resolve();await Promise.resolve();
+ assert.equal(videos[0].muted,true);
+ videos[0].currentTime=0.2;videos[0].events.playing();
+ assert.deepEqual(calls,[['catalena-look',0.2]]);
+ assert.equal(ducks.at(-1),true);
+ videos[0].events.waiting();assert.equal(stops,1);
+ videos[0].events.playing();assert.equal(calls.length,2);
+ videos[0].events.ended();
+ assert.equal(stops,2);assert.equal(ducks.at(-1),false);
+});
+
+test('a clip that plays with its own sound needs no voice track but still ducks the music',async()=>{
+ const calls=[],ducks=[];
+ const audio={playVoice:name=>{calls.push(name);return {stop(){}}},duck:on=>ducks.push(on)};
+ const {api,videos,window}=setup();window.choSirenAudio=audio;
+ api.play(1,true);videos[0].events.playing();
+ assert.deepEqual(calls,[]);assert.equal(ducks.at(-1),true);
+ api.close();assert.equal(ducks.at(-1),false);
 });

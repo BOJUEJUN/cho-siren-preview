@@ -23,6 +23,8 @@
   const dispose = item => {
     if (!item) return;
     clearTimeout(item.timeout);
+    item.voice?.stop();
+    item.voice = null;
     item.video.pause();
     item.video.removeAttribute('src');
     item.video.load();
@@ -31,6 +33,8 @@
   function status() {
     root.dataset.state = pending ? 'loading' : current ? 'playing' : 'idle';
     root.dataset.clip = current ? String(current.index) : '';
+    // The game music steps back while a clip with sound is on screen (audio-skin.js).
+    window.choSirenAudio?.duck(!!current?.withAudio);
   }
   function close() {
     ++sequence;
@@ -55,7 +59,15 @@
     video.muted = !withAudio;
     video.crossOrigin = 'anonymous';
     video.src = clipUrl(index);
-    const item = { video, index, timeout: 0 };
+    const item = { video, index, timeout: 0, withAudio: !!withAudio, voiceNeeded: false, voice: null };
+    // When the browser refused to start the video with sound (iOS outside a tap), the
+    // clip's voice track plays through Web Audio, restarted at the video's time
+    // whenever playback (re)starts.
+    const syncVoice = () => {
+      item.voice?.stop();
+      item.voice = item.voiceNeeded && current === item && window.choSirenAudio
+        ? window.choSirenAudio.playVoice(clips[index], () => video.currentTime) : null;
+    };
     pending = item;
     root.append(video);
     status();
@@ -66,6 +78,7 @@
       status();
     };
     video.addEventListener('playing', () => {
+      if (current === item) { syncVoice(); return; }
       if (pending !== item || request !== sequence) return;
       clearTimeout(item.timeout);
       const old = current;
@@ -73,7 +86,11 @@
       pending = null;
       dispose(old);
       status();
+      syncVoice();
     });
+    for (const type of ['waiting', 'pause']) {
+      video.addEventListener(type, () => { item.voice?.stop(); item.voice = null; });
+    }
     video.addEventListener('ended', () => {
       if (current !== item) return;
       current = null;
@@ -89,6 +106,7 @@
     attempt?.catch(() => {
       if (pending !== item || request !== sequence) return;
       video.muted = true;
+      item.voiceNeeded = item.withAudio;
       // A rejected old retry must never close a newer performance.
       video.play().catch(fail);
     });

@@ -1,22 +1,29 @@
 {
-  "version": "0.3.8",
-  "releaseId": "WEB-20261005-RELEASE-LOG-R17C",
-  "name": "加载页显示版本号，上线记录与备份分支",
+  "version": "0.3.9",
+  "releaseId": "WEB-20261005-SOUND-R17D",
+  "name": "原创大厅主题曲、新界面音效、iPhone 角色对白有声",
   "date": "2026-10-05",
-  "backupBranch": "backup/R17C",
+  "backupBranch": "backup/v0.3.9",
   "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
   "sourceCommit": "cb77657",
-  "previousReleaseId": "WEB-20261005-ONE-LOADER-R17B",
-  "previousWebCommit": "3edfb4c",
-  "previousReleaseRecord": "releases/R17B.json",
-  "previousBackupBranch": "backup/R17B",
+  "previousReleaseId": "WEB-20261005-RELEASE-LOG-R17C",
+  "previousWebCommit": "d2872cc",
+  "previousReleaseRecord": "releases/R17C.json",
+  "previousBackupBranch": "backup/R17C",
   "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
   "validation": {
     "loaderRegressionTestsPassed": 27,
-    "characterLifecycleTestsPassed": 11,
+    "characterLifecycleTestsPassed": 13,
+    "audioSkinTestsPassed": 5,
     "localWebGLRuntimeVerified": true,
     "publicRuntimeVerified": false,
-    "physicalMobileDeviceTested": false
+    "physicalMobileDeviceTested": false,
+    "localAudio": [
+      "Unity music source plays composed 66 s buffer, loop 0-64 s",
+      "UI clicks play composed sound",
+      "music ducks to 0.28 during a clip with sound and returns to 1",
+      "iOS-style refused video sound plays the 10 s voice track through Web Audio"
+    ]
   },
-  "visualStatus": "加载页右下角显示 v0.3.8 · R17C；发布检查要求它与本文件一致。"
+  "visualStatus": "画面未改；加载页右下角显示 v0.3.9。音频由本地 Chromium 插桩验证，未在实体手机上试听。"
 }

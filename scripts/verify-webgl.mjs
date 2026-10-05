@@ -17,10 +17,9 @@ requireFile(join(root, ".nojekyll"));
 const html = readFileSync(indexPath, "utf8");
 // Every release shows its number on the loading screen; it must match release.json.
 const release = JSON.parse(readFileSync(join(root, "release.json"), "utf8"));
-const releaseCode = (String(release.releaseId).match(/R\d+[A-Z]?$/) || [])[0];
-const versionLabel = `v${release.version} · ${releaseCode}`;
+const versionLabel = `v${release.version}`;
 const packageVersion = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
-if (!releaseCode || !html.includes(`>${versionLabel}<`) ||
+if (!/^\d+\.\d+\.\d+$/.test(release.version) || !html.includes(`>${versionLabel}<`) ||
     !html.includes(`productVersion: "${release.version}"`) || packageVersion !== release.version) {
   throw new Error(`版本号不一致：加载页、productVersion、package.json 应与 release.json 的 ${versionLabel} 相同`);
 }
@@ -39,7 +38,7 @@ if (!html.includes('new URL("service-worker.js", pageUrl)') ||
 }
 for (const asset of ["home-stage.css", "home-stage.js", "character-moments.css",
   "character-moments.js", "lipstick-cursor.svg", "manifest.webmanifest", "favicon.svg",
-  "icons/apple-touch-icon.png", "media/loading-stage.webp"]) {
+  "icons/apple-touch-icon.png", "media/loading-stage.webp", "audio-skin.js"]) {
   if (html.includes(`./${asset}`)) requireFile(join(root, asset));
 }
 const webManifest = JSON.parse(readFileSync(join(root, "manifest.webmanifest"), "utf8"));
@@ -57,6 +56,13 @@ if (momentCss.includes('mask-image') || !momentCss.includes('opacity: 0') ||
     !momentJs.includes('uploadFrame') || !momentJs.includes('texSubImage2D')) {
   throw new Error("角色必须在 Unity 真实 UI 层级绘制，网页仅解码视频");
 }
+// Composed music, UI sounds and clip voices referenced by audio-skin.js.
+const audioSkin = readFileSync(join(root, 'audio-skin.js'), 'utf8');
+for (const file of ['lobby-theme.mp3', 'ui-click.wav', 'ui-success.wav']) {
+  if (!audioSkin.includes(`'${file}'`)) throw new Error('audio-skin.js 缺少音频：' + file);
+  requireFile(join(root, 'media', file));
+}
+for (const name of ['catalena-look', 'catalena-whisper', 'catalena-live']) requireFile(join(root, 'media', `${name}.voice.mp3`));
 const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
 const ink = JSON.parse(readFileSync(join(inkRoot, 'manifest.json'), 'utf8'));
 if (ink.frames !== 48 || ink.fps !== 30 || ink.sheets.length !== 4) throw new Error('油墨动画配置不符');
