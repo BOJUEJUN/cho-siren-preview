@@ -324,13 +324,13 @@
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
         </div>
-        <div id="loading-version" class="loading-version">v0.3.14</div>
+        <div id="loading-version" class="loading-version">v0.3.15</div>
       </div>
     </main>
 
     <script src="./audio-skin.js?v=20261005-r17f"></script>
     <script src="./home-stage.js?v=20260928-r12a"></script>
-    <script src="./character-moments.js?v=20261006-r17h"></script>
+    <script src="./character-moments.js?v=20261006-r17j"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       const retryToken = new URL(window.location.href).searchParams.get("retry");
@@ -440,7 +440,7 @@
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.14",
+        productVersion: "0.3.15",
         showBanner,
         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         matchWebGLToCanvasSize: true

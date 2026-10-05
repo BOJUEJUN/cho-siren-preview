@@ -8,8 +8,9 @@ function setup(plays=[],globals={},{webm=false}={}){
   const root={dataset:{},append(v){videos.push(v)}};
   function video(){const events={};const v={readyState:3,currentTime:0,events,plays:0,play(){this.plays++;this.paused=false;return plays.shift() || Promise.resolve()},pause(){this.paused=true},load(){},removeAttribute(){},remove(){this.removed=true},addEventListener(k,f){events[k]=f},canPlayType:t=>webm&&t.startsWith('video/webm')?'probably':''};made.push(v);return v}
   const window={choSirenStage:{active:true}};
-  vm.runInNewContext(source,{window,document:{querySelector:()=>root,createElement:()=>video(),addEventListener(type,f){(taps[type]||=[]).push(f)},baseURI:'https://example.test/'},URL,setTimeout:f=>{timers.set(++id,f);return id},clearTimeout:i=>timers.delete(i),...globals});
-  return {api:window.choSirenCharacter,root,videos,made,timers,window,taps};
+  const document={hidden:false,querySelector:()=>root,createElement:()=>video(),addEventListener(type,f){(taps[type]||=[]).push(f)},baseURI:'https://example.test/'};
+  vm.runInNewContext(source,{window,document,URL,setTimeout:f=>{timers.set(++id,f);return id},clearTimeout:i=>timers.delete(i),...globals});
+  return {api:window.choSirenCharacter,root,videos,made,timers,window,taps,document};
 }
 test('slow next clip keeps currently displayed character until ready',()=>{const {api,videos}=setup();api.play(0,true);videos[0].events.playing();api.play(1,true);assert.equal(api.currentClip,0);assert.ok(!videos[0].removed);videos[1].events.playing();assert.equal(api.currentClip,1);assert.equal(videos[0].removed,true)});
 test('failed or timed-out next clip retains current character',()=>{const {api,videos,timers}=setup();api.play(0,true);videos[0].events.playing();api.play(1,true);videos[1].events.error();assert.equal(api.currentClip,0);api.play(2,true);[...timers.values()][0]();assert.equal(api.currentClip,0)});
@@ -144,4 +145,12 @@ test('a tap unlocks spare players, and the next clip plays on one of them',()=>{
  assert.equal(made.length,3);assert.equal(made[1].plays,1);assert.equal(made[2].plays,1);
  api.play(1,true);api.play(2,true);
  assert.deepEqual(videos,[made[0],made[1],made[2]]);
+});
+
+test('leaving the page ends the clip instead of leaving it frozen with the music ducked',()=>{
+ const ducks=[];const {api,videos,taps,document,window}=setup();window.choSirenAudio={duck:on=>ducks.push(on),playVoice:()=>({stop(){}})};
+ api.play(0,true);videos[0].events.playing();assert.equal(ducks.at(-1),true);
+ taps.visibilitychange[0]();assert.equal(api.currentClip,0);
+ document.hidden=true;taps.visibilitychange[0]();
+ assert.equal(api.active,false);assert.equal(api.currentClip,-1);assert.equal(videos[0].removed,true);assert.equal(ducks.at(-1),false);
 });

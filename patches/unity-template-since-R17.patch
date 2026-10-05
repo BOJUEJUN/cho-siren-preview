@@ -1,5 +1,5 @@
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
-index 9df3a7a..57c0fe3 100644
+index 9df3a7a..5a67525 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
 @@ -1,11 +1,80 @@
@@ -200,7 +200,7 @@ index 9df3a7a..57c0fe3 100644
      const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
      const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
      const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
-@@ -101,6 +211,122 @@
+@@ -101,7 +211,126 @@
        gl.bindTexture(gl.TEXTURE_2D, bound);
      }
    }
@@ -321,10 +321,14 @@ index 9df3a7a..57c0fe3 100644
 +    }
 +  }
    document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
++  // iOS pauses media when the page goes to the background and never resumes it, which
++  // would leave the clip frozen on screen with the music still ducked; it ends instead.
++  document.addEventListener('visibilitychange', () => { if (document.hidden) close(); });
    window.choSirenCharacter = {
      play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
+     close, uploadFrame,
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
-index 4847806..5c874d2 100644
+index 4847806..676558a 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 @@ -6,10 +6,16 @@
@@ -560,14 +564,14 @@ index 4847806..5c874d2 100644
 +          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
 +          <div id="loading-note" class="loading-note"></div>
 +        </div>
-+        <div id="loading-version" class="loading-version">v0.3.14</div>
++        <div id="loading-version" class="loading-version">v0.3.15</div>
        </div>
      </main>
  
 +    <script src="./audio-skin.js?v=20261005-r17f"></script>
      <script src="./home-stage.js?v=20260928-r12a"></script>
 -    <script src="./character-moments.js?v=20260928-r12a"></script>
-+    <script src="./character-moments.js?v=20261006-r17h"></script>
++    <script src="./character-moments.js?v=20261006-r17j"></script>
      <script>
        const pageUrl = new URL("./", document.baseURI);
 -      // Retire the service worker used by the earlier HTML prototype.  Its root
@@ -654,7 +658,7 @@ index 4847806..5c874d2 100644
          companyName: "CHO-SIREN Studio",
          productName: "CHO-SIREN 幻域魅声",
 -        productVersion: "0.3.8",
-+        productVersion: "0.3.14",
++        productVersion: "0.3.15",
          showBanner,
          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
          matchWebGLToCanvasSize: true

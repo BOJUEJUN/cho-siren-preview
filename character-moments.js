@@ -328,6 +328,9 @@ void main() {
     }
   }
   document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
+  // iOS pauses media when the page goes to the background and never resumes it, which
+  // would leave the clip frozen on screen with the music still ducked; it ends instead.
+  document.addEventListener('visibilitychange', () => { if (document.hidden) close(); });
   window.choSirenCharacter = {
     play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
     close, uploadFrame,
