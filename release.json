@@ -1,23 +1,23 @@
 {
-  "version": "0.3.10",
-  "releaseId": "WEB-20261005-DESKTOP-R17E",
-  "name": "电脑端两侧铺模糊舞台底图；补发 R17C 与 v0.3.9",
+  "version": "0.3.11",
+  "releaseId": "WEB-20261005-TOUCH-R17F",
+  "name": "手机触控手感：去掉点按灰闪、长按菜单、选字和误触缩放；轻点即唤醒游戏声音",
   "date": "2026-10-05",
-  "backupBranch": "backup/v0.3.10",
+  "backupBranch": "backup/v0.3.11",
   "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
   "sourceCommit": "cb77657",
-  "previousReleaseId": "WEB-20261005-SOUND-R17D",
-  "previousWebCommit": "e48ba70",
-  "previousReleaseRecord": "releases/R17D.json",
-  "previousBackupBranch": "backup/v0.3.9",
+  "previousReleaseId": "WEB-20261005-DESKTOP-R17E",
+  "previousWebCommit": "ca181e1",
+  "previousReleaseRecord": "releases/R17E.json",
+  "previousBackupBranch": "backup/v0.3.10",
   "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
   "validation": {
     "loaderRegressionTestsPassed": 27,
     "characterLifecycleTestsPassed": 13,
-    "audioSkinTestsPassed": 5,
+    "audioSkinTestsPassed": 6,
     "localWebGLRuntimeVerified": true,
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 1366×860 截图：竖屏画面两侧为模糊压暗的舞台底图；Pixel 7 竖屏截图不变。加载页右下角显示 v0.3.10。"
+  "visualStatus": "画面未改。本地 Chromium 模拟 iPhone 13 用触摸点按：点角色播放演出、点任务打开任务面板、大厅音乐与按键音为原创版本，控制台无报错。iOS 的音频解锁只在单元测试中模拟，未在实体手机上验证。"
 }

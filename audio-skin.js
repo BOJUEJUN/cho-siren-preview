@@ -107,17 +107,33 @@
     }
   };
 
+  const Context = window.AudioContext || window.webkitAudioContext;
   function context() {
     if (unityContext && unityContext.state === 'running') return unityContext;
-    if (!ownContext) {
-      const Context = window.AudioContext || window.webkitAudioContext;
-      ownContext = new Context();
-    }
+    if (!ownContext) ownContext = new Context();
     return ownContext;
   }
-  // A context created outside a tap starts suspended on iOS; any tap resumes it.
-  const unlock = () => { if (ownContext && ownContext.state === 'suspended') ownContext.resume().catch(() => {}); };
-  for (const type of ['pointerdown', 'touchend', 'keydown']) window.addEventListener(type, unlock, { capture: true, passive: true });
+  // Audio contexts start suspended until a tap, and iOS suspends ("interrupts") them
+  // again after a call or an app switch. Unity retries resume() every 400 ms and on
+  // touchstart/mousedown, but iOS only lets audio start on touchend, so every tap
+  // here also resumes Unity's context (learnt from those retries) and ours.
+  const contexts = new Set();
+  const nativeResume = Context && Context.prototype.resume;
+  if (nativeResume) {
+    Context.prototype.resume = function (...args) {
+      contexts.add(this);
+      return nativeResume.apply(this, args);
+    };
+  }
+  const unlock = () => {
+    for (const ctx of new Set([...contexts, unityContext, ownContext])) {
+      if (!ctx || (ctx.state !== 'suspended' && ctx.state !== 'interrupted')) continue;
+      try { (nativeResume || ctx.resume).call(ctx).catch(() => {}); } catch (_) {}
+    }
+  };
+  for (const type of ['pointerdown', 'pointerup', 'touchend', 'keydown']) {
+    window.addEventListener(type, unlock, { capture: true, passive: true });
+  }
 
   window.choSirenAudio = {
     // Starts a clip's voice track at the video's current time; returns { stop() }.

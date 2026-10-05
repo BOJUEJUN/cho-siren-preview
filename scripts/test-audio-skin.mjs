@@ -51,10 +51,17 @@ async function setup() {
       return node;
     }
   };
-  const window = { AudioBufferSourceNode, AudioNode, OfflineAudioContext, addEventListener() {} };
+  // Page-level contexts start suspended; resume() only counts the attempts.
+  class AudioContext {
+    constructor() { this.state = 'suspended'; this.resumed = 0; }
+    resume() { this.resumed++; return Promise.resolve(); }
+  }
+  const listeners = {};
+  const window = { AudioBufferSourceNode, AudioNode, OfflineAudioContext, AudioContext,
+    addEventListener(type, listener) { (listeners[type] ||= []).push(listener); } };
   vm.runInNewContext(source, { window, fetch, URL, document: { baseURI: 'https://example.test/game/' } });
   await flush(); await flush();
-  return { window, context, sources, files, fetched };
+  return { window, context, sources, files, fetched, listeners };
 }
 
 test('Unity\'s 8-second placeholder loop is replaced by the composed theme with its own loop points', async () => {
@@ -125,4 +132,21 @@ test('voice tracks start at the video\'s time and never start once stopped', asy
   stopped.stop();
   await flush(); await flush();
   assert.equal(sources.length, before + 1);
+});
+
+test('a tap resumes Unity\'s suspended or interrupted context and leaves a running one alone', async () => {
+  const { window, listeners } = await setup();
+  const unity = new window.AudioContext();
+  unity.resume();                                   // Unity's own retry, refused outside a tap on iOS
+  assert.equal(unity.resumed, 1);
+  listeners.touchend[0]();
+  listeners.pointerup[0]();
+  assert.equal(unity.resumed, 3);
+  unity.state = 'interrupted';                      // iOS after a phone call or app switch
+  listeners.touchend[0]();
+  assert.equal(unity.resumed, 4);
+  unity.state = 'running';
+  listeners.keydown[0]();
+  listeners.pointerdown[0]();
+  assert.equal(unity.resumed, 4);
 });

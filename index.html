@@ -40,6 +40,8 @@
           radial-gradient(circle at 50% 10%, rgba(113, 74, 184, 0.34), transparent 36%),
           linear-gradient(180deg, #17113d 0%, var(--page-bg) 72%);
         font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
       }
 
       body {
@@ -81,6 +83,15 @@
           width: min(100%, calc(100dvh * 720 / 1536));
           height: min(100%, calc(100dvw * 1536 / 720));
         }
+      }
+
+      /* Phones: no long-press menu, text selection or page zoom on the game;
+         Unity handles every touch itself. */
+      #game-shell {
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
       }
 
       #unity-canvas {
@@ -309,11 +320,11 @@
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
         </div>
-        <div id="loading-version" class="loading-version">v0.3.10</div>
+        <div id="loading-version" class="loading-version">v0.3.11</div>
       </div>
     </main>
 
-    <script src="./audio-skin.js?v=20261005-r17d"></script>
+    <script src="./audio-skin.js?v=20261005-r17f"></script>
     <script src="./home-stage.js?v=20260928-r12a"></script>
     <script src="./character-moments.js?v=20261005-r17a"></script>
     <script>
@@ -411,7 +422,7 @@
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.10",
+        productVersion: "0.3.11",
         showBanner,
         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         matchWebGLToCanvasSize: true

@@ -1,0 +1,23 @@
+{
+  "version": "0.3.10",
+  "releaseId": "WEB-20261005-DESKTOP-R17E",
+  "name": "电脑端两侧铺模糊舞台底图；补发 R17C 与 v0.3.9",
+  "date": "2026-10-05",
+  "backupBranch": "backup/v0.3.10",
+  "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
+  "sourceCommit": "cb77657",
+  "previousReleaseId": "WEB-20261005-SOUND-R17D",
+  "previousWebCommit": "e48ba70",
+  "previousReleaseRecord": "releases/R17D.json",
+  "previousBackupBranch": "backup/v0.3.9",
+  "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
+  "validation": {
+    "loaderRegressionTestsPassed": 27,
+    "characterLifecycleTestsPassed": 13,
+    "audioSkinTestsPassed": 5,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 1366×860 截图：竖屏画面两侧为模糊压暗的舞台底图；Pixel 7 竖屏截图不变。加载页右下角显示 v0.3.10。"
+}
