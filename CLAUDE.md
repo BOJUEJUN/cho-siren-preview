@@ -12,9 +12,9 @@
    - 把当前 `release.json` 移到 `releases/<当前发布编号>.json`，再写新的 `release.json`（字段沿用现有格式，`previousWebCommit`、`previousBackupBranch` 指向上一版）。
    - `RELEASES.md` 顶部加一条：改了什么、怎么验证的。
    - 加载页右下角的版本号（`#loading-version`）改成 `v<version>`，`index.html` 的 `productVersion` 和 `package.json` 的 `version` 同步改。`npm run check` 会核对四处一致。
-4. 提交到工作分支，快进合并到 `main`：`git push origin <工作分支>:main`。
+4. 提交到工作分支，快进合并到 `main`：`git push origin <工作分支>:main`。**`main` 要单独一条命令推送**：和其它分支放在同一条 `git push` 里时，GitHub Pages 曾经不触发发布（R17C、v0.3.9）。
 5. 备份：给新上线的提交建分支 `backup/v<version>`：`git push origin <commit>:refs/heads/backup/v<version>`。每个上线版本都有自己的 backup 分支（R17、R17A–R17C 之前的命名是 `backup/R17*`）；本环境不能推送 Git 标签，所以用分支。
-6. 确认 GitHub Actions 的「Quality checks」和「pages build and deployment」都成功，再告诉用户上线的版本号。
+6. 确认 GitHub Actions 的「Quality checks」成功，并且「pages build and deployment」里有这个提交的运行且成功（只看 Quality checks 不够），再告诉用户上线的版本号。
 
 ## 回退
 

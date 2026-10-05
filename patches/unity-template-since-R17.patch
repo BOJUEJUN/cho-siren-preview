@@ -220,7 +220,7 @@ index 9df3a7a..3bd75b3 100644
    window.choSirenCharacter = {
      play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
-index 4847806..87cfb69 100644
+index 4847806..f0e5ca4 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 @@ -6,10 +6,16 @@
@@ -240,7 +240,35 @@ index 4847806..87cfb69 100644
      <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
      <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
      <style>
-@@ -102,15 +108,23 @@
+@@ -37,12 +43,27 @@
+       }
+ 
+       body {
++        position: relative;
++        z-index: 0;
+         display: grid;
+         place-items: center;
+         padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+       }
+ 
++      /* Wide screens: the stage art, blurred and dimmed, fills the space beside the
++         portrait shell instead of flat colour. Portrait phones never draw it. */
++      @media (min-aspect-ratio: 4/5) {
++        body::before {
++          content: "";
++          position: fixed;
++          inset: -64px;
++          z-index: -1;
++          background: url("./media/loading-stage.webp") center / cover no-repeat;
++          filter: blur(34px) brightness(0.4) saturate(1.2);
++        }
++      }
++
+       #game-shell {
+         position: relative;
+         width: min(100%, calc(100vh * 720 / 1536));
+@@ -102,15 +123,23 @@
          .lipstick-trail { display: none; }
        }
  
@@ -269,7 +297,7 @@ index 4847806..87cfb69 100644
        }
  
        #loading.is-hidden {
-@@ -118,34 +132,97 @@
+@@ -118,34 +147,97 @@
          pointer-events: none;
        }
  
@@ -379,7 +407,7 @@ index 4847806..87cfb69 100644
        }
  
        #warning {
-@@ -207,36 +284,66 @@
+@@ -207,36 +299,66 @@
          <button id="retry" type="button">重新加载</button>
        </div>
        <div id="loading">
@@ -396,7 +424,7 @@ index 4847806..87cfb69 100644
 +          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
 +          <div id="loading-note" class="loading-note"></div>
 +        </div>
-+        <div id="loading-version" class="loading-version">v0.3.9</div>
++        <div id="loading-version" class="loading-version">v0.3.10</div>
        </div>
      </main>
  
@@ -455,7 +483,7 @@ index 4847806..87cfb69 100644
        const warning = document.querySelector("#warning");
        const warningText = document.querySelector("#warning-text");
        const retry = document.querySelector("#retry");
-@@ -275,7 +382,6 @@
+@@ -275,7 +397,6 @@
  
        // All URLs stay relative to the document so GitHub Pages project paths work.
        const buildUrl = new URL("Build/", pageUrl);
@@ -463,16 +491,16 @@ index 4847806..87cfb69 100644
        const buildAssetUrl = filename => {
          const url = new URL(filename, buildUrl);
          if (retryToken) url.searchParams.set("retry", retryToken);
-@@ -290,7 +396,7 @@
+@@ -290,7 +411,7 @@
          streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
          companyName: "CHO-SIREN Studio",
          productName: "CHO-SIREN 幻域魅声",
 -        productVersion: "0.3.8",
-+        productVersion: "0.3.9",
++        productVersion: "0.3.10",
          showBanner,
          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
          matchWebGLToCanvasSize: true
-@@ -298,11 +404,52 @@
+@@ -298,11 +419,52 @@
  
        const loader = document.createElement("script");
        loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
@@ -526,7 +554,7 @@ index 4847806..87cfb69 100644
            loading.classList.add("is-hidden");
          } catch (error) { showBanner(String(error), "error"); }
        };
-@@ -333,12 +480,27 @@
+@@ -333,12 +495,27 @@
            config.frameworkUrl = asset(".framework.js.unityweb");
            config.codeUrl = asset(".wasm.unityweb");
            loader.src = asset(".loader.js");
