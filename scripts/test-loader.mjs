@@ -9,11 +9,13 @@ const suffixes = ['.data.unityweb', '.framework.js.unityweb', '.wasm.unityweb', 
 const newer = suffixes.map((suffix, index) => String(index + 1).repeat(32) + suffix);
 const embedded = [...html.matchAll(/buildAssetUrl\("([^"\r\n]+)"\)/g)].map(match => match[1]);
 const flush = () => new Promise(resolve => setImmediate(resolve));
+const runningVersion = html.match(/productVersion: "([^"]+)"/)[1];
 
 async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old",
-  controlled = true, registerFails = false, lobbyReady = true } = {}) {
+  controlled = true, registerFails = false, lobbyReady = true, liveVersion = runningVersion, hidden = false,
+  releaseFails = false } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
-    registered = [], messages = [];
+    registered = [], messages = [], documentListeners = {};
   let timerId = 0;
   function element(name) {
     if (!elements.has(name)) elements.set(name, { style: {}, textContent: '', listeners: {}, classes: [],
@@ -22,7 +24,8 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
     return elements.get(name);
   }
   const context = vm.createContext({ URL, AbortController, console,
-    document: { baseURI: pageHref, querySelector: element,
+    document: { baseURI: pageHref, querySelector: element, hidden,
+      addEventListener: (type, handler) => { documentListeners[type] = handler; },
       createElement: () => ({}), body: { appendChild: item => appends.push(item) } },
     navigator: { serviceWorker: {
       controller: controlled ? { postMessage: message => messages.push(JSON.parse(JSON.stringify(message))) } : null,
@@ -41,6 +44,10 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       location: { href: pageHref, replace: url => calls.push({ redirect: url }), reload: () => calls.push({ reload: true }) } },
     fetch: async (url, options) => {
       requests.push({ url, options });
+      if (String(url).includes('release.json')) {
+        if (releaseFails) throw new Error('offline');
+        return { ok: true, json: async () => ({ version: liveVersion }) };
+      }
       if (pending) await new Promise((resolve, reject) => options.signal.addEventListener('abort', () => reject(new Error('timeout'))));
       if (fetchError) throw new Error('offline');
       return { ok: httpOk, json: async () => metadata };
@@ -54,7 +61,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
   });
   vm.runInContext(script, context);
   await flush(); await flush();
-  return { elements, timers, appends, calls, requests, unregistered, registered, messages, context };
+  return { elements, timers, appends, calls, requests, unregistered, registered, messages, context, documentListeners };
 }
 
 test('cached HTML selects all four fresh assets before starting Unity', async () => {
@@ -342,4 +349,39 @@ test('a lost WebGL context offers a plain reload that keeps the cached game file
   run.elements.get('#retry').listeners.click();
   assert.deepEqual(run.calls.at(-1), { reload: true });
   assert.ok(!run.calls.some(call => call.redirect));
+});
+
+test('a page brought back to the foreground offers a newer live release once', async () => {
+  const run = await boot({ liveVersion: '9.9.9' });
+  await run.appends[0].onload();
+  run.documentListeners.visibilitychange();
+  await flush(); await flush();
+  const releaseChecks = () => run.requests.filter(request => String(request.url).includes('release.json'));
+  assert.equal(releaseChecks()[0].options.cache, 'no-store');
+  assert.equal(run.elements.get('#warning').style.display, 'block');
+  assert.match(run.elements.get('#warning-text').textContent, /v9\.9\.9/);
+  assert.equal(run.elements.get('#retry').textContent, '立即更新');
+  run.documentListeners.visibilitychange(); await flush(); await flush();
+  assert.equal(releaseChecks().length, 1);
+  run.elements.get('#warning').listeners.click({ target: run.elements.get('#warning-text') });
+  assert.equal(run.elements.get('#warning').style.display, 'none');
+  run.elements.get('#retry').listeners.click();
+  assert.deepEqual(run.calls.at(-1), { reload: true });
+});
+
+test('the same live release, a hidden page or a failed check show nothing', async () => {
+  for (const options of [{}, { hidden: true, liveVersion: '9.9.9' }, { liveVersion: '9.9.9', releaseFails: true }]) {
+    const run = await boot(options);
+    await run.appends[0].onload();
+    run.documentListeners.visibilitychange(); await flush(); await flush();
+    assert.notEqual(run.elements.get('#warning').style.display, 'block');
+  }
+});
+
+test('a loading error cannot be dismissed by tapping it', async () => {
+  const run = await boot({ unityError: 'Failed to download file' });
+  await run.appends[0].onload(); await flush();
+  assert.equal(run.elements.get('#warning').style.display, 'block');
+  run.elements.get('#warning').listeners.click({ target: run.elements.get('#warning-text') });
+  assert.equal(run.elements.get('#warning').style.display, 'block');
 });

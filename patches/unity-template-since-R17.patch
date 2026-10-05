@@ -328,7 +328,7 @@ index 9df3a7a..5a67525 100644
      play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
      close, uploadFrame,
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
-index 4847806..676558a 100644
+index 4847806..d5bbff3 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 @@ -6,10 +6,16 @@
@@ -564,7 +564,7 @@ index 4847806..676558a 100644
 +          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
 +          <div id="loading-note" class="loading-note"></div>
 +        </div>
-+        <div id="loading-version" class="loading-version">v0.3.15</div>
++        <div id="loading-version" class="loading-version">v0.3.16</div>
        </div>
      </main>
  
@@ -623,29 +623,48 @@ index 4847806..676558a 100644
        const warning = document.querySelector("#warning");
        const warningText = document.querySelector("#warning-text");
        const retry = document.querySelector("#retry");
-@@ -267,7 +404,21 @@
+@@ -257,17 +394,37 @@
+         warningText.textContent = isLoadFailure
+           ? "游戏资源加载中断。请确认网络稳定后重新加载；手机端建议关闭其他大型应用再试。"
+           : detail;
+-        retry.style.display = type === "error" ? "block" : "none";
++        const actionable = type === "error" || type === "update";
++        retry.style.display = actionable ? "block" : "none";
++        retry.textContent = type === "update" ? "立即更新" : "重新加载";
+         warning.style.display = "block";
+-        warning.style.borderColor = type === "error" ? "#ff5f7f" : "rgba(255,255,255,.18)";
+-        if (type !== "error") {
++        warning.style.borderColor = type === "error" ? "#ff5f7f" : type === "update" ? "#ff69bf" : "rgba(255,255,255,.18)";
++        if (!actionable) {
+           bannerTimer = window.setTimeout(() => {
+             if (!fatalLoadError) warning.style.display = "none";
+           }, 5000);
          }
        }
- 
++      // Anything but an error can be dismissed by tapping the message.
++      warning.addEventListener("click", event => {
++        if (event.target !== retry && !fatalLoadError) warning.style.display = "none";
++      });
++
 +      // iOS can take the game's WebGL context away while the page sits in the
 +      // background, and Unity cannot rebuild it: the screen goes black or freezes.
 +      // A plain reload brings it back quickly from the cached game files, unlike the
 +      // network-only retry used for failed downloads.
-+      let contextLost = false;
++      let reloadInPlace = false;
 +      canvas.addEventListener("webglcontextlost", () => {
-+        contextLost = true;
++        reloadInPlace = true;
 +        showBanner("游戏画面被系统收回了（通常是在后台放得太久）。点下面的按钮重新载入即可。", "error");
 +      });
-+
+ 
        retry.addEventListener("click", () => {
-+        if (contextLost) {
++        if (reloadInPlace) {
 +          window.location.reload();
 +          return;
 +        }
          const refreshed = new URL(window.location.href);
          refreshed.searchParams.set("retry", Date.now().toString(36));
          window.location.replace(refreshed.href);
-@@ -275,7 +426,6 @@
+@@ -275,7 +432,6 @@
  
        // All URLs stay relative to the document so GitHub Pages project paths work.
        const buildUrl = new URL("Build/", pageUrl);
@@ -653,16 +672,16 @@ index 4847806..676558a 100644
        const buildAssetUrl = filename => {
          const url = new URL(filename, buildUrl);
          if (retryToken) url.searchParams.set("retry", retryToken);
-@@ -290,7 +440,7 @@
+@@ -290,7 +446,7 @@
          streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
          companyName: "CHO-SIREN Studio",
          productName: "CHO-SIREN 幻域魅声",
 -        productVersion: "0.3.8",
-+        productVersion: "0.3.15",
++        productVersion: "0.3.16",
          showBanner,
          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
          matchWebGLToCanvasSize: true
-@@ -298,11 +448,52 @@
+@@ -298,11 +454,52 @@
  
        const loader = document.createElement("script");
        loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
@@ -716,7 +735,7 @@ index 4847806..676558a 100644
            loading.classList.add("is-hidden");
          } catch (error) { showBanner(String(error), "error"); }
        };
-@@ -333,12 +524,27 @@
+@@ -333,12 +530,27 @@
            config.frameworkUrl = asset(".framework.js.unityweb");
            config.codeUrl = asset(".wasm.unityweb");
            loader.src = asset(".loader.js");
@@ -744,3 +763,25 @@ index 4847806..676558a 100644
        const trailHost = document.querySelector("#game-shell");
        let lastLipstickPoint = null;
        canvas.addEventListener("pointermove", event => {
+@@ -360,6 +572,21 @@
+           window.choSirenUnityInstance?.SendMessage("PsdHome20260921", "ToggleUiFromBrowser");
+         }
+       });
++      // A home-screen app can stay open for days. Whenever the page comes back to the
++      // foreground, check whether a newer release is live and offer to load it.
++      let updateOffered = false;
++      async function checkForUpdate() {
++        if (updateOffered || document.hidden) return;
++        try {
++          const response = await fetch(new URL(`release.json?_=${Date.now()}`, pageUrl), { cache: "no-store" });
++          const live = response.ok ? await response.json() : null;
++          if (!live || typeof live.version !== "string" || live.version === config.productVersion) return;
++          updateOffered = true;
++          reloadInPlace = true;
++          showBanner(`新版本 v${live.version} 已上线，点下面的按钮更新（点这段文字可先关闭）。`, "update");
++        } catch (_) {}
++      }
++      document.addEventListener("visibilitychange", checkForUpdate);
+       startGame();
+     </script>
+   </body>
