@@ -1,8 +1,8 @@
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
-index 9df3a7a..dd992ab 100644
+index 9df3a7a..57c0fe3 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/character-moments.js
-@@ -1,11 +1,54 @@
+@@ -1,11 +1,80 @@
  (() => {
    const root = document.querySelector('#character-moment');
    const clips = ['catalena-look', 'catalena-whisper', 'catalena-live'];
@@ -49,6 +49,32 @@ index 9df3a7a..dd992ab 100644
 +  debug?.('clip copies:', variants.map(variant => variant.name).join(' > '), '|', (globalThis.navigator || {}).userAgent);
    let current = null, pending = null, sequence = 0;
    let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
++  // iOS can refuse play() outside a tap even for muted video (Low Power Mode, in-app
++  // browsers), and Unity starts a clip a frame after the tap. A media element played
++  // once during a tap stays allowed, so every tap unlocks a couple of spare elements
++  // and each clip takes one of them.
++  const SPARE_PLAYERS = 2;
++  const spares = [];
++  function unlockSpares() {
++    while (spares.length < SPARE_PLAYERS) spares.push({ video: document.createElement('video'), unlocked: false });
++    for (const spare of spares) {
++      if (spare.unlocked) continue;
++      spare.unlocked = true;
++      spare.video.muted = true;
++      spare.video.playsInline = true;
++      try {
++        spare.video.play()?.catch(() => {});
++        spare.video.pause();
++      } catch (_) {}
++    }
++  }
++  for (const type of ['touchend', 'pointerup', 'click', 'keydown']) {
++    document.addEventListener(type, unlockSpares, { capture: true, passive: true });
++  }
++  function player() {
++    const index = spares.findIndex(spare => spare.unlocked);
++    return index >= 0 ? spares.splice(index, 1)[0].video : document.createElement('video');
++  }
    const dispose = item => {
      if (!item) return;
      clearTimeout(item.timeout);
@@ -57,7 +83,7 @@ index 9df3a7a..dd992ab 100644
      item.video.pause();
      item.video.removeAttribute('src');
      item.video.load();
-@@ -14,6 +57,8 @@
+@@ -14,6 +83,8 @@
    function status() {
      root.dataset.state = pending ? 'loading' : current ? 'playing' : 'idle';
      root.dataset.clip = current ? String(current.index) : '';
@@ -66,7 +92,7 @@ index 9df3a7a..dd992ab 100644
    }
    function close() {
      ++sequence;
-@@ -26,6 +71,10 @@
+@@ -26,29 +97,57 @@
    function showClip(index, withAudio) {
      if (!window.choSirenStage?.active) return false;
      if (!Number.isInteger(index) || index < 0 || index >= clips.length) return false;
@@ -77,7 +103,12 @@ index 9df3a7a..dd992ab 100644
      const request = ++sequence;
      const oldPending = pending;
      pending = null;
-@@ -37,18 +86,42 @@
+     dispose(oldPending);
+     // Each request owns its media element and callbacks. The current frame keeps
+     // rendering until the new clip is actually playing, including on slow networks.
+-    const video = document.createElement('video');
++    const video = player();
+     video.playsInline = true;
      video.preload = 'auto';
      video.muted = !withAudio;
      video.crossOrigin = 'anonymous';
@@ -122,7 +153,7 @@ index 9df3a7a..dd992ab 100644
        if (pending !== item || request !== sequence) return;
        clearTimeout(item.timeout);
        const old = current;
-@@ -56,7 +129,11 @@
+@@ -56,7 +155,11 @@
        pending = null;
        dispose(old);
        status();
@@ -134,7 +165,7 @@ index 9df3a7a..dd992ab 100644
      video.addEventListener('ended', () => {
        if (current !== item) return;
        current = null;
-@@ -64,23 +141,30 @@
+@@ -64,23 +167,30 @@
        status();
      });
      video.addEventListener('error', () => {
@@ -169,7 +200,7 @@ index 9df3a7a..dd992ab 100644
      const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
      const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
      const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
-@@ -101,6 +185,122 @@
+@@ -101,6 +211,122 @@
        gl.bindTexture(gl.TEXTURE_2D, bound);
      }
    }
@@ -293,7 +324,7 @@ index 9df3a7a..dd992ab 100644
    window.choSirenCharacter = {
      play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
 diff --git a/Assets/WebGLTemplates/ChoSirenPortrait/index.html b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
-index 4847806..bd29acb 100644
+index 4847806..4c4d92a 100644
 --- a/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 +++ b/Assets/WebGLTemplates/ChoSirenPortrait/index.html
 @@ -6,10 +6,16 @@
@@ -518,14 +549,14 @@ index 4847806..bd29acb 100644
 +          <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
 +          <div id="loading-note" class="loading-note"></div>
 +        </div>
-+        <div id="loading-version" class="loading-version">v0.3.12</div>
++        <div id="loading-version" class="loading-version">v0.3.13</div>
        </div>
      </main>
  
 +    <script src="./audio-skin.js?v=20261005-r17f"></script>
      <script src="./home-stage.js?v=20260928-r12a"></script>
 -    <script src="./character-moments.js?v=20260928-r12a"></script>
-+    <script src="./character-moments.js?v=20261006-r17g"></script>
++    <script src="./character-moments.js?v=20261006-r17h"></script>
      <script>
        const pageUrl = new URL("./", document.baseURI);
 -      // Retire the service worker used by the earlier HTML prototype.  Its root
@@ -590,7 +621,7 @@ index 4847806..bd29acb 100644
          companyName: "CHO-SIREN Studio",
          productName: "CHO-SIREN 幻域魅声",
 -        productVersion: "0.3.8",
-+        productVersion: "0.3.12",
++        productVersion: "0.3.13",
          showBanner,
          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
          matchWebGLToCanvasSize: true

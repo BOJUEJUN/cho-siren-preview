@@ -4,12 +4,12 @@ import vm from 'node:vm';
 import fs from 'node:fs';
 const source=fs.readFileSync(new URL('../character-moments.js',import.meta.url),'utf8');
 function setup(plays=[],globals={},{webm=false}={}){
-  const videos=[],timers=new Map();let id=0;
+  const videos=[],made=[],timers=new Map(),taps={};let id=0;
   const root={dataset:{},append(v){videos.push(v)}};
-  function video(){const events={};return {readyState:3,currentTime:0,events,play(){return plays.shift() || Promise.resolve()},pause(){this.paused=true},load(){},removeAttribute(){},remove(){this.removed=true},addEventListener(k,f){events[k]=f},canPlayType:t=>webm&&t.startsWith('video/webm')?'probably':''}}
+  function video(){const events={};const v={readyState:3,currentTime:0,events,plays:0,play(){this.plays++;this.paused=false;return plays.shift() || Promise.resolve()},pause(){this.paused=true},load(){},removeAttribute(){},remove(){this.removed=true},addEventListener(k,f){events[k]=f},canPlayType:t=>webm&&t.startsWith('video/webm')?'probably':''};made.push(v);return v}
   const window={choSirenStage:{active:true}};
-  vm.runInNewContext(source,{window,document:{querySelector:()=>root,createElement:()=>video(),addEventListener(){},baseURI:'https://example.test/'},URL,setTimeout:f=>{timers.set(++id,f);return id},clearTimeout:i=>timers.delete(i),...globals});
-  return {api:window.choSirenCharacter,root,videos,timers,window};
+  vm.runInNewContext(source,{window,document:{querySelector:()=>root,createElement:()=>video(),addEventListener(type,f){(taps[type]||=[]).push(f)},baseURI:'https://example.test/'},URL,setTimeout:f=>{timers.set(++id,f);return id},clearTimeout:i=>timers.delete(i),...globals});
+  return {api:window.choSirenCharacter,root,videos,made,timers,window,taps};
 }
 test('slow next clip keeps currently displayed character until ready',()=>{const {api,videos}=setup();api.play(0,true);videos[0].events.playing();api.play(1,true);assert.equal(api.currentClip,0);assert.ok(!videos[0].removed);videos[1].events.playing();assert.equal(api.currentClip,1);assert.equal(videos[0].removed,true)});
 test('failed or timed-out next clip retains current character',()=>{const {api,videos,timers}=setup();api.play(0,true);videos[0].events.playing();api.play(1,true);videos[1].events.error();assert.equal(api.currentClip,0);api.play(2,true);[...timers.values()][0]();assert.equal(api.currentClip,0)});
@@ -130,4 +130,18 @@ test('a clip that plays with its own sound needs no voice track but still ducks 
  api.play(1,true);videos[0].events.playing();
  assert.deepEqual(calls,[]);assert.equal(ducks.at(-1),true);
  api.close();assert.equal(ducks.at(-1),false);
+});
+
+test('a tap unlocks spare players, and the next clip plays on one of them',()=>{
+ const {api,videos,made,taps}=setup();
+ assert.ok(['touchend','pointerup','click','keydown'].every(type=>taps[type]?.length>=1));
+ taps.touchend[0]();
+ assert.equal(made.length,2);
+ assert.ok(made.every(v=>v.plays===1&&v.paused&&v.muted&&v.playsInline));
+ api.play(0,true);
+ assert.equal(videos[0],made[0]);assert.equal(videos[0].plays,2);assert.equal(videos[0].muted,false);
+ taps.pointerup[0]();
+ assert.equal(made.length,3);assert.equal(made[1].plays,1);assert.equal(made[2].plays,1);
+ api.play(1,true);api.play(2,true);
+ assert.deepEqual(videos,[made[0],made[1],made[2]]);
 });

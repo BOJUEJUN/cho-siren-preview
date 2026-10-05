@@ -44,6 +44,32 @@
   debug?.('clip copies:', variants.map(variant => variant.name).join(' > '), '|', (globalThis.navigator || {}).userAgent);
   let current = null, pending = null, sequence = 0;
   let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
+  // iOS can refuse play() outside a tap even for muted video (Low Power Mode, in-app
+  // browsers), and Unity starts a clip a frame after the tap. A media element played
+  // once during a tap stays allowed, so every tap unlocks a couple of spare elements
+  // and each clip takes one of them.
+  const SPARE_PLAYERS = 2;
+  const spares = [];
+  function unlockSpares() {
+    while (spares.length < SPARE_PLAYERS) spares.push({ video: document.createElement('video'), unlocked: false });
+    for (const spare of spares) {
+      if (spare.unlocked) continue;
+      spare.unlocked = true;
+      spare.video.muted = true;
+      spare.video.playsInline = true;
+      try {
+        spare.video.play()?.catch(() => {});
+        spare.video.pause();
+      } catch (_) {}
+    }
+  }
+  for (const type of ['touchend', 'pointerup', 'click', 'keydown']) {
+    document.addEventListener(type, unlockSpares, { capture: true, passive: true });
+  }
+  function player() {
+    const index = spares.findIndex(spare => spare.unlocked);
+    return index >= 0 ? spares.splice(index, 1)[0].video : document.createElement('video');
+  }
   const dispose = item => {
     if (!item) return;
     clearTimeout(item.timeout);
@@ -81,7 +107,7 @@
     dispose(oldPending);
     // Each request owns its media element and callbacks. The current frame keeps
     // rendering until the new clip is actually playing, including on slow networks.
-    const video = document.createElement('video');
+    const video = player();
     video.playsInline = true;
     video.preload = 'auto';
     video.muted = !withAudio;
