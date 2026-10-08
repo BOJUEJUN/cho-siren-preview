@@ -306,7 +306,7 @@
         <div id="stage-beat-meter"></div>
         <canvas id="stage-sparks"></canvas>
       </div>
-      <section id="character-moment" aria-label="首页角色演出" aria-hidden="true">
+      <section id="character-moment" data-idle-clip="catalena-idle" data-clip-format="green" data-clip-version="r18a" data-idle-cuts="0-1.2,2.8-9" aria-label="首页角色演出" aria-hidden="true">
         <video id="moment-video" playsinline webkit-playsinline preload="none"></video>
       </section>
       <div id="warning" role="status">
@@ -324,7 +324,7 @@
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
         </div>
-        <div id="loading-version" class="loading-version">v0.3.16</div>
+        <div id="loading-version" class="loading-version">v0.3.17</div>
       </div>
     </main>
 
@@ -440,20 +440,20 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("e2dd1290b6ccc5d2cc6e1ab45036d32a.data.unityweb"),
-        frameworkUrl: buildAssetUrl("3085ec3f1ee1e29db75fb8699374a35c.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("7eecc22377942e365eca0b7039949f12.wasm.unityweb"),
+        dataUrl: buildAssetUrl("0bc74888cbc0988a70f34286520d31bb.data.unityweb"),
+        frameworkUrl: buildAssetUrl("3506375a87c988966cd1007edb4bd2e1.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("73ecb39ad1a8e275cc502c6c215cbe16.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.16",
+        productVersion: "0.3.17",
         showBanner,
         devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         matchWebGLToCanvasSize: true
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("5e8b4fd6e60dcb66ea7540fbd1225889.loader.js");
+      loader.src = buildAssetUrl("effbee8df81f965f4a9373216839c3fa.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.

@@ -137,7 +137,8 @@
 
   window.choSirenAudio = {
     // Starts a clip's voice track at the video's current time; returns { stop() }.
-    playVoice(name, currentTime) {
+    // onEnded runs once the track has played out (not after stop()).
+    playVoice(name, currentTime, onEnded) {
       let source = null, stopped = false;
       if (!voices.has(name)) voices.set(name, decode(media(`${name}.voice.mp3`)));
       voices.get(name).then(buffer => {
@@ -146,6 +147,7 @@
         source = ctx.createBufferSource();
         source.buffer = buffer;
         source.connect(ctx.destination);
+        source.onended = () => { if (!stopped) onEnded?.(); };
         source.start(0, Math.max(0, Math.min(buffer.duration, currentTime())));
       }).catch(() => {});
       return { stop() { stopped = true; try { source?.stop(); } catch (_) {} } };

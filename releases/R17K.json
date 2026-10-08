@@ -1,0 +1,23 @@
+{
+  "version": "0.3.16",
+  "releaseId": "WEB-20261006-UPDATE-R17K",
+  "name": "回到前台时检查新版本并提示一键更新；提示框可点文字关闭",
+  "date": "2026-10-06",
+  "backupBranch": "backup/v0.3.16",
+  "unityBuild": "沿用 PSD-20260929-HOME-R17 的 Unity WebGL 包（未重新构建），本版只改网页层",
+  "sourceCommit": "cb77657",
+  "previousReleaseId": "WEB-20261006-BACKGROUND-R17J",
+  "previousWebCommit": "2a7b1f7",
+  "previousReleaseRecord": "releases/R17J.json",
+  "previousBackupBranch": "backup/v0.3.15",
+  "savePolicy": "保留现有存档与进度；网页层改动不触及存档。",
+  "validation": {
+    "loaderRegressionTestsPassed": 31,
+    "characterLifecycleTestsPassed": 17,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "Chromium 模拟 iPhone：线上版本号相同时回到前台不提示；把 release.json 换成 0.3.99 后回到前台，顶部出现粉色边框提示「新版本 v0.3.99 已上线」和「立即更新」按钮，点文字可关闭，点按钮普通刷新，控制台无报错。"
+}

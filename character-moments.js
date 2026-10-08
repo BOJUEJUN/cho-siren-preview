@@ -1,6 +1,30 @@
 (() => {
   const root = document.querySelector('#character-moment');
   const clips = ['catalena-look', 'catalena-whisper', 'catalena-live'];
+  // Optional idle loop, named by data-idle-clip on #character-moment. While Unity allows
+  // it (setIdle) and the lobby is up, the loop plays whenever no performance does. A tap
+  // waits for the loop to come round to its first frame and the performance starts
+  // there; each performance hands back to the loop the same way. The clips are made to
+  // begin and end on that one frame, so no cut shows. Without the attribute the player
+  // behaves as before: the portrait, a performance, the portrait again.
+  const idleClip = root?.dataset?.idleClip || '';
+  const IDLE = clips.length;
+  const clipName = index => index === IDLE ? idleClip : clips[index];
+  let idleWanted = false, idleBroken = false, queued = null;
+  // data-idle-cuts lists the stretches of the loop ("0-1.2,2.8-9", seconds) that look
+  // like its first frame; a tap inside one starts at once instead of waiting.
+  const idleCuts = (root?.dataset?.idleCuts || '').split(',').map(range => range.split('-').map(Number))
+    .filter(range => range.length === 2 && range.every(Number.isFinite));
+  const atIdleCut = () => current?.index === IDLE && idleCuts.some(([from, to]) => {
+    const time = current.video.currentTime;
+    return time >= from && time <= to;
+  });
+  function startQueued() {
+    const tap = queued;
+    queued = null;
+    load(tap.index, tap.withAudio, 0);
+  }
+  const idleActive = () => !!idleClip && !idleBroken;
   // Safari and every iOS browser drop the alpha channel of VP9 WebM. They get a copy
   // packed side by side instead, [colour | PACKED_GAP px | alpha as luma], built by
   // scripts/build-packed-video.sh and recombined on the GPU in uploadPackedFrame():
@@ -11,11 +35,17 @@
   const VARIANTS = {
     webm: { name: 'webm', packed: false, file: clip => `media/${clip}.webm?v=20260928-r10` },
     packedWebm: { name: 'packed-webm', packed: true, file: clip => `media/${clip}.packed.webm?v=20261006-r17g` },
-    packedMp4: { name: 'packed-mp4', packed: true, file: clip => `media/${clip}.packed.mp4?v=20261005-r17a` }
+    packedMp4: { name: 'packed-mp4', packed: true, file: clip => `media/${clip}.packed.mp4?v=20261005-r17a` },
+    // Green-screen H.264, keyed on the GPU: one file that every browser (iPhone too) plays.
+    green: { name: 'green', packed: true, keyed: true, file: clip => `media/${clip}.green.mp4?v=${greenVersion}` }
   };
+  // data-clip-format="green" switches every clip to the green-screen copies;
+  // data-clip-version changes with each new set of them.
+  const greenVersion = root?.dataset?.clipVersion || '1';
   const query = name => globalThis.location ? new URL(globalThis.location.href).searchParams.get(name) : null;
   const variants = (() => {
     const forced = query('alphaVideo');
+    if (root?.dataset?.clipFormat === 'green') return [VARIANTS.green];
     if (forced === 'webm') return [VARIANTS.webm];
     if (forced === 'packed-mp4') return [VARIANTS.packedMp4];
     if (forced === 'packed') return [VARIANTS.packedWebm, VARIANTS.packedMp4];
@@ -43,6 +73,23 @@
   })();
   debug?.('clip copies:', variants.map(variant => variant.name).join(' > '), '|', (globalThis.navigator || {}).userAgent);
   let current = null, pending = null, sequence = 0;
+  // Green-screen clips carry no sound: a performance's voice line plays beside it
+  // through Web Audio and runs to its end, on into the idle loop, until the next
+  // performance or the lobby closing stops it.
+  let speech = null;
+  function speak(index) {
+    stopSpeech();
+    if (!window.choSirenAudio) return;
+    const handle = window.choSirenAudio.playVoice(clipName(index), () => 0, () => {
+      if (speech === handle) { speech = null; status(); }
+    });
+    speech = handle;
+  }
+  function stopSpeech() {
+    const handle = speech;
+    speech = null;
+    handle?.stop();
+  }
   let uploadedVideo = null, uploadedTime = -1, uploadedTexture = null;
   // iOS can refuse play() outside a tap even for muted video (Low Power Mode, in-app
   // browsers), and Unity starts a clip a frame after the tap. A media element played
@@ -84,12 +131,13 @@
     root.dataset.state = pending ? 'loading' : current ? 'playing' : 'idle';
     root.dataset.clip = current ? String(current.index) : '';
     // The game music steps back while a clip with sound is on screen (audio-skin.js).
-    window.choSirenAudio?.duck(!!current?.withAudio);
+    window.choSirenAudio?.duck(!!speech || (!!current?.withAudio && !current.keyed));
   }
   function close() {
     ++sequence;
     const old = current, loading = pending;
-    current = pending = null;
+    current = pending = queued = null;
+    stopSpeech();
     dispose(old); dispose(loading);
     uploadedVideo = uploadedTexture = null;
     status();
@@ -97,8 +145,35 @@
   function showClip(index, withAudio) {
     if (!window.choSirenStage?.active) return false;
     if (!Number.isInteger(index) || index < 0 || index >= clips.length) return false;
+    // A tap during the idle loop waits for the loop's first frame.
+    if (current?.index === IDLE && !pending && idleActive()) {
+      queued = { index, withAudio };
+      if (atIdleCut()) startQueued();
+      return true;
+    }
+    queued = null;
     load(index, withAudio, 0);
     return true;
+  }
+  // Starts the loop again from its first frame; false when the loop is not to play.
+  function resumeIdle() {
+    if (!idleActive() || !idleWanted || !window.choSirenStage?.active || document.hidden) return false;
+    if (current?.index === IDLE) {
+      current.video.currentTime = 0;
+      current.video.play()?.catch(() => {});
+    } else {
+      load(IDLE, false, 0);
+    }
+    return true;
+  }
+  // The last frame of an ended clip stays on screen until the next one is playing.
+  function next(item) {
+    if (pending) return true;
+    if (queued && item.index === IDLE) {
+      startQueued();
+      return true;
+    }
+    return resumeIdle();
   }
   function load(index, withAudio, variant) {
     const request = ++sequence;
@@ -110,13 +185,14 @@
     const video = player();
     video.playsInline = true;
     video.preload = 'auto';
-    video.muted = !withAudio;
+    // A green-screen copy has no sound track, so it always starts muted.
+    video.muted = !withAudio || !!variants[variant].keyed;
     video.crossOrigin = 'anonymous';
-    video.src = new URL(variants[variant].file(clips[index]), document.baseURI).href;
-    const item = { video, index, timeout: 0, packed: variants[variant].packed,
+    video.src = new URL(variants[variant].file(clipName(index)), document.baseURI).href;
+    const item = { video, index, timeout: 0, packed: variants[variant].packed, keyed: !!variants[variant].keyed,
       withAudio: !!withAudio, voiceNeeded: false, voice: null };
     if (debug) {
-      debug('load', clips[index], variants[variant].name, withAudio ? 'with sound' : 'muted');
+      debug('load', clipName(index), variants[variant].name, withAudio ? 'with sound' : 'muted');
       for (const type of ['loadedmetadata', 'canplay', 'playing', 'waiting', 'stalled', 'ended']) {
         video.addEventListener(type, () => debug(type, `${video.videoWidth}x${video.videoHeight}`, `t=${video.currentTime.toFixed(2)}`));
       }
@@ -128,16 +204,23 @@
     const syncVoice = () => {
       item.voice?.stop();
       item.voice = item.voiceNeeded && current === item && window.choSirenAudio
-        ? window.choSirenAudio.playVoice(clips[index], () => video.currentTime) : null;
+        ? window.choSirenAudio.playVoice(clipName(index), () => video.currentTime) : null;
     };
     pending = item;
     root.append(video);
     status();
     const fail = () => {
       if (pending !== item || request !== sequence) return;
-      debug?.('gave up on', clips[index]);
+      debug?.('gave up on', clipName(index));
       pending = null;
       dispose(item);
+      if (index === IDLE) idleBroken = true;
+      // Nothing is coming to replace a clip held on its last frame: let it go.
+      if (current?.video.ended && !(index !== IDLE && resumeIdle())) {
+        const old = current;
+        current = null;
+        dispose(old);
+      }
       status();
     };
     // A copy this browser cannot decode hands over to the next one in line.
@@ -154,6 +237,7 @@
       current = item;
       pending = null;
       dispose(old);
+      if (item.keyed && index !== IDLE && item.withAudio) speak(index);
       status();
       syncVoice();
     });
@@ -162,6 +246,7 @@
     }
     video.addEventListener('ended', () => {
       if (current !== item) return;
+      if (idleActive() && next(item)) return;
       current = null;
       dispose(item);
       status();
@@ -187,10 +272,12 @@
     });
   }
   function uploadFrame(gl, texture) {
+    // Unity asks every frame, so a waiting tap starts as soon as the loop reaches a cut.
+    if (queued && !pending && atIdleCut()) startQueued();
     const video = current?.video;
     if (!video || video.readyState < 2) return false;
     if (uploadedVideo === video && uploadedTime === video.currentTime && uploadedTexture === texture) return true;
-    if (current.packed) return uploadPackedFrame(gl, texture, video);
+    if (current.packed) return uploadPackedFrame(gl, texture, video, current.keyed);
     const bound = gl.getParameter(gl.TEXTURE_BINDING_2D);
     const flipped = gl.getParameter(gl.UNPACK_FLIP_Y_WEBGL);
     const premultiplied = gl.getParameter(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL);
@@ -236,15 +323,26 @@ void main() {
     gl.attachShader(program, shader(gl.FRAGMENT_SHADER, `#version 300 es
 precision highp float;
 uniform highp sampler2D uFrame;
-uniform ivec3 uPacking;  // colour width, height, first alpha column
+uniform ivec3 uPacking;  // colour width, height, first alpha column (packed copies)
+uniform bool uKey;       // green-screen copy: alpha comes from the colour itself
 uniform bool uLinear;    // sRGB target: write linear values so the stored bytes match a plain upload
 out vec4 outColor;
 void main() {
   ivec2 p = ivec2(gl_FragCoord.xy);
   ivec2 texel = ivec2(p.x, uPacking.y - 1 - p.y);
   vec3 rgb = texelFetch(uFrame, texel, 0).rgb;
-  float alpha = texelFetch(uFrame, texel + ivec2(uPacking.z, 0), 0).g;
-  alpha = clamp((alpha - 2.0 / 255.0) * (255.0 / 251.0), 0.0, 1.0);
+  float alpha;
+  if (uKey) {
+    // How far green rises above the other two channels: the screen is clearly
+    // above, skin, hair and the cyan tails are not. Edges get a soft ramp and the
+    // green cast left on them is pulled back to the stronger of red and blue.
+    float spill = rgb.g - max(rgb.r, rgb.b);
+    alpha = 1.0 - smoothstep(0.10, 0.30, spill);
+    rgb.g = min(rgb.g, max(rgb.r, rgb.b) + 0.03);
+  } else {
+    alpha = texelFetch(uFrame, texel + ivec2(uPacking.z, 0), 0).g;
+    alpha = clamp((alpha - 2.0 / 255.0) * (255.0 / 251.0), 0.0, 1.0);
+  }
   if (uLinear) rgb = mix(rgb / 12.92, pow((rgb + 0.055) / 1.055, vec3(2.4)), step(0.04045, rgb));
   outColor = vec4(rgb, alpha);
 }`));
@@ -253,12 +351,13 @@ void main() {
     entry = { program, frame: gl.createTexture(), framebuffer: gl.createFramebuffer(),
       vertexArray: gl.createVertexArray(), width: 0, height: 0,
       uFrame: gl.getUniformLocation(program, 'uFrame'), uPacking: gl.getUniformLocation(program, 'uPacking'),
+      uKey: gl.getUniformLocation(program, 'uKey'),
       uLinear: gl.getUniformLocation(program, 'uLinear') };
     compositors.set(gl, entry);
     return entry;
   }
-  function uploadPackedFrame(gl, texture, video) {
-    const width = (video.videoWidth - PACKED_GAP) / 2, height = video.videoHeight;
+  function uploadPackedFrame(gl, texture, video, keyed = false) {
+    const width = keyed ? video.videoWidth : (video.videoWidth - PACKED_GAP) / 2, height = video.videoHeight;
     if (!Number.isInteger(width) || width <= 0 || !height) return false;
     const saved = {
       activeTexture: gl.getParameter(gl.ACTIVE_TEXTURE),
@@ -300,7 +399,8 @@ void main() {
       gl.viewport(0, 0, width, height);
       gl.useProgram(c.program);
       gl.uniform1i(c.uFrame, 0);
-      gl.uniform3i(c.uPacking, width, height, width + PACKED_GAP);
+      gl.uniform3i(c.uPacking, width, height, keyed ? 0 : width + PACKED_GAP);
+      gl.uniform1i(c.uKey, keyed ? 1 : 0);
       gl.uniform1i(c.uLinear, srgb ? 1 : 0);
       gl.bindVertexArray(c.vertexArray);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -331,11 +431,60 @@ void main() {
   // iOS pauses media when the page goes to the background and never resumes it, which
   // would leave the clip frozen on screen with the music still ducked; it ends instead.
   document.addEventListener('visibilitychange', () => { if (document.hidden) close(); });
+  // Unity says when the loop may play (the lobby shows the character that has one);
+  // the lobby itself coming and going, and the page returning to the foreground, are
+  // picked up here.
+  function setIdle(on) {
+    idleWanted = !!on;
+    if (!idleWanted && (current?.index === IDLE || pending?.index === IDLE)) close();
+    else watchIdle();
+  }
+  function watchIdle() {
+    if (!idleActive()) return;
+    const stage = !!window.choSirenStage?.active && !document.hidden;
+    if (idleWanted && stage && !current && !pending) load(IDLE, false, 0);
+    else if (!stage && (current || pending)) close();
+  }
+  if (idleClip) {
+    const tick = () => { watchIdle(); setTimeout(tick, 500); };
+    setTimeout(tick, 500);
+  }
+  // Once the lobby is up the clips download in the background, first clip first, so a
+  // tap plays at once instead of waiting on the network; service-worker.js keeps the
+  // copies for later visits. Each download is drained, never held in memory.
+  let preloadStarted = false;
+  function preloadClips() {
+    if (preloadStarted || typeof fetch !== 'function') return;
+    if (!window.choSirenStage?.active) { setTimeout(preloadClips, 1000); return; }
+    preloadStarted = true;
+    setTimeout(async () => {
+      for (const clip of idleClip ? [idleClip, ...clips] : clips) {
+        try {
+          const response = await fetch(new URL(variants[0].file(clip), document.baseURI).href);
+          const reader = response.body?.getReader();
+          if (reader) while (!(await reader.read()).done) { /* drain */ }
+          debug?.('preloaded', clip, response.status);
+        } catch (error) {
+          debug?.('preload failed', clip, error && error.message);
+          return;
+        }
+      }
+    }, 2000);
+  }
+  if (!(globalThis.navigator || {}).connection?.saveData) preloadClips();
   window.choSirenCharacter = {
     play(index, withAudio) { return showClip(((index % clips.length) + clips.length) % clips.length, withAudio); },
     close, uploadFrame,
     get active() { return !!(current || pending); },
-    get currentClip() { return current ? current.index : -1; }
+    get currentClip() { return current ? current.index : -1; },
+    // Size of the current clip's picture in pixels (the colour half of a packed copy).
+    get clipSize() {
+      const video = current?.video;
+      if (!video || !video.videoWidth || !video.videoHeight) return null;
+      const width = current.packed && !current.keyed ? (video.videoWidth - PACKED_GAP) / 2 : video.videoWidth;
+      return { width, height: video.videoHeight, keyed: !!current.keyed };
+    },
+    setIdle
   };
   status();
 })();

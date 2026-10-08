@@ -222,7 +222,7 @@ function cacheStorage(initial) {
       delete: async key => map.delete(url(key))
     };
   };
-  return { stores, open: async name => open(name), keys: async () => [...stores.keys()], delete: async name => stores.delete(name) };
+  return { stores, open: async name => open(name), has: async name => stores.has(name), keys: async () => [...stores.keys()], delete: async name => stores.delete(name) };
 }
 
 function assetWorker({ cached = {}, storageFails = false } = {}) {
@@ -231,7 +231,7 @@ function assetWorker({ cached = {}, storageFails = false } = {}) {
   const storage = cacheStorage(cached);
   const caches = storageFails ? { ...storage, open: async () => { throw new Error('denied'); } } : storage;
   vm.runInNewContext(readFileSync(new URL('../service-worker.js', import.meta.url), 'utf8'), {
-    URL, caches,
+    URL, caches, Response, Headers,
     fetch: async request => {
       fetched.push(request.url);
       const response = { status: 200, type: 'basic', body: 'network:' + request.url };
@@ -244,7 +244,8 @@ function assetWorker({ cached = {}, storageFails = false } = {}) {
   async function request(url, { method = 'GET', range = false } = {}) {
     let responded = null;
     const waits = [];
-    events.fetch({ request: { url, method, headers: { has: name => range && name === 'range' } },
+    const header = range === true ? 'bytes=0-' : range;
+    events.fetch({ request: { url, method, headers: { has: name => !!range && name === 'range', get: name => name === 'range' && range ? header : null } },
       respondWith: promise => { responded = promise; }, waitUntil: promise => waits.push(promise) });
     const response = responded ? await responded : null;
     await Promise.all(waits);
@@ -281,12 +282,46 @@ test('pages, manifests, unhashed art, media, ranges and other sites bypass the w
   for (const url of [gameBase, gameBase + 'index.html', gameBase + 'build-versions.json?_=x',
     gameBase + 'service-worker.js', gameBase + 'StreamingAssets/Reference038/manifest.json',
     gameBase + 'StreamingAssets/AlbumInkR02/ink-flow-0.png', gameBase + 'StreamingAssets/Lobby/lobby-loop.mp4',
-    gameBase + 'media/catalena-look.webm?v=1', dataFile + '?v=2', dataFile.replace('cho-siren-preview', 'another-game'),
+    gameBase + 'media/catalena-look.webm', gameBase + 'media/catalena-look.webm?v=1&x=2',
+    gameBase + 'media/catalena-look.voice.mp3?v=1', dataFile + '?v=2', dataFile.replace('cho-siren-preview', 'another-game'),
     dataFile.replace('example.test', 'cdn.example.test')]) {
     assert.equal(await worker.request(url), null, url);
   }
   assert.equal(await worker.request(dataFile, { method: 'POST' }), null);
   assert.equal(await worker.request(dataFile, { range: true }), null);
+  // A clip that is not stored yet streams straight from the network.
+  assert.equal(await worker.request(clipFile, { range: true }), null);
+  assert.deepEqual(worker.fetched, []);
+});
+
+const clipFile = gameBase + 'media/catalena-look.packed.webm?v=r2';
+
+test('character clips download once, are kept, and replace their older encodes', async () => {
+  const older = gameBase + 'media/catalena-look.packed.webm?v=r1';
+  const worker = assetWorker({ cached: { 'cho-siren-media-1': [[older, { body: 'old' }]] } });
+  assert.equal((await worker.request(clipFile)).body, 'network:' + clipFile);
+  assert.equal((await worker.request(clipFile)).stored, true);
+  assert.deepEqual(worker.fetched, [clipFile]);
+  assert.deepEqual([...worker.storage.stores.get('cho-siren-media-1').keys()], [clipFile]);
+});
+
+test('a stored clip answers the video element\'s byte ranges with 206 slices', async () => {
+  const bytes = new TextEncoder().encode('0123456789');
+  // Like the Cache API, every match hands out a fresh body.
+  const stored = { headers: new Headers({ 'Content-Type': 'video/webm' }), blob: async () => new Blob([bytes]) };
+  const worker = assetWorker({ cached: { 'cho-siren-media-1': [[clipFile, stored]] } });
+  await new Promise(resolve => setTimeout(resolve, 0));
+  const read = async response => new TextDecoder().decode(await response.arrayBuffer());
+  const head = await worker.request(clipFile, { range: 'bytes=0-' });
+  assert.equal(head.status, 206);
+  assert.equal(head.headers.get('Content-Range'), 'bytes 0-9/10');
+  assert.equal(head.headers.get('Content-Type'), 'video/webm');
+  assert.equal(await read(head), '0123456789');
+  const middle = await worker.request(clipFile, { range: 'bytes=2-4' });
+  assert.equal(middle.headers.get('Content-Length'), '3');
+  assert.equal(await read(middle), '234');
+  assert.equal(await read(await worker.request(clipFile, { range: 'bytes=-3' })), '789');
+  assert.equal((await worker.request(clipFile, { range: 'bytes=20-' })).status, 416);
   assert.deepEqual(worker.fetched, []);
 });
 

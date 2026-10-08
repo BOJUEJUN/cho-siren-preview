@@ -122,6 +122,20 @@ for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   }
 }
 
+// Green-screen clips (H.264, keyed on the GPU) when the page switches to them.
+if (html.includes('data-clip-format="green"')) {
+  const idle = /data-idle-clip="([a-z-]+)"/.exec(html)?.[1];
+  for (const name of [idle, "catalena-look", "catalena-whisper", "catalena-live"].filter(Boolean)) {
+    const clip = join(root, "media", `${name}.green.mp4`);
+    requireFile(clip);
+    const bytes = readFileSync(clip);
+    if (bytes.length < 1000 || bytes.length >= 100 * 1024 * 1024 ||
+        bytes.subarray(4, 8).toString("latin1") !== "ftyp" || bytes.indexOf(Buffer.from("avc1")) < 0) {
+      throw new Error(`绿幕角色演出文件无效：${name}.green.mp4`);
+    }
+  }
+}
+
 const references = [...html.matchAll(/buildAssetUrl\("([^"]+\.(?:data\.unityweb|framework\.js\.unityweb|wasm\.unityweb|loader\.js))"\)/g)]
   .map(match => match[1]);
 if (references.length !== 4) {
