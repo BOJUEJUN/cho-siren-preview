@@ -1,0 +1,23 @@
+{
+  "version": "0.3.18",
+  "releaseId": "PSD-20261008-HUD-R19",
+  "name": "顶部信息栏文字清晰化：按屏幕真实像素密度渲染，数字加描边",
+  "date": "2026-10-08",
+  "backupBranch": "backup/v0.3.18",
+  "unityBuild": "新 Unity WebGL 包 R19（顶部 HUD 文字加粗、深色描边与投影；Player Settings 版本 0.3.18）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261008-HOME-R18",
+  "previousWebCommit": "ea83fd8",
+  "previousReleaseRecord": "releases/R18.json",
+  "previousBackupBranch": "backup/v0.3.17",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 34,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 模拟手机：顶部钻石/金币/体力数字、等级和战力为加粗白字带深紫描边，头像框横纹不再像划过文字；画布按设备像素密度渲染（3 倍屏渲染 3 倍，超大屏按 320 万像素上限）。"
+}

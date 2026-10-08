@@ -13,7 +13,7 @@ const runningVersion = html.match(/productVersion: "([^"]+)"/)[1];
 
 async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old",
   controlled = true, registerFails = false, lobbyReady = true, liveVersion = runningVersion, hidden = false,
-  releaseFails = false, canvasBox = null } = {}) {
+  releaseFails = false, canvasBox = null, frames = null } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
     registered = [], messages = [], documentListeners = {};
   let timerId = 0;
@@ -24,6 +24,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
     if (name === '#unity-canvas' && canvasBox) elements.get(name).getBoundingClientRect = () => canvasBox;
     return elements.get(name);
   }
+  const unityModule = {};
   const context = vm.createContext({ URL, AbortController, console,
     document: { baseURI: pageHref, querySelector: element, hidden,
       addEventListener: (type, handler) => { documentListeners[type] = handler; },
@@ -41,6 +42,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       })) } },
     window: { setTimeout: callback => { timers.set(++timerId, callback); return timerId; },
       clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
+      ...(frames ? { requestAnimationFrame: callback => frames.push(callback) } : {}),
       choSirenStage: { active: lobbyReady },
       location: { href: pageHref, replace: url => calls.push({ redirect: url }), reload: () => calls.push({ reload: true }) } },
     fetch: async (url, options) => {
@@ -57,12 +59,12 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       calls.push({ config: { ...config } });
       if (unityError) throw new Error(unityError);
       progress(1);
-      return {};
+      return { Module: unityModule };
     }
   });
   vm.runInContext(script, context);
   await flush(); await flush();
-  return { elements, timers, appends, calls, requests, unregistered, registered, messages, context, documentListeners };
+  return { elements, timers, appends, calls, requests, unregistered, registered, messages, context, documentListeners, unityModule };
 }
 
 test('cached HTML selects all four fresh assets before starting Unity', async () => {
@@ -431,4 +433,24 @@ test('the game renders at the screen density, within a pixel budget on very larg
   const ratio = wall.calls[0].config.devicePixelRatio;
   assert.ok(ratio >= 1 && ratio < 1.1, String(ratio));
   assert.ok(1200 * 2560 * ratio * ratio <= 3.2e6 + 1);
+});
+
+test('a phone that cannot keep up steps the render density down, and never back up', async () => {
+  const frames = [];
+  const run = await boot({ frames });
+  await run.appends[0].onload();
+  await flush(); await flush();
+  // the watch starts a few seconds after the lobby appears
+  for (const callback of [...run.timers.values()]) callback();
+  let now = 10000;
+  const play = (count, step) => { for (let i = 0; i < count; i++) { const tick = frames.shift(); if (!tick) return; tick(now); now += step; } };
+  play(200, 16.7);
+  assert.equal(run.unityModule.devicePixelRatio, undefined);
+  play(100, 33);  // one slow 3 s window
+  assert.equal(run.unityModule.devicePixelRatio, 2);
+  play(100, 33);
+  assert.equal(run.unityModule.devicePixelRatio, 1.5);
+  play(200, 16.7);
+  assert.equal(run.unityModule.devicePixelRatio, 1.5);
+  assert.equal(frames.length, 0);
 });
