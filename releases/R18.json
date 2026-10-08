@@ -1,0 +1,23 @@
+{
+  "version": "0.3.17",
+  "releaseId": "PSD-20261008-HOME-R18",
+  "name": "首页角色常驻待机动画，点击无缝接动作，台词气泡和配音回归",
+  "date": "2026-10-08",
+  "backupBranch": "backup/v0.3.17",
+  "unityBuild": "新 Unity WebGL 包 R18（Unity 6000.6.0f1，Player Settings 版本 0.3.17，关闭 Unity 启动画面）；R17 之后的网页层改动已同步回 Unity 模板",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "WEB-20261006-UPDATE-R17K",
+  "previousWebCommit": "8a851db",
+  "previousReleaseRecord": "releases/R17K.json",
+  "previousBackupBranch": "backup/v0.3.16",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 33,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium（桌面与模拟手机）：大厅载入后待机循环自动播放，绿幕在 GPU 上抠除、无绿边，人物与原立绘位置大小重合；点角色弹出台词气泡并播放配音，动作在待机首帧处接入（眨眼段外立即、眨眼段内最多约 1.4 秒），播完回到待机；生成的 index.html 与上一版只差构建文件名和版本号。"
+}

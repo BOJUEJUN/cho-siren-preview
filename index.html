@@ -324,7 +324,7 @@
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
         </div>
-        <div id="loading-version" class="loading-version">v0.3.17</div>
+        <div id="loading-version" class="loading-version">v0.3.18</div>
       </div>
     </main>
 
@@ -437,23 +437,31 @@
         if (retryToken) url.searchParams.set("retry", retryToken);
         return url.href;
       };
+      // Render at the screen's own density (iPhones are 3x) so text and art stay sharp;
+      // a pixel budget keeps very large screens from taking too much GPU memory.
+      function renderPixelRatio() {
+        const density = Math.min(window.devicePixelRatio || 1, 3);
+        const box = typeof canvas.getBoundingClientRect === "function" ? canvas.getBoundingClientRect() : null;
+        const area = box && box.width * box.height;
+        return area > 0 ? Math.max(1, Math.min(density, Math.sqrt(3.2e6 / area))) : density;
+      }
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("0bc74888cbc0988a70f34286520d31bb.data.unityweb"),
-        frameworkUrl: buildAssetUrl("3506375a87c988966cd1007edb4bd2e1.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("73ecb39ad1a8e275cc502c6c215cbe16.wasm.unityweb"),
+        dataUrl: buildAssetUrl("420a74b16f910187430565f23ba4b556.data.unityweb"),
+        frameworkUrl: buildAssetUrl("531b3ebd6aa72050534c591dd1928f23.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("9cdabb42d7d38594c294f52d7d4de5d7.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.17",
+        productVersion: "0.3.18",
         showBanner,
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
       };
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("effbee8df81f965f4a9373216839c3fa.loader.js");
+      loader.src = buildAssetUrl("697e5ae16bdd6557f2a8747da91f4e31.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.

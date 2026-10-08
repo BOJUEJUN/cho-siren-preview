@@ -13,7 +13,7 @@ const runningVersion = html.match(/productVersion: "([^"]+)"/)[1];
 
 async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old",
   controlled = true, registerFails = false, lobbyReady = true, liveVersion = runningVersion, hidden = false,
-  releaseFails = false } = {}) {
+  releaseFails = false, canvasBox = null } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
     registered = [], messages = [], documentListeners = {};
   let timerId = 0;
@@ -21,6 +21,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
     if (!elements.has(name)) elements.set(name, { style: {}, textContent: '', listeners: {}, classes: [],
       addEventListener(type, handler) { this.listeners[type] = handler; },
       classList: { add: value => elements.get(name).classes.push(value) } });
+    if (name === '#unity-canvas' && canvasBox) elements.get(name).getBoundingClientRect = () => canvasBox;
     return elements.get(name);
   }
   const context = vm.createContext({ URL, AbortController, console,
@@ -73,7 +74,7 @@ test('cached HTML selects all four fresh assets before starting Unity', async ()
   for (const [index, key] of ['dataUrl', 'frameworkUrl', 'codeUrl'].entries()) {
     assert.equal(config[key], 'https://example.test/cho-siren-preview/Build/' + newer[index]);
   }
-  assert.equal(config.devicePixelRatio, 2);
+  assert.equal(config.devicePixelRatio, 3);
   assert.equal(run.requests[0].options.cache, 'no-store');
   assert.equal(new URL(run.requests[0].url).pathname, '/cho-siren-preview/build-versions.json');
   assert.ok(new URL(run.requests[0].url).searchParams.has('_'));
@@ -419,4 +420,15 @@ test('a loading error cannot be dismissed by tapping it', async () => {
   assert.equal(run.elements.get('#warning').style.display, 'block');
   run.elements.get('#warning').listeners.click({ target: run.elements.get('#warning-text') });
   assert.equal(run.elements.get('#warning').style.display, 'block');
+});
+
+test('the game renders at the screen density, within a pixel budget on very large screens', async () => {
+  const phone = await boot({ canvasBox: { width: 390, height: 832 } });
+  await phone.appends[0].onload();
+  assert.equal(phone.calls[0].config.devicePixelRatio, 3);
+  const wall = await boot({ canvasBox: { width: 1200, height: 2560 } });
+  await wall.appends[0].onload();
+  const ratio = wall.calls[0].config.devicePixelRatio;
+  assert.ok(ratio >= 1 && ratio < 1.1, String(ratio));
+  assert.ok(1200 * 2560 * ratio * ratio <= 3.2e6 + 1);
 });
