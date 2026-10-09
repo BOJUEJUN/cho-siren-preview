@@ -1,17 +1,17 @@
 {
-  "version": "0.3.25",
-  "releaseId": "PSD-20261010-LOOP-R22",
-  "name": "补齐功能闭环：大厅「闪耀舞台」挂机收益入口、系统邮箱与奖励；练习室空白与开发用语清理；底部菜单与任务卡细节",
-  "notice": "大厅右侧新增「闪耀舞台」，离线也能累积星光币和星钻；邮箱新增出道支援等奖励邮件；练习室说明更清楚。",
+  "version": "0.3.26",
+  "releaseId": "PSD-20261010-GUIDE-R23",
+  "name": "新手引导卡、设置页用户协议/隐私政策/关于、锁定关卡只显示锁图标、邮件措辞",
+  "notice": "第一次进入大厅会看到经纪人入门说明；设置里新增用户协议、隐私政策和关于。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.25",
-  "unityBuild": "新 Unity WebGL 包 R22（闪耀舞台入口与红点、系统邮箱、练习室空状态、底部光碟菜单尺寸、任务卡深色玻璃；Player Settings 版本 0.3.25）",
+  "backupBranch": "backup/v0.3.26",
+  "unityBuild": "新 Unity WebGL 包 R23（大厅首次引导、设置页文档入口、关卡锁定标签；Player Settings 版本 0.3.26）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261010-DISC-R21",
-  "previousWebCommit": "fc58c58",
-  "previousReleaseRecord": "releases/R21.json",
-  "previousBackupBranch": "backup/v0.3.24",
-  "savePolicy": "保留现有存档与进度；本版不改存档结构。邮件领取记录写入现有剧情标记列表（mail-claimed:*）。",
+  "previousReleaseId": "PSD-20261010-LOOP-R22",
+  "previousWebCommit": "65b9e4a",
+  "previousReleaseRecord": "releases/R22.json",
+  "previousBackupBranch": "backup/v0.3.25",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。首次引导记录写入现有剧情标记（guide-lobby-v1）。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
     "characterLifecycleTestsPassed": 27,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium：大厅右侧「闪耀舞台」入口与红点，领取后星光币增加、每日任务「领取一次舞台收益」随之完成、任务红点 +1；邮箱三封系统邮件，两封可领取一次；底部菜单当前页标签正常显示；Unity EditMode 测试 479/484 通过（余下 5 个为本次未改动的战斗平衡与关卡锁定文字旧用例）。"
+  "visualStatus": "本地 Chromium 全新存档：标题画面→大厅弹出「欢迎，经纪人」引导→「去第一场演出」进入 1-1；锁定关卡只显示锁图标。Unity EditMode 480/484（余 4 项为战斗时长/胜率平衡旧用例）。"
 }
