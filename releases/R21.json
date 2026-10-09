@@ -1,0 +1,24 @@
+{
+  "version": "0.3.24",
+  "releaseId": "PSD-20261010-DISC-R21",
+  "name": "底部菜单改为光碟设计并统一到所有页面；新增第二章「魅声海湾」10 关；大厅任务红点、专辑制作即将开放；任务面板与战斗暂停统一风格",
+  "notice": "新增第二章「魅声海湾」（通关 1-10 后开放）；底部菜单换成光碟设计；大厅任务有奖励时显示红点。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.24",
+  "unityBuild": "新 Unity WebGL 包 R21（光碟底部导航、第二章关卡与地图、大厅红点/即将开放、任务面板与暂停弹窗配色；Player Settings 版本 0.3.24）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-TAP-R20D",
+  "previousWebCommit": "12c5f63",
+  "previousReleaseRecord": "releases/R20D.json",
+  "previousBackupBranch": "backup/v0.3.23",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。第二章通关记录沿用现有关卡记录（stage-2-*）。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：大厅与各页面底部统一为光碟导航（当前页为粉色镭射光碟、半圈落定后静止）；大厅任务入口红点计数、专辑制作「即将开放」标签及说明弹窗（可直接去开始演出）；关卡地图顶部章节切换，第二章未解锁时提示条件；任务面板深色底板；战斗暂停弹窗粉色描边。第二章实际战斗未在本机存档下打到（需先通关 1-10）。"
+}
