@@ -346,6 +346,14 @@ test('character clips download once, are kept, and replace their older encodes',
   assert.deepEqual([...worker.storage.stores.get('cho-siren-media-1').keys()], [clipFile]);
 });
 
+test('green-screen clips are kept like the packed ones', async () => {
+  const green = gameBase + 'media/catalena-idle.green.mp4?v=r18a';
+  const worker = assetWorker();
+  await worker.request(green);
+  assert.equal((await worker.request(green)).stored, true);
+  assert.deepEqual(worker.fetched, [green]);
+});
+
 test('a stored clip answers the video element\'s byte ranges with 206 slices', async () => {
   const bytes = new TextEncoder().encode('0123456789');
   // Like the Cache API, every match hands out a fresh body.

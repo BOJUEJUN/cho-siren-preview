@@ -15,7 +15,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-    <link rel="preload" href="./media/loading-stage.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="./media/loading-hero.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
     <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
     <style>
@@ -135,311 +135,331 @@
       }
 
       /* The only loading screen players see: it covers the Unity splash and Unity's
-         own asset-loading scene, and lifts once the lobby is live. Sizes follow the
-         720-wide shell (cqw), with fixed fallbacks for browsers without them. */
+         own asset loading, and becomes a tap-to-start title screen once the lobby is
+         live. Persona-style cut-in: pink and black slabs, a ransom-note title and the
+         character, all sized in cqw so it scales with the 720-wide shell. Motion is a
+         single quick entrance and a gentle pulse; nothing spins or flashes. */
       #game-shell { container-type: inline-size; }
 
       #loading {
+        --ink: #0d0420;
+        --hot: #ff2e93;
+        --hot-deep: #b8125f;
+        --cyan: #3ff0ff;
         position: absolute;
         inset: 0;
         z-index: 4;
-        text-align: center;
-        background:
-          radial-gradient(ellipse 56% 30% at 50% 36%, rgba(146, 64, 206, 0.62), rgba(146, 64, 206, 0) 72%),
-          radial-gradient(ellipse 64% 10% at 50% 65.5%, rgba(12, 5, 38, 0.62), rgba(12, 5, 38, 0) 100%),
-          linear-gradient(180deg, rgba(8, 6, 31, 0) 55%, rgba(8, 6, 31, 0.55) 100%),
-          url("./media/loading-stage.webp") center / cover no-repeat,
-          #0b0828;
-        transition: opacity 420ms ease;
-      }
-
-      #loading.is-hidden {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .loading-title {
-        position: absolute;
-        top: 28%;
-        left: 0;
-        right: 0;
-        display: grid;
-        gap: 10px;
-        justify-items: center;
-      }
-
-      .brand {
-        color: #ff9fd6;
-        font-size: 12px;
-        font-size: 2.3cqw;
-        font-weight: 700;
-        letter-spacing: 0.32em;
-      }
-
-      .loading-name {
-        color: #fff;
-        font-size: 38px;
-        font-size: 9.4cqw;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-shadow: 0 0 18px rgba(214, 120, 255, 0.85), 0 2px 6px rgba(20, 0, 40, 0.6);
-      }
-
-      .subtitle {
-        color: rgba(255, 255, 255, 0.78);
-        font-size: 13px;
-        font-size: 2.9cqw;
-        letter-spacing: 0.24em;
-      }
-
-      .loading-progress {
-        position: absolute;
-        top: 61%;
-        left: 0;
-        right: 0;
-        display: grid;
-        gap: 12px;
-        justify-items: center;
-      }
-
-      .track {
-        width: 66%;
-        height: 8px;
         overflow: hidden;
-        border-radius: 999px;
-        background: rgba(20, 10, 48, 0.62);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        background: radial-gradient(circle, rgba(255, 46, 147, 0.22) 0 1.6px, transparent 2px) 0 0 / 14px 14px, var(--ink);
+        text-align: left;
       }
 
-      #progress {
-        width: 0;
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #ff7cc8, var(--accent));
-        box-shadow: 0 0 14px rgba(255, 105, 191, 0.8);
-        transition: width 260ms ease-out;
-      }
-
-      .loading-status {
-        color: #fff;
-        font-size: 13px;
-        font-size: 2.9cqw;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-shadow: 0 1px 4px rgba(20, 0, 40, 0.7);
-      }
-
-      .loading-note {
-        max-width: 78%;
-        min-height: 2.9em;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 11px;
-        font-size: 2.3cqw;
-        line-height: 1.45;
-        letter-spacing: 0.04em;
-        white-space: pre-line;
-        text-shadow: 0 1px 3px rgba(20, 0, 40, 0.7);
-      }
-
-      /* Live release number (release.json); scripts/verify-webgl.mjs keeps them equal. */
-      .loading-version {
-        position: absolute;
-        right: 12px;
-        bottom: 10px;
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 10px;
-        letter-spacing: 0.06em;
-      }
-
-      /* Title-screen layer: a slow light sweep and glow on the record, a few rising
-         sparks. Only opacity/transform animate (no spinning), so it stays calm and
-         costs almost nothing while Unity loads underneath. */
-      #loading-art {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        pointer-events: none;
-        container-type: size;
-      }
-
-      /* Same box as the cover-fitted stage art, so % positions follow the painting. */
-      .loading-frame {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 100%;
-        width: max(100cqw, 46.39cqh);
-        aspect-ratio: 950 / 2048;
-        transform: translate(-50%, -50%);
-      }
-
-      .disc-glow,
-      .disc-sheen {
-        position: absolute;
-        left: 9.47%;
-        top: 14.03%;
-        width: 78.32%;
-        aspect-ratio: 1;
-        border-radius: 50%;
-      }
-
-      .disc-glow {
-        box-shadow: 0 0 0 2px rgba(255, 205, 245, 0.5), 0 0 34px rgba(255, 120, 210, 0.55);
-        opacity: 0.2;
-        animation: disc-breathe 2.6s ease-in-out infinite alternate;
-      }
-
-      .disc-sheen { overflow: hidden; }
-
-      .disc-sheen::before {
+      /* Leaving: a pink slab wipes across; the screen is gone by the time it has passed. */
+      #loading::after {
         content: "";
         position: absolute;
-        top: -10%;
-        bottom: -10%;
-        left: 0;
-        width: 34%;
-        background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.26), transparent);
-        transform: translateX(-110%) skewX(-14deg);
-        animation: disc-sheen 8s ease-in-out infinite;
+        inset: -20% -40%;
+        z-index: 9;
+        visibility: visible;
+        background: var(--hot);
+        transform: translateX(-120%) skewX(-20deg);
+        pointer-events: none;
+      }
+      #loading.is-hidden { pointer-events: none; animation: ld-gone 0s 0.45s forwards; }
+      #loading.is-hidden::after { animation: ld-wipe 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+      @keyframes ld-gone { to { visibility: hidden; } }
+      @keyframes ld-wipe {
+        0% { transform: translateX(-120%) skewX(-20deg); }
+        45%, 55% { transform: translateX(0) skewX(-20deg); }
+        100% { transform: translateX(120%) skewX(-20deg); }
       }
 
-      @keyframes disc-breathe { to { opacity: 0.85; } }
-      @keyframes disc-sheen {
-        0%, 60% { transform: translateX(-110%) skewX(-14deg); }
-        90%, 100% { transform: translateX(310%) skewX(-14deg); }
+      .ld-slab { position: absolute; left: -30%; right: -30%; transform: rotate(-14deg); }
+      .ld-slab-hot {
+        top: 16%;
+        height: 44%;
+        background: radial-gradient(circle, rgba(120, 0, 60, 0.35) 0 2.2px, transparent 2.6px) 0 0 / 11px 11px, var(--hot);
       }
+      .ld-slab-cyan { top: 12.5%; height: 1.2%; background: var(--cyan); }
+      .ld-slab-ink { top: 47%; height: 9%; background: var(--ink); }
+      .ld-slab-white { top: 57.5%; height: 1.6%; background: #fff; }
+      .ld-burst { position: absolute; left: 18%; top: 6%; width: 110%; aspect-ratio: 1; }
 
-      .loading-spark {
+      /* Character cut-in: white then black outline, and a pink offset copy behind. */
+      .ld-hero {
         position: absolute;
-        bottom: -2%;
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
+        right: -14%;
+        top: 7%;
+        height: 86%;
+        aspect-ratio: 866 / 1700;
+        transform: rotate(-4deg);
+        transform-origin: 50% 80%;
+      }
+      .ld-hero img { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .ld-hero .ld-hero-shadow {
+        filter: brightness(0) saturate(100%) invert(26%) sepia(96%) saturate(4200%) hue-rotate(318deg);
+        transform: translate(-4.5%, 1.5%);
+      }
+      .ld-hero .ld-hero-main {
+        filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff)
+          drop-shadow(0 -3px 0 #fff) drop-shadow(4px 4px 0 #000);
+      }
+
+      .ld-star {
+        position: absolute;
+        z-index: 3;
+        width: 6cqw;
+        aspect-ratio: 1;
+        clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      }
+      .ld-s1 { left: 6%; top: 27%; background: #fff; transform: rotate(-12deg); }
+      .ld-s2 { left: 15%; top: 31%; width: 3.4cqw; background: var(--cyan); transform: rotate(10deg); }
+      .ld-s3 { right: 5%; top: 48%; width: 4.6cqw; background: #000; transform: rotate(18deg); }
+
+      /* Ransom-note title. */
+      .ld-title { position: absolute; left: 5%; top: 4.5%; z-index: 3; }
+      .ld-ransom { display: flex; align-items: flex-end; gap: 0.6cqw; }
+      .ld-ransom span {
+        display: inline-grid;
+        place-items: center;
+        padding: 0.06em 0.1em 0.1em;
+        font-weight: 900;
+        line-height: 1;
+        box-shadow: 0.9cqw 0.9cqw 0 #000;
+      }
+      .ld-r1 { font-size: 13cqw; color: #000; background: #fff; transform: rotate(-8deg); font-family: "Songti SC", "STSong", "SimSun", serif; }
+      .ld-r2 { font-size: 10.5cqw; color: #fff; background: #000; border: 0.5cqw solid #fff; transform: rotate(5deg) translateY(-1.2cqw); }
+      .ld-r3 { font-size: 12cqw; color: #fff; background: var(--hot); transform: rotate(-4deg); }
+      .ld-r4 { font-size: 11cqw; color: var(--hot-deep); background: #fff; transform: rotate(7deg) translateY(-2cqw); font-family: "Songti SC", "STSong", "SimSun", serif; }
+      .ld-tag {
+        display: inline-block;
+        margin: 3.2cqw 0 0 1cqw;
+        padding: 0.6cqw 2.4cqw;
+        border-left: 1.4cqw solid var(--cyan);
+        color: #fff;
+        background: #000;
+        font-size: 3.1cqw;
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: 0.3em;
+        transform: skewX(-14deg) rotate(-3deg);
+      }
+      .ld-sub {
+        margin: 2.4cqw 0 0 2cqw;
+        color: #fff;
+        font-size: 2.9cqw;
+        font-weight: 800;
+        letter-spacing: 0.3em;
+        text-shadow: 0.4cqw 0.4cqw 0 #000;
+        transform: rotate(-3deg);
+      }
+
+      .loading-corner { position: absolute; top: 2.2%; right: 3%; z-index: 4; display: flex; gap: 2cqw; }
+      .loading-corner button {
+        padding: 1.4cqw 3.4cqw;
+        border: 0;
+        color: #fff;
+        background: #000;
+        font: inherit;
+        font-size: 12px;
+        font-size: 2.9cqw;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        box-shadow: 0.8cqw 0.8cqw 0 var(--hot);
+        transform: skewX(-14deg);
+        cursor: pointer;
+      }
+
+      /* Black slanted panel with white and pink edges, holding the loading block. */
+      .ld-panel, .ld-edge-hot, .ld-edge-white { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; }
+      .ld-panel { height: 31%; background: #000; clip-path: polygon(0 14%, 100% 0, 100% 100%, 0 100%); }
+      .ld-edge-hot { height: 32.4%; background: var(--hot); clip-path: polygon(0 14%, 100% 0, 100% 3.5%, 0 17.5%); }
+      .ld-edge-white { height: 33.6%; background: #fff; clip-path: polygon(0 14%, 100% 0, 100% 2%, 0 16%); }
+
+      .loading-progress { position: absolute; left: 0; right: 0; bottom: 6.5%; z-index: 3; padding: 0 5%; transition: opacity 300ms ease; }
+      .ld-now { display: flex; align-items: baseline; gap: 3cqw; white-space: nowrap; transform: rotate(-4deg); transform-origin: 0 100%; }
+      .ld-now b, .ld-now span { font-style: italic; font-weight: 900; -webkit-text-stroke: 0.5cqw #000; paint-order: stroke fill; }
+      .ld-now b { font-size: 8cqw; letter-spacing: -0.02em; color: #fff; text-shadow: 1cqw 1cqw 0 var(--hot); }
+      .ld-now span { font-size: 9cqw; color: var(--cyan); }
+      .track {
+        position: relative;
+        height: 3.2cqw;
+        margin-top: 2.6cqw;
+        border: 0.6cqw solid #fff;
+        background: #000;
+        box-shadow: 1cqw 1cqw 0 var(--hot);
+        transform: rotate(-4deg) skewX(-24deg);
+      }
+      #progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: repeating-linear-gradient(90deg, var(--hot) 0 4cqw, #ff6db5 4cqw 5cqw);
+        transition: width 260ms ease-out;
+      }
+      #progress::after {
+        content: "";
+        position: absolute;
+        right: -2.6cqw;
+        top: 50%;
+        width: 5.6cqw;
+        aspect-ratio: 1;
         background: #fff;
-        box-shadow: 0 0 6px 2px rgba(255, 159, 214, 0.75);
-        opacity: 0;
-        animation: spark-rise 11s linear infinite;
+        transform: translateY(-50%) skewX(24deg);
+        clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
       }
-      .loading-spark:nth-child(2) { left: 12%; animation-delay: -1s; }
-      .loading-spark:nth-child(3) { left: 27%; animation-delay: -6s; animation-duration: 13s; }
-      .loading-spark:nth-child(4) { left: 41%; animation-delay: -3.5s; }
-      .loading-spark:nth-child(5) { left: 58%; animation-delay: -8.5s; animation-duration: 12s; }
-      .loading-spark:nth-child(6) { left: 71%; animation-delay: -2s; animation-duration: 14s; }
-      .loading-spark:nth-child(7) { left: 86%; animation-delay: -5s; }
-      .loading-spark:nth-child(8) { left: 94%; animation-delay: -10s; animation-duration: 13s; }
-
-      @keyframes spark-rise {
-        0% { transform: translateY(0); opacity: 0; }
-        12% { opacity: 0.85; }
-        75% { opacity: 0.45; }
-        100% { transform: translateY(-560px); transform: translateY(-62cqh); opacity: 0; }
+      .loading-status {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
       }
-
-      .loading-tip {
-        max-width: 80%;
-        min-height: 1.5em;
-        color: rgba(255, 255, 255, 0.86);
+      .loading-note {
+        min-height: 2.9em;
+        margin: 3.6cqw 0 0 1cqw;
+        color: rgba(255, 255, 255, 0.85);
         font-size: 11px;
-        font-size: 2.4cqw;
-        line-height: 1.5;
-        letter-spacing: 0.04em;
-        text-shadow: 0 1px 3px rgba(20, 0, 40, 0.75);
-        transition: opacity 300ms ease;
+        font-size: 2.5cqw;
+        font-weight: 700;
+        line-height: 1.45;
+        white-space: pre-line;
+        text-shadow: 0.3cqw 0.3cqw 0 #000;
+        transform: rotate(-4deg);
       }
-      .loading-tip b { margin-right: 0.5em; color: #bff8ff; }
+      .loading-tip {
+        margin: 1.2cqw 4% 0 0;
+        padding: 2.6cqw 3.2cqw;
+        border: 0.6cqw solid #fff;
+        color: #fff;
+        background: #000;
+        font-size: 12px;
+        font-size: 3cqw;
+        font-weight: 700;
+        line-height: 1.5;
+        clip-path: polygon(0 8%, 100% 0, 97% 100%, 2% 92%);
+        transform: rotate(-2deg);
+      }
+      .loading-tip b {
+        display: inline-block;
+        margin-right: 2cqw;
+        padding: 0.2cqw 1.6cqw;
+        color: #fff;
+        background: var(--hot);
+        font-style: italic;
+        font-weight: 900;
+        transform: skewX(-14deg);
+      }
+      #loading-tip { transition: opacity 300ms ease; }
 
-      /* Ready: the bar gives way to "tap to start". The tap also lets the browser
-         start the lobby music, which phones block until the player touches the page. */
-      .loading-progress { transition: opacity 300ms ease; }
+      /* Ready: the loading block gives way to "tap to start". The tap also lets the
+         browser start the lobby music, which phones block until the page is touched. */
       #loading.is-ready { cursor: pointer; }
       #loading.is-ready .loading-progress { opacity: 0; }
-
       .loading-start {
         position: absolute;
-        top: 63%;
         left: 0;
         right: 0;
+        bottom: 14%;
+        z-index: 3;
         display: grid;
-        gap: 6px;
+        gap: 2cqw;
         justify-items: center;
-        color: #fff;
-        font-size: 17px;
-        font-size: 3.9cqw;
-        font-weight: 800;
-        letter-spacing: 0.22em;
-        text-shadow: 0 0 14px rgba(255, 105, 191, 0.9), 0 2px 4px rgba(20, 0, 40, 0.7);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
+        transition: opacity 300ms ease;
+      }
+      .loading-start strong {
+        padding: 2.4cqw 6cqw;
+        color: #000;
+        background: #fff;
+        font-size: 7cqw;
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        box-shadow: 1.4cqw 1.4cqw 0 var(--hot), -1cqw -1cqw 0 #000;
+        transform: rotate(-5deg) skewX(-10deg);
+        animation: ld-pulse 1.6s ease-in-out infinite alternate;
       }
       .loading-start small {
-        color: #bff8ff;
-        font-size: 10px;
-        font-size: 2.1cqw;
-        font-weight: 700;
-        letter-spacing: 0.4em;
-      }
-      #loading.is-ready .loading-start {
-        visibility: visible;
-        animation: start-pulse 1.8s ease-in-out infinite alternate;
-      }
-      @keyframes start-pulse { from { opacity: 0.45; } to { opacity: 1; } }
-
-      .loading-corner {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        display: flex;
-        gap: 8px;
-      }
-      .loading-corner button {
-        padding: 6px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        border-radius: 999px;
         color: #fff;
-        background: rgba(20, 10, 48, 0.62);
-        font: inherit;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        cursor: pointer;
+        font-size: 3.2cqw;
+        font-weight: 900;
+        letter-spacing: 0.3em;
+        text-shadow: 0.4cqw 0.4cqw 0 #000;
+        transform: rotate(-5deg);
       }
+      #loading.is-ready .loading-start { opacity: 1; visibility: visible; }
+      #loading.is-hidden .loading-start { animation: ld-gone 0s 0.45s forwards; }
+      @keyframes ld-pulse { from { opacity: 0.6; } to { opacity: 1; } }
 
       .loading-health {
         position: absolute;
         left: 0;
         right: 0;
-        bottom: 10px;
-        color: rgba(255, 255, 255, 0.5);
+        bottom: 1.2%;
+        z-index: 3;
+        color: rgba(255, 255, 255, 0.55);
         font-size: 9px;
         font-size: 1.9cqw;
         line-height: 1.6;
-        letter-spacing: 0.06em;
+        text-align: center;
       }
+
+      /* Live release number (release.json); scripts/verify-webgl.mjs keeps them equal. */
+      .loading-version {
+        position: absolute;
+        right: 3%;
+        bottom: 4.6%;
+        z-index: 3;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 10px;
+        font-size: 2.2cqw;
+        font-style: italic;
+        font-weight: 800;
+      }
+
+      /* One quick entrance: slabs and the character snap in, then stay still. */
+      .ld-slab-hot, .ld-slab-cyan { animation: ld-slab-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+      .ld-slab-cyan { animation-delay: 0.08s; }
+      .ld-hero { animation: ld-hero-in 0.55s 0.12s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+      .ld-ransom span { animation: ld-drop 0.35s 0.18s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+      .ld-ransom span:nth-child(2) { animation-delay: 0.25s; }
+      .ld-ransom span:nth-child(3) { animation-delay: 0.32s; }
+      .ld-ransom span:nth-child(4) { animation-delay: 0.39s; }
+      .ld-panel, .ld-edge-hot, .ld-edge-white, .loading-progress { animation: ld-rise-in 0.4s 0.2s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+      @keyframes ld-slab-in { from { translate: -110% 0; } }
+      @keyframes ld-hero-in { from { translate: 35% 0; opacity: 0; } }
+      @keyframes ld-drop { from { translate: 0 -40%; opacity: 0; } }
+      @keyframes ld-rise-in { from { translate: 0 40%; } }
 
       #loading-dialog {
         position: absolute;
         inset: 0;
-        z-index: 2;
+        z-index: 5;
         display: none;
         place-items: center;
-        background: rgba(6, 4, 22, 0.6);
+        background: rgba(6, 4, 22, 0.66);
         cursor: default;
       }
       #loading-dialog.is-open { display: grid; }
       .dialog-box {
         width: min(84%, 420px);
         padding: 18px 18px 14px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 14px;
+        border: 3px solid #fff;
         color: #fff;
-        background: rgba(38, 19, 66, 0.96);
-        text-align: left;
+        background: #000;
+        box-shadow: 8px 8px 0 var(--hot);
+        transform: rotate(-1.5deg);
       }
-      .dialog-box h3 { margin: 0 0 10px; font-size: 16px; }
+      .dialog-box h3 { margin: 0 0 10px; font-size: 17px; font-style: italic; font-weight: 900; }
       .dialog-box p {
         margin: 0;
-        color: rgba(255, 255, 255, 0.85);
+        color: rgba(255, 255, 255, 0.88);
         font-size: 13px;
         line-height: 1.6;
         white-space: pre-line;
@@ -447,19 +467,25 @@
       .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
       .dialog-actions button {
         padding: 8px 16px;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        border-radius: 9px;
+        border: 2px solid #fff;
         color: #fff;
         background: transparent;
         font: inherit;
-        font-weight: 700;
+        font-weight: 900;
+        transform: skewX(-10deg);
       }
-      .dialog-actions #dialog-ok { background: linear-gradient(90deg, #704ee8, #c34caa); }
+      .dialog-actions #dialog-ok { color: #fff; background: var(--hot); border-color: var(--hot); }
 
       @media (prefers-reduced-motion: reduce) {
-        .disc-glow, .disc-sheen::before, .loading-spark, #loading.is-ready .loading-start { animation: none; }
-        #loading.is-ready .loading-start { opacity: 1; }
+        #loading *, #loading::after { animation: none !important; }
+        #loading.is-ready .loading-start strong { opacity: 1; }
       }
+
+      /* loading-hero.js: the idle loop, keyed with its outline, fades in over the still. */
+      .ld-hero-live { position: absolute; opacity: 0; transition: opacity 400ms ease; }
+      .ld-hero-main { transition: opacity 400ms ease; }
+      .ld-hero.is-live .ld-hero-live { opacity: 1; }
+      .ld-hero.is-live .ld-hero-main { opacity: 0; }
 
       #warning {
         position: absolute;
@@ -524,29 +550,39 @@
         <button id="retry" type="button">重新加载</button>
       </div>
       <div id="loading">
-        <div id="loading-art" aria-hidden="true">
-          <div class="loading-frame"><div class="disc-glow"></div><div class="disc-sheen"></div></div>
-          <i class="loading-spark"></i><i class="loading-spark"></i><i class="loading-spark"></i><i class="loading-spark"></i>
-          <i class="loading-spark"></i><i class="loading-spark"></i><i class="loading-spark"></i>
+        <div class="ld-slab ld-slab-cyan"></div>
+        <div class="ld-slab ld-slab-hot"></div>
+        <svg class="ld-burst" viewBox="0 0 100 100" aria-hidden="true">
+          <polygon fill="#000" points="50,2 57,30 82,8 68,36 98,30 72,50 99,66 68,62 80,92 56,70 50,99 43,72 18,94 32,62 2,70 28,50 4,28 32,38 20,6 44,30"/>
+          <polygon fill="none" stroke="#fff" stroke-width=".8" points="50,10 55,32 76,16 65,38 90,34 69,50 91,62 66,60 75,85 54,68 50,90 45,70 24,86 35,60 10,66 31,50 12,32 35,40 26,14 45,32"/>
+        </svg>
+        <div class="ld-slab ld-slab-ink"></div>
+        <div class="ld-slab ld-slab-white"></div>
+        <div class="ld-hero" aria-hidden="true">
+          <img class="ld-hero-shadow" src="./media/loading-hero.webp" alt="">
+          <img class="ld-hero-main" src="./media/loading-hero.webp" alt="">
+        </div>
+        <i class="ld-star ld-s1"></i><i class="ld-star ld-s2"></i><i class="ld-star ld-s3"></i>
+        <div class="ld-title">
+          <div class="ld-ransom" aria-label="幻域魅声"><span class="ld-r1">幻</span><span class="ld-r2">域</span><span class="ld-r3">魅</span><span class="ld-r4">声</span></div>
+          <div class="ld-tag">CHO-SIREN</div>
+          <div class="ld-sub">通往舞台的星途</div>
         </div>
         <div class="loading-corner">
           <button id="notice-button" type="button">公告</button>
           <button id="repair-button" type="button">修复</button>
         </div>
-        <div class="loading-title">
-          <div class="brand">CHO-SIREN</div>
-          <div class="loading-name">幻域魅声</div>
-          <div class="subtitle">通往舞台的星途</div>
-        </div>
+        <div class="ld-edge-white"></div><div class="ld-edge-hot"></div><div class="ld-panel"></div>
         <div class="loading-progress">
+          <div class="ld-now" aria-hidden="true"><b>NOW LOADING</b><span id="loading-percent">0%</span></div>
           <div class="track"><div id="progress"></div></div>
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
-          <div class="loading-tip"><b>小贴士</b><span id="loading-tip">点首页的角色，她会对你做出不同的反应</span></div>
+          <div class="loading-tip"><b>TIPS</b><span id="loading-tip">点首页的角色，她会对你做出不同的反应</span></div>
         </div>
-        <div class="loading-start" aria-hidden="true">点击屏幕 · 开始演出<small>TAP TO START</small></div>
+        <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.20</div>
+        <div id="loading-version" class="loading-version">v0.3.21</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -563,6 +599,7 @@
     <script src="./audio-skin.js?v=20261005-r17f"></script>
     <script src="./home-stage.js?v=20260928-r12a"></script>
     <script src="./character-moments.js?v=20261006-r17j"></script>
+    <script src="./loading-hero.js?v=20261009-r20b"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       const retryToken = new URL(window.location.href).searchParams.get("retry");
@@ -606,6 +643,7 @@
       const progress = document.querySelector("#progress");
       const loadingNote = document.querySelector("#loading-note");
       const loadingStatus = document.querySelector("#loading-status");
+      const loadingPercent = document.querySelector("#loading-percent");
       const warning = document.querySelector("#warning");
       const warningText = document.querySelector("#warning-text");
       const retry = document.querySelector("#retry");
@@ -690,7 +728,7 @@
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.20",
+        productVersion: "0.3.21",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -767,6 +805,7 @@
         const percent = Math.round(shownProgress * 100);
         progress.style.width = `${percent}%`;
         loadingStatus.textContent = `正在载入舞台资源 · ${percent}%`;
+        loadingPercent.textContent = `${percent}%`;
       }
       // Every StreamingAssets file Unity finishes nudges the bar, plus a slow creep so it
       // never stalls. The lobby going active ends the wait; a minute is the upper bound

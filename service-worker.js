@@ -12,7 +12,7 @@ const LEGACY_CACHE = /^cho-siren-v\d+$/;
 // Hashed art left behind by earlier art passes is evicted oldest first beyond this.
 const MAX_STREAMING_ENTRIES = 240;
 const MEDIA_CACHE = 'cho-siren-media-1';
-const MEDIA = /^media\/[\w-]+(?:\.packed)?\.(?:webm|mp4)$/;
+const MEDIA = /^media\/[\w-]+(?:\.packed|\.green)?\.(?:webm|mp4)$/;
 // Clips known to be stored. The video element asks for byte ranges, and only a stored
 // clip is answered here; any other range request goes to the network untouched.
 const storedMedia = new Set();
