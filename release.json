@@ -1,16 +1,16 @@
 {
-  "version": "0.3.28",
-  "releaseId": "PSD-20261010-STAMINA-R25",
-  "name": "体力不足时直接弹出补充体力窗口",
-  "notice": "体力不够时点「开始挑战」，会直接打开补充体力窗口。",
+  "version": "0.3.29",
+  "releaseId": "PSD-20261010-NOTICE-R26",
+  "name": "各页面顶部邮箱红点；打通 1-10 时提示第二章开放",
+  "notice": "邮箱有奖励时，所有页面顶部都会亮红点；打通第一章后会提示如何进入第二章。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.28",
-  "unityBuild": "新 Unity WebGL 包 R25（关卡体力不足引导到体力补充；Player Settings 版本 0.3.28）",
+  "backupBranch": "backup/v0.3.29",
+  "unityBuild": "新 Unity WebGL 包 R26（顶部栏邮箱红点、第二章开放提示；Player Settings 版本 0.3.29）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261010-STORY-R24",
-  "previousWebCommit": "a6e1877",
-  "previousReleaseRecord": "releases/R24.json",
-  "previousBackupBranch": "backup/v0.3.27",
+  "previousReleaseId": "PSD-20261010-STAMINA-R25",
+  "previousWebCommit": "0cfe431",
+  "previousReleaseRecord": "releases/R25.json",
+  "previousBackupBranch": "backup/v0.3.28",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "Unity EditMode 480/484（余 4 项为战斗平衡旧用例）；网页检查 72/72。体力不足分支在本机存档下未实际触发（体力充足）。"
+  "visualStatus": "Unity EditMode 480/484（余 4 项为战斗平衡旧用例）；网页检查 72/72。"
 }
