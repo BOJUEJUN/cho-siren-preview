@@ -1,0 +1,23 @@
+{
+  "version": "0.3.19",
+  "releaseId": "PSD-20261008-RIM-R20",
+  "name": "角色青色轮廓光回归；手机跟不上时自动降低渲染清晰度",
+  "date": "2026-10-08",
+  "backupBranch": "backup/v0.3.19",
+  "unityBuild": "新 Unity WebGL 包 R20（待机视频时保留立绘青色轮廓光、动作时淡出；视频跟随立绘的浮动和视差；Player Settings 版本 0.3.19）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261008-HUD-R19",
+  "previousWebCommit": "2822270",
+  "previousReleaseRecord": "releases/R19.json",
+  "previousBackupBranch": "backup/v0.3.18",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 35,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 模拟手机：待机循环时角色身后的青色轮廓光与人物重合；点角色后轮廓光在 0.25 秒内淡出，动作结束回到待机后淡入。"
+}

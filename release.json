@@ -1,23 +1,24 @@
 {
-  "version": "0.3.19",
-  "releaseId": "PSD-20261008-RIM-R20",
-  "name": "角色青色轮廓光回归；手机跟不上时自动降低渲染清晰度",
-  "date": "2026-10-08",
-  "backupBranch": "backup/v0.3.19",
-  "unityBuild": "新 Unity WebGL 包 R20（待机视频时保留立绘青色轮廓光、动作时淡出；视频跟随立绘的浮动和视差；Player Settings 版本 0.3.19）",
-  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261008-HUD-R19",
-  "previousWebCommit": "2822270",
-  "previousReleaseRecord": "releases/R19.json",
-  "previousBackupBranch": "backup/v0.3.18",
-  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "version": "0.3.20",
+  "releaseId": "PSD-20261009-TITLE-R20A",
+  "name": "加载页改成正式游戏的标题画面：小贴士、点击开始、公告、修复、健康游戏忠告",
+  "notice": "全新加载画面：等待时轮播小贴士；加载完成后点击屏幕开始演出（同时开启大厅音乐）；右上角新增「公告」和「修复」。",
+  "date": "2026-10-09",
+  "backupBranch": "backup/v0.3.20",
+  "unityBuild": "沿用 Unity WebGL 包 R20（本版只改网页层）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动；模板 index.html 已同步本版改动）",
+  "previousReleaseId": "PSD-20261008-RIM-R20",
+  "previousWebCommit": "5c39e9e",
+  "previousReleaseRecord": "releases/R20.json",
+  "previousBackupBranch": "backup/v0.3.19",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。「修复」只清除本机缓存的游戏资源，存档在 PlayerPrefs（IndexedDB）中不受影响。",
   "validation": {
-    "loaderRegressionTestsPassed": 35,
+    "loaderRegressionTestsPassed": 38,
     "characterLifecycleTestsPassed": 27,
     "audioSkinTestsPassed": 6,
     "localWebGLRuntimeVerified": true,
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium 模拟手机：待机循环时角色身后的青色轮廓光与人物重合；点角色后轮廓光在 0.25 秒内淡出，动作结束回到待机后淡入。"
+  "visualStatus": "本地 Chromium 模拟手机：加载中唱片有缓慢扫光和呼吸光圈、少量上升光点（不旋转）；进度下方轮播小贴士；完成后显示「点击屏幕 · 开始演出」，点击进入大厅；公告弹窗显示线上版本说明，修复弹窗需确认后才重新下载；底部显示健康游戏忠告。"
 }

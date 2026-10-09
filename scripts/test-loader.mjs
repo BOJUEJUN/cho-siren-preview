@@ -20,7 +20,8 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
   function element(name) {
     if (!elements.has(name)) elements.set(name, { style: {}, textContent: '', listeners: {}, classes: [],
       addEventListener(type, handler) { this.listeners[type] = handler; },
-      classList: { add: value => elements.get(name).classes.push(value) } });
+      classList: { add: value => elements.get(name).classes.push(value),
+        remove: value => { const list = elements.get(name).classes; if (list.includes(value)) list.splice(list.indexOf(value), 1); } } });
     if (name === '#unity-canvas' && canvasBox) elements.get(name).getBoundingClientRect = () => canvasBox;
     return elements.get(name);
   }
@@ -80,6 +81,9 @@ test('cached HTML selects all four fresh assets before starting Unity', async ()
   assert.equal(run.requests[0].options.cache, 'no-store');
   assert.equal(new URL(run.requests[0].url).pathname, '/cho-siren-preview/build-versions.json');
   assert.ok(new URL(run.requests[0].url).searchParams.has('_'));
+  assert.ok(run.elements.get('#loading').classes.includes('is-ready'));
+  assert.ok(!run.elements.get('#loading').classes.includes('is-hidden'));
+  run.elements.get('#loading').listeners.click({ target: { closest: () => null } });
   assert.ok(run.elements.get('#loading').classes.includes('is-hidden'));
 });
 
@@ -160,7 +164,7 @@ test('one loading screen stays up through Unity\'s own asset loading until the l
   assert.ok(!loading.classes.includes('is-hidden'));
   const engineDone = parseInt(bar.width, 10);
   assert.ok(engineDone >= 70 && engineDone < 100, bar.width);
-  assert.match(run.elements.get('#loading-note').textContent, /自动进入大厅/);
+  assert.match(run.elements.get('#loading-note').textContent, /舞台与界面素材/);
   for (let i = 0; i < 20; i++) for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
   assert.ok(parseInt(bar.width, 10) > engineDone && parseInt(bar.width, 10) < 100, bar.width);
   assert.ok(!loading.classes.includes('is-hidden'));
@@ -169,6 +173,9 @@ test('one loading screen stays up through Unity\'s own asset loading until the l
   await started;
   assert.equal(bar.width, '100%');
   assert.equal(run.elements.get('#loading-status').textContent, '正在载入舞台资源 · 100%');
+  assert.ok(loading.classes.includes('is-ready'));
+  assert.ok(!loading.classes.includes('is-hidden'));
+  loading.listeners.click({ target: {} });
   assert.ok(loading.classes.includes('is-hidden'));
 });
 
@@ -178,7 +185,38 @@ test('the loading screen gives up waiting for the lobby after a minute', async (
   await flush(); await flush();
   for (let i = 0; i < 500 && run.timers.size; i++) for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
   await started;
-  assert.ok(run.elements.get('#loading').classes.includes('is-hidden'));
+  assert.ok(run.elements.get('#loading').classes.includes('is-ready'));
+});
+
+test('the title screen ignores taps on its buttons and opens only on the screen itself', async () => {
+  const run = await boot();
+  await run.appends[0].onload();
+  const loading = run.elements.get('#loading');
+  loading.listeners.click({ target: { closest: selector => selector.includes('button') ? {} : null } });
+  assert.ok(!loading.classes.includes('is-hidden'));
+  loading.listeners.click({ target: { closest: () => null } });
+  assert.ok(loading.classes.includes('is-hidden'));
+});
+
+test('repair asks first, then restarts clean without cached game files', async () => {
+  const run = await boot();
+  run.elements.get('#repair-button').listeners.click();
+  const dialog = run.elements.get('#loading-dialog');
+  assert.ok(dialog.classes.includes('is-open'));
+  assert.match(run.elements.get('#dialog-text').textContent, /存档和进度不受影响/);
+  assert.equal(run.calls.filter(call => call.redirect).length, 0);
+  run.elements.get('#dialog-ok').onclick();
+  assert.ok(!dialog.classes.includes('is-open'));
+  const retryUrl = new URL(run.calls.find(call => call.redirect).redirect);
+  assert.ok(retryUrl.searchParams.has('retry'));
+});
+
+test('the announcement shows the live release notice', async () => {
+  const run = await boot({ liveVersion: '9.9.9' });
+  await run.elements.get('#notice-button').listeners.click();
+  assert.match(run.elements.get('#dialog-text').textContent, /^v9\.9\.9/);
+  assert.equal(run.elements.get('#dialog-cancel').style.display, 'none');
+  assert.ok(run.elements.get('#loading-dialog').classes.includes('is-open'));
 });
 
 test('WASM error remains actionable even if a warning or old timer follows', async () => {
