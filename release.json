@@ -1,16 +1,16 @@
 {
-  "version": "0.3.27",
-  "releaseId": "PSD-20261010-STORY-R24",
-  "name": "剧情场景背景、第二章主线剧情、演出结算卡片统一风格",
-  "notice": "主线剧情有了场景画面；第二章「魅声海湾」新增主线剧情；演出结算画面换新样式。",
+  "version": "0.3.28",
+  "releaseId": "PSD-20261010-STAMINA-R25",
+  "name": "体力不足时直接弹出补充体力窗口",
+  "notice": "体力不够时点「开始挑战」，会直接打开补充体力窗口。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.27",
-  "unityBuild": "新 Unity WebGL 包 R24（第一章剧情排练室背景、第二章剧情与海湾背景、结算卡片粉色描边；Player Settings 版本 0.3.27）",
+  "backupBranch": "backup/v0.3.28",
+  "unityBuild": "新 Unity WebGL 包 R25（关卡体力不足引导到体力补充；Player Settings 版本 0.3.28）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261010-GUIDE-R23",
-  "previousWebCommit": "8605b3a",
-  "previousReleaseRecord": "releases/R23.json",
-  "previousBackupBranch": "backup/v0.3.26",
+  "previousReleaseId": "PSD-20261010-STORY-R24",
+  "previousWebCommit": "a6e1877",
+  "previousReleaseRecord": "releases/R24.json",
+  "previousBackupBranch": "backup/v0.3.27",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium：第一章剧情背景为夜晚排练室（与首句台词对应）；第二章地图点「主线剧情 · 第二章」可开始剧情（单元测试确认可启动）；结算卡片粉色描边、LIVE RESULT 标题。Unity EditMode 480/484（余 4 项为战斗平衡旧用例）。"
+  "visualStatus": "Unity EditMode 480/484（余 4 项为战斗平衡旧用例）；网页检查 72/72。体力不足分支在本机存档下未实际触发（体力充足）。"
 }
