@@ -329,16 +329,12 @@
         transition: opacity 300ms ease;
       }
       .loading-start strong {
-        padding: 1.6cqw 5cqw;
-        color: #000;
-        background: #fff;
-        font-size: 5.4cqw;
+        color: #fff;
+        font-size: 4.6cqw;
         font-style: italic;
         font-weight: 900;
-        letter-spacing: 0.06em;
-        box-shadow: 1.1cqw 1.1cqw 0 var(--hot), -0.8cqw -0.8cqw 0 #000;
-        transform: rotate(-4deg) skewX(-10deg);
-        animation: ld-pulse 1.6s ease-in-out infinite alternate;
+        letter-spacing: 0.14em;
+        text-shadow: 0.5cqw 0.5cqw 0 var(--hot), 0 0 12px rgba(0, 0, 0, 0.6);
       }
       .loading-start small {
         color: #fff;
@@ -347,7 +343,7 @@
         letter-spacing: 0.3em;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
       }
-      #loading.is-ready .loading-start { opacity: 1; visibility: visible; }
+      #loading.is-ready .loading-start { opacity: 1; visibility: visible; animation: ld-pulse 1.6s ease-in-out infinite alternate; }
       #loading.is-hidden .loading-start { animation: ld-gone 0s 0.45s forwards; }
       @keyframes ld-pulse { from { opacity: 0.6; } to { opacity: 1; } }
 
@@ -418,7 +414,7 @@
 
       @media (prefers-reduced-motion: reduce) {
         #loading *, #loading::after { animation: none !important; }
-        #loading.is-ready .loading-start strong { opacity: 1; }
+        #loading.is-ready .loading-start { opacity: 1; }
       }
 
       #warning {
@@ -505,7 +501,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.22</div>
+        <div id="loading-version" class="loading-version">v0.3.23</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -651,7 +647,7 @@
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.22",
+        productVersion: "0.3.23",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true

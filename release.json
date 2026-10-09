@@ -1,16 +1,16 @@
 {
-  "version": "0.3.22",
-  "releaseId": "PSD-20261009-CG-R20C",
-  "name": "加载页改为全屏 CG 动画（两位首页角色），UI 只保留标志、按钮和底部加载条",
-  "notice": "加载画面换成全屏 CG 动画：两位偶像同台登场。加载完点击「TAP TO START」进入大厅。",
-  "date": "2026-10-09",
-  "backupBranch": "backup/v0.3.22",
+  "version": "0.3.23",
+  "releaseId": "PSD-20261010-TAP-R20D",
+  "name": "加载完成提示改为一行闪动文字，不再用白色卡片遮挡 CG",
+  "notice": "加载完成后的「TAP TO START」改为轻量文字提示，CG 画面更完整。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.23",
   "unityBuild": "沿用 Unity WebGL 包 R20（本版只改网页层）",
-  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动；模板 index.html、loading-cg.js、media/loading-cg.* 已同步本版）",
-  "previousReleaseId": "PSD-20261009-P5TITLE-R20B",
-  "previousWebCommit": "56bfef4",
-  "previousReleaseRecord": "releases/R20B.json",
-  "previousBackupBranch": "backup/v0.3.21",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动；模板 index.html 已同步本版）",
+  "previousReleaseId": "PSD-20261009-CG-R20C",
+  "previousWebCommit": "f700ca7",
+  "previousReleaseRecord": "releases/R20C.json",
+  "previousBackupBranch": "backup/v0.3.22",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium 模拟手机：全屏循环播放 CG（用户提供的 Seedance 视频，1080×1920，24fps，10 秒，重新编码为 3.5Mbps H.264 无声，4.4MB）；首帧图先显示；左上小号剪报标志、右上公告/修复、底部细进度条+百分比+小贴士；完成后 TAP TO START；控制台无报错。"
+  "visualStatus": "本地 Chromium 模拟手机：加载完成后底部显示白色斜体「TAP TO START」（粉色错位阴影）和「点击屏幕 · 开始演出」，整体缓慢明暗呼吸，无底板，不遮挡 CG；控制台无报错。"
 }
