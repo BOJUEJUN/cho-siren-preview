@@ -15,7 +15,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-    <link rel="preload" href="./media/loading-hero.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="./media/loading-cg.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
     <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
     <style>
@@ -136,22 +136,38 @@
 
       /* The only loading screen players see: it covers the Unity splash and Unity's
          own asset loading, and becomes a tap-to-start title screen once the lobby is
-         live. Persona-style cut-in: pink and black slabs, a ransom-note title and the
-         character, all sized in cqw so it scales with the 720-wide shell. Motion is a
-         single quick entrance and a gentle pulse; nothing spins or flashes. */
+         live. Like the CG loading screens of big mobile games, the full screen is the
+         looping CG (loading-cg.js); only the logo, two buttons and a slim loading
+         strip sit on top. Sizes are in cqw so it scales with the 720-wide shell. */
       #game-shell { container-type: inline-size; }
 
       #loading {
-        --ink: #0d0420;
         --hot: #ff2e93;
-        --hot-deep: #b8125f;
         --cyan: #3ff0ff;
         position: absolute;
         inset: 0;
         z-index: 4;
         overflow: hidden;
-        background: radial-gradient(circle, rgba(255, 46, 147, 0.22) 0 1.6px, transparent 2px) 0 0 / 14px 14px, var(--ink);
+        background: #12061f url("./media/loading-cg.webp") center / cover no-repeat;
         text-align: left;
+      }
+
+      .ld-cg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+      }
+
+      /* Soft shades behind the logo and the loading strip, so text stays readable. */
+      .ld-shade-top, .ld-shade-bottom { position: absolute; left: 0; right: 0; pointer-events: none; }
+      .ld-shade-top { top: 0; height: 16%; background: linear-gradient(rgba(10, 4, 24, 0.55), rgba(10, 4, 24, 0)); }
+      .ld-shade-bottom {
+        bottom: 0;
+        height: 30%;
+        background: linear-gradient(rgba(10, 4, 24, 0), rgba(10, 4, 24, 0.62) 45%, rgba(10, 4, 24, 0.86));
       }
 
       /* Leaving: a pink slab wipes across; the screen is gone by the time it has passed. */
@@ -174,121 +190,63 @@
         100% { transform: translateX(120%) skewX(-20deg); }
       }
 
-      .ld-slab { position: absolute; left: -30%; right: -30%; transform: rotate(-14deg); }
-      .ld-slab-hot {
-        top: 16%;
-        height: 44%;
-        background: radial-gradient(circle, rgba(120, 0, 60, 0.35) 0 2.2px, transparent 2.6px) 0 0 / 11px 11px, var(--hot);
-      }
-      .ld-slab-cyan { top: 12.5%; height: 1.2%; background: var(--cyan); }
-      .ld-slab-ink { top: 47%; height: 9%; background: var(--ink); }
-      .ld-slab-white { top: 57.5%; height: 1.6%; background: #fff; }
-      .ld-burst { position: absolute; left: 18%; top: 6%; width: 110%; aspect-ratio: 1; }
-
-      /* Character cut-in: white then black outline, and a pink offset copy behind. */
-      .ld-hero {
-        position: absolute;
-        right: -14%;
-        top: 7%;
-        height: 86%;
-        aspect-ratio: 866 / 1700;
-        transform: rotate(-4deg);
-        transform-origin: 50% 80%;
-      }
-      .ld-hero img { position: absolute; inset: 0; width: 100%; height: 100%; }
-      .ld-hero .ld-hero-shadow {
-        filter: brightness(0) saturate(100%) invert(26%) sepia(96%) saturate(4200%) hue-rotate(318deg);
-        transform: translate(-4.5%, 1.5%);
-      }
-      .ld-hero .ld-hero-main {
-        filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff)
-          drop-shadow(0 -3px 0 #fff) drop-shadow(4px 4px 0 #000);
-      }
-
-      .ld-star {
-        position: absolute;
-        z-index: 3;
-        width: 6cqw;
-        aspect-ratio: 1;
-        clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-      }
-      .ld-s1 { left: 6%; top: 27%; background: #fff; transform: rotate(-12deg); }
-      .ld-s2 { left: 15%; top: 31%; width: 3.4cqw; background: var(--cyan); transform: rotate(10deg); }
-      .ld-s3 { right: 5%; top: 48%; width: 4.6cqw; background: #000; transform: rotate(18deg); }
-
-      /* Ransom-note title. */
-      .ld-title { position: absolute; left: 5%; top: 4.5%; z-index: 3; }
-      .ld-ransom { display: flex; align-items: flex-end; gap: 0.6cqw; }
+      /* Small ransom-note logo, top left. */
+      .ld-title { position: absolute; left: 4%; top: 2.4%; z-index: 3; }
+      .ld-ransom { display: flex; align-items: flex-end; gap: 0.4cqw; }
       .ld-ransom span {
         display: inline-grid;
         place-items: center;
         padding: 0.06em 0.1em 0.1em;
         font-weight: 900;
         line-height: 1;
-        box-shadow: 0.9cqw 0.9cqw 0 #000;
+        box-shadow: 0.6cqw 0.6cqw 0 #000;
       }
-      .ld-r1 { font-size: 13cqw; color: #000; background: #fff; transform: rotate(-8deg); font-family: "Songti SC", "STSong", "SimSun", serif; }
-      .ld-r2 { font-size: 10.5cqw; color: #fff; background: #000; border: 0.5cqw solid #fff; transform: rotate(5deg) translateY(-1.2cqw); }
-      .ld-r3 { font-size: 12cqw; color: #fff; background: var(--hot); transform: rotate(-4deg); }
-      .ld-r4 { font-size: 11cqw; color: var(--hot-deep); background: #fff; transform: rotate(7deg) translateY(-2cqw); font-family: "Songti SC", "STSong", "SimSun", serif; }
+      .ld-r1 { font-size: 7cqw; color: #000; background: #fff; transform: rotate(-8deg); font-family: "Songti SC", "STSong", "SimSun", serif; }
+      .ld-r2 { font-size: 5.6cqw; color: #fff; background: #000; border: 0.35cqw solid #fff; transform: rotate(5deg) translateY(-0.6cqw); }
+      .ld-r3 { font-size: 6.4cqw; color: #fff; background: var(--hot); transform: rotate(-4deg); }
+      .ld-r4 { font-size: 6cqw; color: #b8125f; background: #fff; transform: rotate(7deg) translateY(-1cqw); font-family: "Songti SC", "STSong", "SimSun", serif; }
       .ld-tag {
         display: inline-block;
-        margin: 3.2cqw 0 0 1cqw;
-        padding: 0.6cqw 2.4cqw;
-        border-left: 1.4cqw solid var(--cyan);
+        margin: 2cqw 0 0 0.6cqw;
+        padding: 0.4cqw 1.6cqw;
+        border-left: 1cqw solid var(--cyan);
         color: #fff;
         background: #000;
-        font-size: 3.1cqw;
+        font-size: 2.2cqw;
         font-style: italic;
         font-weight: 900;
         letter-spacing: 0.3em;
         transform: skewX(-14deg) rotate(-3deg);
       }
-      .ld-sub {
-        margin: 2.4cqw 0 0 2cqw;
-        color: #fff;
-        font-size: 2.9cqw;
-        font-weight: 800;
-        letter-spacing: 0.3em;
-        text-shadow: 0.4cqw 0.4cqw 0 #000;
-        transform: rotate(-3deg);
-      }
 
-      .loading-corner { position: absolute; top: 2.2%; right: 3%; z-index: 4; display: flex; gap: 2cqw; }
+      .loading-corner { position: absolute; top: 2.4%; right: 3%; z-index: 4; display: flex; gap: 2cqw; }
       .loading-corner button {
-        padding: 1.4cqw 3.4cqw;
+        padding: 1.2cqw 3cqw;
         border: 0;
         color: #fff;
-        background: #000;
+        background: rgba(0, 0, 0, 0.72);
         font: inherit;
         font-size: 12px;
-        font-size: 2.9cqw;
+        font-size: 2.7cqw;
         font-weight: 900;
         letter-spacing: 0.12em;
-        box-shadow: 0.8cqw 0.8cqw 0 var(--hot);
+        box-shadow: 0.7cqw 0.7cqw 0 var(--hot);
         transform: skewX(-14deg);
         cursor: pointer;
       }
 
-      /* Black slanted panel with white and pink edges, holding the loading block. */
-      .ld-panel, .ld-edge-hot, .ld-edge-white { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; }
-      .ld-panel { height: 31%; background: #000; clip-path: polygon(0 14%, 100% 0, 100% 100%, 0 100%); }
-      .ld-edge-hot { height: 32.4%; background: var(--hot); clip-path: polygon(0 14%, 100% 0, 100% 3.5%, 0 17.5%); }
-      .ld-edge-white { height: 33.6%; background: #fff; clip-path: polygon(0 14%, 100% 0, 100% 2%, 0 16%); }
-
-      .loading-progress { position: absolute; left: 0; right: 0; bottom: 6.5%; z-index: 3; padding: 0 5%; transition: opacity 300ms ease; }
-      .ld-now { display: flex; align-items: baseline; gap: 3cqw; white-space: nowrap; transform: rotate(-4deg); transform-origin: 0 100%; }
-      .ld-now b, .ld-now span { font-style: italic; font-weight: 900; -webkit-text-stroke: 0.5cqw #000; paint-order: stroke fill; }
-      .ld-now b { font-size: 8cqw; letter-spacing: -0.02em; color: #fff; text-shadow: 1cqw 1cqw 0 var(--hot); }
-      .ld-now span { font-size: 9cqw; color: var(--cyan); }
+      /* Slim loading strip along the bottom. */
+      .loading-progress { position: absolute; left: 6%; right: 6%; bottom: 8.6%; z-index: 3; transition: opacity 300ms ease; }
+      .ld-row { display: flex; align-items: baseline; justify-content: space-between; color: #fff; }
+      .ld-row b { font-size: 3cqw; font-weight: 800; letter-spacing: 0.08em; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+      .ld-row span { font-size: 4.4cqw; font-style: italic; font-weight: 900; color: var(--cyan); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
       .track {
         position: relative;
-        height: 3.2cqw;
-        margin-top: 2.6cqw;
-        border: 0.6cqw solid #fff;
-        background: #000;
-        box-shadow: 1cqw 1cqw 0 var(--hot);
-        transform: rotate(-4deg) skewX(-24deg);
+        height: 1cqw;
+        min-height: 4px;
+        margin-top: 1.6cqw;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.2);
       }
       #progress {
         position: absolute;
@@ -296,18 +254,20 @@
         top: 0;
         bottom: 0;
         width: 0;
-        background: repeating-linear-gradient(90deg, var(--hot) 0 4cqw, #ff6db5 4cqw 5cqw);
+        border-radius: inherit;
+        background: linear-gradient(90deg, #ff6db5, var(--hot));
+        box-shadow: 0 0 10px rgba(255, 46, 147, 0.85);
         transition: width 260ms ease-out;
       }
       #progress::after {
         content: "";
         position: absolute;
-        right: -2.6cqw;
+        right: -2cqw;
         top: 50%;
-        width: 5.6cqw;
+        width: 4cqw;
         aspect-ratio: 1;
         background: #fff;
-        transform: translateY(-50%) skewX(24deg);
+        transform: translateY(-50%);
         clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
       }
       .loading-status {
@@ -319,54 +279,49 @@
         white-space: nowrap;
       }
       .loading-note {
-        min-height: 2.9em;
-        margin: 3.6cqw 0 0 1cqw;
-        color: rgba(255, 255, 255, 0.85);
+        min-height: 1.45em;
+        margin-top: 1.8cqw;
+        color: rgba(255, 255, 255, 0.78);
         font-size: 11px;
-        font-size: 2.5cqw;
-        font-weight: 700;
+        font-size: 2.3cqw;
         line-height: 1.45;
         white-space: pre-line;
-        text-shadow: 0.3cqw 0.3cqw 0 #000;
-        transform: rotate(-4deg);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
       }
       .loading-tip {
-        margin: 1.2cqw 4% 0 0;
-        padding: 2.6cqw 3.2cqw;
-        border: 0.6cqw solid #fff;
+        margin-top: 1.4cqw;
         color: #fff;
-        background: #000;
         font-size: 12px;
-        font-size: 3cqw;
+        font-size: 2.7cqw;
         font-weight: 700;
         line-height: 1.5;
-        clip-path: polygon(0 8%, 100% 0, 97% 100%, 2% 92%);
-        transform: rotate(-2deg);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
       }
       .loading-tip b {
         display: inline-block;
-        margin-right: 2cqw;
-        padding: 0.2cqw 1.6cqw;
+        margin-right: 1.6cqw;
+        padding: 0.1cqw 1.4cqw;
         color: #fff;
         background: var(--hot);
         font-style: italic;
         font-weight: 900;
+        text-shadow: none;
         transform: skewX(-14deg);
       }
       #loading-tip { transition: opacity 300ms ease; }
 
-      /* Ready: the loading block gives way to "tap to start". The tap also lets the
-         browser start the lobby music, which phones block until the page is touched. */
+      /* Ready: the strip gives way to "tap to start". The tap also lets the browser
+         start the lobby music, which phones block until the page is touched. */
       #loading.is-ready { cursor: pointer; }
       #loading.is-ready .loading-progress { opacity: 0; }
       .loading-start {
         position: absolute;
         left: 0;
         right: 0;
-        bottom: 14%;
+        bottom: 10%;
         z-index: 3;
         display: grid;
-        gap: 2cqw;
+        gap: 1.6cqw;
         justify-items: center;
         opacity: 0;
         visibility: hidden;
@@ -374,24 +329,23 @@
         transition: opacity 300ms ease;
       }
       .loading-start strong {
-        padding: 2.4cqw 6cqw;
+        padding: 1.6cqw 5cqw;
         color: #000;
         background: #fff;
-        font-size: 7cqw;
+        font-size: 5.4cqw;
         font-style: italic;
         font-weight: 900;
         letter-spacing: 0.06em;
-        box-shadow: 1.4cqw 1.4cqw 0 var(--hot), -1cqw -1cqw 0 #000;
-        transform: rotate(-5deg) skewX(-10deg);
+        box-shadow: 1.1cqw 1.1cqw 0 var(--hot), -0.8cqw -0.8cqw 0 #000;
+        transform: rotate(-4deg) skewX(-10deg);
         animation: ld-pulse 1.6s ease-in-out infinite alternate;
       }
       .loading-start small {
         color: #fff;
-        font-size: 3.2cqw;
+        font-size: 2.8cqw;
         font-weight: 900;
         letter-spacing: 0.3em;
-        text-shadow: 0.4cqw 0.4cqw 0 #000;
-        transform: rotate(-5deg);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
       }
       #loading.is-ready .loading-start { opacity: 1; visibility: visible; }
       #loading.is-hidden .loading-start { animation: ld-gone 0s 0.45s forwards; }
@@ -414,28 +368,14 @@
       .loading-version {
         position: absolute;
         right: 3%;
-        bottom: 4.6%;
+        bottom: 5%;
         z-index: 3;
         color: rgba(255, 255, 255, 0.6);
         font-size: 10px;
-        font-size: 2.2cqw;
+        font-size: 2.1cqw;
         font-style: italic;
         font-weight: 800;
       }
-
-      /* One quick entrance: slabs and the character snap in, then stay still. */
-      .ld-slab-hot, .ld-slab-cyan { animation: ld-slab-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
-      .ld-slab-cyan { animation-delay: 0.08s; }
-      .ld-hero { animation: ld-hero-in 0.55s 0.12s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
-      .ld-ransom span { animation: ld-drop 0.35s 0.18s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
-      .ld-ransom span:nth-child(2) { animation-delay: 0.25s; }
-      .ld-ransom span:nth-child(3) { animation-delay: 0.32s; }
-      .ld-ransom span:nth-child(4) { animation-delay: 0.39s; }
-      .ld-panel, .ld-edge-hot, .ld-edge-white, .loading-progress { animation: ld-rise-in 0.4s 0.2s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
-      @keyframes ld-slab-in { from { translate: -110% 0; } }
-      @keyframes ld-hero-in { from { translate: 35% 0; opacity: 0; } }
-      @keyframes ld-drop { from { translate: 0 -40%; opacity: 0; } }
-      @keyframes ld-rise-in { from { translate: 0 40%; } }
 
       #loading-dialog {
         position: absolute;
@@ -480,12 +420,6 @@
         #loading *, #loading::after { animation: none !important; }
         #loading.is-ready .loading-start strong { opacity: 1; }
       }
-
-      /* loading-hero.js: the idle loop, keyed with its outline, fades in over the still. */
-      .ld-hero-live { position: absolute; opacity: 0; transition: opacity 400ms ease; }
-      .ld-hero-main { transition: opacity 400ms ease; }
-      .ld-hero.is-live .ld-hero-live { opacity: 1; }
-      .ld-hero.is-live .ld-hero-main { opacity: 0; }
 
       #warning {
         position: absolute;
@@ -550,31 +484,20 @@
         <button id="retry" type="button">重新加载</button>
       </div>
       <div id="loading">
-        <div class="ld-slab ld-slab-cyan"></div>
-        <div class="ld-slab ld-slab-hot"></div>
-        <svg class="ld-burst" viewBox="0 0 100 100" aria-hidden="true">
-          <polygon fill="#000" points="50,2 57,30 82,8 68,36 98,30 72,50 99,66 68,62 80,92 56,70 50,99 43,72 18,94 32,62 2,70 28,50 4,28 32,38 20,6 44,30"/>
-          <polygon fill="none" stroke="#fff" stroke-width=".8" points="50,10 55,32 76,16 65,38 90,34 69,50 91,62 66,60 75,85 54,68 50,90 45,70 24,86 35,60 10,66 31,50 12,32 35,40 26,14 45,32"/>
-        </svg>
-        <div class="ld-slab ld-slab-ink"></div>
-        <div class="ld-slab ld-slab-white"></div>
-        <div class="ld-hero" aria-hidden="true">
-          <img class="ld-hero-shadow" src="./media/loading-hero.webp" alt="">
-          <img class="ld-hero-main" src="./media/loading-hero.webp" alt="">
-        </div>
-        <i class="ld-star ld-s1"></i><i class="ld-star ld-s2"></i><i class="ld-star ld-s3"></i>
+        <video id="loading-cg" class="ld-cg" src="./media/loading-cg.mp4?v=r20c" poster="./media/loading-cg.webp"
+          muted autoplay loop playsinline webkit-playsinline preload="auto" aria-hidden="true"></video>
+        <div class="ld-shade-top"></div>
+        <div class="ld-shade-bottom"></div>
         <div class="ld-title">
           <div class="ld-ransom" aria-label="幻域魅声"><span class="ld-r1">幻</span><span class="ld-r2">域</span><span class="ld-r3">魅</span><span class="ld-r4">声</span></div>
           <div class="ld-tag">CHO-SIREN</div>
-          <div class="ld-sub">通往舞台的星途</div>
         </div>
         <div class="loading-corner">
           <button id="notice-button" type="button">公告</button>
           <button id="repair-button" type="button">修复</button>
         </div>
-        <div class="ld-edge-white"></div><div class="ld-edge-hot"></div><div class="ld-panel"></div>
         <div class="loading-progress">
-          <div class="ld-now" aria-hidden="true"><b>NOW LOADING</b><span id="loading-percent">0%</span></div>
+          <div class="ld-row" aria-hidden="true"><b>正在载入舞台资源</b><span id="loading-percent">0%</span></div>
           <div class="track"><div id="progress"></div></div>
           <div id="loading-status" class="loading-status">正在载入舞台资源 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
@@ -582,7 +505,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.21</div>
+        <div id="loading-version" class="loading-version">v0.3.22</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -599,7 +522,7 @@
     <script src="./audio-skin.js?v=20261005-r17f"></script>
     <script src="./home-stage.js?v=20260928-r12a"></script>
     <script src="./character-moments.js?v=20261006-r17j"></script>
-    <script src="./loading-hero.js?v=20261009-r20b"></script>
+    <script src="./loading-cg.js?v=20261009-r20c"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       const retryToken = new URL(window.location.href).searchParams.get("retry");
@@ -728,7 +651,7 @@
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.21",
+        productVersion: "0.3.22",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true

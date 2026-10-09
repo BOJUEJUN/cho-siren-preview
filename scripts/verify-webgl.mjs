@@ -38,7 +38,7 @@ if (!html.includes('new URL("service-worker.js", pageUrl)') ||
 }
 for (const asset of ["home-stage.css", "home-stage.js", "character-moments.css",
   "character-moments.js", "lipstick-cursor.svg", "manifest.webmanifest", "favicon.svg",
-  "icons/apple-touch-icon.png", "media/loading-stage.webp", "media/loading-hero.webp", "loading-hero.js", "audio-skin.js"]) {
+  "icons/apple-touch-icon.png", "media/loading-stage.webp", "media/loading-cg.webp", "media/loading-cg.mp4", "loading-cg.js", "audio-skin.js"]) {
   if (html.includes(`./${asset}`)) requireFile(join(root, asset));
 }
 const webManifest = JSON.parse(readFileSync(join(root, "manifest.webmanifest"), "utf8"));

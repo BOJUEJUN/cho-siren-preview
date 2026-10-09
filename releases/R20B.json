@@ -1,0 +1,24 @@
+{
+  "version": "0.3.21",
+  "releaseId": "PSD-20261009-P5TITLE-R20B",
+  "name": "加载页改成 P5R 风格标题画面，角色播放待机动画；首页角色视频改为缓存在本机",
+  "notice": "全新 P5R 风格加载画面：剪报标题、斜切色块，角色会眨眼呼吸；加载完点击「TAP TO START」进入大厅。首页角色动画下载一次后存在本机，再次打开更快。",
+  "date": "2026-10-09",
+  "backupBranch": "backup/v0.3.21",
+  "unityBuild": "沿用 Unity WebGL 包 R20（本版只改网页层）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动；模板 index.html、loading-hero.js、service-worker.js、media/loading-hero.webp 已同步本版）",
+  "previousReleaseId": "PSD-20261009-TITLE-R20A",
+  "previousWebCommit": "44e20e4",
+  "previousReleaseRecord": "releases/R20A.json",
+  "previousBackupBranch": "backup/v0.3.20",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 模拟手机：粉黑斜切色块、剪报字标题、角色白描边加粉色重影；角色播放待机循环（眨眼、呼吸），首帧前显示静态图；入场 0.5 秒一次性滑入；完成后显示 TAP TO START，点击后粉色斜条扫过进入大厅；控制台无报错。"
+}
