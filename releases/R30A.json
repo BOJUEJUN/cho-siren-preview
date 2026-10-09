@@ -1,0 +1,24 @@
+{
+  "version": "0.3.34",
+  "releaseId": "PSD-20261010-TIPS-R30A",
+  "name": "加载页小贴士加入签到、闪耀舞台、第二章、红点说明",
+  "notice": "加载画面的小贴士介绍了签到、闪耀舞台、第二章等新内容。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.34",
+  "unityBuild": "沿用 Unity WebGL 包 R30（本版只改网页层）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-CHECKIN-R30",
+  "previousWebCommit": "f961890",
+  "previousReleaseRecord": "releases/R30.json",
+  "previousBackupBranch": "backup/v0.3.33",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "仅加载页小贴士文字（轮播列表新增 4 条）；网页检查通过。"
+}
