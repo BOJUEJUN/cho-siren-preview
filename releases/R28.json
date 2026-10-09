@@ -1,0 +1,24 @@
+{
+  "version": "0.3.31",
+  "releaseId": "PSD-20261010-PROFILE-R28",
+  "name": "制作人档案改为资料卡；战斗规则卡统一风格",
+  "notice": "点左上头像查看制作人档案：战力、编队、签约、通关、星数、签到一目了然。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.31",
+  "unityBuild": "新 Unity WebGL 包 R28（制作人档案资料卡、战斗规则卡粉色描边；Player Settings 版本 0.3.31）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-SIGNIN-R27",
+  "previousWebCommit": "6388865",
+  "previousReleaseRecord": "releases/R27.json",
+  "previousBackupBranch": "backup/v0.3.30",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：头像打开制作人档案，含头像、身份、六项数据与「调整编队」「成员图鉴」入口。Unity EditMode 481/485（余 4 项为战斗平衡旧用例）。"
+}
