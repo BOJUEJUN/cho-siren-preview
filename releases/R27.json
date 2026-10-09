@@ -1,0 +1,24 @@
+{
+  "version": "0.3.30",
+  "releaseId": "PSD-20261010-SIGNIN-R27",
+  "name": "七日签到：大厅入口、每天首次进入自动弹出、红点提醒",
+  "notice": "新增每日签到：七天一轮，第七天送 200 星钻。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.30",
+  "unityBuild": "新 Unity WebGL 包 R27（七日签到、引导卡编号修正；Player Settings 版本 0.3.30）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-NOTICE-R26",
+  "previousWebCommit": "fa7640c",
+  "previousReleaseRecord": "releases/R26.json",
+  "previousBackupBranch": "backup/v0.3.29",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。签到记录写入现有剧情标记（signin:日期）。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：大厅右侧「每日签到」入口与红点；签到窗口 7 格，第 1 天领取后星钻 +50、显示已领取、按钮变为「今日已签到」。Unity EditMode 481/485（新增签到测试；余 4 项为战斗平衡旧用例）。"
+}
