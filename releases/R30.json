@@ -1,0 +1,24 @@
+{
+  "version": "0.3.33",
+  "releaseId": "PSD-20261010-CHECKIN-R30",
+  "name": "七日签到与原有签到合并为同一套记录",
+  "notice": "签到统一：大厅七日签到和任务面板签到是同一份，连续签到七天一轮。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.33",
+  "unityBuild": "新 Unity WebGL 包 R30（七日签到改用原有签到记录与奖励表；Player Settings 版本 0.3.33）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-STYLE-R29",
+  "previousWebCommit": "8bbca57",
+  "previousReleaseRecord": "releases/R29.json",
+  "previousBackupBranch": "backup/v0.3.32",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "Unity EditMode 481/485：原有「每天只能签一次、连续天数」测试与新「七日奖励、中断重来」测试均通过（余 4 项为战斗平衡旧用例）。"
+}
