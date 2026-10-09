@@ -1,0 +1,24 @@
+{
+  "version": "0.3.32",
+  "releaseId": "PSD-20261010-STYLE-R29",
+  "name": "提示条与章节弹窗统一为粉黑描边",
+  "notice": "界面提示条和章节奖励弹窗换成统一的粉黑风格。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.32",
+  "unityBuild": "新 Unity WebGL 包 R29（全局提示条、章节奖励/任务弹窗描边；Player Settings 版本 0.3.32）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-PROFILE-R28",
+  "previousWebCommit": "60bd999",
+  "previousReleaseRecord": "releases/R28.json",
+  "previousBackupBranch": "backup/v0.3.31",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "仅配色与描边调整；Unity EditMode 481/485（余 4 项为战斗平衡旧用例）。"
+}
