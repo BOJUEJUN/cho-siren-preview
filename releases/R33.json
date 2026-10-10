@@ -1,0 +1,24 @@
+{
+  "version": "0.3.37",
+  "releaseId": "PSD-20261010-ARC-R33",
+  "name": "底部菜单恢复弧形排列；加载页喇叭开关（CG 原声）",
+  "notice": "底部菜单恢复弧形排列；加载画面右上角新增喇叭，可开关 CG 音乐。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.37",
+  "unityBuild": "新 Unity WebGL 包 R33（底部导航弧形排列、去掉平底条；加载页喇叭；Player Settings 版本 0.3.37）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-NAVBASE-R32",
+  "previousWebCommit": "22db99e",
+  "previousReleaseRecord": "releases/R32.json",
+  "previousBackupBranch": "backup/v0.3.36",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 模拟手机：底部五个入口沿弧线排列（大厅居中最高），原图标脚下为光碟底座；加载页右上角喇叭默认静音，点开播放 CG 原声，选择会被记住。"
+}
