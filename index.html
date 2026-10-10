@@ -53,17 +53,20 @@
           env(safe-area-inset-bottom) env(safe-area-inset-left);
       }
 
-      /* Wide screens: the stage art, blurred and dimmed, fills the space beside the
-         portrait shell instead of flat colour. Portrait phones never draw it. */
+      /* Any space the portrait shell leaves (browser bars on phones, the Dynamic Island
+         and home-indicator insets in home-screen mode, wide desktop screens) shows the
+         stage art blurred and dimmed, the way mobile H5 games pad their letterbox,
+         instead of bare purple bars. The shell itself stays inside the safe area. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -64px;
+        z-index: -1;
+        background: url("./media/loading-stage.webp") center / cover no-repeat;
+        filter: blur(28px) brightness(0.5) saturate(1.2);
+      }
       @media (min-aspect-ratio: 4/5) {
-        body::before {
-          content: "";
-          position: fixed;
-          inset: -64px;
-          z-index: -1;
-          background: url("./media/loading-stage.webp") center / cover no-repeat;
-          filter: blur(34px) brightness(0.4) saturate(1.2);
-        }
+        body::before { filter: blur(34px) brightness(0.4) saturate(1.2); }
       }
 
       #game-shell {
