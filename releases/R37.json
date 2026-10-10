@@ -1,0 +1,24 @@
+{
+  "version": "0.3.41",
+  "releaseId": "PSD-20261010-SLIM-R37",
+  "name": "包体瘦身 95→84MB；练习室、战斗暂停/规则/角色能力/结算换新风格",
+  "notice": "首次加载更快；练习室和战斗弹窗换新风格。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.41",
+  "unityBuild": "新 Unity WebGL 包 R37（移出 270 个未被引用的旧图片，data 包 95.0MB→83.7MB；练习室页头与卡片、战斗暂停/规则/角色能力/结算卡改为 PunkUi 风格；底部菜单选中条按素材比例显示；Player Settings 版本 0.3.41）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-MODALUI-R36",
+  "previousWebCommit": "bbbb5c7",
+  "previousReleaseRecord": "releases/R36.json",
+  "previousBackupBranch": "backup/v0.3.40",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：大厅、团队、成员、饰品、选秀、练习室、关卡、战斗 1-1 全程可用，无缺图；练习室为黑色页头+粉色题字+粉色分割线，卡片左侧粉色色条；战斗暂停卡、结算卡为纯黑卡片+粉色顶条+粉色错位阴影，按钮斜切。Unity EditMode 482/486（余 4 项为战斗平衡旧用例）。"
+}
