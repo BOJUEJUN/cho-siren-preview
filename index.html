@@ -513,7 +513,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.38</div>
+        <div id="loading-version" class="loading-version">v0.3.39</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -653,13 +653,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("82838817df30c2506f86e9db5300f024.data.unityweb"),
-        frameworkUrl: buildAssetUrl("539a15ad5f57a25ec24847f28ed8392f.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("6704afa248d1a23a0b57c372a8e582a4.wasm.unityweb"),
+        dataUrl: buildAssetUrl("b1fda19edca16a5ace608129a315ecd5.data.unityweb"),
+        frameworkUrl: buildAssetUrl("3c909b2a725f0686ef6c7a4fcffacef3.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("ecfea88c5da2530aa292eef192610ebc.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.38",
+        productVersion: "0.3.39",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -730,7 +730,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("cb1e685759627935dfb88ce0dd108237.loader.js");
+      loader.src = buildAssetUrl("8d1f51f4f4f13dfafb0a9a2352e75079.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.

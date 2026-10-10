@@ -1,0 +1,24 @@
+{
+  "version": "0.3.38",
+  "releaseId": "PSD-20261010-VINYL-R34",
+  "name": "底部菜单：黑胶光碟底座（所有页面），选中改为斜切粉条",
+  "notice": "底部菜单换成黑胶光碟底座，所有页面统一；选中项更简洁。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.38",
+  "unityBuild": "新 Unity WebGL 包 R34（底部黑胶底座、选中斜切粉条、去掉每个图标下的小光碟；Player Settings 版本 0.3.38）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-ARC-R33",
+  "previousWebCommit": "b33b17b",
+  "previousReleaseRecord": "releases/R33.json",
+  "previousBackupBranch": "backup/v0.3.37",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：底部为一大张黑胶露出的一段（粉色碟边、青色内圈、纹路），五个原图标沿碟边排列，当前页图标放大、文字粉色、下方斜切粉条，其余图标略暗。"
+}
