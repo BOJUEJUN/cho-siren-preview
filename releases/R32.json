@@ -1,0 +1,24 @@
+{
+  "version": "0.3.36",
+  "releaseId": "PSD-20261010-NAVBASE-R32",
+  "name": "底部菜单恢复原图标，底座改为圆形光碟",
+  "notice": "底部菜单恢复原来的图标，每个图标下方是圆形光碟底座，当前页面为镭射光碟。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.36",
+  "unityBuild": "新 Unity WebGL 包 R32（底部导航原图标 + 光碟底座；Player Settings 版本 0.3.36）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-SFX-R31",
+  "previousWebCommit": "3fd7386",
+  "previousReleaseRecord": "releases/R31.json",
+  "previousBackupBranch": "backup/v0.3.35",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 模拟手机：五个入口为原朋克图标，脚下为透视角度的黑胶光碟底座，大厅（当前页）为粉色镭射光碟加粉圈，标签粉色下划线。"
+}

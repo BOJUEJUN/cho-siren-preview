@@ -235,6 +235,13 @@
         cursor: pointer;
       }
 
+      /* Sound toggle for the CG's own music: off by default (phones block autoplaying sound). */
+      #sound-button { display: grid; place-items: center; padding: 1.2cqw 2.4cqw; }
+      #sound-button svg { width: 18px; width: 4cqw; height: 18px; height: 4cqw; transform: skewX(14deg); }
+      #sound-button .sound-on { display: none; }
+      #sound-button[aria-pressed="true"] .sound-on { display: inline; }
+      #sound-button[aria-pressed="true"] .sound-off { display: none; }
+
       /* Slim loading strip along the bottom. */
       .loading-progress { position: absolute; left: 6%; right: 6%; bottom: 8.6%; z-index: 3; transition: opacity 300ms ease; }
       .ld-row { display: flex; align-items: baseline; justify-content: space-between; color: #fff; }
@@ -480,7 +487,7 @@
         <button id="retry" type="button">重新加载</button>
       </div>
       <div id="loading">
-        <video id="loading-cg" class="ld-cg" src="./media/loading-cg.mp4?v=r20c" poster="./media/loading-cg.webp"
+        <video id="loading-cg" class="ld-cg" src="./media/loading-cg.mp4?v=r20e" poster="./media/loading-cg.webp"
           muted autoplay loop playsinline webkit-playsinline preload="auto" aria-hidden="true"></video>
         <div class="ld-shade-top"></div>
         <div class="ld-shade-bottom"></div>
@@ -489,6 +496,11 @@
           <div class="ld-tag">CHO-SIREN</div>
         </div>
         <div class="loading-corner">
+          <button id="sound-button" type="button" aria-label="开启声音" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" fill="currentColor"/>
+              <path class="sound-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path class="sound-off" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
           <button id="notice-button" type="button">公告</button>
           <button id="repair-button" type="button">修复</button>
         </div>
@@ -501,7 +513,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.36</div>
+        <div id="loading-version" class="loading-version">v0.3.37</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -518,7 +530,7 @@
     <script src="./audio-skin.js?v=20261005-r17f"></script>
     <script src="./home-stage.js?v=20260928-r12a"></script>
     <script src="./character-moments.js?v=20261006-r17j"></script>
-    <script src="./loading-cg.js?v=20261009-r20c"></script>
+    <script src="./loading-cg.js?v=20261010-r20e"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       const retryToken = new URL(window.location.href).searchParams.get("retry");
@@ -641,13 +653,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("24e752d1e5bb2754daf16a383a2b946a.data.unityweb"),
-        frameworkUrl: buildAssetUrl("3c131f5113c0dfc07f40f774e0882e78.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("6ebdbfba84df2197bd84279037015ef9.wasm.unityweb"),
+        dataUrl: buildAssetUrl("45326f239e1f53502cfd97f27c0561b5.data.unityweb"),
+        frameworkUrl: buildAssetUrl("6444102a2538ca1e62e27a542f0734e1.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("93eba1f765b83e56d8c83afbd9813066.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.36",
+        productVersion: "0.3.37",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -718,7 +730,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("8014a068338aa6d2c21805365ea25fef.loader.js");
+      loader.src = buildAssetUrl("ad1e0dd8b5c6ff9b95e64be413d39a21.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.
