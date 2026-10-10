@@ -222,7 +222,37 @@
         transform: skewX(-14deg) rotate(-3deg);
       }
 
+      /* 适龄提示 (CADPA-style): coloured age block over a white CADPA strip, tap for details. */
+      .age-badge {
+        position: absolute; left: 4.6%; top: 12.6%; z-index: 4;
+        display: grid; justify-items: center; gap: 0.6cqw;
+        padding: 0; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
+      }
+      .age-badge .age-card {
+        display: grid; width: 11cqw; overflow: hidden; border-radius: 1.4cqw;
+        border: 0.45cqw solid #fff; box-shadow: 0 0.6cqw 1.6cqw rgba(0, 0, 0, 0.45);
+      }
+      .age-badge .age-num {
+        display: grid; place-items: center; height: 8.4cqw; background: #f5a300;
+        color: #fff; font-size: 5.4cqw; font-weight: 900; letter-spacing: -0.04em;
+        text-shadow: 0 0.3cqw 0 rgba(120, 60, 0, 0.45);
+      }
+      .age-badge .age-org {
+        display: grid; place-items: center; height: 3cqw; background: #fff;
+        color: #222; font-size: 1.9cqw; font-weight: 900; letter-spacing: 0.08em;
+      }
+      .age-badge .age-label {
+        padding: 0.2cqw 1.2cqw; background: rgba(0, 0, 0, 0.62);
+        font-size: 2.1cqw; font-weight: 900; letter-spacing: 0.12em;
+      }
+
       .loading-corner { position: absolute; top: 2.4%; right: 3%; z-index: 4; display: flex; gap: 2cqw; }
+      .loading-corner button.has-dot { position: relative; }
+      .loading-corner button.has-dot::after {
+        content: ""; position: absolute; top: -0.9cqw; right: -0.9cqw;
+        width: 2.2cqw; height: 2.2cqw; border-radius: 50%; background: #ff2e5c;
+        box-shadow: 0 0 0 0.35cqw #fff; transform: skewX(14deg);
+      }
       .loading-corner button {
         padding: 1.2cqw 3cqw;
         border: 0;
@@ -498,6 +528,10 @@
           <div class="ld-ransom" aria-label="幻域魅声"><span class="ld-r1">幻</span><span class="ld-r2">域</span><span class="ld-r3">魅</span><span class="ld-r4">声</span></div>
           <div class="ld-tag">CHO-SIREN</div>
         </div>
+        <button id="age-button" class="age-badge" type="button" aria-label="适龄提示：16 岁以上">
+          <span class="age-card"><span class="age-num">16+</span><span class="age-org">CADPA</span></span>
+          <span class="age-label">适龄提示</span>
+        </button>
         <div class="loading-corner">
           <button id="sound-button" type="button" aria-label="开启声音" aria-pressed="false">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" fill="currentColor"/>
@@ -516,7 +550,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.43</div>
+        <div id="loading-version" class="loading-version">v0.3.44</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -656,13 +690,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("9a7506970e05b784e2acb53e68237a4c.data.unityweb"),
-        frameworkUrl: buildAssetUrl("5c55dd9907ec16a85858feadc7df83b0.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("13547c039d2fcddce60234b9b6eb2593.wasm.unityweb"),
+        dataUrl: buildAssetUrl("a65dbbfaa936b56f59a2e22a24615483.data.unityweb"),
+        frameworkUrl: buildAssetUrl("999308e158e7a666112280e9b1b708ad.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("73a5f88e482cf7d4cb7703d1cccda6a9.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.43",
+        productVersion: "0.3.44",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -700,6 +734,7 @@
         document.querySelector("#dialog-text").textContent = text;
         dialogOk.textContent = okLabel;
         dialogCancel.style.display = onOk ? "" : "none";
+        dialogCancel.textContent = "取消";
         dialogOk.onclick = () => {
           dialog.classList.remove("is-open");
           if (onOk) onOk();
@@ -708,6 +743,7 @@
       }
       dialogCancel.addEventListener("click", () => dialog.classList.remove("is-open"));
       document.querySelector("#notice-button").addEventListener("click", async () => {
+        markNoticeRead();
         let text = `当前版本 v${config.productVersion}`;
         try {
           const response = await fetch(new URL(`release.json?_=${Date.now()}`, pageUrl), { cache: "no-store" });
@@ -718,22 +754,65 @@
         } catch (_) {}
         openDialog("更新公告", text, "知道了");
       });
+      document.querySelector("#age-button").addEventListener("click", () => openDialog("适龄提示",
+        "1. 本游戏是一款偶像养成与骰子策略战斗游戏，适用于年满 16 周岁及以上的用户，建议未成年人在家长监护下使用。\n" +
+        "2. 游戏中有虚拟角色的舞台对战，没有血腥画面；部分角色服装较为时尚性感，没有现实暴力或不良引导内容。\n" +
+        "3. 本作为试玩版，不需要注册账号、没有充值入口。请合理安排游戏时间，避免沉迷。", "知道了"));
       document.querySelector("#repair-button").addEventListener("click", () => openDialog("修复游戏",
         "画面异常、一直卡在加载或资源损坏时使用：清除本机缓存的游戏资源并重新下载（约 150MB，建议连接 Wi-Fi）。\n存档和进度不受影响。",
         "开始修复", restartClean));
       // Once the lobby is live the screen waits for a tap, like a game's title screen.
       // That first touch is also what lets phones start the lobby music.
+      // First visit: the user agreement must be accepted before the lobby opens.
+      const agreementKey = "cho-agreement-v1";
+      function agreed() {
+        try { return localStorage.getItem(agreementKey) === "1"; } catch (_) { return true; }
+      }
+      function showAgreement(then) {
+        openDialog("用户协议与隐私政策",
+          "在开始游戏前，请阅读并同意《用户协议》和《隐私政策》。\n\n" +
+          "· 本作为试玩版，不需要注册账号，没有充值入口。\n" +
+          "· 游戏进度只保存在你的设备上，不收集姓名、手机号等个人信息。\n" +
+          "· 适合 16 周岁及以上用户，请合理安排游戏时间。",
+          "同意并进入", () => {
+            try { localStorage.setItem(agreementKey, "1"); } catch (_) {}
+            if (then) then();
+          });
+        dialogCancel.textContent = "不同意";
+      }
+      if (!agreed()) showAgreement();
+
+      // Red dot on 公告 until this version's notice has been opened once.
+      const noticeSeenKey = "cho-notice-seen";
+      const noticeButton = document.querySelector("#notice-button");
+      const noticeVersion = String(config.productVersion || "");
+      function checkNoticeDot() {
+        // No extra request: the notice of the running version counts as unread until opened.
+        let seen = "";
+        try { seen = localStorage.getItem(noticeSeenKey) || ""; } catch (_) {}
+        if (noticeVersion && seen !== noticeVersion) noticeButton.classList?.add?.("has-dot");
+      }
+      function markNoticeRead() {
+        noticeButton.classList?.remove?.("has-dot");
+        try { if (noticeVersion) localStorage.setItem(noticeSeenKey, noticeVersion); } catch (_) {}
+      }
+
       function readyToStart() {
         loading.classList.add("is-ready");
+        checkNoticeDot();
         loading.addEventListener("click", event => {
           if (event?.target?.closest?.("button, #loading-dialog")) return;
-          loading.classList.add("is-hidden");
-          window.clearInterval?.(tipTimer);
+          const start = () => {
+            loading.classList.add("is-hidden");
+            window.clearInterval?.(tipTimer);
+          };
+          if (!agreed()) { showAgreement(start); return; }
+          start();
         });
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("8349d40669a1ca2f9c9702c5fe292e75.loader.js");
+      loader.src = buildAssetUrl("103cc664909e6d2f4a294b6c4b7977d0.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.

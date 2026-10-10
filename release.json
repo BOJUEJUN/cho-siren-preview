@@ -1,16 +1,16 @@
 {
-  "version": "0.3.43",
-  "releaseId": "PSD-20261010-ACHV-R39",
-  "name": "成就系统、奖励音效统一、剧情对话框修正",
-  "notice": "新增 10 个成就，在经纪人档案里领取星钻。",
+  "version": "0.3.44",
+  "releaseId": "PSD-20261011-POLISH-R40",
+  "name": "用户协议、16+ 适龄提示、专辑卡改为成就、页面边缘柔化、App 版开场",
+  "notice": "首次进入需同意用户协议；加载页新增 16+ 适龄提示；首页专辑卡显示成就进度。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.43",
-  "unityBuild": "新 Unity WebGL 包 R39（成就系统 10 项、档案入口与大厅红点、练习升级与章节奖励补成功音效、剧情对话框恢复半透明；Player Settings 版本 0.3.43）",
+  "backupBranch": "backup/v0.3.44",
+  "unityBuild": "新 Unity WebGL 包 R40（页面四周用本页画面的模糊版铺满并柔化接缝；首页专辑卡改为成就入口；新手指引移到左侧；切换偶像箭头换新风格；资料/签到等弹窗按内容收高；Player Settings 版本 0.3.44）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261010-GUIDE-R38",
-  "previousWebCommit": "130aa1b",
-  "previousReleaseRecord": "releases/R38.json",
-  "previousBackupBranch": "backup/v0.3.42",
+  "previousReleaseId": "PSD-20261010-ACHV-R39",
+  "previousWebCommit": "7e445f0",
+  "previousReleaseRecord": "releases/R39.json",
+  "previousBackupBranch": "backup/v0.3.43",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium：经纪人档案底部「成就 · 1 个可领取」，成就列表 10 行（粉色条=可领取、青色=进行中、灰色=已领取），领取后星钻 821→871。Unity EditMode 487/487 全部通过。"
+  "visualStatus": "本地 Chromium：首次打开弹出用户协议（同意后才能进入），加载页左上角 16+ CADPA 适龄提示可点开，公告有新版本时亮红点；大厅专辑卡显示「成就 0/10」。iPhone 18 Pro 模拟器（App 版）：CG 开场、Logo 与喇叭/公告/修复同排、P5R 斜切转场进大厅；团队、成员、饰品、选秀、关卡页四周为本页模糊画面，无硬边。Unity EditMode 487/487。"
 }

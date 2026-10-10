@@ -1,0 +1,24 @@
+{
+  "version": "0.3.43",
+  "releaseId": "PSD-20261010-ACHV-R39",
+  "name": "成就系统、奖励音效统一、剧情对话框修正",
+  "notice": "新增 10 个成就，在经纪人档案里领取星钻。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.43",
+  "unityBuild": "新 Unity WebGL 包 R39（成就系统 10 项、档案入口与大厅红点、练习升级与章节奖励补成功音效、剧情对话框恢复半透明；Player Settings 版本 0.3.43）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-GUIDE-R38",
+  "previousWebCommit": "130aa1b",
+  "previousReleaseRecord": "releases/R38.json",
+  "previousBackupBranch": "backup/v0.3.42",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：经纪人档案底部「成就 · 1 个可领取」，成就列表 10 行（粉色条=可领取、青色=进行中、灰色=已领取），领取后星钻 821→871。Unity EditMode 487/487 全部通过。"
+}
