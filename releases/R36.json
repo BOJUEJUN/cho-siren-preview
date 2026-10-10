@@ -1,0 +1,24 @@
+{
+  "version": "0.3.40",
+  "releaseId": "PSD-20261010-MODALUI-R36",
+  "name": "弹窗统一新风格：黑卡片、粉色顶条、斜切按钮；弹窗打开时暂停大厅灯光",
+  "notice": "设置、邮箱、签到等弹窗换成新风格。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.40",
+  "unityBuild": "新 Unity WebGL 包 R36（公共弹窗外框改为 PunkUi 风格、弹窗按内容收高、弹窗时暂停 HTML 舞台灯光；Player Settings 版本 0.3.40）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-TASKUI-R35",
+  "previousWebCommit": "a59f8b6",
+  "previousReleaseRecord": "releases/R35.json",
+  "previousBackupBranch": "backup/v0.3.39",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：设置、邮箱、签到弹窗为纯黑卡片 + 粉色顶条 + 粉色错位阴影，标题左对齐带粉色短斜条，按钮为斜切样式（主按钮粉底黑影、次按钮白描边、关闭为黑底粉影）；卡片高度贴合内容；弹窗打开时大厅的 HTML 舞台光束不再扫过弹窗；弹窗下方菜单不可点。Unity EditMode 482/486（余 4 项为战斗平衡旧用例）。"
+}
