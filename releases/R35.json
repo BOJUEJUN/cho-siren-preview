@@ -1,0 +1,24 @@
+{
+  "version": "0.3.39",
+  "releaseId": "PSD-20261010-TASKUI-R35",
+  "name": "任务面板按新设计重做：黑卡片色条、斜切标签、未完成任务「前往」直达",
+  "notice": "任务面板换新：未完成的任务点「前往」直接去对应玩法。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.39",
+  "unityBuild": "新 Unity WebGL 包 R35（PunkUi 新风格组件、任务面板重做、任务前往跳转；Player Settings 版本 0.3.39）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261010-VINYL-R34",
+  "previousWebCommit": "a9a163f",
+  "previousReleaseRecord": "releases/R34.json",
+  "previousBackupBranch": "backup/v0.3.38",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium：任务面板顶部斜切返回键、「任务 TASKS」、一键领取；每日/每周为斜切标签（选中白底黑字粉影）；进度条与签到条；任务为黑卡片+左侧色条（粉=可领取 青=进行中 灰=已领取），未完成任务显示「前往」。Unity EditMode 482/486（余 4 项为战斗平衡旧用例）。"
+}
