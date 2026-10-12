@@ -1,16 +1,16 @@
 {
-  "version": "0.3.51",
-  "releaseId": "PSD-20261012-HUD-R47",
-  "name": "顶部栏全页统一 + 加载页竖排 + 饰品页暗色 + 手机双击隐藏修复",
-  "notice": "所有页面顶部栏统一；加载页公告/修复/声音改为左侧竖排；饰品页改为暗色风格；手机上双击角色隐藏界面恢复可用。",
+  "version": "0.3.52",
+  "releaseId": "PSD-20261012-HUD-R48",
+  "name": "顶部栏微调：邮件和设置只在大厅竖排显示",
+  "notice": "邮件和设置回到大厅右侧竖排，其他页面顶部栏更简洁。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.51",
-  "unityBuild": "新 Unity WebGL 包 R47（大厅改用与其他页面相同的顶部栏，统一头像牌、三枚货币条、邮件与设置位置和字号；角色详情页显示同一顶部栏；加载页参考 NIKKE：16+ 在左上，公告/修复/声音菱形图标竖排，Logo 移到下方居中；饰品库存页和详情卡改为黑底粉边；首页双击角色在触屏上也能隐藏/显示界面，顶部栏和底部导航一起隐藏；Player Settings 版本 0.3.51）",
+  "backupBranch": "backup/v0.3.52",
+  "unityBuild": "新 Unity WebGL 包 R48（大厅恢复原画的设置齿轮与邮件图标，竖排在顶部栏下方右侧；其他页面顶部栏不再显示邮件和设置；三条货币条加宽并均匀铺满；Player Settings 版本 0.3.52）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261012-VFX-R46",
-  "previousWebCommit": "516b2d8",
-  "previousReleaseRecord": "releases/R46.json",
-  "previousBackupBranch": "backup/v0.3.50",
+  "previousReleaseId": "PSD-20261012-HUD-R47",
+  "previousWebCommit": "8f7a230",
+  "previousReleaseRecord": "releases/R47.json",
+  "previousBackupBranch": "backup/v0.3.51",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "iPhone 18 Pro 模拟器：大厅/编队/饰品三页顶部栏完全一致；加载页左侧竖排三个入口；双击角色隐藏全部界面。网页加载页竖排同步。Unity EditMode 494/494。"
+  "visualStatus": "iPhone 18 Pro 模拟器：大厅顶部栏三条货币均匀排开，右侧下方竖排齿轮和邮件（带红点）。Unity EditMode 494/494。"
 }
