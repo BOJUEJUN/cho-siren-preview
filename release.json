@@ -1,16 +1,16 @@
 {
-  "version": "0.3.55",
-  "releaseId": "PSD-20261012-GUARD-R51",
-  "name": "应急守护并入队长标签",
-  "notice": "应急守护挪到队长卡上方的「队长｜守护」标签里，舞台上不再有按钮遮挡。",
+  "version": "0.3.56",
+  "releaseId": "PSD-20261012-DICE3D-R52",
+  "name": "骰子投掷改为 3D 翻滚动画",
+  "notice": "骰子投掷换成真正的 3D 水晶骰子翻滚动画，开场第一次投掷也能完整看到。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.55",
-  "unityBuild": "新 Unity WebGL 包 R51（应急守护改为队长卡顶部「队长」标签右侧的青色斜切「守护」段：可用时边框呼吸，守护中青色填充随 3 秒倒计时减少，用完变灰「已用」；换队长时跟着移动；Player Settings 版本 0.3.55）",
+  "backupBranch": "backup/v0.3.56",
+  "unityBuild": "新 Unity WebGL 包 R52（自建 3D 水晶骰子模型（圆角立方体、玻璃亮边、粉色爱心点数），为 1-6 每个点数渲染 16 帧翻滚序列（带动态模糊），投掷时骰子高抛翻滚、正面朝上菱形落地后闪光切回原画；修复开场投掷因布局重排和首帧卡顿被跳过的问题；Player Settings 版本 0.3.56）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261012-GUARD-R50",
-  "previousWebCommit": "37f6450",
-  "previousReleaseRecord": "releases/R50.json",
-  "previousBackupBranch": "backup/v0.3.54",
+  "previousReleaseId": "PSD-20261012-GUARD-R51",
+  "previousWebCommit": "4a537d1",
+  "previousReleaseRecord": "releases/R51.json",
+  "previousBackupBranch": "backup/v0.3.55",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "iPhone 18 Pro 模拟器：队长卡上方显示「队长｜守护」，舞台和成员卡无遮挡。Unity EditMode 494/494。"
+  "visualStatus": "iPhone 18 Pro 模拟器录屏：进入战斗后六颗骰子依次腾空 3D 翻滚、落地成菱形再切回水晶原画，随后成型火焰和牌型横幅；手动重投同样播放。Unity EditMode 494/494。"
 }

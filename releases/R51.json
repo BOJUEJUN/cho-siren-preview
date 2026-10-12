@@ -1,0 +1,24 @@
+{
+  "version": "0.3.55",
+  "releaseId": "PSD-20261012-GUARD-R51",
+  "name": "应急守护并入队长标签",
+  "notice": "应急守护挪到队长卡上方的「队长｜守护」标签里，舞台上不再有按钮遮挡。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.55",
+  "unityBuild": "新 Unity WebGL 包 R51（应急守护改为队长卡顶部「队长」标签右侧的青色斜切「守护」段：可用时边框呼吸，守护中青色填充随 3 秒倒计时减少，用完变灰「已用」；换队长时跟着移动；Player Settings 版本 0.3.55）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261012-GUARD-R50",
+  "previousWebCommit": "37f6450",
+  "previousReleaseRecord": "releases/R50.json",
+  "previousBackupBranch": "backup/v0.3.54",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "iPhone 18 Pro 模拟器：队长卡上方显示「队长｜守护」，舞台和成员卡无遮挡。Unity EditMode 494/494。"
+}
