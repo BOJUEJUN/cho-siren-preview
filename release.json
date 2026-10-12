@@ -1,16 +1,16 @@
 {
-  "version": "0.3.44",
-  "releaseId": "PSD-20261011-POLISH-R40",
-  "name": "用户协议、16+ 适龄提示、专辑卡改为成就、页面边缘柔化、App 版开场",
-  "notice": "首次进入需同意用户协议；加载页新增 16+ 适龄提示；首页专辑卡显示成就进度。",
+  "version": "0.3.45",
+  "releaseId": "PSD-20261012-MEETFIX-R41",
+  "name": "会议 bug 修复：微信全屏、战斗血条能量条、长按换队长、同种族自动跳编队",
+  "notice": "手机微信全屏显示；战斗中长按成员卡可以换队长；血量和能量改为进度条。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.44",
-  "unityBuild": "新 Unity WebGL 包 R40（页面四周用本页画面的模糊版铺满并柔化接缝；首页专辑卡改为成就入口；新手指引移到左侧；切换偶像箭头换新风格；资料/签到等弹窗按内容收高；Player Settings 版本 0.3.44）",
+  "backupBranch": "backup/v0.3.45",
+  "unityBuild": "新 Unity WebGL 包 R41（手机竖屏网页铺满全屏、大厅随屏幕比例上下避让；战斗成员卡血条/能量条加粗并显示数字、队长标识改为粉色；重投充能条加文字；应急守护按钮置于成员卡之上；长按成员卡换队长（冷却 15 秒）；同种族超限时自动打开编队；Player Settings 版本 0.3.45）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261010-ACHV-R39",
-  "previousWebCommit": "7e445f0",
-  "previousReleaseRecord": "releases/R39.json",
-  "previousBackupBranch": "backup/v0.3.43",
+  "previousReleaseId": "PSD-20261011-POLISH-R40",
+  "previousWebCommit": "388f829",
+  "previousReleaseRecord": "releases/R40.json",
+  "previousBackupBranch": "backup/v0.3.44",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium：首次打开弹出用户协议（同意后才能进入），加载页左上角 16+ CADPA 适龄提示可点开，公告有新版本时亮红点；大厅专辑卡显示「成就 0/10」。iPhone 18 Pro 模拟器（App 版）：CG 开场、Logo 与喇叭/公告/修复同排、P5R 斜切转场进大厅；团队、成员、饰品、选秀、关卡页四周为本页模糊画面，无硬边。Unity EditMode 487/487。"
+  "visualStatus": "本地 Chromium 390×745（微信尺寸）：大厅铺满全屏无左右空白，顶栏与底部导航完整；桌面保持竖屏框。800×1600 战斗：成员卡绿色血条带数字、能量条带数字、粉色「队长」标识，充能条显示「重投充能 x% · 充满送 1 次重投」，下方「队长效果：魅族追击 2 次」。Unity EditMode 488/488（新增换队长测试）。"
 }
