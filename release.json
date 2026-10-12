@@ -1,16 +1,16 @@
 {
-  "version": "0.3.48",
-  "releaseId": "PSD-20261012-NIKKE-R44",
-  "name": "角色详情页参考《胜利女神》重做 + 种族图标 + 骰型特效",
-  "notice": "角色详情页全新改版；四个种族有了专属图标；骰子成型时有大字横幅特效。",
+  "version": "0.3.49",
+  "releaseId": "PSD-20261012-INVENTORY-R45",
+  "name": "饰品页改成《胜利女神》库存样式 + 骰子成型火焰",
+  "notice": "饰品页改成库存格子，点饰品看详情；骰子成型时会燃起火焰并显示每颗点数。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.48",
-  "unityBuild": "新 Unity WebGL 包 R44（角色详情页按 NIKKE 布局：左侧全身立绘、右侧稀有度/等级名牌/好感/战斗力/属性/出战与练习/种族/徽章行、装备·技能·档案三页签、4 格装备卡、快捷穿戴/全部解除、返回与大厅；魅族/魔族暂用首页卡塔莉娜与莉莉丝立绘；4 个种族六边形图标并用在编队卡上；骰子高抛翻滚落地、牌型横幅与能量碎片；Player Settings 版本 0.3.48）",
+  "backupBranch": "backup/v0.3.49",
+  "unityBuild": "新 Unity WebGL 包 R45（饰品页按 NIKKE 库存：黑色标题卡、饰品/图鉴页签、排序、左侧部位筛选、5 列可滚动饰品格；饰品详情卡：稀有度、部位/类别、持有与穿戴者、装备能力值、升级、卸下/装备给成员；角色详情页点装备格弹出详情（解除/交换）或直接选饰品；骰子成型时参与的骰子燃起火焰并显示 +点数，其余骰子变暗；牌型横幅显示倍率；Player Settings 版本 0.3.49）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261012-TEAM-R43",
-  "previousWebCommit": "d4560c0",
-  "previousReleaseRecord": "releases/R43.json",
-  "previousBackupBranch": "backup/v0.3.47",
+  "previousReleaseId": "PSD-20261012-NIKKE-R44",
+  "previousWebCommit": "a773d39",
+  "previousReleaseRecord": "releases/R44.json",
+  "previousBackupBranch": "backup/v0.3.48",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium 800×1600：编队卡显示种族图标；角色详情页（星璃/绯音）布局完整，快捷穿戴后 3 格出现饰品，技能页签显示普攻/两个技能/队长特性。战斗中牌型横幅「两对!」正常出现。Unity EditMode 493/493。"
+  "visualStatus": "本地 Chromium 800×1600：库存页布局完整，点饰品弹出详情卡；战斗开场牌型横幅「双三条! ×1.18」，骰子顶部出现火焰。Unity EditMode 493/493。"
 }

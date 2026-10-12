@@ -1,0 +1,24 @@
+{
+  "version": "0.3.48",
+  "releaseId": "PSD-20261012-NIKKE-R44",
+  "name": "角色详情页参考《胜利女神》重做 + 种族图标 + 骰型特效",
+  "notice": "角色详情页全新改版；四个种族有了专属图标；骰子成型时有大字横幅特效。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.48",
+  "unityBuild": "新 Unity WebGL 包 R44（角色详情页按 NIKKE 布局：左侧全身立绘、右侧稀有度/等级名牌/好感/战斗力/属性/出战与练习/种族/徽章行、装备·技能·档案三页签、4 格装备卡、快捷穿戴/全部解除、返回与大厅；魅族/魔族暂用首页卡塔莉娜与莉莉丝立绘；4 个种族六边形图标并用在编队卡上；骰子高抛翻滚落地、牌型横幅与能量碎片；Player Settings 版本 0.3.48）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261012-TEAM-R43",
+  "previousWebCommit": "d4560c0",
+  "previousReleaseRecord": "releases/R43.json",
+  "previousBackupBranch": "backup/v0.3.47",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 800×1600：编队卡显示种族图标；角色详情页（星璃/绯音）布局完整，快捷穿戴后 3 格出现饰品，技能页签显示普攻/两个技能/队长特性。战斗中牌型横幅「两对!」正常出现。Unity EditMode 493/493。"
+}
