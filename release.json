@@ -1,16 +1,16 @@
 {
-  "version": "0.3.46",
-  "releaseId": "PSD-20261012-EQUIP4-R42",
-  "name": "装备重做：每人 4 个固定格子",
-  "notice": "装备改为耳饰、项链、手饰、头饰 4 个格子，点格子可以只看这一类饰品。",
+  "version": "0.3.47",
+  "releaseId": "PSD-20261012-TEAM-R43",
+  "name": "编队界面重做：参考《胜利女神》竖卡布局",
+  "notice": "编队页改成清楚的成员竖卡，种族、职业、等级、战力一眼可见。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.46",
-  "unityBuild": "新 Unity WebGL 包 R42（饰品页角色头像左侧新增 4 个装备格：耳饰/项链/手饰/头饰，已装备显示图标、空格显示「+」；点格子筛选该格可用饰品；同格子新装备替换旧装备；旧存档同格多件时保留最强一件；Player Settings 版本 0.3.46）",
+  "backupBranch": "backup/v0.3.47",
+  "unityBuild": "新 Unity WebGL 包 R43（编队页换成干净的舞台地板背景；4 张成员竖卡 2×2 排列：半身像、种族/职业标签、LV 大字、名字、战力；队长卡带粉色「队长」牌；职业统计改为一行小标签；更换队长/一键编队改为斜切按钮；Player Settings 版本 0.3.47）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261012-MEETFIX-R41",
-  "previousWebCommit": "2e4055e",
-  "previousReleaseRecord": "releases/R41.json",
-  "previousBackupBranch": "backup/v0.3.45",
+  "previousReleaseId": "PSD-20261012-EQUIP4-R42",
+  "previousWebCommit": "58733e3",
+  "previousReleaseRecord": "releases/R42.json",
+  "previousBackupBranch": "backup/v0.3.46",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 Chromium 800×1600 饰品页：头像左侧 4 个格子清晰，装备星轨耳返后耳饰格显示图标；点项链格后列表只显示项链和挂饰，筛选按钮显示「格子：项链」。Unity EditMode 491/491（新增 3 个装备格子测试）。"
+  "visualStatus": "本地 Chromium 800×1600 编队页：背景安静无杂光，4 张竖卡信息清楚，卡边颜色区分种族（魅族粉、魔族紫、海灵族青、血精灵红）。Unity EditMode 491/491。"
 }
