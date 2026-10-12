@@ -1,0 +1,24 @@
+{
+  "version": "0.3.54",
+  "releaseId": "PSD-20261012-GUARD-R50",
+  "name": "应急守护按钮改为右侧圆形技能键，不再挡画面",
+  "notice": "应急守护改成右侧的小圆形盾牌按钮，不再挡住敌人；守护中有倒计时光环，用完变灰。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.54",
+  "unityBuild": "新 Unity WebGL 包 R50（应急守护从舞台上的大斜牌改为右侧第四张成员卡上方的圆形盾牌技能键：可用时光环呼吸，守护中光环按 3 秒倒计时收缩，用完变灰并显示「已用」；Player Settings 版本 0.3.54）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261012-SHIELD-R49",
+  "previousWebCommit": "f9948b6",
+  "previousReleaseRecord": "releases/R49.json",
+  "previousBackupBranch": "backup/v0.3.53",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "iPhone 18 Pro 模拟器：战斗中圆形守护键位于右侧成员卡上方，不遮挡敌人和成员卡；点击后成员卡出现盾牌与霓虹框，3 秒后按钮变灰显示「已用」。Unity EditMode 494/494。"
+}
