@@ -1,0 +1,24 @@
+{
+  "version": "0.3.49",
+  "releaseId": "PSD-20261012-INVENTORY-R45",
+  "name": "饰品页改成《胜利女神》库存样式 + 骰子成型火焰",
+  "notice": "饰品页改成库存格子，点饰品看详情；骰子成型时会燃起火焰并显示每颗点数。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.49",
+  "unityBuild": "新 Unity WebGL 包 R45（饰品页按 NIKKE 库存：黑色标题卡、饰品/图鉴页签、排序、左侧部位筛选、5 列可滚动饰品格；饰品详情卡：稀有度、部位/类别、持有与穿戴者、装备能力值、升级、卸下/装备给成员；角色详情页点装备格弹出详情（解除/交换）或直接选饰品；骰子成型时参与的骰子燃起火焰并显示 +点数，其余骰子变暗；牌型横幅显示倍率；Player Settings 版本 0.3.49）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261012-NIKKE-R44",
+  "previousWebCommit": "a773d39",
+  "previousReleaseRecord": "releases/R44.json",
+  "previousBackupBranch": "backup/v0.3.48",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 Chromium 800×1600：库存页布局完整，点饰品弹出详情卡；战斗开场牌型横幅「双三条! ×1.18」，骰子顶部出现火焰。Unity EditMode 493/493。"
+}
