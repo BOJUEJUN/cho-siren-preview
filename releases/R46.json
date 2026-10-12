@@ -1,0 +1,24 @@
+{
+  "version": "0.3.50",
+  "releaseId": "PSD-20261012-VFX-R46",
+  "name": "护盾和骰子特效重做 + 战斗页手机适配 + 掉落字体",
+  "notice": "应急守护换成金色能量护盾；骰子成型火焰更真实；战斗页在长屏手机上完整显示；关卡掉落名称和掉率更清楚。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.50",
+  "unityBuild": "新 Unity WebGL 包 R46（应急守护改为渲染的金色能量泡：菲涅尔亮边、六边形能量纹、沿边流光、闪光星点，受击闪亮回弹、结束时膨胀破碎；骰子火焰改为 8 帧序列帧；战斗 PSD 按安全区高度等比缩放并以模糊舞台补边；关卡掉落条：名称黑底斜切标签+稀有度色+描边，下方显示掉率；Player Settings 版本 0.3.50）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261012-INVENTORY-R45",
+  "previousWebCommit": "e8cb6ac",
+  "previousReleaseRecord": "releases/R45.json",
+  "previousBackupBranch": "backup/v0.3.49",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "iPhone 18 Pro 模拟器：战斗页完整显示到骰子行，成型骰子上方有火焰和 +点数；点应急守护后四张成员卡出现金色护盾泡和星点。关卡页掉落名与掉率清楚。Unity EditMode 494/494（新增护盾显示测试）。"
+}

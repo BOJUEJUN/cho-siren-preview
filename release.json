@@ -1,16 +1,16 @@
 {
-  "version": "0.3.50",
-  "releaseId": "PSD-20261012-VFX-R46",
-  "name": "护盾和骰子特效重做 + 战斗页手机适配 + 掉落字体",
-  "notice": "应急守护换成金色能量护盾；骰子成型火焰更真实；战斗页在长屏手机上完整显示；关卡掉落名称和掉率更清楚。",
+  "version": "0.3.51",
+  "releaseId": "PSD-20261012-HUD-R47",
+  "name": "顶部栏全页统一 + 加载页竖排 + 饰品页暗色 + 手机双击隐藏修复",
+  "notice": "所有页面顶部栏统一；加载页公告/修复/声音改为左侧竖排；饰品页改为暗色风格；手机上双击角色隐藏界面恢复可用。",
   "date": "2026-10-10",
-  "backupBranch": "backup/v0.3.50",
-  "unityBuild": "新 Unity WebGL 包 R46（应急守护改为渲染的金色能量泡：菲涅尔亮边、六边形能量纹、沿边流光、闪光星点，受击闪亮回弹、结束时膨胀破碎；骰子火焰改为 8 帧序列帧；战斗 PSD 按安全区高度等比缩放并以模糊舞台补边；关卡掉落条：名称黑底斜切标签+稀有度色+描边，下方显示掉率；Player Settings 版本 0.3.50）",
+  "backupBranch": "backup/v0.3.51",
+  "unityBuild": "新 Unity WebGL 包 R47（大厅改用与其他页面相同的顶部栏，统一头像牌、三枚货币条、邮件与设置位置和字号；角色详情页显示同一顶部栏；加载页参考 NIKKE：16+ 在左上，公告/修复/声音菱形图标竖排，Logo 移到下方居中；饰品库存页和详情卡改为黑底粉边；首页双击角色在触屏上也能隐藏/显示界面，顶部栏和底部导航一起隐藏；Player Settings 版本 0.3.51）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261012-INVENTORY-R45",
-  "previousWebCommit": "e8cb6ac",
-  "previousReleaseRecord": "releases/R45.json",
-  "previousBackupBranch": "backup/v0.3.49",
+  "previousReleaseId": "PSD-20261012-VFX-R46",
+  "previousWebCommit": "516b2d8",
+  "previousReleaseRecord": "releases/R46.json",
+  "previousBackupBranch": "backup/v0.3.50",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "iPhone 18 Pro 模拟器：战斗页完整显示到骰子行，成型骰子上方有火焰和 +点数；点应急守护后四张成员卡出现金色护盾泡和星点。关卡页掉落名与掉率清楚。Unity EditMode 494/494（新增护盾显示测试）。"
+  "visualStatus": "iPhone 18 Pro 模拟器：大厅/编队/饰品三页顶部栏完全一致；加载页左侧竖排三个入口；双击角色隐藏全部界面。网页加载页竖排同步。Unity EditMode 494/494。"
 }
