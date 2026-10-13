@@ -1,0 +1,24 @@
+{
+  "version": "0.3.63",
+  "releaseId": "PSD-20261013-INKEDGE-R59",
+  "name": "开始演出墨迹去掉硬切边",
+  "notice": "开始演出的墨迹改用整张墨迹并左右镜像，四周都是墨迹自然的毛边，从按钮中心向两边刷开。",
+  "date": "2026-10-13",
+  "backupBranch": "backup/v0.3.63",
+  "unityBuild": "新 Unity WebGL 包 R59（开始演出墨迹不再裁切图集：整帧按菱形中线镜像，图集唯一贴边的一侧在中心对接藏于按钮后，可见边全部是笔刷自带毛边；菱形放大 1.3 倍可超出标注；去掉渐隐；扫入改为从中心向两端刷开；Player Settings 版本 0.3.63）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261013-INKSHAPE-R58",
+  "previousWebCommit": "a409274",
+  "previousReleaseRecord": "releases/R58.json",
+  "previousBackupBranch": "backup/v0.3.62",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 WebGL（430×932）：开始演出红色墨迹四周为自然毛边，越过按钮上下左右，无直线切口。Unity EditMode 498/498；PlayMode 大厅墨迹用例通过（旧有 5 个顶栏/导航用例仍失败，与本次无关）。"
+}
