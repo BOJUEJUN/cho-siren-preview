@@ -1,0 +1,24 @@
+{
+  "version": "0.3.61",
+  "releaseId": "PSD-20261013-INKATK-R57",
+  "name": "四个入口动态墨迹、角色卡攻击力、战斗文字精简",
+  "notice": "大厅四个入口悬停都有原专辑那种动态墨迹，各自颜色；角色卡显示剑形攻击力，骰子加成后数值跳涨；战斗文字精简。",
+  "date": "2026-10-13",
+  "backupBranch": "backup/v0.3.61",
+  "unityBuild": "新 Unity WebGL 包 R57（恢复 R02 48 帧墨迹并改为白色图集 ink-white-*.png 按入口着色：专辑绿、任务粉、练习室青、开始演出霓虹红；任务/练习室按卡面插画位置复刻专辑的墨迹溢出，开始演出的墨迹沿菱形长轴旋转包住整个按钮；去掉 v0.3.60 的静态色块悬停；角色卡新增剑形攻击力，显示带骰子加成的实际攻击，骰子成型时只有获得加成的成员收到碎片并跳涨 +N；BattleSimulator.DiceMultiplierFor 统一加成分配（伤害结果不变）；充能条改为「重投充能 xx%」，队长效果、大招就绪、集火提示等文字精简；Player Settings 版本 0.3.61）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261013-DICEFX-R56",
+  "previousWebCommit": "c6bed1d",
+  "previousReleaseRecord": "releases/R56.json",
+  "previousBackupBranch": "backup/v0.3.60",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 WebGL（430×932）：开始演出悬停时红色墨迹从菱形四周露出；任务粉色墨迹正常；战斗中三名队员卡显示剑形攻击力，充能条为「重投充能 16%」，队长行为「队长：魅族追击 1次」。练习室青色墨迹和攻击力跳涨动画只由测试覆盖，浏览器面板中途转入后台未能逐帧确认。Unity EditMode 498/498；PlayMode 大厅墨迹用例与战斗用例通过（大厅旧有 5 个顶栏/导航用例仍失败，与本次无关）。"
+}
