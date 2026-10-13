@@ -6,12 +6,6 @@
   const sparks = document.querySelector('#stage-sparks');
   const atmosphereContext = atmosphere.getContext('2d');
   const sparksContext = sparks.getContext('2d');
-  const beatMeter = document.querySelector('#stage-beat-meter');
-  for (let i = 0; i < 9; i++) {
-    const bar = document.createElement('i');
-    bar.style.setProperty('--i', String(i));
-    beatMeter.appendChild(bar);
-  }
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const particles = Array.from({ length: 24 }, () => ({
     x: Math.random(), y: Math.random(), v: .5 + Math.random(), s: Math.random(), n: Math.random()

@@ -1,17 +1,17 @@
 {
-  "version": "0.3.58",
-  "releaseId": "PSD-20261013-STARTERS-R54",
-  "name": "初始四名成员换上新角色形象",
-  "notice": "星璃、绯音、雾白、夜莺换上全新形象：成员卡是融入卡框的头像，团队、战斗、剧情里是新的全身立绘。",
+  "version": "0.3.59",
+  "releaseId": "PSD-20261013-LOBBY-R55",
+  "name": "大厅对白移到上方、入口卡片收紧",
+  "notice": "大厅角色说话的气泡移到头顶上方；任务、专辑、练习室、开始演出卡片缩小靠边；去掉右下角音乐波浪。",
   "date": "2026-10-13",
-  "backupBranch": "backup/v0.3.58",
-  "unityBuild": "新 Unity WebGL 包 R54（星璃/绯音/雾白/夜莺：成员档案卡改用透明底头像 Art/Members/Avatars/avatar-*，底部渐隐融入信息栏；全身立绘 member-*.png 换成新角色透明底立绘 744×1024，胸像取景表按新头位重调；Player Settings 版本 0.3.58）",
+  "backupBranch": "backup/v0.3.59",
+  "unityBuild": "新 Unity WebGL 包 R55（大厅对白气泡改为顶部锚定并带指向角色的尖角；任务/专辑制作/练习室按左边缘缩至 80%，开始演出按右下角缩至 78%，隐藏界面滑动的原位同步更新；莉莉丝无待机视频时每 6–9 秒自动轻跳；网页层删除 stage-beat-meter；Player Settings 版本 0.3.59）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261012-DICEFACE-R53",
-  "previousWebCommit": "065dfeb",
-  "previousReleaseRecord": "releases/R53.json",
-  "previousBackupBranch": "backup/v0.3.57",
-  "savePolicy": "保留现有存档与进度；本版不改存档结构，成员 ID 不变。",
+  "previousReleaseId": "PSD-20261013-STARTERS-R54",
+  "previousWebCommit": "2ca5613",
+  "previousReleaseRecord": "releases/R54.json",
+  "previousBackupBranch": "backup/v0.3.58",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
     "characterLifecycleTestsPassed": 27,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 WebGL（430×932）：成员档案前四张卡显示新头像、透明底融入卡框；团队编队、1-1 剧情对白、战斗成员卡均为新立绘。Unity EditMode 495/495。"
+  "visualStatus": "本地 WebGL（430×932）：大厅角色保持原尺寸，点击后对白在顶部、不遮脸；四张入口卡片缩小靠边；右下角音乐波浪已移除；切换到莉莉丝对白正常。Unity EditMode 495/495。"
 }
