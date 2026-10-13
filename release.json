@@ -1,18 +1,21 @@
 {
-  "version": "0.3.64",
-  "releaseId": "PSD-20261013-INKSEAM-R60",
-  "name": "开始演出墨迹补齐左上缺口",
-  "notice": "开始演出的墨迹左上方不再缺一块，整个菱形四周都包住。",
+  "version": "0.3.65",
+  "releaseId": "PSD-20261013-UNIFIED-UI-R61",
+  "name": "全界面撕纸水晶风格与演出结算",
+  "notice": "任务、角色、饰品、选秀、剧情和弹窗统一紫黑撕纸水晶风格；练习室加入四位固定Q版角色，战斗新增技能图标、头顶血量、渐变能量条、守护次数和演出MVP结算。",
   "date": "2026-10-13",
-  "backupBranch": "backup/v0.3.64",
-  "unityBuild": "新 Unity WebGL 包 R60（菱形墨迹的镜像拼缝从图集最左列（上下两角无颜料）移到中间最密的一列，上下都有颜料，菱形上沿不再缺口；Player Settings 版本 0.3.64）",
-  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261013-INKEDGE-R59",
-  "previousWebCommit": "9245617",
-  "previousReleaseRecord": "releases/R59.json",
-  "previousBackupBranch": "backup/v0.3.63",
-  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "backupBranch": "backup/v0.3.65",
+  "unityBuild": "新 Unity WebGL R61；Unity 6000.6.0f1；生产公司名与现有存档结构保持一致；最终构建302117812 bytes，data86119979 bytes。",
+  "sourceCommit": "cb77657 + 已备份的本地UI改动；精确源码文件与SHA256见Docs/UI-UNIFICATION-2026-10-13.md及integration-manifest.json",
+  "previousReleaseId": "PSD-20261013-INKSEAM-R60",
+  "previousWebCommit": "f3d1f0c84671b8e644e524562014285957c259ec",
+  "previousReleaseRecord": "releases/R60.json",
+  "previousBackupBranch": "backup/v0.3.64",
+  "savePolicy": "保留现有存档与进度；未改变战斗数值、骰型倍率、存档结构。",
   "validation": {
+    "editModeTestsPassed": 502,
+    "focusedPlayModeTestsPassed": 11,
+    "runtimeCaptureFiles": 20,
     "loaderRegressionTestsPassed": 39,
     "characterLifecycleTestsPassed": 27,
     "audioSkinTestsPassed": 6,
@@ -20,5 +23,9 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 WebGL（430×932）：开始演出红色墨迹从顶尖沿左侧包到底部，左上无缺口，边缘为自然毛边。PlayMode 大厅墨迹用例通过（旧有 5 个顶栏/导航用例仍失败，与本次无关）。"
+  "visualStatus": "最终 WebGL 430x932已实测：首页、任务、换装、练习、剧情、地图、真实胜利与返回；选中单骰重投、700ms长按换队长、暂停冻结均正常。390x844和320x568设置/长文关闭可达；实体手机未测。发布后的验证另见交接报告。",
+  "knownLimits": [
+    "现有旧快照和批处理比例PlayMode断言有历史失败，未把整套PlayMode宣称全通过。",
+    "本轮制作UI与Q版练习室；没有新增3D骰子或女团演唱歌曲。"
+  ]
 }

@@ -187,24 +187,28 @@
         background: linear-gradient(rgba(10, 4, 24, 0), rgba(10, 4, 24, 0.62) 45%, rgba(10, 4, 24, 0.86));
       }
 
-      /* Leaving: a pink slab wipes across; the screen is gone by the time it has passed. */
+      /* One monochrome circular iris, shared with the game's rounded scene transitions. */
       #loading::after {
         content: "";
         position: absolute;
-        inset: -20% -40%;
+        left: 50%;
+        top: 50%;
+        width: 300%;
+        aspect-ratio: 1;
+        border-radius: 50%;
         z-index: 9;
         visibility: visible;
-        background: var(--hot);
-        transform: translateX(-120%) skewX(-20deg);
+        background: #893eff;
+        transform: translate(-50%, -50%) scale(0);
         pointer-events: none;
       }
       #loading.is-hidden { pointer-events: none; animation: ld-gone 0s 0.45s forwards; }
       #loading.is-hidden::after { animation: ld-wipe 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
       @keyframes ld-gone { to { visibility: hidden; } }
       @keyframes ld-wipe {
-        0% { transform: translateX(-120%) skewX(-20deg); }
-        45%, 55% { transform: translateX(0) skewX(-20deg); }
-        100% { transform: translateX(120%) skewX(-20deg); }
+        0% { transform: translate(-50%, -50%) scale(0); }
+        45%, 55% { transform: translate(-50%, -50%) scale(1); }
+        100% { transform: translate(-50%, -50%) scale(0); }
       }
 
       /* Small ransom-note logo, top left. */
@@ -239,7 +243,7 @@
 
       /* 适龄提示 (CADPA-style): coloured age block over a white CADPA strip, tap for details. */
       .age-badge {
-        position: absolute; left: 4.6%; top: 2.4%; z-index: 4;
+        position: absolute; left: 4.6%; top: 15%; z-index: 4;
         display: grid; justify-items: center; gap: 0.6cqw;
         padding: 0; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
       }
@@ -262,7 +266,7 @@
       }
 
       .loading-corner {
-        position: absolute; top: 15%; left: 2.6%; z-index: 4;
+        position: absolute; top: 4%; right: 2.6%; z-index: 4;
         display: flex; flex-direction: column; gap: 3.4cqw;
       }
       .loading-corner button {
@@ -472,6 +476,53 @@
       }
       .dialog-actions #dialog-ok { color: #fff; background: var(--hot); border-color: var(--hot); }
 
+      /* The same paper / ink / violet material as the authored lobby entry stickers. */
+      .dialog-box {
+        position: relative;
+        isolation: isolate;
+        padding: 26px 24px 20px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+        filter: drop-shadow(7px 8px 0 #7028cc);
+      }
+      .dialog-box::before, .dialog-box::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: #f8f5ff;
+        pointer-events: none;
+        clip-path: polygon(3% 0, 28% 1%, 29% 0, 71% 1%, 73% 0, 97% 2%, 100% 8%, 99% 41%,
+          100% 43%, 99% 91%, 95% 100%, 67% 99%, 65% 100%, 24% 99%, 22% 100%, 0 97%, 1% 62%, 0 60%, 1% 7%);
+      }
+      .dialog-box::after { inset: 3px; z-index: -1; background: #0d0916; }
+      .dialog-box h3 { padding-bottom: 12px; border-bottom: 3px solid #893eff; font-size: 21px; font-style: normal; }
+      .dialog-box p { font-size: 14px; line-height: 1.7; max-height: 45dvh; overflow-y: auto; touch-action: pan-y; }
+      .dialog-actions { flex-wrap: wrap; }
+      .dialog-actions button {
+        min-height: 46px; min-width: 96px;
+        padding: 9px 18px;
+        border: 2px solid #f8f5ff;
+        background: #0d0916;
+        transform: none;
+        clip-path: polygon(6% 0,100% 0,94% 100%,0 100%);
+        transition: filter 120ms ease, translate 120ms ease;
+      }
+      .dialog-actions #dialog-ok {
+        min-width: 140px; border-color: transparent; background: transparent url('./media/ui-action-plate-v1.png') center / 100% 100% no-repeat;
+        clip-path: none; text-shadow: 1px 2px 1px #000;
+      }
+      .dialog-actions button:hover, .dialog-actions button:focus-visible { filter: brightness(1.3); }
+      .dialog-actions button:active { translate: 0 2px; filter: brightness(.85); }
+      .loading-start small {
+        min-width: 58cqw; min-height: 15cqw; display: grid; place-items: center;
+        padding: 0 6cqw; background: url('./media/ui-action-plate-v1.png') center / 100% 100% no-repeat;
+        font-size: 3.5cqw; letter-spacing: .06em;
+      }
+      #retry { border-radius: 0; border: 2px solid #f8f5ff; background: #28133d; }
+
       @media (prefers-reduced-motion: reduce) {
         #loading *, #loading::after { animation: none !important; }
         #loading.is-ready .loading-start { opacity: 1; }
@@ -569,7 +620,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.64</div>
+        <div id="loading-version" class="loading-version">v0.3.65</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -709,13 +760,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("37fc5347766d026ba20d7be06c94c8b9.data.unityweb"),
-        frameworkUrl: buildAssetUrl("d53c71b1b406edd38aff69d230344be9.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("e77066ca62a349910dcb6db5d7935ead.wasm.unityweb"),
+        dataUrl: buildAssetUrl("5ff6dff4f753968599256c7b050fc335.data.unityweb"),
+        frameworkUrl: buildAssetUrl("5cbebba90eb4bc2b6acaf32fa9cd12ad.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("8b3a1bf4e0337a726b99354c7e1b346a.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.64",
+        productVersion: "0.3.65",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -831,7 +882,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("bbd33f91b6666a60ab3d5db9e03fe730.loader.js");
+      loader.src = buildAssetUrl("773f82ee98fcb2c6aeb1213377448f99.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.

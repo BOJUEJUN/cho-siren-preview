@@ -1,0 +1,24 @@
+{
+  "version": "0.3.64",
+  "releaseId": "PSD-20261013-INKSEAM-R60",
+  "name": "开始演出墨迹补齐左上缺口",
+  "notice": "开始演出的墨迹左上方不再缺一块，整个菱形四周都包住。",
+  "date": "2026-10-13",
+  "backupBranch": "backup/v0.3.64",
+  "unityBuild": "新 Unity WebGL 包 R60（菱形墨迹的镜像拼缝从图集最左列（上下两角无颜料）移到中间最密的一列，上下都有颜料，菱形上沿不再缺口；Player Settings 版本 0.3.64）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261013-INKEDGE-R59",
+  "previousWebCommit": "9245617",
+  "previousReleaseRecord": "releases/R59.json",
+  "previousBackupBranch": "backup/v0.3.63",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 WebGL（430×932）：开始演出红色墨迹从顶尖沿左侧包到底部，左上无缺口，边缘为自然毛边。PlayMode 大厅墨迹用例通过（旧有 5 个顶栏/导航用例仍失败，与本次无关）。"
+}
