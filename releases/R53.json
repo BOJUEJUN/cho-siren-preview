@@ -1,0 +1,24 @@
+{
+  "version": "0.3.57",
+  "releaseId": "PSD-20261012-DICEFACE-R53",
+  "name": "骰子静态画面改为同一颗 3D 水晶骰子",
+  "notice": "骰子静止时也换成新的 3D 水晶骰子，落地不再有切换感。",
+  "date": "2026-10-10",
+  "backupBranch": "backup/v0.3.57",
+  "unityBuild": "新 Unity WebGL 包 R53（骰子 1-6 的静止画面改为与投掷动画同一个 3D 水晶骰子模型渲染：菱形正面、宝石切面光、粉青渐变亮边、带高光的正立爱心点数；翻滚序列同步重渲染，落地最后一帧与静止画面完全一致；Player Settings 版本 0.3.57）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261012-DICE3D-R52",
+  "previousWebCommit": "33d1cc7",
+  "previousReleaseRecord": "releases/R52.json",
+  "previousBackupBranch": "backup/v0.3.56",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "iPhone 18 Pro 模拟器录屏：开场六颗骰子翻滚落地成菱形后直接停住，无换图跳变；成型火焰、+点数、牌型横幅正常。Unity EditMode 494/494。"
+}
