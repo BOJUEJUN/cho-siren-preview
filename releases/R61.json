@@ -1,0 +1,31 @@
+{
+  "version": "0.3.65",
+  "releaseId": "PSD-20261013-UNIFIED-UI-R61",
+  "name": "全界面撕纸水晶风格与演出结算",
+  "notice": "任务、角色、饰品、选秀、剧情和弹窗统一紫黑撕纸水晶风格；练习室加入四位固定Q版角色，战斗新增技能图标、头顶血量、渐变能量条、守护次数和演出MVP结算。",
+  "date": "2026-10-13",
+  "backupBranch": "backup/v0.3.65",
+  "unityBuild": "新 Unity WebGL R61；Unity 6000.6.0f1；生产公司名与现有存档结构保持一致；最终构建302117812 bytes，data86119979 bytes。",
+  "sourceCommit": "cb77657 + 已备份的本地UI改动；精确源码文件与SHA256见Docs/UI-UNIFICATION-2026-10-13.md及integration-manifest.json",
+  "previousReleaseId": "PSD-20261013-INKSEAM-R60",
+  "previousWebCommit": "f3d1f0c84671b8e644e524562014285957c259ec",
+  "previousReleaseRecord": "releases/R60.json",
+  "previousBackupBranch": "backup/v0.3.64",
+  "savePolicy": "保留现有存档与进度；未改变战斗数值、骰型倍率、存档结构。",
+  "validation": {
+    "editModeTestsPassed": 502,
+    "focusedPlayModeTestsPassed": 11,
+    "runtimeCaptureFiles": 20,
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "最终 WebGL 430x932已实测：首页、任务、换装、练习、剧情、地图、真实胜利与返回；选中单骰重投、700ms长按换队长、暂停冻结均正常。390x844和320x568设置/长文关闭可达；实体手机未测。发布后的验证另见交接报告。",
+  "knownLimits": [
+    "现有旧快照和批处理比例PlayMode断言有历史失败，未把整套PlayMode宣称全通过。",
+    "本轮制作UI与Q版练习室；没有新增3D骰子或女团演唱歌曲。"
+  ]
+}
