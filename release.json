@@ -1,16 +1,16 @@
 {
-  "version": "0.3.62",
-  "releaseId": "PSD-20261013-INKSHAPE-R58",
-  "name": "入口墨迹形状按标注重做",
-  "notice": "任务、专辑、练习室的墨迹放大上移，包住卡片；开始演出的墨迹改成菱形包住按钮，边缘柔和渐隐。",
+  "version": "0.3.63",
+  "releaseId": "PSD-20261013-INKEDGE-R59",
+  "name": "开始演出墨迹去掉硬切边",
+  "notice": "开始演出的墨迹改用整张墨迹并左右镜像，四周都是墨迹自然的毛边，从按钮中心向两边刷开。",
   "date": "2026-10-13",
-  "backupBranch": "backup/v0.3.62",
-  "unityBuild": "新 Unity WebGL 包 R58（左侧三个入口按卡面插画定位墨迹，可见颜料覆盖插画 -4%~132% 宽、-20%~125% 高，整体上移不再下坠；开始演出的墨迹用 14×14 网格贴进按标注取点的菱形，四边与扫入边渐隐，无硬切边；Player Settings 版本 0.3.62）",
+  "backupBranch": "backup/v0.3.63",
+  "unityBuild": "新 Unity WebGL 包 R59（开始演出墨迹不再裁切图集：整帧按菱形中线镜像，图集唯一贴边的一侧在中心对接藏于按钮后，可见边全部是笔刷自带毛边；菱形放大 1.3 倍可超出标注；去掉渐隐；扫入改为从中心向两端刷开；Player Settings 版本 0.3.63）",
   "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
-  "previousReleaseId": "PSD-20261013-INKATK-R57",
-  "previousWebCommit": "14179f2",
-  "previousReleaseRecord": "releases/R57.json",
-  "previousBackupBranch": "backup/v0.3.61",
+  "previousReleaseId": "PSD-20261013-INKSHAPE-R58",
+  "previousWebCommit": "a409274",
+  "previousReleaseRecord": "releases/R58.json",
+  "previousBackupBranch": "backup/v0.3.62",
   "savePolicy": "保留现有存档与进度；本版不改存档结构。",
   "validation": {
     "loaderRegressionTestsPassed": 39,
@@ -20,5 +20,5 @@
     "publicRuntimeVerified": false,
     "physicalMobileDeviceTested": false
   },
-  "visualStatus": "本地 WebGL（430×932）：任务粉、专辑绿、练习室青墨迹包住卡片并向上、向右溢出；开始演出红色墨迹沿菱形包住按钮，边缘柔和无直线切口。Unity EditMode 498/498；PlayMode 大厅墨迹用例通过（旧有 5 个顶栏/导航用例仍失败，与本次无关）。"
+  "visualStatus": "本地 WebGL（430×932）：开始演出红色墨迹四周为自然毛边，越过按钮上下左右，无直线切口。Unity EditMode 498/498；PlayMode 大厅墨迹用例通过（旧有 5 个顶栏/导航用例仍失败，与本次无关）。"
 }
