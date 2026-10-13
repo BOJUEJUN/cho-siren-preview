@@ -67,7 +67,7 @@ const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
 const ink = JSON.parse(readFileSync(join(inkRoot, 'manifest.json'), 'utf8'));
 if (ink.frames !== 48 || ink.fps !== 30 || ink.sheets.length !== 4) throw new Error('油墨动画配置不符');
 for (const sheet of ink.sheets) {
-  if (!/^ink-flow-[0-3]\.png$/.test(sheet.file)) throw new Error('油墨图集路径无效');
+  if (!/^ink-white-[0-3]\.png$/.test(sheet.file)) throw new Error('油墨图集路径无效');
   const bytes = readFileSync(join(inkRoot, sheet.file));
   if (createHash('sha256').update(bytes).digest('hex') !== sheet.sha256 ||
       bytes.readUInt32BE(16) !== 2048 || bytes.readUInt32BE(20) !== 1440 || bytes[25] !== 6) {

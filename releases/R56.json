@@ -1,0 +1,24 @@
+{
+  "version": "0.3.60",
+  "releaseId": "PSD-20261013-DICEFX-R56",
+  "name": "骰子按牌型区分特效、大厅入口新悬停效果",
+  "notice": "只有组成牌型的骰子会亮，不同牌型火焰颜色和效果不同；大厅四个入口悬停时各有一套色块甩出效果；修复跳过剧情后骰子一直「投掷中」。",
+  "date": "2026-10-13",
+  "backupBranch": "backup/v0.3.60",
+  "unityBuild": "新 Unity WebGL 包 R56（DiceFxStyle：一对粉、两对粉/紫、三条品红、顺子青色电光、葫芦金/粉、四条紫焰+闪光、五/六条彩虹+闪光；白色火焰序列 vfx-dice-flame-white 按牌型着色；骰子底座默认压暗、参与牌型的按牌型色点亮；LobbyHoverBurst 替换专辑绿色墨迹，任务/专辑/练习室/开始演出各自颜色与甩出方向；剧情停在结束页时不再阻塞开场骰子落地；Player Settings 版本 0.3.60）",
+  "sourceCommit": "cb77657（Unity 工程含未提交的本地改动）",
+  "previousReleaseId": "PSD-20261013-LOBBY-R55",
+  "previousWebCommit": "a31d44d",
+  "previousReleaseRecord": "releases/R55.json",
+  "previousBackupBranch": "backup/v0.3.59",
+  "savePolicy": "保留现有存档与进度；本版不改存档结构。",
+  "validation": {
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 6,
+    "localWebGLRuntimeVerified": true,
+    "publicRuntimeVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "visualStatus": "本地 WebGL（430×932）：跳过 1-3 剧情后骰子正常落地；三条只有 3 颗骰子燃起品红火焰、底座点亮，其余压暗；大厅四个入口悬停各自出现不同颜色色块。Unity EditMode 497/497；PlayMode 大厅测试新增悬停用例通过（另有 5 个顶栏/导航旧用例在统一顶栏后已失效，未改）。"
+}

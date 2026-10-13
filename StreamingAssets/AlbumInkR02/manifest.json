@@ -5,28 +5,29 @@
   "frameHeight": 480,
   "sheets": [
     {
-      "file": "ink-flow-0.png",
-      "sha256": "df2281dc241fbb7b4cb89a8a8012aceeef3b13554330e34576c9c1527265b7d4",
+      "file": "ink-white-0.png",
+      "sha256": "bf33d9520c252a86cc3fcb624ef1302c385eb9e0db2db26469de735b82e4e1e4",
       "width": 2048,
       "height": 1440
     },
     {
-      "file": "ink-flow-1.png",
-      "sha256": "b7a63ea1a33f94b39b6caa825a3ebf336fe01350a4d629a7d20b46453a88bb04",
+      "file": "ink-white-1.png",
+      "sha256": "61719417af26b95778dfb181ef1a654c2d7f4147addab231bac6c92049afc105",
       "width": 2048,
       "height": 1440
     },
     {
-      "file": "ink-flow-2.png",
-      "sha256": "31325c7ccb3ae761a7b25a4239e0b2d3748b03c5aae7910d6cbbffd165a79565",
+      "file": "ink-white-2.png",
+      "sha256": "dfec65cec51bdf6e0a72581b079c3a4ac184b67296e933bbe4cb4a1e3a461b80",
       "width": 2048,
       "height": 1440
     },
     {
-      "file": "ink-flow-3.png",
-      "sha256": "06624333a709ca1bc886be60529e062860885d5ca0a3d12962840549932ad1c9",
+      "file": "ink-white-3.png",
+      "sha256": "163eac7a1ff3929a4cd21539acb63d175960722974cf34dd09cb61735fd86d9b",
       "width": 2048,
       "height": 1440
     }
-  ]
+  ],
+  "tint": "white sheets; each lobby entry tints them (album keeps the approved green)"
 }

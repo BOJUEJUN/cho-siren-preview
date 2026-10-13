@@ -322,7 +322,7 @@ test('pages, manifests, unhashed art, media, ranges and other sites bypass the w
   const worker = assetWorker();
   for (const url of [gameBase, gameBase + 'index.html', gameBase + 'build-versions.json?_=x',
     gameBase + 'service-worker.js', gameBase + 'StreamingAssets/Reference038/manifest.json',
-    gameBase + 'StreamingAssets/AlbumInkR02/ink-flow-0.png', gameBase + 'StreamingAssets/Lobby/lobby-loop.mp4',
+    gameBase + 'StreamingAssets/AlbumInkR02/ink-white-0.png', gameBase + 'StreamingAssets/Lobby/lobby-loop.mp4',
     gameBase + 'media/catalena-look.webm', gameBase + 'media/catalena-look.webm?v=1&x=2',
     gameBase + 'media/catalena-look.voice.mp3?v=1', dataFile + '?v=2', dataFile.replace('cho-siren-preview', 'another-game'),
     dataFile.replace('example.test', 'cdn.example.test')]) {
