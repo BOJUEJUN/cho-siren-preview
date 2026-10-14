@@ -1,16 +1,16 @@
 {
-  "version": "0.3.66",
-  "releaseId": "PSD-20261013-NATIVE-ALPHA-R62",
-  "name": "雾白原生透明立绘与Safari详情适配",
-  "notice": "雾白立绘重做为原生透明PNG，清除发丝、颈部、手臂等位置的残留白底；角色详情适配Safari短视口与工具栏变化，快捷穿戴和全部解除保持可见。",
-  "date": "2026-10-13",
-  "backupBranch": "backup/v0.3.66",
-  "unityBuild": "新 Unity WebGL R62；Unity 6000.6.0f1；构建302153538 bytes，data86155726 bytes；正式公司名与现有存档结构保持一致。",
+  "version": "0.3.67",
+  "releaseId": "PSD-20261014-BGM-PREVIEW-R62A",
+  "name": "手机BGM试听页",
+  "notice": "新增可在手机直接打开的原创BGM试听页，3分1秒；游戏内音乐接入正在独立验收。",
+  "date": "2026-10-14",
+  "backupBranch": "backup/v0.3.67",
+  "unityBuild": "沿用已验收的R62完整WebGL包；本轮仅新增独立手机试听页与MP3，不改变游戏音频脚本。",
   "sourceCommit": "cb77657 + 已备份的本地UI改动；精确源码文件与SHA256见Docs/UI-UNIFICATION-2026-10-13.md及integration-manifest.json",
-  "previousReleaseId": "PSD-20261013-UNIFIED-UI-R61",
-  "previousWebCommit": "73152253f789f8b9622278feba426c463592029c",
-  "previousReleaseRecord": "releases/R61.json",
-  "previousBackupBranch": "backup/v0.3.65",
+  "previousReleaseId": "PSD-20261013-NATIVE-ALPHA-R62",
+  "previousWebCommit": "c7fbd1a25c76ad318432f09e877994c3fbd3de01",
+  "previousReleaseRecord": "releases/R62.json",
+  "previousBackupBranch": "backup/v0.3.66",
   "savePolicy": "保留现有存档与进度；未改变战斗数值、骰型倍率、存档结构。",
   "validation": {
     "r61BaselineEditModeTestsPassed": 502,
@@ -31,5 +31,11 @@
     "本轮制作UI与Q版练习室；没有新增3D骰子或女团演唱歌曲。",
     "头像原件保持现状；本轮原生透明重做针对雾白全身立绘。"
   ],
-  "simulatorScope": "iPhone18Pro / iOS27 Safari：本地最终R62构建启动、大厅、成员导航、雾白透明立绘、快捷穿戴/全部解除真实数值刷新、返回及练习室；未测实体手机。"
+  "simulatorScope": "iPhone18Pro / iOS27 Safari：本地最终R62构建启动、大厅、成员导航、雾白透明立绘、快捷穿戴/全部解除真实数值刷新、返回及练习室；未测实体手机。",
+  "musicPreview": {
+    "path": "music/",
+    "seconds": 181,
+    "file": "media/neon-moonwalk-preview.mp3",
+    "status": "original instrumental candidate; game keeps verified R62 audio until R63 integration"
+  }
 }
