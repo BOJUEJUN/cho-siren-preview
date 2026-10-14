@@ -56,11 +56,15 @@ if (momentCss.includes('mask-image') || !momentCss.includes('opacity: 0') ||
     !momentJs.includes('uploadFrame') || !momentJs.includes('texSubImage2D')) {
   throw new Error("角色必须在 Unity 真实 UI 层级绘制，网页仅解码视频");
 }
-// Composed music, UI sounds and clip voices referenced by audio-skin.js.
+// Unity owns the global soundtrack; the web layer skins only UI sounds and voices.
 const audioSkin = readFileSync(join(root, 'audio-skin.js'), 'utf8');
-for (const file of ['lobby-theme.mp3', 'ui-click.wav', 'ui-success.wav']) {
+for (const file of ['ui-click.wav', 'ui-success.wav']) {
   if (!audioSkin.includes(`'${file}'`)) throw new Error('audio-skin.js 缺少音频：' + file);
   requireFile(join(root, 'media', file));
+}
+if (!audioSkin.includes('bindMusicBridge') || !html.includes('choSirenAudio?.attachUnity()') ||
+    audioSkin.includes("'lobby-theme.mp3'")) {
+  throw new Error('全局音乐必须使用 Unity 音源及明确桥接，网页不能接管旧占位配乐');
 }
 for (const name of ['catalena-look', 'catalena-whisper', 'catalena-live']) requireFile(join(root, 'media', `${name}.voice.mp3`));
 const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');

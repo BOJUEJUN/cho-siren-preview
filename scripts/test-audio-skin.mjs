@@ -64,15 +64,20 @@ async function setup() {
   return { window, context, sources, files, fetched, listeners };
 }
 
-test('Unity\'s 8-second placeholder loop is replaced by the composed theme with its own loop points', async () => {
-  const { context, files } = await setup();
-  const music = context.createBufferSource();
-  music.buffer = buffer({ length: 176400 });
-  assert.equal(music.buffer, files['lobby-theme.mp3']);
-  assert.equal(music.loopStart, 960 / 48000);
-  assert.equal(music.loopEnd, 960 / 48000 + 64);
-  music.loopStart = 0; music.loopEnd = 8;                         // Unity's values for its 8 s clip
-  assert.equal(music.loopEnd, 960 / 48000 + 64);
+test('global soundtracks are never fetched, replaced or given web-owned loop points', async () => {
+  const { context, fetched } = await setup();
+  assert.equal(fetched.length, 2);
+  assert.ok(fetched.every(url => !url.includes('lobby-theme')));
+  for (const original of [buffer({ length: 176400 }), buffer({ rate: 48000, length: 48000 * 120, channels: 2 })]) {
+    const music = context.createBufferSource();
+    music.buffer = original;
+    music.loopStart = 0; music.loopEnd = original.duration;
+    const unityGain = context.createGain();
+    music.connect(unityGain);
+    assert.equal(music.buffer, original);
+    assert.equal(music.loopEnd, original.duration);
+    assert.deepEqual(music.links, [unityGain]);
+  }
 });
 
 test('silent twins, real soundtracks and other clips are left exactly as Unity made them', async () => {
@@ -99,23 +104,46 @@ test('clicks and success arpeggios get the composed sounds; their loop points st
   assert.equal(success.buffer, files['ui-success.wav']);
 });
 
-test('music passes through a gain that dips while a clip with sound is on screen', async () => {
-  const { window, context } = await setup();
-  const music = context.createBufferSource();
-  music.buffer = buffer({ length: 176400 });
-  const unityGain = context.createGain();
-  assert.equal(music.connect(unityGain), unityGain);
-  const duck = music.links[0];
-  assert.notEqual(duck, unityGain);
-  assert.deepEqual(duck.links, [unityGain]);
-  window.choSirenAudio.duck(true);
-  assert.equal(duck.gain.value, 0.28);
-  window.choSirenAudio.duck(false);
-  assert.equal(duck.gain.value, 1);
-  const click = context.createBufferSource();
-  click.buffer = buffer({ length: 1654 });
-  click.connect(unityGain);
-  assert.deepEqual(click.links, [unityGain]);
+test('pending title choice and duck survive binding before the Unity instance resolves', async () => {
+  const { window } = await setup();
+  const audio = window.choSirenAudio;
+  audio.duck(true);
+  audio.setMusicEnabled(false);
+  audio.bindMusicBridge('ChoSirenMusicBridge', true, true);
+  assert.equal(audio.musicState.ready, false);
+  assert.equal(audio.musicState.enabled, false);
+  const messages = [];
+  window.choSirenUnityInstance = { SendMessage(...args) { messages.push(args); } };
+  audio.attachUnity();
+  assert.deepEqual(messages, [
+    ['ChoSirenMusicBridge', 'SetMusicDucked', '1'],
+    ['ChoSirenMusicBridge', 'SetMusicEnabled', '0']
+  ]);
+  assert.equal(audio.musicState.ready, true);
+  assert.equal(audio.musicState.hasSoundtrack, true);
+  audio.syncMusicEnabled(false);
+  assert.equal(messages.length, 2, 'state acknowledgements must not recursively send');
+  audio.duck(false);
+  assert.deepEqual(messages[2], ['ChoSirenMusicBridge', 'SetMusicDucked', '0']);
+});
+
+test('a saved disabled music setting wins unless the player explicitly changes it', async () => {
+  const { window, listeners } = await setup();
+  const messages = [];
+  window.choSirenUnityInstance = { SendMessage(...args) { messages.push(args); } };
+  const audio = window.choSirenAudio;
+  audio.bindMusicBridge('ChoSirenMusicBridge', false, true);
+  listeners.touchend[0]();
+  listeners.pointerup[0]();
+  assert.equal(audio.musicState.enabled, false);
+  assert.ok(messages.every(message => message[1] !== 'SetMusicEnabled'));
+  audio.setMusicEnabled(true);
+  assert.equal(audio.musicState.enabled, true);
+  assert.deepEqual(messages.at(-1), ['ChoSirenMusicBridge', 'SetMusicEnabled', '1']);
+  audio.unbindMusicBridge('ChoSirenMusicBridge');
+  assert.equal(audio.musicState.ready, false);
+  audio.duck(false);
+  assert.equal(messages.at(-1)[1], 'SetMusicEnabled');
 });
 
 test('voice tracks start at the video\'s time and never start once stopped', async () => {

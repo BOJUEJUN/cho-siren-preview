@@ -620,7 +620,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.67</div>
+        <div id="loading-version" class="loading-version">v0.3.68</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -634,10 +634,10 @@
       </div>
     </main>
 
-    <script src="./audio-skin.js?v=20261005-r17f"></script>
+    <script src="./audio-skin.js?v=20261014-r63"></script>
     <script src="./home-stage.js?v=20260928-r12a"></script>
     <script src="./character-moments.js?v=20261006-r17j"></script>
-    <script src="./loading-cg.js?v=20261010-r20e"></script>
+    <script src="./loading-cg.js?v=20261014-r63"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       const retryToken = new URL(window.location.href).searchParams.get("retry");
@@ -760,13 +760,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("34eeac273e3ab9689789d67d1f22ec99.data.unityweb"),
-        frameworkUrl: buildAssetUrl("7012e16a1589eaff9f19a94c04ba88b7.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("feae9de99e9e6ef1c6cd0fbbbc806fe3.wasm.unityweb"),
+        dataUrl: buildAssetUrl("a512340e6f2c2c0721d0201611822d54.data.unityweb"),
+        frameworkUrl: buildAssetUrl("d911351b4fb5301ba348cd312c0d78c7.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("d6a4be69c2c92952c0acc0773e59e299.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.67",
+        productVersion: "0.3.68",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -882,7 +882,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("c1b7b9eba0877e517731f7dd43cb7d14.loader.js");
+      loader.src = buildAssetUrl("2f433476f81dee6a8f19259317088560.loader.js");
       // One bar from first byte to the lobby: the engine download and start-up fill it
       // to 70 %, Unity's own asset loading (running hidden underneath, together with
       // the Unity splash) moves it towards 98 %, and the lobby going live completes it.
@@ -952,6 +952,7 @@
           // Downloads end at 0.9; the rest is decompression and engine start-up.
           if (value >= 0.9) loadingNote.textContent = "资源已就绪，正在解压并启动游戏（不消耗流量）…";
           });
+          window.choSirenAudio?.attachUnity();
           await untilLobbyReady();
           showProgress(1);
           readyToStart();
