@@ -2,7 +2,7 @@
 
 本仓库就是 GitHub Pages 上线的网页版（https://bojuejun.github.io/cho-siren-preview/），`main` 分支即线上版本，推送后 Pages 自动发布。Unity 工程在别的仓库；`index.html`、`character-moments.js`、`home-stage.*`、`media/` 来自 Unity 工程的 `Assets/WebGLTemplates/ChoSirenPortrait/`，改动后要同步回去（`patches/unity-template-since-R17.patch` 是自 R17 起的累计补丁；新增的 `audio-skin.js`、`media/*.packed.webm`、`media/*.packed.mp4`、`media/*.voice.mp3`、`media/lobby-theme.mp3`、`media/ui-*.wav`、`media/loading-stage.webp` 要一并复制）。
 
-声音：R63 起正式配乐为 Unity 的 `Assets/Resources/Audio/bgm.wav`，由一个全局音源保持切页连续、独立开关与暂停续播。`audio-skin.js` 仅替换短 UI 音效，通过明确的 `ChoSirenMusicBridge` 请求语音压低音量及音乐开关；不要恢复旧 `lobby-theme.mp3` 的网页替换。标题 CG 保持静音，音量按钮与游戏共用存档音乐设置。
+声音：R63 起正式配乐为 Unity 的 `Assets/Resources/Audio/bgm.wav`，由一个全局音源保持切页连续、独立开关与暂停续播。`audio-skin.js` 仅替换短 UI 音效，通过明确的 `ChoSirenMusicBridge` 请求语音压低音量及音乐开关；不要恢复旧 `lobby-theme.mp3` 的网页替换。R64 起标题 CG 使用视频自带配乐；通过 `setMediaMusicActive` / `SetMediaMusicOwners` 优先取得音乐权限，全局音源暂停并在所有媒体结束后续播。CG 解码失败先停止声音再释放权限。音量按钮与游戏共用存档音乐设置；不要让全局BGM覆盖自带配乐的CG。
 
 ## 上线流程（用户已授权：改动验证通过后直接上线，不必逐次确认）
 

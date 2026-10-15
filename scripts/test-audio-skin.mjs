@@ -116,15 +116,16 @@ test('pending title choice and duck survive binding before the Unity instance re
   window.choSirenUnityInstance = { SendMessage(...args) { messages.push(args); } };
   audio.attachUnity();
   assert.deepEqual(messages, [
+    ['ChoSirenMusicBridge', 'SetMediaMusicOwners', ''],
     ['ChoSirenMusicBridge', 'SetMusicDucked', '1'],
     ['ChoSirenMusicBridge', 'SetMusicEnabled', '0']
   ]);
   assert.equal(audio.musicState.ready, true);
   assert.equal(audio.musicState.hasSoundtrack, true);
   audio.syncMusicEnabled(false);
-  assert.equal(messages.length, 2, 'state acknowledgements must not recursively send');
+  assert.equal(messages.length, 3, 'state acknowledgements must not recursively send');
   audio.duck(false);
-  assert.deepEqual(messages[2], ['ChoSirenMusicBridge', 'SetMusicDucked', '0']);
+  assert.deepEqual(messages[3], ['ChoSirenMusicBridge', 'SetMusicDucked', '0']);
 });
 
 test('a saved disabled music setting wins unless the player explicitly changes it', async () => {
@@ -144,6 +145,31 @@ test('a saved disabled music setting wins unless the player explicitly changes i
   assert.equal(audio.musicState.ready, false);
   audio.duck(false);
   assert.equal(messages.at(-1)[1], 'SetMusicEnabled');
+});
+
+test('overlapping media leases survive early Unity binding and release independently', async () => {
+  const { window } = await setup();
+  const audio=window.choSirenAudio;
+  assert.equal(audio.musicState.settingKnown,false);
+  audio.setMediaMusicActive('loading-cg',true);
+  audio.setMediaMusicActive('story-cg',true);
+  audio.bindMusicBridge('ChoSirenMusicBridge',false,true);
+  assert.equal(audio.musicState.settingKnown,true);
+  assert.equal(audio.musicState.enabled,false);
+  const messages=[];
+  window.choSirenUnityInstance={ SendMessage(...args) { messages.push(args); } };
+  audio.attachUnity();
+  assert.deepEqual(messages[0],['ChoSirenMusicBridge','SetMediaMusicOwners','loading-cg,story-cg']);
+  audio.setMediaMusicActive('loading-cg',false);
+  assert.equal(audio.musicState.mediaOwnsMusic,true);
+  assert.deepEqual(messages.at(-1),['ChoSirenMusicBridge','SetMediaMusicOwners','story-cg']);
+  const count=messages.length;
+  audio.setMediaMusicActive('story-cg',true); audio.setMediaMusicActive('bad/id',true);
+  assert.equal(messages.length,count);
+  audio.setMediaMusicActive('story-cg',false);
+  assert.equal(audio.musicState.mediaOwnsMusic,false);
+  assert.deepEqual(messages.at(-1),['ChoSirenMusicBridge','SetMediaMusicOwners','']);
+  assert.equal(audio.musicState.enabled,false);
 });
 
 test('voice tracks start at the video\'s time and never start once stopped', async () => {

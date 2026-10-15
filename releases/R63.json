@@ -1,0 +1,53 @@
+{
+  "version": "0.3.68",
+  "releaseId": "PSD-20261014-GLOBAL-BGM-R63",
+  "name": "Global original BGM and mobile music audition",
+  "notice": "原创配乐贯穿大厅、练习室与演出，切换界面连续播放。音乐和音效可独立开关；角色说话时降低配乐音量。新增两版原创新曲手机试听。",
+  "date": "2026-10-14",
+  "backupBranch": "backup/v0.3.68",
+  "unityBuild": "Unity 6000.6.0f1 R63: Neon Moonwalk 181s original, 128s game loop with AAC priming protection and native smpl loop markers.",
+  "sourceCommit": "cb77657 + preserved local UI changes + 25 scoped audio files; see Docs/BGM-2026-10-14.md and source-integration-manifest.json",
+  "previousReleaseId": "PSD-20261014-BGM-PREVIEW-R62A",
+  "previousWebCommit": "19c45bc4784306d270376349174595ba19711320",
+  "previousReleaseRecord": "releases/R62A.json",
+  "previousBackupBranch": "backup/v0.3.67",
+  "savePolicy": "Existing saves, progression, combat values and independent music/SFX fields preserved.",
+  "validation": {
+    "focusedGlobalMusicPlayModeTestsPassed": 5,
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 7,
+    "loadingCgTestsPassed": 3,
+    "localWebGLRuntimeVerified": true,
+    "nativeAlphaUiPreserved": true,
+    "publicRuntimeVerified": false,
+    "iOSMusicInteractionVerified": false,
+    "physicalMobileDeviceTested": false
+  },
+  "audioStatus": "Local real WebGL ran over 3 full loops. Lobby, practice, chapter, story and combat share the same transport. Voice ducking 0.18 to 0.0504 then restored. SFX independent; music pause/resume preserves position. Public acceptance recorded separately after deployment.",
+  "knownLimits": [
+    "Physical-phone audio not tested. iOS27 simulator starts R63, but native window control unavailable; startup screenshots do not prove touch/audio acceptance.",
+    "Afterglow Cruise is a Mureka v9 audition only, not an automatic replacement for the accepted global track.",
+    "RunningHub global catalog has Suno v6; actual account call blocked with 40310 and no charge. Mureka outputs are not described as Suno."
+  ],
+  "musicPreview": {
+    "path": "music/",
+    "seconds": 181,
+    "file": "media/neon-moonwalk-preview.mp3",
+    "status": "accepted first original now used globally as 128s loop"
+  },
+  "alternateMusicPreview": {
+    "path": "music/afterglow/",
+    "model": "Mureka v9",
+    "seconds": [
+      156.71,
+      207.23045351473922
+    ],
+    "files": [
+      "media/afterglow-cruise-01.mp3",
+      "media/afterglow-cruise-02.mp3"
+    ],
+    "costCny": 0.68,
+    "status": "two original instrumental audition candidates; not integrated globally"
+  }
+}

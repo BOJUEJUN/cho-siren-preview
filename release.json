@@ -1,34 +1,57 @@
 {
-  "version": "0.3.68",
-  "releaseId": "PSD-20261014-GLOBAL-BGM-R63",
-  "name": "Global original BGM and mobile music audition",
-  "notice": "原创配乐贯穿大厅、练习室与演出，切换界面连续播放。音乐和音效可独立开关；角色说话时降低配乐音量。新增两版原创新曲手机试听。",
-  "date": "2026-10-14",
-  "backupBranch": "backup/v0.3.68",
-  "unityBuild": "Unity 6000.6.0f1 R63: Neon Moonwalk 181s original, 128s game loop with AAC priming protection and native smpl loop markers.",
-  "sourceCommit": "cb77657 + preserved local UI changes + 25 scoped audio files; see Docs/BGM-2026-10-14.md and source-integration-manifest.json",
-  "previousReleaseId": "PSD-20261014-BGM-PREVIEW-R62A",
-  "previousWebCommit": "19c45bc4784306d270376349174595ba19711320",
-  "previousReleaseRecord": "releases/R62A.json",
-  "previousBackupBranch": "backup/v0.3.67",
-  "savePolicy": "Existing saves, progression, combat values and independent music/SFX fields preserved.",
+  "version": "0.3.69",
+  "releaseId": "PSD-20261015-CHARACTER-CG-R64",
+  "name": "Revised character PSD and CG music priority",
+  "notice": "更新星璃、绯音、雾白、夜莺的成员立绘和头像，首页保留原来两位角色。加载CG使用原视频配乐，结束后接回全局BGM；角色装备页保留透明边缘。",
+  "date": "2026-10-15",
+  "backupBranch": "backup/v0.3.69",
+  "unityBuild": "Unity 6000.6.0f1 R64: four native PSD member portraits/avatars; original two-character homepage retained; CG music leases with pause/resume transport.",
+  "sourceCommit": "cb77657 + preserved local work + 30 scoped R64 files; source-integration-manifest.json in Docs/CHARACTER-CG-EVIDENCE-2026-10-15.",
+  "previousReleaseId": "PSD-20261014-GLOBAL-BGM-R63",
+  "previousWebCommit": "c1f2f1b63fbd0fe5908f4a5fc5fd16491e86ca9b",
+  "previousReleaseRecord": "releases/R63.json",
+  "previousBackupBranch": "backup/v0.3.68",
+  "savePolicy": "Existing member IDs, progression, equipment, combat values and independent music/SFX preferences retained. Homepage keeps the original two authored characters and HomeCharacterIndex 0..1.",
   "validation": {
-    "focusedGlobalMusicPlayModeTestsPassed": 5,
+    "focusedGlobalMusicPlayModeTestsPassed": 7,
+    "homepagePlayModeTestsPassed": 22,
     "loaderRegressionTestsPassed": 39,
     "characterLifecycleTestsPassed": 27,
-    "audioSkinTestsPassed": 7,
-    "loadingCgTestsPassed": 3,
+    "audioSkinTestsPassed": 8,
+    "loadingCgTestsPassed": 9,
     "localWebGLRuntimeVerified": true,
     "nativeAlphaUiPreserved": true,
-    "publicRuntimeVerified": false,
-    "iOSMusicInteractionVerified": false,
+    "nativeCgAudioDecodeVerified": true,
+    "iOSSimulatorVisualInteractionVerified": true,
     "physicalMobileDeviceTested": false
   },
-  "audioStatus": "Local real WebGL ran over 3 full loops. Lobby, practice, chapter, story and combat share the same transport. Voice ducking 0.18 to 0.0504 then restored. SFX independent; music pause/resume preserves position. Public acceptance recorded separately after deployment.",
+  "publicAcceptance": "Predeployment validation above. Public exact-commit/hash/runtime acceptance is recorded separately in the source handoff and CHARACTER-CG-2026-10-15.md after deployment.",
+  "characterArt": {
+    "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
+    "sourceCanvas": [
+      8334,
+      4625
+    ],
+    "members": [
+      "xingli",
+      "feiyin",
+      "wubai",
+      "yeying"
+    ],
+    "portraitHeight": 2048,
+    "avatarSize": [
+      512,
+      768
+    ],
+    "nativeAlpha": true,
+    "homepageReplaced": false,
+    "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
+  },
+  "audioStatus": "Loading CG embedded AAC stereo 32kHz at volume 0.45 owns music until dismissal/failure. Global Neon Moonwalk pauses without resetting and resumes afterwards. Saved mute preference and SFX stay independent; overlapping media owners release separately.",
   "knownLimits": [
-    "Physical-phone audio not tested. iOS27 simulator starts R63, but native window control unavailable; startup screenshots do not prove touch/audio acceptance.",
-    "Afterglow Cruise is a Mureka v9 audition only, not an automatic replacement for the accepted global track.",
-    "RunningHub global catalog has Suno v6; actual account call blocked with 40310 and no charge. Mureka outputs are not described as Suno."
+    "Physical-phone audio and packaged iOS app not tested. iOS27 Safari simulator interaction is recorded separately from native Editor audio tests.",
+    "New member portraits/avatars do not change the two authored homepage characters, their dialogue, motion or performance clips.",
+    "Afterglow candidates remain auditions. The accepted Neon Moonwalk global audio bytes are unchanged."
   ],
   "musicPreview": {
     "path": "music/",

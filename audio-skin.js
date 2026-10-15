@@ -9,25 +9,32 @@
   ];
   const voices = new Map();
   const contexts = new Set();
+  const mediaOwners = new Set();
   let unityContext = null, ownContext = null;
   let bridgeName = null, musicEnabled = true, pendingMusicChoice = null;
   let ducked = false, hasSoundtrack = false;
 
   function state() {
     return { enabled: pendingMusicChoice ?? musicEnabled,
-      ready: !!bridgeName && !!window.choSirenUnityInstance?.SendMessage, hasSoundtrack, ducked };
+      ready: !!bridgeName && !!window.choSirenUnityInstance?.SendMessage,
+      settingKnown: !!bridgeName || pendingMusicChoice !== null, hasSoundtrack, ducked,
+      mediaOwnsMusic: mediaOwners.size > 0, mediaOwners: Array.from(mediaOwners) };
   }
   function publishState() {
     if (window.CustomEvent && window.dispatchEvent)
       window.dispatchEvent(new window.CustomEvent('cho-siren-music-state', { detail: state() }));
   }
   function send(method, value) {
+    return sendValue(method, value ? '1' : '0');
+  }
+  function sendValue(method, value) {
     const instance = window.choSirenUnityInstance;
     if (!bridgeName || !instance?.SendMessage) return false;
-    try { instance.SendMessage(bridgeName, method, value ? '1' : '0'); return true; }
+    try { instance.SendMessage(bridgeName, method, value); return true; }
     catch (_) { return false; }
   }
   function flushBridge() {
+    sendValue('SetMediaMusicOwners', Array.from(mediaOwners).join(','));
     send('SetMusicDucked', ducked);
     if (pendingMusicChoice !== null && send('SetMusicEnabled', pendingMusicChoice)) {
       musicEnabled = pendingMusicChoice;
@@ -106,6 +113,13 @@
       unlock();
     },
     get musicState() { return state(); },
+    setMediaMusicActive(owner, active) {
+      if (!/^[a-zA-Z0-9_-]{1,48}$/.test(owner)) return;
+      if (mediaOwners.has(owner) === !!active) return;
+      if (active) mediaOwners.add(owner); else mediaOwners.delete(owner);
+      sendValue('SetMediaMusicOwners', Array.from(mediaOwners).join(','));
+      publishState();
+    },
     playVoice(name, currentTime, onEnded) {
       let source = null, stopped = false;
       if (!Context || !Offline) return { stop() {} };
