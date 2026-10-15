@@ -1,34 +1,25 @@
 {
-  "version": "0.3.70",
-  "releaseId": "PSD-20261015-CONTEXT-TEAM-LOAD-R65",
-  "name": "Context music, direct team swapping and reliable startup",
-  "notice": "大厅换成日语女团爵士说唱《光的规则》，战斗使用低音量伴奏，其他页面保持安静。编队卡下方可直接换人或交换队员。四个入口悬停统一绿色，只略露边缘。修复98%假等待，首屏素材分批准备，失败可重试。",
+  "version": "0.3.71",
+  "releaseId": "PSD-20261015-CTA-INK-R66",
+  "name": "Restore the performance hover outline",
+  "notice": "开始演出恢复之前较大的动态墨迹范围，保持专辑绿色；其他三个入口保持收紧后的效果。",
   "date": "2026-10-15",
-  "backupBranch": "backup/v0.3.70",
-  "unityBuild": "Unity 6000.6.0f1 R65: context-owned music with lazy immutable Web MP3s; explicit completed-UI startup handshake and deferred art; direct team picker; restrained green hover ink.",
-  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 integration; see Docs/CONTEXT-TEAM-LOAD-2026-10-15.md.",
-  "previousReleaseId": "PSD-20261015-CHARACTER-CG-R64",
-  "previousWebCommit": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
-  "previousReleaseRecord": "releases/R64.json",
-  "previousBackupBranch": "backup/v0.3.69",
+  "backupBranch": "backup/v0.3.71",
+  "unityBuild": "Unity 6000.6.0f1 R66: restore only the LiveOnStage ink quad 1.3x outward extent from R64; retain R65 album-green tint and the three restrained left cards.",
+  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 + CTA-only R66 integration; see Docs/CTA-INK-RESTORE-2026-10-15.md.",
+  "previousReleaseId": "PSD-20261015-CONTEXT-TEAM-LOAD-R65",
+  "previousWebCommit": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+  "previousReleaseRecord": "releases/R65.json",
+  "previousBackupBranch": "backup/v0.3.70",
   "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
   "validation": {
-    "contextAndGlobalMusicPlayModeTestsPassed": 12,
-    "teamSwapPlayModeTestsPassed": 4,
     "homepageHoverAndHitAreaTestsPassed": 3,
-    "loaderRegressionTestsPassed": 39,
-    "characterLifecycleTestsPassed": 27,
-    "audioSkinTestsPassed": 8,
-    "loadingCgTestsPassed": 9,
-    "startupHandshakeTestsPassed": 8,
-    "immutableMusicCacheTestsPassed": 4,
     "localWebGLRuntimeVerified": true,
-    "physicalMobileDeviceTested": false,
-    "pausedAudioSampleRateTestsPassed": 11,
-    "homeAndBattleResumeAtOriginalSpeedVerified": true,
-    "corruptPngAndMissingMusicRecoveryVerified": true
+    "webRegressionTestsPassed": 106,
+    "inheritedR65ValidationRecord": "releases/R65.json",
+    "physicalMobileDeviceTested": false
   },
-  "publicAcceptance": "Local/public browser verification is recorded separately in the R65 source handoff after deployment.",
+  "publicAcceptance": "Exact-commit, remote-byte and public browser acceptance is recorded separately in Docs/CTA-INK-RESTORE-2026-10-15.md after deployment.",
   "characterArt": {
     "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
     "sourceCanvas": [
@@ -52,9 +43,9 @@
   },
   "audioStatus": "Home: approved full Japanese jazz/rap vocal song at gain 0.18. Battle: dedicated instrumental at 0.055. Other menus/story: silent. CG embedded audio has priority. Music and SFX preferences remain independent; per-context bookmarks resume. Web downloads only the current needed MP3 without blocking startup.",
   "knownLimits": [
-    "Physical-phone audio and packaged iOS app not tested in R65.",
-    "First entry to other pages prepares the remaining immutable art with visible wait, retry and cancel.",
-    "Both songs repeat their complete intro/outro; no claim of beat-seamless looping."
+    "Physical phone and packaged iOS app not tested in R66.",
+    "R65 audio/team/loading tests are inherited evidence, not claimed as rerun here.",
+    "First engine download remains about 100MB and depends on network speed."
   ],
   "musicPreview": {
     "path": "music/",
