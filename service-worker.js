@@ -1,7 +1,7 @@
 // Local cache for the Unity WebGL build's content-addressed files.
 //
 // Only files whose names are derived from their own bytes are cached, so a cached copy
-// can never go stale: Build/<sha256:32>.* and StreamingAssets/**/<sha256:16>-*.png.
+// can never go stale: Build/<sha256:32>.*, hashed art and the two hashed music files.
 // Character clips (media/*.webm|mp4?v=<version>) are kept too: the ?v= token changes with
 // every re-encode, and older versions of a clip are dropped when a new one is stored.
 // index.html, build-versions.json, manifests, the ink sheets and other media still come
@@ -25,7 +25,8 @@ const scope = new URL('./', self.location.href);
 const buildBase = new URL('Build/', scope).href;
 const IMMUTABLE = [
   /^Build\/[0-9a-f]{32}\.(?:data\.unityweb|framework\.js\.unityweb|wasm\.unityweb|loader\.js)$/,
-  /^StreamingAssets\/(?:[\w.-]+\/)+[0-9a-f]{16}-[\w.-]+\.png$/
+  /^StreamingAssets\/(?:[\w.-]+\/)+[0-9a-f]{16}-[\w.-]+\.png$/,
+  /^StreamingAssets\/Music\/(?:home|battle)-[0-9a-f]{16}\.mp3$/
 ];
 
 self.addEventListener('install', event => {

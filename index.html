@@ -620,7 +620,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.69</div>
+        <div id="loading-version" class="loading-version">v0.3.70</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -648,6 +648,7 @@
       // never caches this page or any manifest. A ?retry= load starts clean instead:
       // it drops this game's worker and cache, never another project's.
       let assetWorker = Promise.resolve(null);
+      let assetCacheCleanup = Promise.resolve();
       if (retryToken && workers) {
         navigator.serviceWorker.getRegistrations()
           .then(registrations => Promise.all(registrations
@@ -659,7 +660,7 @@
           { scope: pageUrl.href, updateViaCache: "none" }).catch(() => null);
       }
       if ("caches" in window) {
-        caches.keys()
+        assetCacheCleanup = caches.keys()
           .then(keys => Promise.all(keys
             .filter(key => /^cho-siren-v\d+$/.test(key) || (retryToken && key === assetCacheName))
             .map(key => caches.delete(key))))
@@ -760,13 +761,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("d491199586e3e8ea805a054827c39cc9.data.unityweb"),
-        frameworkUrl: buildAssetUrl("9d303568f595fd69bdab3aaad7a23241.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("a82436d0b88d3e754aa41a45a9e038a4.wasm.unityweb"),
+        dataUrl: buildAssetUrl("1f966b3f038cad2aef9efbdba2032207.data.unityweb"),
+        frameworkUrl: buildAssetUrl("cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.69",
+        productVersion: "0.3.70",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -868,10 +869,11 @@
       }
 
       function readyToStart() {
+        if (fatalLoadError || !window.choSirenStartup?.ready) return;
         loading.classList.add("is-ready");
         checkNoticeDot();
         loading.addEventListener("click", event => {
-          if (event?.target?.closest?.("button, #loading-dialog")) return;
+          if (fatalLoadError || event?.target?.closest?.("button, #loading-dialog")) return;
           const start = () => {
             loading.classList.add("is-hidden");
             window.clearInterval?.(tipTimer);
@@ -882,10 +884,9 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("7198c895e1aed6da0ce4c524f69ac30b.loader.js");
-      // One bar from first byte to the lobby: the engine download and start-up fill it
-      // to 70 %, Unity's own asset loading (running hidden underneath, together with
-      // the Unity splash) moves it towards 98 %, and the lobby going live completes it.
+      loader.src = buildAssetUrl("e4c0a1ebe9a86f38521968a453663a94.loader.js");
+      // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
+      // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
       function showProgress(value) {
         shownProgress = Math.max(shownProgress, Math.min(1, value));
@@ -894,31 +895,78 @@
         loadingStatus.textContent = `正在载入舞台资源 · ${percent}%`;
         loadingPercent.textContent = `${percent}%`;
       }
-      // Every StreamingAssets file Unity finishes nudges the bar, plus a slow creep so it
-      // never stalls. The lobby going active ends the wait; a minute is the upper bound
-      // in case a future build opens on another screen.
-      function untilLobbyReady() {
-        loadingNote.textContent = "正在准备舞台与界面素材，马上就好";
-        return new Promise(resolve => {
-          let files = 0, ticks = 0, observer = null;
-          if (typeof PerformanceObserver === "function") {
-            try {
-              observer = new PerformanceObserver(list => {
-                files += list.getEntries().filter(entry => entry.name.includes("/StreamingAssets/")).length;
-              });
-              observer.observe({ type: "resource", buffered: true });
-            } catch (_) { observer = null; }
-          }
-          const check = () => {
-            showProgress(0.7 + 0.28 * (1 - Math.exp(-(files + ticks * 0.05) / 15)));
-            if (window.choSirenStage?.active || ++ticks > 400) {
-              if (observer) observer.disconnect();
-              resolve();
-            } else {
-              window.setTimeout(check, 150);
+      const initLog = window.choSirenInitLog = [];
+      let startupWaiter = null, startupTimer = null;
+      const startup = window.choSirenStartup = {
+        ready: false, engineDone: false, error: null, phase: "engine", progress: 0,
+        startedAt: 0, lastAdvancedAt: 0, engineProgress: 0,
+        report(type, value, message) {
+          if (startup.error) return;
+          if (type === "error" || type === "timeout") {
+            // A decoded-file failure may have been cached by the worker. Its first-screen
+            // retry uses the existing clean-start path; a mere UI stall keeps healthy files.
+            const preserveCache = type === "timeout" && startup.engineDone;
+            startup.error = String(message || "游戏界面启动失败，请重新载入");
+            startup.phase = "error";
+            loading.classList.remove("is-ready");
+            loadingNote.textContent = startup.error;
+            reloadInPlace = preserveCache;
+            recordStartup("error", startup.progress, startup.error);
+            showBanner(startup.error, "error");
+          } else if (type === "ready") {
+            if (!startup.ready) {
+              startup.ready = true;
+              startup.phase = "ui-ready";
+              startup.lastAdvancedAt = Date.now();
+              recordStartup("ui-ready", 1, String(message || ""));
             }
+          } else if (type === "progress" && !startup.ready) {
+            const next = Math.max(0, Math.min(1, Number(value) || 0));
+            const phaseChanged = startup.phase !== "home-art";
+            if (phaseChanged || next > startup.progress + 0.0001) startup.lastAdvancedAt = Date.now();
+            startup.phase = "home-art";
+            if (phaseChanged || next > startup.progress + 0.001)
+              recordStartup("home-art", next, String(message || ""));
+            startup.progress = Math.max(startup.progress, next);
+            showProgress(0.7 + 0.28 * startup.progress);
+            loadingNote.textContent = String(message || "正在准备大厅素材");
+          }
+          settleStartup();
+        }
+      };
+      function recordStartup(phase, value, detail) {
+        initLog.push({ at: Date.now(), phase, progress: value, detail });
+        if (initLog.length > 64) initLog.shift();
+      }
+      function settleStartup() {
+        if (!startupWaiter) return;
+        if (!startup.error && !(startup.engineDone && startup.ready)) return;
+        window.clearTimeout(startupTimer);
+        const waiter = startupWaiter;
+        startupWaiter = null;
+        if (startup.error) waiter.reject(new Error(startup.error));
+        else {
+          startup.phase = "ready";
+          recordStartup("ready", 1, "engine-and-ui");
+          waiter.resolve();
+        }
+      }
+      function untilLobbyReady() {
+        startup.startedAt = startup.lastAdvancedAt = Date.now();
+        recordStartup("engine", 0, "start");
+        return new Promise((resolve, reject) => {
+          startupWaiter = { resolve, reject };
+          const check = () => {
+            if (!startupWaiter) return;
+            const now = Date.now();
+            if (now - startup.startedAt >= 180000 || now - startup.lastAdvancedAt >= 45000) {
+              startup.report("timeout", 0, "载入暂时没有完成，请检查网络后重新加载。");
+              return;
+            }
+            startupTimer = window.setTimeout(check, 1000);
           };
-          check();
+          settleStartup();
+          if (startupWaiter) startupTimer = window.setTimeout(check, 1000);
         });
       }
       // Sharp rendering costs GPU time. When a phone cannot keep up (frames averaging
@@ -947,13 +995,27 @@
       }
       loader.onload = async () => {
         try {
-          window.choSirenUnityInstance = await createUnityInstance(canvas, config, value => {
-          showProgress(value * 0.7);
-          // Downloads end at 0.9; the rest is decompression and engine start-up.
-          if (value >= 0.9) loadingNote.textContent = "资源已就绪，正在解压并启动游戏（不消耗流量）…";
-          });
-          window.choSirenAudio?.attachUnity();
-          await untilLobbyReady();
+          // Watch the engine promise too: a stalled initialization cannot strand the title forever.
+          const waiting = untilLobbyReady();
+          new Promise(resolve => resolve(createUnityInstance(canvas, config, value => {
+            if (startup.error) return;
+            const next = Math.max(0, Math.min(1, Number(value) || 0));
+            if (next > startup.engineProgress + 0.0001) startup.lastAdvancedAt = Date.now();
+            startup.engineProgress = Math.max(startup.engineProgress, next);
+            showProgress(next * 0.7);
+            if (next >= 0.9 && startup.phase === "engine")
+              loadingNote.textContent = "正在解压并启动游戏…";
+          }))).then(instance => {
+            window.choSirenUnityInstance = instance;
+            window.choSirenAudio?.attachUnity();
+            startup.engineDone = true;
+            if (!startup.ready && startup.phase === "engine")
+              loadingNote.textContent = "正在准备舞台与界面素材";
+            recordStartup("engine-ready", 1, "initialized");
+            settleStartup();
+          }).catch(error => startup.report("error", 0, String(error)));
+          await waiting;
+          if (fatalLoadError || startup.error) return;
           showProgress(1);
           readyToStart();
           watchFrameRate(window.choSirenUnityInstance);
@@ -995,6 +1057,7 @@
         } finally { window.clearTimeout(timeout); }
         await showDownloadNote();
         await assetWorkerControl;
+        if (retryToken) await assetCacheCleanup;
         document.body.appendChild(loader);
       }
       async function showDownloadNote() {

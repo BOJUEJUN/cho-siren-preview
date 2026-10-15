@@ -1,11 +1,11 @@
 {
   "name": "cho-siren-preview",
-  "version": "0.3.69",
+  "version": "0.3.70",
   "private": true,
   "description": "CHO-SIREN Unity WebGL portrait game preview",
   "scripts": {
-    "check": "node scripts/verify-webgl.mjs && node --check service-worker.js && node --test scripts/test-loader.mjs scripts/test-character-playback.mjs scripts/test-audio-skin.mjs scripts/test-loading-cg.mjs",
-    "test": "node --test scripts/test-loader.mjs scripts/test-character-playback.mjs scripts/test-audio-skin.mjs scripts/test-loading-cg.mjs",
+    "check": "node scripts/verify-webgl.mjs && node --check service-worker.js && node --test scripts/test-loader.mjs scripts/test-character-playback.mjs scripts/test-audio-skin.mjs scripts/test-loading-cg.mjs scripts/test-startup-loading.mjs scripts/test-music-cache.mjs scripts/test-audio-samplerate.mjs",
+    "test": "node --test scripts/test-loader.mjs scripts/test-character-playback.mjs scripts/test-audio-skin.mjs scripts/test-loading-cg.mjs scripts/test-startup-loading.mjs scripts/test-music-cache.mjs scripts/test-audio-samplerate.mjs",
     "verify": "npm run check"
   },
   "engines": {

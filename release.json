@@ -1,31 +1,34 @@
 {
-  "version": "0.3.69",
-  "releaseId": "PSD-20261015-CHARACTER-CG-R64",
-  "name": "Revised character PSD and CG music priority",
-  "notice": "更新星璃、绯音、雾白、夜莺的成员立绘和头像，首页保留原来两位角色。加载CG使用原视频配乐，结束后接回全局BGM；角色装备页保留透明边缘。",
+  "version": "0.3.70",
+  "releaseId": "PSD-20261015-CONTEXT-TEAM-LOAD-R65",
+  "name": "Context music, direct team swapping and reliable startup",
+  "notice": "大厅换成日语女团爵士说唱《光的规则》，战斗使用低音量伴奏，其他页面保持安静。编队卡下方可直接换人或交换队员。四个入口悬停统一绿色，只略露边缘。修复98%假等待，首屏素材分批准备，失败可重试。",
   "date": "2026-10-15",
-  "backupBranch": "backup/v0.3.69",
-  "unityBuild": "Unity 6000.6.0f1 R64: four native PSD member portraits/avatars; original two-character homepage retained; CG music leases with pause/resume transport.",
-  "sourceCommit": "cb77657 + preserved local work + 30 scoped R64 files; source-integration-manifest.json in Docs/CHARACTER-CG-EVIDENCE-2026-10-15.",
-  "previousReleaseId": "PSD-20261014-GLOBAL-BGM-R63",
-  "previousWebCommit": "c1f2f1b63fbd0fe5908f4a5fc5fd16491e86ca9b",
-  "previousReleaseRecord": "releases/R63.json",
-  "previousBackupBranch": "backup/v0.3.68",
-  "savePolicy": "Existing member IDs, progression, equipment, combat values and independent music/SFX preferences retained. Homepage keeps the original two authored characters and HomeCharacterIndex 0..1.",
+  "backupBranch": "backup/v0.3.70",
+  "unityBuild": "Unity 6000.6.0f1 R65: context-owned music with lazy immutable Web MP3s; explicit completed-UI startup handshake and deferred art; direct team picker; restrained green hover ink.",
+  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 integration; see Docs/CONTEXT-TEAM-LOAD-2026-10-15.md.",
+  "previousReleaseId": "PSD-20261015-CHARACTER-CG-R64",
+  "previousWebCommit": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
+  "previousReleaseRecord": "releases/R64.json",
+  "previousBackupBranch": "backup/v0.3.69",
+  "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
   "validation": {
-    "focusedGlobalMusicPlayModeTestsPassed": 7,
-    "homepagePlayModeTestsPassed": 22,
+    "contextAndGlobalMusicPlayModeTestsPassed": 12,
+    "teamSwapPlayModeTestsPassed": 4,
+    "homepageHoverAndHitAreaTestsPassed": 3,
     "loaderRegressionTestsPassed": 39,
     "characterLifecycleTestsPassed": 27,
     "audioSkinTestsPassed": 8,
     "loadingCgTestsPassed": 9,
+    "startupHandshakeTestsPassed": 8,
+    "immutableMusicCacheTestsPassed": 4,
     "localWebGLRuntimeVerified": true,
-    "nativeAlphaUiPreserved": true,
-    "nativeCgAudioDecodeVerified": true,
-    "iOSSimulatorVisualInteractionVerified": true,
-    "physicalMobileDeviceTested": false
+    "physicalMobileDeviceTested": false,
+    "pausedAudioSampleRateTestsPassed": 11,
+    "homeAndBattleResumeAtOriginalSpeedVerified": true,
+    "corruptPngAndMissingMusicRecoveryVerified": true
   },
-  "publicAcceptance": "Predeployment validation above. Public exact-commit/hash/runtime acceptance is recorded separately in the source handoff and CHARACTER-CG-2026-10-15.md after deployment.",
+  "publicAcceptance": "Local/public browser verification is recorded separately in the R65 source handoff after deployment.",
   "characterArt": {
     "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
     "sourceCanvas": [
@@ -47,17 +50,17 @@
     "homepageReplaced": false,
     "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
   },
-  "audioStatus": "Loading CG embedded AAC stereo 32kHz at volume 0.45 owns music until dismissal/failure. Global Neon Moonwalk pauses without resetting and resumes afterwards. Saved mute preference and SFX stay independent; overlapping media owners release separately.",
+  "audioStatus": "Home: approved full Japanese jazz/rap vocal song at gain 0.18. Battle: dedicated instrumental at 0.055. Other menus/story: silent. CG embedded audio has priority. Music and SFX preferences remain independent; per-context bookmarks resume. Web downloads only the current needed MP3 without blocking startup.",
   "knownLimits": [
-    "Physical-phone audio and packaged iOS app not tested. iOS27 Safari simulator interaction is recorded separately from native Editor audio tests.",
-    "New member portraits/avatars do not change the two authored homepage characters, their dialogue, motion or performance clips.",
-    "Afterglow candidates remain auditions. The accepted Neon Moonwalk global audio bytes are unchanged."
+    "Physical-phone audio and packaged iOS app not tested in R65.",
+    "First entry to other pages prepares the remaining immutable art with visible wait, retry and cancel.",
+    "Both songs repeat their complete intro/outro; no claim of beat-seamless looping."
   ],
   "musicPreview": {
     "path": "music/",
-    "seconds": 181,
-    "file": "media/neon-moonwalk-preview.mp3",
-    "status": "accepted first original now used globally as 128s loop"
+    "seconds": 172.333514739,
+    "file": "media/my-light-my-rules-preview.mp3",
+    "status": "approved original Japanese girl-group jazz/rap song; Home only"
   },
   "alternateMusicPreview": {
     "path": "music/afterglow/",
@@ -72,5 +75,21 @@
     ],
     "costCny": 0.68,
     "status": "two original instrumental audition candidates; not integrated globally"
+  },
+  "contextMusic": {
+    "home": {
+      "file": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "seconds": 172.333514739,
+      "gain": 0.18
+    },
+    "battle": {
+      "file": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "sha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "seconds": 144.813514739,
+      "gain": 0.055
+    },
+    "other": "silent",
+    "cgPriority": true
   }
 }

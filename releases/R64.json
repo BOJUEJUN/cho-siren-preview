@@ -1,0 +1,76 @@
+{
+  "version": "0.3.69",
+  "releaseId": "PSD-20261015-CHARACTER-CG-R64",
+  "name": "Revised character PSD and CG music priority",
+  "notice": "更新星璃、绯音、雾白、夜莺的成员立绘和头像，首页保留原来两位角色。加载CG使用原视频配乐，结束后接回全局BGM；角色装备页保留透明边缘。",
+  "date": "2026-10-15",
+  "backupBranch": "backup/v0.3.69",
+  "unityBuild": "Unity 6000.6.0f1 R64: four native PSD member portraits/avatars; original two-character homepage retained; CG music leases with pause/resume transport.",
+  "sourceCommit": "cb77657 + preserved local work + 30 scoped R64 files; source-integration-manifest.json in Docs/CHARACTER-CG-EVIDENCE-2026-10-15.",
+  "previousReleaseId": "PSD-20261014-GLOBAL-BGM-R63",
+  "previousWebCommit": "c1f2f1b63fbd0fe5908f4a5fc5fd16491e86ca9b",
+  "previousReleaseRecord": "releases/R63.json",
+  "previousBackupBranch": "backup/v0.3.68",
+  "savePolicy": "Existing member IDs, progression, equipment, combat values and independent music/SFX preferences retained. Homepage keeps the original two authored characters and HomeCharacterIndex 0..1.",
+  "validation": {
+    "focusedGlobalMusicPlayModeTestsPassed": 7,
+    "homepagePlayModeTestsPassed": 22,
+    "loaderRegressionTestsPassed": 39,
+    "characterLifecycleTestsPassed": 27,
+    "audioSkinTestsPassed": 8,
+    "loadingCgTestsPassed": 9,
+    "localWebGLRuntimeVerified": true,
+    "nativeAlphaUiPreserved": true,
+    "nativeCgAudioDecodeVerified": true,
+    "iOSSimulatorVisualInteractionVerified": true,
+    "physicalMobileDeviceTested": false
+  },
+  "publicAcceptance": "Predeployment validation above. Public exact-commit/hash/runtime acceptance is recorded separately in the source handoff and CHARACTER-CG-2026-10-15.md after deployment.",
+  "characterArt": {
+    "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
+    "sourceCanvas": [
+      8334,
+      4625
+    ],
+    "members": [
+      "xingli",
+      "feiyin",
+      "wubai",
+      "yeying"
+    ],
+    "portraitHeight": 2048,
+    "avatarSize": [
+      512,
+      768
+    ],
+    "nativeAlpha": true,
+    "homepageReplaced": false,
+    "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
+  },
+  "audioStatus": "Loading CG embedded AAC stereo 32kHz at volume 0.45 owns music until dismissal/failure. Global Neon Moonwalk pauses without resetting and resumes afterwards. Saved mute preference and SFX stay independent; overlapping media owners release separately.",
+  "knownLimits": [
+    "Physical-phone audio and packaged iOS app not tested. iOS27 Safari simulator interaction is recorded separately from native Editor audio tests.",
+    "New member portraits/avatars do not change the two authored homepage characters, their dialogue, motion or performance clips.",
+    "Afterglow candidates remain auditions. The accepted Neon Moonwalk global audio bytes are unchanged."
+  ],
+  "musicPreview": {
+    "path": "music/",
+    "seconds": 181,
+    "file": "media/neon-moonwalk-preview.mp3",
+    "status": "accepted first original now used globally as 128s loop"
+  },
+  "alternateMusicPreview": {
+    "path": "music/afterglow/",
+    "model": "Mureka v9",
+    "seconds": [
+      156.71,
+      207.23045351473922
+    ],
+    "files": [
+      "media/afterglow-cruise-01.mp3",
+      "media/afterglow-cruise-02.mp3"
+    ],
+    "costCny": 0.68,
+    "status": "two original instrumental audition candidates; not integrated globally"
+  }
+}

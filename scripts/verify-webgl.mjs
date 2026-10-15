@@ -68,6 +68,17 @@ if (!audioSkin.includes('bindMusicBridge') || !html.includes('choSirenAudio?.att
 }
 for (const name of ['catalena-look', 'catalena-whisper', 'catalena-live']) requireFile(join(root, 'media', `${name}.voice.mp3`));
 const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
+// These long clips are deliberately outside the engine archive; missing or
+// mismatched files must fail release verification instead of silently shipping.
+for (const [file, sha] of [
+  ['home-1c7f72fed9af8b53.mp3', '1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267'],
+  ['battle-11700e9a4a918ffe.mp3', '11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c']
+]) {
+  const path = join(root, 'StreamingAssets', 'Music', file);
+  requireFile(path);
+  if (createHash('sha256').update(readFileSync(path)).digest('hex') !== sha)
+    throw new Error('场景音乐哈希不匹配：' + file);
+}
 const ink = JSON.parse(readFileSync(join(inkRoot, 'manifest.json'), 'utf8'));
 if (ink.frames !== 48 || ink.fps !== 30 || ink.sheets.length !== 4) throw new Error('油墨动画配置不符');
 for (const sheet of ink.sheets) {

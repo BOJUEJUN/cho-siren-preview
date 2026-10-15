@@ -2,7 +2,13 @@
 
 本仓库就是 GitHub Pages 上线的网页版（https://bojuejun.github.io/cho-siren-preview/），`main` 分支即线上版本，推送后 Pages 自动发布。Unity 工程在别的仓库；`index.html`、`character-moments.js`、`home-stage.*`、`media/` 来自 Unity 工程的 `Assets/WebGLTemplates/ChoSirenPortrait/`，改动后要同步回去（`patches/unity-template-since-R17.patch` 是自 R17 起的累计补丁；新增的 `audio-skin.js`、`media/*.packed.webm`、`media/*.packed.mp4`、`media/*.voice.mp3`、`media/lobby-theme.mp3`、`media/ui-*.wav`、`media/loading-stage.webp` 要一并复制）。
 
-声音：R63 起正式配乐为 Unity 的 `Assets/Resources/Audio/bgm.wav`，由一个全局音源保持切页连续、独立开关与暂停续播。`audio-skin.js` 仅替换短 UI 音效，通过明确的 `ChoSirenMusicBridge` 请求语音压低音量及音乐开关；不要恢复旧 `lobby-theme.mp3` 的网页替换。R64 起标题 CG 使用视频自带配乐；通过 `setMediaMusicActive` / `SetMediaMusicOwners` 优先取得音乐权限，全局音源暂停并在所有媒体结束后续播。CG 解码失败先停止声音再释放权限。音量按钮与游戏共用存档音乐设置；不要让全局BGM覆盖自带配乐的CG。
+声音：R65 起由 Unity 的一个音源按场景路由，大厅为用户选定的《光的规则》日语爵士说唱，战斗为专用轻伴奏（gain 0.055），其他菜单与普通剧情静音；每个场景保留独立续播位置。CG 自带配乐优先，结束后恢复所在页面策略。音乐与音效开关仍独立。
+
+原生/Editor 保留 `Resources/Audio/bgm.wav` 与 `bgm-battle.wav`；Web 构建时仅临时排除这两个长音频并在 finally 恢复，实际使用 `StreamingAssets/Music/` 的不可变哈希 MP3。仅当前需要且开启音乐时异步下载，不阻塞首屏；失败保持安静，迟到请求不能切入其他场景。`audio-skin.js` 仅替换短 UI 音效并通过 `ChoSirenMusicBridge` 桥接，不能恢复旧网页配乐接管。
+
+Unity 6000.6 的暂停channel会失去soundClip，却仍保留buffer；SDK错误回退44100Hz可让48k设备续播变快。`ChoSirenAudioSampleRate.jslib`仅补这类paused mock的真实buffer采样率，保持正常clip/channel和无效对象的原行为。公开测试副本在scripts/audio；升级Unity需重新检查SDK符号并实测48k设备切页、静音和恢复，不能只看书签。
+
+加载：`window.choSirenStartup` 的显式完整UI握手决定入场；舞台灯效和签到弹窗不决定加载完成。首页先准备17张素材，其他页面首次入口有补齐等待、重试与取消。首屏文件错误的重新加载清理本游戏不可变缓存；后续界面仅重下失败键。不能恢复98%时间递增或60秒假成功。
 
 ## 上线流程（用户已授权：改动验证通过后直接上线，不必逐次确认）
 

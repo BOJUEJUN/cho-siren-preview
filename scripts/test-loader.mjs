@@ -16,7 +16,8 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
   releaseFails = false, canvasBox = null, frames = null } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
     registered = [], messages = [], documentListeners = {};
-  let timerId = 0;
+  let timerId = 0, now = 1_700_000_000_000;
+  class TestDate extends Date { static now() { return now; } }
   function element(name) {
     if (!elements.has(name)) elements.set(name, { style: {}, textContent: '', listeners: {}, classes: [],
       addEventListener(type, handler) { this.listeners[type] = handler; },
@@ -26,7 +27,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
     return elements.get(name);
   }
   const unityModule = {};
-  const context = vm.createContext({ URL, AbortController, console,
+  const context = vm.createContext({ URL, AbortController, console, Date: TestDate,
     document: { baseURI: pageHref, querySelector: element, hidden,
       addEventListener: (type, handler) => { documentListeners[type] = handler; },
       createElement: () => ({}), body: { appendChild: item => appends.push(item) } },
@@ -41,7 +42,11 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       getRegistrations: async () => ['cho-siren-preview/', 'another-game/'].map(path => ({
         scope: 'https://example.test/' + path, unregister: async () => unregistered.push(path)
       })) } },
-    window: { setTimeout: callback => { timers.set(++timerId, callback); return timerId; },
+    window: { setTimeout: (callback, delay = 0) => {
+      const id = ++timerId, due = now + delay;
+      timers.set(id, () => { now = Math.max(now, due); timers.delete(id); callback(); });
+      return id;
+    },
       clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
       ...(frames ? { requestAnimationFrame: callback => frames.push(callback) } : {}),
       choSirenStage: { active: lobbyReady },
@@ -60,6 +65,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       calls.push({ config: { ...config } });
       if (unityError) throw new Error(unityError);
       progress(1);
+      if (lobbyReady) context.window.choSirenStartup.report('ready', 1, '');
       return { Module: unityModule };
     }
   });
@@ -148,27 +154,28 @@ test('the worker is told to keep the current and previous builds only', async ()
   assert.deepEqual(run.messages, [{ type: 'keep-builds', files: [...newer, ...previous] }]);
 });
 
-test('download progress hands over to a no-traffic start-up message', async () => {
+test('download progress hands over to an engine start-up message', async () => {
   const run = await boot();
   const notes = [];
   Object.defineProperty(run.elements.get('#loading-note'), 'textContent', { set: text => notes.push(text), get: () => notes.at(-1) });
   await run.appends[0].onload();
-  assert.ok(notes.some(text => /解压.*不消耗流量/.test(text)), notes.join(' | '));
+  assert.ok(notes.some(text => /解压.*启动/.test(text)), notes.join(' | '));
 });
 
-test('one loading screen stays up through Unity\'s own asset loading until the lobby is live', async () => {
+test('one loading screen stays up until Unity explicitly reports the first screen ready', async () => {
   const run = await boot({ lobbyReady: false });
   const started = run.appends[0].onload();
   await flush(); await flush();
   const loading = run.elements.get('#loading'), bar = run.elements.get('#progress').style;
   assert.ok(!loading.classes.includes('is-hidden'));
-  const engineDone = parseInt(bar.width, 10);
-  assert.ok(engineDone >= 70 && engineDone < 100, bar.width);
+  assert.equal(bar.width, '70%');
   assert.match(run.elements.get('#loading-note').textContent, /舞台与界面素材/);
+  run.context.window.choSirenStartup.report('progress', 0.5, '正在准备舞台与界面素材');
+  assert.equal(bar.width, '84%');
   for (let i = 0; i < 20; i++) for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
-  assert.ok(parseInt(bar.width, 10) > engineDone && parseInt(bar.width, 10) < 100, bar.width);
+  assert.equal(bar.width, '84%', 'elapsed time must not invent asset progress');
   assert.ok(!loading.classes.includes('is-hidden'));
-  run.context.window.choSirenStage.active = true;
+  run.context.window.choSirenStartup.report('ready', 1, '');
   for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
   await started;
   assert.equal(bar.width, '100%');
@@ -179,13 +186,16 @@ test('one loading screen stays up through Unity\'s own asset loading until the l
   assert.ok(loading.classes.includes('is-hidden'));
 });
 
-test('the loading screen gives up waiting for the lobby after a minute', async () => {
+test('a stalled lobby exposes Retry and never fabricates successful completion', async () => {
   const run = await boot({ lobbyReady: false });
   const started = run.appends[0].onload();
   await flush(); await flush();
   for (let i = 0; i < 500 && run.timers.size; i++) for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
   await started;
-  assert.ok(run.elements.get('#loading').classes.includes('is-ready'));
+  assert.ok(!run.elements.get('#loading').classes.includes('is-ready'));
+  assert.notEqual(run.elements.get('#progress').style.width, '100%');
+  assert.equal(run.elements.get('#warning').style.display, 'block');
+  assert.equal(run.elements.get('#retry').style.display, 'block');
 });
 
 test('the title screen ignores taps on its buttons and opens only on the screen itself', async () => {
