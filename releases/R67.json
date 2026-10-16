@@ -1,0 +1,245 @@
+{
+  "version": "0.3.76",
+  "releaseId": "PSD-20261016-BATTLE-UX-DICE-R67",
+  "name": "Authored dice, readable bust battle cards, legal formation and Home music playlist",
+  "notice": "替换新版水晶骰子；战斗成员保留完整头部，HP与攻击等读数统一放到立绘下方，增加三步玩法说明。修复旧编队无法开战和一键编队生成非法队伍。大厅新增三首切歌循环，保留原音效和CG配乐优先。",
+  "date": "2026-10-16",
+  "backupBranch": "backup/v0.3.76",
+  "unityBuild": "Unity 6000.6.0f1 R67: six user-authored PSD dice faces, battle-only transparent bust crops and mobile readouts, replayable rules, explicit legal formation repair, three approved Home songs on one transport.",
+  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65/R66/R67; see Docs/DICE-DESIGN-2026-10-16.md.",
+  "previousReleaseId": "PSD-20261016-LOWER-REGISTER-R66D",
+  "previousWebCommit": "4fecd6a3fa166385a353c6cfb0e4bbbea20450a5",
+  "previousReleaseRecord": "releases/R66D.json",
+  "previousBackupBranch": "backup/v0.3.75",
+  "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
+  "validation": {
+    "dicePlayModeTestsPassed": 3,
+    "formationPlayModeTestsPassed": 6,
+    "mobileBattlePlayModeTestsPassed": 4,
+    "homePlaylistPlayModeTestsPassed": 5,
+    "musicContextPlayModeTestsPassed": 5,
+    "globalMusicPlayModeTestsPassed": 7,
+    "homePlayModeTestsPassed": 22,
+    "webRegressionTestsPassed": 106,
+    "localWebGLRuntimeVerified": true,
+    "physicalMobileDeviceTested": false,
+    "finalLayoutRegressionTestsPassed": 17,
+    "desktopStartBattleVerified": true,
+    "phoneViewport": [
+      390,
+      844
+    ]
+  },
+  "publicAcceptance": "Predeployment tests recorded here; exact commit, full remote asset hashes and live browser verification are recorded separately in source Docs/DICE-DESIGN-2026-10-16.md after deployment.",
+  "characterArt": {
+    "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
+    "sourceCanvas": [
+      8334,
+      4625
+    ],
+    "members": [
+      "xingli",
+      "feiyin",
+      "wubai",
+      "yeying"
+    ],
+    "portraitHeight": 2048,
+    "avatarSize": [
+      512,
+      768
+    ],
+    "nativeAlpha": true,
+    "homepageReplaced": false,
+    "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
+  },
+  "audioStatus": "Home: Neon Moonwalk, approved Jazz-Rap-1/光的规则, Chase-the-Glow-A play in sequence and wrap; explicit next-song control. Battle instrumental remains 0.055, other pages/story silent. CG own audio wins; mute/SFX and per-song bookmarks remain independent; one current MP3 downloads without blocking startup.",
+  "knownLimits": [
+    "The 20-second experiment intentionally lowers the vocal melody by one octave (-12 semitones) while retaining the original accompaniment.",
+    "Voice timbre remains unconfirmed; no claim of singer likeness or completed full-song conversion.",
+    "The complete song remains the existing original AI-generated synthetic-vocal version; not replaced by the experiment.",
+    "Physical mobile hardware and packaged iOS not tested for R67.",
+    "Original PSD and editable layers remain local; shared flattened rim requires an exported silhouette mask."
+  ],
+  "musicPreview": {
+    "path": "music/",
+    "seconds": 172.333514739,
+    "file": "media/my-light-my-rules-preview.mp3",
+    "status": "approved original Japanese girl-group jazz/rap song; Home only"
+  },
+  "alternateMusicPreview": {
+    "path": "music/afterglow/",
+    "model": "Mureka v9",
+    "seconds": [
+      156.71,
+      207.23045351473922
+    ],
+    "files": [
+      "media/afterglow-cruise-01.mp3",
+      "media/afterglow-cruise-02.mp3"
+    ],
+    "costCny": 0.68,
+    "status": "two original instrumental audition candidates; not integrated globally"
+  },
+  "contextMusic": {
+    "home": {
+      "playlist": {
+        "order": [
+          "neon-moonwalk",
+          "my-light-my-rules",
+          "chase-the-glow-a"
+        ],
+        "files": [
+          "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+          "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+          "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3"
+        ],
+        "seconds": [
+          127.9980416667,
+          172.3335147392,
+          158.7335
+        ],
+        "gain": 0.18,
+        "manualNext": true,
+        "sequentialRepeat": true,
+        "oneAudioTransport": true,
+        "savedMuteRetained": true,
+        "cgPriority": true
+      },
+      "previousApprovedJazzSourceRetained": true
+    },
+    "battle": {
+      "file": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "sha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "seconds": 144.813514739,
+      "gain": 0.055
+    },
+    "other": "silent",
+    "cgPriority": true
+  },
+  "aiVoicePreview": {
+    "path": "music/jay-pilot/",
+    "title": "回声太近",
+    "disclosure": "AI仿唱，非周杰伦本人演唱。",
+    "converted": {
+      "file": "music/jay-pilot/audio/voice-pilot.mp3",
+      "seconds": 19.99238095238095,
+      "bytes": 481532,
+      "sha256": "8b989c16f15fc089b99278f05d044b3ba737b45df5423f4c3b39295d0d164376"
+    },
+    "source": {
+      "file": "music/jay-pilot/audio/source-pilot.mp3",
+      "seconds": 20.0,
+      "bytes": 481532,
+      "sha256": "9ee9d775d22888190c60acbe0fe58ae7a1d45bc9368669ce290a5dfa818f2bd1"
+    },
+    "status": "Optional 20-second voice-conversion experiment; tone optimization ongoing; not the full-song player or game BGM.",
+    "sourceExcerptStartSeconds": 38,
+    "sourceExcerptEndSeconds": 58
+  },
+  "fullSongPreview": {
+    "path": "music/jay-pilot/",
+    "title": "回声太近",
+    "file": "music/jay-pilot/audio/song-full.mp3",
+    "sha256": "a9a5dbacf219e5c2d500f3380e90990d85d09349d79cedbeeef3ce632f45a6e9",
+    "bytes": 4394697,
+    "seconds": 188.5735,
+    "sampleRate": 48000,
+    "channels": 2,
+    "voiceConverted": false,
+    "disclosure": "AI原创歌曲，非周杰伦本人演唱。",
+    "status": "Existing full original synthetic-vocal song; tone optimization continues separately; not game BGM."
+  },
+  "voiceComparisonPreview": {
+    "path": "music/jay-pilot/?v=0.3.75#voice-compare",
+    "anchor": "voice-compare",
+    "title": "低音区声线 · 20秒",
+    "disclosure": "实验版AI仿唱，非周杰伦本人演唱。人声改为低八度演唱、原伴奏保留；音色待确认，不替换完整歌曲。",
+    "sourceExcerptStartSeconds": 38,
+    "sourceExcerptEndSeconds": 58,
+    "experimental": true,
+    "sameInstrumental": true,
+    "vocalLevelMatched": true,
+    "candidate": {
+      "sha256": "e231f4dc01db51d257cb062f4445ac944a6b05f74373614df8ee5f367b76aa2e",
+      "bytes": 481628,
+      "seconds": 20.0,
+      "sampleRate": 44100,
+      "channels": 2,
+      "file": "music/jay-pilot/audio/voice-lower-octave-e231f4dc01db.mp3"
+    },
+    "control": {
+      "sha256": "6e3adf83c7c2042bce504a48d076192517b5678ed521c48ee063abe7d6d04878",
+      "bytes": 481622,
+      "seconds": 20.0,
+      "sampleRate": 44100,
+      "channels": 2,
+      "file": "music/jay-pilot/audio/voice-adapt100-6e3adf83c7c2.mp3"
+    },
+    "status": "Optional lower-register native-player audition only; current full original song, all historical MP3 URLs and game BGM retained.",
+    "vocalSemitoneShift": -12,
+    "originalAccompanimentRetained": true,
+    "historicalMethodControl": {
+      "sha256": "e76efdb46fca05df35cbd5f104c168a42127bd5aa8ddf173288e4cce93c6752f",
+      "bytes": 481625,
+      "seconds": 20.0,
+      "sampleRate": 44100,
+      "channels": 2,
+      "file": "music/jay-pilot/audio/voice-control-e76efdb46fca.mp3"
+    }
+  },
+  "homePlaylist": {
+    "order": [
+      "neon-moonwalk",
+      "my-light-my-rules",
+      "chase-the-glow-a"
+    ],
+    "files": [
+      "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+      "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3"
+    ],
+    "seconds": [
+      127.9980416667,
+      172.3335147392,
+      158.7335
+    ],
+    "gain": 0.18,
+    "manualNext": true,
+    "sequentialRepeat": true,
+    "oneAudioTransport": true,
+    "savedMuteRetained": true,
+    "cgPriority": true
+  },
+  "formationFix": {
+    "olderInvalidSavePreserved": true,
+    "invalidStartShowsPersistentReason": true,
+    "navigationRequiresPlayerAction": true,
+    "automaticFormationUsesExistingRaceCareerRules": true,
+    "preservesAvailableCaptain": true,
+    "neverGrantsUnownedMembers": true
+  },
+  "battleReadability": {
+    "playerCards": "battle-only transparent bust crop with complete head and ears during idle, ready and attack",
+    "numericPlacement": "HP, attack and skill readouts below portrait",
+    "keyNumbersEnlarged": true,
+    "help": "optional replayable three-step introduction in battle rules; restores previous pause state",
+    "combatRulesChanged": false,
+    "homepageCharactersChanged": false
+  },
+  "diceArt": {
+    "sourceSha256": "1da3230e23f778476257a1984af729672b5117a15ff2c25664ed82fff5ecfc97",
+    "sourceCanvas": [
+      1024,
+      439
+    ],
+    "faces": 6,
+    "spriteSize": [
+      148,
+      152
+    ],
+    "bodyAndPips": "Original PSD native-alpha layers, no generated or redrawn art",
+    "outerRim": "Blue/gold rim retained from flattened PSD preview with an antialiased silhouette mask; not claimed to have native source alpha",
+    "animation": "Existing authored-face 2D toss/flip and landing; old 3D rendered crystal sheets disabled only for battle dice",
+    "rulesChanged": false
+  }
+}
