@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="referrer" content="no-referrer">
+  <title>回声太近 · 20秒AI仿唱试听</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { background: #111716; color: #f4f6f3; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      -webkit-text-size-adjust: 100%;
+    }
+    main {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: max(28px, env(safe-area-inset-top)) 20px max(28px, env(safe-area-inset-bottom));
+    }
+    .eyebrow { margin: 0 0 10px; color: #b7d5bd; font-size: 13px; }
+    h1 { margin: 0; font-size: clamp(27px, 7vw, 34px); line-height: 1.3; }
+    .intro { margin: 10px 0 20px; color: #bac5bf; font-size: 14px; }
+    .disclosure {
+      margin: 0 0 24px;
+      padding: 13px 15px;
+      border: 1px solid #415846;
+      border-radius: 12px;
+      background: #1c2a21;
+      color: #e1eddf;
+      font-size: 14px;
+    }
+    section {
+      min-width: 0;
+      margin-bottom: 16px;
+      padding: 18px;
+      border: 1px solid #33423a;
+      border-radius: 16px;
+      background: #19221d;
+    }
+    h2 { margin: 0 0 4px; font-size: 18px; }
+    h3 { margin: 0 0 4px; font-size: 16px; }
+    details { border: 1px solid #33423a; border-radius: 16px; }
+    summary { min-height: 54px; padding: 14px 18px; color: #dce8de; cursor: pointer; }
+    summary:focus-visible { outline: 2px solid #c5efc4; outline-offset: 4px; border-radius: 12px; }
+    details section { margin: 0 14px 14px; padding: 14px; }
+    .caption { margin: 0 0 15px; color: #bac5bf; font-size: 13px; }
+    audio { display: block; width: 100%; max-width: 100%; height: 54px; margin: 0 0 12px; }
+    a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 4px;
+      color: #c5efc4;
+      font-size: 14px;
+      text-underline-offset: 4px;
+    }
+    a:focus-visible { outline: 2px solid #c5efc4; outline-offset: 4px; border-radius: 4px; }
+    .hint { margin: 20px 2px 0; color: #a6b2ab; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">20秒音色转换试听</p>
+    <h1>回声太近</h1>
+    <p class="intro">先听AI仿唱，也可展开原片段对比。</p>
+    <p class="disclosure"><strong>AI仿唱，非周杰伦本人演唱。</strong><br>用于对比音色转换效果。</p>
+
+    <section aria-labelledby="voice-title">
+      <h2 id="voice-title">AI仿唱 · 20秒</h2>
+      <p class="caption">音色转换试听片段</p>
+      <audio controls playsinline preload="metadata" aria-label="播放20秒AI仿唱">
+        <source src="audio/voice-pilot.mp3" type="audio/mpeg">
+        浏览器不支持音频播放，请使用下方下载链接。
+      </audio>
+      <a href="audio/voice-pilot.mp3" download="回声太近-20秒AI仿唱.mp3">下载AI仿唱 MP3</a>
+    </section>
+
+    <details>
+      <summary>展开原片段对照</summary>
+      <section aria-labelledby="source-title">
+        <h3 id="source-title">原片段对照 · 20秒</h3>
+        <p class="caption">转换前的同一片段</p>
+        <audio controls playsinline preload="metadata" aria-label="播放转换前对照片段">
+          <source src="audio/source-pilot.mp3" type="audio/mpeg">
+          浏览器不支持音频播放，请使用下方下载链接。
+        </audio>
+        <a href="audio/source-pilot.mp3" download="回声太近-原片段对照.mp3">下载对照片段 MP3</a>
+      </section>
+    </details>
+
+    <p class="hint">建议戴耳机对比。手机浏览器也可长按下载链接保存。</p>
+  </main>
+</body>
+</html>

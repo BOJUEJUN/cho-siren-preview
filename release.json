@@ -1,25 +1,43 @@
 {
-  "version": "0.3.71",
-  "releaseId": "PSD-20261015-CTA-INK-R66",
-  "name": "Restore the performance hover outline",
-  "notice": "开始演出恢复之前较大的动态墨迹范围，保持专辑绿色；其他三个入口保持收紧后的效果。",
-  "date": "2026-10-15",
-  "backupBranch": "backup/v0.3.71",
+  "version": "0.3.72",
+  "releaseId": "PSD-20261016-JAY-PILOT-R66A",
+  "name": "20-second AI voice conversion audition",
+  "notice": "新增《回声太近》20秒AI仿唱试听和原片段对照，手机可播放和下载。非周杰伦本人演唱；游戏内容与配乐沿用R66。",
+  "date": "2026-10-16",
+  "backupBranch": "backup/v0.3.72",
   "unityBuild": "Unity 6000.6.0f1 R66: restore only the LiveOnStage ink quad 1.3x outward extent from R64; retain R65 album-green tint and the three restrained left cards.",
   "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 + CTA-only R66 integration; see Docs/CTA-INK-RESTORE-2026-10-15.md.",
-  "previousReleaseId": "PSD-20261015-CONTEXT-TEAM-LOAD-R65",
-  "previousWebCommit": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
-  "previousReleaseRecord": "releases/R65.json",
-  "previousBackupBranch": "backup/v0.3.70",
+  "previousReleaseId": "PSD-20261015-CTA-INK-R66",
+  "previousWebCommit": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+  "previousReleaseRecord": "releases/R66.json",
+  "previousBackupBranch": "backup/v0.3.71",
   "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
   "validation": {
-    "homepageHoverAndHitAreaTestsPassed": 3,
-    "localWebGLRuntimeVerified": true,
     "webRegressionTestsPassed": 106,
-    "inheritedR65ValidationRecord": "releases/R65.json",
-    "physicalMobileDeviceTested": false
+    "mobilePreviewMarkupVerified": true,
+    "mobilePreviewBrowserVerified": true,
+    "localWebGLRuntimeVerified": false,
+    "inheritedR66ValidationRecord": "releases/R66.json",
+    "physicalMobileDeviceTested": false,
+    "browserQA": {
+      "verified": true,
+      "evidenceProvider": "Root agent CUA staging browser verification",
+      "environment": "Desktop browser at 390x844 mobile viewport; physical phone not tested",
+      "viewport": [
+        390,
+        844
+      ],
+      "documentScrollWidth": 390,
+      "convertedAudioReadyState": 4,
+      "convertedAudioDurationSeconds": 19.992381,
+      "playbackAdvancedToSeconds": 17.58,
+      "nativeControlChangedToPause": true,
+      "audioError": null,
+      "comparisonNativePlayerExpanded": true,
+      "physicalMobileDeviceTested": false
+    }
   },
-  "publicAcceptance": "Exact-commit, remote-byte and public browser acceptance is recorded separately in Docs/CTA-INK-RESTORE-2026-10-15.md after deployment.",
+  "publicAcceptance": "Mobile preview playback and exact public bytes are recorded separately after browser verification and deployment.",
   "characterArt": {
     "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
     "sourceCanvas": [
@@ -43,9 +61,9 @@
   },
   "audioStatus": "Home: approved full Japanese jazz/rap vocal song at gain 0.18. Battle: dedicated instrumental at 0.055. Other menus/story: silent. CG embedded audio has priority. Music and SFX preferences remain independent; per-context bookmarks resume. Web downloads only the current needed MP3 without blocking startup.",
   "knownLimits": [
-    "Physical phone and packaged iOS app not tested in R66.",
-    "R65 audio/team/loading tests are inherited evidence, not claimed as rerun here.",
-    "First engine download remains about 100MB and depends on network speed."
+    "20-second AI voice conversion audition only; full conversion is not published.",
+    "Physical-mobile playback and packaged iOS app not tested in R66A.",
+    "Game engine, audio/team/loading behavior and R66 validation are inherited; no Unity rebuild in R66A."
   ],
   "musicPreview": {
     "path": "music/",
@@ -82,5 +100,23 @@
     },
     "other": "silent",
     "cgPriority": true
+  },
+  "aiVoicePreview": {
+    "path": "music/jay-pilot/",
+    "title": "回声太近",
+    "disclosure": "AI仿唱，非周杰伦本人演唱。",
+    "converted": {
+      "file": "music/jay-pilot/audio/voice-pilot.mp3",
+      "seconds": 19.99238095238095,
+      "bytes": 481532,
+      "sha256": "8b989c16f15fc089b99278f05d044b3ba737b45df5423f4c3b39295d0d164376"
+    },
+    "source": {
+      "file": "music/jay-pilot/audio/source-pilot.mp3",
+      "seconds": 20.0,
+      "bytes": 481532,
+      "sha256": "9ee9d775d22888190c60acbe0fe58ae7a1d45bc9368669ce290a5dfa818f2bd1"
+    },
+    "status": "20-second independent voice-conversion audition; not integrated as game BGM."
   }
 }
