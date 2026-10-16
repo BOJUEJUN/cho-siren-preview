@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="referrer" content="no-referrer">
-  <title>回声太近 · 完整歌曲</title>
+  <title>回声太近 · 完整歌曲与新声线实验</title>
   <style>
     * { box-sizing: border-box; }
     html { background: #111716; color: #f4f6f3; }
@@ -44,7 +44,7 @@
     }
     h2 { margin: 0 0 4px; font-size: 18px; }
     h3 { margin: 0 0 4px; font-size: 16px; }
-    details { border: 1px solid #33423a; border-radius: 16px; }
+    details { margin-bottom: 16px; border: 1px solid #33423a; border-radius: 16px; }
     summary { min-height: 54px; padding: 14px 18px; color: #dce8de; cursor: pointer; }
     summary:focus-visible { outline: 2px solid #c5efc4; outline-offset: 4px; border-radius: 12px; }
     details section { margin: 0 14px 14px; padding: 14px; }
@@ -67,8 +67,8 @@
   <main>
     <p class="eyebrow">AI原创歌曲</p>
     <h1>回声太近 · 完整歌曲</h1>
-    <p class="intro">先听完整歌曲，音色仍在调整。</p>
-    <p class="disclosure"><strong>AI原创歌曲，非周杰伦本人演唱。</strong><br>下面可展开20秒音色实验与原片段对照。</p>
+    <p class="intro">完整原曲保留，下面可试听新的20秒声线实验。</p>
+    <p class="disclosure"><strong>AI原创歌曲与AI仿唱，非周杰伦本人演唱。</strong><br>音色仍在调整；实验片段不替换完整歌曲。</p>
 
     <section aria-labelledby="full-title">
       <h2 id="full-title">完整歌曲</h2>
@@ -80,8 +80,31 @@
       <a href="audio/song-full.mp3" download="回声太近-完整歌曲.mp3">下载完整歌曲 MP3</a>
     </section>
 
+    <section id="voice-compare" aria-labelledby="compare-title">
+      <h2 id="compare-title">新声线实验 · 20秒</h2>
+      <p class="caption">原曲00:38–00:58，仅供对比试听。<br>实验版AI仿唱，非周杰伦本人演唱，音色仍在调整。</p>
+      <audio controls playsinline preload="metadata" aria-label="播放新声线实验20秒">
+        <source src="audio/voice-adapt100-6e3adf83c7c2.mp3" type="audio/mpeg">
+        浏览器不支持音频播放，请使用下方下载链接。
+      </audio>
+      <a href="audio/voice-adapt100-6e3adf83c7c2.mp3" download="回声太近-新声线实验-20秒.mp3">下载新声线实验 MP3</a>
+
+      <details>
+        <summary>上次方法对照 · 20秒</summary>
+        <section aria-labelledby="control-title">
+          <h3 id="control-title">上次方法对照</h3>
+          <p class="caption">同为原曲00:38–00:58，使用同一伴奏并匹配人声音量。<br>AI仿唱，非周杰伦本人演唱。</p>
+          <audio controls playsinline preload="metadata" aria-label="播放上次方法对照20秒">
+            <source src="audio/voice-control-e76efdb46fca.mp3" type="audio/mpeg">
+            浏览器不支持音频播放，请使用下方下载链接。
+          </audio>
+          <a href="audio/voice-control-e76efdb46fca.mp3" download="回声太近-上次方法对照-20秒.mp3">下载方法对照 MP3</a>
+        </section>
+      </details>
+    </section>
+
     <details>
-      <summary>20秒音色实验与原片段对照</summary>
+      <summary>历史试听与原片段对照</summary>
       <section aria-labelledby="voice-title">
         <h3 id="voice-title">音色实验 · 20秒</h3>
         <p class="caption">取自原曲00:38–00:58，音色仍在调整。<br>AI仿唱，非周杰伦本人演唱。</p>
@@ -105,5 +128,22 @@
 
     <p class="hint">建议戴耳机试听。手机浏览器也可长按下载链接保存。</p>
   </main>
+  <script>
+    (() => {
+      const players = [...document.querySelectorAll('audio')];
+      for (const player of players) {
+        player.addEventListener('play', () => {
+          for (const other of players) if (other !== player) other.pause();
+        });
+      }
+      for (const details of document.querySelectorAll('details')) {
+        details.addEventListener('toggle', () => {
+          if (!details.open) {
+            for (const player of details.querySelectorAll('audio')) player.pause();
+          }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
