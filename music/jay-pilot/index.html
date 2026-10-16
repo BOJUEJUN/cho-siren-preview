@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="referrer" content="no-referrer">
-  <title>回声太近 · 20秒AI仿唱试听</title>
+  <title>回声太近 · 完整歌曲</title>
   <style>
     * { box-sizing: border-box; }
     html { background: #111716; color: #f4f6f3; }
@@ -65,26 +65,36 @@
 </head>
 <body>
   <main>
-    <p class="eyebrow">20秒音色转换试听</p>
-    <h1>回声太近</h1>
-    <p class="intro">先听AI仿唱，也可展开原片段对比。</p>
-    <p class="disclosure"><strong>AI仿唱，非周杰伦本人演唱。</strong><br>用于对比音色转换效果。</p>
+    <p class="eyebrow">AI原创歌曲</p>
+    <h1>回声太近 · 完整歌曲</h1>
+    <p class="intro">先听完整歌曲，音色仍在调整。</p>
+    <p class="disclosure"><strong>AI原创歌曲，非周杰伦本人演唱。</strong><br>下面可展开20秒音色实验与原片段对照。</p>
 
-    <section aria-labelledby="voice-title">
-      <h2 id="voice-title">AI仿唱 · 20秒</h2>
-      <p class="caption">音色转换试听片段</p>
-      <audio controls playsinline preload="metadata" aria-label="播放20秒AI仿唱">
-        <source src="audio/voice-pilot.mp3" type="audio/mpeg">
+    <section aria-labelledby="full-title">
+      <h2 id="full-title">完整歌曲</h2>
+      <p class="caption">当前原曲版本，约3分09秒</p>
+      <audio controls playsinline preload="metadata" aria-label="播放回声太近完整歌曲">
+        <source src="audio/song-full.mp3" type="audio/mpeg">
         浏览器不支持音频播放，请使用下方下载链接。
       </audio>
-      <a href="audio/voice-pilot.mp3" download="回声太近-20秒AI仿唱.mp3">下载AI仿唱 MP3</a>
+      <a href="audio/song-full.mp3" download="回声太近-完整歌曲.mp3">下载完整歌曲 MP3</a>
     </section>
 
     <details>
-      <summary>展开原片段对照</summary>
+      <summary>20秒音色实验与原片段对照</summary>
+      <section aria-labelledby="voice-title">
+        <h3 id="voice-title">音色实验 · 20秒</h3>
+        <p class="caption">取自原曲00:38–00:58，音色仍在调整。<br>AI仿唱，非周杰伦本人演唱。</p>
+        <audio controls playsinline preload="metadata" aria-label="播放20秒音色实验">
+          <source src="audio/voice-pilot.mp3" type="audio/mpeg">
+          浏览器不支持音频播放，请使用下方下载链接。
+        </audio>
+        <a href="audio/voice-pilot.mp3" download="回声太近-20秒音色实验.mp3">下载音色实验 MP3</a>
+      </section>
+
       <section aria-labelledby="source-title">
         <h3 id="source-title">原片段对照 · 20秒</h3>
-        <p class="caption">转换前的同一片段</p>
+        <p class="caption">原曲00:38–00:58，转换前的同一片段。</p>
         <audio controls playsinline preload="metadata" aria-label="播放转换前对照片段">
           <source src="audio/source-pilot.mp3" type="audio/mpeg">
           浏览器不支持音频播放，请使用下方下载链接。
@@ -93,7 +103,7 @@
       </section>
     </details>
 
-    <p class="hint">建议戴耳机对比。手机浏览器也可长按下载链接保存。</p>
+    <p class="hint">建议戴耳机试听。手机浏览器也可长按下载链接保存。</p>
   </main>
 </body>
 </html>
