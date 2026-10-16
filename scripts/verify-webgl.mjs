@@ -71,7 +71,9 @@ const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
 // These long clips are deliberately outside the engine archive; missing or
 // mismatched files must fail release verification instead of silently shipping.
 for (const [file, sha] of [
+  ['home-neon-e16785a9cd795bb3.mp3', 'e16785a9cd795bb3fd024bce2912a9174d30f712ccb25b7cd34e5bd5ca596ced'],
   ['home-1c7f72fed9af8b53.mp3', '1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267'],
+  ['home-chase-5d360e8e7acbc7c6.mp3', '5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff'],
   ['battle-11700e9a4a918ffe.mp3', '11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c']
 ]) {
   const path = join(root, 'StreamingAssets', 'Music', file);

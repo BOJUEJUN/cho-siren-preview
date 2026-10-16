@@ -2,7 +2,7 @@
 
 本仓库就是 GitHub Pages 上线的网页版（https://bojuejun.github.io/cho-siren-preview/），`main` 分支即线上版本，推送后 Pages 自动发布。Unity 工程在别的仓库；`index.html`、`character-moments.js`、`home-stage.*`、`media/` 来自 Unity 工程的 `Assets/WebGLTemplates/ChoSirenPortrait/`，改动后要同步回去（`patches/unity-template-since-R17.patch` 是自 R17 起的累计补丁；新增的 `audio-skin.js`、`media/*.packed.webm`、`media/*.packed.mp4`、`media/*.voice.mp3`、`media/lobby-theme.mp3`、`media/ui-*.wav`、`media/loading-stage.webp` 要一并复制）。
 
-声音：R65 起由 Unity 的一个音源按场景路由，大厅为用户选定的《光的规则》日语爵士说唱，战斗为专用轻伴奏（gain 0.055），其他菜单与普通剧情静音；每个场景保留独立续播位置。CG 自带配乐优先，结束后恢复所在页面策略。音乐与音效开关仍独立。
+声音：R65 起由 Unity 的一个音源按场景路由，R67大厅为 Neon Moonwalk、爵士说唱-1/《光的规则》、Chase-the-Glow-A 三首按顺序轮转，可手动下一首，战斗为专用轻伴奏（gain 0.055），其他菜单与普通剧情静音；每首大厅曲目与战斗配乐保留独立续播位置。CG 自带配乐优先，结束后恢复所在页面策略。音乐与音效开关仍独立。
 
 原生/Editor 保留 `Resources/Audio/bgm.wav` 与 `bgm-battle.wav`；Web 构建时仅临时排除这两个长音频并在 finally 恢复，实际使用 `StreamingAssets/Music/` 的不可变哈希 MP3。仅当前需要且开启音乐时异步下载，不阻塞首屏；失败保持安静，迟到请求不能切入其他场景。`audio-skin.js` 仅替换短 UI 音效并通过 `ChoSirenMusicBridge` 桥接，不能恢复旧网页配乐接管。
 

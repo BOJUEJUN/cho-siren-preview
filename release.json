@@ -1,48 +1,36 @@
 {
-  "version": "0.3.75",
-  "releaseId": "PSD-20261016-LOWER-REGISTER-R66D",
-  "name": "Experimental lower-register voice audition with the full original song retained",
-  "notice": "新增《回声太近》低音区声线20秒：人声改为低八度演唱、原伴奏保留。AI仿唱，非周杰伦本人演唱；音色待确认，完整原曲不替换，可展开上一版同段对照。",
+  "version": "0.3.76",
+  "releaseId": "PSD-20261016-BATTLE-UX-DICE-R67",
+  "name": "Authored dice, readable bust battle cards, legal formation and Home music playlist",
+  "notice": "替换新版水晶骰子；战斗成员保留完整头部，HP与攻击等读数统一放到立绘下方，增加三步玩法说明。修复旧编队无法开战和一键编队生成非法队伍。大厅新增三首切歌循环，保留原音效和CG配乐优先。",
   "date": "2026-10-16",
-  "backupBranch": "backup/v0.3.75",
-  "unityBuild": "Unity 6000.6.0f1 R66: restore only the LiveOnStage ink quad 1.3x outward extent from R64; retain R65 album-green tint and the three restrained left cards.",
-  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 + CTA-only R66 integration; see Docs/CTA-INK-RESTORE-2026-10-15.md.",
-  "previousReleaseId": "PSD-20261016-VOICE-AB-R66C",
-  "previousWebCommit": "3a3c43d1a0549369c38951d912246efc6c89ca5f",
-  "previousReleaseRecord": "releases/R66C.json",
-  "previousBackupBranch": "backup/v0.3.74",
+  "backupBranch": "backup/v0.3.76",
+  "unityBuild": "Unity 6000.6.0f1 R67: six user-authored PSD dice faces, battle-only transparent bust crops and mobile readouts, replayable rules, explicit legal formation repair, three approved Home songs on one transport.",
+  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65/R66/R67; see Docs/DICE-DESIGN-2026-10-16.md.",
+  "previousReleaseId": "PSD-20261016-LOWER-REGISTER-R66D",
+  "previousWebCommit": "4fecd6a3fa166385a353c6cfb0e4bbbea20450a5",
+  "previousReleaseRecord": "releases/R66D.json",
+  "previousBackupBranch": "backup/v0.3.75",
   "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
   "validation": {
+    "dicePlayModeTestsPassed": 3,
+    "formationPlayModeTestsPassed": 6,
+    "mobileBattlePlayModeTestsPassed": 4,
+    "homePlaylistPlayModeTestsPassed": 5,
+    "musicContextPlayModeTestsPassed": 5,
+    "globalMusicPlayModeTestsPassed": 7,
+    "homePlayModeTestsPassed": 22,
     "webRegressionTestsPassed": 106,
-    "mobilePreviewMarkupVerified": true,
-    "mobilePreviewBrowserVerified": true,
-    "localWebGLRuntimeVerified": false,
-    "inheritedR66ValidationRecord": "releases/R66.json",
-    "inheritedR66CValidationRecord": "releases/R66C.json",
+    "localWebGLRuntimeVerified": true,
     "physicalMobileDeviceTested": false,
-    "browserQA": {
-      "verified": true,
-      "evidenceProvider": "Root agent CUA staging browser verification",
-      "environment": "Desktop browser at 390x844 mobile viewport; physical phone not tested",
-      "viewport": [
-        390,
-        844
-      ],
-      "documentScrollWidth": 390,
-      "candidateDurationSeconds": 20.0,
-      "candidatePlaybackCompleted": true,
-      "candidatePlaybackAdvancedToSeconds": 20.0,
-      "controlDurationSeconds": 20.0,
-      "playbackMutualExclusionVerified": true,
-      "detailsClosePauseVerified": true,
-      "allFiveAudioReadyState": 4,
-      "audioError": null,
-      "fullSongDurationSeconds": 188.5735,
-      "physicalMobileDeviceTested": false
-    },
-    "lowerRegisterQualityReviewed": true
+    "finalLayoutRegressionTestsPassed": 17,
+    "desktopStartBattleVerified": true,
+    "phoneViewport": [
+      390,
+      844
+    ]
   },
-  "publicAcceptance": "Pre-release desktop mobile-viewport playback, pause behavior and expected lower-register quality reviewed; exact deployed bytes and final public browser verification are recorded separately. No singer likeness acceptance or full-song replacement claimed.",
+  "publicAcceptance": "Predeployment tests recorded here; exact commit, full remote asset hashes and live browser verification are recorded separately in source Docs/DICE-DESIGN-2026-10-16.md after deployment.",
   "characterArt": {
     "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
     "sourceCanvas": [
@@ -64,13 +52,13 @@
     "homepageReplaced": false,
     "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
   },
-  "audioStatus": "Home: approved full Japanese jazz/rap vocal song at gain 0.18. Battle: dedicated instrumental at 0.055. Other menus/story: silent. CG embedded audio has priority. Music and SFX preferences remain independent; per-context bookmarks resume. Web downloads only the current needed MP3 without blocking startup.",
+  "audioStatus": "Home: Neon Moonwalk, approved Jazz-Rap-1/光的规则, Chase-the-Glow-A play in sequence and wrap; explicit next-song control. Battle instrumental remains 0.055, other pages/story silent. CG own audio wins; mute/SFX and per-song bookmarks remain independent; one current MP3 downloads without blocking startup.",
   "knownLimits": [
     "The 20-second experiment intentionally lowers the vocal melody by one octave (-12 semitones) while retaining the original accompaniment.",
     "Voice timbre remains unconfirmed; no claim of singer likeness or completed full-song conversion.",
     "The complete song remains the existing original AI-generated synthetic-vocal version; not replaced by the experiment.",
-    "Physical-mobile playback and packaged iOS app not tested in R66D.",
-    "Game engine, audio/team/loading behavior and R66 validation are inherited; no Unity rebuild in R66D."
+    "Physical mobile hardware and packaged iOS not tested for R67.",
+    "Original PSD and editable layers remain local; shared flattened rim requires an exported silhouette mask."
   ],
   "musicPreview": {
     "path": "music/",
@@ -94,10 +82,30 @@
   },
   "contextMusic": {
     "home": {
-      "file": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
-      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
-      "seconds": 172.333514739,
-      "gain": 0.18
+      "playlist": {
+        "order": [
+          "neon-moonwalk",
+          "my-light-my-rules",
+          "chase-the-glow-a"
+        ],
+        "files": [
+          "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+          "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+          "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3"
+        ],
+        "seconds": [
+          127.9980416667,
+          172.3335147392,
+          158.7335
+        ],
+        "gain": 0.18,
+        "manualNext": true,
+        "sequentialRepeat": true,
+        "oneAudioTransport": true,
+        "savedMuteRetained": true,
+        "cgPriority": true
+      },
+      "previousApprovedJazzSourceRetained": true
     },
     "battle": {
       "file": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
@@ -178,5 +186,60 @@
       "channels": 2,
       "file": "music/jay-pilot/audio/voice-control-e76efdb46fca.mp3"
     }
+  },
+  "homePlaylist": {
+    "order": [
+      "neon-moonwalk",
+      "my-light-my-rules",
+      "chase-the-glow-a"
+    ],
+    "files": [
+      "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+      "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3"
+    ],
+    "seconds": [
+      127.9980416667,
+      172.3335147392,
+      158.7335
+    ],
+    "gain": 0.18,
+    "manualNext": true,
+    "sequentialRepeat": true,
+    "oneAudioTransport": true,
+    "savedMuteRetained": true,
+    "cgPriority": true
+  },
+  "formationFix": {
+    "olderInvalidSavePreserved": true,
+    "invalidStartShowsPersistentReason": true,
+    "navigationRequiresPlayerAction": true,
+    "automaticFormationUsesExistingRaceCareerRules": true,
+    "preservesAvailableCaptain": true,
+    "neverGrantsUnownedMembers": true
+  },
+  "battleReadability": {
+    "playerCards": "battle-only transparent bust crop with complete head and ears during idle, ready and attack",
+    "numericPlacement": "HP, attack and skill readouts below portrait",
+    "keyNumbersEnlarged": true,
+    "help": "optional replayable three-step introduction in battle rules; restores previous pause state",
+    "combatRulesChanged": false,
+    "homepageCharactersChanged": false
+  },
+  "diceArt": {
+    "sourceSha256": "1da3230e23f778476257a1984af729672b5117a15ff2c25664ed82fff5ecfc97",
+    "sourceCanvas": [
+      1024,
+      439
+    ],
+    "faces": 6,
+    "spriteSize": [
+      148,
+      152
+    ],
+    "bodyAndPips": "Original PSD native-alpha layers, no generated or redrawn art",
+    "outerRim": "Blue/gold rim retained from flattened PSD preview with an antialiased silhouette mask; not claimed to have native source alpha",
+    "animation": "Existing authored-face 2D toss/flip and landing; old 3D rendered crystal sheets disabled only for battle dice",
+    "rulesChanged": false
   }
 }
