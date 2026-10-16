@@ -1,0 +1,170 @@
+{
+  "version": "0.3.74",
+  "releaseId": "PSD-20261016-VOICE-AB-R66C",
+  "name": "Experimental 20-second voice comparison with the full original song retained",
+  "notice": "新增《回声太近》同段20秒新声线实验与上次方法对照。AI仿唱，非周杰伦本人演唱，音色仍在调整；完整原曲与历史试听保留。",
+  "date": "2026-10-16",
+  "backupBranch": "backup/v0.3.74",
+  "unityBuild": "Unity 6000.6.0f1 R66: restore only the LiveOnStage ink quad 1.3x outward extent from R64; retain R65 album-green tint and the three restrained left cards.",
+  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 + CTA-only R66 integration; see Docs/CTA-INK-RESTORE-2026-10-15.md.",
+  "previousReleaseId": "PSD-20261016-FULL-SONG-R66B",
+  "previousWebCommit": "20ed9349bf5017b470d2fd02aab0d0e0f0087f58",
+  "previousReleaseRecord": "releases/R66B.json",
+  "previousBackupBranch": "backup/v0.3.73",
+  "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
+  "validation": {
+    "webRegressionTestsPassed": 106,
+    "mobilePreviewMarkupVerified": true,
+    "mobilePreviewBrowserVerified": true,
+    "localWebGLRuntimeVerified": false,
+    "inheritedR66ValidationRecord": "releases/R66.json",
+    "inheritedR66BValidationRecord": "releases/R66B.json",
+    "physicalMobileDeviceTested": false,
+    "browserQA": {
+      "verified": true,
+      "evidenceProvider": "Root agent CUA staging browser verification",
+      "environment": "Desktop browser at 390x844 mobile viewport; physical phone not tested",
+      "viewport": [
+        390,
+        844
+      ],
+      "documentScrollWidth": 390,
+      "candidateDurationSeconds": 20.0,
+      "candidatePlaybackAdvancedToSeconds": 4.192,
+      "controlDurationSeconds": 20.0,
+      "controlPlaybackAdvancedToSeconds": 5.732,
+      "controlPlayPausedCandidate": true,
+      "closingControlDetailsPausedControl": true,
+      "allFiveAudioReadyState": 4,
+      "audioError": null,
+      "fullSongDurationSeconds": 188.5735,
+      "physicalMobileDeviceTested": false
+    }
+  },
+  "publicAcceptance": "Pre-release desktop mobile-viewport playback and pause behavior verified; public browser playback and exact deployed bytes are recorded separately after deployment.",
+  "characterArt": {
+    "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
+    "sourceCanvas": [
+      8334,
+      4625
+    ],
+    "members": [
+      "xingli",
+      "feiyin",
+      "wubai",
+      "yeying"
+    ],
+    "portraitHeight": 2048,
+    "avatarSize": [
+      512,
+      768
+    ],
+    "nativeAlpha": true,
+    "homepageReplaced": false,
+    "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
+  },
+  "audioStatus": "Home: approved full Japanese jazz/rap vocal song at gain 0.18. Battle: dedicated instrumental at 0.055. Other menus/story: silent. CG embedded audio has priority. Music and SFX preferences remain independent; per-context bookmarks resume. Web downloads only the current needed MP3 without blocking startup.",
+  "knownLimits": [
+    "New and control clips are only 20-second AI voice experiments; no claim of singer likeness or completed full-song conversion.",
+    "The complete song remains the existing original AI-generated synthetic-vocal version; not replaced by the experiment.",
+    "Physical-mobile playback and packaged iOS app not tested in R66C.",
+    "Game engine, audio/team/loading behavior and R66 validation are inherited; no Unity rebuild in R66C."
+  ],
+  "musicPreview": {
+    "path": "music/",
+    "seconds": 172.333514739,
+    "file": "media/my-light-my-rules-preview.mp3",
+    "status": "approved original Japanese girl-group jazz/rap song; Home only"
+  },
+  "alternateMusicPreview": {
+    "path": "music/afterglow/",
+    "model": "Mureka v9",
+    "seconds": [
+      156.71,
+      207.23045351473922
+    ],
+    "files": [
+      "media/afterglow-cruise-01.mp3",
+      "media/afterglow-cruise-02.mp3"
+    ],
+    "costCny": 0.68,
+    "status": "two original instrumental audition candidates; not integrated globally"
+  },
+  "contextMusic": {
+    "home": {
+      "file": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "seconds": 172.333514739,
+      "gain": 0.18
+    },
+    "battle": {
+      "file": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "sha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "seconds": 144.813514739,
+      "gain": 0.055
+    },
+    "other": "silent",
+    "cgPriority": true
+  },
+  "aiVoicePreview": {
+    "path": "music/jay-pilot/",
+    "title": "回声太近",
+    "disclosure": "AI仿唱，非周杰伦本人演唱。",
+    "converted": {
+      "file": "music/jay-pilot/audio/voice-pilot.mp3",
+      "seconds": 19.99238095238095,
+      "bytes": 481532,
+      "sha256": "8b989c16f15fc089b99278f05d044b3ba737b45df5423f4c3b39295d0d164376"
+    },
+    "source": {
+      "file": "music/jay-pilot/audio/source-pilot.mp3",
+      "seconds": 20.0,
+      "bytes": 481532,
+      "sha256": "9ee9d775d22888190c60acbe0fe58ae7a1d45bc9368669ce290a5dfa818f2bd1"
+    },
+    "status": "Optional 20-second voice-conversion experiment; tone optimization ongoing; not the full-song player or game BGM.",
+    "sourceExcerptStartSeconds": 38,
+    "sourceExcerptEndSeconds": 58
+  },
+  "fullSongPreview": {
+    "path": "music/jay-pilot/",
+    "title": "回声太近",
+    "file": "music/jay-pilot/audio/song-full.mp3",
+    "sha256": "a9a5dbacf219e5c2d500f3380e90990d85d09349d79cedbeeef3ce632f45a6e9",
+    "bytes": 4394697,
+    "seconds": 188.5735,
+    "sampleRate": 48000,
+    "channels": 2,
+    "voiceConverted": false,
+    "disclosure": "AI原创歌曲，非周杰伦本人演唱。",
+    "status": "Existing full original synthetic-vocal song; tone optimization continues separately; not game BGM."
+  },
+  "voiceComparisonPreview": {
+    "path": "music/jay-pilot/?v=0.3.74#voice-compare",
+    "anchor": "voice-compare",
+    "title": "新声线实验 · 20秒",
+    "disclosure": "实验版AI仿唱，非周杰伦本人演唱，音色仍在调整。",
+    "sourceExcerptStartSeconds": 38,
+    "sourceExcerptEndSeconds": 58,
+    "experimental": true,
+    "sameInstrumental": true,
+    "vocalLevelMatched": true,
+    "candidate": {
+      "sha256": "6e3adf83c7c2042bce504a48d076192517b5678ed521c48ee063abe7d6d04878",
+      "bytes": 481622,
+      "seconds": 20.0,
+      "sampleRate": 44100,
+      "channels": 2,
+      "file": "music/jay-pilot/audio/voice-adapt100-6e3adf83c7c2.mp3"
+    },
+    "control": {
+      "sha256": "e76efdb46fca05df35cbd5f104c168a42127bd5aa8ddf173288e4cce93c6752f",
+      "bytes": 481625,
+      "seconds": 20.0,
+      "sampleRate": 44100,
+      "channels": 2,
+      "file": "music/jay-pilot/audio/voice-control-e76efdb46fca.mp3"
+    },
+    "status": "Optional native-player A/B audition only; full original song, historical MP3 URLs and game BGM retained."
+  }
+}

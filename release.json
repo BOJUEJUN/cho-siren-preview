@@ -1,16 +1,16 @@
 {
-  "version": "0.3.74",
-  "releaseId": "PSD-20261016-VOICE-AB-R66C",
-  "name": "Experimental 20-second voice comparison with the full original song retained",
-  "notice": "新增《回声太近》同段20秒新声线实验与上次方法对照。AI仿唱，非周杰伦本人演唱，音色仍在调整；完整原曲与历史试听保留。",
+  "version": "0.3.75",
+  "releaseId": "PSD-20261016-LOWER-REGISTER-R66D",
+  "name": "Experimental lower-register voice audition with the full original song retained",
+  "notice": "新增《回声太近》低音区声线20秒：人声改为低八度演唱、原伴奏保留。AI仿唱，非周杰伦本人演唱；音色待确认，完整原曲不替换，可展开上一版同段对照。",
   "date": "2026-10-16",
-  "backupBranch": "backup/v0.3.74",
+  "backupBranch": "backup/v0.3.75",
   "unityBuild": "Unity 6000.6.0f1 R66: restore only the LiveOnStage ink quad 1.3x outward extent from R64; retain R65 album-green tint and the three restrained left cards.",
   "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R65 + CTA-only R66 integration; see Docs/CTA-INK-RESTORE-2026-10-15.md.",
-  "previousReleaseId": "PSD-20261016-FULL-SONG-R66B",
-  "previousWebCommit": "20ed9349bf5017b470d2fd02aab0d0e0f0087f58",
-  "previousReleaseRecord": "releases/R66B.json",
-  "previousBackupBranch": "backup/v0.3.73",
+  "previousReleaseId": "PSD-20261016-VOICE-AB-R66C",
+  "previousWebCommit": "3a3c43d1a0549369c38951d912246efc6c89ca5f",
+  "previousReleaseRecord": "releases/R66C.json",
+  "previousBackupBranch": "backup/v0.3.74",
   "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
   "validation": {
     "webRegressionTestsPassed": 106,
@@ -18,7 +18,7 @@
     "mobilePreviewBrowserVerified": true,
     "localWebGLRuntimeVerified": false,
     "inheritedR66ValidationRecord": "releases/R66.json",
-    "inheritedR66BValidationRecord": "releases/R66B.json",
+    "inheritedR66CValidationRecord": "releases/R66C.json",
     "physicalMobileDeviceTested": false,
     "browserQA": {
       "verified": true,
@@ -30,18 +30,19 @@
       ],
       "documentScrollWidth": 390,
       "candidateDurationSeconds": 20.0,
-      "candidatePlaybackAdvancedToSeconds": 4.192,
+      "candidatePlaybackCompleted": true,
+      "candidatePlaybackAdvancedToSeconds": 20.0,
       "controlDurationSeconds": 20.0,
-      "controlPlaybackAdvancedToSeconds": 5.732,
-      "controlPlayPausedCandidate": true,
-      "closingControlDetailsPausedControl": true,
+      "playbackMutualExclusionVerified": true,
+      "detailsClosePauseVerified": true,
       "allFiveAudioReadyState": 4,
       "audioError": null,
       "fullSongDurationSeconds": 188.5735,
       "physicalMobileDeviceTested": false
-    }
+    },
+    "lowerRegisterQualityReviewed": true
   },
-  "publicAcceptance": "Pre-release desktop mobile-viewport playback and pause behavior verified; public browser playback and exact deployed bytes are recorded separately after deployment.",
+  "publicAcceptance": "Pre-release desktop mobile-viewport playback, pause behavior and expected lower-register quality reviewed; exact deployed bytes and final public browser verification are recorded separately. No singer likeness acceptance or full-song replacement claimed.",
   "characterArt": {
     "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
     "sourceCanvas": [
@@ -65,10 +66,11 @@
   },
   "audioStatus": "Home: approved full Japanese jazz/rap vocal song at gain 0.18. Battle: dedicated instrumental at 0.055. Other menus/story: silent. CG embedded audio has priority. Music and SFX preferences remain independent; per-context bookmarks resume. Web downloads only the current needed MP3 without blocking startup.",
   "knownLimits": [
-    "New and control clips are only 20-second AI voice experiments; no claim of singer likeness or completed full-song conversion.",
+    "The 20-second experiment intentionally lowers the vocal melody by one octave (-12 semitones) while retaining the original accompaniment.",
+    "Voice timbre remains unconfirmed; no claim of singer likeness or completed full-song conversion.",
     "The complete song remains the existing original AI-generated synthetic-vocal version; not replaced by the experiment.",
-    "Physical-mobile playback and packaged iOS app not tested in R66C.",
-    "Game engine, audio/team/loading behavior and R66 validation are inherited; no Unity rebuild in R66C."
+    "Physical-mobile playback and packaged iOS app not tested in R66D.",
+    "Game engine, audio/team/loading behavior and R66 validation are inherited; no Unity rebuild in R66D."
   ],
   "musicPreview": {
     "path": "music/",
@@ -140,16 +142,24 @@
     "status": "Existing full original synthetic-vocal song; tone optimization continues separately; not game BGM."
   },
   "voiceComparisonPreview": {
-    "path": "music/jay-pilot/?v=0.3.74#voice-compare",
+    "path": "music/jay-pilot/?v=0.3.75#voice-compare",
     "anchor": "voice-compare",
-    "title": "新声线实验 · 20秒",
-    "disclosure": "实验版AI仿唱，非周杰伦本人演唱，音色仍在调整。",
+    "title": "低音区声线 · 20秒",
+    "disclosure": "实验版AI仿唱，非周杰伦本人演唱。人声改为低八度演唱、原伴奏保留；音色待确认，不替换完整歌曲。",
     "sourceExcerptStartSeconds": 38,
     "sourceExcerptEndSeconds": 58,
     "experimental": true,
     "sameInstrumental": true,
     "vocalLevelMatched": true,
     "candidate": {
+      "sha256": "e231f4dc01db51d257cb062f4445ac944a6b05f74373614df8ee5f367b76aa2e",
+      "bytes": 481628,
+      "seconds": 20.0,
+      "sampleRate": 44100,
+      "channels": 2,
+      "file": "music/jay-pilot/audio/voice-lower-octave-e231f4dc01db.mp3"
+    },
+    "control": {
       "sha256": "6e3adf83c7c2042bce504a48d076192517b5678ed521c48ee063abe7d6d04878",
       "bytes": 481622,
       "seconds": 20.0,
@@ -157,14 +167,16 @@
       "channels": 2,
       "file": "music/jay-pilot/audio/voice-adapt100-6e3adf83c7c2.mp3"
     },
-    "control": {
+    "status": "Optional lower-register native-player audition only; current full original song, all historical MP3 URLs and game BGM retained.",
+    "vocalSemitoneShift": -12,
+    "originalAccompanimentRetained": true,
+    "historicalMethodControl": {
       "sha256": "e76efdb46fca05df35cbd5f104c168a42127bd5aa8ddf173288e4cce93c6752f",
       "bytes": 481625,
       "seconds": 20.0,
       "sampleRate": 44100,
       "channels": 2,
       "file": "music/jay-pilot/audio/voice-control-e76efdb46fca.mp3"
-    },
-    "status": "Optional native-player A/B audition only; full original song, historical MP3 URLs and game BGM retained."
+    }
   }
 }
