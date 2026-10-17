@@ -1,29 +1,26 @@
 {
-  "version": "0.3.77",
-  "releaseId": "PSD-20261016-COMPACT-BATTLE-R68",
-  "name": "Compact battle vitals, calmer feedback and one loading control column",
-  "notice": "启动页四个入口统一右侧竖排；血量、攻击与蓝条集中缩小，收紧战斗HUD，去掉弱骰型全屏横幅与重复浮字。显示编队与关卡推荐等级，保留原伤害规则和培养进度。",
+  "version": "0.3.78",
+  "releaseId": "PSD-20261016-TWO-SELECTED-SONGS-R69",
+  "name": "Keep only the two selected Home songs",
+  "notice": "移除Neon Moonwalk，大厅仅保留爵士说唱-1/光的规则和Chase-the-Glow-A，两首顺序循环并支持手动切歌。原录音、音效、CG优先、静音与续播保持。",
   "date": "2026-10-16",
-  "backupBranch": "backup/v0.3.77",
-  "unityBuild": "Unity 6000.6.0f1 R68: compact battle vital strips and calmer visual feedback; R67 character crops, authored dice, Home playlist and existing numeric combat rules retained.",
-  "sourceCommit": "cb776570778ee24e21b50ed55bee03d3c0bd1686 + preserved local work + scoped R68; see Docs/BATTLE-CLEANUP-2026-10-16.md.",
-  "previousReleaseId": "PSD-20261016-BATTLE-UX-DICE-R67",
-  "previousWebCommit": "11b85072fa56ec4197193a4f5144f67b47655abc",
-  "previousReleaseRecord": "releases/R67.json",
-  "previousBackupBranch": "backup/v0.3.76",
+  "backupBranch": "backup/v0.3.78",
+  "unityBuild": "Unity 6000.6.0f1 R69: two selected Home songs only; native soundtrack index remapped to original jazz; unchanged R68 UI, saves and audio routing.",
+  "sourceCommit": "Preserved dirty Unity source + scoped R69 playlist update; see Docs/TWO-SELECTED-SONGS-2026-10-16.md.",
+  "previousReleaseId": "PSD-20261016-COMPACT-BATTLE-R68",
+  "previousWebCommit": "303927d70df1bf809185b23c5f8f74b8f4dfebb6",
+  "previousReleaseRecord": "releases/R68.json",
+  "previousBackupBranch": "backup/v0.3.77",
   "savePolicy": "Existing stable member IDs, ownership, progression, equipment, combat rules and independent music/SFX preferences retained. Original two homepage characters retained. Swapping uses existing roster validation and persists without granting locked members.",
   "validation": {
-    "paceAuditTestsPassed": 1,
-    "deterministicBattleSimulations": 36,
+    "focusedMusicPlayModeTestsPassed": 18,
+    "webRegressionTestsPassed": 106,
     "localWebGLRuntimeVerified": true,
     "physicalMobileDeviceTested": false,
-    "webRegressionTestsPassed": 106,
-    "focusedPlayModeCasesPassed": 58,
-    "resultMethod": "Latest per-case actual result across full packet and isolated energy rerun",
-    "focusedResultMethod": "Latest actual result per case across 57/58 full packet, subsequent 10/10 energy packet and latest 19/19 feedback packet; corrected legacy hidden-label test, no unresolved failures.",
-    "latestFeedbackPlayModePacketPassed": 19
+    "twoSongPlaybackAndBookmarksVerified": true,
+    "removedTrackNotRequestedInLocalQa": true
   },
-  "publicAcceptance": "Exact commit, byte hashes, focused tests and live browser acceptance recorded in source Docs/BATTLE-CLEANUP-2026-10-16.md after deployment.",
+  "publicAcceptance": "Exact commit, CI, full resource SHA and browser two-song loop verified after deployment; see Docs/TWO-SELECTED-SONGS-2026-10-16.md.",
   "characterArt": {
     "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
     "sourceCanvas": [
@@ -45,14 +42,10 @@
     "homepageReplaced": false,
     "method": "Member pages only: authored PSD layers, sRGB, original alpha. Original PSD/raw layers preserved; crop/resizing recorded in character-manifest.json."
   },
-  "audioStatus": "Home: Neon Moonwalk, approved Jazz-Rap-1/光的规则, Chase-the-Glow-A play in sequence and wrap; explicit next-song control. Battle instrumental remains 0.055, other pages/story silent. CG own audio wins; mute/SFX and per-song bookmarks remain independent; one current MP3 downloads without blocking startup.",
+  "audioStatus": "Home: only approved Jazz-Rap-1/光的规则 and Chase-the-Glow-A, sequential repeat and explicit next-song control. Neon Moonwalk removed from selectable playback. Battle 0.055; other pages/story silent; CG own audio wins; independent mute/SFX and per-song bookmarks retained.",
   "knownLimits": [
-    "The 20-second experiment intentionally lowers the vocal melody by one octave (-12 semitones) while retaining the original accompaniment.",
-    "Voice timbre remains unconfirmed; no claim of singer likeness or completed full-song conversion.",
-    "The complete song remains the existing original AI-generated synthetic-vocal version; not replaced by the experiment.",
-    "Original PSD and editable layers remain local; shared flattened rim requires an exported silhouette mask.",
-    "Physical mobile hardware and packaged iOS not tested for R68.",
-    "Combat audit measures unchanged rules; it is not approval of full-campaign difficulty. Screenshot equipment defense is a documented fixture assumption."
+    "Physical mobile hardware and packaged iOS not tested for R69.",
+    "Previous approved audio URLs may remain for release compatibility; Neon is absent from current playback selection."
   ],
   "musicPreview": {
     "path": "music/",
@@ -78,17 +71,14 @@
     "home": {
       "playlist": {
         "order": [
-          "neon-moonwalk",
           "my-light-my-rules",
           "chase-the-glow-a"
         ],
         "files": [
-          "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
           "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
           "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3"
         ],
         "seconds": [
-          127.9980416667,
           172.3335147392,
           158.7335
         ],
@@ -183,17 +173,14 @@
   },
   "homePlaylist": {
     "order": [
-      "neon-moonwalk",
       "my-light-my-rules",
       "chase-the-glow-a"
     ],
     "files": [
-      "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
       "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
       "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3"
     ],
     "seconds": [
-      127.9980416667,
       172.3335147392,
       158.7335
     ],
@@ -299,6 +286,9 @@
     "newFourAuditionCandidatesIntegrated": false,
     "newFourAuditionPageExcludedFromRelease": true,
     "newVocalCandidateLanguage": "Japanese",
-    "retainedTracksOriginalAudioUnchanged": true
-  }
+    "retainedTracksOriginalAudioUnchanged": true,
+    "activeUserSelectedSongsOnly": true,
+    "removedHomeTrack": "neon-moonwalk"
+  },
+  "removedHomeTrack": "neon-moonwalk"
 }
