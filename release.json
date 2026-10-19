@@ -1,22 +1,28 @@
 {
-  "version": "0.3.80",
-  "releaseId": "PSD-20261019-BATTLE-VIDEO-CUT-R71",
-  "name": "战斗页按新PSD复刻 + 视频转场 + 打击感/音效",
-  "notice": "战斗页面按最新设计重排：敌人名牌在上角、左边重投、右边应急守护、技能图标分三排（大招/小招/被动）、大招就绪光柱、队长牌。开始演出和开始挑战换成新的视频转场。战斗节奏放慢，被打会闪白抖动、暴击震屏，加入战斗音效。首页唱片会转、歌名滚动、可切上/下一首。",
+  "version": "0.3.81",
+  "releaseId": "PSD-20261019-BATTLE-POLISH-R72",
+  "name": "战斗演出与操作反馈优化",
+  "notice": "首页底部采用素黑细纹圆盘，切换菜单时短转。战斗按最新PSD校准技能列、原角色特写及恢复和中毒提示，补齐普攻、换波与结算演出。手动大招Good/Perfect仅提升本次伤害、治疗或护盾。大厅仍为已选两首；战斗暂用已批准的原Mureka配乐。",
   "date": "2026-10-19",
-  "backupBranch": "backup/v0.3.80",
-  "unityBuild": "Unity 6000.6.0f1 R71: battle layout from 未标题3453634576568-2.psd (28 new BattlePsd928 entries: reroll bar/smoke/arrows/die, guard badge, ult pillar, captain plate, enemy name tags, white+energy bars, dice bar, 16 skill icons); member cards at PSD bounds (top 3670); ChallengeVideoTransition (StreamingAssets/Transitions/challenge-cut.mp4, reference clip 0.92-2.3s) for 开始挑战 and 开始演出; BattlePresentationOptions.Pace .7; UIFlash shader hit flash + attacker red + crit stage shake + damage pop big->small; synthesized SFX in Resources/Audio/Sfx via GameAudio.PlaySfx; home disc spin/notes, slanted marquee title, prev/next buttons; simplified stage drop panel; cursor trail F (neon shards).",
-  "previousReleaseId": "PSD-20261019-HOME-TRANSITION-R70",
-  "previousWebCommit": "95d144090d552c9f55c13b83592f1dc8b4346749",
-  "previousReleaseRecord": "releases/R70.json",
-  "previousBackupBranch": "backup/v0.3.79",
+  "backupBranch": "backup/v0.3.81",
+  "unityBuild": "Unity 6000.6.0f1 WebGL v0.3.81 / R72; final 81-entry BattlePsd928 native RGBA export (source SHA 90a0ff8d3ba75dfc140ba79e36ca81f6d1e7b21a41e694230855be281a1c2029), original authored member cut-ins, real heal/poison glyphs, native skill grouping, one-cast manual ultimate QTE and quiet circular home navigation. Battle audio: original approved 137.09-second Mureka track b0859b88305ca4f4, temporary selection; variant 03 and Suno A/B remain audition-only.",
+  "previousReleaseId": "PSD-20261019-BATTLE-VIDEO-CUT-R71",
+  "previousWebCommit": "9ceaa5bd01fa2c0a70c75fa1fead039390858178",
+  "previousReleaseRecord": "releases/R71.json",
+  "previousBackupBranch": "backup/v0.3.80",
   "validation": {
-    "unityEditMode": "502/503 (pre-existing StarterMemberAvatarTests)",
-    "iosSimulator": "battle layout, video transitions, hit flash verified on iPhone 18 Pro sim"
+    "webChecks": "npm run check: 110/110 pass; all final/current + public historical Build hashes, 81 PSD RGBA layers, required keys and pinned music SHA-256 verified.",
+    "localChrome": "Root verified the local v0.3.81 candidate through real UI buttons: title to lobby to first stage, pause/resume, two manual QTEs, 3-wave victory at 80.2 game seconds, result to map, lobby/member navigation; browser error logs []. This is local browser evidence, not public deployment.",
+    "iosSimulator": "Final v0.3.81 Xcode BUILD SUCCEEDED; iPhone18 Pro/iOS27 native title, lobby and battle rendered at 1206x2622 with fresh complete PNG pairs and successful structure reports. Existing Unity button callbacks were invoked by explicit QA arguments; no physical-touch claim. Original simulator preferences/save restored byte-for-byte.",
+    "deployment": "Prepared for the authorized GitHub Pages main-branch release; live deployment evidence is recorded after Pages serves this package.",
+    "unityEditMode": "556/556 pass (root-confirmed existing final EditMode run remains valid).",
+    "unityPlayMode": "70/70 pass in final PlayMode run, no C# compile errors (root-confirmed).",
+    "webglBuild": "CHO_SIREN_BUILD_OK target=WebGL; final 81-layer build, loader 6ef1a2c701e9b23c2fbe1caec191283c. Later screenshot-path correction is compiled only for iOS; Web preprocessed body is unchanged."
   },
   "knownLimits": [
-    "战斗音效为程序合成的临时版本，待替换为录制音效",
-    "转场视频里的角色名固定为 KUMI",
-    "会议待办（普攻两种表现、技能特写、大招放大QTE、结算界面等）尚未实现"
+    "战斗暂用已批准的原Mureka 137.09秒版；用户更偏好的03暗色版及Suno A/B仍仅试听，未替换正式音乐。",
+    "大厅原两首保持；四位角色终结技视频尚未提供，保持原角色立绘回退。",
+    "转场参考视频中的角色名仍为KUMI。",
+    "未完成实体手机触控验收；原生模拟器截图不代表实体触控。"
   ]
 }

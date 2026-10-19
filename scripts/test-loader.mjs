@@ -150,7 +150,8 @@ test('retry drops only this game\'s worker, not other same-origin projects', asy
 
 test('the worker is told to keep the current and previous builds only', async () => {
   const previous = suffixes.map((suffix, index) => String(index + 5).repeat(32) + suffix);
-  const run = await boot({ metadata: { schemaVersion: 1, current: newer, previous: [...previous, '../../secret'] } });
+  const retained = [{ version: '0.3.79', releaseId: 'R70', files: embedded }];
+  const run = await boot({ metadata: { schemaVersion: 1, current: newer, previous: [...previous, '../../secret'], retained } });
   assert.deepEqual(run.messages, [{ type: 'keep-builds', files: [...newer, ...previous] }]);
 });
 

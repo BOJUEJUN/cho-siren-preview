@@ -1,3 +1,4 @@
+import { retainedBuildFiles } from "./build-retention.mjs";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -73,7 +74,7 @@ const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
 for (const [file, sha] of [
   ['home-1c7f72fed9af8b53.mp3', '1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267'],
   ['home-chase-5d360e8e7acbc7c6.mp3', '5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff'],
-  ['battle-11700e9a4a918ffe.mp3', '11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c']
+  ['battle-b0859b88305ca4f4.mp3', 'b0859b88305ca4f40dda33876e0e92a88ce03217d20521c112a34cf872b70bd1']
 ]) {
   const path = join(root, 'StreamingAssets', 'Music', file);
   requireFile(path);
@@ -95,8 +96,8 @@ for (const sheet of ink.sheets) {
 const battleRoot = join(root, 'StreamingAssets', 'BattlePsd928');
 const battleManifest = JSON.parse(readFileSync(join(battleRoot, 'manifest.json'), 'utf8'));
 if (battleManifest.width !== 2946 || battleManifest.height !== 6144 ||
-    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 72 ||
-    battleManifest.sourceSha256 !== 'c2a83aa1960de149268364118eb6f86a9d5af7b83b8119a5c70a3748ed4864f1') {
+    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 81 ||
+    battleManifest.sourceSha256 !== '90a0ff8d3ba75dfc140ba79e36ca81f6d1e7b21a41e694230855be281a1c2029') {
   throw new Error('战斗资源不是最新六骰 PSD');
 }
 const battleKeys = new Set();
@@ -110,8 +111,11 @@ for (const entry of battleManifest.entries) {
       entry.width <= 0 || entry.height <= 0) throw new Error('战斗分层图哈希或 RGBA 无效：' + entry.file);
 }
 for (let i = 1; i <= 6; i++) if (!battleKeys.has('die-' + i)) throw new Error('缺少第 ' + i + ' 颗骰子');
-// 2026-10-19 battle PSD (未标题3453634576568-2): 28 extra layers on top of the six-dice set.
-for (const key of ['reroll-bar', 'guard-badge', 'ult-pillar', 'captain-plate', 'enemy-tag-l', 'enemy-tag-r', 'dice-bar'])
+// 2026-10-19 latest PSD: native battle layers plus the three grouped ultimate/passive symbols.
+for (const key of ['reroll-bar', 'guard-badge', 'ult-pillar', 'captain-plate', 'enemy-tag-l', 'enemy-tag-r', 'dice-bar',
+  'symbol-charm-passive', 'symbol-elf-ultimate', 'symbol-elf-passive',
+  'cutin-demon', 'cutin-charm', 'cutin-mermaid', 'cutin-bloodelf',
+  'effect-heal-plus', 'effect-poison-drop'])
   if (!battleKeys.has(key)) throw new Error('缺少战斗 PSD 图层：' + key);
 requireFile(join(root, 'StreamingAssets', 'Transitions', 'challenge-cut.mp4'));
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
@@ -171,6 +175,7 @@ if (versions.schemaVersion !== 1 || !Array.isArray(versions.current) ||
     [...versions.current].sort().join() !== [...references].sort().join()) {
   throw new Error("版本清单与当前 HTML 的四个资源不一致");
 }
+const retained = retainedBuildFiles(versions);
 const previous = versions.previous;
 if (!Array.isArray(previous) || (previous.length !== 0 && previous.length !== 4) ||
     new Set(previous).size !== previous.length) {
@@ -193,7 +198,7 @@ for (const suffix of expectedSuffixes) {
 
 const githubFileLimit = 100 * 1024 * 1024;
 const buildDirectory = join(root, "Build");
-const keptFiles = [...new Set([...references, ...previous])];
+const keptFiles = [...new Set([...references, ...previous, ...retained])];
 const assets = keptFiles.map(file => {
   if (!unityAssetPattern.test(file)) {
     throw new Error(`WebGL 文件未使用内容哈希命名：${file}`);
@@ -216,10 +221,10 @@ const unexpectedBuildEntries = buildEntries.filter(entry =>
   !entry.isFile() || !keptFiles.includes(entry.name)
 );
 if (unexpectedBuildEntries.length > 0) {
-  throw new Error(`Build 目录包含 index.html 未引用的内容：${unexpectedBuildEntries.map(entry => entry.name).join(", ")}`);
+  throw new Error(`Build 目录包含版本清单未记录的内容：${unexpectedBuildEntries.map(entry => entry.name).join(", ")}`);
 }
 if (buildEntries.length !== keptFiles.length) {
-  throw new Error(`Build 目录应仅包含本版及上一版资源，实际为 ${buildEntries.length} 个`);
+  throw new Error(`Build 目录应仅包含当前、上一版及显式留存资源，实际为 ${buildEntries.length} 个`);
 }
 
 const lobbyVideoPath = join(root, "StreamingAssets", "Lobby", "lobby-loop.mp4");
@@ -234,4 +239,4 @@ const lobbyVideo = {
 };
 
 console.log(JSON.stringify({ success: true, canvas: "720x1536", githubFileLimit, lobbyVideo,
-  current: references, previous, assets }, null, 2));
+  current: references, previous, retained, assets }, null, 2));

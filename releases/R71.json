@@ -1,0 +1,22 @@
+{
+  "version": "0.3.80",
+  "releaseId": "PSD-20261019-BATTLE-VIDEO-CUT-R71",
+  "name": "战斗页按新PSD复刻 + 视频转场 + 打击感/音效",
+  "notice": "战斗页面按最新设计重排：敌人名牌在上角、左边重投、右边应急守护、技能图标分三排（大招/小招/被动）、大招就绪光柱、队长牌。开始演出和开始挑战换成新的视频转场。战斗节奏放慢，被打会闪白抖动、暴击震屏，加入战斗音效。首页唱片会转、歌名滚动、可切上/下一首。",
+  "date": "2026-10-19",
+  "backupBranch": "backup/v0.3.80",
+  "unityBuild": "Unity 6000.6.0f1 R71: battle layout from 未标题3453634576568-2.psd (28 new BattlePsd928 entries: reroll bar/smoke/arrows/die, guard badge, ult pillar, captain plate, enemy name tags, white+energy bars, dice bar, 16 skill icons); member cards at PSD bounds (top 3670); ChallengeVideoTransition (StreamingAssets/Transitions/challenge-cut.mp4, reference clip 0.92-2.3s) for 开始挑战 and 开始演出; BattlePresentationOptions.Pace .7; UIFlash shader hit flash + attacker red + crit stage shake + damage pop big->small; synthesized SFX in Resources/Audio/Sfx via GameAudio.PlaySfx; home disc spin/notes, slanted marquee title, prev/next buttons; simplified stage drop panel; cursor trail F (neon shards).",
+  "previousReleaseId": "PSD-20261019-HOME-TRANSITION-R70",
+  "previousWebCommit": "95d144090d552c9f55c13b83592f1dc8b4346749",
+  "previousReleaseRecord": "releases/R70.json",
+  "previousBackupBranch": "backup/v0.3.79",
+  "validation": {
+    "unityEditMode": "502/503 (pre-existing StarterMemberAvatarTests)",
+    "iosSimulator": "battle layout, video transitions, hit flash verified on iPhone 18 Pro sim"
+  },
+  "knownLimits": [
+    "战斗音效为程序合成的临时版本，待替换为录制音效",
+    "转场视频里的角色名固定为 KUMI",
+    "会议待办（普攻两种表现、技能特写、大招放大QTE、结算界面等）尚未实现"
+  ]
+}

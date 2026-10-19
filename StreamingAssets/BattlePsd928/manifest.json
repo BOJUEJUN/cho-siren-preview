@@ -1,6 +1,6 @@
 {
-  "version": "battle-20260929-R16",
-  "sourceSha256": "c2a83aa1960de149268364118eb6f86a9d5af7b83b8119a5c70a3748ed4864f1",
+  "version": "battle-20261019-native",
+  "sourceSha256": "90a0ff8d3ba75dfc140ba79e36ca81f6d1e7b21a41e694230855be281a1c2029",
   "width": 2946,
   "height": 6144,
   "targetWidth": 720,
@@ -126,30 +126,30 @@
     },
     {
       "key": "battle-48",
-      "file": "026ecd9553a4ed48-battle-48.png",
-      "x": 871,
-      "y": -92,
-      "width": 1550,
-      "height": 663,
-      "note": "native PSD RGBA"
+      "file": "f8f1bd1a9b956f98-battle-48.png",
+      "x": 872,
+      "y": -102,
+      "width": 1500,
+      "height": 583,
+      "note": "latest 2026-10-19 PSD native RGBA"
     },
     {
       "key": "battle-52",
-      "file": "3f8f98623e19eb5f-battle-52.png",
-      "x": 163,
-      "y": 591,
-      "width": 2674,
-      "height": 204,
-      "note": "native PSD RGBA"
+      "file": "5c2d1bfe5d614c5d-battle-52.png",
+      "x": 187,
+      "y": 499,
+      "width": 2588,
+      "height": 179,
+      "note": "latest 2026-10-19 PSD native RGBA"
     },
     {
       "key": "battle-53",
-      "file": "c23857073feb84b2-battle-53.png",
-      "x": 2364,
-      "y": 472,
-      "width": 516,
-      "height": 198,
-      "note": "native PSD RGBA"
+      "file": "2b36245cf5719662-battle-53.png",
+      "x": 2317,
+      "y": 394,
+      "width": 499,
+      "height": 174,
+      "note": "latest 2026-10-19 PSD native RGBA"
     },
     {
       "key": "battle-55",
@@ -190,8 +190,8 @@
     {
       "key": "battle-62",
       "file": "c55783edffad3099-battle-62.png",
-      "x": 2666,
-      "y": 165,
+      "x": 2608,
+      "y": 101,
       "width": 125,
       "height": 162,
       "note": "native PSD RGBA"
@@ -226,8 +226,8 @@
     {
       "key": "pause-glyph",
       "file": "c55783edffad3099-pause-glyph.png",
-      "x": 2666,
-      "y": 165,
+      "x": 2608,
+      "y": 101,
       "width": 125,
       "height": 162,
       "note": "native PSD RGBA"
@@ -261,12 +261,12 @@
     },
     {
       "key": "battle-51",
-      "file": "6e42f272168588e3-battle-51.png",
-      "x": -19,
-      "y": -64,
-      "width": 2965,
-      "height": 988,
-      "note": "native header with independent control silhouettes"
+      "file": "9619a221a8440baf-battle-51.png",
+      "x": 11,
+      "y": -77,
+      "width": 2869,
+      "height": 868,
+      "note": "latest 2026-10-19 PSD native RGBA, full uncensored layer; control outlines retained for review"
     },
     {
       "key": "enemy-0",
@@ -654,6 +654,87 @@
       "width": 181,
       "height": 241,
       "note": "battle skill icon"
+    },
+    {
+      "key": "symbol-charm-passive",
+      "file": "45b6e5ba40c25116-symbol-charm-passive.png",
+      "x": 651,
+      "y": 3716,
+      "width": 216,
+      "height": 238,
+      "note": "native PSD overlapping layers grouped without rearranging; original relative positions preserved"
+    },
+    {
+      "key": "symbol-elf-ultimate",
+      "file": "fe648ed986d1291e-symbol-elf-ultimate.png",
+      "x": 1351,
+      "y": 3313,
+      "width": 184,
+      "height": 195,
+      "note": "native PSD overlapping layers grouped without rearranging; original relative positions preserved"
+    },
+    {
+      "key": "symbol-elf-passive",
+      "file": "e0d6e50bf812a97d-symbol-elf-passive.png",
+      "x": 1249,
+      "y": 3734,
+      "width": 416,
+      "height": 218,
+      "note": "native PSD overlapping layers grouped without rearranging; original relative positions preserved"
+    },
+    {
+      "key": "cutin-demon",
+      "file": "0f606c2a929dcac6-cutin-demon.png",
+      "x": 755,
+      "y": 130,
+      "width": 2911,
+      "height": 2459,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "cutin-charm",
+      "file": "364ef88a655da02e-cutin-charm.png",
+      "x": -34,
+      "y": 499,
+      "width": 2312,
+      "height": 2003,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "cutin-mermaid",
+      "file": "9c839082afbe28ce-cutin-mermaid.png",
+      "x": -41,
+      "y": 2292,
+      "width": 1802,
+      "height": 1517,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "cutin-bloodelf",
+      "file": "69259647bdeafc7b-cutin-bloodelf.png",
+      "x": 1095,
+      "y": 2386,
+      "width": 1845,
+      "height": 1822,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "effect-heal-plus",
+      "file": "66c806d76118635a-effect-heal-plus.png",
+      "x": 2466,
+      "y": 4284,
+      "width": 68,
+      "height": 67,
+      "note": "L079 native RGBA rectangular crop of clean plus; excludes baked recovery caption and demo digits; transient actual Heal popup only"
+    },
+    {
+      "key": "effect-poison-drop",
+      "file": "9830efad45612de3-effect-poison-drop.png",
+      "x": 2054,
+      "y": 1253,
+      "width": 156,
+      "height": 271,
+      "note": "L081 native RGBA poison droplet; only affected actor real PoisonStacks state, live count separate"
     }
   ]
 }

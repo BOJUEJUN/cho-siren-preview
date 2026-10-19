@@ -1,15 +1,27 @@
 {
   "schemaVersion": 1,
   "current": [
+    "2e5a68caa00277adc6f5e4d546541c26.data.unityweb",
+    "b1f2db1de307a9205b7b21d4980cc33e.framework.js.unityweb",
+    "47a428035904df7a3ef45ab06a48b2f8.wasm.unityweb",
+    "6ef1a2c701e9b23c2fbe1caec191283c.loader.js"
+  ],
+  "previous": [
     "cd868250b87591fa9a771da9385a9375.data.unityweb",
     "58c8249775c55b83f7d7a0e7fa26f654.framework.js.unityweb",
     "beb9c3802158a3870ac597cf3326269a.wasm.unityweb",
     "15d1081dc4ade0c20be2894a5bf2721a.loader.js"
   ],
-  "previous": [
-    "41820da1d6137e324f3e80d8255466bd.data.unityweb",
-    "827de63f068226da4793a345011f9ee6.framework.js.unityweb",
-    "9dcbab9989152868d635cd838e1c68ad.wasm.unityweb",
-    "ee1c94cad19852bf4f113834232d8bc6.loader.js"
+  "retained": [
+    {
+      "version": "0.3.79",
+      "releaseId": "PSD-20261019-HOME-TRANSITION-R70",
+      "files": [
+        "41820da1d6137e324f3e80d8255466bd.data.unityweb",
+        "827de63f068226da4793a345011f9ee6.framework.js.unityweb",
+        "9dcbab9989152868d635cd838e1c68ad.wasm.unityweb",
+        "ee1c94cad19852bf4f113834232d8bc6.loader.js"
+      ]
+    }
   ]
 }
