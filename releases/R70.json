@@ -1,0 +1,22 @@
+{
+  "version": "0.3.79",
+  "releaseId": "PSD-20261019-HOME-TRANSITION-R70",
+  "name": "首页按最新PSD更新 + 唱片转场 + 关卡掉落可读性",
+  "notice": "首页换成最新设计：左上唱片播放器（点它切歌）、右侧设置/邮件/眼睛（点眼睛隐藏界面）；开始演出和返回大厅加入唱片转场；关卡掉落名称、稀有度和掉率更清楚。",
+  "date": "2026-10-19",
+  "backupBranch": "backup/v0.3.79",
+  "unityBuild": "Unity 6000.6.0f1 R70: home layout from CHO-SIREN-Home-Layered-v3 (2026-10-19): character moved to the PSD position, entry cards back to authored size, record player widget (spinning disc with screen-blended cover, live song title, tap = next song), eye button toggles lobby UI; idle/sign-in/guide cards removed from the lobby (still reachable via daily tasks). New VinylStageTransition (black streak → spinning vinyl → diagonal reveal of the idol close-up with CHO-SIREN / NAME / CLAN banner) for lobby → map and map → lobby. Stage drop panel: larger outlined text, rarity-coloured names with tier rim, per-item drop-rate chips.",
+  "previousReleaseId": "PSD-20261016-TWO-SELECTED-SONGS-R69",
+  "previousWebCommit": "10372efb1e97db15714d81c616301e9352b5b4bb",
+  "previousReleaseRecord": "releases/R69.json",
+  "previousBackupBranch": "backup/v0.3.78",
+  "validation": {
+    "editModeTests": "502/503 (1 pre-existing failure: StarterMemberAvatarTests expects old 星璃 art size)",
+    "iosSimulatorVerified": true,
+    "webRegressionTests": "npm run check"
+  },
+  "knownLimits": [
+    "Physical phone not tested.",
+    "StarterMemberAvatarTests still expects the pre-R67 xingli art size."
+  ]
+}

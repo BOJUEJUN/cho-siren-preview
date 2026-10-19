@@ -1,22 +1,22 @@
 {
-  "version": "0.3.79",
-  "releaseId": "PSD-20261019-HOME-TRANSITION-R70",
-  "name": "首页按最新PSD更新 + 唱片转场 + 关卡掉落可读性",
-  "notice": "首页换成最新设计：左上唱片播放器（点它切歌）、右侧设置/邮件/眼睛（点眼睛隐藏界面）；开始演出和返回大厅加入唱片转场；关卡掉落名称、稀有度和掉率更清楚。",
+  "version": "0.3.80",
+  "releaseId": "PSD-20261019-BATTLE-VIDEO-CUT-R71",
+  "name": "战斗页按新PSD复刻 + 视频转场 + 打击感/音效",
+  "notice": "战斗页面按最新设计重排：敌人名牌在上角、左边重投、右边应急守护、技能图标分三排（大招/小招/被动）、大招就绪光柱、队长牌。开始演出和开始挑战换成新的视频转场。战斗节奏放慢，被打会闪白抖动、暴击震屏，加入战斗音效。首页唱片会转、歌名滚动、可切上/下一首。",
   "date": "2026-10-19",
-  "backupBranch": "backup/v0.3.79",
-  "unityBuild": "Unity 6000.6.0f1 R70: home layout from CHO-SIREN-Home-Layered-v3 (2026-10-19): character moved to the PSD position, entry cards back to authored size, record player widget (spinning disc with screen-blended cover, live song title, tap = next song), eye button toggles lobby UI; idle/sign-in/guide cards removed from the lobby (still reachable via daily tasks). New VinylStageTransition (black streak → spinning vinyl → diagonal reveal of the idol close-up with CHO-SIREN / NAME / CLAN banner) for lobby → map and map → lobby. Stage drop panel: larger outlined text, rarity-coloured names with tier rim, per-item drop-rate chips.",
-  "previousReleaseId": "PSD-20261016-TWO-SELECTED-SONGS-R69",
-  "previousWebCommit": "10372efb1e97db15714d81c616301e9352b5b4bb",
-  "previousReleaseRecord": "releases/R69.json",
-  "previousBackupBranch": "backup/v0.3.78",
+  "backupBranch": "backup/v0.3.80",
+  "unityBuild": "Unity 6000.6.0f1 R71: battle layout from 未标题3453634576568-2.psd (28 new BattlePsd928 entries: reroll bar/smoke/arrows/die, guard badge, ult pillar, captain plate, enemy name tags, white+energy bars, dice bar, 16 skill icons); member cards at PSD bounds (top 3670); ChallengeVideoTransition (StreamingAssets/Transitions/challenge-cut.mp4, reference clip 0.92-2.3s) for 开始挑战 and 开始演出; BattlePresentationOptions.Pace .7; UIFlash shader hit flash + attacker red + crit stage shake + damage pop big->small; synthesized SFX in Resources/Audio/Sfx via GameAudio.PlaySfx; home disc spin/notes, slanted marquee title, prev/next buttons; simplified stage drop panel; cursor trail F (neon shards).",
+  "previousReleaseId": "PSD-20261019-HOME-TRANSITION-R70",
+  "previousWebCommit": "95d144090d552c9f55c13b83592f1dc8b4346749",
+  "previousReleaseRecord": "releases/R70.json",
+  "previousBackupBranch": "backup/v0.3.79",
   "validation": {
-    "editModeTests": "502/503 (1 pre-existing failure: StarterMemberAvatarTests expects old 星璃 art size)",
-    "iosSimulatorVerified": true,
-    "webRegressionTests": "npm run check"
+    "unityEditMode": "502/503 (pre-existing StarterMemberAvatarTests)",
+    "iosSimulator": "battle layout, video transitions, hit flash verified on iPhone 18 Pro sim"
   },
   "knownLimits": [
-    "Physical phone not tested.",
-    "StarterMemberAvatarTests still expects the pre-R67 xingli art size."
+    "战斗音效为程序合成的临时版本，待替换为录制音效",
+    "转场视频里的角色名固定为 KUMI",
+    "会议待办（普攻两种表现、技能特写、大招放大QTE、结算界面等）尚未实现"
   ]
 }

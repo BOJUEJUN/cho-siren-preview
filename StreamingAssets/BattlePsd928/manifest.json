@@ -402,6 +402,258 @@
       "width": 714,
       "height": 630,
       "note": "native PSD RGBA"
+    },
+    {
+      "key": "reroll-smoke",
+      "file": "72bf2ea5214a1bf0-reroll-smoke.png",
+      "x": -312,
+      "y": 2639,
+      "width": 1434,
+      "height": 762,
+      "note": "cyan smoke behind the left reroll control"
+    },
+    {
+      "key": "reroll-bar",
+      "file": "40d31e3698f89887-reroll-bar.png",
+      "x": -693,
+      "y": 2743,
+      "width": 1668,
+      "height": 559,
+      "note": "slanted reroll bar with heart microphone"
+    },
+    {
+      "key": "reroll-dice",
+      "file": "11189994437a0878-reroll-dice.png",
+      "x": 595,
+      "y": 2969,
+      "width": 126,
+      "height": 152,
+      "note": "reroll dice glyph"
+    },
+    {
+      "key": "reroll-arrows",
+      "file": "73bda5e73c03638d-reroll-arrows.png",
+      "x": 503,
+      "y": 2916,
+      "width": 324,
+      "height": 259,
+      "note": "reroll arrows glyph"
+    },
+    {
+      "key": "guard-badge",
+      "file": "0ec219c7236db1f9-guard-badge.png",
+      "x": 2362,
+      "y": 2615,
+      "width": 639,
+      "height": 696,
+      "note": "emergency guard badge; subtitle covered by live text"
+    },
+    {
+      "key": "ult-pillar",
+      "file": "e876c32c6fb2edd2-ult-pillar.png",
+      "x": 1488,
+      "y": 2912,
+      "width": 678,
+      "height": 785,
+      "note": "ultimate-ready light cone; baked face circle cropped away"
+    },
+    {
+      "key": "captain-plate",
+      "file": "e3de999ccd1a0ab3-captain-plate.png",
+      "x": 11,
+      "y": 4896,
+      "width": 516,
+      "height": 198,
+      "note": "captain plate under the captain card"
+    },
+    {
+      "key": "enemy-tag-l",
+      "file": "2d805aa222ec368a-enemy-tag-l.png",
+      "x": -72,
+      "y": 698,
+      "width": 667,
+      "height": 338,
+      "note": "left enemy name frame"
+    },
+    {
+      "key": "enemy-tag-r",
+      "file": "ce40232f2badd19e-enemy-tag-r.png",
+      "x": 2333,
+      "y": 712,
+      "width": 621,
+      "height": 319,
+      "note": "right enemy name frame"
+    },
+    {
+      "key": "bar-white",
+      "file": "0f0cfcb190fd427e-bar-white.png",
+      "x": 120,
+      "y": 4807,
+      "width": 433,
+      "height": 126,
+      "note": "clean slanted bar, desaturated for live tint"
+    },
+    {
+      "key": "bar-energy",
+      "file": "687b749afad61a26-bar-energy.png",
+      "x": 120,
+      "y": 4807,
+      "width": 433,
+      "height": 126,
+      "note": "clean energy bar, native blue"
+    },
+    {
+      "key": "dice-bar",
+      "file": "b27ad995c570af6c-dice-bar.png",
+      "x": 473,
+      "y": 5034,
+      "width": 1869,
+      "height": 364,
+      "note": "dice hand bar; sample text covered by live text"
+    },
+    {
+      "key": "icon-demon-mask",
+      "file": "5b8e9e988db1537a-icon-demon-mask.png",
+      "x": 615,
+      "y": 3520,
+      "width": 245,
+      "height": 233,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-claw-white",
+      "file": "584338c8d7f068ac-icon-claw-white.png",
+      "x": 651,
+      "y": 3732,
+      "width": 216,
+      "height": 222,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-claw-red",
+      "file": "b33bce788d265bac-icon-claw-red.png",
+      "x": 654,
+      "y": 3716,
+      "width": 213,
+      "height": 223,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-sword-zig",
+      "file": "576d68d5c5e2e031-icon-sword-zig.png",
+      "x": 1359,
+      "y": 3318,
+      "width": 176,
+      "height": 190,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-gold-shield",
+      "file": "77fb84e9067312d1-icon-gold-shield.png",
+      "x": 1344,
+      "y": 3555,
+      "width": 182,
+      "height": 198,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-dagger",
+      "file": "29294250597853ad-icon-dagger.png",
+      "x": 1351,
+      "y": 3313,
+      "width": 179,
+      "height": 192,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-star-burst",
+      "file": "d74544204357b7d7-icon-star-burst.png",
+      "x": 1952,
+      "y": 3258,
+      "width": 324,
+      "height": 324,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-red-slash",
+      "file": "4f43c1ef9c061fc2-icon-red-slash.png",
+      "x": 1249,
+      "y": 3734,
+      "width": 416,
+      "height": 192,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-blood-dice",
+      "file": "7828dd5223563bdf-icon-blood-dice.png",
+      "x": 1363,
+      "y": 3751,
+      "width": 193,
+      "height": 201,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-dice",
+      "file": "17301e281f8e1c21-icon-dice.png",
+      "x": 717,
+      "y": 3838,
+      "width": 95,
+      "height": 111,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-water-heal",
+      "file": "9217b9677f1b7305-icon-water-heal.png",
+      "x": 2644,
+      "y": 3549,
+      "width": 169,
+      "height": 168,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-wave-dice",
+      "file": "cefd3193ddf70d8b-icon-wave-dice.png",
+      "x": 2635,
+      "y": 3752,
+      "width": 221,
+      "height": 221,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-cyan-shield",
+      "file": "59ee6366a1175a9d-icon-cyan-shield.png",
+      "x": 2657,
+      "y": 3318,
+      "width": 182,
+      "height": 171,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-virus-dice",
+      "file": "80694f93b31b347b-icon-virus-dice.png",
+      "x": 2030,
+      "y": 3726,
+      "width": 239,
+      "height": 302,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-purple-drop",
+      "file": "354ea9a627d8d556-icon-purple-drop.png",
+      "x": 2050,
+      "y": 3569,
+      "width": 195,
+      "height": 192,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-heart-lock",
+      "file": "6157491eef4ab38c-icon-heart-lock.png",
+      "x": 632,
+      "y": 3308,
+      "width": 181,
+      "height": 241,
+      "note": "battle skill icon"
     }
   ]
 }

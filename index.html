@@ -120,35 +120,13 @@
         cursor: url("./lipstick-cursor.svg") 19 3, auto;
       }
 
-      .lipstick-trail {
-        position: absolute;
-        z-index: 5;
-        width: 7px;
-        height: 7px;
-        background: #ff83bd;
-        transform: rotate(-45deg);
-        filter: drop-shadow(0 0 5px #ff65b5);
-        pointer-events: none;
-        animation: lipstick-trail-fade .62s ease-out forwards;
-      }
-      .lipstick-trail::before, .lipstick-trail::after {
-        content: "";
-        position: absolute;
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: inherit;
-      }
-      .lipstick-trail::before { top: -3.5px; left: 0; }
-      .lipstick-trail::after { top: 0; left: 3.5px; }
-
-      @keyframes lipstick-trail-fade {
-        to { opacity: 0; transform: translate(-8px, -22px) rotate(-45deg) scale(.28); }
-      }
+      /* Mouse trail (2026-10-19): pink / cyan / white shards with an ink rim and a few
+         star glints, drawn on one canvas over the game. */
+      #siren-trail { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 
       @media (hover: none), (pointer: coarse) {
         #unity-canvas { cursor: auto; }
-        .lipstick-trail { display: none; }
+        #siren-trail { display: none; }
       }
 
       /* The only loading screen players see: it covers the Unity splash and Unity's
@@ -621,7 +599,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.79</div>
+        <div id="loading-version" class="loading-version">v0.3.80</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -762,13 +740,13 @@
       const config = {
         arguments: [],
         cacheControl: () => retryToken ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("41820da1d6137e324f3e80d8255466bd.data.unityweb"),
-        frameworkUrl: buildAssetUrl("827de63f068226da4793a345011f9ee6.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("9dcbab9989152868d635cd838e1c68ad.wasm.unityweb"),
+        dataUrl: buildAssetUrl("cd868250b87591fa9a771da9385a9375.data.unityweb"),
+        frameworkUrl: buildAssetUrl("58c8249775c55b83f7d7a0e7fa26f654.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("beb9c3802158a3870ac597cf3326269a.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.79",
+        productVersion: "0.3.80",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -885,7 +863,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("ee1c94cad19852bf4f113834232d8bc6.loader.js");
+      loader.src = buildAssetUrl("15d1081dc4ade0c20be2894a5bf2721a.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
@@ -1071,22 +1049,66 @@
         loadingNote.textContent = cached ? "正在从本机缓存载入…"
           : "首次进入需下载约 150MB 资源，建议连接 Wi-Fi" + (workers ? "\n下次打开直接读取本机缓存" : "");
       }
+      // Neon-shard mouse trail. Optional decoration: skipped wherever the page has no real
+      // canvas 2D support (old browsers, the test harness's minimal DOM).
       const trailHost = document.querySelector("#game-shell");
-      let lastLipstickPoint = null;
-      canvas.addEventListener("pointermove", event => {
+      const trailCanvas = typeof document.createElement === "function" ? document.createElement("canvas") : null;
+      const trailCtx = trailHost && typeof trailHost.appendChild === "function" &&
+        trailCanvas && typeof trailCanvas.getContext === "function" ? trailCanvas.getContext("2d") : null;
+      if (trailCtx) { trailCanvas.id = "siren-trail"; trailHost.appendChild(trailCanvas); }
+      const trailColors = ["#ff2e93", "#3ff0ff", "#ffffff", "#ff2e93", "#b58cff"];
+      let trailShards = [], trailLast = null, trailDist = 0, trailRunning = false;
+      function trailStar(c, s) {
+        c.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const r = i % 2 ? s * .3 : s, a = i * Math.PI / 4 - Math.PI / 2;
+          c[i ? "lineTo" : "moveTo"](Math.cos(a) * r, Math.sin(a) * r);
+        }
+        c.closePath();
+      }
+      function trailFrame() {
+        const w = trailHost.clientWidth, h = trailHost.clientHeight, d = Math.min(2, devicePixelRatio || 1);
+        if (trailCanvas.width !== Math.round(w * d) || trailCanvas.height !== Math.round(h * d)) {
+          trailCanvas.width = Math.round(w * d); trailCanvas.height = Math.round(h * d);
+        }
+        trailCtx.setTransform(d, 0, 0, d, 0, 0);
+        trailCtx.clearRect(0, 0, w, h);
+        trailShards = trailShards.filter(it => it.life > 0);
+        for (const it of trailShards) {
+          const c = trailCtx;
+          c.save(); c.translate(it.x, it.y); c.rotate(it.rot); c.globalAlpha = Math.min(1, it.life * 1.4);
+          c.shadowColor = it.col; c.shadowBlur = it.star ? 8 : 6; c.fillStyle = it.col;
+          if (it.star) { trailStar(c, it.s); c.fill(); }
+          else {
+            c.beginPath(); c.moveTo(-it.s * .9, -it.s * .45); c.lineTo(it.s * 1.25, -it.s * .05); c.lineTo(-it.s * .35, it.s * .6); c.closePath();
+            c.fill(); c.shadowBlur = 0; c.strokeStyle = "#1a0b33"; c.lineWidth = 1.6; c.stroke();
+          }
+          c.restore();
+          it.x += it.vx; it.y += it.vy; it.vx *= .93; it.vy *= .93; it.rot += it.vr; it.life -= .028;
+        }
+        if (trailShards.length) requestAnimationFrame(trailFrame); else { trailRunning = false; trailCtx.clearRect(0, 0, w, h); }
+      }
+      if (trailCtx) canvas.addEventListener("pointermove", event => {
         if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         const box = trailHost.getBoundingClientRect();
-        const point = { x: event.clientX - box.left, y: event.clientY - box.top };
-        if (lastLipstickPoint && Math.hypot(point.x - lastLipstickPoint.x, point.y - lastLipstickPoint.y) < 19) return;
-        lastLipstickPoint = point;
-        const mark = document.createElement("i");
-        mark.className = "lipstick-trail";
-        mark.style.left = `${point.x - 2}px`;
-        mark.style.top = `${point.y + 8}px`;
-        mark.addEventListener("animationend", () => mark.remove(), { once: true });
-        trailHost.appendChild(mark);
+        const x = event.clientX - box.left, y = event.clientY - box.top;
+        const dx = trailLast ? x - trailLast.x : 0, dy = trailLast ? y - trailLast.y : 0;
+        trailDist += Math.hypot(dx, dy); trailLast = { x, y };
+        if (trailDist < 11) return;
+        trailDist = 0;
+        const len = Math.hypot(dx, dy) || 1;
+        for (let k = 0; k < 2; k++) {
+          const side = k ? 1 : -1, star = Math.random() < .18;
+          trailShards.push({ x, y, life: 1, star, rot: Math.random() * 6.3, vr: (Math.random() - .5) * .28,
+            vx: (-dy / len) * side * (1 + Math.random() * 1.5) - dx * .04,
+            vy: (dx / len) * side * (1 + Math.random() * 1.5) - dy * .04 - .2,
+            s: star ? 4 + Math.random() * 3 : 5 + Math.random() * 6,
+            col: star ? "#ffe9a8" : trailColors[Math.floor(Math.random() * trailColors.length)] });
+        }
+        if (trailShards.length > 160) trailShards.splice(0, trailShards.length - 160);
+        if (!trailRunning) { trailRunning = true; requestAnimationFrame(trailFrame); }
       }, { passive: true });
-      canvas.addEventListener("pointerleave", () => { lastLipstickPoint = null; });
+      if (trailCtx) canvas.addEventListener("pointerleave", () => { trailLast = null; });
       canvas.addEventListener("dblclick", () => {
         if (window.choSirenStage?.active) {
           window.choSirenUnityInstance?.SendMessage("PsdHome20260921", "ToggleUiFromBrowser");

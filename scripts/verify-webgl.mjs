@@ -95,7 +95,7 @@ for (const sheet of ink.sheets) {
 const battleRoot = join(root, 'StreamingAssets', 'BattlePsd928');
 const battleManifest = JSON.parse(readFileSync(join(battleRoot, 'manifest.json'), 'utf8'));
 if (battleManifest.width !== 2946 || battleManifest.height !== 6144 ||
-    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 44 ||
+    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 72 ||
     battleManifest.sourceSha256 !== 'c2a83aa1960de149268364118eb6f86a9d5af7b83b8119a5c70a3748ed4864f1') {
   throw new Error('战斗资源不是最新六骰 PSD');
 }
@@ -110,6 +110,10 @@ for (const entry of battleManifest.entries) {
       entry.width <= 0 || entry.height <= 0) throw new Error('战斗分层图哈希或 RGBA 无效：' + entry.file);
 }
 for (let i = 1; i <= 6; i++) if (!battleKeys.has('die-' + i)) throw new Error('缺少第 ' + i + ' 颗骰子');
+// 2026-10-19 battle PSD (未标题3453634576568-2): 28 extra layers on top of the six-dice set.
+for (const key of ['reroll-bar', 'guard-badge', 'ult-pillar', 'captain-plate', 'enemy-tag-l', 'enemy-tag-r', 'dice-bar'])
+  if (!battleKeys.has(key)) throw new Error('缺少战斗 PSD 图层：' + key);
+requireFile(join(root, 'StreamingAssets', 'Transitions', 'challenge-cut.mp4'));
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   const clip = join(root, "media", `${name}.webm`);
   requireFile(clip);
