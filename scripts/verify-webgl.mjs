@@ -1,3 +1,4 @@
+import "./verify-story1019.mjs";
 import { retainedBuildFiles } from "./build-retention.mjs";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
@@ -96,7 +97,7 @@ for (const sheet of ink.sheets) {
 const battleRoot = join(root, 'StreamingAssets', 'BattlePsd928');
 const battleManifest = JSON.parse(readFileSync(join(battleRoot, 'manifest.json'), 'utf8'));
 if (battleManifest.width !== 2946 || battleManifest.height !== 6144 ||
-    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 81 ||
+    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 82 ||
     battleManifest.sourceSha256 !== '90a0ff8d3ba75dfc140ba79e36ca81f6d1e7b21a41e694230855be281a1c2029') {
   throw new Error('战斗资源不是最新六骰 PSD');
 }
@@ -115,9 +116,9 @@ for (let i = 1; i <= 6; i++) if (!battleKeys.has('die-' + i)) throw new Error('�
 for (const key of ['reroll-bar', 'guard-badge', 'ult-pillar', 'captain-plate', 'enemy-tag-l', 'enemy-tag-r', 'dice-bar',
   'symbol-charm-passive', 'symbol-elf-ultimate', 'symbol-elf-passive',
   'cutin-demon', 'cutin-charm', 'cutin-mermaid', 'cutin-bloodelf',
-  'effect-heal-plus', 'effect-poison-drop'])
+  'effect-heal-plus', 'effect-poison-drop', 'basic-portrait-feiyin'])
   if (!battleKeys.has(key)) throw new Error('缺少战斗 PSD 图层：' + key);
-requireFile(join(root, 'StreamingAssets', 'Transitions', 'challenge-cut.mp4'));
+// Legacy KUMI reference video is not a runtime dependency in R73. Historical bytes remain retained.
 for (const name of ["catalena-look", "catalena-whisper", "catalena-live"]) {
   const clip = join(root, "media", `${name}.webm`);
   requireFile(clip);
@@ -240,3 +241,8 @@ const lobbyVideo = {
 
 console.log(JSON.stringify({ success: true, canvas: "720x1536", githubFileLimit, lobbyVideo,
   current: references, previous, retained, assets }, null, 2));
+
+// Pin the exact reviewed 82-layer manifest and original PSD L012.
+if (createHash('sha256').update(readFileSync(join(battleRoot, 'manifest.json'))).digest('hex') !== '58eb3c56088ed4618e2d9a29bce59a6379d54b3c284d583dc1ee9630881523bf') throw new Error('Battle manifest SHA differs');
+const l012 = battleManifest.entries.find(e => e.key === 'basic-portrait-feiyin');
+if (!l012 || createHash('sha256').update(readFileSync(join(battleRoot, l012.file))).digest('hex') !== '0007cc27f687e33ed953ea1ab2a57237df0470c09f73bc18973606494f51bec6' || l012.x !== 1021 || l012.y !== 2104 || l012.width !== 2186 || l012.height !== 3727) throw new Error('Original L012 bytes/bounds differ');

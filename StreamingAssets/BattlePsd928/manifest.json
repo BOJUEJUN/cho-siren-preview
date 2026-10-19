@@ -735,6 +735,15 @@
       "width": 156,
       "height": 271,
       "note": "L081 native RGBA poison droplet; only affected actor real PoisonStacks state, live count separate"
+    },
+    {
+      "key": "basic-portrait-feiyin",
+      "file": "0007cc27f687e33e-basic-portrait-feiyin.png",
+      "x": 1021,
+      "y": 2104,
+      "width": 2186,
+      "height": 3727,
+      "note": "native PSD L012 attack portrait, original RGBA including transparent padding; transient only"
     }
   ]
 }

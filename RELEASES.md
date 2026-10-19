@@ -1,3 +1,13 @@
+## v0.3.82 · R73 · 2026-10-20
+
+- 82项原PSD导出含原始L012立绘；28张剧情/对话/转场原图（含3张章一整绘CG）使用按需读取，保持原字节与SHA。
+- 圆盘转场覆盖开始挑战与返回大厅；旧KUMI参考录像不再是正式转场依赖。
+- 首页采用用户选定的细弧轨与独立圆盘短转；大厅原两首、已批准的临时战斗音乐保持；新结算与声线候选不自动接入。
+- EditMode：Original full run: 573/574 passed; 1 failed; 0 skipped. 1 failed case(s) later passed by exact fullname; this is an aggregate, not a single all-pass run. Focused runs: 1/1 passed, 0 skipped (edit-glass-fix.xml); 10/10 passed, 0 skipped (edit-challenge-cover-r73c.xml); 7/7 passed, 0 skipped (edit-cg.xml).
+- PlayMode：Original full run: 106/109 passed; 1 failed; 2 skipped. 1 failed case(s) later passed by exact fullname; this is an aggregate, not a single all-pass run. Focused runs: 10/10 passed, 0 skipped (play-stream-nav-recheck.xml); 26/26 passed, 0 skipped (play-challenge-cover-r73c.xml); 2/2 passed, 0 skipped (play-nav-overlay-r73c.xml); 6/6 passed, 0 skipped (play-cg-fixed.xml); 18/18 passed, 0 skipped (play-story-regression.xml).
+- 网页检查110/110通过；2026-10-20 本地浏览器加载R73c四件构建正常，iOS模拟器实走大厅→地图→挑战→战斗（暂停/继续/大招光柱/特写/重投入口）→结算→地图→大厅。模拟器点击，非实体手机。
+- 完整保留公开历史Build；当前转previous，原previous转retained；2026-10-20按逐文件复制清单发布（45个文件，0删除）。
+
 ## v0.3.81 · R72 · 2026-10-19
 
 - 首页底部采用素黑细纹圆盘，保留原五个图标和中文菜单；切换菜单时短转。
