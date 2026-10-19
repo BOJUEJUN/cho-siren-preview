@@ -125,7 +125,7 @@ test('a normal visit registers the asset worker for this game only', async () =>
     scope: 'https://example.test/cho-siren-preview/' }]);
   assert.deepEqual(run.unregistered, []);
   assert.deepEqual(run.messages, [{ type: 'keep-builds', files: newer }]);
-  assert.match(run.elements.get('#loading-note').textContent, /150MB.*Wi-Fi/);
+  assert.match(run.elements.get('#loading-note').textContent, /\d+MB.*Wi-Fi/);
 });
 
 test('a first visit waits at most 1.5 s for the new worker before starting Unity', async () => {

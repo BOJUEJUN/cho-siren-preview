@@ -97,7 +97,7 @@ for (const sheet of ink.sheets) {
 const battleRoot = join(root, 'StreamingAssets', 'BattlePsd928');
 const battleManifest = JSON.parse(readFileSync(join(battleRoot, 'manifest.json'), 'utf8'));
 if (battleManifest.width !== 2946 || battleManifest.height !== 6144 ||
-    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 82 ||
+    battleManifest.scaleMode !== 'contain' || battleManifest.entries.length !== 83 ||
     battleManifest.sourceSha256 !== '90a0ff8d3ba75dfc140ba79e36ca81f6d1e7b21a41e694230855be281a1c2029') {
   throw new Error('战斗资源不是最新六骰 PSD');
 }
@@ -242,7 +242,7 @@ const lobbyVideo = {
 console.log(JSON.stringify({ success: true, canvas: "720x1536", githubFileLimit, lobbyVideo,
   current: references, previous, retained, assets }, null, 2));
 
-// Pin the exact reviewed 82-layer manifest and original PSD L012.
-if (createHash('sha256').update(readFileSync(join(battleRoot, 'manifest.json'))).digest('hex') !== '58eb3c56088ed4618e2d9a29bce59a6379d54b3c284d583dc1ee9630881523bf') throw new Error('Battle manifest SHA differs');
+// Pin the exact reviewed 83-layer manifest (R74 adds the energy bar's white rim) and original PSD L012.
+if (createHash('sha256').update(readFileSync(join(battleRoot, 'manifest.json'))).digest('hex') !== '13b3c5e314c5bc7a7dbd13b04803cc6e672649fee834c3eda9b52993747c71b2') throw new Error('Battle manifest SHA differs');
 const l012 = battleManifest.entries.find(e => e.key === 'basic-portrait-feiyin');
 if (!l012 || createHash('sha256').update(readFileSync(join(battleRoot, l012.file))).digest('hex') !== '0007cc27f687e33ed953ea1ab2a57237df0470c09f73bc18973606494f51bec6' || l012.x !== 1021 || l012.y !== 2104 || l012.width !== 2186 || l012.height !== 3727) throw new Error('Original L012 bytes/bounds differ');

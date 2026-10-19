@@ -744,6 +744,15 @@
       "width": 2186,
       "height": 3727,
       "note": "native PSD L012 attack portrait, original RGBA including transparent padding; transient only"
+    },
+    {
+      "key": "bar-outline",
+      "file": "3d3761238bae2eb8-bar-outline.png",
+      "x": 120,
+      "y": 4807,
+      "width": 433,
+      "height": 126,
+      "note": "white rim of L037, always drawn over the energy fill"
     }
   ]
 }

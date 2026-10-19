@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "0ca742f9d53f15e5a9a576f3caf19d98.data.unityweb",
+    "eb596bfbcb93b587a51bea9f19d3e177.framework.js.unityweb",
+    "b188f1b51259354a8c50d9c174a6cb84.wasm.unityweb",
+    "f7fcb96c1f3f68bcdbb83448286c340c.loader.js"
+  ],
+  "previous": [
     "146e0ee0a6b552bd4b2c872f51daed73.data.unityweb",
     "12ef3ef200519f695c6e86d8886518c5.framework.js.unityweb",
     "014300384fc91d345d596e75a6e6428a.wasm.unityweb",
     "85e498c33512664bcc51077a7e596b13.loader.js"
   ],
-  "previous": [
-    "2e5a68caa00277adc6f5e4d546541c26.data.unityweb",
-    "b1f2db1de307a9205b7b21d4980cc33e.framework.js.unityweb",
-    "47a428035904df7a3ef45ab06a48b2f8.wasm.unityweb",
-    "6ef1a2c701e9b23c2fbe1caec191283c.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.81",
+      "releaseId": "PSD-20261019-BATTLE-POLISH-R72",
+      "files": [
+        "2e5a68caa00277adc6f5e4d546541c26.data.unityweb",
+        "b1f2db1de307a9205b7b21d4980cc33e.framework.js.unityweb",
+        "47a428035904df7a3ef45ab06a48b2f8.wasm.unityweb",
+        "6ef1a2c701e9b23c2fbe1caec191283c.loader.js"
+      ]
+    },
     {
       "version": "0.3.80",
       "releaseId": "PSD-20261019-BATTLE-VIDEO-CUT-R71",
