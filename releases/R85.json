@@ -1,0 +1,21 @@
+{
+  "version": "0.3.94",
+  "releaseId": "PSD-20261020-DICE-STAMPS-R85",
+  "date": "2026-10-20",
+  "name": "骰型印章字",
+  "notice": "每种骰型（一对、两对、三条、三对、顺子、葫芦、四条、双三条、六连顺、五条、六同）落地后都会砸出对应的印章大字和倍率，没有黑底；越稀有的骰型字越大、带火焰。",
+  "backupBranch": "backup/v0.3.94",
+  "previousReleaseId": "PSD-20261020-STORY-CG-R84",
+  "previousWebCommit": "4047eb4",
+  "previousReleaseRecord": "releases/R84.json",
+  "previousBackupBranch": "backup/v0.3.93",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R85: 11 GPT dice-pattern word-art stamps (Resources/UI/DiceStamps), DiceComboShow.PlayStamp pop/wiggle/fade over the dice row, shown from 一对 up.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "光碟就绪特效（R1–R4）和转场（S1–S3）等少爷选择后接入。"
+  ]
+}

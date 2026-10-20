@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "a8b56ddb7b518d7909b5e8c9f52142f8.data.unityweb",
+    "060566a6c5eaeffb6f677268e9d25573.framework.js.unityweb",
+    "5dacad02ab4bac07ae220a74d46e422d.wasm.unityweb",
+    "f22c4e077b5b59014281d09a37e044cc.loader.js"
+  ],
+  "previous": [
     "b27221d4b46870f92a72fb6b22c851eb.data.unityweb",
     "1ee2edeaee618da4f9b842685415579c.framework.js.unityweb",
     "9db6124100dab0ef1d95bba20d42879c.wasm.unityweb",
     "4fe653b65322c76b4a5ec4691937acc3.loader.js"
   ],
-  "previous": [
-    "0bcaeda9105e2e525ed5f67d8c552c52.data.unityweb",
-    "0c4109f2049fecba30cd29ee31587684.framework.js.unityweb",
-    "d283162699f598f6cfe932b5dbcc5856.wasm.unityweb",
-    "54c7f25b4dfb9c05a09f13c88e98dcf8.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.93",
+      "releaseId": "PSD-20261020-STORY-CG-R84",
+      "files": [
+        "0bcaeda9105e2e525ed5f67d8c552c52.data.unityweb",
+        "0c4109f2049fecba30cd29ee31587684.framework.js.unityweb",
+        "d283162699f598f6cfe932b5dbcc5856.wasm.unityweb",
+        "54c7f25b4dfb9c05a09f13c88e98dcf8.loader.js"
+      ]
+    },
     {
       "version": "0.3.92",
       "releaseId": "PSD-20261020-ROSTER-RESULT-R83",

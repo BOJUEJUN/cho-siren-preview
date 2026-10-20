@@ -2,10 +2,16 @@
   "schemaVersion": 1,
   "inputPath": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-feedback-20261019/story-streaming-original-input-r73c.json",
   "inputSha256": "7a80873ecfb45a8f521af8f9ef5683348b02494016add724af73b69053a25a96",
-  "manifestSha256": "74b25f4535d3881a0221ae478467427614aa2c1b21b8b4dc4d2776d2ef13540d",
-  "total": 70,
-  "sourceBytes": 56423296,
+  "manifestSha256": "59dc0577872fc418f0c559b0f68741f293b12285c573fabc4f02d6784358e8a2",
+  "total": 74,
+  "sourceBytes": 58856713,
   "entries": [
+    {
+      "key": "Art/Story/Scenes1019/cg-chapter-01-feiyin",
+      "file": "Story1019/1d10bc17c686caa1-scenes1019-cg-chapter-01-feiyin.jpg",
+      "bytes": 563144,
+      "sha256": "1d10bc17c686caa1a407444ba6f947eea167ae58f1ce8d2e7e930c0ffc88d517"
+    },
     {
       "key": "Art/Story/Scenes1019/cg-chapter-01-xingli",
       "file": "Story1019/b08b800e941cec64-scenes1019-cg-chapter-01-xingli.jpg",
@@ -25,6 +31,12 @@
       "sha256": "a4fac17453c00ac5faaa4a47592bf2eb4e776a29fecebfdc8fc7d45d1c85f6e4"
     },
     {
+      "key": "Art/Story/Scenes1019/cg-stage-1-1-feiyin",
+      "file": "Story1019/a81399ed3bcd15b3-scenes1019-cg-stage-1-1-feiyin.jpg",
+      "bytes": 701214,
+      "sha256": "a81399ed3bcd15b3c68d32cfb740a4341681e8fdf8e3b742415d4c1fe38915e1"
+    },
+    {
       "key": "Art/Story/Scenes1019/cg-stage-1-1-xingli",
       "file": "Story1019/7f4afc63947b3956-scenes1019-cg-stage-1-1-xingli.jpg",
       "bytes": 706205,
@@ -41,6 +53,12 @@
       "file": "Story1019/dd5bf2ab266bdd71-scenes1019-cg-stage-1-10-xingli.jpg",
       "bytes": 639744,
       "sha256": "dd5bf2ab266bdd712ceefc51e67d68ab5d9c58fcf7efbb8f3bb2fdb66b1f8be2"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-10-yeying",
+      "file": "Story1019/505f974049f7ab76-scenes1019-cg-stage-1-10-yeying.jpg",
+      "bytes": 571803,
+      "sha256": "505f974049f7ab763aff52c993a32ca37427071ce8dbe0b6cca22bdf1c31f53a"
     },
     {
       "key": "Art/Story/Scenes1019/cg-stage-1-2-wubai",
@@ -107,6 +125,12 @@
       "file": "Story1019/434b4ff834b562d0-scenes1019-cg-stage-1-7-feiyin.jpg",
       "bytes": 616696,
       "sha256": "434b4ff834b562d052fe5600f8141322f0e6f42a8b4160aa9683665dd5500701"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-7-xingli",
+      "file": "Story1019/ef34a1b8d284078c-scenes1019-cg-stage-1-7-xingli.jpg",
+      "bytes": 597256,
+      "sha256": "ef34a1b8d284078cef622512063a07823ee92ba65833a41a8cb79a0d24f4de4b"
     },
     {
       "key": "Art/Story/Scenes1019/cg-stage-1-8-wubai",
@@ -484,6 +508,6 @@
     }
   ],
   "cutoutPolicy": "Only four dialogue portraits require transparent RGBA; the action CG preserves its full background.",
-  "scenes": 65,
+  "scenes": 69,
   "r93Note": "0.3.93 adds 42 in-scene story CGs (Scenes1019/cg-*.jpg); the original 28 are unchanged."
 }
