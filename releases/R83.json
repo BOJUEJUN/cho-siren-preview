@@ -1,0 +1,21 @@
+{
+  "version": "0.3.92",
+  "releaseId": "PSD-20261020-ROSTER-RESULT-R83",
+  "date": "2026-10-20",
+  "name": "成员卡框、筛选下拉与结算半身像",
+  "notice": "成员页：已拥有的角色恢复黑底霓虹卡框；职业、种族点开后下拉选择。结算页成员改为半身像。标题页「点击屏幕 · 开始演出」和弹窗按钮去掉水晶底框，改成干净的斜切设计。",
+  "backupBranch": "backup/v0.3.92",
+  "previousReleaseId": "PSD-20261020-ULT-FIX-R82",
+  "previousWebCommit": "fc0f699",
+  "previousReleaseRecord": "releases/R82.json",
+  "previousBackupBranch": "backup/v0.3.91",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R83: GPT member-card frame (Resources/UI/MemberCard), roster filter dropdown, result bust crop (FrameBustPortrait), title prompt without plate; template dialog OK = flat pink slant, start prompt plain text + pink slash.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "member page + dropdown checked on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "新转场方案生成中；大招击中特效、成员普攻特效、地图页、剧情 CG 仍在进行。"
+  ]
+}

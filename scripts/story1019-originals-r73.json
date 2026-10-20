@@ -2,10 +2,262 @@
   "schemaVersion": 1,
   "inputPath": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-feedback-20261019/story-streaming-original-input-r73c.json",
   "inputSha256": "7a80873ecfb45a8f521af8f9ef5683348b02494016add724af73b69053a25a96",
-  "manifestSha256": "21409394a37c753e2471998c375379c189ca16f6def7fb90b3b9d22280bc3e82",
-  "total": 28,
-  "sourceBytes": 28786121,
+  "manifestSha256": "74b25f4535d3881a0221ae478467427614aa2c1b21b8b4dc4d2776d2ef13540d",
+  "total": 70,
+  "sourceBytes": 56423296,
   "entries": [
+    {
+      "key": "Art/Story/Scenes1019/cg-chapter-01-xingli",
+      "file": "Story1019/b08b800e941cec64-scenes1019-cg-chapter-01-xingli.jpg",
+      "bytes": 566417,
+      "sha256": "b08b800e941cec645702f05dbe1663b61190cb69346ba9828b34fa4150353b8b"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-chapter-02-feiyin",
+      "file": "Story1019/8a89d3cf68f00ba8-scenes1019-cg-chapter-02-feiyin.jpg",
+      "bytes": 701197,
+      "sha256": "8a89d3cf68f00ba8d2a151f043b22ed68489eb80c807b7f6819acfe62393486c"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-chapter-02-xingli",
+      "file": "Story1019/a4fac17453c00ac5-scenes1019-cg-chapter-02-xingli.jpg",
+      "bytes": 691659,
+      "sha256": "a4fac17453c00ac5faaa4a47592bf2eb4e776a29fecebfdc8fc7d45d1c85f6e4"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-1-xingli",
+      "file": "Story1019/7f4afc63947b3956-scenes1019-cg-stage-1-1-xingli.jpg",
+      "bytes": 706205,
+      "sha256": "7f4afc63947b3956440d1cd2edc7e251eca9ca62a6b7a4207fc827a3627ee92e"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-10-feiyin",
+      "file": "Story1019/a4e9cd819bdde68d-scenes1019-cg-stage-1-10-feiyin.jpg",
+      "bytes": 695461,
+      "sha256": "a4e9cd819bdde68d7f26967234072272a4d724d0a857ae60e65e67d341fd9ecf"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-10-xingli",
+      "file": "Story1019/dd5bf2ab266bdd71-scenes1019-cg-stage-1-10-xingli.jpg",
+      "bytes": 639744,
+      "sha256": "dd5bf2ab266bdd712ceefc51e67d68ab5d9c58fcf7efbb8f3bb2fdb66b1f8be2"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-2-wubai",
+      "file": "Story1019/f2426aa4fd261db1-scenes1019-cg-stage-1-2-wubai.jpg",
+      "bytes": 537439,
+      "sha256": "f2426aa4fd261db1df16776b9f4c6fd43da5f97c0d60bc175eac61e59bf35599"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-2-yeying",
+      "file": "Story1019/5b00515a1628cdd9-scenes1019-cg-stage-1-2-yeying.jpg",
+      "bytes": 540604,
+      "sha256": "5b00515a1628cdd9a4605104c8f3ccd9ece6629c64b99659167552e07d2293ce"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-3-feiyin",
+      "file": "Story1019/ff239cc3316092f6-scenes1019-cg-stage-1-3-feiyin.jpg",
+      "bytes": 676994,
+      "sha256": "ff239cc3316092f68c3d7d0ae9d8e6c35f329c74a7e897ec7ee720df9be5fcbc"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-3-yeying",
+      "file": "Story1019/10aef711d90755a1-scenes1019-cg-stage-1-3-yeying.jpg",
+      "bytes": 731897,
+      "sha256": "10aef711d90755a154536ec33de160251bd33d78fce81030ee636c601afe2325"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-4-wubai",
+      "file": "Story1019/6b8c764d62a6224c-scenes1019-cg-stage-1-4-wubai.jpg",
+      "bytes": 599516,
+      "sha256": "6b8c764d62a6224c053c7d0d7f9a8500ff91ca74bd30ff9df13cd0a6449aafd9"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-4-xingli",
+      "file": "Story1019/789296965c541584-scenes1019-cg-stage-1-4-xingli.jpg",
+      "bytes": 664612,
+      "sha256": "789296965c5415849cf8c4dbf7304be0380fd7dfc378f4459291709b6bd44cd4"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-5-feiyin",
+      "file": "Story1019/ebfb229ade8568a9-scenes1019-cg-stage-1-5-feiyin.jpg",
+      "bytes": 733937,
+      "sha256": "ebfb229ade8568a97fab43f00637d48a4f8b2ad7623621c74982dd95f03e9adb"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-5-xingli",
+      "file": "Story1019/955e839cd2ef76fe-scenes1019-cg-stage-1-5-xingli.jpg",
+      "bytes": 774638,
+      "sha256": "955e839cd2ef76fef39a16cab9219a1ddc0145cd4a92c314cdcbc8e41a2ee65d"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-6-wubai",
+      "file": "Story1019/4b5b2a70c2fb3758-scenes1019-cg-stage-1-6-wubai.jpg",
+      "bytes": 549177,
+      "sha256": "4b5b2a70c2fb375800b937fdbdf22867b739fc07ff2d61c9cf7d575d9b4f3c99"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-6-yeying",
+      "file": "Story1019/5bee405cf20bc9f1-scenes1019-cg-stage-1-6-yeying.jpg",
+      "bytes": 629077,
+      "sha256": "5bee405cf20bc9f18b6f1f66bdf8d5cd93dece7294fbb84d1bba69369fa3e91c"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-7-feiyin",
+      "file": "Story1019/434b4ff834b562d0-scenes1019-cg-stage-1-7-feiyin.jpg",
+      "bytes": 616696,
+      "sha256": "434b4ff834b562d052fe5600f8141322f0e6f42a8b4160aa9683665dd5500701"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-8-wubai",
+      "file": "Story1019/d6c56e0772333994-scenes1019-cg-stage-1-8-wubai.jpg",
+      "bytes": 629508,
+      "sha256": "d6c56e07723339944eeaff36e86444474dfd3e0ef24ccdd52de522ce48fcda6e"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-8-yeying",
+      "file": "Story1019/356a6d86569bdbc0-scenes1019-cg-stage-1-8-yeying.jpg",
+      "bytes": 763454,
+      "sha256": "356a6d86569bdbc05e74169ff05cb0992d6a964adaaff6d3fc7ba29b069de433"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-9-feiyin",
+      "file": "Story1019/8dec68bcf47f52e6-scenes1019-cg-stage-1-9-feiyin.jpg",
+      "bytes": 598168,
+      "sha256": "8dec68bcf47f52e6a914f939bfd5a8743fd48d1777e0034be2fc64e87951fd93"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-9-xingli",
+      "file": "Story1019/e6b11de08b9ca2b4-scenes1019-cg-stage-1-9-xingli.jpg",
+      "bytes": 635042,
+      "sha256": "e6b11de08b9ca2b4403e01ef19f0c28e13757896fd62b3534d5b618550643fbf"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-1-feiyin",
+      "file": "Story1019/182b00478f1f64cc-scenes1019-cg-stage-2-1-feiyin.jpg",
+      "bytes": 678885,
+      "sha256": "182b00478f1f64cc1ff3410febd9de860040df2df95e921323195b45b76c8a48"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-1-wubai",
+      "file": "Story1019/942a2a0da2c117db-scenes1019-cg-stage-2-1-wubai.jpg",
+      "bytes": 688359,
+      "sha256": "942a2a0da2c117db7d8b82c5652c20fffcd889cd6b086bc0d7c193b8a6f56dcd"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-10-feiyin",
+      "file": "Story1019/48a88f450f9dc462-scenes1019-cg-stage-2-10-feiyin.jpg",
+      "bytes": 641802,
+      "sha256": "48a88f450f9dc46265b869027fa5848d342ba4fc3417ecb5b7ad078805efae40"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-10-wubai",
+      "file": "Story1019/a3adf7566f364026-scenes1019-cg-stage-2-10-wubai.jpg",
+      "bytes": 573971,
+      "sha256": "a3adf7566f36402649e0a1da0fa6ffccb77e8fbfd3de2416fdd72246bd6514ee"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-10-xingli",
+      "file": "Story1019/c038d66e36b90a9a-scenes1019-cg-stage-2-10-xingli.jpg",
+      "bytes": 623489,
+      "sha256": "c038d66e36b90a9a1039047ac22073d0bd95f415c1bdbeeb0d9663b255c3900f"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-2-wubai",
+      "file": "Story1019/26cbcbce31c1561a-scenes1019-cg-stage-2-2-wubai.jpg",
+      "bytes": 688841,
+      "sha256": "26cbcbce31c1561a489397e16b6f10e4f45cbfc48219a964ffe9d2ab3c302f16"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-2-xingli",
+      "file": "Story1019/c6053ba62d628f7a-scenes1019-cg-stage-2-2-xingli.jpg",
+      "bytes": 714648,
+      "sha256": "c6053ba62d628f7a04ac04a235b59d0b791b4a3d402b1c7e526535da340a9bd1"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-3-feiyin",
+      "file": "Story1019/2dd8421c5ee98873-scenes1019-cg-stage-2-3-feiyin.jpg",
+      "bytes": 734181,
+      "sha256": "2dd8421c5ee9887332928601bca7bcf8b40e6907e5bba4e51583070b1ab88b86"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-3-yeying",
+      "file": "Story1019/184db0e3f7d92c28-scenes1019-cg-stage-2-3-yeying.jpg",
+      "bytes": 714713,
+      "sha256": "184db0e3f7d92c28c847c77e7ec3e75ee07f8bf68836e8ff195d4db338f4d7a0"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-4-wubai",
+      "file": "Story1019/eec0693dfdef9503-scenes1019-cg-stage-2-4-wubai.jpg",
+      "bytes": 491162,
+      "sha256": "eec0693dfdef9503e635115c33ca0a5911abc0c14fb25fdf3a92c9cd9cfe63e1"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-4-xingli",
+      "file": "Story1019/bacf73aa81d54aec-scenes1019-cg-stage-2-4-xingli.jpg",
+      "bytes": 602814,
+      "sha256": "bacf73aa81d54aec9da7da48cfdc7909c8848d523b0ab9e35820994d952f09cc"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-5-feiyin",
+      "file": "Story1019/df03f3538ff1f2ee-scenes1019-cg-stage-2-5-feiyin.jpg",
+      "bytes": 716630,
+      "sha256": "df03f3538ff1f2ee2e82e906934c03156d28c73542536a2646e131caad648d58"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-5-wubai",
+      "file": "Story1019/4589cc855351a387-scenes1019-cg-stage-2-5-wubai.jpg",
+      "bytes": 649856,
+      "sha256": "4589cc855351a38742ea12ddd6bdbc60181d6220dd2e4325244ea173f9ee2428"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-6-xingli",
+      "file": "Story1019/356660ff00852b26-scenes1019-cg-stage-2-6-xingli.jpg",
+      "bytes": 636124,
+      "sha256": "356660ff00852b269ef59cddd803d8b0648105d1e361db69af5f61fcee542869"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-6-yeying",
+      "file": "Story1019/848740ab476b420e-scenes1019-cg-stage-2-6-yeying.jpg",
+      "bytes": 700348,
+      "sha256": "848740ab476b420e34ae4312c5680176a6eeaea94dacd5d538503315d2f1da7d"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-7-feiyin",
+      "file": "Story1019/78923e9c316e6003-scenes1019-cg-stage-2-7-feiyin.jpg",
+      "bytes": 731488,
+      "sha256": "78923e9c316e60034c9b91891655c3dda608491b7ce5b61b1508c6678127d029"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-7-wubai",
+      "file": "Story1019/886c27e66d9c7ec0-scenes1019-cg-stage-2-7-wubai.jpg",
+      "bytes": 632976,
+      "sha256": "886c27e66d9c7ec0a1a7d877246c9768b57292270123cbfa383f40d4e58a8350"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-8-xingli",
+      "file": "Story1019/3cb721fe7db93e9b-scenes1019-cg-stage-2-8-xingli.jpg",
+      "bytes": 680670,
+      "sha256": "3cb721fe7db93e9bb3256e4508eedfb854b3dfc8fda719ae2f2e2a0e97a50c6c"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-8-yeying",
+      "file": "Story1019/130da17209f88b8c-scenes1019-cg-stage-2-8-yeying.jpg",
+      "bytes": 705231,
+      "sha256": "130da17209f88b8c47ccf8c2caed7445fb60d1f7a268d06a1ee93f30555dd38d"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-9-feiyin",
+      "file": "Story1019/7c4995a30a4f904c-scenes1019-cg-stage-2-9-feiyin.jpg",
+      "bytes": 689516,
+      "sha256": "7c4995a30a4f904c794f8ab19e858bee347376a468ea1f11ca961ac660507281"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-2-9-xingli",
+      "file": "Story1019/7c3acafbd762f89a-scenes1019-cg-stage-2-9-xingli.jpg",
+      "bytes": 660029,
+      "sha256": "7c3acafbd762f89ace70c689786266f57c1f35f09b3f530b816bad6524dbd659"
+    },
     {
       "key": "Art/Story/Scenes1019/chapter-01-alley-outro",
       "file": "Story1019/4f4d6d154deced89-scenes1019-chapter-01-alley-outro.png",
@@ -231,5 +483,7 @@
       }
     }
   ],
-  "cutoutPolicy": "Only four dialogue portraits require transparent RGBA; the action CG preserves its full background."
+  "cutoutPolicy": "Only four dialogue portraits require transparent RGBA; the action CG preserves its full background.",
+  "scenes": 65,
+  "r93Note": "0.3.93 adds 42 in-scene story CGs (Scenes1019/cg-*.jpg); the original 28 are unchanged."
 }

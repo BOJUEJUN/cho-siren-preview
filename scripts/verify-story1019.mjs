@@ -13,7 +13,7 @@ const hash = data => createHash('sha256').update(data).digest('hex');
 const expected = JSON.parse(checkedRead(join(root, 'scripts/story1019-originals-r73.json')));
 const manifestBytes = checkedRead(join(root, 'StreamingAssets/Story1019/manifest.json'));
 const manifest = JSON.parse(manifestBytes);
-if (expected.total !== 28 || expected.entries.length !== 28 || manifest.entries.length !== 28 ||
+if (expected.total !== expected.entries.length || manifest.entries.length !== expected.total ||
     hash(manifestBytes) !== expected.manifestSha256) throw new Error('Story1019 manifest drift');
 const known = new Map(expected.entries.map(e => [e.key, e]));
 const chapterCgs = ['chapter-01-rehearsal-solo', 'chapter-01-rehearsal-arrival', 'chapter-01-alley-outro'];
@@ -40,6 +40,6 @@ for (const entry of manifest.entries) {
 const names = readdirSync(join(root, 'StreamingAssets/Story1019')).sort();
 const wanted = ['manifest.json', ...expected.entries.map(e => e.file.split('/')[1])].sort();
 if (JSON.stringify(names) !== JSON.stringify(wanted) || bytes !== expected.sourceBytes ||
-    [...known.keys()].filter(k => k.includes('/Scenes1019/')).length !== 23 ||
+    [...known.keys()].filter(k => k.includes('/Scenes1019/')).length !== (expected.scenes ?? 23) ||
     [...known.keys()].filter(k => k.includes('/Portraits1019/')).length !== 4 ||
     [...known.keys()].filter(k => k.includes('/Transitions1019/')).length !== 1) throw new Error('Story1019 file/category inventory differs');
