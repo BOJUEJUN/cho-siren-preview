@@ -1,21 +1,21 @@
 {
-  "version": "0.3.87",
-  "releaseId": "PSD-20261020-ULT-LIMIT-ECONOMY-R78",
+  "version": "0.3.88",
+  "releaseId": "PSD-20261020-VOLUME-CAPTAIN-R79",
   "date": "2026-10-20",
-  "name": "大招次数限制、钻石经济与红点统一",
-  "notice": "大招：全队每回合最多一次、每人每场最多3次，单次更强；一场约1–3次。自动战斗中点满能量成员可指定她放大招，不会切到手动；PERFECT仍留给手动点击。星钻改为稀有货币：日常与签到改给金币为主，每周免费星钻约300–400。所有红点统一为圆点。骰子选中更明显。",
-  "backupBranch": "backup/v0.3.87",
-  "previousReleaseId": "PSD-20261020-ULT-VIDEOS-R77",
-  "previousWebCommit": "c71e26b807f4924e2d6ef8beb29dcda1943c2797",
-  "previousReleaseRecord": "releases/R77.json",
-  "previousBackupBranch": "backup/v0.3.86",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R78: team ultimate once per round, max 3 per member, ult damage x1.6, energy 10/action; QueuedUltimateId tap in auto; assist taps late GOOD; enemy dmg x8; diamonds: daily tasks/idle/sign-in/first-clear/chapter rewards cut (gold instead), welcome mail 150; DotSprite for all badges; stronger dice selection.",
+  "name": "音量滑杆、队长说明与成员页简化",
+  "notice": "设置里音乐、音效改成 0–100 滑杆，默认音量提高到与系统一致。更换队长弹窗放大，并写明队长作用和每人的队长效果，点角色直接任命。成员页只显示已拥有的角色，背景更干净，单页不显示翻页。饰品等级从 Lv.1 开始。成就入口只显示红点。",
+  "backupBranch": "backup/v0.3.88",
+  "previousReleaseId": "PSD-20261020-ULT-LIMIT-ECONOMY-R78",
+  "previousWebCommit": "518699d",
+  "previousReleaseRecord": "releases/R78.json",
+  "previousBackupBranch": "backup/v0.3.87",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R79: MusicVolume/SfxVolume sliders (0-100) scaling raised base gains (music .45, battle .3, sfx .6, battle sfx .85); captain picker 4 large rows with MemberCaptainTraits copy, tap appoints; members-board calmer lower background; accessory level shown as upgrade+1; pager hidden on single page.",
   "validation": {
-    "unityEditMode": "577/577 passed; pacing 1-1…2-3 all wins 10–15 rounds, 1–3 ultimates per fight.",
+    "unityEditMode": "577/577 passed (music gain pin moved to 0.3–0.6).",
     "iosSimulator": "build installed on iPhone 18 Pro simulator.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
-    "大招击中特效、评分文字美术、重投噪波动感、音量滑杆、音效系统、多个页面重做仍在进行。"
+    "大招击中特效、评分文字（美术已生成待接入）、骰子 3D 动画（待少爷选版本）、对话框/转场（待选）、地图页重做仍在进行。"
   ]
 }

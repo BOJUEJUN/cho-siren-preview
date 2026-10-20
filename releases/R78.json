@@ -1,0 +1,21 @@
+{
+  "version": "0.3.87",
+  "releaseId": "PSD-20261020-ULT-LIMIT-ECONOMY-R78",
+  "date": "2026-10-20",
+  "name": "大招次数限制、钻石经济与红点统一",
+  "notice": "大招：全队每回合最多一次、每人每场最多3次，单次更强；一场约1–3次。自动战斗中点满能量成员可指定她放大招，不会切到手动；PERFECT仍留给手动点击。星钻改为稀有货币：日常与签到改给金币为主，每周免费星钻约300–400。所有红点统一为圆点。骰子选中更明显。",
+  "backupBranch": "backup/v0.3.87",
+  "previousReleaseId": "PSD-20261020-ULT-VIDEOS-R77",
+  "previousWebCommit": "c71e26b807f4924e2d6ef8beb29dcda1943c2797",
+  "previousReleaseRecord": "releases/R77.json",
+  "previousBackupBranch": "backup/v0.3.86",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R78: team ultimate once per round, max 3 per member, ult damage x1.6, energy 10/action; QueuedUltimateId tap in auto; assist taps late GOOD; enemy dmg x8; diamonds: daily tasks/idle/sign-in/first-clear/chapter rewards cut (gold instead), welcome mail 150; DotSprite for all badges; stronger dice selection.",
+  "validation": {
+    "unityEditMode": "577/577 passed; pacing 1-1…2-3 all wins 10–15 rounds, 1–3 ultimates per fight.",
+    "iosSimulator": "build installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "大招击中特效、评分文字美术、重投噪波动感、音量滑杆、音效系统、多个页面重做仍在进行。"
+  ]
+}
