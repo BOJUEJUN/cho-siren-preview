@@ -1,0 +1,21 @@
+{
+  "version": "0.3.97",
+  "releaseId": "PSD-20261020-ENERGY-FIX-R88",
+  "date": "2026-10-20",
+  "name": "修复能量条不涨",
+  "notice": "修复：战斗中角色的蓝色能量条不涨、导致放不出大招。现在每次行动能量都会涨，一场约 1–2 次大招。游戏包体也缩小了（约 87MB）。",
+  "backupBranch": "backup/v0.3.97",
+  "previousReleaseId": "PSD-20261020-ULT-STRIKE-R87",
+  "previousWebCommit": "95fe774",
+  "previousReleaseRecord": "releases/R87.json",
+  "previousBackupBranch": "backup/v0.3.96",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R88: BattleEnergyMeter snaps fill when its component is disabled (PSD battle), TurnEnergyPerAction 10; includes legacy Resources prune from the size task (data 86.6 MB).",
+  "validation": {
+    "unityEditMode": "579/579 passed; pacing all wins, 1–2 ultimates.",
+    "iosSimulator": "energy bars verified rising on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "RunningHub 新音效与逐句剧情 CG 正在接入。"
+  ]
+}
