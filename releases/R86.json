@@ -1,0 +1,21 @@
+{
+  "version": "0.3.95",
+  "releaseId": "PSD-20261020-FIRE-TRANSITION-R86",
+  "date": "2026-10-20",
+  "name": "真火就绪特效、新转场与经纪人头像",
+  "notice": "大招就绪：光碟上方改成会自然燃烧的金色火焰（代码粒子火，不再是贴图飘动）。关卡地图选中关卡改为沿牌子边缘燃烧的粒子火。开始演出转场改为极简版：黑幕合成一道红线，红线打开只露出角色眼睛，再被白光推开进入舞台。剧情：经纪人说话时显示头像；台词文字不再压到撕纸边；补齐最后 4 张场景 CG。重投文字改为跟色带同向倾斜并居中。",
+  "backupBranch": "backup/v0.3.95",
+  "previousReleaseId": "PSD-20261020-DICE-STAMPS-R85",
+  "previousWebCommit": "a64d86c",
+  "previousReleaseRecord": "releases/R85.json",
+  "previousBackupBranch": "backup/v0.3.94",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R86: UltReadyRing1020 particle flame on disc, MapSelectedFlame1020 particle fire, ChallengeVideoTransition rebuilt to concept m1 (UI/Transition/eyes-xingli), producer avatar (UI/Producer), StoryPanel text inset + paper bleed fix, reroll label -6.2° centered, 46/46 story CGs.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "大招放完后的攻击飞行与受击特效正在制作。"
+  ]
+}

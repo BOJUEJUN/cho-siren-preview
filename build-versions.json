@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "03f2416ea422a5c4d484486d37a4c577.data.unityweb",
+    "7425ea05cc42a1a2c5669e73bc91669c.framework.js.unityweb",
+    "635f135c92c75bfab394af5e974906ae.wasm.unityweb",
+    "413963cda6ea18068ce042f97f928085.loader.js"
+  ],
+  "previous": [
     "a8b56ddb7b518d7909b5e8c9f52142f8.data.unityweb",
     "060566a6c5eaeffb6f677268e9d25573.framework.js.unityweb",
     "5dacad02ab4bac07ae220a74d46e422d.wasm.unityweb",
     "f22c4e077b5b59014281d09a37e044cc.loader.js"
   ],
-  "previous": [
-    "b27221d4b46870f92a72fb6b22c851eb.data.unityweb",
-    "1ee2edeaee618da4f9b842685415579c.framework.js.unityweb",
-    "9db6124100dab0ef1d95bba20d42879c.wasm.unityweb",
-    "4fe653b65322c76b4a5ec4691937acc3.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.94",
+      "releaseId": "PSD-20261020-DICE-STAMPS-R85",
+      "files": [
+        "b27221d4b46870f92a72fb6b22c851eb.data.unityweb",
+        "1ee2edeaee618da4f9b842685415579c.framework.js.unityweb",
+        "9db6124100dab0ef1d95bba20d42879c.wasm.unityweb",
+        "4fe653b65322c76b4a5ec4691937acc3.loader.js"
+      ]
+    },
     {
       "version": "0.3.93",
       "releaseId": "PSD-20261020-STORY-CG-R84",
