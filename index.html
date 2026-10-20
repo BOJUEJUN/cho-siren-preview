@@ -257,22 +257,21 @@
         position: absolute; top: calc(env(safe-area-inset-top, 0px) * .6 + 1.2%); left: 3.2%; z-index: 4;
       }
       .age-corner > .age-badge { gap: 0.6cqw; }
+      /* 2026-10-20: icons only — no plates, frames or captions; a soft shadow keeps them readable. */
       .loading-corner .side-icon {
         display: grid; place-items: center;
-        width: 8.8cqw; height: 8.8cqw; margin-top: 1.9cqw;
-        transform: rotate(45deg);
-        background: rgba(6, 3, 12, 0.62);
-        border: 0.3cqw solid rgba(255, 255, 255, 0.85);
+        width: 10cqw; height: 10cqw;
+        filter: drop-shadow(0 0.3cqw 0.6cqw rgba(0, 0, 0, 0.75));
+        transition: transform 120ms ease;
       }
-      .loading-corner .side-icon svg { width: 5cqw; height: 5cqw; transform: rotate(-45deg); }
+      .loading-corner button:active .side-icon { transform: scale(0.88); }
+      .loading-corner .side-icon svg { width: 7cqw; height: 7cqw; }
       .loading-corner .side-label {
-        min-width: 12.5cqw; padding: 0.5cqw 1.4cqw;
-        background: rgba(0, 0, 0, 0.62);
-        font-size: 11px; font-size: 2.7cqw; font-weight: 900; letter-spacing: 0.08em; text-align: center;
+        position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
       }
       .loading-corner button.has-dot { position: relative; }
       .loading-corner button.has-dot::after {
-        content: ""; position: absolute; top: 0; right: 1cqw;
+        content: ""; position: absolute; top: 1cqw; right: 1cqw;
         width: 2.2cqw; height: 2.2cqw; border-radius: 50%; background: #ff2e5c;
         box-shadow: 0 0 0 0.35cqw #fff;
       }
@@ -281,6 +280,8 @@
       #sound-button .sound-on { display: none; }
       #sound-button[aria-pressed="true"] .sound-on { display: inline; }
       #sound-button[aria-pressed="true"] .sound-off { display: none; }
+      #sound-button[aria-pressed="false"] .side-icon { opacity: 0.82; }
+      #sound-button .sound-off { stroke: #ff5f8f; }
 
       /* Slim loading strip along the bottom. */
       .loading-progress { position: absolute; left: 6%; right: 6%; bottom: 8.6%; z-index: 3; transition: opacity 300ms ease; }
@@ -605,7 +606,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.89</div>
+        <div id="loading-version" class="loading-version">v0.3.90</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -746,13 +747,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("8a2b339ee64a02ec5cbd7585417adfde.data.unityweb"),
-        frameworkUrl: buildAssetUrl("ec5c0bdb78ebc90260b3a766d0a1e6a9.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("bd03cd55e1c22865425aebebd2b16077.wasm.unityweb"),
+        dataUrl: buildAssetUrl("217a50406d5d1e01cd8084a85e651d8d.data.unityweb"),
+        frameworkUrl: buildAssetUrl("bd90cba34fddf3da4360fd2a96439371.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("34069d2314fd3a0b2f7dbb21d9879847.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.89",
+        productVersion: "0.3.90",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -869,7 +870,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("241984174ba6a5f043850486869a64d4.loader.js");
+      loader.src = buildAssetUrl("f54e1a191b76e4be93a1766d474a712a.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
@@ -1117,10 +1118,21 @@
             received += Math.min(partSize, total - i * partSize);
           }
         }
+        // Live download speed over the last few seconds (the player's own connection).
+        const speedSamples = [];
+        const speedText = () => {
+          const now = performance.now();
+          speedSamples.push([now, received]);
+          while (speedSamples.length > 2 && now - speedSamples[0][0] > 4000) speedSamples.shift();
+          const [t0, b0] = speedSamples[0];
+          if (now - t0 < 400) return "";
+          const bps = (received - b0) * 1000 / (now - t0);
+          return bps >= 1048576 ? ` · ${(bps / 1048576).toFixed(1)}MB/s` : ` · ${Math.max(0, Math.round(bps / 1024))}KB/s`;
+        };
         const report = () => {
           const mb = n => (n / 1048576).toFixed(0);
           showProgress(0.6 * received / total);
-          loadingNote.textContent = `正在下载游戏资源 ${mb(received)}/${mb(total)}MB\n可以切出去，回来会接着下载`;
+          loadingNote.textContent = `正在下载游戏资源 ${mb(received)}/${mb(total)}MB${speedText()}\n可以切出去，回来会接着下载`;
         };
         report();
         const getPart = async i => {

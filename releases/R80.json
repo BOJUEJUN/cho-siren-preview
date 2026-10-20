@@ -1,0 +1,21 @@
+{
+  "version": "0.3.89",
+  "releaseId": "PSD-20261020-DICE3D-C2-D1-R80",
+  "date": "2026-10-20",
+  "name": "3D 骰子、撕纸对话框与评分字",
+  "notice": "骰子改为真 3D 翻滚：五颗各自抛起、同时落地，落地红色爆星加一次震屏，最后平滑停在点数上。剧情对话改为底部撕纸对话条＋粉色名条，不再比人还高。大招评分 PERFECT/GOOD/MISS 换成透明底贴纸字。修复老存档战斗音乐被静音。",
+  "backupBranch": "backup/v0.3.89",
+  "previousReleaseId": "PSD-20261020-VOLUME-CAPTAIN-R79",
+  "previousWebCommit": "d6b6c47",
+  "previousReleaseRecord": "releases/R79.json",
+  "previousBackupBranch": "backup/v0.3.88",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R80: DiceCube3D authored toss (6 UI faces, 1.05s, shared timing, GPT burst), StoryPanel C2 strip (UI/StoryC2), GPT grade stamps (UI/GradeStamps), volume migration for pre-slider saves.",
+  "validation": {
+    "unityEditMode": "578/578 passed.",
+    "iosSimulator": "build installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "大招频率与光碟金色就绪特效下一版修。"
+  ]
+}
