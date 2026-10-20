@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "90f3426147377bd17577af3a1a4ecfda.data.unityweb",
+    "b053d3eaf67bafac693da479037a7030.framework.js.unityweb",
+    "20c4b6ba00d15ea05cb0573760501a1b.wasm.unityweb",
+    "e35fe7182f210065e4f9d7f3e32188e7.loader.js"
+  ],
+  "previous": [
     "630a980d69228cc82b8dda317b0b7d55.data.unityweb",
     "c1ff0e026494f2dc05b3d92c2f520e7a.framework.js.unityweb",
     "fba088b2ebb8c9661eeedfa05b31c47d.wasm.unityweb",
     "53b293933f81e6e3b6ee5e410c703acd.loader.js"
   ],
-  "previous": [
-    "c5905c863bc4c39d96f9c49c1fba4e69.data.unityweb",
-    "9317b108c107d823d1f76ffb709ab337.framework.js.unityweb",
-    "5e87fcd11ef504abaddff3460a55f33e.wasm.unityweb",
-    "406f9cd1b39626d6b2dd29747b49c347.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.4.5",
+      "releaseId": "PSD-20261020-VOICE-ENEMY-R95",
+      "files": [
+        "c5905c863bc4c39d96f9c49c1fba4e69.data.unityweb",
+        "9317b108c107d823d1f76ffb709ab337.framework.js.unityweb",
+        "5e87fcd11ef504abaddff3460a55f33e.wasm.unityweb",
+        "406f9cd1b39626d6b2dd29747b49c347.loader.js"
+      ]
+    },
     {
       "version": "0.4.4",
       "releaseId": "PSD-20261020-REROLL-GLOW-R94",

@@ -1,21 +1,21 @@
 {
-  "version": "0.4.6",
-  "releaseId": "PSD-20261021-VFX-WAVE-R96",
+  "version": "0.4.7",
+  "releaseId": "PSD-20261021-ENEMY-FX-R97",
   "date": "2026-10-20",
-  "name": "特效升级、波次过渡、种族普攻与 R2 结算页复刻",
-  "notice": "特效：火焰、光球、闪光改成叠加发光，重叠处越叠越亮；命中改成分层（白闪、光圈、火花，暴击和大招再加 P5 冲击星和余烬），打中瞬间画面停顿一下；震屏改成顺着攻击方向弹一下；暴击数字更大、倾斜。普攻：四个种族各有招式——狐火三连追踪、恶魔三道爪痕、血精灵旋转血月加十字斩、人鱼水流冲击加水花。波次：每波打完会有 P5 风格的「第二波 / 最终波」过场，新敌人随后滑入。结算页按少爷选的 R2 原稿全屏复刻：关卡场景背景、VICTORY 大字、MVP 半身、红色斜带、星级、三人圆头像、奖励和红色斜切「继续」。",
-  "backupBranch": "backup/v0.4.6",
-  "previousReleaseId": "PSD-20261020-VOICE-ENEMY-R95",
-  "previousWebCommit": "dc78704",
-  "previousReleaseRecord": "releases/R95.json",
-  "previousBackupBranch": "backup/v0.4.5",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R96: UIAdditive shader, BattleFx1021 (hit-stop, layered ImpactBurst1021), BasicStrike1021 per-race basic attacks, directional shake, crit popups, P5 wave card in BattleWaveFracture1019 (turn loop waits for it), full-screen R2 result layout.",
+  "name": "敌人招式、大招冲击帧、P5 伤害数字与包体瘦身",
+  "notice": "敌人攻击不再是飞线：霓虹巡游发射激光，幽影/魔像三道爪痕，无人机和歌姬、首领发出声波。大招改用角色种族招式的放大版，命中时有一帧压暗再全屏闪光。伤害数字改成白到彩色的渐变加硬投影，暴击更大并倾斜。波次卡片加粗、加白色描边，首领关开场有「首领登场」卡片。结算页文字（VICTORY、MVP 名字和伤害）修复显示。图片压缩后网页数据包从 94MB 降到 82MB，加载更快。",
+  "backupBranch": "backup/v0.4.7",
+  "previousReleaseId": "PSD-20261021-VFX-WAVE-R96",
+  "previousWebCommit": "43a42eb",
+  "previousReleaseRecord": "releases/R96.json",
+  "previousBackupBranch": "backup/v0.4.6",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R97: BasicStrike1021 enemy styles (beam/claw/sonic) + ultimate at full size, ScreenFlash1021, PopupGradient1021 + slab shadow, bolder wave card + boss intro card, result text overflow fix, Resources/Art crunch (UiArtImporter1020 v2; per-file WebGL overrides kept).",
   "validation": {
     "unityEditMode": "579/579 passed.",
-    "iosSimulator": "wave card, hit burst + hit-stop and result layout checked from a recorded battle on iPhone 18 Pro simulator.",
+    "iosSimulator": "recorded 1-1 battle on iPhone 18 Pro simulator: enemy laser, crit popups, impact star, wave card and R2 result screen checked.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
-    "数据包 94MB，接近 100MB 上限。"
+    "数据包 82MB。"
   ]
 }
