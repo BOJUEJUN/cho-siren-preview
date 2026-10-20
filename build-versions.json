@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "7db5ec65cfea3e955fd7327753eeb4af.data.unityweb",
+    "ff666693a98f29ed1d7ba3260ffe7799.framework.js.unityweb",
+    "4d481fd03e991c615b53afabb9c614b4.wasm.unityweb",
+    "93ab1fbb1816af8f512fa30a54d10c64.loader.js"
+  ],
+  "previous": [
     "72131b860174c3be6197a23f6510b214.data.unityweb",
     "5a9e344489dcd2a732afb62617a95b0b.framework.js.unityweb",
     "649f75fc319f03b894bb40786d16dfa9.wasm.unityweb",
     "a6f9641412632a40c699fd554cfb3c09.loader.js"
   ],
-  "previous": [
-    "385a13c14c9462c2dbc0f1f6e1f69579.data.unityweb",
-    "064a79fb76b36f20fbcdc6765e2fec43.framework.js.unityweb",
-    "d560546bfbe05bd9d89f78022f49f9bf.wasm.unityweb",
-    "c1224cd1455c11c08266abd5859aa1c3.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.97",
+      "releaseId": "PSD-20261020-ENERGY-FIX-R88",
+      "files": [
+        "385a13c14c9462c2dbc0f1f6e1f69579.data.unityweb",
+        "064a79fb76b36f20fbcdc6765e2fec43.framework.js.unityweb",
+        "d560546bfbe05bd9d89f78022f49f9bf.wasm.unityweb",
+        "c1224cd1455c11c08266abd5859aa1c3.loader.js"
+      ]
+    },
     {
       "version": "0.3.96",
       "releaseId": "PSD-20261020-ULT-STRIKE-R87",
