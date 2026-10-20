@@ -1,0 +1,21 @@
+{
+  "version": "0.3.86",
+  "releaseId": "PSD-20261020-ULT-VIDEOS-R77",
+  "date": "2026-10-20",
+  "name": "四人大招动画、大招节奏与重投光效",
+  "notice": "四位成员的大招都换成专属动画，自动战斗也会播放并自动点出GOOD（PERFECT留给手动）。大招充能变慢（约每6–7回合一次），放完会有大字落地和震屏反馈。重投按钮的光改为柔和发光。成员页默认只显示已拥有成员，只有一页时不再显示翻页。",
+  "backupBranch": "backup/v0.3.86",
+  "previousReleaseId": "PSD-20261020-TURN-PACE-R76",
+  "previousWebCommit": "5b52f3f46cc301e1a533948eca94fde56bede3fb",
+  "previousReleaseRecord": "releases/R76.json",
+  "previousBackupBranch": "backup/v0.3.85",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R77: ultimate clips for xingli/yeying/feiyin added (wubai kept), one VideoPlayer per clip preloaded at battle start; auto ultimate show with GOOD assist; turn ult energy 15 per own action only; UltimateImpact title slam; feathered reroll-halo glow; player x13 / enemy x9 damage, boss 30 rounds; roster owned-only default.",
+  "validation": {
+    "unityEditMode": "577/577 passed; TurnBattlePacing1020Tests 1-1…2-3 all wins, 10–14 rounds (≈45–66 s), boss 1-10 27 rounds (≈96 s).",
+    "iosSimulator": "iPhone 18 Pro simulator: auto battle plays ultimate shows with GOOD stamps; wubai clip plays.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "章节奖励/任务弹窗、地图页、剧情对话框、经纪人头像、骰子动画、转场等待重做。"
+  ]
+}
