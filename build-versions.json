@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "630a980d69228cc82b8dda317b0b7d55.data.unityweb",
+    "c1ff0e026494f2dc05b3d92c2f520e7a.framework.js.unityweb",
+    "fba088b2ebb8c9661eeedfa05b31c47d.wasm.unityweb",
+    "53b293933f81e6e3b6ee5e410c703acd.loader.js"
+  ],
+  "previous": [
     "c5905c863bc4c39d96f9c49c1fba4e69.data.unityweb",
     "9317b108c107d823d1f76ffb709ab337.framework.js.unityweb",
     "5e87fcd11ef504abaddff3460a55f33e.wasm.unityweb",
     "406f9cd1b39626d6b2dd29747b49c347.loader.js"
   ],
-  "previous": [
-    "ce58648d4aacf383c7e8a8d23c06c53a.data.unityweb",
-    "1cc82038ea6973eb5f0bbb16001ac306.framework.js.unityweb",
-    "3ec83768367e9586d57323c58103ac0a.wasm.unityweb",
-    "14cd51dedaa106c93f02d23fca2cf416.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.4.4",
+      "releaseId": "PSD-20261020-REROLL-GLOW-R94",
+      "files": [
+        "ce58648d4aacf383c7e8a8d23c06c53a.data.unityweb",
+        "1cc82038ea6973eb5f0bbb16001ac306.framework.js.unityweb",
+        "3ec83768367e9586d57323c58103ac0a.wasm.unityweb",
+        "14cd51dedaa106c93f02d23fca2cf416.loader.js"
+      ]
+    },
     {
       "version": "0.4.3",
       "releaseId": "PSD-20261020-RESULT-BUST-R93",
