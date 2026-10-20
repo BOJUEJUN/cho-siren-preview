@@ -753,6 +753,15 @@
       "width": 433,
       "height": 126,
       "note": "white rim of L037, always drawn over the energy fill"
+    },
+    {
+      "key": "reroll-halo",
+      "file": "d861299f3bfc7686-reroll-halo.png",
+      "x": -789,
+      "y": 2647,
+      "width": 1860,
+      "height": 751,
+      "note": "soft feathered glow around the reroll bar silhouette"
     }
   ]
 }
