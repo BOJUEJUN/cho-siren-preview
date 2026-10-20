@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "b27221d4b46870f92a72fb6b22c851eb.data.unityweb",
+    "1ee2edeaee618da4f9b842685415579c.framework.js.unityweb",
+    "9db6124100dab0ef1d95bba20d42879c.wasm.unityweb",
+    "4fe653b65322c76b4a5ec4691937acc3.loader.js"
+  ],
+  "previous": [
     "0bcaeda9105e2e525ed5f67d8c552c52.data.unityweb",
     "0c4109f2049fecba30cd29ee31587684.framework.js.unityweb",
     "d283162699f598f6cfe932b5dbcc5856.wasm.unityweb",
     "54c7f25b4dfb9c05a09f13c88e98dcf8.loader.js"
   ],
-  "previous": [
-    "c1df5f841bca1db0746ad7ba1c8bba46.data.unityweb",
-    "041b50573c112627c2807cc99a5cf748.framework.js.unityweb",
-    "ac025528e3e0c26ef7223d4ee6fa06bc.wasm.unityweb",
-    "250a206275f1a218ab2f521ddeb591b3.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.92",
+      "releaseId": "PSD-20261020-ROSTER-RESULT-R83",
+      "files": [
+        "c1df5f841bca1db0746ad7ba1c8bba46.data.unityweb",
+        "041b50573c112627c2807cc99a5cf748.framework.js.unityweb",
+        "ac025528e3e0c26ef7223d4ee6fa06bc.wasm.unityweb",
+        "250a206275f1a218ab2f521ddeb591b3.loader.js"
+      ]
+    },
     {
       "version": "0.3.91",
       "releaseId": "PSD-20261020-ULT-FIX-R82",

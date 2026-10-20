@@ -1,0 +1,21 @@
+{
+  "version": "0.3.93",
+  "releaseId": "PSD-20261020-STORY-CG-R84",
+  "date": "2026-10-20",
+  "name": "剧情场景 CG、对话框修整与关卡高亮",
+  "notice": "剧情：每位说话的角色换成她在当前场景里的完整 CG（不再像贴上去的立绘），共 42 张。对话框去掉紫色底块、文字不再被裁切，右下角有跳动的粉色箭头提示点击继续。关卡地图：当前选中的关卡被粉金色火焰框包围。",
+  "backupBranch": "backup/v0.3.93",
+  "previousReleaseId": "PSD-20261020-ROSTER-RESULT-R83",
+  "previousWebCommit": "4114bc1",
+  "previousReleaseRecord": "releases/R83.json",
+  "previousBackupBranch": "backup/v0.3.92",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R84: 42 GPT in-scene CGs (Scenes1019/cg-<script>-<speaker>, streamed on web, Data/StoryCgIndex), StoryPanel ApplySceneCg hides busts; dialogue edge/sheen cleared, viewport 146px, bobbing ▼; LevelMap selected-stage flame (UI/MapFx) + MapSelectedFlame1020.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "pending for this build.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "4 张 CG 被生成服务拦截，对应台词暂用上一张 CG；骰型印章字、光碟就绪特效与转场等待选择后接入。"
+  ]
+}
