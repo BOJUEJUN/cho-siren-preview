@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "f4bd13833290e133b1761dcb6522489c.data.unityweb",
+    "6ed86a90e0197d0a4a53f26090a3e073.framework.js.unityweb",
+    "1551a343e27959809dbb2132df139f33.wasm.unityweb",
+    "cef45eb9ae6b0555ffc290d6ef9a353d.loader.js"
+  ],
+  "previous": [
     "217a50406d5d1e01cd8084a85e651d8d.data.unityweb",
     "bd90cba34fddf3da4360fd2a96439371.framework.js.unityweb",
     "34069d2314fd3a0b2f7dbb21d9879847.wasm.unityweb",
     "f54e1a191b76e4be93a1766d474a712a.loader.js"
   ],
-  "previous": [
-    "8a2b339ee64a02ec5cbd7585417adfde.data.unityweb",
-    "ec5c0bdb78ebc90260b3a766d0a1e6a9.framework.js.unityweb",
-    "bd03cd55e1c22865425aebebd2b16077.wasm.unityweb",
-    "241984174ba6a5f043850486869a64d4.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.89",
+      "releaseId": "PSD-20261020-DICE3D-C2-D1-R80",
+      "files": [
+        "8a2b339ee64a02ec5cbd7585417adfde.data.unityweb",
+        "ec5c0bdb78ebc90260b3a766d0a1e6a9.framework.js.unityweb",
+        "bd03cd55e1c22865425aebebd2b16077.wasm.unityweb",
+        "241984174ba6a5f043850486869a64d4.loader.js"
+      ]
+    },
     {
       "version": "0.3.88",
       "releaseId": "PSD-20261020-VOLUME-CAPTAIN-R79",

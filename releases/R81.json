@@ -1,0 +1,21 @@
+{
+  "version": "0.3.90",
+  "releaseId": "PSD-20261020-ULT-PACE-GOLD-R81",
+  "date": "2026-10-20",
+  "name": "大招节奏、金色就绪光效与极简标题按钮",
+  "notice": "大招不再频繁：能量涨得更慢，全队放过大招后要隔 3 回合才能再放，放完能量清空需重新蓄满；单次大招更强（一场约 1–2 次）。能量满时光碟上方重新出现金色光焰（全新设计）。标题页右侧只保留铃铛、扳手、喇叭图标，喇叭有开/静音两种样子。下载时显示你的实时网速。",
+  "backupBranch": "backup/v0.3.90",
+  "previousReleaseId": "PSD-20261020-DICE3D-C2-D1-R80",
+  "previousWebCommit": "91951bc",
+  "previousReleaseRecord": "releases/R80.json",
+  "previousBackupBranch": "backup/v0.3.89",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R81: TurnEnergyPerAction 8, TeamUltimateRoundGap 3, ult dmg x2.4; GPT gold ult-ready aura (Resources/UI/UltReady) with flow mesh; NativeTitleScreen icon-only side buttons; template: icon-only corner buttons, live MB/s in resumable download.",
+  "validation": {
+    "unityEditMode": "578/578 passed; pacing 1-1…2-3 all wins, 0–2 ultimates.",
+    "iosSimulator": "build installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "新转场方案生成中；大招击中特效、成员普攻特效、地图页、剧情 CG 仍在进行。"
+  ]
+}
