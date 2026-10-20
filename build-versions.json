@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "1c6de13590bd721dc58dfcb24042a6da.data.unityweb",
+    "914b2b2f9a711f1477cfe21dd89d6a84.framework.js.unityweb",
+    "26d00e4bffaac87dc34295637e6cd809.wasm.unityweb",
+    "18d4302d87474f30ca8cfa390cb467e6.loader.js"
+  ],
+  "previous": [
     "7db5ec65cfea3e955fd7327753eeb4af.data.unityweb",
     "ff666693a98f29ed1d7ba3260ffe7799.framework.js.unityweb",
     "4d481fd03e991c615b53afabb9c614b4.wasm.unityweb",
     "93ab1fbb1816af8f512fa30a54d10c64.loader.js"
   ],
-  "previous": [
-    "72131b860174c3be6197a23f6510b214.data.unityweb",
-    "5a9e344489dcd2a732afb62617a95b0b.framework.js.unityweb",
-    "649f75fc319f03b894bb40786d16dfa9.wasm.unityweb",
-    "a6f9641412632a40c699fd554cfb3c09.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.98",
+      "releaseId": "PSD-20261020-SFX-STORY-R89",
+      "files": [
+        "72131b860174c3be6197a23f6510b214.data.unityweb",
+        "5a9e344489dcd2a732afb62617a95b0b.framework.js.unityweb",
+        "649f75fc319f03b894bb40786d16dfa9.wasm.unityweb",
+        "a6f9641412632a40c699fd554cfb3c09.loader.js"
+      ]
+    },
     {
       "version": "0.3.97",
       "releaseId": "PSD-20261020-ENERGY-FIX-R88",

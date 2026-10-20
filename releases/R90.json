@@ -1,0 +1,19 @@
+{
+  "version": "0.3.99",
+  "releaseId": "PSD-20261020-POLISH-R90",
+  "date": "2026-10-20",
+  "name": "攻击特效统一、Boss 波站位与弹窗紧凑",
+  "notice": "小技能和魅族追击也换成各种族自己的攻击特效（不再出现旧的细线），小技能带攻击音。Boss 波有 3 个以上小怪时，全部排在顶部两侧，不再挡住重投和应急守护按钮。章节奖励/任务弹窗更紧凑、字更大，「进行中」按钮清楚可见。",
+  "backupBranch": "backup/v0.3.99",
+  "previousReleaseId": "PSD-20261020-SFX-STORY-R89",
+  "previousWebCommit": "ff27819",
+  "previousReleaseRecord": "releases/R89.json",
+  "previousBackupBranch": "backup/v0.3.98",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R90: small skills + charm follow-ups via UltimateStrike1020.PlayBasic, boss adds top-row layout, compact P5 chapter modals.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "basic/follow-up/ultimate strikes and dice bonus flight confirmed via device log; chapter modals screenshotted.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": []
+}
