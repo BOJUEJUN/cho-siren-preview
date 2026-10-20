@@ -1,0 +1,21 @@
+{
+  "version": "0.4.8",
+  "releaseId": "PSD-20261021-RESULT-GEAR-R98",
+  "date": "2026-10-20",
+  "name": "结算页显示获得的装备",
+  "notice": "结算页奖励区：星光币、星钻等货币保持一行青色文字；掉落的装备单独显示装备图标，背后有品质颜色的光晕，名字用品质颜色（普通/精良/稀有/史诗/传说）。没有掉装备时显示「本次未掉落装备」。点奖励区可以直接去看装备。",
+  "backupBranch": "backup/v0.4.8",
+  "previousReleaseId": "PSD-20261021-ENEMY-FX-R97",
+  "previousWebCommit": "2e43862",
+  "previousReleaseRecord": "releases/R97.json",
+  "previousBackupBranch": "backup/v0.4.7",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R98: result reward area 140 px — currency text line + up to 5 accessory icons (76 px) on rarity additive glow with rarity-coloured names; empty-gear note.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "result layout re-checked on iPhone 18 Pro simulator (that run dropped no gear).",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 82MB。"
+  ]
+}
