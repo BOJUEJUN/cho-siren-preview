@@ -1,23 +1,22 @@
 {
-  "version": "0.3.84",
-  "releaseId": "PSD-20261020-TURN-BATTLE-R75",
+  "version": "0.3.85",
+  "releaseId": "PSD-20261020-TURN-PACE-R76",
   "date": "2026-10-20",
-  "name": "回合制战斗、大招动画与打击感",
-  "notice": "战斗改为回合制：按速度轮流行动，轮到成员时选择普攻/技能/大招，敌人蓄力会提前一回合预警，20回合内获胜。大招播放角色动画，中间点击圆环评分（PERFECT/GOOD）。骰子选中改为抬起发光，计分骰子用霓虹框；去掉黄色光柱；普攻冒出的立绘缩小；护盾回到角色身上，应急守护用完后仍可见。",
-  "backupBranch": "backup/v0.3.84",
-  "previousReleaseId": "PSD-20261020-LOAD-RESUME-R74",
-  "previousWebCommit": "dedd36458b6b4e135faf41cfff8fc32badab827c",
-  "previousReleaseRecord": "releases/R74.json",
-  "previousBackupBranch": "backup/v0.3.83",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R75: TurnBattle1020 (speed-ordered turns, 普攻/技能/大招, enemy telegraph next turn, 20-round limit, energy-gated ultimates) + TacticsBattlePanel.Turn1020 command bar; BattleUltimateShow1020 (character clip StreamingAssets/UltimateVideos/wubai-ult.mp4 or portrait, tap ring scoring); DiceRerollMark1020 lift/glow selection; dice neon frame instead of flames; ult pillar hidden; basic burst portrait 60%; guard ring placed on the portrait; spent guard badge stays visible.",
+  "name": "回合制节奏、红点与界面细节",
+  "notice": "回合制默认自动战斗，不再显示“XX的回合”；一场约1分钟（推荐等级约10–13回合），重投充能更快。骰子只在你选中时高亮。所有红点统一为小圆点不显示数字。标题页按钮缩小、16+移到左上角；大厅顶栏更贴近灵动岛；从团队/成员/饰品等页面返回大厅不再播放转场。",
+  "backupBranch": "backup/v0.3.85",
+  "previousReleaseId": "PSD-20261020-TURN-BATTLE-R75",
+  "previousWebCommit": "004852d30187807777ad0208cea3b375244b08b9",
+  "previousReleaseRecord": "releases/R75.json",
+  "previousBackupBranch": "backup/v0.3.84",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R76: turn mode damage x11 / heal+poison x4 / +6% reroll charge per member action; auto default; no turn caption; scoring-dice frame removed; unified 18-unit red dots without counts; title side buttons resized, CADPA 16+ top-left; SafeAreaFitter uses 72% of a tall top inset; record transition only when returning from the stage flow.",
   "validation": {
-    "unityEditMode": "576/576 passed (2026-10-20).",
-    "iosSimulator": "iPhone 18 Pro simulator: turn battle from 开始挑战; 普攻 command, enemy turns with banner, auto mode through 15 rounds; 应急守护 used then still visible; all four ultimates with the show (雾白 plays her clip from the eye frame; others portrait), tap ring and MISS stamp.",
+    "unityEditMode": "577/577 passed, incl. TurnBattlePacing1020Tests: stages 1-1…2-3 at recommended level won in 10–13 rounds (≈48–61 s) with 2–4 rerolls earned.",
+    "iosSimulator": "iPhone 18 Pro simulator: title buttons/16+, lobby top bar, auto turn battle without caption, dice +N without frames.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
     "战斗音效仍为临时合成版。",
-    "普攻特效每个角色还没有各自设计。",
-    "开始演出转场新设计等待少爷从 A/B/C 概念中选择。"
+    "开始演出转场新设计、骰子动画新设计等待少爷选择。"
   ]
 }

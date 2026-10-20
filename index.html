@@ -226,45 +226,49 @@
         padding: 0; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
       }
       .age-badge .age-card {
-        display: grid; width: 11cqw; overflow: hidden; border-radius: 1.4cqw;
+        display: grid; width: 10cqw; overflow: hidden; border-radius: 1.3cqw;
         border: 0.45cqw solid #fff; box-shadow: 0 0.6cqw 1.6cqw rgba(0, 0, 0, 0.45);
       }
       .age-badge .age-num {
-        display: grid; place-items: center; height: 8.4cqw; background: #f5a300;
-        color: #fff; font-size: 5.4cqw; font-weight: 900; letter-spacing: -0.04em;
+        display: grid; place-items: center; height: 7.6cqw; background: #f5a300;
+        color: #fff; font-size: 4.9cqw; font-weight: 900; letter-spacing: -0.04em;
         text-shadow: 0 0.3cqw 0 rgba(120, 60, 0, 0.45);
       }
       .age-badge .age-org {
-        display: grid; place-items: center; height: 3cqw; background: #fff;
-        color: #222; font-size: 1.9cqw; font-weight: 900; letter-spacing: 0.08em;
+        display: grid; place-items: center; height: 2.7cqw; background: #fff;
+        color: #222; font-size: 1.75cqw; font-weight: 900; letter-spacing: 0.08em;
       }
       .age-badge .age-label {
         padding: 0.2cqw 1.2cqw; background: rgba(0, 0, 0, 0.62);
-        font-size: 2.1cqw; font-weight: 900; letter-spacing: 0.12em;
+        font-size: 2cqw; font-weight: 900; letter-spacing: 0.12em;
       }
 
       .loading-corner {
-        position: absolute; top: 4%; right: 2.6%; z-index: 4;
-        display: flex; flex-direction: column; align-items: center; gap: 3.4cqw;
+        position: absolute; top: calc(env(safe-area-inset-top, 0px) * .6 + 1.2%); right: 2.6%; z-index: 4;
+        display: flex; flex-direction: column; align-items: center; gap: 2.8cqw;
       }
       .loading-corner button {
-        display: grid; justify-items: center; gap: 2.4cqw;
+        display: grid; justify-items: center; gap: 2cqw;
         padding: 0; border: 0; background: none; color: #fff;
         font: inherit; cursor: pointer;
       }
-      .loading-corner > .age-badge { align-self: stretch; gap: 0.6cqw; }
+      /* Age rating stands alone in the top-left corner at a fixed, unobtrusive size. */
+      .age-corner {
+        position: absolute; top: calc(env(safe-area-inset-top, 0px) * .6 + 1.2%); left: 3.2%; z-index: 4;
+      }
+      .age-corner > .age-badge { gap: 0.6cqw; }
       .loading-corner .side-icon {
         display: grid; place-items: center;
-        width: 10.5cqw; height: 10.5cqw; margin-top: 2.2cqw;
+        width: 8.8cqw; height: 8.8cqw; margin-top: 1.9cqw;
         transform: rotate(45deg);
         background: rgba(6, 3, 12, 0.62);
-        border: 0.35cqw solid rgba(255, 255, 255, 0.85);
+        border: 0.3cqw solid rgba(255, 255, 255, 0.85);
       }
-      .loading-corner .side-icon svg { width: 6cqw; height: 6cqw; transform: rotate(-45deg); }
+      .loading-corner .side-icon svg { width: 5cqw; height: 5cqw; transform: rotate(-45deg); }
       .loading-corner .side-label {
-        min-width: 15cqw; padding: 0.6cqw 1.6cqw;
+        min-width: 12.5cqw; padding: 0.5cqw 1.4cqw;
         background: rgba(0, 0, 0, 0.62);
-        font-size: 12px; font-size: 3cqw; font-weight: 900; letter-spacing: 0.08em; text-align: center;
+        font-size: 11px; font-size: 2.7cqw; font-weight: 900; letter-spacing: 0.08em; text-align: center;
       }
       .loading-corner button.has-dot { position: relative; }
       .loading-corner button.has-dot::after {
@@ -585,6 +589,8 @@
               <path class="sound-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path class="sound-off" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="side-label">声音</span>
           </button>
+        </div>
+        <div class="age-corner">
           <button id="age-button" class="age-badge" type="button" aria-label="适龄提示：16 岁以上">
             <span class="age-card"><span class="age-num">16+</span><span class="age-org">CADPA</span></span>
             <span class="age-label">适龄提示</span>
@@ -599,7 +605,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.84</div>
+        <div id="loading-version" class="loading-version">v0.3.85</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -740,13 +746,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("3398050ba8688ee205afe5dce98c3d67.data.unityweb"),
-        frameworkUrl: buildAssetUrl("0371a848d4771b832622e5876317a653.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("fddc5c34cee6f71881aeb9bb969c7f0f.wasm.unityweb"),
+        dataUrl: buildAssetUrl("5c58dc547a8c9de4a9b30310f653be6c.data.unityweb"),
+        frameworkUrl: buildAssetUrl("bb7d513896bafdb5060d74691a1d4dca.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("9049db175bcf8975a0af85db9bddc410.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.84",
+        productVersion: "0.3.85",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -863,7 +869,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("85b492a6c49ab520c15c1665642b4b7e.loader.js");
+      loader.src = buildAssetUrl("373af11aded5080d57ef18a520375d22.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
