@@ -614,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.4.4</div>
+        <div id="loading-version" class="loading-version">v0.4.5</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -755,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("ce58648d4aacf383c7e8a8d23c06c53a.data.unityweb"),
-        frameworkUrl: buildAssetUrl("1cc82038ea6973eb5f0bbb16001ac306.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("3ec83768367e9586d57323c58103ac0a.wasm.unityweb"),
+        dataUrl: buildAssetUrl("c5905c863bc4c39d96f9c49c1fba4e69.data.unityweb"),
+        frameworkUrl: buildAssetUrl("9317b108c107d823d1f76ffb709ab337.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("5e87fcd11ef504abaddff3460a55f33e.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.4.4",
+        productVersion: "0.4.5",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -878,7 +878,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("14cd51dedaa106c93f02d23fca2cf416.loader.js");
+      loader.src = buildAssetUrl("406f9cd1b39626d6b2dd29747b49c347.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
@@ -1146,7 +1146,8 @@
         const getPart = async i => {
           const start = i * partSize, end = Math.min(total, start + partSize) - 1;
           for (let attempt = 0; ; attempt++) {
-            await whenVisible();
+            // 2026-10-20: keep downloading while the page is in the background (desktop/Android
+            // continue; iOS freezes hidden pages itself and resumes here when the page returns).
             try {
               const response = await fetchPart(start, end);
               if (!response) throw new Error("range unsupported");

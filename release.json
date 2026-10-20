@@ -1,19 +1,21 @@
 {
-  "version": "0.4.4",
-  "releaseId": "PSD-20261020-REROLL-GLOW-R94",
+  "version": "0.4.5",
+  "releaseId": "PSD-20261020-VOICE-ENEMY-R95",
   "date": "2026-10-20",
-  "name": "修复重投光效残留",
-  "notice": "修复：重投次数用完后，重投按钮已经收起，但青色流光还留在原地一直亮。现在流光跟着按钮一起收起，只在能重投时亮。",
-  "backupBranch": "backup/v0.4.4",
-  "previousReleaseId": "PSD-20261020-RESULT-BUST-R93",
-  "previousWebCommit": "dd271d2",
-  "previousReleaseRecord": "releases/R93.json",
-  "previousBackupBranch": "backup/v0.4.3",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R94: reroll ink on the sliding bar art, IgnoreHover (touch never sends pointer-exit).",
+  "name": "全剧情配音、视频转场、R2 结算页与敌人设计",
+  "notice": "配音：剧情里成员的每句台词都有日语配音（和战斗同一套声音，按台词情绪），战斗胜利时队长会说胜利台词。转场：所有关卡转场统一成少爷给的视频片段。结算页换成 R2：MVP 半身大图 + 红色斜带，其余三人圆头像。敌人更有策略：巡游专打残血、低血时更凶；无人机打出「回响标记」，幽影对标记目标双倍伤害；女卫给队友上盾；咒歌治疗会被中毒减半；3 个以上敌人时会集火同一人。普通受击也会轻微震屏。下载：电脑和安卓切到后台也会继续下载（iPhone 系统会冻结后台网页，回来接着下）。",
+  "backupBranch": "backup/v0.4.5",
+  "previousReleaseId": "PSD-20261020-REROLL-GLOW-R94",
+  "previousWebCommit": "1f97316",
+  "previousReleaseRecord": "releases/R94.json",
+  "previousBackupBranch": "backup/v0.4.4",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R95: 58 story + 4 victory MiniMax speech-2.8-hd lines (Resources/Audio/Voice), ChallengeVideoTransition plays StreamingAssets/Transitions/challenge-cut.mp4, R2 result layout, EnemyTactics1020, light hit shake, loader no longer pauses while hidden.",
   "validation": {
-    "unityEditMode": "579/579 passed.",
-    "iosSimulator": "no leftover glow with 0 rerolls on iPhone 18 Pro simulator.",
+    "unityEditMode": "579/579 passed; pacing all wins.",
+    "iosSimulator": "video transition + R2 result verified on iPhone 18 Pro simulator.",
     "webChecks": "npm run check (see commit)."
   },
-  "knownLimits": []
+  "knownLimits": [
+    "数据包 94MB，接近 100MB 上限。"
+  ]
 }

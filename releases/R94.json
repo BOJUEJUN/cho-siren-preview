@@ -1,0 +1,19 @@
+{
+  "version": "0.4.4",
+  "releaseId": "PSD-20261020-REROLL-GLOW-R94",
+  "date": "2026-10-20",
+  "name": "修复重投光效残留",
+  "notice": "修复：重投次数用完后，重投按钮已经收起，但青色流光还留在原地一直亮。现在流光跟着按钮一起收起，只在能重投时亮。",
+  "backupBranch": "backup/v0.4.4",
+  "previousReleaseId": "PSD-20261020-RESULT-BUST-R93",
+  "previousWebCommit": "dd271d2",
+  "previousReleaseRecord": "releases/R93.json",
+  "previousBackupBranch": "backup/v0.4.3",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R94: reroll ink on the sliding bar art, IgnoreHover (touch never sends pointer-exit).",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "no leftover glow with 0 rerolls on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": []
+}
