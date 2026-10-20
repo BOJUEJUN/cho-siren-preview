@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "8a2b339ee64a02ec5cbd7585417adfde.data.unityweb",
+    "ec5c0bdb78ebc90260b3a766d0a1e6a9.framework.js.unityweb",
+    "bd03cd55e1c22865425aebebd2b16077.wasm.unityweb",
+    "241984174ba6a5f043850486869a64d4.loader.js"
+  ],
+  "previous": [
     "a57cea73b62c3a9ea376cf5887b5282f.data.unityweb",
     "a3838d7e624f3e567812ed8be13e6e10.framework.js.unityweb",
     "6d191366da8daf935e126276b2c60e23.wasm.unityweb",
     "6a89fff1775aa2d8159883705552ed8f.loader.js"
   ],
-  "previous": [
-    "e89b6ee85f5f9920c4be74662ff9f333.data.unityweb",
-    "9316152d74a44a0cd3c5bae89a012f19.framework.js.unityweb",
-    "c586d9ca4945b1e34bd24cefa9765949.wasm.unityweb",
-    "03bc3f17d28d404bf2da5d6c8f725b17.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.87",
+      "releaseId": "PSD-20261020-ULT-LIMIT-ECONOMY-R78",
+      "files": [
+        "e89b6ee85f5f9920c4be74662ff9f333.data.unityweb",
+        "9316152d74a44a0cd3c5bae89a012f19.framework.js.unityweb",
+        "c586d9ca4945b1e34bd24cefa9765949.wasm.unityweb",
+        "03bc3f17d28d404bf2da5d6c8f725b17.loader.js"
+      ]
+    },
     {
       "version": "0.3.86",
       "releaseId": "PSD-20261020-ULT-VIDEOS-R77",

@@ -1,0 +1,21 @@
+{
+  "version": "0.3.88",
+  "releaseId": "PSD-20261020-VOLUME-CAPTAIN-R79",
+  "date": "2026-10-20",
+  "name": "音量滑杆、队长说明与成员页简化",
+  "notice": "设置里音乐、音效改成 0–100 滑杆，默认音量提高到与系统一致。更换队长弹窗放大，并写明队长作用和每人的队长效果，点角色直接任命。成员页只显示已拥有的角色，背景更干净，单页不显示翻页。饰品等级从 Lv.1 开始。成就入口只显示红点。",
+  "backupBranch": "backup/v0.3.88",
+  "previousReleaseId": "PSD-20261020-ULT-LIMIT-ECONOMY-R78",
+  "previousWebCommit": "518699d",
+  "previousReleaseRecord": "releases/R78.json",
+  "previousBackupBranch": "backup/v0.3.87",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R79: MusicVolume/SfxVolume sliders (0-100) scaling raised base gains (music .45, battle .3, sfx .6, battle sfx .85); captain picker 4 large rows with MemberCaptainTraits copy, tap appoints; members-board calmer lower background; accessory level shown as upgrade+1; pager hidden on single page.",
+  "validation": {
+    "unityEditMode": "577/577 passed (music gain pin moved to 0.3–0.6).",
+    "iosSimulator": "build installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "大招击中特效、评分文字（美术已生成待接入）、骰子 3D 动画（待少爷选版本）、对话框/转场（待选）、地图页重做仍在进行。"
+  ]
+}
