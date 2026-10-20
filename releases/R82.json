@@ -1,0 +1,21 @@
+{
+  "version": "0.3.91",
+  "releaseId": "PSD-20261020-ULT-FIX-R82",
+  "date": "2026-10-20",
+  "name": "修复大招重复播放",
+  "notice": "修复：自动战斗时大招动画播放了但没有真正释放，能量不扣、每回合重复播放。现在放完大招能量清空，需要重新蓄满。开局还没有重投次数时，点选骰子也会浮起发光，和重投时一致。",
+  "backupBranch": "backup/v0.3.91",
+  "previousReleaseId": "PSD-20261020-ULT-PACE-GOLD-R81",
+  "previousWebCommit": "5f6a661",
+  "previousReleaseRecord": "releases/R81.json",
+  "previousBackupBranch": "backup/v0.3.90",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R82: TryCastUltimateWithTiming ignores AutoCastUltimates in turn mode; TryTurnUltimate falls back to plain cast; TurnLoop takes the turn if the cast fails; dice selection lift without a reroll charge; new test TimedUltimateInAutoModeSpendsTheBar; pacing test asserts all wins.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "build installed on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "新转场方案生成中；大招击中特效、成员普攻特效、地图页、剧情 CG 仍在进行。"
+  ]
+}

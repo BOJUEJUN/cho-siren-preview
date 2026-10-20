@@ -494,16 +494,24 @@
         clip-path: polygon(6% 0,100% 0,94% 100%,0 100%);
         transition: filter 120ms ease, translate 120ms ease;
       }
+      /* 2026-10-20: no crystal plate — one clean slanted P5 block: hot pink, black offset. */
       .dialog-actions #dialog-ok {
-        min-width: 140px; border-color: transparent; background: transparent url('./media/ui-action-plate-v1.png') center / 100% 100% no-repeat;
-        clip-path: none; text-shadow: 1px 2px 1px #000;
+        min-width: 140px; border-color: #ff2f8e; background: #ff2f8e;
+        box-shadow: none; text-shadow: none; letter-spacing: .08em;
       }
+      .dialog-actions { filter: drop-shadow(3px 3px 0 #000); }
       .dialog-actions button:hover, .dialog-actions button:focus-visible { filter: brightness(1.3); }
       .dialog-actions button:active { translate: 0 2px; filter: brightness(.85); }
+      /* Plain words over the art (no plate): a thin pink slash underlines them. */
       .loading-start small {
-        min-width: 58cqw; min-height: 15cqw; display: grid; place-items: center;
-        padding: 0 6cqw; background: url('./media/ui-action-plate-v1.png') center / 100% 100% no-repeat;
-        font-size: 3.5cqw; letter-spacing: .06em;
+        position: relative; display: inline-block; padding: 0 2cqw 1.6cqw;
+        background: none; font-size: 3.5cqw; letter-spacing: .3em;
+        text-shadow: 0 0.3cqw 0.8cqw rgba(0, 0, 0, 0.9);
+      }
+      .loading-start small::after {
+        content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: 0.7cqw;
+        background: linear-gradient(90deg, transparent, #ff2f8e 18%, #ff2f8e 82%, transparent);
+        transform: skewX(-30deg);
       }
       #retry { border-radius: 0; border: 2px solid #f8f5ff; background: #28133d; }
 
@@ -606,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.91</div>
+        <div id="loading-version" class="loading-version">v0.3.92</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -747,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("f4bd13833290e133b1761dcb6522489c.data.unityweb"),
-        frameworkUrl: buildAssetUrl("6ed86a90e0197d0a4a53f26090a3e073.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("1551a343e27959809dbb2132df139f33.wasm.unityweb"),
+        dataUrl: buildAssetUrl("c1df5f841bca1db0746ad7ba1c8bba46.data.unityweb"),
+        frameworkUrl: buildAssetUrl("041b50573c112627c2807cc99a5cf748.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("ac025528e3e0c26ef7223d4ee6fa06bc.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.91",
+        productVersion: "0.3.92",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -870,7 +878,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("cef45eb9ae6b0555ffc290d6ef9a353d.loader.js");
+      loader.src = buildAssetUrl("250a206275f1a218ab2f521ddeb591b3.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
