@@ -599,7 +599,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.3.83</div>
+        <div id="loading-version" class="loading-version">v0.3.84</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -740,13 +740,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("0ca742f9d53f15e5a9a576f3caf19d98.data.unityweb"),
-        frameworkUrl: buildAssetUrl("eb596bfbcb93b587a51bea9f19d3e177.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("b188f1b51259354a8c50d9c174a6cb84.wasm.unityweb"),
+        dataUrl: buildAssetUrl("3398050ba8688ee205afe5dce98c3d67.data.unityweb"),
+        frameworkUrl: buildAssetUrl("0371a848d4771b832622e5876317a653.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("fddc5c34cee6f71881aeb9bb969c7f0f.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.3.83",
+        productVersion: "0.3.84",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -863,7 +863,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("f7fcb96c1f3f68bcdbb83448286c340c.loader.js");
+      loader.src = buildAssetUrl("85b492a6c49ab520c15c1665642b4b7e.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
@@ -961,7 +961,7 @@
       function watchFrameRate(instance) {
         const module = instance && instance.Module;
         if (!module || typeof window.requestAnimationFrame !== "function") return;
-        const steps = [2, 1.5].filter(step => step < config.devicePixelRatio - 0.01);
+        const steps = [2].filter(step => step < config.devicePixelRatio - 0.01); // never below 2x: no blurry phones
         let frames = 0, started = 0, last = 0;
         const tick = now => {
           if (!steps.length) return;

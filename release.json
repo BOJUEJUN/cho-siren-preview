@@ -1,23 +1,23 @@
 {
-  "version": "0.3.83",
-  "releaseId": "PSD-20261020-LOAD-RESUME-R74",
+  "version": "0.3.84",
+  "releaseId": "PSD-20261020-TURN-BATTLE-R75",
   "date": "2026-10-20",
-  "name": "断点续传加载、准备界面弹窗、画质与战斗细节",
-  "notice": "首次下载改为分段断点续传：切到别的App再回来会接着下载，不再报错重来。准备界面右上角可关闭并选择后台准备。“流畅”画质不再降低清晰度。能量条白边常驻、蓝条平滑上涨；重投按钮文字不再压图，背后换成流动墨水。",
-  "backupBranch": "backup/v0.3.83",
-  "previousReleaseId": "PSD-20261019-BATTLE-FEEDBACK-R73",
-  "previousWebCommit": "defde32f00f17f87e489b37618148d2e6c86d0e9",
-  "previousReleaseRecord": "releases/R73.json",
-  "previousBackupBranch": "backup/v0.3.82",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R74: ReferenceArt gate with close/background choice; QualitySettings level 0 full-resolution textures + 30 fps cap; energy bar white rim layer (bar-outline, 83 battle PSD entries) and smooth fill; reroll text in the dark band, lobby R02 ink behind the reroll bar; template: 4 MB ranged, resumable data download in Cache Storage, visible-time startup watchdog, minimum 2x render density.",
+  "name": "回合制战斗、大招动画与打击感",
+  "notice": "战斗改为回合制：按速度轮流行动，轮到成员时选择普攻/技能/大招，敌人蓄力会提前一回合预警，20回合内获胜。大招播放角色动画，中间点击圆环评分（PERFECT/GOOD）。骰子选中改为抬起发光，计分骰子用霓虹框；去掉黄色光柱；普攻冒出的立绘缩小；护盾回到角色身上，应急守护用完后仍可见。",
+  "backupBranch": "backup/v0.3.84",
+  "previousReleaseId": "PSD-20261020-LOAD-RESUME-R74",
+  "previousWebCommit": "dedd36458b6b4e135faf41cfff8fc32badab827c",
+  "previousReleaseRecord": "releases/R74.json",
+  "previousBackupBranch": "backup/v0.3.83",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R75: TurnBattle1020 (speed-ordered turns, 普攻/技能/大招, enemy telegraph next turn, 20-round limit, energy-gated ultimates) + TacticsBattlePanel.Turn1020 command bar; BattleUltimateShow1020 (character clip StreamingAssets/UltimateVideos/wubai-ult.mp4 or portrait, tap ring scoring); DiceRerollMark1020 lift/glow selection; dice neon frame instead of flames; ult pillar hidden; basic burst portrait 60%; guard ring placed on the portrait; spent guard badge stays visible.",
   "validation": {
-    "unityEditMode": "576/576 passed, 0 failed, 0 skipped (2026-10-20).",
-    "resumableDownload": "Local range server with 2 s per piece: download split into 4 MB pieces, page reload at 28 MB resumed at 52 MB instead of 0, assembled file cached whole, pieces deleted, Unity reached the lobby. Server without ranges falls back to the single request.",
-    "iosSimulator": "R74 app on iPhone 18 Pro simulator: battle with reroll ink and text, energy rim; earlier R73c full route still applies to unchanged flows.",
+    "unityEditMode": "576/576 passed (2026-10-20).",
+    "iosSimulator": "iPhone 18 Pro simulator: turn battle from 开始挑战; 普攻 command, enemy turns with banner, auto mode through 15 rounds; 应急守护 used then still visible; all four ultimates with the show (雾白 plays her clip from the eye frame; others portrait), tap ring and MISS stamp.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
-    "准备界面弹窗只在网页首次进入未缓存页面时出现；本地无法完整复现手机网络，需真机确认。",
-    "战斗仍为实时制，回合制改造进行中。"
+    "战斗音效仍为临时合成版。",
+    "普攻特效每个角色还没有各自设计。",
+    "开始演出转场新设计等待少爷从 A/B/C 概念中选择。"
   ]
 }

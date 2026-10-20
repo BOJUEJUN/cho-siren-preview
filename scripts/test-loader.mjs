@@ -492,7 +492,7 @@ test('the game renders at the screen density, within a pixel budget on very larg
   assert.ok(1200 * 2560 * ratio * ratio <= 3.2e6 + 1);
 });
 
-test('a phone that cannot keep up steps the render density down, and never back up', async () => {
+test('a phone that cannot keep up steps the render density down to 2x at most once, and never back up', async () => {
   const frames = [];
   const run = await boot({ frames });
   await run.appends[0].onload();
@@ -505,9 +505,9 @@ test('a phone that cannot keep up steps the render density down, and never back 
   assert.equal(run.unityModule.devicePixelRatio, undefined);
   play(100, 33);  // one slow 3 s window
   assert.equal(run.unityModule.devicePixelRatio, 2);
-  play(100, 33);
-  assert.equal(run.unityModule.devicePixelRatio, 1.5);
+  play(100, 33);  // 2026-10-20: never below 2x (the user rejects blurry phones)
+  assert.equal(run.unityModule.devicePixelRatio, 2);
   play(200, 16.7);
-  assert.equal(run.unityModule.devicePixelRatio, 1.5);
+  assert.equal(run.unityModule.devicePixelRatio, 2);
   assert.equal(frames.length, 0);
 });

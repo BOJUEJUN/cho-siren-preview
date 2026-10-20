@@ -1,0 +1,23 @@
+{
+  "version": "0.3.83",
+  "releaseId": "PSD-20261020-LOAD-RESUME-R74",
+  "date": "2026-10-20",
+  "name": "断点续传加载、准备界面弹窗、画质与战斗细节",
+  "notice": "首次下载改为分段断点续传：切到别的App再回来会接着下载，不再报错重来。准备界面右上角可关闭并选择后台准备。“流畅”画质不再降低清晰度。能量条白边常驻、蓝条平滑上涨；重投按钮文字不再压图，背后换成流动墨水。",
+  "backupBranch": "backup/v0.3.83",
+  "previousReleaseId": "PSD-20261019-BATTLE-FEEDBACK-R73",
+  "previousWebCommit": "defde32f00f17f87e489b37618148d2e6c86d0e9",
+  "previousReleaseRecord": "releases/R73.json",
+  "previousBackupBranch": "backup/v0.3.82",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R74: ReferenceArt gate with close/background choice; QualitySettings level 0 full-resolution textures + 30 fps cap; energy bar white rim layer (bar-outline, 83 battle PSD entries) and smooth fill; reroll text in the dark band, lobby R02 ink behind the reroll bar; template: 4 MB ranged, resumable data download in Cache Storage, visible-time startup watchdog, minimum 2x render density.",
+  "validation": {
+    "unityEditMode": "576/576 passed, 0 failed, 0 skipped (2026-10-20).",
+    "resumableDownload": "Local range server with 2 s per piece: download split into 4 MB pieces, page reload at 28 MB resumed at 52 MB instead of 0, assembled file cached whole, pieces deleted, Unity reached the lobby. Server without ranges falls back to the single request.",
+    "iosSimulator": "R74 app on iPhone 18 Pro simulator: battle with reroll ink and text, energy rim; earlier R73c full route still applies to unchanged flows.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "准备界面弹窗只在网页首次进入未缓存页面时出现；本地无法完整复现手机网络，需真机确认。",
+    "战斗仍为实时制，回合制改造进行中。"
+  ]
+}
