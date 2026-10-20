@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "385a13c14c9462c2dbc0f1f6e1f69579.data.unityweb",
+    "064a79fb76b36f20fbcdc6765e2fec43.framework.js.unityweb",
+    "d560546bfbe05bd9d89f78022f49f9bf.wasm.unityweb",
+    "c1224cd1455c11c08266abd5859aa1c3.loader.js"
+  ],
+  "previous": [
     "03f2416ea422a5c4d484486d37a4c577.data.unityweb",
     "7425ea05cc42a1a2c5669e73bc91669c.framework.js.unityweb",
     "635f135c92c75bfab394af5e974906ae.wasm.unityweb",
     "413963cda6ea18068ce042f97f928085.loader.js"
   ],
-  "previous": [
-    "a8b56ddb7b518d7909b5e8c9f52142f8.data.unityweb",
-    "060566a6c5eaeffb6f677268e9d25573.framework.js.unityweb",
-    "5dacad02ab4bac07ae220a74d46e422d.wasm.unityweb",
-    "f22c4e077b5b59014281d09a37e044cc.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.3.95",
+      "releaseId": "PSD-20261020-FIRE-TRANSITION-R86",
+      "files": [
+        "a8b56ddb7b518d7909b5e8c9f52142f8.data.unityweb",
+        "060566a6c5eaeffb6f677268e9d25573.framework.js.unityweb",
+        "5dacad02ab4bac07ae220a74d46e422d.wasm.unityweb",
+        "f22c4e077b5b59014281d09a37e044cc.loader.js"
+      ]
+    },
     {
       "version": "0.3.94",
       "releaseId": "PSD-20261020-DICE-STAMPS-R85",

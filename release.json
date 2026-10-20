@@ -1,21 +1,21 @@
 {
-  "version": "0.3.96",
-  "releaseId": "PSD-20261020-ULT-STRIKE-R87",
+  "version": "0.3.97",
+  "releaseId": "PSD-20261020-ENERGY-FIX-R88",
   "date": "2026-10-20",
-  "name": "大招攻击特效、骰子加成飞入队长与地图背景简化",
-  "notice": "大招放完后，角色的攻击会从她的卡片飞向每个被打中的敌人并在受击处爆开（魅族狐火、魔族毒球、人鱼浪潮、血精灵血月刃），伴随白光和震屏。骰子结算后，加成化成光点从得分的骰子飞进队长卡片，队长卡片一震，头顶弹出「攻击 +X%」。关卡地图背景的城市压暗虚化，只保留关卡牌、闪电路径、标题和面板清晰。应急护盾框下移，完整罩住角色立绘。",
-  "backupBranch": "backup/v0.3.96",
-  "previousReleaseId": "PSD-20261020-FIRE-TRANSITION-R86",
-  "previousWebCommit": "13cb662",
-  "previousReleaseRecord": "releases/R86.json",
-  "previousBackupBranch": "backup/v0.3.95",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R87: UltimateStrike1020 (GPT projectile + impact per race), DiceBonusFlight1020, guard ring lowered, map-board-038 calmed (masked blur), UiArtImporter1020 crunch for Resources/UI (data 98.5 MiB).",
+  "name": "修复能量条不涨",
+  "notice": "修复：战斗中角色的蓝色能量条不涨、导致放不出大招。现在每次行动能量都会涨，一场约 1–2 次大招。游戏包体也缩小了（约 87MB）。",
+  "backupBranch": "backup/v0.3.97",
+  "previousReleaseId": "PSD-20261020-ULT-STRIKE-R87",
+  "previousWebCommit": "95fe774",
+  "previousReleaseRecord": "releases/R87.json",
+  "previousBackupBranch": "backup/v0.3.96",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R88: BattleEnergyMeter snaps fill when its component is disabled (PSD battle), TurnEnergyPerAction 10; includes legacy Resources prune from the size task (data 86.6 MB).",
   "validation": {
-    "unityEditMode": "579/579 passed.",
-    "iosSimulator": "installed on iPhone 18 Pro simulator.",
+    "unityEditMode": "579/579 passed; pacing all wins, 1–2 ultimates.",
+    "iosSimulator": "energy bars verified rising on iPhone 18 Pro simulator.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
-    "WebGL 数据包 98.5 MiB，接近 GitHub 100 MiB 上限，需清理旧素材。"
+    "RunningHub 新音效与逐句剧情 CG 正在接入。"
   ]
 }
