@@ -1,0 +1,19 @@
+{
+  "version": "0.4.1",
+  "releaseId": "PSD-20261020-REDDOT-R92",
+  "date": "2026-10-20",
+  "name": "成就入口统一红点",
+  "notice": "个人资料里的「成就」入口不再显示「N 个可领取」，改为统一的红点；地图章节奖励也不再显示数量。",
+  "backupBranch": "backup/v0.4.1",
+  "previousReleaseId": "PSD-20261020-QA-R91",
+  "previousWebCommit": "4629835",
+  "previousReleaseRecord": "releases/R91.json",
+  "previousBackupBranch": "backup/v0.4.0",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R92: ProfileAchievements plain label + DotSprite, map reward summary without count.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "iosSimulator": "stage transition (red line → eye strip → white push) verified by recording.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": []
+}
