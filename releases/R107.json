@@ -1,0 +1,21 @@
+{
+  "version": "0.5.7",
+  "releaseId": "PSD-20261021-SIGN-REVEAL-R107",
+  "date": "2026-10-20",
+  "name": "签约 P5 全屏演出、失败结算配色",
+  "notice": "选秀签约成功后先播放全屏 P5 演出：白闪 → 黑色网点楔形和红条斜冲入 → 红色冲击星弹出 → 成员全身立绘从右侧滑入 → 名字和「签约成功」盖章，点击继续后再显示签约详情。战斗失败的结算页把红色斜带换成暗紫色，更符合失败气氛。",
+  "backupBranch": "backup/v0.5.7",
+  "previousReleaseId": "PSD-20261021-RIBBON-R106",
+  "previousWebCommit": "87ef1e7",
+  "previousReleaseRecord": "releases/R106.json",
+  "previousBackupBranch": "backup/v0.5.6",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R107: UI/SignReveal1022 on root canvas before ShowSignedCard; BattleStickerResultView defeat band colour.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "signed two members on the test save: full-screen reveal with star, name and stamp, then the signed card; defeat result screen checked on 1-10.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}

@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "a39f4ae5de3f2ffc8340bd05555eea56.data.unityweb",
+    "cd53ffe387e519bd15637b48ff1ac602.framework.js.unityweb",
+    "04b953755dff1f0f884fc14a92718de6.wasm.unityweb",
+    "3c79a2c47c8a93c4f541055d7bcb2043.loader.js"
+  ],
+  "previous": [
     "5d64874566b69b843e34be34b36b13f3.data.unityweb",
     "f2019e0f6c9c95588c2955eba8e0909c.framework.js.unityweb",
     "561062a63005da08f3b6615fb66ad963.wasm.unityweb",
     "68e94f81b9e3b1232ad75d922d934a90.loader.js"
   ],
-  "previous": [
-    "f5bf9165f94871f1336dbf5fcfc81216.data.unityweb",
-    "8144743005d2da00f4e86a8821efea83.framework.js.unityweb",
-    "d11932c86f126225597c06f9e58c6bb2.wasm.unityweb",
-    "9b8939f83a596c723c436a54d9e4c7d0.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.6",
+      "releaseId": "PSD-20261021-RIBBON-R106",
+      "files": [
+        "f5bf9165f94871f1336dbf5fcfc81216.data.unityweb",
+        "8144743005d2da00f4e86a8821efea83.framework.js.unityweb",
+        "d11932c86f126225597c06f9e58c6bb2.wasm.unityweb",
+        "9b8939f83a596c723c436a54d9e4c7d0.loader.js"
+      ]
+    },
     {
       "version": "0.5.5",
       "releaseId": "PSD-20261021-ULT-CUTIN-R105",
