@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "766a84efaee2d9833b24f82d73bce5e0.data.unityweb",
+    "387a43f376eaf31c874710e96f8835e3.framework.js.unityweb",
+    "aac21ec97318aba6eb7682c17cfb6fc1.wasm.unityweb",
+    "5bb839df20dbb0c717909f5c16c757fd.loader.js"
+  ],
+  "previous": [
     "15604259588a02ecc0d4aead42314443.data.unityweb",
     "1f0b39cabcfe791cf1b15e55b5dc40b3.framework.js.unityweb",
     "e23bc327424bc09d5c0f7a14cf48c2c4.wasm.unityweb",
     "25d4ea99f9daf27ebb64df89b45b42ec.loader.js"
   ],
-  "previous": [
-    "18c37a96f7e99734ee711d92c94c646e.data.unityweb",
-    "81bfa0fe34c33fb530e332635a1271b1.framework.js.unityweb",
-    "fa79ac80b0c1fd3efb93a0e7f7e061e1.wasm.unityweb",
-    "e4bcc5b1c48a350a55b93db47dd3ce23.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.2",
+      "releaseId": "PSD-20261021-CEL-FX-R102",
+      "files": [
+        "18c37a96f7e99734ee711d92c94c646e.data.unityweb",
+        "81bfa0fe34c33fb530e332635a1271b1.framework.js.unityweb",
+        "fa79ac80b0c1fd3efb93a0e7f7e061e1.wasm.unityweb",
+        "e4bcc5b1c48a350a55b93db47dd3ce23.loader.js"
+      ]
+    },
     {
       "version": "0.5.1",
       "releaseId": "PSD-20261021-DICE-RHYTHM-R101",

@@ -1,17 +1,18 @@
 {
-  "version": "0.5.3",
-  "releaseId": "PSD-20261021-IMPACT-FRAME-FIX-R103",
+  "version": "0.5.4",
+  "releaseId": "PSD-20261021-POLISH-R104",
   "date": "2026-10-20",
-  "name": "大招冲击帧只显示敌人剪影",
-  "notice": "修复：大招冲击帧里我方卡牌会变成黑色方块，现在只显示敌人的黑色剪影。",
-  "backupBranch": "backup/v0.5.3",
-  "previousReleaseId": "PSD-20261021-CEL-FX-R102",
-  "previousWebCommit": "3925bef",
-  "previousReleaseRecord": "releases/R102.json",
-  "previousBackupBranch": "backup/v0.5.2",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R103: ImpactFrame1022 silhouettes from enemy figures only.",
+  "name": "结算入场动画、硬边火焰、侵蚀消散、分层音效、性能优化",
+  "notice": "结算页有了入场动画：红色斜带擦入、MVP 立绘从右侧滑入、VICTORY 盖章、伤害数字滚动、三个头像依次弹出、奖励和「继续」依次出现。大招就绪的火焰和地图选关火焰改成硬边二次元火（白芯→金→橙→红分层）。普攻命中图消失时沿噪点碎裂、带亮边，不再缩小淡出。骰子落地改成扁平冲击环 + 白色闪星。命中音效分层：我方打中加一层种族音色，挨打加一层故障音，并且每次音高略有变化。自动战斗的重投更聪明：保留牌型骰子，重投次数存满时会继续冲葫芦。战斗时隐藏被盖住的大厅和地图图层，手机更省电、帧率更稳。",
+  "backupBranch": "backup/v0.5.4",
+  "previousReleaseId": "PSD-20261021-IMPACT-FRAME-FIX-R103",
+  "previousWebCommit": "cc3b47e",
+  "previousReleaseRecord": "releases/R103.json",
+  "previousBackupBranch": "backup/v0.5.3",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R104: UI/ResultEntrance1022, Resources/Shaders/UICelErode + CelMaterials (noise erosion, hard cutoff), UltReadyRing/MapSelectedFlame cel fire, BasicStrike erode-out, DiceCube3D dust ring + star, layered race/glitch hit SFX + ±4.5% pitch, auto reroll via DiceHoldPlanner, HideCoveredLayers1022 during battle.",
   "validation": {
     "unityEditMode": "588/588 passed.",
+    "iosSimulator": "recorded 1-1: result entrance sequence, cel ult-ready flame, map flame, return to map after hidden layers.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [

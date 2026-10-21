@@ -1,0 +1,20 @@
+{
+  "version": "0.5.3",
+  "releaseId": "PSD-20261021-IMPACT-FRAME-FIX-R103",
+  "date": "2026-10-20",
+  "name": "大招冲击帧只显示敌人剪影",
+  "notice": "修复：大招冲击帧里我方卡牌会变成黑色方块，现在只显示敌人的黑色剪影。",
+  "backupBranch": "backup/v0.5.3",
+  "previousReleaseId": "PSD-20261021-CEL-FX-R102",
+  "previousWebCommit": "3925bef",
+  "previousReleaseRecord": "releases/R102.json",
+  "previousBackupBranch": "backup/v0.5.2",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R103: ImpactFrame1022 silhouettes from enemy figures only.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
