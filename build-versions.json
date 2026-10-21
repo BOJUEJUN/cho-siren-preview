@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "15604259588a02ecc0d4aead42314443.data.unityweb",
+    "1f0b39cabcfe791cf1b15e55b5dc40b3.framework.js.unityweb",
+    "e23bc327424bc09d5c0f7a14cf48c2c4.wasm.unityweb",
+    "25d4ea99f9daf27ebb64df89b45b42ec.loader.js"
+  ],
+  "previous": [
     "18c37a96f7e99734ee711d92c94c646e.data.unityweb",
     "81bfa0fe34c33fb530e332635a1271b1.framework.js.unityweb",
     "fa79ac80b0c1fd3efb93a0e7f7e061e1.wasm.unityweb",
     "e4bcc5b1c48a350a55b93db47dd3ce23.loader.js"
   ],
-  "previous": [
-    "082d62577b445d9080a28b81592d01da.data.unityweb",
-    "3b0f3a5efb5f32419e74929db72aea65.framework.js.unityweb",
-    "15ceb79a9c647fe647352ae7aae5eab6.wasm.unityweb",
-    "bf0d750fb10b6eb9b3523f992fe15c3f.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.1",
+      "releaseId": "PSD-20261021-DICE-RHYTHM-R101",
+      "files": [
+        "082d62577b445d9080a28b81592d01da.data.unityweb",
+        "3b0f3a5efb5f32419e74929db72aea65.framework.js.unityweb",
+        "15ceb79a9c647fe647352ae7aae5eab6.wasm.unityweb",
+        "bf0d750fb10b6eb9b3523f992fe15c3f.loader.js"
+      ]
+    },
     {
       "version": "0.5.0",
       "releaseId": "PSD-20261021-SWEEP-SAVE-R100",

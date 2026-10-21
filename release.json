@@ -1,18 +1,17 @@
 {
-  "version": "0.5.2",
-  "releaseId": "PSD-20261021-CEL-FX-R102",
+  "version": "0.5.3",
+  "releaseId": "PSD-20261021-IMPACT-FRAME-FIX-R103",
   "date": "2026-10-20",
-  "name": "硬边二次元命中特效、P5 冲击帧、波次过场重做",
-  "notice": "按特效调研报告重做打击感：命中改成硬边二次元风——白芯四角星、顺着攻击方向的刀光、断开由粗变细的冲击环、带暗边的三角碎片，每个种族一套 4 段配色（敌人统一敌对色）；第 0 帧最猛、0.45 秒内散完；顿帧改为 4/8/12 帧。暴击时目标先黑白反转两帧；大招命中触发 P5 冲击帧（全屏白底 + 角色黑剪影 + 红色锯齿星 + 放射线，再反色一帧后白闪清屏）。我方挨打时屏幕边缘闪红。去掉了大招后约 1 秒的金色全屏滤镜和旧的柔光圆圈层。伤害数字改为 0→1.3→1.0 弹出、停顿后上飘，暴击放大倾斜并垫红色斜条。普攻命中图改为盖章式出现、压扁消失。波次过场重做：黑色网点楔形冲入回弹 → 红条 → 「第二波」盖章 + 白闪 + 震屏 + 音效 → 卡片撕成碎片飞散 → 新敌人回弹滑入，总长约 1.1 秒。",
-  "backupBranch": "backup/v0.5.2",
-  "previousReleaseId": "PSD-20261021-DICE-RHYTHM-R101",
-  "previousWebCommit": "5771ffc",
-  "previousReleaseRecord": "releases/R101.json",
-  "previousBackupBranch": "backup/v0.5.1",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R102: UI/CelFx1022 (CelPalette, CelShapes, CelRingGraphic, CelImpact1022, ImpactFrame1022, EdgeFlash1022), LandHit uses cel impact + hit-stop 4/8/12f + impact frame, EnemyUnitPresentation invert flash, UltFlash veil off in PSD battle, legacy skillEffects overlay off in PSD battle, popup pop curve + crit strip, BasicStrike stamp/vanish, BattleWaveFracture1019 slam/stamp/tear/shards/halftone (Duration .58, label overflow fix).",
+  "name": "大招冲击帧只显示敌人剪影",
+  "notice": "修复：大招冲击帧里我方卡牌会变成黑色方块，现在只显示敌人的黑色剪影。",
+  "backupBranch": "backup/v0.5.3",
+  "previousReleaseId": "PSD-20261021-CEL-FX-R102",
+  "previousWebCommit": "3925bef",
+  "previousReleaseRecord": "releases/R102.json",
+  "previousBackupBranch": "backup/v0.5.2",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R103: ImpactFrame1022 silhouettes from enemy figures only.",
   "validation": {
     "unityEditMode": "588/588 passed.",
-    "iosSimulator": "recorded 1-1 battles: cel hits, crit invert, ultimate impact frame, no gold veil (diagnostic log), wave card title/stamp/tear checked.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
