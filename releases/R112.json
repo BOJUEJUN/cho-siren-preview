@@ -1,0 +1,21 @@
+{
+  "version": "0.6.1",
+  "releaseId": "PSD-20261021-BOSS-PHASE-CARD-R112",
+  "date": "2026-10-20",
+  "name": "首领换阶段大字卡",
+  "notice": "首领战换阶段时，屏幕中间砸下 P5 大字卡「第二乐章 / 最终乐章」，卡片碎掉后首领再放暴走特效，不再只是顶部小字闪一下。",
+  "backupBranch": "backup/v0.6.1",
+  "previousReleaseId": "PSD-20261021-KO-BREAK-R110",
+  "previousWebCommit": "ef4700d",
+  "previousReleaseRecord": "releases/R110.json",
+  "previousBackupBranch": "backup/v0.6.0",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R112: BattleWaveFracture1019.PlayPhase/Announce; PhaseChanged plays the card, boss surge waits for it (PhaseSurgeAfterCard1022).",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "1-10 boss run recorded: 第二乐章 card at 22s, 最终乐章 at 54s, surge after the card.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
