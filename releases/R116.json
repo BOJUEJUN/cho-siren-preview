@@ -1,0 +1,21 @@
+{
+  "version": "0.6.4",
+  "releaseId": "PSD-20261021-ULT-FLIPBOOK-R116",
+  "date": "2026-10-20",
+  "name": "大招与敌人命中序列帧",
+  "notice": "四个种族的大招命中换成手绘大特效：魅魔狐尾火焰、恶魔虚空裂缝、血精灵血月十字斩、人鱼大浪水爆。敌人打中我方成员时，成员卡上炸出红黑故障火花。都是 GPT 画的 16 帧序列帧。",
+  "backupBranch": "backup/v0.6.4",
+  "previousReleaseId": "PSD-20261021-HIT-FLIPBOOK-R115",
+  "previousWebCommit": "f1b1970",
+  "previousReleaseRecord": "releases/R115.json",
+  "previousBackupBranch": "backup/v0.6.3",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R116: Resources/Art/Fx1022/ult-{race} (1536 px) one per cast at 760 px, Resources/UI/Fx1022/hit-enemy on enemy hits towards us; Flipbook1022 falls back to Art/.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "1-1 run recorded: charm ult nova over the enemies, red glitch burst on hit member card.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
