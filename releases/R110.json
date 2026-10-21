@@ -1,0 +1,21 @@
+{
+  "version": "0.6.0",
+  "releaseId": "PSD-20261021-KO-BREAK-R110",
+  "date": "2026-10-20",
+  "name": "敌人击破特效",
+  "notice": "敌人被打倒时不再只是淡出：先变白色剪影，再带粉色边缘碎裂溶解，红黑白碎片飞散，并盖上「击破!」印章。",
+  "backupBranch": "backup/v0.6.0",
+  "previousReleaseId": "PSD-20261021-UPGRADE-BURST-R109",
+  "previousWebCommit": "06aaa46",
+  "previousReleaseRecord": "releases/R109.json",
+  "previousBackupBranch": "backup/v0.5.9",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R110: UI/KoBreak1022 (flash ghost → UICelErode erosion + PolyGraphic shards + stamp); EnemyUnitPresentation.PlayDefeat(instant).",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "1-1 run recorded: white silhouette → pink erosion → shards → 击破! stamp on each enemy KO.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}

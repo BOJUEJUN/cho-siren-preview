@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "fcdea3810303265c17279e469823cbf2.data.unityweb",
+    "2ad6474fe6ed1adfc0d000cba735d77c.framework.js.unityweb",
+    "b40ada88ea734388a70065506269f749.wasm.unityweb",
+    "3b375532465e380e25bd0868349a7cf3.loader.js"
+  ],
+  "previous": [
     "9cf318f5d6cf91fecf8b3d82cd37e58a.data.unityweb",
     "26fb3671d0e0d36c69b564590a51702b.framework.js.unityweb",
     "ac33fcae470a72094a673e819e1596f2.wasm.unityweb",
     "d77c4ff7aff43c837976795fd12af112.loader.js"
   ],
-  "previous": [
-    "4c6ede496051c96086ff6fea63df0951.data.unityweb",
-    "7d357b109eed58366b7ee7bfeda0d67a.framework.js.unityweb",
-    "abc7aa2ae8a1207be15cec8a1ed160ed.wasm.unityweb",
-    "6005689fa970faebdb9ddd9b2d49c98f.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.9",
+      "releaseId": "PSD-20261021-UPGRADE-BURST-R109",
+      "files": [
+        "4c6ede496051c96086ff6fea63df0951.data.unityweb",
+        "7d357b109eed58366b7ee7bfeda0d67a.framework.js.unityweb",
+        "abc7aa2ae8a1207be15cec8a1ed160ed.wasm.unityweb",
+        "6005689fa970faebdb9ddd9b2d49c98f.loader.js"
+      ]
+    },
     {
       "version": "0.5.8",
       "releaseId": "PSD-20261021-REWARD-BURST-R108",
