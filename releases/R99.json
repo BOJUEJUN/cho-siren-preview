@@ -1,0 +1,20 @@
+{
+  "version": "0.4.9",
+  "releaseId": "PSD-20261021-MENU-MUSIC-R99",
+  "date": "2026-10-20",
+  "name": "背景音乐覆盖所有菜单页",
+  "notice": "背景音乐不再只在大厅播放：团队、成员、饰品、选秀四个菜单页，以及关卡地图、每日任务、练习室都会继续播放同一首背景音乐（切页面不会从头开始）。剧情页仍然静音，保证配音清楚；战斗仍然播放战斗音乐。",
+  "backupBranch": "backup/v0.4.9",
+  "previousReleaseId": "PSD-20261021-RESULT-GEAR-R98",
+  "previousWebCommit": "03deea2",
+  "previousReleaseRecord": "releases/R98.json",
+  "previousBackupBranch": "backup/v0.4.8",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R99: ChoSirenApp base music context is Home on every screen (SuspendLobbyMedia only pauses the lobby video); story/battle scopes unchanged.",
+  "validation": {
+    "unityEditMode": "579/579 passed.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 82MB。"
+  ]
+}

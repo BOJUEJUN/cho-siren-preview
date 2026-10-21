@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "256af86c091b822b1d91c2a908d15adf.data.unityweb",
+    "feaaf9b035247fde5ce928623a842a41.framework.js.unityweb",
+    "c9df925b957f22878cd5fc4cfa96dacd.wasm.unityweb",
+    "502df26297717b58d8b05e4d3b86898d.loader.js"
+  ],
+  "previous": [
     "ac92204451a5fd3a19c20730a5b5864b.data.unityweb",
     "5329e2ecc0a421fa98b35d26d197f10a.framework.js.unityweb",
     "6e7a07f9a7f5de88ec3971d7267125f9.wasm.unityweb",
     "10a6e1709feb08f7bdccfa59fd103f12.loader.js"
   ],
-  "previous": [
-    "6a9ddd1a56b28c375f90cfb3d05663e1.data.unityweb",
-    "55a04b93dc725747e3484600c6601eeb.framework.js.unityweb",
-    "617efd9e0b17dad9da10e664e5be8b0c.wasm.unityweb",
-    "16f24ae8aafc2f0dce1629892be93e11.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.4.8",
+      "releaseId": "PSD-20261021-RESULT-GEAR-R98",
+      "files": [
+        "6a9ddd1a56b28c375f90cfb3d05663e1.data.unityweb",
+        "55a04b93dc725747e3484600c6601eeb.framework.js.unityweb",
+        "617efd9e0b17dad9da10e664e5be8b0c.wasm.unityweb",
+        "16f24ae8aafc2f0dce1629892be93e11.loader.js"
+      ]
+    },
     {
       "version": "0.4.7",
       "releaseId": "PSD-20261021-ENEMY-FX-R97",
