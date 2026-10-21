@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "4c6ede496051c96086ff6fea63df0951.data.unityweb",
+    "7d357b109eed58366b7ee7bfeda0d67a.framework.js.unityweb",
+    "abc7aa2ae8a1207be15cec8a1ed160ed.wasm.unityweb",
+    "6005689fa970faebdb9ddd9b2d49c98f.loader.js"
+  ],
+  "previous": [
     "a39f4ae5de3f2ffc8340bd05555eea56.data.unityweb",
     "cd53ffe387e519bd15637b48ff1ac602.framework.js.unityweb",
     "04b953755dff1f0f884fc14a92718de6.wasm.unityweb",
     "3c79a2c47c8a93c4f541055d7bcb2043.loader.js"
   ],
-  "previous": [
-    "5d64874566b69b843e34be34b36b13f3.data.unityweb",
-    "f2019e0f6c9c95588c2955eba8e0909c.framework.js.unityweb",
-    "561062a63005da08f3b6615fb66ad963.wasm.unityweb",
-    "68e94f81b9e3b1232ad75d922d934a90.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.7",
+      "releaseId": "PSD-20261021-SIGN-REVEAL-R107",
+      "files": [
+        "5d64874566b69b843e34be34b36b13f3.data.unityweb",
+        "f2019e0f6c9c95588c2955eba8e0909c.framework.js.unityweb",
+        "561062a63005da08f3b6615fb66ad963.wasm.unityweb",
+        "68e94f81b9e3b1232ad75d922d934a90.loader.js"
+      ]
+    },
     {
       "version": "0.5.6",
       "releaseId": "PSD-20261021-RIBBON-R106",
