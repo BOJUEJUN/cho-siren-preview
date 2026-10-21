@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "a0da2f8f4baf5071c92f37f4e3f86cf7.data.unityweb",
+    "e87b000b62d7360c299f64c70537c396.framework.js.unityweb",
+    "810e3d2796df4fbcc6851d95cd9c0ed3.wasm.unityweb",
+    "54c576b4dee4b9009af7ca63999d7a78.loader.js"
+  ],
+  "previous": [
     "59261ec27890e6c18c48593040d83ed0.data.unityweb",
     "c2307cfa0e3075bb1b7300eeecfc57f8.framework.js.unityweb",
     "a114aa66d2aac435e954ae6132b839ef.wasm.unityweb",
     "1f02c41420536a476721cb5d4872a04f.loader.js"
   ],
-  "previous": [
-    "8e83c2b6b7d4a9f4e316fe4b67854eca.data.unityweb",
-    "1f669343acdebc4e96399f47f5ea05ed.framework.js.unityweb",
-    "62b385c4516094036b5c8be8a80255c6.wasm.unityweb",
-    "8e03978da39fddc3c46afaaeed478f7a.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.6.4",
+      "releaseId": "PSD-20261021-ULT-FLIPBOOK-R116",
+      "files": [
+        "8e83c2b6b7d4a9f4e316fe4b67854eca.data.unityweb",
+        "1f669343acdebc4e96399f47f5ea05ed.framework.js.unityweb",
+        "62b385c4516094036b5c8be8a80255c6.wasm.unityweb",
+        "8e03978da39fddc3c46afaaeed478f7a.loader.js"
+      ]
+    },
     {
       "version": "0.6.3",
       "releaseId": "PSD-20261021-HIT-FLIPBOOK-R115",

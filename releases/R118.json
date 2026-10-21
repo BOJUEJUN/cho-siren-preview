@@ -1,0 +1,21 @@
+{
+  "version": "0.6.5",
+  "releaseId": "PSD-20261022-PHONE-MEMORY-R118",
+  "date": "2026-10-20",
+  "name": "手机内存修复",
+  "notice": "修复手机上玩着玩着突然断开、跳回主界面重新加载：网页版图片改用手机原生的 ETC2 格式（原来手机要把每张图解压成原始大小，内存爆掉），大招特效图缩小，油墨动画去掉多余缩略图层，每局打完自动清理这局用过的图片和内存。",
+  "backupBranch": "backup/v0.6.5",
+  "previousReleaseId": "PSD-20261021-ULT-FLIPBOOK-R116",
+  "previousWebCommit": "ad6704e",
+  "previousReleaseRecord": "releases/R116.json",
+  "previousBackupBranch": "backup/v0.6.4",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R118: webGLBuildSubtarget ETC2 (236 textures re-crunched), ult sheets 1024, ink sheets no mips, UnloadUnusedAssets+GC after battle.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "Not tested on a real phone yet; sim build unaffected (iOS uses its own formats).",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
