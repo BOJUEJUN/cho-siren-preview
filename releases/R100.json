@@ -1,0 +1,21 @@
+{
+  "version": "0.5.0",
+  "releaseId": "PSD-20261021-SWEEP-SAVE-R100",
+  "date": "2026-10-20",
+  "name": "首领曲、倍速记忆、扫荡、存档导出、第二章奖励、新手战斗引导",
+  "notice": "首领关（1-5、1-10、2-5、2-10）换成专属战斗曲。倍速改为 1/2/3 倍循环，并记住上次选择。三星关卡可以「扫荡×1 / ×3」，直接拿奖励和随机装备（不发首通奖励）。设置里新增「导出存档 / 导入存档」：存档码可复制、网页还会下载存档文件，换设备粘贴即可恢复。第二章新增章节星级奖励和章节任务。第一次进战斗有 4 步引导（骰子、重投、蓝条大招、自动与倍速）。剧情配音改为播放时再下载，首次加载更快（数据包 82MB → 75MB）。",
+  "backupBranch": "backup/v0.5.0",
+  "previousReleaseId": "PSD-20261021-MENU-MUSIC-R99",
+  "previousWebCommit": "5b68da3",
+  "previousReleaseRecord": "releases/R99.json",
+  "previousBackupBranch": "backup/v0.4.9",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R100: GameAudio.SetBossBattle + StreamingAssets/Music/boss-707b8a25a7adf39d.mp3 (RunningHub Suno $0.08), GameSave.BattleSpeed, GameModel.TrySweepStage + LevelMapPanel sweep row/result modal, GameModel save code (gzip+base64) + ChoSirenSaveBridge.jslib, chapter-two star rewards/tasks, BattleTutorial1021, story voices streamed from StreamingAssets/Voice/Story.",
+  "validation": {
+    "unityEditMode": "584/584 passed (5 new feature tests).",
+    "iosSimulator": "sweep ×1 (stamina 85→77, drop modal), first-battle tutorial 4 steps, speed 1→2→3 checked on iPhone 18 Pro simulator.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
