@@ -1,0 +1,21 @@
+{
+  "version": "0.5.1",
+  "releaseId": "PSD-20261021-DICE-RHYTHM-R101",
+  "date": "2026-10-20",
+  "name": "骰子节奏：充能即投、当前牌型加成、热度、每波目标",
+  "notice": "骰子玩法重做：重投不再有整场次数上限，充能条满一次就多一次重投（最多存 3 次）。攻击加成改为只看当前这一手（两对 +10%、顺子 +18%、四条 +32%、五条 +40%），重投后不比之前差会叠「热度」，每层再 +4%（最多 5 层），摇烂了热度清零；骰子加成总上限 +60%。每一波敌人出场送 1 次免费重投，并给出一个牌型目标（两对/三条/顺子/葫芦以上），达成就触发「队长演出」：队长追加一击并获得大招能量。自动模式也会自己重投（没到三条就重摇，保留成对的骰子）。修复：放完大招的那一回合不再回蓝。",
+  "backupBranch": "backup/v0.5.1",
+  "previousReleaseId": "PSD-20261021-SWEEP-SAVE-R100",
+  "previousWebCommit": "539a407",
+  "previousReleaseRecord": "releases/R100.json",
+  "previousBackupBranch": "backup/v0.5.0",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R101: DiceTurn.EnableRhythm (stored ≤3, current-hand bonus (score−1000)×0.4 + heat×40, cap 600), BattleSimulator DiceRhythm1021 (wave gift reroll, wave targets, rt-dice-encore 1500‰ + 30 energy paid next turn), panel heat/target labels, encore stamp, auto reroll; FinishPlayerTurn skips energy after an ultimate.",
+  "validation": {
+    "unityEditMode": "588/588 passed (4 new dice-rhythm tests; pacing: all 6 sampled stages won).",
+    "iosSimulator": "recorded 1-1: target stamp, auto reroll with heat 2, bonus +22%.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}

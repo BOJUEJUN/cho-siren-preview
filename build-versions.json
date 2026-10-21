@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "18c37a96f7e99734ee711d92c94c646e.data.unityweb",
+    "81bfa0fe34c33fb530e332635a1271b1.framework.js.unityweb",
+    "fa79ac80b0c1fd3efb93a0e7f7e061e1.wasm.unityweb",
+    "e4bcc5b1c48a350a55b93db47dd3ce23.loader.js"
+  ],
+  "previous": [
     "082d62577b445d9080a28b81592d01da.data.unityweb",
     "3b0f3a5efb5f32419e74929db72aea65.framework.js.unityweb",
     "15ceb79a9c647fe647352ae7aae5eab6.wasm.unityweb",
     "bf0d750fb10b6eb9b3523f992fe15c3f.loader.js"
   ],
-  "previous": [
-    "256af86c091b822b1d91c2a908d15adf.data.unityweb",
-    "feaaf9b035247fde5ce928623a842a41.framework.js.unityweb",
-    "c9df925b957f22878cd5fc4cfa96dacd.wasm.unityweb",
-    "502df26297717b58d8b05e4d3b86898d.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.0",
+      "releaseId": "PSD-20261021-SWEEP-SAVE-R100",
+      "files": [
+        "256af86c091b822b1d91c2a908d15adf.data.unityweb",
+        "feaaf9b035247fde5ce928623a842a41.framework.js.unityweb",
+        "c9df925b957f22878cd5fc4cfa96dacd.wasm.unityweb",
+        "502df26297717b58d8b05e4d3b86898d.loader.js"
+      ]
+    },
     {
       "version": "0.4.9",
       "releaseId": "PSD-20261021-MENU-MUSIC-R99",
