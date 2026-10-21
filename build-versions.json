@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "f5bf9165f94871f1336dbf5fcfc81216.data.unityweb",
+    "8144743005d2da00f4e86a8821efea83.framework.js.unityweb",
+    "d11932c86f126225597c06f9e58c6bb2.wasm.unityweb",
+    "9b8939f83a596c723c436a54d9e4c7d0.loader.js"
+  ],
+  "previous": [
     "760be2ac4ab85cb542e2df0b24c0ac1c.data.unityweb",
     "3b7b87a2cc1e8150949a5a712b1babf8.framework.js.unityweb",
     "dfebdf78faeb4f884a13bd4a4b70d3e1.wasm.unityweb",
     "92dab35df280d1866e39cbeb7ce96198.loader.js"
   ],
-  "previous": [
-    "766a84efaee2d9833b24f82d73bce5e0.data.unityweb",
-    "387a43f376eaf31c874710e96f8835e3.framework.js.unityweb",
-    "aac21ec97318aba6eb7682c17cfb6fc1.wasm.unityweb",
-    "5bb839df20dbb0c717909f5c16c757fd.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.5.4",
+      "releaseId": "PSD-20261021-POLISH-R104",
+      "files": [
+        "766a84efaee2d9833b24f82d73bce5e0.data.unityweb",
+        "387a43f376eaf31c874710e96f8835e3.framework.js.unityweb",
+        "aac21ec97318aba6eb7682c17cfb6fc1.wasm.unityweb",
+        "5bb839df20dbb0c717909f5c16c757fd.loader.js"
+      ]
+    },
     {
       "version": "0.5.3",
       "releaseId": "PSD-20261021-IMPACT-FRAME-FIX-R103",
