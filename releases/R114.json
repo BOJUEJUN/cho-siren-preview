@@ -1,0 +1,21 @@
+{
+  "version": "0.6.2",
+  "releaseId": "PSD-20261021-FINAL-BLOW-R114",
+  "date": "2026-10-20",
+  "name": "最后一击「全灭!」",
+  "notice": "打倒本场最后一个敌人时，印章换成更大的「全灭!」，碎片更多，并加一帧黑白冲击画面和更长的定格，再进入结算。印章位置上移，不再被伤害数字挡住。",
+  "backupBranch": "backup/v0.6.2",
+  "previousReleaseId": "PSD-20261021-BOSS-PHASE-CARD-R112",
+  "previousWebCommit": "6904d14",
+  "previousReleaseRecord": "releases/R112.json",
+  "previousBackupBranch": "backup/v0.6.1",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R114: KoBreak1022 finale (全灭!, 20 shards, 1.1s) + ImpactFrame1022 + 0.2s hit-stop on the last enemy; stamp moved above the hit point.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "1-1 run recorded (R113 code): 全灭! plate → impact frame → result. R114 only moves the stamp up.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}

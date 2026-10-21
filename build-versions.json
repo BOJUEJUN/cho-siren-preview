@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "3280bd02455e650175325ebef03bb123.data.unityweb",
+    "bf0dfc56b35ff6168eda079df4731a51.framework.js.unityweb",
+    "e1b425aea80de776000c0de8a867e4e9.wasm.unityweb",
+    "7f86875e66e78fe508ae568a79800120.loader.js"
+  ],
+  "previous": [
     "3eb02ee710c20c04689a97d2f7cc03a4.data.unityweb",
     "106b897d75dc38e69423ed753d8feefd.framework.js.unityweb",
     "821e76dea3bd5a0849a71cb2ff467bfe.wasm.unityweb",
     "f84f0084f65c7c97ce682c750d75b668.loader.js"
   ],
-  "previous": [
-    "fcdea3810303265c17279e469823cbf2.data.unityweb",
-    "2ad6474fe6ed1adfc0d000cba735d77c.framework.js.unityweb",
-    "b40ada88ea734388a70065506269f749.wasm.unityweb",
-    "3b375532465e380e25bd0868349a7cf3.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.6.1",
+      "releaseId": "PSD-20261021-BOSS-PHASE-CARD-R112",
+      "files": [
+        "fcdea3810303265c17279e469823cbf2.data.unityweb",
+        "2ad6474fe6ed1adfc0d000cba735d77c.framework.js.unityweb",
+        "b40ada88ea734388a70065506269f749.wasm.unityweb",
+        "3b375532465e380e25bd0868349a7cf3.loader.js"
+      ]
+    },
     {
       "version": "0.6.0",
       "releaseId": "PSD-20261021-KO-BREAK-R110",
