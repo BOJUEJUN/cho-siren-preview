@@ -1,0 +1,21 @@
+{
+  "version": "0.5.6",
+  "releaseId": "PSD-20261021-RIBBON-R106",
+  "date": "2026-10-20",
+  "name": "连续丝带拖尾、粉色狐火、声波蓄力预告",
+  "notice": "普攻的拖尾从一串圆点改成连续的丝带（狐火三条、血月一条、水流一条），越靠近弹头越宽越亮。狐火颜色改成和魅族原画一致的粉色。敌人的声波攻击出手前会有一个收缩的圆环预告。",
+  "backupBranch": "backup/v0.5.6",
+  "previousReleaseId": "PSD-20261021-ULT-CUTIN-R105",
+  "previousWebCommit": "02fedd7",
+  "previousReleaseRecord": "releases/R105.json",
+  "previousBackupBranch": "backup/v0.5.5",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R106: RibbonTrail1022 (mesh strip, tapering), BasicStrike fox/crescent/tide ribbons, fox tint pink, sonic charge telegraph.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "recorded 1-1: pink ribbon trails, merged crit numbers on red strip.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}

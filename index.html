@@ -614,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.5.6</div>
+        <div id="loading-version" class="loading-version">v0.5.7</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -755,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("f5bf9165f94871f1336dbf5fcfc81216.data.unityweb"),
-        frameworkUrl: buildAssetUrl("8144743005d2da00f4e86a8821efea83.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("d11932c86f126225597c06f9e58c6bb2.wasm.unityweb"),
+        dataUrl: buildAssetUrl("5d64874566b69b843e34be34b36b13f3.data.unityweb"),
+        frameworkUrl: buildAssetUrl("f2019e0f6c9c95588c2955eba8e0909c.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("561062a63005da08f3b6615fb66ad963.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.5.6",
+        productVersion: "0.5.7",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -878,7 +878,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("9b8939f83a596c723c436a54d9e4c7d0.loader.js");
+      loader.src = buildAssetUrl("68e94f81b9e3b1232ad75d922d934a90.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
