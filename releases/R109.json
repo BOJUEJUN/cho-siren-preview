@@ -1,0 +1,21 @@
+{
+  "version": "0.5.9",
+  "releaseId": "PSD-20261021-UPGRADE-BURST-R109",
+  "date": "2026-10-20",
+  "name": "饰品强化成功横幅",
+  "notice": "饰品强化成功时，屏幕中间冲出 P5 横幅「强化成功」，显示饰品图标和新等级（例如 Lv.2），不再只有一行文字。",
+  "backupBranch": "backup/v0.5.9",
+  "previousReleaseId": "PSD-20261021-REWARD-BURST-R108",
+  "previousWebCommit": "379b567",
+  "previousReleaseRecord": "releases/R108.json",
+  "previousBackupBranch": "backup/v0.5.8",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R109: RewardBurst1022 labels overload; UpgradeFeedback1022 in both accessory upgrade paths.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "upgraded 星轨耳返 on the test save: banner with icon and Lv.2, stats +8%→+10%.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
