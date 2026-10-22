@@ -95,13 +95,14 @@
   .btn {
     position: relative; display: flex; align-items: center; justify-content: center; height: 58px;
     background: var(--black); color: var(--white); font-weight: 900; font-size: 18px; letter-spacing: 1px;
-    transform: skewX(-12deg); box-shadow: 6px 6px 0 var(--white); transition: transform .12s, box-shadow .12s;
+    border: 3px solid var(--white); transform: skewX(-12deg); box-shadow: 7px 7px 0 var(--red), 7px 7px 0 3px var(--black);
+    transition: transform .12s, box-shadow .12s, background .12s;
   }
   .btn > span { transform: skewX(12deg); }
-  .btn:hover { transform: skewX(-12deg) translate(-3px, -3px); box-shadow: 10px 10px 0 var(--white); }
-  .btn:active { transform: skewX(-12deg) translate(3px, 3px); box-shadow: 2px 2px 0 var(--white); }
-  .btn.hot { background: var(--white); color: var(--black); box-shadow: 6px 6px 0 var(--black); }
-  .btn.hot:hover { box-shadow: 10px 10px 0 var(--black); }
+  .btn:hover { background: var(--red); transform: skewX(-12deg) translate(-3px, -3px); box-shadow: 10px 10px 0 var(--black), 10px 10px 0 3px var(--white); }
+  .btn:active { transform: skewX(-12deg) translate(3px, 3px); box-shadow: 2px 2px 0 var(--red); }
+  .btn.hot { background: var(--white); color: var(--black); border-color: var(--black); box-shadow: 7px 7px 0 var(--black), 7px 7px 0 3px var(--white); }
+  .btn.hot:hover { background: var(--white); box-shadow: 10px 10px 0 var(--red), 10px 10px 0 3px var(--black); }
   .btn.off { opacity: .55; pointer-events: none; }
   .btn.wide { grid-column: 1 / -1; }
   .note { margin-top: 18px; font-size: 13px; font-weight: 700; text-shadow: 1px 1px 0 var(--black), -1px -1px 0 var(--black); }
