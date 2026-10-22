@@ -5,199 +5,338 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>幻域魅声 CHO-SIREN 官方网站</title>
 <meta name="description" content="《幻域魅声 CHO-SIREN》二次元偶像养成 × 骰子策略战斗。安卓、Windows、Mac 下载与网页试玩。">
-<meta name="theme-color" content="#0d0a14">
+<meta name="theme-color" content="#0b0b0b">
 <link rel="icon" href="img/icon.png">
 <style>
   :root {
-    --bg: #0d0a14;
-    --panel: #17121f;
-    --line: #2a2236;
-    --text: #f4f1f8;
-    --muted: #a59cb4;
-    --pink: #ff2a74;
-    --pink-soft: #ff5c96;
+    --red: #f2153f;
+    --red-deep: #b00a2b;
+    --black: #0b0b0b;
+    --white: #fbfbfb;
+    --head: "Impact", "Haettenschweiler", "Arial Black", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --body: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
+  body { background: var(--black); color: var(--white); font-family: var(--body); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
   img { display: block; max-width: 100%; }
-  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+  .wrap { width: min(1200px, 100% - 32px); margin: 0 auto; position: relative; }
 
-  /* Top bar */
-  header {
-    position: sticky; top: 0; z-index: 10;
-    background: rgba(13, 10, 20, .86);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--line);
+  /* ---------- page-load slash ---------- */
+  .wipe { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+  .wipe i { position: absolute; inset: -20% -40%; background: var(--red); transform: skewX(-18deg); animation: wipe .9s cubic-bezier(.7, 0, .2, 1) forwards; }
+  .wipe i + i { background: var(--black); animation-delay: .12s; }
+  @keyframes wipe { to { transform: skewX(-18deg) translateX(140%); } }
+
+  /* ---------- nav ---------- */
+  header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; transition: background .2s; }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand img { width: 40px; height: 40px; border: 3px solid var(--white); box-shadow: 4px 4px 0 var(--black); transform: rotate(-6deg); }
+  .brand b { font-family: var(--head); font-size: 20px; letter-spacing: 1px; text-shadow: 3px 3px 0 var(--black); }
+  nav { display: flex; gap: 6px; }
+  nav a { position: relative; z-index: 0; font-weight: 900; font-style: italic; font-size: 17px; padding: 6px 14px; text-shadow: 2px 2px 0 var(--black); }
+  nav a::before {
+    content: ""; position: absolute; inset: 2px -4px; z-index: -1; background: var(--black);
+    clip-path: polygon(6% 12%, 100% 0, 92% 88%, 0 100%); transform: scaleX(0); transform-origin: left;
+    transition: transform .18s cubic-bezier(.3, 1.6, .5, 1);
   }
-  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .5px; }
-  .brand img { width: 32px; height: 32px; border-radius: 8px; }
-  nav { display: flex; gap: 24px; font-size: 15px; color: var(--muted); }
-  nav a:hover { color: var(--text); }
+  nav a:hover::before { transform: scaleX(1); }
+  header.solid { background: rgba(11, 11, 11, .92); }
 
-  /* Hero */
-  .hero { padding: 48px 0 64px; }
-  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
-  .hero-logo { width: min(420px, 100%); margin-bottom: 24px; }
-  .tagline { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-  .tagline em { font-style: normal; color: var(--pink); }
-  .intro { color: var(--muted); font-size: 16px; max-width: 30em; margin-bottom: 32px; }
-  .downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 460px; }
+  /* ---------- hero ---------- */
+  .hero { position: relative; min-height: max(100svh, 700px); background: var(--red); overflow: hidden; isolation: isolate; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -3; opacity: .3;
+    background-image: radial-gradient(var(--black) 22%, transparent 24%); background-size: 14px 14px;
+    -webkit-mask-image: linear-gradient(115deg, transparent 30%, #000 75%); mask-image: linear-gradient(115deg, transparent 30%, #000 75%);
+  }
+  .band { position: absolute; z-index: -2; }
+  .band.a { left: -10%; right: -10%; top: 60%; height: 24%; background: var(--black); transform: rotate(-9deg); }
+  .band.b { left: 50%; top: -10%; width: 7%; height: 140%; transform: rotate(14deg); background: var(--white); }
+  .burst {
+    position: absolute; z-index: -1; right: 6%; top: 10%; width: min(700px, 66vw); aspect-ratio: 1; background: var(--white);
+    clip-path: polygon(50% 0, 57% 30%, 80% 8%, 68% 36%, 100% 30%, 72% 50%, 98% 72%, 66% 64%, 74% 98%, 52% 70%, 32% 100%, 36% 66%, 2% 78%, 28% 52%, 0 26%, 34% 34%, 22% 4%, 44% 28%);
+    animation: spin 50s linear infinite;
+  }
+  .burst.k { background: var(--black); margin: 22px -22px 0 0; animation-direction: reverse; }
+  @keyframes spin { to { rotate: 360deg; } }
+  .cast-hero { position: absolute; right: 0; bottom: 0; width: min(780px, 62vw); height: 100%; pointer-events: none; z-index: 0; }
+  .cast-hero img {
+    position: absolute; bottom: -1%; width: auto;
+    filter: drop-shadow(5px 0 0 #fff) drop-shadow(-5px 0 0 #fff) drop-shadow(0 5px 0 #fff) drop-shadow(0 -5px 0 #fff) drop-shadow(16px 14px 0 #000);
+    animation: rise .8s .5s cubic-bezier(.2, 1.3, .4, 1) both;
+  }
+  .cast-hero .back { right: 0; height: 90%; animation-delay: .65s; }
+  .cast-hero .front { right: 30%; height: 98%; }
+  @keyframes rise { from { opacity: 0; transform: translate(80px, 40px) skewX(-8deg); } }
+  .hero-copy { position: relative; z-index: 2; padding: 120px 0 110px; max-width: 560px; }
+  .hero-logo { width: min(460px, 100%); transform: rotate(-5deg); filter: drop-shadow(8px 8px 0 var(--black)); animation: stamp .45s .35s cubic-bezier(.2, 1.6, .4, 1) both; }
+  @keyframes stamp { from { opacity: 0; transform: rotate(-5deg) scale(1.6); } }
+  .ransom { display: grid; gap: 8px; margin: 34px 0 18px; }
+  .ransom > div { display: flex; flex-wrap: wrap; gap: 6px 2px; }
+  .ransom > div + div { margin-left: 34px; }
+  .ransom span {
+    display: inline-block; font-weight: 900; font-size: clamp(22px, 3vw, 34px); line-height: 1.15; padding: 2px 8px;
+    background: var(--white); color: var(--black); box-shadow: 3px 3px 0 var(--black);
+    animation: pop .3s cubic-bezier(.2, 1.8, .4, 1) both;
+  }
+  .ransom span:nth-child(3n+1) { background: var(--black); color: var(--white); box-shadow: 3px 3px 0 var(--white); rotate: -4deg; }
+  .ransom span:nth-child(4n+2) { rotate: 3deg; font-family: var(--head); }
+  .ransom span:nth-child(5n+3) { color: var(--red); rotate: -2deg; translate: 0 4px; }
+  @keyframes pop { from { opacity: 0; transform: scale(2.2); } }
+  .lead { font-weight: 700; font-size: 16px; max-width: 30em; }
+
+  .dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px; margin-top: 30px; max-width: 470px; }
   .btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    height: 54px; border-radius: 12px; font-size: 16px; font-weight: 700;
-    border: 1px solid var(--line); background: var(--panel);
-    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    position: relative; display: flex; align-items: center; justify-content: center; height: 58px;
+    background: var(--black); color: var(--white); font-weight: 900; font-size: 18px; letter-spacing: 1px;
+    transform: skewX(-12deg); box-shadow: 6px 6px 0 var(--white); transition: transform .12s, box-shadow .12s;
   }
-  .btn:hover { transform: translateY(-2px); border-color: #3b3049; }
-  .btn.primary { background: var(--pink); border-color: var(--pink); color: #fff; }
-  .btn.primary:hover { background: var(--pink-soft); }
-  .btn.disabled { color: var(--muted); cursor: default; }
-  .btn.disabled:hover { transform: none; }
-  .btn small { font-weight: 400; font-size: 12px; opacity: .8; }
-  .version { margin-top: 14px; font-size: 13px; color: var(--muted); }
-  .hero-art { position: relative; justify-self: center; width: min(420px, 100%); }
-  .hero-art img { border-radius: 20px; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 42%; width: 100%; height: auto; box-shadow: 0 30px 80px rgba(255, 42, 116, .18); }
-  .hero-art::before {
-    content: ""; position: absolute; inset: 18px -18px -18px 18px; border-radius: 20px;
-    border: 2px solid var(--pink); z-index: -1;
+  .btn > span { transform: skewX(12deg); }
+  .btn:hover { transform: skewX(-12deg) translate(-3px, -3px); box-shadow: 10px 10px 0 var(--white); }
+  .btn:active { transform: skewX(-12deg) translate(3px, 3px); box-shadow: 2px 2px 0 var(--white); }
+  .btn.hot { background: var(--white); color: var(--black); box-shadow: 6px 6px 0 var(--black); }
+  .btn.hot:hover { box-shadow: 10px 10px 0 var(--black); }
+  .btn.off { opacity: .55; pointer-events: none; }
+  .btn.wide { grid-column: 1 / -1; }
+  .note { margin-top: 18px; font-size: 13px; font-weight: 700; text-shadow: 1px 1px 0 var(--black), -1px -1px 0 var(--black); }
+
+  .ticker { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; background: var(--black); border-top: 4px solid var(--white); overflow: hidden; }
+  .ticker div { display: flex; width: max-content; animation: tick 24s linear infinite; }
+  .ticker span { font-family: var(--head); font-size: 26px; letter-spacing: 3px; padding: 6px 0; white-space: nowrap; }
+  .ticker em { font-style: normal; color: var(--red); padding: 0 18px; }
+  @keyframes tick { to { transform: translateX(-50%); } }
+
+  /* ---------- sections ---------- */
+  section { position: relative; padding: 110px 0; overflow: hidden; }
+  .ghost {
+    position: absolute; top: 30px; left: -2%; font-family: var(--head); font-size: clamp(80px, 16vw, 220px); line-height: 1;
+    color: transparent; -webkit-text-stroke: 2px rgba(255, 255, 255, .14); transform: rotate(-6deg); white-space: nowrap; pointer-events: none;
   }
+  .title { position: relative; display: inline-block; z-index: 1; margin-bottom: 44px; }
+  .title b {
+    display: inline-block; font-size: clamp(30px, 4.6vw, 52px); font-weight: 900; font-style: italic; padding: 2px 22px 4px;
+    background: var(--white); color: var(--black); transform: rotate(-3deg); box-shadow: 8px 8px 0 var(--red);
+  }
+  .title small { display: block; margin: 12px 0 0 10px; font-family: var(--head); letter-spacing: 4px; color: var(--red); font-size: 18px; }
 
-  /* Sections */
-  section { padding: 72px 0; border-top: 1px solid var(--line); }
-  .section-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-  .section-sub { color: var(--muted); margin-bottom: 36px; }
+  /* members */
+  #members { background: var(--black); }
+  .stage { position: relative; z-index: 1; display: grid; grid-template-columns: 300px 1fr; gap: 30px; align-items: center; }
+  .picker { display: flex; flex-direction: column; gap: 12px; }
+  .picker button {
+    all: unset; cursor: pointer; position: relative; z-index: 0; font-size: 36px; font-weight: 900; font-style: italic; padding: 4px 18px; width: max-content;
+    transition: transform .15s;
+  }
+  .picker button small { font-size: 13px; font-style: normal; letter-spacing: 2px; margin-left: 10px; color: #8b8b8b; font-family: var(--head); }
+  .picker button::before {
+    content: ""; position: absolute; inset: 0 -12px; z-index: -1; background: var(--red);
+    clip-path: polygon(0 18%, 96% 0, 100% 74%, 8% 100%, 3% 64%); transform: scaleX(0); transform-origin: left; transition: transform .22s cubic-bezier(.3, 1.6, .5, 1);
+  }
+  .picker button:hover { transform: translateX(8px); }
+  .picker button.on { transform: translateX(16px) rotate(-2deg); }
+  .picker button.on::before { transform: scaleX(1); }
+  .picker button.on small { color: var(--black); }
+  .show { position: relative; height: 640px; }
+  .show .star {
+    position: absolute; left: 50%; top: 50%; width: 560px; aspect-ratio: 1; translate: -50% -50%; background: var(--red);
+    clip-path: polygon(50% 0, 60% 32%, 92% 18%, 70% 46%, 100% 62%, 66% 64%, 72% 100%, 50% 74%, 26% 100%, 34% 66%, 0 60%, 30% 46%, 8% 16%, 40% 32%);
+    animation: spin 60s linear infinite;
+  }
+  .show img {
+    position: absolute; left: 50%; bottom: 0; height: 100%; width: auto; translate: -50% 0;
+    filter: drop-shadow(5px 0 0 #fff) drop-shadow(-5px 0 0 #fff) drop-shadow(0 -5px 0 #fff) drop-shadow(14px 10px 0 #000);
+  }
+  .show img.enter { animation: enter .45s cubic-bezier(.2, 1.4, .4, 1); }
+  @keyframes enter { from { opacity: 0; transform: translateX(120px) skewX(-12deg); } }
+  .card {
+    position: absolute; right: 0; bottom: 40px; width: 300px; padding: 18px 22px 20px; background: var(--white); color: var(--black);
+    clip-path: polygon(0 6%, 100% 0, 97% 100%, 3% 94%); transform: rotate(3deg); z-index: 2;
+  }
+  .card .rar { display: inline-block; font-family: var(--head); background: var(--black); color: var(--white); padding: 0 10px; transform: skewX(-12deg); letter-spacing: 2px; }
+  .card h3 { font-size: 40px; font-weight: 900; font-style: italic; line-height: 1.2; margin: 6px 0 2px; }
+  .card .meta { font-weight: 800; color: var(--red-deep); font-size: 14px; }
+  .card p { font-size: 14px; margin-top: 8px; font-weight: 600; }
 
-  .cast { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-  .card .pic { height: 340px; display: flex; align-items: flex-end; justify-content: center;
-    background: radial-gradient(120% 80% at 50% 100%, rgba(255, 42, 116, .22), transparent 70%); }
-  .card .pic img { height: 100%; width: auto; object-fit: contain; object-position: bottom; }
-  .card .info { padding: 14px 16px 18px; }
-  .card h3 { font-size: 20px; display: flex; align-items: center; gap: 8px; }
-  .tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 6px; background: var(--pink); color: #fff; }
-  .tag.sr { background: #6a3df0; }
-  .card p { color: var(--muted); font-size: 14px; }
+  /* play */
+  #play { background: var(--white); color: var(--black); }
+  #play .ghost { -webkit-text-stroke: 2px rgba(0, 0, 0, .1); }
+  #play .title b { background: var(--black); color: var(--white); }
+  .cards { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
+  .call { position: relative; background: var(--black); color: var(--white); padding: 30px 26px; min-height: 260px; clip-path: polygon(0 3%, 100% 0, 98% 97%, 2% 100%); }
+  .call:nth-child(2) { background: var(--red); }
+  .call .num { font-family: var(--head); font-size: 76px; line-height: 1; color: var(--red); -webkit-text-stroke: 2px var(--white); }
+  .call:nth-child(2) .num { color: var(--black); }
+  .call h3 { font-size: 26px; font-weight: 900; font-style: italic; margin: 10px 0 8px; }
+  .call p { font-size: 15px; font-weight: 600; opacity: .92; }
+  .dice { position: absolute; right: 22px; top: 22px; display: grid; grid-template-columns: repeat(3, 8px); gap: 5px; padding: 8px; background: var(--white); transform: rotate(12deg); }
+  .dice i { width: 8px; height: 8px; border-radius: 50%; background: var(--black); }
+  .dice i:nth-child(2n) { visibility: hidden; }
 
-  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .feature { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
-  .feature .num { color: var(--pink); font-weight: 800; font-size: 14px; letter-spacing: 1px; margin-bottom: 10px; }
-  .feature h3 { font-size: 19px; margin-bottom: 8px; }
-  .feature p { color: var(--muted); font-size: 15px; }
+  /* get */
+  #get { background: var(--red); }
+  #get::before { content: ""; position: absolute; inset: 0; opacity: .22; background-image: radial-gradient(var(--black) 22%, transparent 24%); background-size: 14px 14px; }
+  #get .ghost { -webkit-text-stroke: 2px rgba(0, 0, 0, .22); }
+  .get { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; }
+  .get .dl { max-width: none; margin-top: 0; }
+  .tips { display: grid; gap: 14px; }
+  .tip { background: var(--black); padding: 16px 20px; clip-path: polygon(0 0, 100% 6%, 98% 100%, 1% 94%); }
+  .tip b { color: var(--red); font-style: italic; font-size: 18px; margin-right: 8px; }
+  .tip p { font-size: 14px; display: inline; }
 
-  .steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
-  .step h3 { font-size: 17px; margin-bottom: 6px; }
-  .step p { color: var(--muted); font-size: 14px; }
-
-  footer { border-top: 1px solid var(--line); padding: 32px 0 48px; color: var(--muted); font-size: 13px; }
+  footer { background: var(--black); padding: 40px 0 56px; font-size: 13px; color: #9a9a9a; border-top: 6px solid var(--white); }
   footer .wrap { display: flex; gap: 20px; align-items: flex-start; }
-  footer .age { width: 44px; flex: none; }
+  footer .age { width: 46px; flex: none; }
   footer p + p { margin-top: 6px; }
 
-  /* Tablet */
-  @media (max-width: 900px) {
-    .hero .wrap { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-    .hero-logo, .intro, .downloads { margin-left: auto; margin-right: auto; }
-    .hero-art { width: min(360px, 86%); }
-    .cast { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .features, .steps { grid-template-columns: 1fr; }
+  /* reveal: slides in on a skew, then settles at each element's own tilt */
+  .rv { opacity: 0; translate: -60px 0; transition: opacity .5s, translate .6s cubic-bezier(.2, 1.3, .4, 1); }
+  .rv.in { opacity: 1; translate: 0 0; }
+  .call:nth-child(1) { rotate: -2.5deg; }
+  .call:nth-child(2) { rotate: 1.8deg; margin-top: 18px; }
+  .call:nth-child(3) { rotate: -1.2deg; }
+
+  @media (max-width: 980px) {
+    .cast-hero { width: 100%; opacity: .3; }
+    .hero-copy { max-width: none; }
+    .lead { display: inline-block; background: var(--black); padding: 10px 14px; rotate: -1deg; box-shadow: 5px 5px 0 var(--white); }
+    .stage { grid-template-columns: 1fr; }
+    .picker { flex-direction: row; flex-wrap: wrap; gap: 6px 8px; }
+    .picker button { font-size: 24px; }
+    .picker button small { display: none; }
+    .picker button.on { transform: rotate(-2deg); }
+    .show { height: 560px; }
+    .cards { grid-template-columns: 1fr; gap: 22px; }
+    .call:nth-child(2) { margin-top: 0; }
+    .get { grid-template-columns: 1fr; gap: 30px; }
   }
-  /* Phone */
-  @media (max-width: 560px) {
-    nav { gap: 16px; font-size: 14px; }
-    .brand span { display: none; }
-    .hero { padding: 32px 0 48px; }
-    .tagline { font-size: 19px; }
-    .intro { font-size: 15px; }
-    .downloads { grid-template-columns: 1fr; }
-    section { padding: 52px 0; }
-    .section-title { font-size: 24px; }
-    .card .pic { height: 240px; }
-    .card h3 { font-size: 17px; }
-    .card .info { padding: 12px; }
+  @media (max-width: 600px) {
+    header .wrap { height: 56px; }
+    .brand b { display: none; }
+    nav a { font-size: 15px; padding: 6px 9px; }
+    .hero { min-height: 100svh; }
+    .hero-copy { padding: 90px 0 90px; }
+    .cast-hero { opacity: .22; }
+    .burst { width: 120vw; right: -40%; top: 34%; }
+    .band.b { left: 70%; }
+    .dl { gap: 14px 16px; }
+    .btn { height: 52px; font-size: 16px; }
+    section { padding: 80px 0; }
+    .show { height: 460px; }
+    .show .star { width: 380px; }
+    .card { position: relative; right: auto; bottom: auto; width: auto; margin-top: -30px; transform: rotate(1.5deg); }
+    .card h3 { font-size: 32px; }
     footer .wrap { flex-direction: column; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .wipe { display: none; }
+    .rv { opacity: 1; translate: 0 0; }
   }
 </style>
 </head>
 <body>
-<header>
+<div class="wipe" aria-hidden="true"><i></i><i></i></div>
+
+<header id="top-bar">
   <div class="wrap">
-    <a class="brand" href="#top"><img src="img/icon.png" alt=""><span>幻域魅声</span></a>
+    <a class="brand" href="#top"><img src="img/icon.png" alt=""><b>CHO-SIREN</b></a>
     <nav>
-      <a href="#cast">角色</a>
+      <a href="#members">角色</a>
       <a href="#play">玩法</a>
-      <a href="#download">下载</a>
+      <a href="#get">下载</a>
     </nav>
   </div>
 </header>
 
 <main id="top">
   <div class="hero">
-    <div class="wrap">
-      <div>
-        <img class="hero-logo" src="img/logo.png" alt="幻域魅声 CHO-SIREN">
-        <p class="tagline">签下异族少女，<em>用骰子</em>打赢每一场演出</p>
-        <p class="intro">二次元偶像养成 × 骰子策略战斗。招募魅族、恶魔、血精灵、人鱼歌姬，组队编成，掷出牌型触发技能与大招，一路闯进欲望都市的舞台。</p>
-        <div class="downloads" id="download">
-          <a class="btn primary" id="dl-android" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-latest.apk">安卓下载</a>
-          <a class="btn" id="dl-windows" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Windows-latest.zip">Windows 下载</a>
-          <a class="btn" id="dl-mac" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Mac-latest.dmg">Mac 下载</a>
-          <a class="btn" href="https://bojuejun.github.io/cho-siren-preview/">网页试玩</a>
-          <span class="btn disabled" style="grid-column: 1 / -1">iPhone 即将开放</span>
-        </div>
-        <p class="version">测试版 · 下载即为最新版本 · 已安装的客户端会自动提示更新</p>
-      </div>
-      <div class="hero-art"><img src="img/hero.webp" alt="星璃与绯音"></div>
+    <div class="band a"></div><div class="band b"></div>
+    <div class="burst k"></div><div class="burst"></div>
+    <div class="cast-hero" aria-hidden="true">
+      <img class="back" src="img/feiyin-l.webp" alt="">
+      <img class="front" src="img/xingli-l.webp" alt="">
     </div>
+    <div class="wrap">
+      <div class="hero-copy">
+        <img class="hero-logo" src="img/logo.png" alt="幻域魅声 CHO-SIREN">
+        <div class="ransom" aria-label="签下异族少女，用骰子征服舞台">
+          <div><span>签</span><span>下</span><span>异</span><span>族</span><span>少</span><span>女</span></div>
+          <div><span>用</span><span>骰</span><span>子</span><span>征</span><span>服</span><span>舞</span><span>台</span></div>
+        </div>
+        <p class="lead">二次元偶像养成 × 骰子策略战斗。招募魅族、恶魔、血精灵、人鱼歌姬，掷出牌型、引爆大招，一路闯进欲望都市的舞台。</p>
+        <div class="dl">
+          <a class="btn hot" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-latest.apk"><span>安卓下载</span></a>
+          <a class="btn" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Windows-latest.zip"><span>WINDOWS</span></a>
+          <a class="btn" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Mac-latest.dmg"><span>MAC</span></a>
+          <a class="btn" href="https://bojuejun.github.io/cho-siren-preview/"><span>网页试玩</span></a>
+        </div>
+        <p class="note">测试版 · 下载即最新版本 · 已安装的客户端会自动提示更新</p>
+      </div>
+    </div>
+    <div class="ticker" aria-hidden="true"><div>
+      <span>CHO-SIREN<em>✦</em>幻域魅声<em>✦</em>TAKE THE STAGE<em>✦</em>ROLL THE DICE<em>✦</em>CHO-SIREN<em>✦</em>幻域魅声<em>✦</em>TAKE THE STAGE<em>✦</em>ROLL THE DICE<em>✦</em></span>
+      <span>CHO-SIREN<em>✦</em>幻域魅声<em>✦</em>TAKE THE STAGE<em>✦</em>ROLL THE DICE<em>✦</em>CHO-SIREN<em>✦</em>幻域魅声<em>✦</em>TAKE THE STAGE<em>✦</em>ROLL THE DICE<em>✦</em></span>
+    </div></div>
   </div>
 
-  <section id="cast">
+  <section id="members">
+    <div class="ghost" aria-hidden="true">MEMBERS</div>
     <div class="wrap">
-      <h2 class="section-title">角色</h2>
-      <p class="section-sub">四个种族，四种战斗风格。</p>
-      <div class="cast">
-        <div class="card"><div class="pic"><img src="img/xingli.webp" alt="星璃" loading="lazy"></div>
-          <div class="info"><h3>星璃 <span class="tag">SSR</span></h3><p>魅族 · 主唱</p></div></div>
-        <div class="card"><div class="pic"><img src="img/feiyin.webp" alt="绯音" loading="lazy"></div>
-          <div class="info"><h3>绯音 <span class="tag">SSR</span></h3><p>魔族 · 恶魔 · 舞者</p></div></div>
-        <div class="card"><div class="pic"><img src="img/wubai.webp" alt="雾白" loading="lazy"></div>
-          <div class="info"><h3>雾白 <span class="tag">SSR</span></h3><p>海灵族 · 人鱼 · 支援</p></div></div>
-        <div class="card"><div class="pic"><img src="img/yeying.webp" alt="夜莺" loading="lazy"></div>
-          <div class="info"><h3>夜莺 <span class="tag sr">SR</span></h3><p>血精灵 · Rapper</p></div></div>
+      <h2 class="title rv"><b>角色</b><small>CHOOSE YOUR SIREN</small></h2>
+      <div class="stage">
+        <div class="picker rv" role="tablist">
+          <button class="on" data-k="xingli">星璃<small>LEAD VOCAL</small></button>
+          <button data-k="feiyin">绯音<small>DANCER</small></button>
+          <button data-k="wubai">雾白<small>SUPPORT</small></button>
+          <button data-k="yeying">夜莺<small>RAPPER</small></button>
+        </div>
+        <div class="show">
+          <div class="star"></div>
+          <img id="show-img" src="img/xingli-l.webp" alt="星璃">
+          <div class="card">
+            <span class="rar" id="show-rar">SSR</span>
+            <h3 id="show-name">星璃</h3>
+            <div class="meta" id="show-meta">魅族 · 主唱</div>
+            <p id="show-line">狐耳魅族的主唱。歌声一出，台下全员失神——队伍里最稳定的输出核心。</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="play">
+    <div class="ghost" aria-hidden="true">HOW TO PLAY</div>
     <div class="wrap">
-      <h2 class="section-title">玩法</h2>
-      <p class="section-sub">上手很快，越玩越有策略。</p>
-      <div class="features">
-        <div class="feature"><div class="num">01</div><h3>骰子牌型</h3><p>每回合掷出六颗骰子，凑出两对、三条、顺子、葫芦，牌型越好加成越高，连续摇好还会叠加热度。</p></div>
-        <div class="feature"><div class="num">02</div><h3>组队养成</h3><p>签约成员、练习升级、搭配饰品，四个种族各有普攻与大招，队长还带专属被动。</p></div>
-        <div class="feature"><div class="num">03</div><h3>剧情演出</h3><p>每一关都有剧情与 CG，打通第一章「欲望都市」后开放第二章「魅声海湾」。</p></div>
+      <h2 class="title rv"><b>玩法</b><small>THE SHOW MUST GO ON</small></h2>
+      <div class="cards">
+        <div class="call rv"><div class="dice"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="num">01</div><h3>骰子牌型</h3><p>每回合掷出六颗骰子，凑出两对、三条、顺子、葫芦。牌型越好加成越高，连续摇好还会叠加热度。</p></div>
+        <div class="call rv"><div class="num">02</div><h3>组队养成</h3><p>签约成员、练习升级、搭配饰品。四个种族各有普攻与大招，队长自带专属被动。</p></div>
+        <div class="call rv"><div class="num">03</div><h3>剧情演出</h3><p>每一关都有剧情与 CG。打通第一章「欲望都市」，开启第二章「魅声海湾」。</p></div>
       </div>
     </div>
   </section>
 
-  <section id="install">
+  <section id="get">
+    <div class="ghost" aria-hidden="true">GET READY</div>
     <div class="wrap">
-      <h2 class="section-title">安装说明</h2>
-      <p class="section-sub">存档都保存在你自己的设备上。</p>
-      <div class="steps">
-        <div class="step"><h3>安卓</h3><p>用手机浏览器点「安卓下载」，下载完成后点开安装。如提示"未知来源"，按提示允许一次即可。</p></div>
-        <div class="step"><h3>Windows</h3><p>下载压缩包后先完整解压，再双击 CHO-SIREN.exe。如提示"已保护你的电脑"，点「更多信息 → 仍要运行」。</p></div>
-        <div class="step"><h3>Mac</h3><p>需要 M1 及以后的苹果芯片。双击下载的 .dmg，把「幻域魅声」拖进「应用程序」。第一次打开请右键 →「打开」；若仍被拦截，到「系统设置 → 隐私与安全性」点「仍要打开」。</p></div>
-        <div class="step"><h3>更新</h3><p>有新版本时，打开游戏会弹出「发现新版本」，点「立即更新」下载安装即可，存档保留。</p></div>
+      <h2 class="title rv"><b>下载</b><small>JOIN THE SHOW</small></h2>
+      <div class="get">
+        <div class="dl rv">
+          <a class="btn hot" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-latest.apk"><span>安卓下载</span></a>
+          <a class="btn" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Windows-latest.zip"><span>WINDOWS</span></a>
+          <a class="btn" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Mac-latest.dmg"><span>MAC</span></a>
+          <a class="btn" href="https://bojuejun.github.io/cho-siren-preview/"><span>网页试玩</span></a>
+          <span class="btn off wide"><span>IPHONE 即将开放</span></span>
+        </div>
+        <div class="tips rv">
+          <div class="tip"><b>安卓</b><p>用手机浏览器下载后点开安装；提示"未知来源"时按提示允许一次即可。</p></div>
+          <div class="tip"><b>WINDOWS</b><p>完整解压后双击「CHO-SIREN.exe」；提示"已保护你的电脑"时点「更多信息 → 仍要运行」。</p></div>
+          <div class="tip"><b>MAC</b><p>需 M1 及以后芯片。打开 .dmg，把「幻域魅声」拖进「应用程序」；首次打开请右键 →「打开」。</p></div>
+          <div class="tip"><b>更新</b><p>有新版本时打开游戏会弹出「发现新版本」，点「立即更新」即可，存档保留。</p></div>
+        </div>
       </div>
     </div>
   </section>
@@ -212,5 +351,37 @@
     </div>
   </div>
 </footer>
+
+<script>
+  const members = {
+    xingli: { name: '星璃', rar: 'SSR', meta: '魅族 · 主唱', line: '狐耳魅族的主唱。歌声一出，台下全员失神——队伍里最稳定的输出核心。' },
+    feiyin: { name: '绯音', rar: 'SSR', meta: '魔族 · 恶魔 · 舞者', line: '戴着小王冠的恶魔舞者。每一步都踩在节拍上，爪击连段又快又狠。' },
+    wubai: { name: '雾白', rar: 'SSR', meta: '海灵族 · 人鱼 · 支援', line: '来自海湾的人鱼歌姬。清亮的声线能为全队回复与护盾。' },
+    yeying: { name: '夜莺', rar: 'SR', meta: '血精灵 · Rapper', line: '月下登场的血精灵 Rapper。月牙斩落下时，敌人才听清她的第一句词。' }
+  };
+  const img = document.getElementById('show-img');
+  document.querySelectorAll('.picker button').forEach(btn => btn.addEventListener('click', () => {
+    const m = members[btn.dataset.k];
+    document.querySelectorAll('.picker button').forEach(b => b.classList.toggle('on', b === btn));
+    img.src = 'img/' + btn.dataset.k + '-l.webp'; img.alt = m.name;
+    img.classList.remove('enter'); void img.offsetWidth; img.classList.add('enter');
+    document.getElementById('show-name').textContent = m.name;
+    document.getElementById('show-rar').textContent = m.rar;
+    document.getElementById('show-meta').textContent = m.meta;
+    document.getElementById('show-line').textContent = m.line;
+  }));
+  addEventListener('load', () => ['feiyin', 'wubai', 'yeying'].forEach(k => { const p = new Image(); p.src = 'img/' + k + '-l.webp'; }));
+
+  document.querySelectorAll('.ransom span').forEach((s, i) => s.style.animationDelay = (0.55 + i * 0.04) + 's');
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .15 }) : null;
+  document.querySelectorAll('.rv').forEach(el => io ? io.observe(el) : el.classList.add('in'));
+
+  const bar = document.getElementById('top-bar');
+  const onScroll = () => bar.classList.toggle('solid', scrollY > 40);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  setTimeout(() => document.querySelector('.wipe')?.remove(), 1400);
+</script>
 </body>
 </html>
