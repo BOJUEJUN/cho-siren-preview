@@ -110,7 +110,7 @@
   @keyframes tick { to { transform: translateX(-50%); } }
 
   /* ---------- sections ---------- */
-  section { position: relative; padding: 110px 0; overflow: hidden; }
+  section { position: relative; padding: 110px 0; overflow: hidden; scroll-margin-top: 50px; }
   .ghost {
     position: absolute; top: 30px; left: -2%; font-family: var(--head); font-size: clamp(80px, 16vw, 220px); line-height: 1;
     color: transparent; -webkit-text-stroke: 2px rgba(255, 255, 255, .14); transform: rotate(-6deg); white-space: nowrap; pointer-events: none;
@@ -224,9 +224,11 @@
     .dl { gap: 14px 16px; }
     .btn { height: 52px; font-size: 16px; }
     section { padding: 80px 0; }
-    .show { height: 460px; }
-    .show .star { width: 380px; }
-    .card { position: relative; right: auto; bottom: auto; width: auto; margin-top: -30px; transform: rotate(1.5deg); }
+    /* Phone: portrait first, info card underneath (it covered her face when it sat on top). */
+    .show { height: auto; }
+    .show .star { width: 380px; top: 230px; }
+    .show img { position: relative; left: auto; translate: none; height: 460px; margin: 0 auto; }
+    .card { position: relative; right: auto; bottom: auto; width: auto; margin-top: -24px; transform: rotate(1.5deg); }
     .card h3 { font-size: 32px; }
     footer .wrap { flex-direction: column; }
   }
