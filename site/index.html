@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>幻域魅声 CHO-SIREN 官方网站</title>
+<meta name="description" content="《幻域魅声 CHO-SIREN》二次元偶像养成 × 骰子策略战斗。安卓、Windows 下载与网页试玩。">
+<meta name="theme-color" content="#0d0a14">
+<link rel="icon" href="img/icon.png">
+<style>
+  :root {
+    --bg: #0d0a14;
+    --panel: #17121f;
+    --line: #2a2236;
+    --text: #f4f1f8;
+    --muted: #a59cb4;
+    --pink: #ff2a74;
+    --pink-soft: #ff5c96;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+
+  /* Top bar */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(13, 10, 20, .86);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .5px; }
+  .brand img { width: 32px; height: 32px; border-radius: 8px; }
+  nav { display: flex; gap: 24px; font-size: 15px; color: var(--muted); }
+  nav a:hover { color: var(--text); }
+
+  /* Hero */
+  .hero { padding: 48px 0 64px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
+  .hero-logo { width: min(420px, 100%); margin-bottom: 24px; }
+  .tagline { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .tagline em { font-style: normal; color: var(--pink); }
+  .intro { color: var(--muted); font-size: 16px; max-width: 30em; margin-bottom: 32px; }
+  .downloads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 460px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    height: 54px; border-radius: 12px; font-size: 16px; font-weight: 700;
+    border: 1px solid var(--line); background: var(--panel);
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { transform: translateY(-2px); border-color: #3b3049; }
+  .btn.primary { background: var(--pink); border-color: var(--pink); color: #fff; }
+  .btn.primary:hover { background: var(--pink-soft); }
+  .btn.disabled { color: var(--muted); cursor: default; }
+  .btn.disabled:hover { transform: none; }
+  .btn small { font-weight: 400; font-size: 12px; opacity: .8; }
+  .version { margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .hero-art { position: relative; justify-self: center; width: min(420px, 100%); }
+  .hero-art img { border-radius: 20px; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 42%; width: 100%; height: auto; box-shadow: 0 30px 80px rgba(255, 42, 116, .18); }
+  .hero-art::before {
+    content: ""; position: absolute; inset: 18px -18px -18px 18px; border-radius: 20px;
+    border: 2px solid var(--pink); z-index: -1;
+  }
+
+  /* Sections */
+  section { padding: 72px 0; border-top: 1px solid var(--line); }
+  .section-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .section-sub { color: var(--muted); margin-bottom: 36px; }
+
+  .cast { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .card .pic { height: 340px; display: flex; align-items: flex-end; justify-content: center;
+    background: radial-gradient(120% 80% at 50% 100%, rgba(255, 42, 116, .22), transparent 70%); }
+  .card .pic img { height: 100%; width: auto; object-fit: contain; object-position: bottom; }
+  .card .info { padding: 14px 16px 18px; }
+  .card h3 { font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .tag { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 6px; background: var(--pink); color: #fff; }
+  .tag.sr { background: #6a3df0; }
+  .card p { color: var(--muted); font-size: 14px; }
+
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .feature { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+  .feature .num { color: var(--pink); font-weight: 800; font-size: 14px; letter-spacing: 1px; margin-bottom: 10px; }
+  .feature h3 { font-size: 19px; margin-bottom: 8px; }
+  .feature p { color: var(--muted); font-size: 15px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .step h3 { font-size: 17px; margin-bottom: 6px; }
+  .step p { color: var(--muted); font-size: 14px; }
+
+  footer { border-top: 1px solid var(--line); padding: 32px 0 48px; color: var(--muted); font-size: 13px; }
+  footer .wrap { display: flex; gap: 20px; align-items: flex-start; }
+  footer .age { width: 44px; flex: none; }
+  footer p + p { margin-top: 6px; }
+
+  /* Tablet */
+  @media (max-width: 900px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+    .hero-logo, .intro, .downloads { margin-left: auto; margin-right: auto; }
+    .hero-art { width: min(360px, 86%); }
+    .cast { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .features, .steps { grid-template-columns: 1fr; }
+  }
+  /* Phone */
+  @media (max-width: 560px) {
+    nav { gap: 16px; font-size: 14px; }
+    .brand span { display: none; }
+    .hero { padding: 32px 0 48px; }
+    .tagline { font-size: 19px; }
+    .intro { font-size: 15px; }
+    .downloads { grid-template-columns: 1fr; }
+    section { padding: 52px 0; }
+    .section-title { font-size: 24px; }
+    .card .pic { height: 240px; }
+    .card h3 { font-size: 17px; }
+    .card .info { padding: 12px; }
+    footer .wrap { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/icon.png" alt=""><span>幻域魅声</span></a>
+    <nav>
+      <a href="#cast">角色</a>
+      <a href="#play">玩法</a>
+      <a href="#download">下载</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <img class="hero-logo" src="img/logo.png" alt="幻域魅声 CHO-SIREN">
+        <p class="tagline">签下异族少女，<em>用骰子</em>打赢每一场演出</p>
+        <p class="intro">二次元偶像养成 × 骰子策略战斗。招募魅族、恶魔、血精灵、人鱼歌姬，组队编成，掷出牌型触发技能与大招，一路闯进欲望都市的舞台。</p>
+        <div class="downloads" id="download">
+          <a class="btn primary" id="dl-android" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-0.6.6.apk">安卓下载 <small>222MB</small></a>
+          <a class="btn" id="dl-windows" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Windows-0.6.6.zip">Windows 下载 <small>388MB</small></a>
+          <a class="btn" href="../">网页试玩</a>
+          <span class="btn disabled">iPhone 即将开放</span>
+        </div>
+        <p class="version">当前版本 v0.6.6 · 测试版 · 已安装的客户端会自动提示更新</p>
+      </div>
+      <div class="hero-art"><img src="img/hero.webp" alt="星璃与绯音"></div>
+    </div>
+  </div>
+
+  <section id="cast">
+    <div class="wrap">
+      <h2 class="section-title">角色</h2>
+      <p class="section-sub">四个种族，四种战斗风格。</p>
+      <div class="cast">
+        <div class="card"><div class="pic"><img src="img/xingli.webp" alt="星璃" loading="lazy"></div>
+          <div class="info"><h3>星璃 <span class="tag">SSR</span></h3><p>魅族 · 主唱</p></div></div>
+        <div class="card"><div class="pic"><img src="img/feiyin.webp" alt="绯音" loading="lazy"></div>
+          <div class="info"><h3>绯音 <span class="tag">SSR</span></h3><p>魔族 · 恶魔 · 舞者</p></div></div>
+        <div class="card"><div class="pic"><img src="img/wubai.webp" alt="雾白" loading="lazy"></div>
+          <div class="info"><h3>雾白 <span class="tag">SSR</span></h3><p>海灵族 · 人鱼 · 支援</p></div></div>
+        <div class="card"><div class="pic"><img src="img/yeying.webp" alt="夜莺" loading="lazy"></div>
+          <div class="info"><h3>夜莺 <span class="tag sr">SR</span></h3><p>血精灵 · Rapper</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="play">
+    <div class="wrap">
+      <h2 class="section-title">玩法</h2>
+      <p class="section-sub">上手很快，越玩越有策略。</p>
+      <div class="features">
+        <div class="feature"><div class="num">01</div><h3>骰子牌型</h3><p>每回合掷出六颗骰子，凑出两对、三条、顺子、葫芦，牌型越好加成越高，连续摇好还会叠加热度。</p></div>
+        <div class="feature"><div class="num">02</div><h3>组队养成</h3><p>签约成员、练习升级、搭配饰品，四个种族各有普攻与大招，队长还带专属被动。</p></div>
+        <div class="feature"><div class="num">03</div><h3>剧情演出</h3><p>每一关都有剧情与 CG，打通第一章「欲望都市」后开放第二章「魅声海湾」。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2 class="section-title">安装说明</h2>
+      <p class="section-sub">存档都保存在你自己的设备上。</p>
+      <div class="steps">
+        <div class="step"><h3>安卓</h3><p>用手机浏览器点「安卓下载」，下载完成后点开安装。如提示"未知来源"，按提示允许一次即可。</p></div>
+        <div class="step"><h3>Windows</h3><p>下载压缩包后先完整解压，再双击 CHO-SIREN.exe。如提示"已保护你的电脑"，点「更多信息 → 仍要运行」。</p></div>
+        <div class="step"><h3>更新</h3><p>有新版本时，打开游戏会弹出「发现新版本」，点「立即更新」下载安装即可，存档保留。</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img class="age" src="img/age-16.png" alt="16+">
+    <div>
+      <p>抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</p>
+      <p>本游戏目前为内部测试版本，内容与数值可能随时调整。© 幻域魅声 CHO-SIREN</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
