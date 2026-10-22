@@ -1,0 +1,21 @@
+{
+  "version": "0.6.6",
+  "releaseId": "PSD-20261022-SMALLER-DATA-R119",
+  "date": "2026-10-20",
+  "name": "网页包变小更省内存",
+  "notice": "67 张尺寸不规整的图片调成 4 的倍数，现在都能被压缩：网页下载包从 77MB 降到 52MB，图片内存从 136MB 降到 86MB，进游戏更快、手机更不容易断开。另外为安卓和 Windows 安装包加了「发现新版本」自动检查。",
+  "backupBranch": "backup/v0.6.6",
+  "previousReleaseId": "PSD-20261022-PHONE-MEMORY-R118",
+  "previousWebCommit": "3cff8a9",
+  "previousReleaseRecord": "releases/R118.json",
+  "previousBackupBranch": "backup/v0.6.5",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R119: 67 odd-sized Resources textures resized to multiples of 4 (originals in ~/cho-siren-backups/pad4-20261022), Android ASTC override, AppUpdate1022 for installed builds.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "EditMode 588/588; desktop browser boot checked for R118; phone not yet tested.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
