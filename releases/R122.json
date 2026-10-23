@@ -1,0 +1,21 @@
+{
+  "version": "0.7.7",
+  "releaseId": "PSD-20261023-CLEAN-HITS-R122",
+  "date": "2026-10-23",
+  "name": "命中光效更干净",
+  "notice": "我方攻击命中时不再叠加旧的紫色碎片大爆炸，只保留新的种族光效，敌人和 Boss 不再被特效整个盖住。",
+  "backupBranch": "backup/v0.7.7",
+  "previousReleaseId": "PSD-20261023-SHADER-VFX-R121",
+  "previousWebCommit": "c636e35",
+  "previousReleaseRecord": "releases/R121.json",
+  "previousBackupBranch": "backup/v0.7.6",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R122: BasicStrike1021 contact:false for our side (travel only; Fx1023 owns the contact), incl. ultimates.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "Played 1-1 and 1-10 on the simulator; Fx1023 hits visible, old hit art gone.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。"
+  ]
+}

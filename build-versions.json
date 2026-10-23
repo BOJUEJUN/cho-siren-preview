@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "05f5317190026e909fc0a04331dae28c.data.unityweb",
+    "00c62707097e2d2b621c5839e7ba0c51.framework.js.unityweb",
+    "2cf2319e77e27bbf5cf87132e0794125.wasm.unityweb",
+    "482b6900cf5ad88028c5a3827bf639be.loader.js"
+  ],
+  "previous": [
     "5252799df099be319a0a9a48df738d62.data.unityweb",
     "9d16492028ded5c45aa689ad98d17b94.framework.js.unityweb",
     "bde9946b98dcab75576a8e049313e0a9.wasm.unityweb",
     "5d47ae59c56c3df4492f91a1cdc11686.loader.js"
   ],
-  "previous": [
-    "ae225f95f79b9354b15d23b916320159.data.unityweb",
-    "32f19f6cd624c82b5a7eb3e63ebc2016.framework.js.unityweb",
-    "158401950cc327b641cd25236e9e4e29.wasm.unityweb",
-    "08519dd377be7cb4023362e885b38ce6.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.7.6",
+      "releaseId": "PSD-20261023-SHADER-VFX-R121",
+      "files": [
+        "ae225f95f79b9354b15d23b916320159.data.unityweb",
+        "32f19f6cd624c82b5a7eb3e63ebc2016.framework.js.unityweb",
+        "158401950cc327b641cd25236e9e4e29.wasm.unityweb",
+        "08519dd377be7cb4023362e885b38ce6.loader.js"
+      ]
+    },
     {
       "version": "0.7.4",
       "releaseId": "PSD-20261022-INSTALLERS-R120",
