@@ -1,21 +1,22 @@
 {
-  "version": "0.7.8",
-  "releaseId": "PSD-20261023-BATTLE-REVIEW-R123",
+  "version": "0.7.9",
+  "releaseId": "PSD-20261023-BATTLE-REVIEW-2-R124",
   "date": "2026-10-23",
-  "name": "战斗优化（第一批）",
-  "notice": "按美术优化表修了一批战斗问题：红色长条错误、Boss 受击改用新光效、伤害数字放大、重投徽章缩小、护盾挪到卡片头顶、倒下角色变黑白不消失、状态图标挂在头像框旁、技能贴脸图不再被名字条和特效挡住、光碟放回卡框下面。",
-  "backupBranch": "backup/v0.7.8",
-  "previousReleaseId": "PSD-20261023-CLEAN-HITS-R122",
-  "previousWebCommit": "944eee6",
-  "previousReleaseRecord": "releases/R122.json",
-  "previousBackupBranch": "backup/v0.7.7",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R123: crit strip leak fix, BossBattlePresentation.DecoratedHits=false + boss UnitVisual fix (Fx1023 on the boss), Fx1023 layer under the member cards, close-up raised, fallen members grayscale (UIGrayscale), guard crest on the card top, status strip on the card, reroll badge 80%, bigger damage numbers, Slash shader tapered.",
+  "name": "战斗优化（第二批）+ 新音效",
+  "notice": "新战斗音效（普攻、暴击、四种族、大招、击破、受伤、格挡，每个 3 个版本轮换）；队长演出横幅、暴击数字、击破/全灭图章改成 P5 风格；卡片上大招就绪火焰重做；Boss 身边小怪放大；换波时地面裂开、新敌人从地缝升起；自动战斗大招按聚光值轮流出场；结算界面加登场动画；修复骰子翻滚重影和结算头像白块。",
+  "backupBranch": "backup/v0.7.9",
+  "previousReleaseId": "PSD-20261023-BATTLE-REVIEW-R123",
+  "previousWebCommit": "2e75a0f",
+  "previousReleaseRecord": "releases/R123.json",
+  "previousBackupBranch": "backup/v0.7.8",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R124: layered SFX (Tools/sfx1023, Sonniss GDC 2026 + lentikula CC0) with take rotation in GameAudio, P5Letters1023 / CaptainShowBanner1023, KoBreak1022 lettering, crit plate, UltReadyRing1020 on the Fx1023Flame shader, bigger boss adds, wave floor split + rise, BattleSimulator.Spotlight/HoldsUltimateSpotlight, result entrance, DiceCube3D inner faces, result avatar fallback.",
   "validation": {
     "unityEditMode": "588/588 passed.",
-    "iosSimulator": "Boss 1-10 played on the simulator; Fx1023 on the boss, close-up above tags, fallen card grayscale.",
+    "iosSimulator": "1-1 and 1-10 played on the simulator: captain banner, 全灭 stamp, dice toss, wave change, result screen checked.",
     "webChecks": "npm run check (see commit)."
   },
   "knownLimits": [
-    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。"
+    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。",
+    "音效素材只下到 Sonniss 第 1 包，后续补全后再升级。"
   ]
 }

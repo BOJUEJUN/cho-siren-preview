@@ -1,0 +1,21 @@
+{
+  "version": "0.7.8",
+  "releaseId": "PSD-20261023-BATTLE-REVIEW-R123",
+  "date": "2026-10-23",
+  "name": "战斗优化（第一批）",
+  "notice": "按美术优化表修了一批战斗问题：红色长条错误、Boss 受击改用新光效、伤害数字放大、重投徽章缩小、护盾挪到卡片头顶、倒下角色变黑白不消失、状态图标挂在头像框旁、技能贴脸图不再被名字条和特效挡住、光碟放回卡框下面。",
+  "backupBranch": "backup/v0.7.8",
+  "previousReleaseId": "PSD-20261023-CLEAN-HITS-R122",
+  "previousWebCommit": "944eee6",
+  "previousReleaseRecord": "releases/R122.json",
+  "previousBackupBranch": "backup/v0.7.7",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R123: crit strip leak fix, BossBattlePresentation.DecoratedHits=false + boss UnitVisual fix (Fx1023 on the boss), Fx1023 layer under the member cards, close-up raised, fallen members grayscale (UIGrayscale), guard crest on the card top, status strip on the card, reroll badge 80%, bigger damage numbers, Slash shader tapered.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "Boss 1-10 played on the simulator; Fx1023 on the boss, close-up above tags, fallen card grayscale.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。"
+  ]
+}
