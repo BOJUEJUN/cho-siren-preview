@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "ae225f95f79b9354b15d23b916320159.data.unityweb",
+    "32f19f6cd624c82b5a7eb3e63ebc2016.framework.js.unityweb",
+    "158401950cc327b641cd25236e9e4e29.wasm.unityweb",
+    "08519dd377be7cb4023362e885b38ce6.loader.js"
+  ],
+  "previous": [
     "f2c8146c4e08220116c4be840e5cae72.data.unityweb",
     "2b9fd1aedf4dc95a0d6e97b5be295793.framework.js.unityweb",
     "b93f6ab0d30a688cac47785b6c3820e1.wasm.unityweb",
     "b00de9edba8396a99ff4faed64988d63.loader.js"
   ],
-  "previous": [
-    "a0da2f8f4baf5071c92f37f4e3f86cf7.data.unityweb",
-    "e87b000b62d7360c299f64c70537c396.framework.js.unityweb",
-    "810e3d2796df4fbcc6851d95cd9c0ed3.wasm.unityweb",
-    "54c576b4dee4b9009af7ca63999d7a78.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.6.6",
+      "releaseId": "PSD-20261022-SMALLER-DATA-R119",
+      "files": [
+        "a0da2f8f4baf5071c92f37f4e3f86cf7.data.unityweb",
+        "e87b000b62d7360c299f64c70537c396.framework.js.unityweb",
+        "810e3d2796df4fbcc6851d95cd9c0ed3.wasm.unityweb",
+        "54c576b4dee4b9009af7ca63999d7a78.loader.js"
+      ]
+    },
     {
       "version": "0.6.5",
       "releaseId": "PSD-20261022-PHONE-MEMORY-R118",

@@ -1,0 +1,21 @@
+{
+  "version": "0.7.4",
+  "releaseId": "PSD-20261022-INSTALLERS-R120",
+  "date": "2026-10-20",
+  "name": "版本号与安装包统一",
+  "notice": "网页版版本号与安装包统一为 0.7.4。安装版（安卓 / Windows / Mac）支持游戏内只下载改动文件的自动更新，Windows 使用正规安装程序，安卓改用正式签名。",
+  "backupBranch": "backup/v0.7.4",
+  "previousReleaseId": "PSD-20261022-SMALLER-DATA-R119",
+  "previousWebCommit": "1dcb4cc",
+  "previousReleaseRecord": "releases/R119.json",
+  "previousBackupBranch": "backup/v0.6.6",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R120: no gameplay change since R119; native-only updater/installer work, version aligned with installers.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "EditMode 588/588.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "数据包 75MB。"
+  ]
+}
