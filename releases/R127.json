@@ -1,0 +1,22 @@
+{
+  "version": "0.8.2",
+  "releaseId": "PSD-20261024-CAPTAIN-TAG-R127",
+  "date": "2026-10-24",
+  "name": "换队长重做 + 宽屏居中",
+  "notice": "换队长重做：队长卡片左上角是金色「队长」牌和青色「⇄ 换」，点「换」后其他成员卡片上会出现「点她当队长」，点一下就换（再点「取消」可退出）。电脑全屏、4K 和横屏窗口里，游戏保持竖屏比例居中显示，两侧显示背景。",
+  "backupBranch": "backup/v0.8.2",
+  "previousReleaseId": "PSD-20261024-POLISH-R126",
+  "previousWebCommit": "cadd103",
+  "previousReleaseRecord": "releases/R126.json",
+  "previousBackupBranch": "backup/v0.8.1",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R127: CaptainTag1024 (gold 队长 + cyan ⇄换 chip, SkewedPlate) + PickHint1024 ribbons; SafeAreaFitter pins pages to a centred 720:1536 column on wide screens (match height).",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "2-4: ⇄换 → ribbons → tap 夜莺 → captain moved.",
+    "desktop": "Mac build at 1600x900: lobby / map / members centred in a portrait column."
+  },
+  "knownLimits": [
+    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。",
+    "音效素材只下到 Sonniss 第 1 包，后续补全后再升级。"
+  ]
+}
