@@ -1,19 +1,19 @@
 {
-  "version": "0.8.1",
-  "releaseId": "PSD-20261024-POLISH-R126",
+  "version": "0.8.2",
+  "releaseId": "PSD-20261024-CAPTAIN-TAG-R127",
   "date": "2026-10-24",
-  "name": "换队长更顺手 + 电脑版大窗口",
-  "notice": "「队长 ⇄」牌移到队长卡片左上角，点它再点一位成员就能换队长；失败结算也显示 MVP 立绘；跳过剧情不再多弹提示；电脑版窗口按屏幕高度打开，不再是一小条。",
-  "backupBranch": "backup/v0.8.1",
-  "previousReleaseId": "PSD-20261024-TAP-ULT-R125",
-  "previousWebCommit": "b9a98f2",
-  "previousReleaseRecord": "releases/R125.json",
-  "previousBackupBranch": "backup/v0.8.0",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R126: captain plate = swap control (top-left of the captain card), result hero fallback art, skip-to-end toast removed, DesktopWindow1024 (standalone only), ready flame 1.1w.",
+  "name": "换队长重做 + 宽屏居中",
+  "notice": "换队长重做：队长卡片左上角是金色「队长」牌和青色「⇄ 换」，点「换」后其他成员卡片上会出现「点她当队长」，点一下就换（再点「取消」可退出）。电脑全屏、4K 和横屏窗口里，游戏保持竖屏比例居中显示，两侧显示背景。",
+  "backupBranch": "backup/v0.8.2",
+  "previousReleaseId": "PSD-20261024-POLISH-R126",
+  "previousWebCommit": "cadd103",
+  "previousReleaseRecord": "releases/R126.json",
+  "previousBackupBranch": "backup/v0.8.1",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R127: CaptainTag1024 (gold 队长 + cyan ⇄换 chip, SkewedPlate) + PickHint1024 ribbons; SafeAreaFitter pins pages to a centred 720:1536 column on wide screens (match height).",
   "validation": {
     "unityEditMode": "588/588 passed.",
-    "iosSimulator": "2-4: captain plate tap → 选队长 → tap card swaps captain; plate clear of the dice strip.",
-    "webChecks": "npm run check (see commit)."
+    "iosSimulator": "2-4: ⇄换 → ribbons → tap 夜莺 → captain moved.",
+    "desktop": "Mac build at 1600x900: lobby / map / members centred in a portrait column."
   },
   "knownLimits": [
     "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。",

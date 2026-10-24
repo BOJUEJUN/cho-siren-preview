@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "0da7a0947da2886c4448466c8ce3777d.data.unityweb",
+    "efb4fb192877b2143ea4d29e5bdd3a67.framework.js.unityweb",
+    "d2520a02e32dffbba11b4fca9101779c.wasm.unityweb",
+    "4bebee0b3b99ee6c5c62ef18484086b9.loader.js"
+  ],
+  "previous": [
     "ddcebb4d28f551ead68a0cd9b61058a1.data.unityweb",
     "0b40bc55161689c9784d53176c2d75c7.framework.js.unityweb",
     "7029bec04d0e6552670112670122e309.wasm.unityweb",
     "c6142067e7099799be4fa0a537de7f88.loader.js"
   ],
-  "previous": [
-    "ecae95dfa22f265e2ce219ffa7c44c6e.data.unityweb",
-    "123651accb466c3d2a06bce6f21cbb42.framework.js.unityweb",
-    "2b00a1388fc7e2ab8055bec56d61c9a7.wasm.unityweb",
-    "b679b55b2bfe29a9d4d2daef862c40fe.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.8.0",
+      "releaseId": "PSD-20261024-TAP-ULT-R125",
+      "files": [
+        "ecae95dfa22f265e2ce219ffa7c44c6e.data.unityweb",
+        "123651accb466c3d2a06bce6f21cbb42.framework.js.unityweb",
+        "2b00a1388fc7e2ab8055bec56d61c9a7.wasm.unityweb",
+        "b679b55b2bfe29a9d4d2daef862c40fe.loader.js"
+      ]
+    },
     {
       "version": "0.7.9",
       "releaseId": "PSD-20261023-BATTLE-REVIEW-2-R124",
