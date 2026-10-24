@@ -1,0 +1,22 @@
+{
+  "version": "0.8.0",
+  "releaseId": "PSD-20261024-TAP-ULT-R125",
+  "date": "2026-10-24",
+  "name": "战斗规则改版：点卡片放大招",
+  "notice": "参考《天命之子》：普攻和技能自动进行；蓝条满了点角色卡片立刻放大招（自动模式不点也会自己放），放完其他人的蓝条清零重新攒；输出越高、骰子倍率越高，蓝条涨得越快。敌人按仇恨挑目标，不再只打队长。新增「换队长」按钮、大招专属「终曲」特效、首通后的剧情对话，并修复关卡页文字错位和第一次骰子动画。",
+  "backupBranch": "backup/v0.8.0",
+  "previousReleaseId": "PSD-20261023-BATTLE-REVIEW-2-R124",
+  "previousWebCommit": "22b633c",
+  "previousReleaseRecord": "releases/R124.json",
+  "previousBackupBranch": "backup/v0.7.9",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R125: tap-to-ult (TryCastUltimateNow, team bars reset), damage-share ult charge, threat targeting (EnemyTactics1020.ThreatTarget), manual = auto attacks, CaptainSwap1024 button, Fx1023 Ultimate 终曲 (Beams/Shock shaders, spotlight vignette, battle waits for it), stage-x-y-end outro scripts, BakedRegionMotion038 local positions, DiceCube3D face refresh, story end closes itself.",
+  "validation": {
+    "unityEditMode": "588/588 passed.",
+    "iosSimulator": "2-2/2-3/2-4 played: auto ult rotation, manual tap-ult, threat targets, outro scene, map intact after battle.",
+    "webChecks": "npm run check (see commit)."
+  },
+  "knownLimits": [
+    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。",
+    "音效素材只下到 Sonniss 第 1 包，后续补全后再升级。"
+  ]
+}
