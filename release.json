@@ -1,21 +1,21 @@
 {
-  "version": "0.8.4",
-  "releaseId": "PSD-20261025-BRAND-BEAT-R129",
+  "version": "0.8.5",
+  "releaseId": "PSD-20261025-RESULT-B-R130",
   "date": "2026-10-25",
-  "name": "品牌绿 + 大招三连拍 + 主界面动态角色",
-  "notice": "界面红色统一换成品牌绿（胜利页、击破、教程、关卡奖励等）；大招特写改用小技能立绘 + 剪报字大招名，判定改为三连拍（判定更宽，三拍合计评分）；应急守护可用时像心跳一样跳动提醒；主界面两位角色循环播放小动作视频，点她切换另一段。",
-  "backupBranch": "backup/v0.8.4",
-  "previousReleaseId": "PSD-20261024-GUARD-BLOCK-R128",
-  "previousWebCommit": "9b30a0c",
-  "previousReleaseRecord": "releases/R128.json",
-  "previousBackupBranch": "backup/v0.8.3",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R129: Brand1025 green replaces P5 red on UI plates/bands/badges; BattleUltimateShow1020 cut-in uses the authored skill cut-in art + ransom ult name; UltimateBeatChallenge1025 (3 beats, ±90/±200 ms); Heartbeat1025 on the guard badge; PsdHomeIdolVideo1025 stacked-alpha lobby idol clips (StreamingAssets/LobbyIdols) with UIStackedAlpha shader.",
+  "name": "P5 预告信结算页 + 队长徽章 + 光碟火焰",
+  "notice": "战斗结算页改为 P5 预告信风格（品牌绿底、黑色撕纸、剪报字 VICTORY、队员拍立得、票根奖励）；队长改为一枚「队长 ⇄」徽章，点它就能选新队长；大招就绪的火焰按 PSD 设计改成从光碟里烧出来的尖塔形。",
+  "backupBranch": "backup/v0.8.5",
+  "previousReleaseId": "PSD-20261025-BRAND-BEAT-R129",
+  "previousWebCommit": "bf75453",
+  "previousReleaseRecord": "releases/R129.json",
+  "previousBackupBranch": "backup/v0.8.4",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R130: BattleResultB1025 (SlashBand1025, UISilhouette shader, bottom-up layout), captain badge option D (Tag1025 / PickHint1025, bottom swap button removed), UltReadyRing1020 on Fx1023Spire (bowl round the record + front burning rim).",
   "validation": {
     "unityEditMode": "596/596 passed.",
-    "iosSimulator": "Lobby idol clips loop and swap on tap (Catalena + Lilith); ult cut-in + 3 beats with GOOD/COMBO; guard badge heartbeat ring; victory band/continue button green."
+    "iosSimulator": "2-4 victory: B result page (MVP, polaroids, loot stubs, 继续) without overlaps; captain badge → 取消/设为队长 → swap to 夜莺; ready flame wraps the disc and rises as a spire."
   },
   "knownLimits": [
-    "伤害数字、低血量等危险提示和种族特效颜色仍保留红色；粉色点缀未改。",
-    "主界面视频每段约 6MB，网页版首次进大厅会多下载约 12MB。"
+    "没有头像的成员（如夕璃）在拍立得里显示的是缩小的全身立绘。",
+    "伤害数字、低血量等危险提示和种族特效颜色仍保留红色。"
   ]
 }
