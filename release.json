@@ -1,21 +1,21 @@
 {
-  "version": "0.8.3",
-  "releaseId": "PSD-20261024-GUARD-BLOCK-R128",
-  "date": "2026-10-24",
-  "name": "护盾挡一击 + 换队长下移",
-  "notice": "应急守护改版：每位成员获得一面护盾，完整挡下一次敌人攻击后碎裂（碎盾特效 +「格挡！」），没被打到的成员护盾一直保留；「⇄ 换队长」按钮移到成员卡片下方右侧。",
-  "backupBranch": "backup/v0.8.3",
-  "previousReleaseId": "PSD-20261024-CAPTAIN-TAG-R127",
-  "previousWebCommit": "f555f36",
-  "previousReleaseRecord": "releases/R127.json",
-  "previousBackupBranch": "backup/v0.8.2",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R128: turn-mode GuardBlocks (one full hit per member, rt-guard-break event), BattleGuardRing929.Shatter (crest 3x3 shards + rim flash + ring), guard badge shows 护盾 N 人, CaptainSwap1024 at the right end of the 队长演出 strip, tests TurnGuardAndUltimate1024Tests.",
+  "version": "0.8.4",
+  "releaseId": "PSD-20261025-BRAND-BEAT-R129",
+  "date": "2026-10-25",
+  "name": "品牌绿 + 大招三连拍 + 主界面动态角色",
+  "notice": "界面红色统一换成品牌绿（胜利页、击破、教程、关卡奖励等）；大招特写改用小技能立绘 + 剪报字大招名，判定改为三连拍（判定更宽，三拍合计评分）；应急守护可用时像心跳一样跳动提醒；主界面两位角色循环播放小动作视频，点她切换另一段。",
+  "backupBranch": "backup/v0.8.4",
+  "previousReleaseId": "PSD-20261024-GUARD-BLOCK-R128",
+  "previousWebCommit": "9b30a0c",
+  "previousReleaseRecord": "releases/R128.json",
+  "previousBackupBranch": "backup/v0.8.3",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R129: Brand1025 green replaces P5 red on UI plates/bands/badges; BattleUltimateShow1020 cut-in uses the authored skill cut-in art + ransom ult name; UltimateBeatChallenge1025 (3 beats, ±90/±200 ms); Heartbeat1025 on the guard badge; PsdHomeIdolVideo1025 stacked-alpha lobby idol clips (StreamingAssets/LobbyIdols) with UIStackedAlpha shader.",
   "validation": {
-    "unityEditMode": "590/590 passed.",
-    "iosSimulator": "2-4: guard → 护盾 4 人; hits on 夜莺/雾白 show 格挡! with no HP loss and the shield breaks; others keep theirs."
+    "unityEditMode": "596/596 passed.",
+    "iosSimulator": "Lobby idol clips loop and swap on tap (Catalena + Lilith); ult cut-in + 3 beats with GOOD/COMBO; guard badge heartbeat ring; victory band/continue button green."
   },
   "knownLimits": [
-    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。",
-    "音效素材只下到 Sonniss 第 1 包，后续补全后再升级。"
+    "伤害数字、低血量等危险提示和种族特效颜色仍保留红色；粉色点缀未改。",
+    "主界面视频每段约 6MB，网页版首次进大厅会多下载约 12MB。"
   ]
 }

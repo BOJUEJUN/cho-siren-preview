@@ -1,0 +1,21 @@
+{
+  "version": "0.8.3",
+  "releaseId": "PSD-20261024-GUARD-BLOCK-R128",
+  "date": "2026-10-24",
+  "name": "护盾挡一击 + 换队长下移",
+  "notice": "应急守护改版：每位成员获得一面护盾，完整挡下一次敌人攻击后碎裂（碎盾特效 +「格挡！」），没被打到的成员护盾一直保留；「⇄ 换队长」按钮移到成员卡片下方右侧。",
+  "backupBranch": "backup/v0.8.3",
+  "previousReleaseId": "PSD-20261024-CAPTAIN-TAG-R127",
+  "previousWebCommit": "f555f36",
+  "previousReleaseRecord": "releases/R127.json",
+  "previousBackupBranch": "backup/v0.8.2",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R128: turn-mode GuardBlocks (one full hit per member, rt-guard-break event), BattleGuardRing929.Shatter (crest 3x3 shards + rim flash + ring), guard badge shows 护盾 N 人, CaptainSwap1024 at the right end of the 队长演出 strip, tests TurnGuardAndUltimate1024Tests.",
+  "validation": {
+    "unityEditMode": "590/590 passed.",
+    "iosSimulator": "2-4: guard → 护盾 4 人; hits on 夜莺/雾白 show 格挡! with no HP loss and the shield breaks; others keep theirs."
+  },
+  "knownLimits": [
+    "海灵族的技能/大招是治疗和护盾，不打敌人，所以水冠特效只在其他攻击场合出现。",
+    "音效素材只下到 Sonniss 第 1 包，后续补全后再升级。"
+  ]
+}
