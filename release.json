@@ -1,20 +1,20 @@
 {
-  "version": "0.8.6",
-  "releaseId": "PSD-20261025-NATURAL-FIRE-R131",
+  "version": "0.8.7",
+  "releaseId": "PSD-20261025-READABLE-B2-R132",
   "date": "2026-10-25",
-  "name": "自然火焰 + 飘升箭头",
-  "notice": "大招就绪的火焰去掉硬描边，改成真实火焰的不规则跳动边缘；火里的 ^^ 箭头像火星一样往上飘、变小、消散。包含 0.8.5 的 P5 预告信结算页和「队长 ⇄」徽章。",
-  "backupBranch": "backup/v0.8.6",
-  "previousReleaseId": "PSD-20261025-RESULT-B-R130",
-  "previousWebCommit": "2e1c601",
-  "previousReleaseRecord": "releases/R130.json",
-  "previousBackupBranch": "backup/v0.8.5",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R131: Fx1023Spire noise-eroded soft fire edge with wisps (no ink/rim lines), flame-tongue disc rim instead of a ring, eased swaying chevrons (3 in flight).",
+  "name": "单圈大招 + 页面可读性 + 暗夜撕纸结算",
+  "notice": "大招判定改回一个圈：发光能量环，判定更宽，到点时亮起「NOW!」；任务、成就、邮件页面重新排版——选中的标签变绿、每条一行信息一个按钮、能领取的排最前；战斗结算改为「暗夜撕纸」：黑底绿撕纸、P5 菜单式输出条、关卡名白底黑字。",
+  "backupBranch": "backup/v0.8.7",
+  "previousReleaseId": "PSD-20261025-NATURAL-FIRE-R131",
+  "previousWebCommit": "3b19552",
+  "previousReleaseRecord": "releases/R131.json",
+  "previousBackupBranch": "backup/v0.8.6",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R132: UltimateBeatChallenge1025 Beats=1 (±100/±240 ms) with the Fx1023TapRing shader; CleanUi1025 (segmented tabs, rows, pills, scrolling modal bodies) on the task board, achievements and mail; BattleResultB1025 option B2 (TornPaper1025, MenuBar rows).",
   "validation": {
-    "unityEditMode": "596/596 passed (0.8.5 code; 0.8.6 changes are shader-only).",
-    "iosSimulator": "2-4: ready flame wraps the disc with a ragged edge and no outline; chevrons drift up, shrink and fade."
+    "unityEditMode": "600/600 passed.",
+    "iosSimulator": "Task board / achievements / mail readable and scrolling; one tap ring TAP → NOW! → GOOD; 2-4 victory shows the B2 page with the stage tag readable."
   },
   "knownLimits": [
-    "没有头像的成员（如夕璃）在拍立得里显示的是缩小的全身立绘。"
+    "没有头像的成员（如夕璃）在结算输出条里显示的是缩小的全身立绘。"
   ]
 }
