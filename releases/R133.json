@@ -1,0 +1,20 @@
+{
+  "version": "0.8.8",
+  "releaseId": "PSD-20261025-QA-PASS-R133",
+  "date": "2026-10-25",
+  "name": "整体检查修复",
+  "notice": "普通成员头像改成头肩取景（夕璃等不再是缩小全身像）；成员页改成每行 4 张大卡、字更大；失败结算标题不再被切、恢复按钮更大；暂停时技能特写不再残留；规则说明重写成短条目；设置滑条和弹窗小标题改为品牌绿；选中关卡绿底改用黑字；修复每帧大量读取设置导致的卡顿。",
+  "backupBranch": "backup/v0.8.8",
+  "previousReleaseId": "PSD-20261025-READABLE-B2-R132",
+  "previousWebCommit": "9041ed6",
+  "previousReleaseRecord": "releases/R132.json",
+  "previousBackupBranch": "backup/v0.8.7",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R133: Resources/Data/bust-focus.txt head framing for 55 hero-* members; 4-column roster; rich-text rules/ability bodies; ReduceMotion read once per frame; brand-green modal eyebrow/beam/slider.",
+  "validation": {
+    "unityEditMode": "600/600 passed.",
+    "iosSimulator": "Team/members busts, 4-column roster, settings green, chapter rewards, pause hint, 2-5 defeat page title and recovery buttons checked."
+  },
+  "knownLimits": [
+    "任务/成就/邮件页的圆角按钮与其他页面的贴纸按钮还不统一，下一版统一设计。"
+  ]
+}
