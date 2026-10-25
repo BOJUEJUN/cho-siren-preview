@@ -1,0 +1,21 @@
+{
+  "version": "0.8.5",
+  "releaseId": "PSD-20261025-RESULT-B-R130",
+  "date": "2026-10-25",
+  "name": "P5 预告信结算页 + 队长徽章 + 光碟火焰",
+  "notice": "战斗结算页改为 P5 预告信风格（品牌绿底、黑色撕纸、剪报字 VICTORY、队员拍立得、票根奖励）；队长改为一枚「队长 ⇄」徽章，点它就能选新队长；大招就绪的火焰按 PSD 设计改成从光碟里烧出来的尖塔形。",
+  "backupBranch": "backup/v0.8.5",
+  "previousReleaseId": "PSD-20261025-BRAND-BEAT-R129",
+  "previousWebCommit": "bf75453",
+  "previousReleaseRecord": "releases/R129.json",
+  "previousBackupBranch": "backup/v0.8.4",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R130: BattleResultB1025 (SlashBand1025, UISilhouette shader, bottom-up layout), captain badge option D (Tag1025 / PickHint1025, bottom swap button removed), UltReadyRing1020 on Fx1023Spire (bowl round the record + front burning rim).",
+  "validation": {
+    "unityEditMode": "596/596 passed.",
+    "iosSimulator": "2-4 victory: B result page (MVP, polaroids, loot stubs, 继续) without overlaps; captain badge → 取消/设为队长 → swap to 夜莺; ready flame wraps the disc and rises as a spire."
+  },
+  "knownLimits": [
+    "没有头像的成员（如夕璃）在拍立得里显示的是缩小的全身立绘。",
+    "伤害数字、低血量等危险提示和种族特效颜色仍保留红色。"
+  ]
+}

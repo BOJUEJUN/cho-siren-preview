@@ -614,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.8.5</div>
+        <div id="loading-version" class="loading-version">v0.8.6</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -755,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("66dcde48544356bcdf570071b85275f9.data.unityweb"),
-        frameworkUrl: buildAssetUrl("f7d3ef10a04cfb50fcd8b7c5c5737ccb.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("13a0d05e4ed5d4138bb7ab789590c65c.wasm.unityweb"),
+        dataUrl: buildAssetUrl("62575d912f4f8085e8e004f1b4a65351.data.unityweb"),
+        frameworkUrl: buildAssetUrl("9aea4f27f1561c06c681e32386703cf5.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("26f13522941f317f93418ff8d4b03143.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.8.5",
+        productVersion: "0.8.6",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
