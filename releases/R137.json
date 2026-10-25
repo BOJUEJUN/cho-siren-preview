@@ -1,0 +1,18 @@
+{
+  "version": "0.9.2",
+  "releaseId": "PSD-20261026-SKILL-READABILITY-R137",
+  "date": "2026-10-26",
+  "name": "技能看得懂 + PSD 队长牌 + 每回合新骰子",
+  "notice": "队长标识改为 PSD 设计的「队长」牌（卡片下方，换队长时新队长换到第一位）；技能图标统一出现在光碟右上方，大招特写盖上该大招的图标，小技能不再弹立绘；角色和敌人身上挂状态牌（如「封印 2回合」「攻-20%」）；魅语迷心封印对面技能 2 回合并缠上锁链，人鱼深海佑域护盾 2 回合（水泡），治疗出现大绿十字；人鱼队长被动改为潮汐压制（敌方攻击-20%）；骰子每回合重新掷一手，不能再一手好牌用到底。",
+  "backupBranch": "backup/v0.9.2",
+  "previousReleaseId": "PSD-20261025-BRAND-TEAL-R136",
+  "previousWebCommit": "5d62a65",
+  "previousReleaseRecord": "releases/R136.json",
+  "previousBackupBranch": "backup/v0.9.1",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R137: CaptainPlate1026 + CardSlide1026; BattlePsdSkillLayout1019.CueBounds, SkillCues single cue; StatusBadges1026 + BattleSimulator.StatusesOf; SealChains1026/WaterWard1026/HealBurst1026; CharmSealRounds/MermaidWardRounds via RoundsToMilliseconds; TideSuppression; DiceTurn.NewRoundRoll each turn round (settled at round start).",
+  "validation": {
+    "unityEditMode": "608/608 passed.",
+    "iosSimulator": "2-5 live: record swipe → cut-in with heart-lock emblem → boss chained ~2 rounds; heal plus; captain plate under slot 1; teal result pages."
+  },
+  "knownLimits": []
+}

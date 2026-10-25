@@ -614,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.9.2</div>
+        <div id="loading-version" class="loading-version">v0.9.3</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -755,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("0a9d80ef041adae4aaeaf25b119b0103.data.unityweb"),
-        frameworkUrl: buildAssetUrl("9a5e2e33db646ef75f99e7d6f343b8c6.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("92d29e8a7a4214fa0c4c6565d29acdd0.wasm.unityweb"),
+        dataUrl: buildAssetUrl("49b23fa1bc6aa805d6f9f58da4eadccf.data.unityweb"),
+        frameworkUrl: buildAssetUrl("4a9297d796b503fc59e929c30e791903.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("040b58b685ad2201d85aceb5e8468d5e.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.9.2",
+        productVersion: "0.9.3",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -772,15 +772,15 @@
       const tips = [
         "点首页的角色，她会对你做出不同的反应",
         "双击画面可以隐藏界面，单独欣赏角色",
-        "骰子不满意？充能满了可以重投一次",
-        "大招就绪后，点角色头像即可释放",
+        "每回合都会重新掷骰，选中不满意的骰子再重投",
+        "大招就绪后，把光碟往上滑出去就能释放",
         "敌人蓄力放危险技能时，记得开守护",
         "打不过就去练习室训练、换装备，再回来挑战",
         "资源下载一次后会存在本机，下次打开更快",
         "每天进大厅记得签到，连续七天奖励最丰厚",
         "不在线时女团也在「闪耀舞台」演出，回来记得领收益",
         "打通 1-10「魅声王座」后，第二章「魅声海湾」开放",
-        "邮箱和任务有奖励时，入口会亮红点"
+        "邮箱和任务有奖励时，入口会亮起提示点"
       ];
       const tipText = document.querySelector("#loading-tip");
       let tipIndex = 0;
@@ -878,7 +878,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("c83633772914e8845b5568449a96e236.loader.js");
+      loader.src = buildAssetUrl("efa2d1e74ffc47df05920e26a6eaeb28.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
