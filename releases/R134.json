@@ -1,0 +1,20 @@
+{
+  "version": "0.8.9",
+  "releaseId": "PSD-20261025-FONT-GLYPHS-R134",
+  "date": "2026-10-25",
+  "name": "字体补字：队长 ⇄ 显示修复",
+  "notice": "网页版字体补上 ⇄ » ≡ 等 32 个缺失字符：队长牌旁边的切换箭头不再是空白黑块。",
+  "backupBranch": "backup/v0.8.9",
+  "previousReleaseId": "PSD-20261025-QA-PASS-R133",
+  "previousWebCommit": "38af3de",
+  "previousReleaseRecord": "releases/R133.json",
+  "previousBackupBranch": "backup/v0.8.8",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R134: NotoSansSC-Subset rebuilt with Tools/build_font_subset.py (4118 → 4168 glyphs, none lost; adds ⇄ » ≡, kana, 緒); ✱/◈/✕ (absent from Noto SC) replaced with ♥/◆/×.",
+  "validation": {
+    "unityEditMode": "600/600 passed.",
+    "font": "cmap check: every non-ASCII character in Assets/Scripts string literals is present."
+  },
+  "knownLimits": [
+    "任务/成就/邮件页的圆角按钮与其他页面的贴纸按钮还不统一，下一版统一设计。"
+  ]
+}
