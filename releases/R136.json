@@ -1,0 +1,18 @@
+{
+  "version": "0.9.1",
+  "releaseId": "PSD-20261025-BRAND-TEAL-R136",
+  "date": "2026-10-25",
+  "name": "品牌色改为蓝绿色",
+  "notice": "品牌色改成大厅角色描边的蓝绿色（#1CF2EC）：主按钮、选中标签、进度条、结算页、地图选中火焰、大招火焰和判定光圈都换成蓝绿色；扫荡按钮不再挡住最下面的关卡。大招规则保持：一人放大招，其他人能量清零重新充。",
+  "backupBranch": "backup/v0.9.1",
+  "previousReleaseId": "PSD-20261025-UNIFIED-DISC-SWIPE-R135",
+  "previousWebCommit": "b456058",
+  "previousReleaseRecord": "releases/R135.json",
+  "previousBackupBranch": "backup/v0.9.0",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R136: Brand1025.Green → Brand1025.Teal (#1CF2EC, sampled from the lobby idol's aqua outline; TealDeep #00A0AA); effect palettes (MapSelectedFlame1020, UltReadyRing1020, TapRing) follow; LevelMapPanel sweep row moved right of the bottom stage node.",
+  "validation": {
+    "unityEditMode": "604/604 passed.",
+    "iosSimulator": "Task board and map flame teal; disc swipe verified live on 1-1 (drag lifts the record, release launches, ult cut-in follows)."
+  },
+  "knownLimits": []
+}
