@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "90a28353bc2a53d2668eb578aef5de71.data.unityweb",
+    "8a14889533a05b6960704ccaf9596b37.framework.js.unityweb",
+    "1208460ba1d9cbb295de503e922695a6.wasm.unityweb",
+    "7dc9dfc02ebe5f22bbf12ce4ed9e4dcb.loader.js"
+  ],
+  "previous": [
     "ddfb050b257e8deda893f79d35bea2a0.data.unityweb",
     "68fd41a8746c74fed21f25dbfdef606e.framework.js.unityweb",
     "4604a6cfdfe8b89979556a1591ac6a97.wasm.unityweb",
     "43cee0d5fb2102d8ed011865c2004af8.loader.js"
   ],
-  "previous": [
-    "c13549e12162d6cf9bca5727acfc1fa0.data.unityweb",
-    "db264714380c6ed2c7464060edc273d2.framework.js.unityweb",
-    "26f6e456f084332bddf9ab41436fb785.wasm.unityweb",
-    "b79686e6933b86b256d2ef0cf429d064.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.8.9",
+      "releaseId": "PSD-20261025-FONT-GLYPHS-R134",
+      "files": [
+        "c13549e12162d6cf9bca5727acfc1fa0.data.unityweb",
+        "db264714380c6ed2c7464060edc273d2.framework.js.unityweb",
+        "26f6e456f084332bddf9ab41436fb785.wasm.unityweb",
+        "b79686e6933b86b256d2ef0cf429d064.loader.js"
+      ]
+    },
     {
       "version": "0.8.8",
       "releaseId": "PSD-20261025-QA-PASS-R133",

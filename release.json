@@ -1,20 +1,18 @@
 {
-  "version": "0.9.0",
-  "releaseId": "PSD-20261025-UNIFIED-DISC-SWIPE-R135",
+  "version": "0.9.1",
+  "releaseId": "PSD-20261025-BRAND-TEAL-R136",
   "date": "2026-10-25",
-  "name": "统一设计 + 光碟上滑放大招",
-  "notice": "全游戏统一一套贴纸设计：主按钮绿底黑字、次按钮黑底白边、选中标签绿色；任务/成就/邮件、章节奖励/任务、结算页、扫荡、抽卡结果都换成同一套按钮和弹窗标题；界面粉色改为品牌绿（爱心好感保留粉色，警告用琥珀色）。大招就绪后可以把光碟顺着箭头往上滑出去放大招（点卡片也行），光碟会转着飞出去。",
-  "backupBranch": "backup/v0.9.0",
-  "previousReleaseId": "PSD-20261025-FONT-GLYPHS-R134",
-  "previousWebCommit": "9e52d38",
-  "previousReleaseRecord": "releases/R134.json",
-  "previousBackupBranch": "backup/v0.8.9",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R135: SirenStickerUi PrimarySprite (green sticker, ink label) for every primary/selected control; CleanUi1025 reskinned on sticker sprites; LevelMapPanel ModalHeader; DiscSwipe1025 + BattleMemberAlbum929 drag/launch states.",
+  "name": "品牌色改为蓝绿色",
+  "notice": "品牌色改成大厅角色描边的蓝绿色（#1CF2EC）：主按钮、选中标签、进度条、结算页、地图选中火焰、大招火焰和判定光圈都换成蓝绿色；扫荡按钮不再挡住最下面的关卡。大招规则保持：一人放大招，其他人能量清零重新充。",
+  "backupBranch": "backup/v0.9.1",
+  "previousReleaseId": "PSD-20261025-UNIFIED-DISC-SWIPE-R135",
+  "previousWebCommit": "b456058",
+  "previousReleaseRecord": "releases/R135.json",
+  "previousBackupBranch": "backup/v0.9.0",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R136: Brand1025.Green → Brand1025.Teal (#1CF2EC, sampled from the lobby idol's aqua outline; TealDeep #00A0AA); effect palettes (MapSelectedFlame1020, UltReadyRing1020, TapRing) follow; LevelMapPanel sweep row moved right of the bottom stage node.",
   "validation": {
-    "unityEditMode": "604/604 passed (adds DiscSwipe1025Tests).",
-    "iosSimulator": "Task board, chapter rewards, members filters, accessory tabs, member detail, defeat/victory result buttons checked; record swipe covered by tests, live swipe pending stamina."
+    "unityEditMode": "604/604 passed.",
+    "iosSimulator": "Task board and map flame teal; disc swipe verified live on 1-1 (drag lifts the record, release launches, ult cut-in follows)."
   },
-  "knownLimits": [
-    "一人放大招后其他人能量清零（赵金规则），是否保留待少爷决定。"
-  ]
+  "knownLimits": []
 }
