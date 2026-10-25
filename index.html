@@ -1126,16 +1126,21 @@
             received += Math.min(partSize, total - i * partSize);
           }
         }
-        // Live download speed over the last few seconds (the player's own connection).
+        // Live download speed averaged over the last ~8 s (the player's own connection). Three pieces
+        // download at once and often finish together, so the average keeps a long enough window and the
+        // last figure stays on screen between updates (2026-10-25: it used to blank after each burst).
         const speedSamples = [];
+        let lastSpeed = "";
         const speedText = () => {
           const now = performance.now();
           speedSamples.push([now, received]);
-          while (speedSamples.length > 2 && now - speedSamples[0][0] > 4000) speedSamples.shift();
+          while (speedSamples.length > 1 && now - speedSamples[0][0] > 8000) speedSamples.shift();
           const [t0, b0] = speedSamples[0];
-          if (now - t0 < 400) return "";
-          const bps = (received - b0) * 1000 / (now - t0);
-          return bps >= 1048576 ? ` · ${(bps / 1048576).toFixed(1)}MB/s` : ` · ${Math.max(0, Math.round(bps / 1024))}KB/s`;
+          if (now - t0 >= 1000) {
+            const bps = (received - b0) * 1000 / (now - t0);
+            lastSpeed = bps >= 1048576 ? ` · ${(bps / 1048576).toFixed(1)}MB/s` : ` · ${Math.max(0, Math.round(bps / 1024))}KB/s`;
+          }
+          return lastSpeed;
         };
         const report = () => {
           const mb = n => (n / 1048576).toFixed(0);
@@ -1167,9 +1172,15 @@
         };
         const queue = [];
         for (let i = 0; i < count; i++) if (!have[i]) queue.push(i);
-        await Promise.all([0, 1, 2].map(async () => {
-          while (queue.length) await getPart(queue.shift());
-        }));
+        // refresh once a second so the speed shows between finished pieces too
+        const ticker = typeof setInterval === "function" ? setInterval(report, 1000) : null;
+        try {
+          await Promise.all([0, 1, 2].map(async () => {
+            while (queue.length) await getPart(queue.shift());
+          }));
+        } finally {
+          if (ticker !== null) clearInterval(ticker);
+        }
         const blobs = [];
         for (let i = 0; i < count; i++) blobs.push(await (await parts.match(`${url}?part=${i}`)).blob());
         const full = new Blob(blobs, { type: "application/octet-stream" });
