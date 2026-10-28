@@ -1,0 +1,24 @@
+{
+  "version": "0.9.8",
+  "releaseId": "PSD-20261028-UI-PROFILE-SCENE-R143",
+  "date": "2026-10-28",
+  "name": "饰品原排版与剧情修复",
+  "notice": "恢复饰品左侧竖排分类与原有排版，修复重复穿戴误卸、最近获得排序和强化刷新；剧情头像同步玩家档案；序章杂音出现时使用完整场景画面。",
+  "backupBranch": "backup/v0.9.8",
+  "previousReleaseId": "PSD-20261028-AUDIO-LEVEL-R142",
+  "previousWebCommit": "d9a6c00401732b03901246df2152b7e7a7f0556e",
+  "previousReleaseRecord": "releases/R142.json",
+  "previousBackupBranch": "backup/v0.9.7",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R143: original inventory layout with interaction fixes; producer profile avatar sync; integrated prologue alarm scene.",
+  "validation": {
+    "unityPlayMode": "8/8 focused tests passed: 4 inventory, 3 avatar, 1 three-line prologue CG sequence.",
+    "sceneVisual": "Actual Unity-rendered scene verified with standalone portraits hidden.",
+    "webBuild": "Clean Unity WebGL build succeeded.",
+    "webReleaseChecks": "Full package check passed: 113/113 Node tests, hashes, original scene bytes, release metadata and build retention.",
+    "localWebGL": "In-app browser: startup, profile name/avatar selection, prologue choice and new integrated scene verified; no console errors.",
+    "nativePackages": "Android arm64 0.9.8/code908 signature verified; Windows and Mac update ZIP integrity passed; Mac codesign passed and native accessory page captured at 900x1920."
+  },
+  "knownLimits": [
+    "签名栏旁偶尔能看到两条很淡的细线，仍待处理。"
+  ]
+}

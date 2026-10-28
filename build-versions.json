@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "acd02e3fca165e2583b881d90104b776.data.unityweb",
+    "fae9323400afbd7cca03bfb6e14d1734.framework.js.unityweb",
+    "5382a0197d98cac9e6587db80e24247c.wasm.unityweb",
+    "437240663b6f5cde3783b07acdb39856.loader.js"
+  ],
+  "previous": [
     "1b3fcf85110b770062881dc7d4c97858.data.unityweb",
     "e12c8bd1b8b81f1f287697652a55c4d6.framework.js.unityweb",
     "0fc3c535947a9b015ca8019a2ccaf511.wasm.unityweb",
     "cb885a9b88d80db56d4ebcde8f4ad355.loader.js"
   ],
-  "previous": [
-    "9064edae51b5f2378d5a79be471400dd.data.unityweb",
-    "b8469eebbf269586119ce64a02f70ef1.framework.js.unityweb",
-    "11535448d2650bc6290f8f0a3866fc69.wasm.unityweb",
-    "90adfbea6274e853e8fa4e6957b585b0.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.6",
+      "releaseId": "PSD-20261028-CONTRACT-PROLOGUE-R141",
+      "files": [
+        "9064edae51b5f2378d5a79be471400dd.data.unityweb",
+        "b8469eebbf269586119ce64a02f70ef1.framework.js.unityweb",
+        "11535448d2650bc6290f8f0a3866fc69.wasm.unityweb",
+        "90adfbea6274e853e8fa4e6957b585b0.loader.js"
+      ]
+    },
     {
       "version": "0.9.5",
       "releaseId": "PSD-20261028-RED-DOTS-R140",

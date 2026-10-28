@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "inputPath": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-feedback-20261019/story-streaming-original-input-r73c.json",
   "inputSha256": "7a80873ecfb45a8f521af8f9ef5683348b02494016add724af73b69053a25a96",
-  "manifestSha256": "557901921caa69671f763ca6ed644c5b2c915b91bb0e14ace6f6f06a592c499e",
-  "total": 112,
-  "sourceBytes": 77250283,
+  "manifestSha256": "4fe4ec68826704c846c3976ca7efcd46d8c1a6007e6458c59b83f9449765045b",
+  "total": 113,
+  "sourceBytes": 80096737,
   "entries": [
     {
       "key": "Art/Story/Scenes1019/cg-chapter-01-feiyin",
@@ -733,10 +733,22 @@
       "file": "Story1019/05e7ddb90891fe2a-scenes1019-cg-prologue-l4.jpg",
       "sha256": "05e7ddb90891fe2a3dcaccbbfb580723cf556c87893a0dc8f1a4f055b2960aa2",
       "bytes": 545511
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-prologue-l24",
+      "file": "Story1019/143c2597d72d5e0d-scenes1019-cg-prologue-l24.png",
+      "sha256": "143c2597d72d5e0d72be2b6e2a7f5da7b7083e8b3abf22dd870a60389c2a497a",
+      "bytes": 2846454,
+      "png": {
+        "width": 859,
+        "height": 1831,
+        "bitDepth": 8,
+        "colorType": 2
+      }
     }
   ],
   "cutoutPolicy": "Only four dialogue portraits require transparent RGBA; the action CG preserves its full background.",
-  "scenes": 107,
+  "scenes": 108,
   "r93Note": "0.3.93 adds 42 in-scene story CGs (Scenes1019/cg-*.jpg); the original 28 are unchanged.",
   "r96Note": "0.9.6 adds the prologue group CG (Scenes1019/cg-prologue-l4.jpg); earlier entries unchanged."
 }
