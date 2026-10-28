@@ -12,7 +12,7 @@ function buffer({ rate = 22050, length, channels = 1, fill = 0.1 }) {
 }
 
 // Browser-shaped doubles: attributes are accessors on the prototype, as in WebIDL.
-async function setup() {
+async function setup({ fetchVoice } = {}) {
   class AudioNode { connect(destination) { (this.links ||= []).push(destination); return destination; } }
   class AudioBufferSourceNode extends AudioNode {}
   for (const name of ['buffer', 'loopStart', 'loopEnd']) {
@@ -29,9 +29,16 @@ async function setup() {
     'catalena-look.voice.mp3': buffer({ rate: 48000, length: 480000, channels: 2 })
   };
   const fetched = [];
-  const fetch = async url => { fetched.push(url); return { ok: true, arrayBuffer: async () => url }; };
+  const fetch = async url => {
+    fetched.push(url);
+    if (fetchVoice && url.includes('.voice.mp3')) return fetchVoice(url);
+    return { ok: true, arrayBuffer: async () => url };
+  };
   class OfflineAudioContext {
-    decodeAudioData(url, resolve) { resolve(files[Object.keys(files).find(name => url.includes(`/media/${name}?`))]); }
+    decodeAudioData(url, resolve, reject) {
+      const decoded = files[Object.keys(files).find(name => url.includes(`/media/${name}?`))];
+      if (decoded instanceof Error) reject(decoded); else resolve(decoded);
+    }
   }
   const sources = [];
   const context = {
@@ -59,9 +66,27 @@ async function setup() {
   const listeners = {};
   const window = { AudioBufferSourceNode, AudioNode, OfflineAudioContext, AudioContext,
     addEventListener(type, listener) { (listeners[type] ||= []).push(listener); } };
-  vm.runInNewContext(source, { window, fetch, URL, document: { baseURI: 'https://example.test/game/' } });
+  const sandbox = { window, fetch, URL, document: { baseURI: 'https://example.test/game/' } };
+  vm.runInNewContext(source, sandbox);
   await flush(); await flush();
-  return { window, context, sources, files, fetched, listeners };
+  return { window, context, sources, files, fetched, listeners, sandbox };
+}
+
+// Run both production scripts: a failed voice must release the character's actual duck owner.
+function character(run) {
+  const videos = [];
+  const root = { dataset: { clipFormat: 'green' }, append(video) { videos.push(video); } };
+  Object.assign(run.sandbox.document, {
+    hidden: false, querySelector: () => root, addEventListener() {},
+    createElement: () => ({ events: {}, play: () => Promise.resolve(), pause() {}, load() {},
+      remove() {}, removeAttribute() {}, addEventListener(type, callback) { this.events[type] = callback; } })
+  });
+  Object.assign(run.sandbox, { setTimeout: () => 0, clearTimeout() {} });
+  run.window.choSirenStage = { active: true };
+  run.context.createBufferSource().buffer = buffer({ length: 4000 });
+  vm.runInNewContext(fs.readFileSync(new URL('../character-moments.js', import.meta.url), 'utf8'), run.sandbox);
+  const api = run.window.choSirenCharacter;
+  return { api, videos, play(index) { api.play(index, true); videos.at(-1).events.playing(); } };
 }
 
 test('global soundtracks are never fetched, replaced or given web-owned loop points', async () => {
@@ -186,6 +211,62 @@ test('voice tracks start at the video\'s time and never start once stopped', asy
   stopped.stop();
   await flush(); await flush();
   assert.equal(sources.length, before + 1);
+});
+
+for (const failure of ['fetch', 'decode']) test(`a ${failure} failure restores character music and the next tap can retry`, async () => {
+  let attempts = 0;
+  const run = await setup({ fetchVoice: async url => {
+    if (++attempts === 1 && failure === 'fetch') throw new Error('offline');
+    return { ok: true, arrayBuffer: async () => url };
+  } });
+  const original = run.files['catalena-look.voice.mp3'];
+  if (failure === 'decode') run.files['catalena-look.voice.mp3'] = new Error('bad audio');
+  const player = character(run), audio = run.window.choSirenAudio;
+  player.play(0);
+  assert.equal(audio.musicState.ducked, true);
+  await flush();
+  assert.equal(audio.musicState.ducked, false);
+  player.videos.at(-1).events.ended();
+  assert.equal(audio.musicState.ducked, false);
+  run.files['catalena-look.voice.mp3'] = original;
+  player.play(0);
+  await flush();
+  assert.equal(attempts, 2);
+  assert.equal(audio.musicState.ducked, true);
+  run.sources.at(-1).onended();
+  await flush();
+  assert.equal(audio.musicState.ducked, false);
+});
+
+test('late failure, cancellation and old ended callbacks cannot release a replacement voice duck', async () => {
+  const pending = new Map();
+  const run = await setup({ fetchVoice: url => new Promise((resolve, reject) => {
+    pending.set(new URL(url).pathname.split('/').at(-1), {
+      resolve: () => resolve({ ok: true, arrayBuffer: async () => url }), reject
+    });
+  }) });
+  run.files['catalena-whisper.voice.mp3'] = run.files['catalena-look.voice.mp3'];
+  run.files['catalena-live.voice.mp3'] = run.files['catalena-look.voice.mp3'];
+  const player = character(run), audio = run.window.choSirenAudio;
+  player.play(0);
+  player.play(1); // Cancels the still-loading voice; its completion arrives after this handle exists.
+  pending.get('catalena-whisper.voice.mp3').resolve();
+  await flush();
+  pending.get('catalena-look.voice.mp3').reject(new Error('late network failure'));
+  await flush();
+  assert.equal(audio.musicState.ducked, true);
+  const oldSource = run.sources.at(-1);
+  player.play(2);
+  pending.get('catalena-live.voice.mp3').resolve();
+  await flush();
+  oldSource.onended();
+  await flush();
+  assert.equal(audio.musicState.ducked, true);
+  player.api.close();
+  assert.equal(audio.musicState.ducked, false);
+  run.sources.at(-1).onended();
+  await flush();
+  assert.equal(audio.musicState.ducked, false);
 });
 
 test('a tap resumes Unity\'s suspended or interrupted context and leaves a running one alone', async () => {

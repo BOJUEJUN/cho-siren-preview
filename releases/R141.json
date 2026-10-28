@@ -1,0 +1,20 @@
+{
+  "version": "0.9.6",
+  "releaseId": "PSD-20261028-CONTRACT-PROLOGUE-R141",
+  "date": "2026-10-28",
+  "name": "经纪合约 + 序章",
+  "notice": "新增经纪人合约：进游戏先写下你的名字、选一张证件照，签名会一笔一笔写上去；之后剧情、大厅台词和邮件都会用你的名字称呼你。新增序章剧情（日语配音 + 全员迎接的剧情插画）和大厅新手引导；大厅角色台词改为真人配音；游戏音乐整体调大，跟手机其他声音一样响；版本更新后公告会自动弹出一次。",
+  "backupBranch": "backup/v0.9.6",
+  "previousReleaseId": "PSD-20261028-RED-DOTS-R140",
+  "previousWebCommit": "23e75a6",
+  "previousReleaseRecord": "releases/R140.json",
+  "previousBackupBranch": "backup/v0.9.5",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R141: ChoSirenAppPlayerContract1028 (name popup waits for the native title, SignatureInk1028 hand signature, seal), GameModelProfile1028 PlayerName/Avatar + {player} in story/lobby/mail, prologue.json with cg-prologue-l4 and 11 voiced lines, ChoSirenAppLobbyCoach1028, lobby voices catalena/lilith, GameAudio music 0.45/0.3 -> 0.8/0.55 with home track normalised to -14.5 LUFS.",
+  "validation": {
+    "unityEditMode": "620/620 passed.",
+    "iosSimulator": "new player: title -> contract -> random name -> handwriting -> seal -> prologue CG; no keyboard bar over the title."
+  },
+  "knownLimits": [
+    "签名栏旁偶尔能看到两条很淡的细线，下个版本处理。"
+  ]
+}

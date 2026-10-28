@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "1b3fcf85110b770062881dc7d4c97858.data.unityweb",
+    "e12c8bd1b8b81f1f287697652a55c4d6.framework.js.unityweb",
+    "0fc3c535947a9b015ca8019a2ccaf511.wasm.unityweb",
+    "cb885a9b88d80db56d4ebcde8f4ad355.loader.js"
+  ],
+  "previous": [
     "9064edae51b5f2378d5a79be471400dd.data.unityweb",
     "b8469eebbf269586119ce64a02f70ef1.framework.js.unityweb",
     "11535448d2650bc6290f8f0a3866fc69.wasm.unityweb",
     "90adfbea6274e853e8fa4e6957b585b0.loader.js"
   ],
-  "previous": [
-    "c27138b1f05f69a3576092be65c08a96.data.unityweb",
-    "a849c426c420a1521195bbf4dc8b69ff.framework.js.unityweb",
-    "80f0b50daf22f62ebb085610fd549f69.wasm.unityweb",
-    "fbc735816d18e443da1395e4d8fbdc46.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.5",
+      "releaseId": "PSD-20261028-RED-DOTS-R140",
+      "files": [
+        "c27138b1f05f69a3576092be65c08a96.data.unityweb",
+        "a849c426c420a1521195bbf4dc8b69ff.framework.js.unityweb",
+        "80f0b50daf22f62ebb085610fd549f69.wasm.unityweb",
+        "fbc735816d18e443da1395e4d8fbdc46.loader.js"
+      ]
+    },
     {
       "version": "0.9.4",
       "releaseId": "PSD-20261028-RESULT-TITLE-R139",

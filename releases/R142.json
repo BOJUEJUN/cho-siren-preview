@@ -1,0 +1,25 @@
+{
+  "version": "0.9.7",
+  "releaseId": "PSD-20261028-AUDIO-LEVEL-R142",
+  "date": "2026-10-28",
+  "name": "音乐音量与语音恢复修复",
+  "notice": "提高首页与战斗音乐音量；修复网页版角色语音加载或解码失败后，音乐一直偏小的问题，失败的语音也可以重新尝试播放。",
+  "backupBranch": "backup/v0.9.7",
+  "previousReleaseId": "PSD-20261028-CONTRACT-PROLOGUE-R141",
+  "previousWebCommit": "37ee65d",
+  "previousReleaseRecord": "releases/R141.json",
+  "previousBackupBranch": "backup/v0.9.6",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R142: home music gain 0.8 -> 1; battle music gain 0.55 -> 0.8. Web character voice fetch/decode failures release the 0.28 music duck and allow retry.",
+  "validation": {
+    "unityPlayMode": "15 relevant audio tests passed; corrected 7 stale expectations for the old 0.18 context gain.",
+    "unityEditMode": "23 relevant audio tests passed.",
+    "webAudioNode": "58 audio tests passed.",
+    "chromeAudioContext": "Real Chrome AudioContext: failed voice decoding restores the music duck.",
+    "webReleaseChecks": "Full package check command passed: 113/113 Node tests, asset hashes, retention and release metadata.",
+    "nativePackages": "Android 0.9.7/code 907 APK signature matches 0.9.6; Windows x64 update zip verified; macOS arm64 0.9.7 codesign verified.",
+    "localWebGL": "Clean Unity WebGL build succeeded; browser loaded the prologue and accepted the skip interaction."
+  },
+  "knownLimits": [
+    "签名栏旁偶尔能看到两条很淡的细线，仍待处理。"
+  ]
+}

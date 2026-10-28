@@ -121,19 +121,34 @@
       publishState();
     },
     playVoice(name, currentTime, onEnded) {
-      let source = null, stopped = false;
-      if (!Context || !Offline) return { stop() {} };
-      if (!voices.has(name)) voices.set(name, decode(media(`${name}.voice.mp3`)));
-      voices.get(name).then(buffer => {
+      let source = null, stopped = false, ended = false;
+      const finish = () => {
+        if (ended) return;
+        ended = true;
+        try { source?.disconnect(); } catch (_) {}
+        // Let the caller receive its handle before reporting any terminal outcome.
+        Promise.resolve().then(() => onEnded?.());
+      };
+      const handle = { stop() { stopped = true; try { source?.stop(); } catch (_) {} finish(); } };
+      if (!Context || !Offline) { finish(); return handle; }
+      let voice = voices.get(name);
+      if (!voice) {
+        voice = decode(media(`${name}.voice.mp3`)).catch(error => {
+          if (voices.get(name) === voice) voices.delete(name);
+          throw error;
+        });
+        voices.set(name, voice);
+      }
+      voice.then(buffer => {
         if (stopped) return;
         const ctx = context();
         source = ctx.createBufferSource();
         source.buffer = buffer;
         source.connect(ctx.destination);
-        source.onended = () => { if (!stopped) onEnded?.(); };
+        source.onended = finish;
         source.start(0, Math.max(0, Math.min(buffer.duration, currentTime())));
-      }).catch(() => {});
-      return { stop() { stopped = true; try { source?.stop(); } catch (_) {} } };
+      }).catch(finish);
+      return handle;
     },
     duck(on) { ducked = !!on; send('SetMusicDucked', ducked); },
     get skins() { return SKINS.map(({ kind, buffer }) => ({ kind, ready: !!buffer })); }
