@@ -1,18 +1,18 @@
 {
-  "version": "0.9.3",
-  "releaseId": "PSD-20261026-SWIPE-HINT-R138",
-  "date": "2026-10-26",
-  "name": "上滑提示 + 状态牌位置 + 贴士更新",
-  "notice": "大招就绪时光碟上方出现「↑ 上滑」提示（成功上滑 3 次后不再显示）；Boss 状态牌挪到血条下方，不再挡住杂兵名牌；敌人状态牌不再压住名字；加载页和标题页的小贴士改为当前玩法（上滑放大招、每回合重新掷骰）。",
-  "backupBranch": "backup/v0.9.3",
-  "previousReleaseId": "PSD-20261026-SKILL-READABILITY-R137",
-  "previousWebCommit": "f27361a",
-  "previousReleaseRecord": "releases/R137.json",
-  "previousBackupBranch": "backup/v0.9.2",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R138: SwipeHint1026 (PlayerPrefs cho-siren.swipe-launches < 3); boss badge anchor under the HP bar; enemy badge drop 50 on boss stages; NativeTitleScreen tips updated.",
+  "version": "0.9.4",
+  "releaseId": "PSD-20261028-RESULT-TITLE-R139",
+  "date": "2026-10-28",
+  "name": "结算标题 + 回合数修正",
+  "notice": "胜利/失败页的大标题不再被关卡名牌挡住；战斗顶部的回合数不再被时钟图标压住最后一位。",
+  "backupBranch": "backup/v0.9.4",
+  "previousReleaseId": "PSD-20261026-SWIPE-HINT-R138",
+  "previousWebCommit": "faaf47a",
+  "previousReleaseRecord": "releases/R138.json",
+  "previousBackupBranch": "backup/v0.9.3",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R139: BattleResultB1025 stage plate at W*.25; PSD timer text 700..1210; MermaidWardCoversTheEnemysNextTwoTurns test.",
   "validation": {
-    "unityEditMode": "608/608 passed.",
-    "iosSimulator": "2-5: hint over the ready record, boss 破甲/封印 badges under the HP bar, add badges below their plates."
+    "unityEditMode": "609/609 passed.",
+    "iosSimulator": "2-5 manual: 深海佑域 bubble + 减伤/护盾 badges on both members; no exceptions in the device log."
   },
   "knownLimits": []
 }
