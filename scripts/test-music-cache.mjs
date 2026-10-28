@@ -34,14 +34,14 @@ function worker() {
       const response=await pending; await Promise.all(waits); return response;
     }, fetches:()=>fetches};
 }
-const home='https://example.test/game/StreamingAssets/Music/home-1c7f72fed9af8b53.mp3';
+const home='https://example.test/game/StreamingAssets/Music/home-f19d89ea8124a31b.mp3';
 const battle='https://example.test/game/StreamingAssets/Music/battle-11700e9a4a918ffe.mp3';
 
 test('only immutable same-origin home and battle music are cached',()=>{
   const w=worker();
   assert.equal(w.key(home),home);assert.equal(w.key(battle),battle);
   for(const url of [home.replace('example.test','another.test'),home.replace('/game/','/other/'),
-    home.replace('home-1c7f72fed9af8b53','home'),home.replace('home-','voice-'),home.replace('.mp3','.wav'),
+    home.replace('home-f19d89ea8124a31b','home'),home.replace('home-','voice-'),home.replace('.mp3','.wav'),
     home+'?token=private']) assert.equal(w.key(url),null,url);
 });
 

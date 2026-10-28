@@ -73,7 +73,7 @@ const inkRoot = join(root, 'StreamingAssets', 'AlbumInkR02');
 // These long clips are deliberately outside the engine archive; missing or
 // mismatched files must fail release verification instead of silently shipping.
 for (const [file, sha] of [
-  ['home-1c7f72fed9af8b53.mp3', '1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267'],
+  ['home-f19d89ea8124a31b.mp3', 'f19d89ea8124a31b0bae5a7a8811166cd0efdb45363994f60e8c98122a527a95'],
   ['home-chase-5d360e8e7acbc7c6.mp3', '5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff'],
   ['battle-b0859b88305ca4f4.mp3', 'b0859b88305ca4f40dda33876e0e92a88ce03217d20521c112a34cf872b70bd1']
 ]) {

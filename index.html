@@ -614,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.9.5</div>
+        <div id="loading-version" class="loading-version">v0.9.6</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -755,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("c27138b1f05f69a3576092be65c08a96.data.unityweb"),
-        frameworkUrl: buildAssetUrl("a849c426c420a1521195bbf4dc8b69ff.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("80f0b50daf22f62ebb085610fd549f69.wasm.unityweb"),
+        dataUrl: buildAssetUrl("9064edae51b5f2378d5a79be471400dd.data.unityweb"),
+        frameworkUrl: buildAssetUrl("b8469eebbf269586119ce64a02f70ef1.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("11535448d2650bc6290f8f0a3866fc69.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.9.5",
+        productVersion: "0.9.6",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -856,6 +856,9 @@
         let seen = "";
         try { seen = localStorage.getItem(noticeSeenKey) || ""; } catch (_) {}
         if (noticeVersion && seen !== noticeVersion) noticeButton.classList?.add?.("has-dot");
+        // 2026-10-28 (少爷): after an update a returning player sees the notice open by itself, once;
+        // a plain reload (same version) or a brand-new player (nothing seen yet) keeps the dot only.
+        return Boolean(noticeVersion && seen && seen !== noticeVersion);
       }
       function markNoticeRead() {
         noticeButton.classList?.remove?.("has-dot");
@@ -865,7 +868,7 @@
       function readyToStart() {
         if (fatalLoadError || !window.choSirenStartup?.ready) return;
         loading.classList.add("is-ready");
-        checkNoticeDot();
+        if (checkNoticeDot() && agreed()) noticeButton.click();
         loading.addEventListener("click", event => {
           if (fatalLoadError || event?.target?.closest?.("button, #loading-dialog")) return;
           const start = () => {
@@ -878,7 +881,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("fbc735816d18e443da1395e4d8fbdc46.loader.js");
+      loader.src = buildAssetUrl("90adfbea6274e853e8fa4e6957b585b0.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;
