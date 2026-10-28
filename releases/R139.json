@@ -1,0 +1,18 @@
+{
+  "version": "0.9.4",
+  "releaseId": "PSD-20261028-RESULT-TITLE-R139",
+  "date": "2026-10-28",
+  "name": "结算标题 + 回合数修正",
+  "notice": "胜利/失败页的大标题不再被关卡名牌挡住；战斗顶部的回合数不再被时钟图标压住最后一位。",
+  "backupBranch": "backup/v0.9.4",
+  "previousReleaseId": "PSD-20261026-SWIPE-HINT-R138",
+  "previousWebCommit": "faaf47a",
+  "previousReleaseRecord": "releases/R138.json",
+  "previousBackupBranch": "backup/v0.9.3",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R139: BattleResultB1025 stage plate at W*.25; PSD timer text 700..1210; MermaidWardCoversTheEnemysNextTwoTurns test.",
+  "validation": {
+    "unityEditMode": "609/609 passed.",
+    "iosSimulator": "2-5 manual: 深海佑域 bubble + 减伤/护盾 badges on both members; no exceptions in the device log."
+  },
+  "knownLimits": []
+}

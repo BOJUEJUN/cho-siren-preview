@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "c27138b1f05f69a3576092be65c08a96.data.unityweb",
+    "a849c426c420a1521195bbf4dc8b69ff.framework.js.unityweb",
+    "80f0b50daf22f62ebb085610fd549f69.wasm.unityweb",
+    "fbc735816d18e443da1395e4d8fbdc46.loader.js"
+  ],
+  "previous": [
     "f027e9e1fa48bb1f12a1ce345194da67.data.unityweb",
     "721c5cc91005f3b4079562739220c6cb.framework.js.unityweb",
     "be793fe07243618574436f59fbbd947a.wasm.unityweb",
     "efa2d1e74ffc47df05920e26a6eaeb28.loader.js"
   ],
-  "previous": [
-    "49b23fa1bc6aa805d6f9f58da4eadccf.data.unityweb",
-    "4a9297d796b503fc59e929c30e791903.framework.js.unityweb",
-    "040b58b685ad2201d85aceb5e8468d5e.wasm.unityweb",
-    "efa2d1e74ffc47df05920e26a6eaeb28.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.3",
+      "releaseId": "PSD-20261026-SWIPE-HINT-R138",
+      "files": [
+        "49b23fa1bc6aa805d6f9f58da4eadccf.data.unityweb",
+        "4a9297d796b503fc59e929c30e791903.framework.js.unityweb",
+        "040b58b685ad2201d85aceb5e8468d5e.wasm.unityweb",
+        "efa2d1e74ffc47df05920e26a6eaeb28.loader.js"
+      ]
+    },
     {
       "version": "0.9.2",
       "releaseId": "PSD-20261026-SKILL-READABILITY-R137",

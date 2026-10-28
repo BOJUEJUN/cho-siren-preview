@@ -1,18 +1,19 @@
 {
-  "version": "0.9.4",
-  "releaseId": "PSD-20261028-RESULT-TITLE-R139",
+  "version": "0.9.5",
+  "releaseId": "PSD-20261028-RED-DOTS-R140",
   "date": "2026-10-28",
-  "name": "结算标题 + 回合数修正",
-  "notice": "胜利/失败页的大标题不再被关卡名牌挡住；战斗顶部的回合数不再被时钟图标压住最后一位。",
-  "backupBranch": "backup/v0.9.4",
-  "previousReleaseId": "PSD-20261026-SWIPE-HINT-R138",
-  "previousWebCommit": "faaf47a",
-  "previousReleaseRecord": "releases/R138.json",
-  "previousBackupBranch": "backup/v0.9.3",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R139: BattleResultB1025 stage plate at W*.25; PSD timer text 700..1210; MermaidWardCoversTheEnemysNextTwoTurns test.",
+  "name": "红点统一 + 大厅女声",
+  "notice": "大厅、顶栏、地图、标题页的提醒点统一成红点；大厅点角色的日语台词只用女声朗读，不再出现男声。",
+  "backupBranch": "backup/v0.9.5",
+  "previousReleaseId": "PSD-20261028-RESULT-TITLE-R139",
+  "previousWebCommit": "984204e",
+  "previousReleaseRecord": "releases/R139.json",
+  "previousBackupBranch": "backup/v0.9.4",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R140: Brand1025.NoticeRed #FF2E5C on every notification dot (lobby task/mail/profile/album, top-bar mail, achievements, map chapter badges, native title notice); PsdHomeVoice.jslib picks a female Japanese voice (or stays silent), waits for voiceschanged.",
   "validation": {
-    "unityEditMode": "609/609 passed.",
-    "iosSimulator": "2-5 manual: 深海佑域 bubble + 减伤/护盾 badges on both members; no exceptions in the device log."
+    "unityEditMode": "609/609 passed."
   },
-  "knownLimits": []
+  "knownLimits": [
+    "大厅三句台词仍是系统朗读，没有录音文件。"
+  ]
 }
