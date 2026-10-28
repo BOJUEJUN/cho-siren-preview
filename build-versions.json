@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "7e5462232fe261f2acb62c569fdb4a53.data.unityweb",
+    "e154633258051ee0f9c03b2970d899fe.framework.js.unityweb",
+    "8f35a545d241edc262323d4bbad5d782.wasm.unityweb",
+    "81535f443970dddd2b290ed236ec33cf.loader.js"
+  ],
+  "previous": [
     "acd02e3fca165e2583b881d90104b776.data.unityweb",
     "fae9323400afbd7cca03bfb6e14d1734.framework.js.unityweb",
     "5382a0197d98cac9e6587db80e24247c.wasm.unityweb",
     "437240663b6f5cde3783b07acdb39856.loader.js"
   ],
-  "previous": [
-    "1b3fcf85110b770062881dc7d4c97858.data.unityweb",
-    "e12c8bd1b8b81f1f287697652a55c4d6.framework.js.unityweb",
-    "0fc3c535947a9b015ca8019a2ccaf511.wasm.unityweb",
-    "cb885a9b88d80db56d4ebcde8f4ad355.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.7",
+      "releaseId": "PSD-20261028-AUDIO-LEVEL-R142",
+      "files": [
+        "1b3fcf85110b770062881dc7d4c97858.data.unityweb",
+        "e12c8bd1b8b81f1f287697652a55c4d6.framework.js.unityweb",
+        "0fc3c535947a9b015ca8019a2ccaf511.wasm.unityweb",
+        "cb885a9b88d80db56d4ebcde8f4ad355.loader.js"
+      ]
+    },
     {
       "version": "0.9.6",
       "releaseId": "PSD-20261028-CONTRACT-PROLOGUE-R141",

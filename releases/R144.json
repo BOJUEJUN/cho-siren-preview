@@ -1,0 +1,25 @@
+{
+  "version": "0.9.9",
+  "releaseId": "PSD-20261028-COMPLETION-R144",
+  "date": "2026-10-28",
+  "name": "编队与剧情体验完善",
+  "notice": "五套可改名编队、成员筛选与搜索优化、完整剧情场景、大厅唱片暂停继续、大招短合声、签名细线修复，以及客户端关键画面纹理精度提升。",
+  "backupBranch": "backup/v0.9.9",
+  "previousReleaseId": "PSD-20261028-UI-PROFILE-SCENE-R143",
+  "previousWebCommit": "380007c6073c11062b23ac89f6bfa8284c0ac6f0",
+  "previousReleaseRecord": "releases/R143.json",
+  "previousBackupBranch": "backup/v0.9.8",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R144: saved team presets, member UI, integrated story scenes, home music pause and ultimate chorus.",
+  "validation": {
+    "unityEditMode": "28/28 passed: presets, 43 story scripts, native texture policy and player profile.",
+    "unityPlayMode": "36/36 related UI/audio tests passed after correcting two test prerequisites; 3/3 story skip regression tests passed.",
+    "webBuild": "Clean WebGL build succeeded.",
+    "nativeVisual": "Mac player member and team layouts inspected; callbacks verified. Legacy TeamStellarBackground smoke assertion is obsolete, so the team screenshot is visual evidence, not a full smoke pass.",
+    "webReleaseChecks": "113/113 Node tests and package asset/hash checks passed.",
+    "localWebGL": "Final build tested in browser: startup, skip-to-choice shows integrated CG, choice and skip return to lobby; no console errors."
+  },
+  "knownLimits": [
+    "未连接Windows/Android实体设备；此次未发布iOS。",
+    "部分旧角色原图仅512像素，提升导入设置不能补出原图没有的细节。"
+  ]
+}

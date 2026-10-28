@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "inputPath": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-feedback-20261019/story-streaming-original-input-r73c.json",
   "inputSha256": "7a80873ecfb45a8f521af8f9ef5683348b02494016add724af73b69053a25a96",
-  "manifestSha256": "4fe4ec68826704c846c3976ca7efcd46d8c1a6007e6458c59b83f9449765045b",
-  "total": 113,
-  "sourceBytes": 80096737,
+  "manifestSha256": "fc9830ec7a8330a3584caa0cb8a758198c15e3634ed644c704a859036bfce5f7",
+  "total": 114,
+  "sourceBytes": 83255970,
   "entries": [
     {
       "key": "Art/Story/Scenes1019/cg-chapter-01-feiyin",
@@ -121,6 +121,24 @@
       "sha256": "a4fac17453c00ac5faaa4a47592bf2eb4e776a29fecebfdc8fc7d45d1c85f6e4"
     },
     {
+      "key": "Art/Story/Scenes1019/cg-prologue-l24",
+      "file": "Story1019/143c2597d72d5e0d-scenes1019-cg-prologue-l24.png",
+      "sha256": "143c2597d72d5e0d72be2b6e2a7f5da7b7083e8b3abf22dd870a60389c2a497a",
+      "bytes": 2846454,
+      "png": {
+        "width": 859,
+        "height": 1831,
+        "bitDepth": 8,
+        "colorType": 2
+      }
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-prologue-l4",
+      "file": "Story1019/05e7ddb90891fe2a-scenes1019-cg-prologue-l4.jpg",
+      "sha256": "05e7ddb90891fe2a3dcaccbbfb580723cf556c87893a0dc8f1a4f055b2960aa2",
+      "bytes": 545511
+    },
+    {
       "key": "Art/Story/Scenes1019/cg-stage-1-1-feiyin",
       "file": "Story1019/a81399ed3bcd15b3-scenes1019-cg-stage-1-1-feiyin.jpg",
       "bytes": 701214,
@@ -131,6 +149,12 @@
       "file": "Story1019/0a79d4ec1db10b24-scenes1019-cg-stage-1-1-l3.jpg",
       "bytes": 476185,
       "sha256": "0a79d4ec1db10b24dc6da16a42947475fb850ac97b81d0c35b5436c4f48a2bbf"
+    },
+    {
+      "key": "Art/Story/Scenes1019/cg-stage-1-1-scene-v2",
+      "file": "Story1019/9d56b5c388ff28d0-scenes1019-cg-stage-1-1-scene-v2.png",
+      "sha256": "9d56b5c388ff28d0792987e1455675f0c703787872378ea950c47f4a133aa0ca",
+      "bytes": 3159233
     },
     {
       "key": "Art/Story/Scenes1019/cg-stage-1-1-xingli",
@@ -727,28 +751,10 @@
         "bitDepth": 8,
         "colorType": 6
       }
-    },
-    {
-      "key": "Art/Story/Scenes1019/cg-prologue-l4",
-      "file": "Story1019/05e7ddb90891fe2a-scenes1019-cg-prologue-l4.jpg",
-      "sha256": "05e7ddb90891fe2a3dcaccbbfb580723cf556c87893a0dc8f1a4f055b2960aa2",
-      "bytes": 545511
-    },
-    {
-      "key": "Art/Story/Scenes1019/cg-prologue-l24",
-      "file": "Story1019/143c2597d72d5e0d-scenes1019-cg-prologue-l24.png",
-      "sha256": "143c2597d72d5e0d72be2b6e2a7f5da7b7083e8b3abf22dd870a60389c2a497a",
-      "bytes": 2846454,
-      "png": {
-        "width": 859,
-        "height": 1831,
-        "bitDepth": 8,
-        "colorType": 2
-      }
     }
   ],
   "cutoutPolicy": "Only four dialogue portraits require transparent RGBA; the action CG preserves its full background.",
-  "scenes": 108,
+  "scenes": 109,
   "r93Note": "0.3.93 adds 42 in-scene story CGs (Scenes1019/cg-*.jpg); the original 28 are unchanged.",
   "r96Note": "0.9.6 adds the prologue group CG (Scenes1019/cg-prologue-l4.jpg); earlier entries unchanged."
 }
