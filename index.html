@@ -483,7 +483,7 @@
       }
       .dialog-box::after { inset: 3px; z-index: -1; background: #0d0916; }
       .dialog-box h3 { padding-bottom: 12px; border-bottom: 3px solid #893eff; font-size: 21px; font-style: normal; }
-      .dialog-box p { font-size: 14px; line-height: 1.7; max-height: 45dvh; overflow-y: auto; touch-action: pan-y; }
+      .dialog-box p { font-size: 16px; line-height: 1.65; max-height: 45dvh; overflow-y: auto; touch-action: pan-y; }
       .dialog-actions { flex-wrap: wrap; }
       .dialog-actions button {
         min-height: 46px; min-width: 96px;
@@ -614,7 +614,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.9.9</div>
+        <div id="loading-version" class="loading-version">v0.9.11</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -747,7 +747,7 @@
       // Render at the screen's own density (iPhones are 3x) so text and art stay sharp;
       // a pixel budget keeps very large screens from taking too much GPU memory.
       function renderPixelRatio() {
-        const density = Math.min(window.devicePixelRatio || 1, 3);
+        const density = Math.max(2, Math.min(window.devicePixelRatio || 1, 3));
         const box = typeof canvas.getBoundingClientRect === "function" ? canvas.getBoundingClientRect() : null;
         const area = box && box.width * box.height;
         return area > 0 ? Math.max(1, Math.min(density, Math.sqrt(3.2e6 / area))) : density;
@@ -755,13 +755,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("7e5462232fe261f2acb62c569fdb4a53.data.unityweb"),
-        frameworkUrl: buildAssetUrl("e154633258051ee0f9c03b2970d899fe.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("8f35a545d241edc262323d4bbad5d782.wasm.unityweb"),
+        dataUrl: buildAssetUrl("d8490c13d5e75bd43aab9383be71b2ec.data.unityweb"),
+        frameworkUrl: buildAssetUrl("ff0a6802cf95c934b11188ff786a7eff.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("76e99921f6f5ac1a4077faccfeadc726.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.9.9",
+        productVersion: "0.9.11",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -881,7 +881,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("81535f443970dddd2b290ed236ec33cf.loader.js");
+      loader.src = buildAssetUrl("b1044547a8a0468a57a2d9621630862b.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;

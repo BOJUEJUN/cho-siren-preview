@@ -13,7 +13,7 @@ const runningVersion = html.match(/productVersion: "([^"]+)"/)[1];
 
 async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = true, fetchError, pending = false, unityError, pageHref = "https://example.test/cho-siren-preview/?v=old",
   controlled = true, registerFails = false, lobbyReady = true, liveVersion = runningVersion, hidden = false,
-  releaseFails = false, canvasBox = null, frames = null } = {}) {
+  releaseFails = false, canvasBox = null, frames = null, browserDensity = 3 } = {}) {
   const elements = new Map(), timers = new Map(), appends = [], calls = [], requests = [], unregistered = [],
     registered = [], messages = [], documentListeners = {};
   let timerId = 0, now = 1_700_000_000_000;
@@ -47,7 +47,7 @@ async function boot({ metadata = { schemaVersion: 1, current: newer }, httpOk = 
       timers.set(id, () => { now = Math.max(now, due); timers.delete(id); callback(); });
       return id;
     },
-      clearTimeout: id => timers.delete(id), devicePixelRatio: 3,
+      clearTimeout: id => timers.delete(id), devicePixelRatio: browserDensity,
       ...(frames ? { requestAnimationFrame: callback => frames.push(callback) } : {}),
       choSirenStage: { active: lobbyReady },
       location: { href: pageHref, replace: url => calls.push({ redirect: url }), reload: () => calls.push({ reload: true }) } },
@@ -485,6 +485,9 @@ test('the game renders at the screen density, within a pixel budget on very larg
   const phone = await boot({ canvasBox: { width: 390, height: 832 } });
   await phone.appends[0].onload();
   assert.equal(phone.calls[0].config.devicePixelRatio, 3);
+  const desktop = await boot({ browserDensity: 1, canvasBox: { width: 470, height: 1000 } });
+  await desktop.appends[0].onload();
+  assert.equal(desktop.calls[0].config.devicePixelRatio, 2, 'small desktop text uses supersampling on a 1x display');
   const wall = await boot({ canvasBox: { width: 1200, height: 2560 } });
   await wall.appends[0].onload();
   const ratio = wall.calls[0].config.devicePixelRatio;

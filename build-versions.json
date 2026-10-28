@@ -1,18 +1,38 @@
 {
   "schemaVersion": 1,
   "current": [
-    "7e5462232fe261f2acb62c569fdb4a53.data.unityweb",
-    "e154633258051ee0f9c03b2970d899fe.framework.js.unityweb",
-    "8f35a545d241edc262323d4bbad5d782.wasm.unityweb",
-    "81535f443970dddd2b290ed236ec33cf.loader.js"
+    "d8490c13d5e75bd43aab9383be71b2ec.data.unityweb",
+    "ff0a6802cf95c934b11188ff786a7eff.framework.js.unityweb",
+    "76e99921f6f5ac1a4077faccfeadc726.wasm.unityweb",
+    "b1044547a8a0468a57a2d9621630862b.loader.js"
   ],
   "previous": [
-    "acd02e3fca165e2583b881d90104b776.data.unityweb",
-    "fae9323400afbd7cca03bfb6e14d1734.framework.js.unityweb",
-    "5382a0197d98cac9e6587db80e24247c.wasm.unityweb",
-    "437240663b6f5cde3783b07acdb39856.loader.js"
+    "552a6fec9d25e30501427625d6d74b08.data.unityweb",
+    "13ed719d529880f62a48d4edb1243039.framework.js.unityweb",
+    "e4fd1a1da2b514d56b91acfcf931a535.wasm.unityweb",
+    "0c970e782d6c0eb40221eab5823c4d9d.loader.js"
   ],
   "retained": [
+    {
+      "version": "0.9.9",
+      "releaseId": "PSD-20261028-COMPLETION-R144",
+      "files": [
+        "7e5462232fe261f2acb62c569fdb4a53.data.unityweb",
+        "e154633258051ee0f9c03b2970d899fe.framework.js.unityweb",
+        "8f35a545d241edc262323d4bbad5d782.wasm.unityweb",
+        "81535f443970dddd2b290ed236ec33cf.loader.js"
+      ]
+    },
+    {
+      "version": "0.9.8",
+      "releaseId": "PSD-20261028-UI-PROFILE-SCENE-R143",
+      "files": [
+        "acd02e3fca165e2583b881d90104b776.data.unityweb",
+        "fae9323400afbd7cca03bfb6e14d1734.framework.js.unityweb",
+        "5382a0197d98cac9e6587db80e24247c.wasm.unityweb",
+        "437240663b6f5cde3783b07acdb39856.loader.js"
+      ]
+    },
     {
       "version": "0.9.7",
       "releaseId": "PSD-20261028-AUDIO-LEVEL-R142",
