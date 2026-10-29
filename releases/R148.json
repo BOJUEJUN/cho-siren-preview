@@ -1,0 +1,28 @@
+{
+  "version": "0.9.13",
+  "releaseId": "PSD-20261029-HOME-IDOLS-FIX-R148",
+  "date": "2026-10-29",
+  "name": "首页新偶像修复",
+  "notice": "修复网页版首页轮播无法切换到紫晶精灵、粉珀人鱼的问题（首页预载清单补上两人的立绘）。",
+  "backupBranch": "backup/v0.9.13",
+  "previousReleaseId": "PSD-20261029-HOME-IDOLS-R147",
+  "previousWebCommit": "88268e8d3c1d5842dc9be2c158f62bd5a87f1af1",
+  "previousReleaseRecord": "releases/R147.json",
+  "previousBackupBranch": "backup/v0.9.12",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R148: preload the two PSD v3 idol portrait/outline sprites on home entry so the carousel can reach them on WebGL.",
+  "validation": {
+    "status": "verified-locally",
+    "unityCompile": "Batchmode compile passed with 0 errors after the preload fix.",
+    "unityEditMode": "641/641 EditMode tests passed (re-run after the fix).",
+    "unityPlayMode": "5/5 PsdCharacterSwitchTests passed (re-run after the fix).",
+    "webBuild": "WebGL build succeeded (productVersion 0.9.13).",
+    "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
+    "localWebGL": "Headless Chrome on the local 0.9.13 build: carousel steps Lilith -> AMETHYST -> CORALIE -> Catalena and both new idol clips load (HTTP 200).",
+    "publicWebGL": "Pending Pages deployment.",
+    "nativeVisual": "Not applicable to this web-only release."
+  },
+  "knownLimits": [
+    "新两位偶像暂无配音，只显示台词文字。",
+    "人鱼动态视频与PSD立绘构图略有差异，切换到视频时位置可能轻微跳动。"
+  ]
+}
