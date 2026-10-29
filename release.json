@@ -1,28 +1,28 @@
 {
-  "version": "0.9.11",
-  "releaseId": "PSD-20261029-TEAM-SLOTS-R146",
+  "version": "0.9.12",
+  "releaseId": "PSD-20261029-HOME-IDOLS-R147",
   "date": "2026-10-29",
-  "name": "队伍槽位改版与更新文字可读性",
-  "notice": "队伍页默认只留一支队伍，可点 + 添加、在标签上删除；点队伍名即可改名。更新公告与弹窗正文放大并加行距。",
-  "backupBranch": "backup/v0.9.11",
-  "previousReleaseId": "PSD-20261028-COMPLETION-R144",
-  "previousWebCommit": "e997a91e13934b0ba339d39ef59d4442b250b10c",
-  "previousReleaseRecord": "releases/R144.json",
-  "previousBackupBranch": "backup/v0.9.9",
-  "unityBuild": "Unity 6000.6.0f1 WebGL R146: add/delete team slots, inline team rename, larger notices.",
+  "name": "首页新增两位偶像与骰子队长单被动",
+  "notice": "首页轮播新增紫晶精灵、粉珀人鱼，带待机动态，点击换动作。四种族队长骰子被动各改为1个；6个新怪物立绘。",
+  "backupBranch": "backup/v0.9.12",
+  "previousReleaseId": "PSD-20261029-TEAM-SLOTS-R146",
+  "previousWebCommit": "cd4bf33912ae066baca09937ec8432ecf7fe6948",
+  "previousReleaseRecord": "releases/R146.json",
+  "previousBackupBranch": "backup/v0.9.11",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R147: PSD v3 elf and mermaid lobby idols with looping clips, single captain dice passives, six new enemy portraits.",
   "validation": {
     "status": "verified-locally",
-    "unityCompile": "Batchmode compile passed with 0 errors after the team-slot changes.",
-    "unityEditMode": "Not re-run for R146.",
-    "unityPlayMode": "Not re-run for R146.",
-    "webBuild": "WebGL build succeeded (productVersion 0.9.11).",
+    "unityCompile": "Batchmode compile passed with 0 errors after adding the PSD v3 idols and guest lines.",
+    "unityEditMode": "641/641 EditMode tests passed; 7 stale team-preset expectations updated to the single-slot default.",
+    "unityPlayMode": "5/5 PsdCharacterSwitchTests passed, including the new V3 idol carousel, wrap-around and guest-line test.",
+    "webBuild": "WebGL build succeeded (productVersion 0.9.12).",
     "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
-    "localWebGL": "New Build boots to the title screen at v0.9.11; the team board was not clicked through.",
+    "localWebGL": "Pending: boot check in a browser after the Pages deployment.",
     "publicWebGL": "Pending Pages deployment.",
     "nativeVisual": "Not applicable to this web-only release."
   },
   "knownLimits": [
-    "队伍页新的添加/删除/改名布局尚未逐一人工验收。",
-    "部分旧角色原图仅512像素,导入设置不能补出原图没有的细节。"
+    "新两位偶像暂无配音，只显示台词文字。",
+    "人鱼动态视频与PSD立绘构图略有差异，切换到视频时位置可能轻微跳动。"
   ]
 }
