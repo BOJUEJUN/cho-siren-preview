@@ -1,0 +1,28 @@
+{
+  "version": "0.9.14",
+  "releaseId": "PSD-20261029-MERMAID-MATTE-R149",
+  "date": "2026-10-29",
+  "name": "人鱼待机视频去白底",
+  "notice": "修复首页粉珀人鱼待机视频残留白色背景的问题。",
+  "backupBranch": "backup/v0.9.14",
+  "previousReleaseId": "PSD-20261029-HOME-IDOLS-FIX-R148",
+  "previousWebCommit": "7803808",
+  "previousReleaseRecord": "releases/R148.json",
+  "previousBackupBranch": "backup/v0.9.13",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R149: re-matted mermaid lobby clips with a per-frame backdrop key (source cuts from grey-green to white after frame 0).",
+  "validation": {
+    "status": "verified-locally",
+    "unityCompile": "WebGL build 0.9.14 succeeded with 0 errors.",
+    "unityEditMode": "641/641 (0.9.13 run; this release only replaces two video files).",
+    "unityPlayMode": "PsdCharacterSwitchTests 5/5 (0.9.13 run).",
+    "webBuild": "WebGL build succeeded (productVersion 0.9.14).",
+    "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
+    "localWebGL": "Re-matted mermaid clips checked frame by frame (0s/2.5s/6s/9.5s, both clips): no white backdrop left.",
+    "publicWebGL": "Pending Pages deployment.",
+    "nativeVisual": "Not applicable."
+  },
+  "knownLimits": [
+    "新两位偶像暂无配音，只显示台词文字。",
+    "人鱼动态视频与PSD立绘构图略有差异，切换到视频时位置可能轻微跳动。"
+  ]
+}
