@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "ed32fe41496ac4155f21f77ee70543a4.data.unityweb",
+    "d166766c0a34886ed325f2bdebf40582.framework.js.unityweb",
+    "f539ac1bdfad1a73038dfb0b096fd8bd.wasm.unityweb",
+    "339ed3f30bc0af38923426efdce0c3da.loader.js"
+  ],
+  "previous": [
     "384df0d6b182c107e3f481c75367327e.data.unityweb",
     "f3aa348adf7fdf7e214d8f6eb69aa0ad.framework.js.unityweb",
     "65e3fd43510f9dc1032fbb40d1535844.wasm.unityweb",
     "7058b18dd0ce8d31aad83e47c92ad6cb.loader.js"
   ],
-  "previous": [
-    "82b985885fd0a6530b8ad13155b7f4c5.data.unityweb",
-    "a2805c4b776c167b6c99415ae14006e4.framework.js.unityweb",
-    "4eedbdc546deffad6690d4168b23eed3.wasm.unityweb",
-    "a0039251a1e99b4b668ec0447b75abf8.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.14",
+      "releaseId": "PSD-20261029-MERMAID-MATTE-R149",
+      "files": [
+        "82b985885fd0a6530b8ad13155b7f4c5.data.unityweb",
+        "a2805c4b776c167b6c99415ae14006e4.framework.js.unityweb",
+        "4eedbdc546deffad6690d4168b23eed3.wasm.unityweb",
+        "a0039251a1e99b4b668ec0447b75abf8.loader.js"
+      ]
+    },
     {
       "version": "0.9.13",
       "releaseId": "PSD-20261029-HOME-IDOLS-FIX-R148",

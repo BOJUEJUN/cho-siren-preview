@@ -1,0 +1,27 @@
+{
+  "version": "0.9.16",
+  "releaseId": "PSD-20261030-SKILL-CLOSEUP-R151",
+  "date": "2026-10-30",
+  "name": "小技能立绘回归",
+  "notice": "战斗中释放小技能重新弹出角色贴脸立绘，技能图标与被动图标照常显示。",
+  "backupBranch": "backup/v0.9.16",
+  "previousReleaseId": "PSD-20261029-RESULT-FX-FIX-R150",
+  "previousWebCommit": "cabcec2",
+  "previousReleaseRecord": "releases/R150.json",
+  "previousBackupBranch": "backup/v0.9.15",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R151: small active skills play the PSD face close-up again (authored cut-in art, avatar fallback).",
+  "validation": {
+    "status": "verified-locally",
+    "unityCompile": "WebGL build 0.9.16 succeeded with 0 errors.",
+    "unityEditMode": "641/641.",
+    "unityPlayMode": "Battle presentation suites 8/21; all 13 failures pre-existed in the 0.9.15 full run, none new.",
+    "webBuild": "WebGL build succeeded (productVersion 0.9.16).",
+    "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
+    "publicWebGL": "Pending Pages deployment.",
+    "nativeVisual": "Not applicable."
+  },
+  "knownLimits": [
+    "新两位偶像暂无配音，只显示台词文字。",
+    "人鱼动态视频与PSD立绘构图略有差异，切换到视频时位置可能轻微跳动。"
+  ]
+}
