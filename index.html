@@ -626,7 +626,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.9.18</div>
+        <div id="loading-version" class="loading-version">v0.9.19</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -767,13 +767,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("69a781edd4705d78dade3c2154c7a1c3.data.unityweb"),
-        frameworkUrl: buildAssetUrl("4cb5ab9f5cae6222ebf57ecb9a766e9e.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("7f1cb747740e3fc6eae28566071fb6cc.wasm.unityweb"),
+        dataUrl: buildAssetUrl("ce5c43613e6cb5d5ee58af54a04ca3e5.data.unityweb"),
+        frameworkUrl: buildAssetUrl("94d912780b61e0d3b80e5a9a19419263.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("d15299d790de53ee35bf81fcc9e6173b.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.9.18",
+        productVersion: "0.9.19",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -893,7 +893,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("42423fcc22196c6f3f97188dd4be77e1.loader.js");
+      loader.src = buildAssetUrl("5a54e4fc0d24aeb6eb24f8d36aabdce8.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;

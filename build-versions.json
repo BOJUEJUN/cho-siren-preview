@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "ce5c43613e6cb5d5ee58af54a04ca3e5.data.unityweb",
+    "94d912780b61e0d3b80e5a9a19419263.framework.js.unityweb",
+    "d15299d790de53ee35bf81fcc9e6173b.wasm.unityweb",
+    "5a54e4fc0d24aeb6eb24f8d36aabdce8.loader.js"
+  ],
+  "previous": [
     "69a781edd4705d78dade3c2154c7a1c3.data.unityweb",
     "4cb5ab9f5cae6222ebf57ecb9a766e9e.framework.js.unityweb",
     "7f1cb747740e3fc6eae28566071fb6cc.wasm.unityweb",
     "42423fcc22196c6f3f97188dd4be77e1.loader.js"
   ],
-  "previous": [
-    "b7e2d027a4d04f3020a1e0695b6a3d44.data.unityweb",
-    "5f00f34d3084073e3b7136403cc46d66.framework.js.unityweb",
-    "7788ccfb3919eebdc1a74ebe9f6db5bc.wasm.unityweb",
-    "686f29e803b1fdc22ab3b98c9051bf03.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.17",
+      "releaseId": "PSD-20261031-ZJ-FEEDBACK-R152",
+      "files": [
+        "b7e2d027a4d04f3020a1e0695b6a3d44.data.unityweb",
+        "5f00f34d3084073e3b7136403cc46d66.framework.js.unityweb",
+        "7788ccfb3919eebdc1a74ebe9f6db5bc.wasm.unityweb",
+        "686f29e803b1fdc22ab3b98c9051bf03.loader.js"
+      ]
+    },
     {
       "version": "0.9.16",
       "releaseId": "PSD-20261030-SKILL-CLOSEUP-R151",
