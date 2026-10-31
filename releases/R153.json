@@ -1,0 +1,27 @@
+{
+  "version": "0.9.18",
+  "releaseId": "PSD-20261031-ULT-HITCH-R153",
+  "date": "2026-10-31",
+  "name": "打击感与声音大改",
+  "notice": "Boss与小怪放大、受击更有冲击力，敌人会说话；骰子手动不再自动重投、每次最多2颗、每场最多3次；大招判定新增 GOOD/GREAT/PERFECT 反馈；打击音效全部重做；首页对话框、按钮火焰边与撕纸提醒换新。",
+  "backupBranch": "backup/v0.9.18",
+  "previousReleaseId": "PSD-20261031-ZJ-FEEDBACK-R152",
+  "previousWebCommit": "aa3aa24",
+  "previousReleaseRecord": "releases/R152.json",
+  "previousBackupBranch": "backup/v0.9.17",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R152: Zhao Jin feedback batch + ultimate judgement preload (no first-tap hitch) — enemy stage scale/hit reactions/barks, hero card lunge, dice rules/balance, lobby dialogue/flame edge/torn-paper badges, AI-generated SFX/voice and ultimate grade bursts.",
+  "validation": {
+    "status": "verified-locally",
+    "unityCompile": "WebGL build 0.9.18 succeeded with 0 errors.",
+    "unityEditMode": "669/669.",
+    "unityPlayMode": "Ultimate/voice/presentation subset 24/48, zero new failures vs the 0.9.17 full run (0.9.17 full: no new failures vs 0.9.15).",
+    "webBuild": "WebGL build succeeded (productVersion 0.9.18).",
+    "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
+    "publicWebGL": "Pending Pages deployment.",
+    "nativeVisual": "Web preview only; native installers held until user review."
+  },
+  "knownLimits": [
+    "新两位偶像暂无配音，只显示台词文字。",
+    "人鱼动态视频与PSD立绘构图略有差异，切换到视频时位置可能轻微跳动。"
+  ]
+}

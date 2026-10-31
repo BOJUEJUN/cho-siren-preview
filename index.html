@@ -270,10 +270,22 @@
         position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
       }
       .loading-corner button.has-dot { position: relative; }
+      /* 2026-10-31: the torn-paper teal notice sticker shared with the game (was a red dot). */
       .loading-corner button.has-dot::after {
-        content: ""; position: absolute; top: 1cqw; right: 1cqw;
-        width: 2.2cqw; height: 2.2cqw; border-radius: 50%; background: #ff2e5c;
-        box-shadow: 0 0 0 0.35cqw #fff;
+        content: ""; position: absolute; top: -0.4cqw; right: -0.6cqw;
+        width: 4.6cqw; height: 4.6cqw; pointer-events: none;
+        background: url("./icons/notice-sticker-1031.png") center / contain no-repeat;
+        animation: notice-sticker-1031 2.6s ease-in-out infinite;
+      }
+      @keyframes notice-sticker-1031 {
+        0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+        6% { transform: translateY(-0.45cqw) scale(1.06) rotate(-5deg); }
+        13% { transform: translateY(0) scale(1.06, 0.94) rotate(2deg); }
+        20% { transform: translateY(0) scale(1) rotate(0deg); }
+        55% { transform: scale(1.04); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .loading-corner button.has-dot::after { animation: none; }
       }
 
       /* Sound toggle for the CG's own music: off by default (phones block autoplaying sound). */
@@ -614,7 +626,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击屏幕 · 开始演出</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.9.17</div>
+        <div id="loading-version" class="loading-version">v0.9.18</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -755,13 +767,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("b7e2d027a4d04f3020a1e0695b6a3d44.data.unityweb"),
-        frameworkUrl: buildAssetUrl("5f00f34d3084073e3b7136403cc46d66.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("7788ccfb3919eebdc1a74ebe9f6db5bc.wasm.unityweb"),
+        dataUrl: buildAssetUrl("69a781edd4705d78dade3c2154c7a1c3.data.unityweb"),
+        frameworkUrl: buildAssetUrl("4cb5ab9f5cae6222ebf57ecb9a766e9e.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("7f1cb747740e3fc6eae28566071fb6cc.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.9.17",
+        productVersion: "0.9.18",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -881,7 +893,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("686f29e803b1fdc22ab3b98c9051bf03.loader.js");
+      loader.src = buildAssetUrl("42423fcc22196c6f3f97188dd4be77e1.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;

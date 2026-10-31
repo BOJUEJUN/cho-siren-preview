@@ -1,6 +1,6 @@
 {
   "name": "cho-siren-preview",
-  "version": "0.9.17",
+  "version": "0.9.18",
   "private": true,
   "description": "CHO-SIREN Unity WebGL portrait game preview",
   "scripts": {

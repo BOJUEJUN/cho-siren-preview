@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "69a781edd4705d78dade3c2154c7a1c3.data.unityweb",
+    "4cb5ab9f5cae6222ebf57ecb9a766e9e.framework.js.unityweb",
+    "7f1cb747740e3fc6eae28566071fb6cc.wasm.unityweb",
+    "42423fcc22196c6f3f97188dd4be77e1.loader.js"
+  ],
+  "previous": [
     "b7e2d027a4d04f3020a1e0695b6a3d44.data.unityweb",
     "5f00f34d3084073e3b7136403cc46d66.framework.js.unityweb",
     "7788ccfb3919eebdc1a74ebe9f6db5bc.wasm.unityweb",
     "686f29e803b1fdc22ab3b98c9051bf03.loader.js"
   ],
-  "previous": [
-    "ed32fe41496ac4155f21f77ee70543a4.data.unityweb",
-    "d166766c0a34886ed325f2bdebf40582.framework.js.unityweb",
-    "f539ac1bdfad1a73038dfb0b096fd8bd.wasm.unityweb",
-    "339ed3f30bc0af38923426efdce0c3da.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.16",
+      "releaseId": "PSD-20261030-SKILL-CLOSEUP-R151",
+      "files": [
+        "ed32fe41496ac4155f21f77ee70543a4.data.unityweb",
+        "d166766c0a34886ed325f2bdebf40582.framework.js.unityweb",
+        "f539ac1bdfad1a73038dfb0b096fd8bd.wasm.unityweb",
+        "339ed3f30bc0af38923426efdce0c3da.loader.js"
+      ]
+    },
     {
       "version": "0.9.15",
       "releaseId": "PSD-20261029-RESULT-FX-FIX-R150",
