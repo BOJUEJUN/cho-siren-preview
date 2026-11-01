@@ -1,0 +1,42 @@
+#home-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: none;
+  isolation: isolate;
+}
+#home-stage.stage-on { opacity: 1; visibility: visible; transition: opacity .5s ease; }
+#home-stage .stage-beam {
+  position: absolute;
+  top: -30%;
+  height: 150%;
+  width: 18%;
+  opacity: .54;
+  background: linear-gradient(90deg, transparent, #d8ffe47a, transparent);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  translate: var(--stage-pointer-x, 0px) var(--stage-pointer-y, 0px);
+  transform-origin: 50% 15%;
+}
+#home-stage .stage-beam-a { left: 5%; animation: stage-beam-sweep 5.6s ease-in-out infinite alternate; }
+#home-stage .stage-beam-b {
+  right: -5%;
+  background: linear-gradient(90deg, transparent, #b593ff9c, transparent);
+  animation: stage-beam-sweep 6.4s ease-in-out -2s infinite alternate-reverse;
+}
+#home-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#stage-atmosphere { z-index: 2; }
+#stage-sparks { z-index: 4; }
+#home-stage.stage-on .stage-beam { animation-play-state: running; }
+@keyframes stage-beam-sweep {
+  from { transform: rotate(-30deg) translateX(-30%); }
+  to { transform: rotate(40deg) translateX(30%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #home-stage .stage-beam { animation: none; }
+  #home-stage .stage-beam { opacity: .15; }
+}

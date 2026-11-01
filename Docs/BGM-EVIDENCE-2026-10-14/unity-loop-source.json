@@ -1,0 +1,10 @@
+{
+  "prefixFrames": 1024,
+  "loopStartFrame": 1024,
+  "loopEndFrameInclusive": 5645737,
+  "musicFrames": 5644714,
+  "sampleRate": 44100,
+  "channels": 2,
+  "format": "24bit PCM WAV with smpl; 44.1k cyclic Kaiser14 resample; 48k lossless master preserved",
+  "sourceBytes": 33874540
+}

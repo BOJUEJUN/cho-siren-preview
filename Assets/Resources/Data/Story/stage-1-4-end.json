@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-4-end",
+  "Title": "1-4 静电之心",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-4"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "determined",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "「心脏」停下了。整片街区安静得能听到心跳。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "是我们的心跳哦，扑通扑通的。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "别松劲。商圈的大屏还在亮着——她在等你们。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

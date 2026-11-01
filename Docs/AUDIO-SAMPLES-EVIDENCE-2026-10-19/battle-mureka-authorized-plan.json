@@ -1,0 +1,12 @@
+{
+  "approved_budget_cny": 0.34,
+  "approval": "User explicitly approved ONE new battle BGM sample at <=CNY0.34; separate from the cumulative voice/SFX CNY1 cap.",
+  "endpoint": "/openapi/v2/mureka-ai/mureka-v9/generate-bgm",
+  "payload": {
+    "prompt": "Original instrumental music for a stylish idol fantasy dice-battle game. Modern K-pop and electro-dance battle production, 144 BPM, tight punchy drums, syncopated dance bass, clear low-end groove, a catchy original three-note synth riff that returns often, bright electric-guitar stabs and polished electronic textures. Main kick and snare enter within the first second. Energetic confident stage performance, compact A/B sections, short tension lifts then direct returns to the hook. About two minutes. Loop-ready full-level final downbeat and stable rhythm at the end. No fade-out, no filtered-out or muffled ending, no long ambient intro. Clean stereo mix with space for battle sound effects. Strictly instrumental: no vocals, no singing, no choir, no spoken words, no humming or vocal chops. Entirely original melody and arrangement; no imitation of an existing song.",
+    "n": 1,
+    "stream": false
+  },
+  "duration_note": "Official endpoint has no duration field. Two minutes and loop-ready ending are prompt directions, not guarantees.",
+  "production_integrated": false
+}

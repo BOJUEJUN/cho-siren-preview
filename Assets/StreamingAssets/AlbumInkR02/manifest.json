@@ -1,0 +1,33 @@
+{
+  "frames": 48,
+  "fps": 30,
+  "frameWidth": 512,
+  "frameHeight": 480,
+  "sheets": [
+    {
+      "file": "ink-white-0.png",
+      "sha256": "bf33d9520c252a86cc3fcb624ef1302c385eb9e0db2db26469de735b82e4e1e4",
+      "width": 2048,
+      "height": 1440
+    },
+    {
+      "file": "ink-white-1.png",
+      "sha256": "61719417af26b95778dfb181ef1a654c2d7f4147addab231bac6c92049afc105",
+      "width": 2048,
+      "height": 1440
+    },
+    {
+      "file": "ink-white-2.png",
+      "sha256": "dfec65cec51bdf6e0a72581b079c3a4ac184b67296e933bbe4cb4a1e3a461b80",
+      "width": 2048,
+      "height": 1440
+    },
+    {
+      "file": "ink-white-3.png",
+      "sha256": "163eac7a1ff3929a4cd21539acb63d175960722974cf34dd09cb61735fd86d9b",
+      "width": 2048,
+      "height": 1440
+    }
+  ],
+  "tint": "white sheets; each lobby entry tints them (album keeps the approved green)"
+}

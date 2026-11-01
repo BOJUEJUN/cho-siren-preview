@@ -1,0 +1,270 @@
+{
+  "scopeCount": 44,
+  "changedCount": 38,
+  "files": [
+    {
+      "path": "Assets/Scripts/UI/DiceRollPresentation.cs",
+      "before": "9d0b0a1918f6a2a5b77c45ca1db8e075d5a9d6c6aceb665364971b38773e992d",
+      "candidate": "61b21db4e24e87d07f15b23a81be4a834814b2a95b54713bfddef87de02f9c39",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/Panels/TacticsBattlePanel.cs",
+      "before": "72227c8363aaa4fc2a56e6c31f39c7108eae1be1165d5e29784ed8a9d57d546b",
+      "candidate": "75d2e7698deed3f2d5ccf725cb8ad81697a3d2345a5d51b0df9b45025e5b7e98",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/Panels/TacticsBattlePanel.Psd928.cs",
+      "before": "77ad11b00cf869addf50bac2c5ab9bf66256e1f64d9db0d6cf2de942471f9c43",
+      "candidate": "eadcf916c892fc6160ff24fad7dd0f9070abb73a8a69d997ba59cfe2f5891019",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/GameModel.cs",
+      "before": "2ad389945d3598ec10862d2869a542d90d9a3d740c011d7a31735ce173b6f2eb",
+      "candidate": "8e014e4b7f2cd4771e9cc521c82a20aff862e6cf31a7b190a5f2238386ff4d52",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/GameModelRosterActions.cs",
+      "before": "09f31597fe9fdf268b3ed0eb0960fcfaa5a4292dd6f413b8d643712e0c7dcf70",
+      "candidate": "01a9dc51ce9ac323729b88c7494761821769e425e961deb6f36917f33dbc085b",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/LevelMapPanel.cs",
+      "before": "b60fdd5513aee72317b56137aafb0c12e8d106ff949ad688cc0c0163691144c7",
+      "candidate": "7270a7013b7798124ba4b6c7c1d2cb69510f5ea5e09a6fe2c3df381135511c64",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/ChoSirenAppReferenceBoards.cs",
+      "before": "a40e0d0fd7c668916df323933339ccedbf7fcfefe200724d4d0271c75b20ff0f",
+      "candidate": "4d121688c39934cb80032520111e98ba682c4bc2bd06cac6e206ffd11fc3d559",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/GameAudio.cs",
+      "before": "61fb3bf9d83742802b38335dd77b8ef154b573218585de63f2222247de5f50b1",
+      "candidate": "2d672c523b6c34a620e9bd8494146394730d59f3d075b9b52a7b0c0b6c4389e5",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/ChoSirenAppPsdHome.cs",
+      "before": "8febdc9fa03aa348abc0068d4fa8b897c487b37ca1b274f22e6c1b2a4cb80c2b",
+      "candidate": "49ff60e0a006648705248384190421fb986fdb675e45e5d8304a148afe2c58bb",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/GlobalMusicTests.cs",
+      "before": "a24ff64b5e6d95ac5d8cc60d3e3b8e7ca5d6405441167c765d399cffaea51216",
+      "candidate": "a950e2e1d9d3d6c2e08326b67dc9fa58e838d340cd3b9853ccc94f97b7d6f4b9",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/ContextMusicTests.cs",
+      "before": "c482a50f15f898bafc741764de75240e1b0c292289ac045693b0cee38d2ae5a2",
+      "candidate": "f2ce3001cd875371d2e889b2f7b62e667d29bc0366e5390ef3e203d55c10ce26",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/EditMode/GameModelTests.cs",
+      "before": "ddc17235f703c159187272d33a8b5187f69d078501ba6240d0fac46d82161a25",
+      "candidate": "721ade3f9f4b50eece4b0f8c2a5e458fb2f3a9ec921c07445ed240986624402e",
+      "changed": true
+    },
+    {
+      "path": "ProjectSettings/ProjectSettings.asset",
+      "before": "ec299756d8074ad0851bd77972a30a8564d39465fd946cdafce2082e95254e8a",
+      "candidate": "16302606ec4720bd5bda6b901278de2e11577c59c1c6558823efad4d809675fe",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/HomeMusicPlaylist.cs",
+      "before": null,
+      "candidate": "c232937bc56bf01f9840cf7201ba22bd85112719ae83d1a7e85a10227eb235fb",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/HomeMusicPlaylist.cs.meta",
+      "before": null,
+      "candidate": "b0ac8876fd1d2b503995e9c710386c6935d6d1911960f119e66f32bc734e13f6",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/HomeMusicSwitcher.cs",
+      "before": null,
+      "candidate": "6f7c2a3357e187cd9d9ec4b2e5adf1150750d62506e5565e929006f75055481b",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/HomeMusicSwitcher.cs.meta",
+      "before": null,
+      "candidate": "6025d7be5bdca67c1e4959a89a44ec8569ea255e2e651461550b8e40634b6911",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/AuthoredDiceDesignTests.cs",
+      "before": null,
+      "candidate": "ae7a755b21179c0928c4ee94a9a8214ff9a0ff5d3052cedfac54c551db304053",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/AuthoredDiceDesignTests.cs.meta",
+      "before": null,
+      "candidate": "411213c25f1c9b7f8a5caeda90b4b26d38a70339b59ded90a2d1c2620783a18a",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/FormationLaunchRegressionTests.cs",
+      "before": null,
+      "candidate": "0de5eb16858acddd8f7d66341d25325a5f7ec97cfd80956b3eaf3560b46d215f",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/FormationLaunchRegressionTests.cs.meta",
+      "before": null,
+      "candidate": "5928b091aa2b5e5f234072e857657d469d2fd84585f2dab4c59169ed79d63b80",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/BattleMobileReadabilityPlayModeTests.cs",
+      "before": null,
+      "candidate": "65e3267e79c0e2e04996e53df90b3fd710b595a02a5cbfd7379df0876def6005",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/BattleMobileReadabilityPlayModeTests.cs.meta",
+      "before": null,
+      "candidate": "c19bfef7177f0a0e4e3696a9e5f55153766f56d999448791466d3699542dbd81",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/HomeMusicPlaylistTests.cs",
+      "before": null,
+      "candidate": "5312e255bf929d98e7fe1ee3efb2303f83866e73de9538dfec2b75240bde88c4",
+      "changed": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/HomeMusicPlaylistTests.cs.meta",
+      "before": null,
+      "candidate": "52e4eaea9caccc8f718abe2876da0bf834d5914db2e9032cffc00bf598623630",
+      "changed": true
+    },
+    {
+      "path": "Assets/Editor/ChoSirenDiceDesignBuild.cs",
+      "before": null,
+      "candidate": "c4ded4b489391f901b4d0a97ac094b674b9c511881789a3f27f53b8f1c6b334d",
+      "changed": true
+    },
+    {
+      "path": "Assets/Editor/ChoSirenDiceDesignBuild.cs.meta",
+      "before": null,
+      "candidate": "35f8efa4346e90a3d32833884cd48ef638be798b19300059591da298ac94e09e",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-1.png",
+      "before": "cbef3b41107608e43485444f7889ce5d783e420e323719c78e0637a2327bcf63",
+      "candidate": "d096905d0e02d68ab620e65f1eff9603f5eb0530d8f9681ae8235aafeff162cd",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-1.png.meta",
+      "before": "5fb32a4a768975791979d42bcf5c8dde42a28c25b4d49c4ad22adab543dc8b74",
+      "candidate": "5fb32a4a768975791979d42bcf5c8dde42a28c25b4d49c4ad22adab543dc8b74",
+      "changed": false
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-2.png",
+      "before": "e3845b52de873834089110a4d6234ed86d7ac28e3bc538909c72b9e88ac05900",
+      "candidate": "3fa255782757fd7c56b197f937158b96a4b8bb0fe5bf758413f7471525b49b1c",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-2.png.meta",
+      "before": "1f7a3cec74fe2e5ccf8a092716f52c4b1f1663199ca0adf36b1cf62d22fbe023",
+      "candidate": "1f7a3cec74fe2e5ccf8a092716f52c4b1f1663199ca0adf36b1cf62d22fbe023",
+      "changed": false
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-3.png",
+      "before": "90ae331cc6851f4d789b57d833dfa31493478243db3bba438d7f08153dcca8a8",
+      "candidate": "af7e3a5403ac79b69f4f1ada01eab11bb834c7e9134dc0b477f8b8c27e284f39",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-3.png.meta",
+      "before": "d2d6f96e43dc3d74b54e36efe7efdec7c33ba3601bce79e964d5055b9f663a58",
+      "candidate": "d2d6f96e43dc3d74b54e36efe7efdec7c33ba3601bce79e964d5055b9f663a58",
+      "changed": false
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-4.png",
+      "before": "ed1f459ffcf05b56249eead3c6220c017ffd20abcefd333ec4142895a8b6d95d",
+      "candidate": "399c4b44d711bbe6aa4c62d2e57b30b2332e08ba3eeb30dc0f7c78dcb0e397e4",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-4.png.meta",
+      "before": "828217cc9a70865f00e95e47d053e5bf29bf796866c18e3eda57b09a8a4423f0",
+      "candidate": "828217cc9a70865f00e95e47d053e5bf29bf796866c18e3eda57b09a8a4423f0",
+      "changed": false
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-5.png",
+      "before": "dba18c7f3733db42f318a6e60895cf2b22ff0a60dc2d7d110ffaff4dc41a77d6",
+      "candidate": "ee4a0f5b4ab287252edbf2e00661d90bb285b2ae0069d2be24d3d6ee471ac4a1",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-5.png.meta",
+      "before": "fddc57d4c6f6baf41db3649b72f5e3e9b4da3f2bd13aa8176fd18b680ee01822",
+      "candidate": "fddc57d4c6f6baf41db3649b72f5e3e9b4da3f2bd13aa8176fd18b680ee01822",
+      "changed": false
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-6.png",
+      "before": "f51e38ef0bb3ef5ca927f8557ff438602f4c152a179584432e8a7fc497870de4",
+      "candidate": "10e43037245da7854bad74ee5850df2af90fcea7988c702b447ce71b7aadde71",
+      "changed": true
+    },
+    {
+      "path": "Assets/Resources/Art/Reference038/vfx-die-face-6.png.meta",
+      "before": "069cbfde8941a96e1eb5155a7552678300ef56b746b34eb40bf35445a20ac902",
+      "candidate": "069cbfde8941a96e1eb5155a7552678300ef56b746b34eb40bf35445a20ac902",
+      "changed": false
+    },
+    {
+      "path": "Assets/StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+      "before": null,
+      "candidate": "e16785a9cd795bb3fd024bce2912a9174d30f712ccb25b7cd34e5bd5ca596ced",
+      "changed": true
+    },
+    {
+      "path": "Assets/StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3.meta",
+      "before": null,
+      "candidate": "bff1ba54ec43b960b8cbf53d94547faf75f0acd63d14eb395ec722c74392b27e",
+      "changed": true
+    },
+    {
+      "path": "Assets/StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3",
+      "before": null,
+      "candidate": "5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff",
+      "changed": true
+    },
+    {
+      "path": "Assets/StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3.meta",
+      "before": null,
+      "candidate": "9bcea030b4babffe3dd889203cc4a18a508c719e4818cb237dc85663b3b4b01a",
+      "changed": true
+    },
+    {
+      "path": "Assets/Scripts/UI/BattleMemberAlbum929.cs",
+      "before": "83079f70fab729c81ea17eedf2050a8ee5323632fe341c08a61c78b009f13c5d",
+      "candidate": "e3b70ca13612f00f22fca1fdfc649d0bbe93e6232bf1c06c791c8bd20ac12023",
+      "changed": true
+    }
+  ]
+}

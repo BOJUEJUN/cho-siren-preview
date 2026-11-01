@@ -9,7 +9,7 @@ namespace ChoSiren.Systems.Dice
         public static bool[] Choose(IReadOnlyList<int> values)
         {
             DiceHand hand = DiceRules.Evaluate(values);
-            var held = new bool[DiceRules.DiceCount];
+            var held = new bool[values.Count];
 
             // Every scored pattern keeps the dice that establish it. This preserves an
             // existing hand while still allowing unrelated kickers to be rerolled.

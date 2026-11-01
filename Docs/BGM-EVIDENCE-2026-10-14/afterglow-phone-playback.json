@@ -1,0 +1,25 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "horizontalOverflow": false,
+  "audio": [
+    {
+      "currentTime": 84.450221,
+      "duration": 156.71,
+      "error": null,
+      "muted": false,
+      "paused": false,
+      "readyState": 4
+    },
+    {
+      "currentTime": 0,
+      "duration": 207.230454,
+      "error": null,
+      "muted": false,
+      "paused": true,
+      "readyState": 4
+    }
+  ]
+}

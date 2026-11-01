@@ -15,7 +15,7 @@ namespace ChoSiren
     {
         public static readonly Color TrackColor = new Color32(15, 22, 54, 255);
         public static readonly Color FillColor = new Color32(72, 124, 255, 255);
-        public static readonly Color FillReadyColor = new Color32(128, 206, 255, 255);
+        public static readonly Color FillReadyColor = new Color32(255, 46, 147, 255);
         public static readonly Color LabelColor = new Color32(186, 214, 255, 255);
         // Color32 -> Color already normalizes alpha to 0-1 (150 -> ~0.588); never divide it by 255.
         public static readonly Color ReadyGlowColor = new Color32(88, 150, 255, 150);
@@ -58,7 +58,8 @@ namespace ChoSiren
 
             // Blue is deliberately deeper than the cyan HP bar and sits on its own labelled row.
             fill = kit.NewBar("EnergyTrack", host, 10, 147, PlayerWidth(host) - 20, 7,
-                TrackColor, FillColor, 4);
+                TrackColor, Color.white, 4);
+            fill.sprite = ChoSiren.UI.BattleStickerVisuals.EnergyGradient;
             fill.gameObject.name = "EnergyFill";
 
             // The "ready" state is written out, not only coloured: the label changes copy and gets
@@ -69,7 +70,7 @@ namespace ChoSiren
             mark.SetActive(false);
             readyPlate = mark;
 
-            label = kit.NewPlacedText(host, "能量 0/100", 12, LabelColor, 8, 154,
+            label = kit.NewPlacedText(host, string.Empty, 12, LabelColor, 8, 154,
                 PlayerWidth(host) - 16, 16, TextAnchor.MiddleCenter, FontStyle.Bold);
             label.gameObject.name = "EnergyLabel";
             PanelKit.EnableBestFit(label, 9);
@@ -91,12 +92,19 @@ namespace ChoSiren
             Ready = ready;
             if (fill != null)
             {
-                fill.fillAmount = Mathf.Clamp01(energy / (float)BattleSimulator.MaxUnitEnergy);
-                fill.color = ready ? FillReadyColor : FillColor;
+                // The blue rises smoothly towards the real value (2026-10-20 request); a full
+                // bar, a drop, or reduced motion shows the exact value at once.
+                targetFill = Mathf.Clamp01(energy / (float)BattleSimulator.MaxUnitEnergy);
+                bool reduced = reduceMotionProbe != null && reduceMotionProbe();
+                // The PSD battle disables this component (it only draws the bar), so Update never
+                // runs there: without a live Update the bar must jump to the real value.
+                if (targetFill >= 1f || targetFill < fill.fillAmount || reduced || !Application.isPlaying || !isActiveAndEnabled)
+                    fill.fillAmount = targetFill;
+                fill.color = Color.white;
             }
             if (label != null)
             {
-                label.text = ready ? "大招就绪 · 满能量" : $"能量 {energy}/{BattleSimulator.MaxUnitEnergy}";
+                label.text = ready ? "大招就绪" : string.Empty;
                 label.color = ready ? PanelKit.White : LabelColor;
             }
             if (readyPlate != null && readyPlate.activeSelf != ready) readyPlate.SetActive(ready);
@@ -108,10 +116,14 @@ namespace ChoSiren
             }
         }
 
+        private float targetFill;
+
         private void Update()
         {
-            if (glow == null || !Ready) return;
             if (pausedProbe != null && pausedProbe()) return;
+            if (fill != null && fill.fillAmount < targetFill)
+                fill.fillAmount = Mathf.MoveTowards(fill.fillAmount, targetFill, Time.unscaledDeltaTime * .45f);
+            if (glow == null || !Ready) return;
             bool reduced = reduceMotionProbe != null && reduceMotionProbe();
             pulseClock += Time.unscaledDeltaTime * (reduced ? 0f : 2.6f);
             float pulse = reduced ? 1f : .72f + Mathf.Sin(pulseClock) * .28f;
@@ -128,7 +140,7 @@ namespace ChoSiren
         /// <summary>Short one-shot highlight when the bar gains energy from a real hit.</summary>
         public void FlashGain()
         {
-            if (fill == null) return;
+            if (fill == null || (reduceMotionProbe?.Invoke() ?? false)) return;
             fill.transform.localScale = new Vector3(1.08f, 1.35f, 1f);
             StartCoroutine(ResetGainFlash());
         }

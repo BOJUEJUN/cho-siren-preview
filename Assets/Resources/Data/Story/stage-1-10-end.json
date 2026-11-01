@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-10-end",
+  "Title": "1-10 魅声王座",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-10"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "determined",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "声音……回来了。整座城都在唱。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "女王，你的王冠我们收下了——还给大家。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "第一章，终演成功。海湾那边，有新的舞台在等你们。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

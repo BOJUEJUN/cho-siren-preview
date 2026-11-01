@@ -50,7 +50,18 @@ namespace ChoSiren.Systems.Tactics
             (int)((long)ApplyStatus(BaseAttack, SkillEffect.BuffAttack) * PhaseAttackMultiplierPermille / 1000));
         public int Defense => ApplyStatus(BaseDefense, SkillEffect.DebuffDefense);
 
-        private int ApplyStatus(int baseValue, string effect)
+        /// <summary>
+        /// Attack ×1000 before integer rounding (2026-11-01). Enemy attack is a small number (5–25), so whole points moved
+        /// a turn battle's enemy damage in 4–20% steps; turn-mode enemy hits use this instead. 0 = derive from BaseAttack.
+        /// </summary>
+        public long BaseAttackMilli;
+        public long AttackMilli => Math.Max(0, (BaseAttackMilli > 0 ? BaseAttackMilli : BaseAttack * 1000L)
+            * StatusPermille(SkillEffect.BuffAttack) / 1000 * PhaseAttackMultiplierPermille / 1000);
+
+        private int ApplyStatus(int baseValue, string effect) =>
+            Math.Max(0, (int)((long)baseValue * StatusPermille(effect) / 1000));
+
+        private int StatusPermille(string effect)
         {
             int permille = 1000;
             for (int index = 0; index < Statuses.Count; index++)
@@ -59,7 +70,7 @@ namespace ChoSiren.Systems.Tactics
                 permille += effect == SkillEffect.DebuffDefense ? -Statuses[index].Permille : Statuses[index].Permille;
             }
 
-            return Math.Max(0, (int)((long)baseValue * Math.Max(0, permille) / 1000));
+            return Math.Max(0, permille);
         }
     }
 
@@ -215,6 +226,8 @@ namespace ChoSiren.Systems.Tactics
                 AddUnit(definition, BattleSide.Enemy, spawn.Row, spawn.Col, 1,
                     EnemyStats(definition, spawn, EnemyHpMultiplierPermille, EnemyAttackMultiplierPermille));
                 BattleUnit enemy = units[units.Count - 1];
+                enemy.BaseAttackMilli = Math.Max(1000L, (long)definition.Attack *
+                    CombinePermille(spawn.ScalePermille, EnemyAttackMultiplierPermille));
                 enemy.Wave = spawn.Wave;
                 enemy.SpawnAtBossPhase = spawn.BossPhase;
                 // Old turn-based replays keep their complete roster until realtime is enabled.
@@ -447,9 +460,12 @@ namespace ChoSiren.Systems.Tactics
             public const double Defense = 1.032;
         }
 
+        // 2026-11-01: the equipment share rounds to the nearest point (it used to truncate). Items are capped at +5% a stat
+        // now, so truncation erased most of a low-level member's bonus (40 attack × 1.024 = 40.96 → 40).
         private static int GrowthStat(int basis, int level, double rate, int equipment, int minimum) =>
-            Math.Max(minimum, (int)Math.Min(int.MaxValue,
-                Math.Floor(basis * Math.Pow(rate, Math.Max(0, Math.Min(100, level) - 1))) * (1000 + equipment) / 1000));
+            Math.Max(minimum, (int)Math.Min(int.MaxValue, Math.Round(
+                Math.Floor(basis * Math.Pow(rate, Math.Max(0, Math.Min(100, level) - 1))) * (1000 + equipment) / 1000.0,
+                MidpointRounding.AwayFromZero)));
 
         public static int TrainingCostAtLevel(int level) => (int)Math.Min(int.MaxValue,
             Math.Ceiling(50 * Math.Pow(1.15, Math.Max(0, Math.Min(100, level) - 1))));
@@ -559,7 +575,8 @@ namespace ChoSiren.Systems.Tactics
         private void EvaluateOutcome()
         {
             if (!AnyAlive(BattleSide.Player)) Finish(BattleOutcome.Defeat);
-            else if (!AnyAlive(BattleSide.Enemy) && !(IsRealtime && SpawnNextWave()))
+            // A fallen minion's slot is taken by the next queued enemy before the wave can count as cleared.
+            else if (!(IsRealtime && FillMinionSlots1031()) && !AnyAlive(BattleSide.Enemy) && !(IsRealtime && SpawnNextWave()))
                 Finish(BattleOutcome.Victory);
         }
 
@@ -703,6 +720,7 @@ namespace ChoSiren.Systems.Tactics
                 AbsorbedAmount = Math.Max(0, absorbed),
                 HpLostAmount = Math.Max(0, hpLost)
             });
+            TrackThreat(kind, actorId, targetId, amount);
         }
     }
 

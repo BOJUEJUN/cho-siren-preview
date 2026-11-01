@@ -1,0 +1,247 @@
+{
+  "checkedAtUtc": "2026-10-16T10:29:13.248692+00:00",
+  "tracks": [
+    {
+      "track": 1,
+      "name": "霓虹漫游",
+      "kind": "纯音乐",
+      "style": "暖色 city-pop / 爵士 funk，电钢琴与圆润贝斯",
+      "model": "RunningHub Mureka V9",
+      "endpoint": "/openapi/v2/mureka-ai/mureka-v9/generate-bgm",
+      "taskId": "2111040531928068097",
+      "usage": {
+        "thirdPartyConsumeMoney": "0.34",
+        "consumeMoney": null,
+        "consumeCoins": null,
+        "taskCostTime": "0"
+      },
+      "source": {
+        "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/night-funk/original/2111040531928068097-01.mp3",
+        "bytes": 6550300,
+        "sha256": "fd9a0aca4c14aca8d8ec61a6584734d32476ff1a41d52fd8548000dfe27acffa",
+        "format": "MP3",
+        "sampleRate": 44100,
+        "channels": 2,
+        "frames": 9024183,
+        "durationSeconds": 204.63,
+        "samplePeakDbfs": -0.5831681125739927,
+        "rmsDbfs": -17.16548353490664,
+        "nonfiniteSamples": 0,
+        "samplesAtOrAboveFullScale": 0,
+        "fullDecodePassed": true
+      },
+      "sourceLoudness": {
+        "integratedLufs": -14.62,
+        "truePeakDbtp": -0.48,
+        "loudnessRangeLu": 4.2
+      },
+      "delivery": {
+        "signal": {
+          "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/delivery/track-1.mp3",
+          "bytes": 4912799,
+          "sha256": "5e5366e8ba7f1fad20a02217c9cb951045344328bfbfa796b082238dd6bd3a90",
+          "format": "MP3",
+          "sampleRate": 44100,
+          "channels": 2,
+          "frames": 9024183,
+          "durationSeconds": 204.63,
+          "samplePeakDbfs": -2.1585808625185785,
+          "rmsDbfs": -18.809121613006024,
+          "nonfiniteSamples": 0,
+          "samplesAtOrAboveFullScale": 0,
+          "fullDecodePassed": true
+        },
+        "loudness": {
+          "integratedLufs": -16.27,
+          "truePeakDbtp": -2.13,
+          "loudnessRangeLu": 4.2
+        },
+        "constantGainDb": -1.3800000000000008,
+        "encodeAttempts": 1
+      },
+      "processing": "One constant attenuation and high-quality MP3 encode only. No tempo, pitch, structure, limiter, compression, or source-file changes."
+    },
+    {
+      "track": 2,
+      "name": "星河入梦",
+      "kind": "纯音乐",
+      "style": "梦幻钢琴 / 轻电子，温柔夜景与清晰主旋律",
+      "model": "RunningHub Mureka V9",
+      "endpoint": "/openapi/v2/mureka-ai/mureka-v9/generate-bgm",
+      "taskId": "2111040538773164034",
+      "usage": {
+        "thirdPartyConsumeMoney": "0.34",
+        "consumeMoney": null,
+        "consumeCoins": null,
+        "taskCostTime": "0"
+      },
+      "source": {
+        "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/star-piano/original/2111040538773164034-01.mp3",
+        "bytes": 6728351,
+        "sha256": "5d3cebaf1e402f31faa32e91b1951682e5a1b6ca6a1608354838d0dcf7efbcb5",
+        "format": "MP3",
+        "sampleRate": 44100,
+        "channels": 2,
+        "frames": 9269379,
+        "durationSeconds": 210.19,
+        "samplePeakDbfs": -0.6306176402061634,
+        "rmsDbfs": -17.965913946638217,
+        "nonfiniteSamples": 0,
+        "samplesAtOrAboveFullScale": 0,
+        "fullDecodePassed": true
+      },
+      "sourceLoudness": {
+        "integratedLufs": -15.62,
+        "truePeakDbtp": -0.53,
+        "loudnessRangeLu": 5.6
+      },
+      "delivery": {
+        "signal": {
+          "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/delivery/track-2.mp3",
+          "bytes": 5046337,
+          "sha256": "5905300cb8d7cab120d274840d3a755f11850c8cf8fc0566d84bbdf59468486e",
+          "format": "MP3",
+          "sampleRate": 44100,
+          "channels": 2,
+          "frames": 9269379,
+          "durationSeconds": 210.19,
+          "samplePeakDbfs": -2.090949557163912,
+          "rmsDbfs": -19.49780383373069,
+          "nonfiniteSamples": 0,
+          "samplesAtOrAboveFullScale": 0,
+          "fullDecodePassed": true
+        },
+        "loudness": {
+          "integratedLufs": -17.15,
+          "truePeakDbtp": -2.1,
+          "loudnessRangeLu": 5.6
+        },
+        "constantGainDb": -1.27,
+        "encodeAttempts": 1
+      },
+      "processing": "One constant attenuation and high-quality MP3 encode only. No tempo, pitch, structure, limiter, compression, or source-file changes."
+    },
+    {
+      "track": 3,
+      "name": "心动频率",
+      "kind": "女声歌曲",
+      "style": "轻盈中文 K-pop / city-pop，清晰女声与明亮副歌",
+      "model": "RunningHub Mureka V9",
+      "endpoint": "/openapi/v2/mureka-ai/mureka-v9/generate-song",
+      "taskId": "2111041285631913986",
+      "usage": {
+        "thirdPartyConsumeMoney": "0.34",
+        "consumeMoney": null,
+        "consumeCoins": null,
+        "taskCostTime": "0"
+      },
+      "source": {
+        "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/heart-frequency-mureka/original/2111041285631913986-01.mp3",
+        "bytes": 6750084,
+        "sha256": "03e0ea688dcfadbc2ad9120ce002d9d03a15e0fb98d460d7e577efcb0bca5a95",
+        "format": "MP3",
+        "sampleRate": 44100,
+        "channels": 2,
+        "frames": 9299367,
+        "durationSeconds": 210.87,
+        "samplePeakDbfs": -0.6532950997921865,
+        "rmsDbfs": -17.07137010833668,
+        "nonfiniteSamples": 0,
+        "samplesAtOrAboveFullScale": 0,
+        "fullDecodePassed": true
+      },
+      "sourceLoudness": {
+        "integratedLufs": -14.48,
+        "truePeakDbtp": -0.57,
+        "loudnessRangeLu": 4.2
+      },
+      "delivery": {
+        "signal": {
+          "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/delivery/track-3.mp3",
+          "bytes": 5062637,
+          "sha256": "e6ddf723e5936353b87a6a58c14f3f825cf44691b787b9e2db72f39626d8b6b0",
+          "format": "MP3",
+          "sampleRate": 44100,
+          "channels": 2,
+          "frames": 9299367,
+          "durationSeconds": 210.87,
+          "samplePeakDbfs": -2.156362796609674,
+          "rmsDbfs": -18.85311897469277,
+          "nonfiniteSamples": 0,
+          "samplesAtOrAboveFullScale": 0,
+          "fullDecodePassed": true
+        },
+        "loudness": {
+          "integratedLufs": -16.26,
+          "truePeakDbtp": -2.15,
+          "loudnessRangeLu": 4.2
+        },
+        "constantGainDb": -1.5199999999999996,
+        "encodeAttempts": 1
+      },
+      "processing": "One constant attenuation and high-quality MP3 encode only. No tempo, pitch, structure, limiter, compression, or source-file changes."
+    },
+    {
+      "track": 4,
+      "name": "月光信号",
+      "kind": "女声歌曲",
+      "style": "温柔中文 dream R&B / 夜景流行，低声女主唱与钢琴",
+      "model": "RunningHub Mureka V9",
+      "endpoint": "/openapi/v2/mureka-ai/mureka-v9/generate-song",
+      "taskId": "2111041291935948802",
+      "usage": {
+        "thirdPartyConsumeMoney": "0.34",
+        "consumeMoney": null,
+        "consumeCoins": null,
+        "taskCostTime": "0"
+      },
+      "source": {
+        "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/moon-signal-mureka/original/2111041291935948802-01.mp3",
+        "bytes": 6152403,
+        "sha256": "6d656d3905be09758ce9ccb5e08ee37e801650a2ccde4d166d462c2eb111dd1d",
+        "format": "MP3",
+        "sampleRate": 44100,
+        "channels": 2,
+        "frames": 8475579,
+        "durationSeconds": 192.19,
+        "samplePeakDbfs": -0.7499698039323337,
+        "rmsDbfs": -16.113388194186875,
+        "nonfiniteSamples": 0,
+        "samplesAtOrAboveFullScale": 0,
+        "fullDecodePassed": true
+      },
+      "sourceLoudness": {
+        "integratedLufs": -13.43,
+        "truePeakDbtp": -0.61,
+        "loudnessRangeLu": 8.3
+      },
+      "delivery": {
+        "signal": {
+          "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/music-candidates/delivery/track-4.mp3",
+          "bytes": 4614376,
+          "sha256": "0675a11d35eed54b9726da41963bc4b2d4e9bcbff05bba38fd8e7714a71d3536",
+          "format": "MP3",
+          "sampleRate": 44100,
+          "channels": 2,
+          "frames": 8475579,
+          "durationSeconds": 192.19,
+          "samplePeakDbfs": -3.573949680858348,
+          "rmsDbfs": -18.95059056753006,
+          "nonfiniteSamples": 0,
+          "samplesAtOrAboveFullScale": 0,
+          "fullDecodePassed": true
+        },
+        "loudness": {
+          "integratedLufs": -16.26,
+          "truePeakDbtp": -3.46,
+          "loudnessRangeLu": 8.3
+        },
+        "constantGainDb": -2.5700000000000003,
+        "encodeAttempts": 1
+      },
+      "processing": "One constant attenuation and high-quality MP3 encode only. No tempo, pitch, structure, limiter, compression, or source-file changes."
+    }
+  ],
+  "complete": true,
+  "limits": "Full digital decode and true-peak measurements establish playable non-overloaded files. Subjective melody, voice character, and physical phone speaker acceptance require listening. Root receives full-length audition copies, with original source files retained separately. Existing game music was never modified."
+}

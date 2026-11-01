@@ -1,0 +1,82 @@
+{
+  "offline": true,
+  "model": "Whisper-small",
+  "revision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+  "new_model_downloaded": false,
+  "elapsed_seconds": 13.1400689589791,
+  "samples": [
+    {
+      "id": "xingli-active-02",
+      "target": "歌で、決めるよっ！",
+      "transcribed": "うん歌で決めるよ",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "xingli-ultimate-01",
+      "target": "このステージ、私のものっ！",
+      "transcribed": "このステージ私のもの",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "xingli-ultimate-02",
+      "target": "最高の歌、届けるよっ！",
+      "transcribed": "最高の歌届けるよ",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "feiyin-active-02",
+      "target": "その隙、もらったっ！",
+      "transcribed": "うん、その隙、もらった!",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "feiyin-ultimate-01",
+      "target": "限界ごと、燃やしてやるっ！",
+      "transcribed": "限界ごと燃やしてやる",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "feiyin-ultimate-02",
+      "target": "私のダンスで、終わりだっ！",
+      "transcribed": "フッ私のダンスで終わりだ",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "wubai-active-02",
+      "target": "私が、守るから！",
+      "transcribed": "私が守るから",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "wubai-ultimate-01",
+      "target": "この歌で、みんなを守るっ！",
+      "transcribed": "この歌でみんなを守る",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "wubai-ultimate-02",
+      "target": "もう誰も、傷つけさせないっ！",
+      "transcribed": "もう誰も傷つけさせない",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "yeying-active-02",
+      "target": "狙いは一つ。決めるっ！",
+      "transcribed": "狙いは一つ決める",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "yeying-ultimate-01",
+      "target": "このビートで、幕を下ろすっ！",
+      "transcribed": "このビートで幕を戻す",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "yeying-ultimate-02",
+      "target": "最後まで、刻み込めっ！",
+      "transcribed": "うん 最後まで刻み込め",
+      "english_direction_word_detected": false
+    }
+  ],
+  "limits": "ASR is an imperfect language/direction-word sanity check; it does not prove human realism, acting quality or listening acceptance."
+}

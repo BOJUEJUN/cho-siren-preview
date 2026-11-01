@@ -1,0 +1,17 @@
+{
+  "version": "0.3.78",
+  "commit": "10372efb1e97db15714d81c616301e9352b5b4bb",
+  "releaseId": "PSD-20261016-TWO-SELECTED-SONGS-R69",
+  "removedSong": "Neon Moonwalk",
+  "selectedSongCount": 2,
+  "mainPushed": true,
+  "complete": true,
+  "userInstruction": "去掉这首",
+  "pendingCiAndRuntime": false,
+  "backupPushed": true,
+  "backupBranch": "backup/v0.3.78",
+  "remoteFullShaFiles": 20,
+  "remotePreviousEngineFilesAvailable": 4,
+  "ciSuccess": true,
+  "publicRuntimeVerified": true
+}

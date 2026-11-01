@@ -218,7 +218,7 @@ namespace ChoSiren.Tests
             Assert.That(MemberCaptainTraits.Describe("魅族"), Is.EqualTo(
                 "魅族指挥：骰型赋予全队追击次数，随普攻触发；好骰型获得更多追击。"));
             Assert.That(MemberCaptainTraits.Describe("海灵族 · 人鱼"), Is.EqualTo(
-                "人鱼指挥：骰型为全队提供护盾；五同时全队额外减伤。"));
+                "人鱼指挥：深海壁垒——骰型为全队提供护盾，五同时全队额外减伤。"));
             Assert.That(MemberCaptainTraits.Describe("海灵族 · 人鱼"), Does.Not.Contain("重投"),
                 "自选重投已向所有队长开放，不能继续写成需要人鱼队长的专属能力。");
             Assert.That(MemberCaptainTraits.Describe("海灵族 · 人鱼"), Does.Not.Contain("保留"),
@@ -226,7 +226,7 @@ namespace ChoSiren.Tests
             Assert.That(MemberCaptainTraits.Describe("魔族 · 恶魔"), Is.EqualTo(
                 "魔族指挥：全队普攻附加中毒，持续消耗敌人；骰型决定叠毒层数。"));
             Assert.That(MemberCaptainTraits.Describe("血精灵"), Is.EqualTo(
-                "血精灵指挥：骰型提供穿甲，收割低血量目标；首次散点可免费重投一次。"));
+                "血精灵指挥：骰型提供穿甲，全队攻击无视部分防御，越好的骰型穿得越多。"));
             Assert.That(MemberCaptainTraits.Describe(string.Empty), Does.Contain("骰子累计伤害"));
             Assert.That(MemberCaptainTraits.Title("魅族"), Is.EqualTo("魅族指挥"));
             Assert.That(MemberCaptainTraits.Title("海灵族 · 人鱼"), Is.EqualTo("人鱼指挥"));

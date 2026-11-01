@@ -1,0 +1,382 @@
+{
+  "date": "2026-10-19",
+  "source_license": "Kenney Creative Commons Zero CC0 1.0",
+  "purpose": "Ready-to-integrate free baseline; optional AI SFX may replace selected clips after listening.",
+  "production_modified": false,
+  "importer_note": "Preserve the existing .wav.meta GUID files on integration.",
+  "processing": "Mono 44.1kHz PCM16; resample with anti-alias filter; remove DC; 40Hz high-pass; 2ms attack + 35ms tail; apply gain only to reserve mix headroom.",
+  "simultaneous_all14_output_peak_at_GameAudio_gain_0_62": 0.62779541015625,
+  "clips": [
+    {
+      "name": "hit",
+      "path": "Assets/Resources/Audio/Sfx/hit.wav",
+      "sha256": "001d5ebbe52c2e53a8a318916efb2688fa7c2f9ff1b3cfe6c997de5885cf265f",
+      "sources": [
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactPunch_medium_000.ogg",
+          "sha256": "486988aa2d6440ffc4c62a0e8ccf3c23673ba84424bd4723378d451b7255eb5c",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1.08
+        }
+      ],
+      "seconds": 0.31,
+      "peak_dbfs": -10.751784113900413,
+      "rms_dbfs": -26.815011454087813,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "crit",
+      "path": "Assets/Resources/Audio/Sfx/crit.wav",
+      "sha256": "69d247d63174f13bde1b83409ef79d265ac5854ca4516f45dabc412aaabec03c",
+      "sources": [
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactPunch_heavy_000.ogg",
+          "sha256": "b33a8f14068aec24ec69ba85e5e87fdc41228975f6a1a3e44a6e7d6fc3d9f8d8",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1
+        },
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactGlass_medium_000.ogg",
+          "sha256": "9252d50bfb85edb17d6073c4a7806e10cdb9de56d3dbfc93a4b9727146d2df6d",
+          "delay": 0.012,
+          "gain": 0.22,
+          "playback_rate": 1.12
+        }
+      ],
+      "seconds": 0.55,
+      "peak_dbfs": -8.87430342159915,
+      "rms_dbfs": -27.93378388335025,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "hurt",
+      "path": "Assets/Resources/Audio/Sfx/hurt.wav",
+      "sha256": "be34ede6b1a31b549deac969d94029c42cb5c536a6744130ed0a46428d80edfc",
+      "sources": [
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactSoft_heavy_001.ogg",
+          "sha256": "4d0096364ba9e46119d2ff6df493fdc101bd2e1efae061da5e5f77a53b3fdcb6",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1.04
+        }
+      ],
+      "seconds": 0.42,
+      "peak_dbfs": -11.055930601330132,
+      "rms_dbfs": -27.213394649308917,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "block",
+      "path": "Assets/Resources/Audio/Sfx/block.wav",
+      "sha256": "6cc52b708e47eee98b857ede6502f20421978210a42ab95a7a6bb51af7eb7633",
+      "sources": [
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactMetal_light_002.ogg",
+          "sha256": "25a96f90a9a1f88a531e824e126f0519504625e5635e65a72e4f31611428db29",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1
+        }
+      ],
+      "seconds": 0.23,
+      "peak_dbfs": -11.372096419981899,
+      "rms_dbfs": -30.45752585712333,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "heal",
+      "path": "Assets/Resources/Audio/Sfx/heal.wav",
+      "sha256": "6f3cbebc67e52425fa335b28c8e15e623ec474a757a92a0b7d725be7a0210cb1",
+      "sources": [
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glass_003.ogg",
+          "sha256": "9a6f16e3c2eff6fe5d017a4755a28306b14555728831cd00d70308e8f9689566",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/pluck_002.ogg",
+          "sha256": "c977fe249ff42d1c93a552b33abc13a8399df3879fa510475426e5c4bbac1da9",
+          "delay": 0.075,
+          "gain": 0.5,
+          "playback_rate": 1.26
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glass_003.ogg",
+          "sha256": "9a6f16e3c2eff6fe5d017a4755a28306b14555728831cd00d70308e8f9689566",
+          "delay": 0.15,
+          "gain": 0.4,
+          "playback_rate": 1.5
+        }
+      ],
+      "seconds": 0.4,
+      "peak_dbfs": -12.041199826559248,
+      "rms_dbfs": -30.66537204590461,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "shield",
+      "path": "Assets/Resources/Audio/Sfx/shield.wav",
+      "sha256": "f747a86215c24a37019d353ff8ef45dcde6340c57d93e25f1f0d7ebedb3ae714",
+      "sources": [
+        {
+          "file": "downloads/kenney_sci-fi-sounds/Audio/forceField_000.ogg",
+          "sha256": "c2916f2a062c8ddd1aca2826d134fe90847037db31342726ffb0f9097afe339c",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1.2
+        }
+      ],
+      "seconds": 0.72,
+      "peak_dbfs": -11.372096419981899,
+      "rms_dbfs": -22.889359962327983,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "debuff",
+      "path": "Assets/Resources/Audio/Sfx/debuff.wav",
+      "sha256": "d3819118ad81abed52e387f5c90d2107cd5917a2d065ff7b052f55831eabbf2a",
+      "sources": [
+        {
+          "file": "downloads/kenney_sci-fi-sounds/Audio/slime_000.ogg",
+          "sha256": "480ee82b690136ea9db6966a3c3033356b8274752795c4e37afd6b6defcfacff",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1.05
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glitch_003.ogg",
+          "sha256": "d55e0c64aee9f1ab2ba9523d0e256ca76639c3ec2f230405e2ff25aff36020b3",
+          "delay": 0.03,
+          "gain": 0.16,
+          "playback_rate": 1
+        }
+      ],
+      "seconds": 0.44,
+      "peak_dbfs": -12.041199826559248,
+      "rms_dbfs": -37.064278992189344,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "ko",
+      "path": "Assets/Resources/Audio/Sfx/ko.wav",
+      "sha256": "9edcd53b3710d2e655a04e9bf925e0e1b49e7f81b7067cdcbdb87d3a3a3c5ea3",
+      "sources": [
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactPlate_heavy_001.ogg",
+          "sha256": "142fd6c77f13d25f318265901163f70f8dfe12f87829169a570025be43de7011",
+          "delay": 0,
+          "gain": 0.55,
+          "playback_rate": 0.9
+        },
+        {
+          "file": "downloads/kenney_sci-fi-sounds/Audio/explosionCrunch_003.ogg",
+          "sha256": "8c7197bb3a1c504690319c3abe0e62a5423ee246dd70caab57963d0b7aa8144f",
+          "delay": 0,
+          "gain": 0.6,
+          "playback_rate": 1.1
+        }
+      ],
+      "seconds": 0.68,
+      "peak_dbfs": -10.751784113900413,
+      "rms_dbfs": -24.11082343759957,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "ultimate",
+      "path": "Assets/Resources/Audio/Sfx/ultimate.wav",
+      "sha256": "2665e94dd5a21fd0ae2344f028e5155a0167369bf92df5dbf03c268cf4cc18a7",
+      "sources": [
+        {
+          "file": "downloads/kenney_sci-fi-sounds/Audio/laserLarge_002.ogg",
+          "sha256": "e5e0b6ccc4d5720c8174a3e5b7cc6f9be3057352a89cbb2e99a00efc6fe5cc11",
+          "delay": 0,
+          "gain": 0.6,
+          "playback_rate": 1
+        },
+        {
+          "file": "downloads/kenney_sci-fi-sounds/Audio/explosionCrunch_000.ogg",
+          "sha256": "4b597d658d0ae101f0a030fbeea5fc3a4292ab85f017470a8254a8e7959cbd69",
+          "delay": 0.12,
+          "gain": 0.8,
+          "playback_rate": 0.95
+        }
+      ],
+      "seconds": 0.95,
+      "peak_dbfs": -8.179061296414911,
+      "rms_dbfs": -23.32001476101466,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "dice",
+      "path": "Assets/Resources/Audio/Sfx/dice.wav",
+      "sha256": "ec09399023e9e178e597d7581331ce5097c0d43c19cfb973bcff76421f4a088c",
+      "sources": [
+        {
+          "file": "downloads/kenney_casino-audio/Audio/dice-shake-1.ogg",
+          "sha256": "ba603441c857204dbe3ff3345902c7e1c3f523bf1bd314acf088609bc6c1e4e5",
+          "delay": 0,
+          "gain": 0.8,
+          "playback_rate": 1.6
+        },
+        {
+          "file": "downloads/kenney_casino-audio/Audio/dice-throw-2.ogg",
+          "sha256": "e0b8c370503b2c5c2a72d311cccae30fe63a6afd48f2be32e771fcf1a98585d6",
+          "delay": 0.28,
+          "gain": 1,
+          "playback_rate": 1
+        }
+      ],
+      "seconds": 0.75,
+      "peak_dbfs": -11.373078153765148,
+      "rms_dbfs": -41.44950524692735,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "victory",
+      "path": "Assets/Resources/Audio/Sfx/victory.wav",
+      "sha256": "31550784b18ecd36921e0a67cfa977f2ad4ee97a7a3ddedbc80c0358f6802103",
+      "sources": [
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/confirmation_004.ogg",
+          "sha256": "568967a3d9f8a8f6af54ea01729c4882284308f2a27d78c07ffd7ee0d6951661",
+          "delay": 0,
+          "gain": 0.7,
+          "playback_rate": 1
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/confirmation_004.ogg",
+          "sha256": "568967a3d9f8a8f6af54ea01729c4882284308f2a27d78c07ffd7ee0d6951661",
+          "delay": 0.17,
+          "gain": 0.5,
+          "playback_rate": 1.26
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glass_003.ogg",
+          "sha256": "9a6f16e3c2eff6fe5d017a4755a28306b14555728831cd00d70308e8f9689566",
+          "delay": 0.35,
+          "gain": 0.3,
+          "playback_rate": 1.5
+        }
+      ],
+      "seconds": 0.8,
+      "peak_dbfs": -11.373078153765148,
+      "rms_dbfs": -22.864803366013554,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "cut",
+      "path": "Assets/Resources/Audio/Sfx/cut.wav",
+      "sha256": "522c696514532da35fed85032a0c01e63d778f2abe93bf222a859eafaa23ac96",
+      "sources": [
+        {
+          "file": "downloads/kenney_casino-audio/Audio/card-fan-1.ogg",
+          "sha256": "7a9758ccad8899baef1b9f60b4064e4baa724a548293832fdaea07e6e07e638d",
+          "delay": 0,
+          "gain": 0.7,
+          "playback_rate": 1.8
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/scratch_002.ogg",
+          "sha256": "2b07edafc1f3f49c4813f2b0ae9481c566c1f9962a22d5f5b79da7111e058e56",
+          "delay": 0.015,
+          "gain": 0.25,
+          "playback_rate": 1
+        }
+      ],
+      "seconds": 0.34,
+      "peak_dbfs": -12.395024160008246,
+      "rms_dbfs": -29.37938274056868,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "glitch",
+      "path": "Assets/Resources/Audio/Sfx/glitch.wav",
+      "sha256": "d65f2be63e36999d7a733ad5a10a9b69f6861a79f921632a688842616d54a50d",
+      "sources": [
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glitch_003.ogg",
+          "sha256": "d55e0c64aee9f1ab2ba9523d0e256ca76639c3ec2f230405e2ff25aff36020b3",
+          "delay": 0,
+          "gain": 1,
+          "playback_rate": 1
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glitch_003.ogg",
+          "sha256": "d55e0c64aee9f1ab2ba9523d0e256ca76639c3ec2f230405e2ff25aff36020b3",
+          "delay": 0.037,
+          "gain": 0.55,
+          "playback_rate": 0.85
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/glitch_003.ogg",
+          "sha256": "d55e0c64aee9f1ab2ba9523d0e256ca76639c3ec2f230405e2ff25aff36020b3",
+          "delay": 0.071,
+          "gain": 0.35,
+          "playback_rate": 1.2
+        }
+      ],
+      "seconds": 0.12,
+      "peak_dbfs": -13.151498188723107,
+      "rms_dbfs": -31.429159756901242,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    },
+    {
+      "name": "stamp",
+      "path": "Assets/Resources/Audio/Sfx/stamp.wav",
+      "sha256": "4ec68e80d24eb3838209289ca728de9b72b4979614d85c1696eff385a7d8800e",
+      "sources": [
+        {
+          "file": "downloads/kenney_impact-sounds/Audio/impactGeneric_light_001.ogg",
+          "sha256": "c3cd1c073d186ae8fa35788ba94de581f1826e7427a7bb26490b2695fac18efa",
+          "delay": 0,
+          "gain": 0.8,
+          "playback_rate": 1
+        },
+        {
+          "file": "downloads/kenney_interface-sounds/Audio/switch_001.ogg",
+          "sha256": "3b74efad87f1e69dbd1d05c5ad952ab90859b5a3d11da6ec5bd79b4f03b42afa",
+          "delay": 0.01,
+          "gain": 0.25,
+          "playback_rate": 2
+        }
+      ],
+      "seconds": 0.27,
+      "peak_dbfs": -11.373078153765148,
+      "rms_dbfs": -31.28212689688685,
+      "channels": 1,
+      "sample_rate": 44100,
+      "full_scale_samples": 0
+    }
+  ]
+}

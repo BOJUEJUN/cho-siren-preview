@@ -17,6 +17,7 @@ namespace ChoSiren.Editor
     public static class MemberArtImport
     {
         private const string Root = "Assets/Resources/Art/Members";
+        private const string AvatarRoot = Root + "/Avatars";
 
         [MenuItem("CHO-SIREN/资源/重新导入成员立绘")]
         public static void ConfigureAll()
@@ -45,7 +46,8 @@ namespace ChoSiren.Editor
         {
             if (string.IsNullOrEmpty(path)) return false;
             string normalized = path.Replace('\\', '/');
-            return normalized.StartsWith(Root + "/hero-", StringComparison.Ordinal) &&
+            return (normalized.StartsWith(Root + "/hero-", StringComparison.Ordinal) ||
+                    normalized.StartsWith(AvatarRoot + "/", StringComparison.Ordinal)) &&
                    normalized.EndsWith(".png", StringComparison.OrdinalIgnoreCase);
         }
 
@@ -53,6 +55,8 @@ namespace ChoSiren.Editor
         {
             bool thumbnail = string.Equals(Path.GetFileName(path), "thumb.png",
                 StringComparison.OrdinalIgnoreCase);
+            // Head avatars are authored at 512×768; keep them native instead of the 512 portrait cap.
+            bool avatar = path.Replace('\\', '/').StartsWith(AvatarRoot + "/", StringComparison.Ordinal);
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
             importer.spritePixelsPerUnit = 100f;
@@ -62,7 +66,7 @@ namespace ChoSiren.Editor
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.filterMode = FilterMode.Bilinear;
             importer.npotScale = TextureImporterNPOTScale.None;
-            importer.maxTextureSize = thumbnail ? 256 : 512;
+            importer.maxTextureSize = avatar ? 1024 : thumbnail ? 256 : 2048;
             importer.textureCompression = TextureImporterCompression.CompressedHQ;
         }
     }

@@ -17,7 +17,7 @@ namespace ChoSiren.Panels
     /// simulator owns units, targeting, independent skill clocks, dice energy and settlement.
     /// Presentation never delays the combat clock while damage animations are playing.
     /// </summary>
-    public sealed class TacticsBattlePanel : MonoBehaviour
+    public sealed partial class TacticsBattlePanel : MonoBehaviour
     {
         private const float EnemyCellWidth = 206f;
         private const float EnemyCellHeight = 120f;
@@ -75,13 +75,32 @@ namespace ChoSiren.Panels
         }
 
         /// <summary>Pointer enter/exit relay so anchors can preview their area on hover.</summary>
-        private sealed class CellPointer : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        private sealed class CellPointer : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
+            IPointerDownHandler, IPointerUpHandler
         {
+            public const float HoldSeconds = .5f;
             public Action Enter;
             public Action Exit;
+            /// <summary>Fires once when the card is held down for <see cref="HoldSeconds"/>.</summary>
+            public Action Hold;
+            /// <summary>True from a completed hold until the matching click is swallowed.</summary>
+            public bool HoldFired;
+            private float downAt = -1f;
 
             public void OnPointerEnter(PointerEventData eventData) => Enter?.Invoke();
-            public void OnPointerExit(PointerEventData eventData) => Exit?.Invoke();
+            public void OnPointerExit(PointerEventData eventData) { Exit?.Invoke(); downAt = -1f; }
+            public void OnPointerDown(PointerEventData eventData) { downAt = Time.unscaledTime; HoldFired = false; }
+            public void OnPointerUp(PointerEventData eventData) => downAt = -1f;
+            /// <summary>A swipe took over this press: no long-press either.</summary>
+            public void CancelHold() => downAt = -1f;
+
+            private void Update()
+            {
+                if (downAt < 0f || Time.unscaledTime - downAt < HoldSeconds) return;
+                downAt = -1f;
+                HoldFired = true;
+                Hold?.Invoke();
+            }
         }
 
         private static readonly Color CellIdle = new Color32(7, 5, 20, 230);
@@ -163,10 +182,24 @@ namespace ChoSiren.Panels
         private GameObject exitButton;
         private GameObject pauseOverlay;
         private GameObject rulesOverlay;
+        private bool rulesResumeOnClose;
         private GameObject reduceMotionButton;
         private GameObject abilityOverlay;
         private Text abilityBody;
+        private RectTransform abilityContent;
+        private ScrollRect abilityScroll;
+        private readonly SkillIconGraphic[] abilityIcons = new SkillIconGraphic[4];
+        private ChoSiren.UI.BattleStickerResultView resultScreens;
+        private ChoSiren.UI.BattleStickerMarquee resultTicker;
+        private Text resultMvpNote;
+        private RectTransform resultRewardContent;
+        private ScrollRect resultRewardScroll;
         private RectTransform popupLayer;
+        private ChoSiren.UI.DiceComboShow comboShow;
+        private readonly List<ChoSiren.UI.DiceScoreAura> diceAuras = new List<ChoSiren.UI.DiceScoreAura>();
+        // The lit ring under each die; only dice that form the hand keep theirs glowing.
+        private readonly List<Image> dicePedestals = new List<Image>();
+        private static readonly Color PedestalIdle = new Color(.36f, .36f, .5f, 1f);
         private GameObject resultOverlay;
         private Text resultTitle;
         private Text resultStars;
@@ -212,8 +245,6 @@ namespace ChoSiren.Panels
         private Sprite crystalBurstSprite, tideSpellSprite, lanceSpellSprite;
         private readonly Dictionary<int, string> lastPresentedActions = new Dictionary<int, string>();
         private Sprite rerollRingSprite;
-        private Sprite memberFrameSprite;
-        private Sprite skillButtonFrameSprite;
         private Sprite bossHitSlashSprite;
         private Sprite bossHeartImpactSprite;
         private Sprite bossChargeAuraSprite;
@@ -244,6 +275,11 @@ namespace ChoSiren.Panels
             panel.onBack = back;
             panel.onMessage = message;
             panel.onGrowth = growth;
+            // Pick the boss track before the battle context starts its music (2026-10-21).
+            UnityEngine.Object.FindAnyObjectByType<GameAudio>()?.SetBossBattle(simulator?.Stage != null && simulator.Stage.HasBossPhases);
+            MusicContextScope.Attach(panelObject, GameAudio.MusicContext.Battle);
+            panel.gameAudio = UnityEngine.Object.FindAnyObjectByType<GameAudio>();
+            panel.InitializeBattleVoices();
             var races = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (MemberDefinition member in GameModel.Members) races[member.Id] = member.Race;
             string captain = gameModel.Save.Team.Count > 0 ? GameModel.MemberIdAt(gameModel.Save.Team[0]) : null;
@@ -252,9 +288,21 @@ namespace ChoSiren.Panels
             // Manual skill release is the default: basics/small skills stay automatic, ultimates
             // wait for the player's tap until the top button is switched to 自动.
             simulator.AutoCastUltimates = false;
+            if (UseTurnBased)
+            {
+                simulator.EnableTurnBased();
+                // 2026-10-20: turn battles open on 自动; 手动 is one tap on the top button.
+                panel.autoMode = true;
+            }
             panel.diceTurn = simulator.BattleDice;
+            panel.speed = Mathf.Clamp(gameModel.Save.BattleSpeed, 1, 3);
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            panel.StartCoroutine(panel.LoadPsdBattle());
+#else
+            BattlePsdArt928.LoadLocal();
             panel.Build();
             panel.StartCoroutine(panel.MainLoop());
+#endif
             return panel;
         }
 
@@ -284,6 +332,7 @@ namespace ChoSiren.Panels
             BuildControls();
             BuildPreview();
             BuildLog();
+            ApplyPsdBattleLayout();
             RectTransform effectsLayer = kit.NewRect("SkillEffects", transform);
             PanelKit.Stretch(effectsLayer);
             effectsLayer.SetSiblingIndex(pauseOverlay.transform.GetSiblingIndex());
@@ -299,8 +348,19 @@ namespace ChoSiren.Panels
                 () => BattlePresentationOptions.ReduceMotion);
             // Round flash sits above popups but below the result overlay.
             roundFlash.transform.SetAsLastSibling();
+            if (psdRoot != null)
+            {
+                // The album page covers combat VFX, while real modals stay above it.
+                psdUltimate = gameObject.AddComponent<BattleAlbumUltimate929>();
+                psdUltimate.Configure(transform, BattlePsdArt928.Sprite("album-disc"), () => paused || closing);
+                pauseOverlay.transform.SetAsLastSibling();
+                rulesOverlay.transform.SetAsLastSibling();
+                if (abilityOverlay != null) abilityOverlay.transform.SetAsLastSibling();
+            }
             BuildResult();
             RefreshAllCells();
+            BuildPsdPresentation1019();
+            PositionUltimateFlashBelowOverlays();
         }
 
         private void LoadBattleAiArt()
@@ -308,12 +368,12 @@ namespace ChoSiren.Panels
             // Reuse clean stage art: the old image had obsolete HP cards baked into its pixels.
             battleStageSprite = LoadRuntimeSprite("Art/Reference038/battle-stage-038")
                 ?? LoadRuntimeSprite("Art/GachaAI/gacha-calm-stage-bg-ai-v2-20260903");
-            userBossSprite = LoadRuntimeSprite("Art/BattleUser/boss-throne-user-v1");
+            userBossSprite = battle?.Stage?.Id == "stage-1-5"
+                ? LoadRuntimeSprite("Art/BattleUser/boss-throne-20260928") : null;
+            userBossSprite ??= LoadRuntimeSprite("Art/BattleUser/boss-throne-user-v1");
             for (int index = 0; index < userDiceFaceSprites.Length; index++)
                 userDiceFaceSprites[index] = LoadRuntimeSprite($"Art/BattleUser/dice-face-{index + 1}-user-v1");
             rerollRingSprite = LoadRuntimeSprite("Art/BattleAI/reroll-ring-v1");
-            memberFrameSprite = LoadRuntimeSprite("Art/BattleAI/member-skill-frame-v1");
-            skillButtonFrameSprite = LoadRuntimeSprite("Art/BattleAI/skill-button-frame-v1");
             bossHitSlashSprite = LoadRuntimeSprite("Art/BattleAI/battle-hit-slash-ai-v1");
             crystalBurstSprite = LoadRuntimeSprite("Art/BattleAI/battle-crystal-burst-ai-v2");
             tideSpellSprite = LoadRuntimeSprite("Art/BattleAI/battle-tide-spell-ai-v2");
@@ -341,6 +401,7 @@ namespace ChoSiren.Panels
         private void BuildBattleArtBackdrop()
         {
             Image art = kit.NewImage("BattleStageArt", transform, battleStageSprite, PanelKit.White);
+            ChoSiren.UI.PageAmbient.Set(gameObject, battleStageSprite, featherEdges: art.rectTransform);
             PanelKit.PlaceTop(art.rectTransform, 0, 0, 720, 1536);
             art.preserveAspect = true;
             art.raycastTarget = false;
@@ -674,11 +735,11 @@ namespace ChoSiren.Panels
             if (id == "siren-queen") return userBossSprite;
             if (!enemyArt.TryGetValue(id, out Sprite sprite))
             {
-                // User-supplied character pack takes precedence over generated concepts.
-                string supplied = id == "neon-scout" ? "hero-0205" : id == "pulse-guard" ? "hero-0035"
-                    : id == "velvet-hexer" ? "hero-0003" : id == "noise-wraith" ? "hero-0007" : null;
-                sprite = LoadRuntimeSprite(supplied != null ? "Art/Members/" + supplied + "/portrait"
-                    : "Art/Enemies/" + id + "-ai-v1");
+                // 2026-10-29: enemies now use the user's new 幻浊体 designs under Art/Enemies (no borrowed member portraits).
+                sprite = LoadRuntimeSprite("Art/Enemies/" + id + "-ai-v1");
+                var trimmed = BattleSilhouette929.Trim(sprite, id);
+                if (trimmed != sprite && trimmed != null) runtimeSprites.Add(trimmed);
+                sprite = trimmed;
                 enemyArt[id] = sprite;
             }
             return sprite;
@@ -686,6 +747,7 @@ namespace ChoSiren.Panels
 
         private void RefreshEnemyFigures()
         {
+            if (psdRoot != null) { RefreshPsdEnemyFigures(); return; }
             var active = new List<BattleUnit>();
             foreach (var unit in battle.Units)
                 if (unit.Side == BattleSide.Enemy && unit.Alive && unit.Id != bossUnitId) active.Add(unit);
@@ -748,8 +810,14 @@ namespace ChoSiren.Panels
             BattleSide capturedSide = side;
             int capturedRow = row;
             int capturedCol = col;
-            button.onClick.AddListener(() => CellClicked(capturedSide, capturedRow, capturedCol));
             CellPointer pointer = root.AddComponent<CellPointer>();
+            button.onClick.AddListener(() =>
+            {
+                // A long press already acted (captain swap); don't also treat it as a tap.
+                if (pointer.HoldFired) { pointer.HoldFired = false; return; }
+                CellClicked(capturedSide, capturedRow, capturedCol);
+            });
+            if (player) pointer.Hold = () => CellHeld(capturedRow, capturedCol);
             pointer.Enter = () => CellHovered(capturedSide, capturedRow, capturedCol, true);
             pointer.Exit = () => CellHovered(capturedSide, capturedRow, capturedCol, false);
 
@@ -1012,7 +1080,7 @@ namespace ChoSiren.Panels
             group.sizeDelta = buttonRect.rect.size;
             group.anchoredPosition = Vector2.zero;
             var children = new List<Transform>();
-            foreach (Transform child in buttonObject.transform) children.Add(child);
+            foreach (Transform child in buttonObject.transform) if (child != group) children.Add(child);
             foreach (Transform child in children) child.SetParent(group, false);
             group.SetAsFirstSibling();
             return group;
@@ -1028,8 +1096,8 @@ namespace ChoSiren.Panels
             float hintTop = realtime ? 60f : 50f;
             float hintH = realtime ? 28f : 26f;
             float faceTop = realtime ? 100f : 76f;
-            float dieSize = realtime ? 124f : 104f;
-            float gap = realtime ? 10f : 22f;
+            float dieSize = realtime ? 102f : 92f;
+            float gap = realtime ? 10f : 14f;
             float diceLeft = realtime ? 10f : 36f;
             float statusTop = realtime ? 234f : 184f;
             float buttonTop = realtime ? 286f : 214f;
@@ -1086,9 +1154,11 @@ namespace ChoSiren.Panels
                 diceHoldLabels.Add(held);
                 diceOutlines.Add(outline);
                 DiceRollPresentation roll = rollRig.gameObject.AddComponent<DiceRollPresentation>();
-                roll.Configure(faceArt, rollRig, () => paused || closing, () => speed,
-                    () => BattlePresentationOptions.ReduceMotion);
+                roll.Configure(faceArt, rollRig, () => paused || closing || EntryPresentationCovered, () => speed,
+                    () => BattlePresentationOptions.ReduceMotion, renderedRoll: false);
                 dicePresentations.Add(roll);
+                DiceRollPresentation.HardLanding -= OnDiceHardLanding;
+                DiceRollPresentation.HardLanding += OnDiceHardLanding;
 
             }
 
@@ -1162,36 +1232,98 @@ namespace ChoSiren.Panels
             if (actor == null) return;
             if (abilityOverlay == null) BuildAbilityOverlay();
             CombatRace race = battle.RaceOf(actor);
-            bool ready = battle.IsUltimateReady(actor);
-            abilityBody.text = $"{actor.Definition.Name}\n\n" +
-                $"小技能 · {BattleSimulator.ActiveSkillName(race, false)}\n{BattleSimulator.ActiveSkillDescription(race, false)}\n\n" +
-                $"大招 · {BattleSimulator.ActiveSkillName(race, true)}\n{BattleSimulator.ActiveSkillDescription(race, true)}\n\n" +
-                (ready ? "当前：大招已就绪" : $"当前：大招能量 {battle.EnergyOf(actor)}/{BattleSimulator.MaxUnitEnergy}") +
-                (autoMode ? " · 自动战斗会按队长→编队顺序释放" : " · 手动战斗点击满能量头像释放");
+            string passive = race == CombatRace.Charm ? "魅族指挥" : race == CombatRace.Demon ? "魔族指挥"
+                : race == CombatRace.Mermaid ? "人鱼指挥" : race == CombatRace.BloodElf ? "血精灵指挥" : "全队增益";
+            string[] names = { BattleSimulator.BasicAttackName, BattleSimulator.ActiveSkillName(race, false),
+                BattleSimulator.ActiveSkillName(race, true), passive };
+            string[] descriptions = { "自动普攻 · 单体伤害", BattleSimulator.ActiveSkillDescription(race, false),
+                BattleSimulator.ActiveSkillDescription(race, true),
+                "成为队长时生效。" + ChoSiren.Systems.Presentation.MemberCaptainTraits.Describe(passive) };
+            // 2026-10-25 readability pass: a small muted kind line, the skill name in bold, then what it does.
+            string[] roles = { "基础攻击 · 自动", "小技能 · 自动", "大招 · 能量满后点她", "骰子被动 · 当队长时生效" };
+            string prefix = "<b>" + actor.Definition.Name + "</b>\n\n";
+            for (int i = 0; i < names.Length; i++)
+            {
+                float top = MeasureBattleText(abilityBody, prefix);
+                PanelKit.PlaceTop(abilityIcons[i].rectTransform, 4, top + 2f, 36, 36);
+                abilityIcons[i].SkillKey = names[i];
+                abilityIcons[i].Kind = SkillIconVisuals.Resolve(names[i], descriptions[i]);
+                prefix += "<size=18><color=#9E94BA>" + roles[i] + "</color></size>\n<b><color=#1CF2EC>" + names[i] +
+                    "</color></b>\n" + descriptions[i] + "\n\n";
+            }
+            abilityBody.text = prefix + (battle.IsUltimateReady(actor) ? "大招就绪 · 点她的卡释放"
+                : battle.IsEnergyFull(actor) ? "大招暂不可用 · 冷却或控制中" : "能量蓄积中") +
+                "\n点左下角「队长」牌可以换队长";
+            float height = Mathf.Max(610f, MeasureBattleText(abilityBody, abilityBody.text) + 16f);
+            abilityContent.sizeDelta = new Vector2(0f, height);
+            PanelKit.PlaceTop(abilityBody.rectTransform, 58f, 0f, 450f, height);
+            abilityScroll.verticalNormalizedPosition = 1f;
             abilityOverlay.SetActive(true);
             abilityOverlay.transform.SetAsLastSibling();
         }
 
         private void BuildAbilityOverlay()
         {
-            Image shade = kit.NewImage("AbilityOverlay", transform, null, new Color32(2, 4, 20, 208));
+            Image shade = kit.NewImage("AbilityOverlay", transform, null, new Color32(3, 2, 12, 225));
             PanelKit.Stretch(shade.rectTransform);
             shade.raycastTarget = true;
-            GameObject card = kit.NewPanel("AbilityCard", shade.transform, new Color32(15, 14, 40, 255), 22);
-            RectTransform cardRect = card.GetComponent<RectTransform>();
-            PanelKit.PlaceCentered(cardRect, 580, 560);
-            kit.AddOutline(card, new Color32(114, 207, 255, 120), 1.25f);
-            kit.NewPlacedText(card.transform, "角色能力", 24, PanelKit.White, 24, 20, 532, 38,
-                TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "AbilityTitle";
-            abilityBody = kit.NewPlacedText(card.transform, string.Empty, 16, PanelKit.Muted, 28, 76,
-                524, 360, TextAnchor.UpperLeft);
+            GameObject card = kit.NewImage("AbilityCard", shade.transform, null, ChoSiren.UI.SirenStickerUi.Ink).gameObject;
+            PanelKit.PlaceCentered(card.GetComponent<RectTransform>(), 580, 850);
+            ChoSiren.UI.SirenStickerUi.SkinPanel(card);
+            Text title = kit.NewPlacedText(card.transform, "角色能力", 30, PanelKit.White, 28, 22, 524, 44,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            title.name = "AbilityTitle";
+            ChoSiren.UI.SirenStickerUi.SkinTitle(title);
+            abilityScroll = BuildBattleScroll(card.transform, "AbilityScroll", 28, 86, 524, 650, out abilityContent);
+            abilityBody = kit.NewPlacedText(abilityContent, string.Empty, 22, ChoSiren.UI.SirenStickerUi.Paper, 58, 0,
+                450, 650, TextAnchor.UpperLeft);
             abilityBody.gameObject.name = "AbilityBody";
-            abilityBody.lineSpacing = 1.14f;
-            GameObject close = kit.NewButton("AbilityClose", card.transform, "关闭", 20,
-                new Color32(87, 49, 143, 255), PanelKit.White, CloseAbilityOverlay, 12);
-            PanelKit.PlaceTop(close.GetComponent<RectTransform>(), 28, 468, 524, 58);
+            abilityBody.supportRichText = true;
+            abilityBody.lineSpacing = 1.2f;
+            abilityBody.verticalOverflow = VerticalWrapMode.Overflow;
+            for (int i = 0; i < abilityIcons.Length; i++)
+                abilityIcons[i] = SkillIconVisuals.Create(abilityContent, "AbilityIcon-" + i,
+                    string.Empty, string.Empty, i == 3 ? ChoSiren.UI.SirenStickerUi.Cyan : ChoSiren.UI.SirenStickerUi.Paper);
+            GameObject close = PunkUi.Button(kit, card.transform, "AbilityClose", "关闭", 22,
+                CloseAbilityOverlay, PunkButtonStyle.Primary);
+            PanelKit.PlaceTop(close.GetComponent<RectTransform>(), 28, 766, 524, 58);
+            ChoSiren.UI.SirenStickerUi.SkinButton(close, true);
             abilityOverlay = shade.gameObject;
             abilityOverlay.SetActive(false);
+        }
+
+        private static float MeasureBattleText(Text text, string value)
+        {
+            var settings = text.GetGenerationSettings(new Vector2(450f, 0f));
+            return text.cachedTextGeneratorForLayout.GetPreferredHeight(value, settings) / text.pixelsPerUnit;
+        }
+
+        private ScrollRect BuildBattleScroll(Transform parent, string name, float x, float y, float width,
+            float height, out RectTransform content)
+        {
+            RectTransform root = kit.NewRect(name, parent);
+            PanelKit.PlaceTop(root, x, y, width, height);
+            RectTransform viewport = kit.NewRect("Viewport", root);
+            PanelKit.Stretch(viewport);
+            Image hit = viewport.gameObject.AddComponent<Image>();
+            hit.color = new Color(0, 0, 0, .001f);
+            hit.raycastTarget = true;
+            viewport.gameObject.AddComponent<RectMask2D>();
+            content = kit.NewRect("Content", viewport);
+            content.anchorMin = new Vector2(0, 1);
+            content.anchorMax = Vector2.one;
+            content.pivot = new Vector2(.5f, 1);
+            content.anchoredPosition = Vector2.zero;
+            content.sizeDelta = new Vector2(0, height);
+            ScrollRect scroll = root.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 38f;
+            // Content is explicitly sized from measured text / reward rows, not a competing fitter.
+            return scroll;
         }
 
         private void CloseAbilityOverlay()
@@ -1205,12 +1337,12 @@ namespace ChoSiren.Panels
                 ToggleAuto, 12);
             if (battle.IsRealtime)
             {
-                PanelKit.LabelOf(autoButton).text = "手动";
+                PanelKit.LabelOf(autoButton).text = autoMode ? "自动" : "手动";
                 PanelKit.LabelOf(autoButton).fontSize = 17;
                 PanelKit.EnableBestFit(PanelKit.LabelOf(autoButton), 15);
             }
             PanelKit.PlaceTop(autoButton.GetComponent<RectTransform>(), 440, 20, 94, 52);
-            speedButton = kit.NewButton("SpeedToggle", transform, "1倍", 20, PanelKit.ButtonDark, PanelKit.White,
+            speedButton = kit.NewButton("SpeedToggle", transform, speed + "倍", 20, PanelKit.ButtonDark, PanelKit.White,
                 ToggleSpeed, 12);
             PanelKit.PlaceTop(speedButton.GetComponent<RectTransform>(), 542, 20, 72, 52);
             retreatButton = kit.NewButton("PauseToggle", transform, "暂停", 20, PanelKit.ButtonDark,
@@ -1229,25 +1361,35 @@ namespace ChoSiren.Panels
 
             // Compact pause card: title, one-line hint, continue, exit, and a link to the rules.
             // The long rule text now lives in the secondary overlay and never covers the battle.
-            GameObject dialog = kit.NewPanel("PauseDialog", pauseShade.transform, new Color32(17, 17, 43, 255), 24);
+            Image pauseDrop = kit.NewImage("PauseDialogShadow", pauseShade.transform, null, ChoSiren.UI.SirenStickerUi.Violet);
+            PanelKit.PlaceCentered(pauseDrop.rectTransform, 380, 300);
+            pauseDrop.rectTransform.anchoredPosition += new Vector2(6f, -6f);
+            pauseDrop.raycastTarget = false;
+            GameObject dialog = kit.NewImage("PauseDialog", pauseShade.transform, null, new Color32(12, 6, 24, 255)).gameObject;
             RectTransform dialogRect = dialog.GetComponent<RectTransform>();
             PanelKit.PlaceCentered(dialogRect, 380, 300);
-            kit.AddOutline(dialog, new Color32(146, 120, 218, 120), 1);
+            Image titleBar = kit.NewImage("PauseTitleBar", dialog.transform, null, ChoSiren.UI.SirenStickerUi.Violet);
+            PanelKit.PlaceTop(titleBar.rectTransform, 0, 0, 380, 6);
             kit.NewPlacedText(dialog.transform, "战斗暂停", 28, PanelKit.White, 20, 20, 340, 44,
                 TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "PauseTitle";
-            Text pauseHint = kit.NewPlacedText(dialog.transform, "暂停不计时 · 退出不返还体力", 14,
-                PanelKit.Muted, 20, 68, 340, 24, TextAnchor.MiddleCenter);
+            Text pauseHint = kit.NewPlacedText(dialog.transform, "退出战斗不返还体力", 14,
+                PanelKit.Muted, 20, 65, 340, 36, TextAnchor.MiddleCenter);
             pauseHint.gameObject.name = "PauseHint";
             PanelKit.EnableBestFit(pauseHint, 12);
-            GameObject resume = kit.NewButton("ResumeBattle", dialog.transform, "继续战斗", 22,
-                new Color32(87, 49, 143, 255), PanelKit.White, TogglePause, 12);
+            GameObject resume = PunkUi.Button(kit, dialog.transform, "ResumeBattle", "继续战斗", 22,
+                TogglePause, PunkButtonStyle.Primary);
             PanelKit.PlaceTop(resume.GetComponent<RectTransform>(), 30, 108, 320, 58);
-            exitButton = kit.NewButton("BattleExit", dialog.transform, "退出战斗", 20,
-                PanelKit.ButtonDark, PanelKit.Muted, ExitBattle, 12);
+            exitButton = PunkUi.Button(kit, dialog.transform, "BattleExit", "退出战斗", 20,
+                ExitBattle, PunkButtonStyle.Outline);
             PanelKit.PlaceTop(exitButton.GetComponent<RectTransform>(), 30, 176, 320, 54);
-            GameObject rulesButton = kit.NewButton("BattleRulesEntry", dialog.transform, "战斗规则与设置", 16,
-                new Color32(30, 27, 58, 255), PanelKit.Cyan, OpenRulesOverlay, 10);
+            GameObject rulesButton = PunkUi.Button(kit, dialog.transform, "BattleRulesEntry", "战斗规则与设置", 16,
+                OpenRulesOverlay, PunkButtonStyle.Ghost);
+            PanelKit.LabelOf(rulesButton).color = PunkUi.Cyan;
             PanelKit.PlaceTop(rulesButton.GetComponent<RectTransform>(), 30, 240, 320, 42);
+            ChoSiren.UI.SirenStickerUi.SkinPanel(dialog);
+            ChoSiren.UI.SirenStickerUi.SkinTitle(dialog.transform.Find("PauseTitle").GetComponent<Text>());
+            foreach (GameObject action in new[] { resume, exitButton, rulesButton })
+                ChoSiren.UI.SirenStickerUi.SkinButton(action, action == resume);
             pauseOverlay = pauseShade.gameObject;
             pauseOverlay.SetActive(false);
             BuildRulesOverlay();
@@ -1259,33 +1401,69 @@ namespace ChoSiren.Panels
             Image shade = kit.NewImage("RulesOverlay", transform, null, new Color32(2, 4, 20, 214));
             PanelKit.Stretch(shade.rectTransform);
             shade.raycastTarget = true;
-            GameObject card = kit.NewPanel("RulesCard", shade.transform, new Color32(15, 14, 40, 255), 24);
+            Image rulesDrop = kit.NewImage("RulesCardShadow", shade.transform, null, ChoSiren.UI.SirenStickerUi.Violet);
+            PanelKit.PlaceCentered(rulesDrop.rectTransform, 640, 1040);
+            rulesDrop.rectTransform.anchoredPosition += new Vector2(6f, -6f);
+            rulesDrop.raycastTarget = false;
+            GameObject card = kit.NewImage("RulesCard", shade.transform, null, new Color32(12, 6, 24, 255)).gameObject;
             RectTransform cardRect = card.GetComponent<RectTransform>();
             PanelKit.PlaceCentered(cardRect, 640, 1040);
-            kit.AddOutline(card, new Color32(104, 220, 255, 120), 1.25f);
+            Image rulesRule = kit.NewImage("RulesTopRule", card.transform, null, ChoSiren.UI.SirenStickerUi.Violet);
+            PanelKit.PlaceTop(rulesRule.rectTransform, 0, 0, 640, 6);
             kit.NewPlacedText(card.transform, "战斗规则与设置", 26, PanelKit.White, 24, 22, 592, 40,
                 TextAnchor.MiddleCenter, FontStyle.Bold).gameObject.name = "RulesTitle";
             Text body = kit.NewPlacedText(card.transform,
-                "【能量与大招】\n" +
-                "每名角色有独立蓝色能量条（0–100）。存活时每秒 +4；普攻、技能与毒伤只要实际造成伤害，每命中一次 +6，击杀再 +10。死亡、暂停、战斗结束都不再累积。\n" +
-                "满能量后头像柔和发光并显示“大招就绪”。手动战斗：点击满能量头像放大招；自动战斗：按队长→编队顺序自动放大招。普攻与小技能始终自动释放。\n\n" +
-                "【骰子与重投】\n" +
-                "点击骰子把要换掉的骰子标成“待重投”，再按“重投已选N颗”；没点的骰子保留。也可以“全部重投”。开局没有重投次数——重投充能条随伤害积累，充满一次自动发放 1 次重投（首章普通/精英最多 3 次、首领 4 次、世界首领 5 次），连点也不会重复扣。\n" +
-                "每次重投把新骰型加成累计到伤害，累计上限 +100%（×2），封顶后不再增长。\n\n" +
-                "【队长与骰型】\n" +
-                "骰型给全队持续加成：人鱼=护盾、恶魔=叠毒、魅族=追击、血精灵=穿甲，数值随骰型变化。队长倒下由下一位存活成员接任，不刷新骰子、能量或冷却。\n\n" +
-                "【战术指令】\n" +
-                "应急守护：全队减伤 50% 持续 3 秒，18 秒冷却。点敌人可指定集火目标。",
-                15, PanelKit.Muted, 34, 76, 572, 780, TextAnchor.UpperLeft);
+                // 2026-10-25 readability pass: the current rules in short points (it still described the old judge bar,
+                // light pillars and long-press captain swaps). 2026-11-01 (用户 "最少文字"): the first fight teaches only
+                // dice / 重投 / 大招 by doing; everything is here, one short line per rule (≤ one line on a phone).
+                "<color=#1CF2EC>【骰子】</color>\n" +
+                "·\u00A0点骰子选中，每次最多2颗，再点取消。\n" +
+                "·\u00A0点左侧「重投」：不选=6颗全部重投。\n" +
+                "·\u00A0重投不限次数，每次花1颗骰子豆。\n" +
+                "·\u00A0我方出手3次攒1颗，最多存3颗；新一波+1颗。\n" +
+                "·\u00A0牌型越好，队长攻击越高，最高+5%。\n" +
+                "·\u00A0达成本波牌型目标，队长追加一击。\n\n" +
+                "<color=#1CF2EC>【大招】</color>\n" +
+                "·\u00A0能量满了点她的卡放大招，上滑光碟也行。\n" +
+                "·\u00A0光圈合拢时点：PERFECT\u00A0+10%，GOOD\u00A0+5%。\n" +
+                "·\u00A0一人放了大招，其他人能量清零重攒。\n\n" +
+                "<color=#1CF2EC>【队长】</color>\n" +
+                "·\u00A0点左下「队长」牌，再点一位成员即换队长。\n" +
+                "·\u00A0队长吃满骰子加成，受到伤害-20%。\n" +
+                "·\u00A0队长倒下，由下一位接任。\n\n" +
+                "<color=#1CF2EC>【自动 / 倍速】</color>\n" +
+                "·\u00A0普攻和技能一直自动。\n" +
+                "·\u00A0自动：牌型差时自己重投、放大招。\n" +
+                "·\u00A0手动：重投和大招都等你点。\n" +
+                "·\u00A0右上「1倍」切换倍速。\n\n" +
+                "<color=#1CF2EC>【应急守护】</color>\n" +
+                "·\u00A0每场一次，全员各挡一次攻击。\n\n" +
+                "<color=#1CF2EC>【敌人】</color>\n" +
+                "·\u00A0敌人会预告要放的招。\n" +
+                "·\u00A0点敌人集火，先打会治疗的。",
+                24, ChoSiren.UI.SirenStickerUi.Paper, 34, 76, 572, 780, TextAnchor.UpperLeft);
             body.gameObject.name = "RulesBody";
+            body.supportRichText = true; // PanelKit texts default to plain; the teal section heads are <color> tags
             body.lineSpacing = 1.12f;
-            reduceMotionButton = kit.NewButton("ReduceMotionToggle", card.transform,
+            ScrollRect rulesScroll = BuildBattleScroll(card.transform, "RulesScroll", 34, 76, 572, 780,
+                out RectTransform rulesContent);
+            body.transform.SetParent(rulesContent, false);
+            body.verticalOverflow = VerticalWrapMode.Overflow;
+            float rulesHeight = Mathf.Max(780f, body.cachedTextGeneratorForLayout.GetPreferredHeight(body.text,
+                body.GetGenerationSettings(new Vector2(572f, 0f))) / body.pixelsPerUnit + 16f);
+            rulesContent.sizeDelta = new Vector2(0f, rulesHeight);
+            PanelKit.PlaceTop(body.rectTransform, 0f, 0f, 572f, rulesHeight);
+            reduceMotionButton = PunkUi.Button(kit, card.transform, "ReduceMotionToggle",
                 BattlePresentationOptions.Label(BattlePresentationOptions.ReduceMotion), 17,
-                PanelKit.ButtonDark, PanelKit.White, ToggleReduceMotion, 12);
+                ToggleReduceMotion, PunkButtonStyle.Outline);
             PanelKit.PlaceTop(reduceMotionButton.GetComponent<RectTransform>(), 34, 866, 572, 56);
-            GameObject back = kit.NewButton("RulesBack", card.transform, "返回", 20,
-                new Color32(87, 49, 143, 255), PanelKit.White, CloseRulesOverlay, 12);
+            GameObject back = PunkUi.Button(kit, card.transform, "RulesBack", "返回", 20,
+                CloseRulesOverlay, PunkButtonStyle.Primary);
             PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 34, 938, 572, 58);
+            ChoSiren.UI.SirenStickerUi.SkinPanel(card);
+            ChoSiren.UI.SirenStickerUi.SkinTitle(card.transform.Find("RulesTitle").GetComponent<Text>());
+            ChoSiren.UI.SirenStickerUi.SkinButton(reduceMotionButton);
+            ChoSiren.UI.SirenStickerUi.SkinButton(back, true);
             rulesOverlay = shade.gameObject;
             rulesOverlay.SetActive(false);
         }
@@ -1296,20 +1474,32 @@ namespace ChoSiren.Panels
             RefreshReduceMotionButton();
             rulesOverlay.SetActive(true);
             rulesOverlay.transform.SetAsLastSibling();
+            rulesOverlay.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
+        }
+
+        private void OpenBattleQuickGuide()
+        {
+            if (closing || battle == null || battle.Outcome != BattleOutcome.Ongoing) return;
+            bool resumeAfterReading = !paused;
+            if (!paused) TogglePause();
+            rulesResumeOnClose = resumeAfterReading;
+            OpenRulesOverlay();
         }
 
         private void CloseRulesOverlay()
         {
             if (rulesOverlay != null) rulesOverlay.SetActive(false);
+            bool resume = rulesResumeOnClose && paused && !closing &&
+                battle != null && battle.Outcome == BattleOutcome.Ongoing;
+            rulesResumeOnClose = false;
+            if (resume) TogglePause();
         }
 
         private void ToggleReduceMotion()
         {
             BattlePresentationOptions.Toggle();
             RefreshReduceMotionButton();
-            Notify(BattlePresentationOptions.ReduceMotion
-                ? "已开启减少动画：保留数值与反馈，跳过大招切入和骰子翻滚"
-                : "已关闭减少动画：恢复完整演出");
+            Notify(BattlePresentationOptions.ReduceMotion ? "已开启减少动画" : "已恢复完整动画");
         }
 
         private void RefreshReduceMotionButton()
@@ -1347,6 +1537,7 @@ namespace ChoSiren.Panels
         {
             popupLayer = kit.NewRect("Popups", transform);
             PanelKit.Stretch(popupLayer);
+            comboShow = ChoSiren.UI.DiceComboShow.Attach(popupLayer, () => paused || closing, BattleAnimationDelta);
             for (int index = 0; index < PopupPoolSize; index++)
             {
                 Text popup = kit.NewText("Popup", popupLayer, string.Empty, 22, PanelKit.White, FontStyle.Bold,
@@ -1355,7 +1546,12 @@ namespace ChoSiren.Panels
                 popup.verticalOverflow = VerticalWrapMode.Overflow;
                 PanelKit.PlaceTop(popup.rectTransform, 0, 0, 160, 40);
                 PanelKit.CenterPivot(popup.rectTransform);
-                kit.AddOutline(popup.gameObject, new Color32(10, 8, 30, 220), 1.5f);
+                kit.AddOutline(popup.gameObject, Color.black, 2.8f);
+                // 2026-10-21: P5 slab — a hard drop shadow under the outline, and a white-to-colour face.
+                var slab = popup.gameObject.AddComponent<Shadow>();
+                slab.effectColor = new Color(.05f, 0f, .08f, .95f); slab.effectDistance = new Vector2(3f, -4f);
+                popup.gameObject.AddComponent<PopupGradient1021>();
+                popup.fontStyle = FontStyle.BoldAndItalic;
                 popup.gameObject.SetActive(false);
                 popupPool.Add(popup);
                 // Semantic icon docked on the popup: heal/shield/buff reads come from a glyph
@@ -1364,85 +1560,147 @@ namespace ChoSiren.Panels
                     "PopupIcon", 22f);
                 icon.gameObject.SetActive(false);
                 popupIcons[index] = icon;
+                icon.gameObject.AddComponent<BattlePsdEffectIcon1019>().Configure(
+                    icon, SkillIconKind.Heal, "effect-heal-plus");
             }
         }
 
+        private Text resultTitleSub;
+        private Image resultBackdrop;
+        private Button resultRewardButton;
+
+        /// <summary>
+        /// 2026-10-21 owner: the result screen replicates the picked R2 mock-up 1:1 — full screen over
+        /// the stage scene dimmed 72%, VICTORY with a red drop shadow top-left, MVP half-body cover,
+        /// red band, stars, round avatars, rewards and a red slanted 继续 button. No card frame.
+        /// </summary>
         private void BuildResult()
         {
-            Image overlay = kit.NewImage("BattleResult", transform, null, new Color32(2, 4, 22, 132));
+            Image overlay = kit.NewImage("BattleResult", transform, null, new Color32(8, 5, 14, 255));
             PanelKit.Stretch(overlay.rectTransform);
             overlay.raycastTarget = true;
             resultOverlay = overlay.gameObject;
-
-            GameObject card = kit.NewPanel("BattleResultCard", overlay.transform, new Color32(19, 14, 45, 255), 30);
-            resultCardRect = card.GetComponent<RectTransform>();
-            PanelKit.PlaceCentered(resultCardRect, 610, 720);
-            kit.AddOutline(card, new Color32(104, 220, 255, 184), 2);
-            Image resultHalo = kit.NewImage("ResultHalo", card.transform, kit.RadialSprite(),
-                new Color32(255, 66, 202, 72));
-            PanelKit.PlaceTop(resultHalo.rectTransform, 80, 30, 450, 450);
-            resultHalo.raycastTarget = false;
-            resultHalo.transform.SetAsFirstSibling();
-
-            kit.NewPlacedText(card.transform, "战术演出结算", 15, new Color32(255, 174, 226, 255), 40, 36, 530, 30,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
-            resultTitle = kit.NewPlacedText(card.transform, "胜利", 66, PanelKit.White, 40, 78, 530, 110,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
+            resultBackdrop = kit.NewImage("ResultBackdrop", overlay.transform, null, Color.white);
+            resultBackdrop.raycastTarget = false;
+            var cover = resultBackdrop.gameObject.AddComponent<AspectRatioFitter>();
+            cover.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; cover.aspectRatio = 2f / 3f;
+            Image dim = kit.NewImage("ResultDim", overlay.transform, null, new Color(8 / 255f, 5 / 255f, 14 / 255f, .72f));
+            PanelKit.Stretch(dim.rectTransform); dim.raycastTarget = false;
+            RectTransform cardRect = kit.NewRect("BattleResultCard", overlay.transform);
+            PanelKit.Stretch(cardRect);
+            resultCardRect = cardRect;
+            Transform card = cardRect;
+            RectTransform screens = kit.NewRect("ResultConcertScreens", card);
+            PanelKit.Stretch(screens);
+            resultScreens = screens.gameObject.AddComponent<ChoSiren.UI.BattleStickerResultView>();
+            // .vic{font:900 28px(×3) Impact;color:#fff;text-shadow:3px 3px 0 var(--red)} small{12px(×3)}
+            resultTitle = kit.NewPlacedText(card, "VICTORY", 84, Color.white, 36, 60, 640, 96,
+                TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
+            resultTitle.horizontalOverflow = HorizontalWrapMode.Overflow;
             resultTitle.verticalOverflow = VerticalWrapMode.Overflow;
-            kit.AddOutline(resultTitle.gameObject, new Color32(255, 71, 196, 155), 3);
-            resultStars = kit.NewPlacedText(card.transform, "★★★", 44, PanelKit.Gold, 40, 196, 530, 66,
+            resultTitle.rectTransform.pivot = new Vector2(0f, .5f);
+            var redShadow = resultTitle.gameObject.AddComponent<Shadow>();
+            redShadow.effectColor = Brand1025.Teal; redShadow.effectDistance = new Vector2(9f, -9f);
+            resultTitleSub = kit.NewPlacedText(card, "胜利", 36, Color.white, 40, 150, 300, 44,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            resultTitleSub.verticalOverflow = VerticalWrapMode.Overflow;
+            var subShadow = resultTitleSub.gameObject.AddComponent<Shadow>();
+            subShadow.effectColor = Brand1025.Teal; subShadow.effectDistance = new Vector2(4f, -4f);
+            resultMvpNote = kit.NewPlacedText(card, string.Empty, 16, ChoSiren.UI.SirenStickerUi.Cyan,
+                0, 0, 10, 10, TextAnchor.MiddleCenter, FontStyle.Bold);
+            resultMvpNote.gameObject.SetActive(false);
+            resultStars = kit.NewPlacedText(card, "★★★", 66, new Color32(255, 212, 90, 255), 0, 0, 720, 80,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             resultStars.verticalOverflow = VerticalWrapMode.Overflow;
-            resultStats = kit.NewPlacedText(card.transform, string.Empty, 18, PanelKit.White, 52, 272, 506, 70,
-                TextAnchor.UpperCenter, FontStyle.Bold);
-            GameObject reward = kit.NewPanel("BattleReward", card.transform, new Color32(30, 25, 58, 255), 22);
-            PanelKit.PlaceTop(reward.GetComponent<RectTransform>(), 48, 356, 514, 210);
-            resultRewardTitle = kit.NewPlacedText(reward.transform, "奖励", 14, new Color32(255, 174, 226, 255), 20, 12, 474, 24,
+            resultStats = kit.NewPlacedText(card, string.Empty, 19, PanelKit.White, 0, 0, 10, 10,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
-            resultRewards = kit.NewPlacedText(reward.transform, string.Empty, 16, PanelKit.White, 20, 40, 474, 162,
-                TextAnchor.UpperCenter, FontStyle.Bold);
-            resultRewards.lineSpacing = 1.2f;
-            GameObject done = kit.NewButton("ResultContinue", card.transform, "继续", 21, PanelKit.White, PanelKit.White,
-                Close, 24);
-            PanelKit.PlaceTop(done.GetComponent<RectTransform>(), 140, 604, 330, 70);
-            Image doneFrame = done.GetComponent<Image>();
-            doneFrame.sprite = skillButtonFrameSprite;
-            doneFrame.type = Image.Type.Simple;
-            doneFrame.preserveAspect = false;
-            Image doneGlass = kit.NewImage("ResultButtonGlass", done.transform, kit.RoundedSprite(20),
-                new Color32(48, 24, 88, 128));
-            PanelKit.Stretch(doneGlass.rectTransform, 10, 9, -10, -9);
-            doneGlass.type = Image.Type.Sliced;
-            doneGlass.raycastTarget = false;
-            doneGlass.transform.SetAsFirstSibling();
-            recoveryActions = kit.NewRect("RecoveryActions", card.transform).gameObject;
-            PanelKit.PlaceTop(recoveryActions.GetComponent<RectTransform>(), 48, 580, 514, 120);
+            resultStats.gameObject.SetActive(false);
+            Image tickerPlate = kit.NewImage("ResultTicker", card, null, Color.clear);
+            PanelKit.PlaceTop(tickerPlate.rectTransform, 0, 0, 10, 10);
+            Text tickerText = kit.NewPlacedText(tickerPlate.transform, string.Empty, 17, PanelKit.White,
+                0, 0, 10, 10, TextAnchor.MiddleLeft, FontStyle.Bold);
+            resultTicker = tickerPlate.gameObject.AddComponent<ChoSiren.UI.BattleStickerMarquee>();
+            resultTicker.Configure(tickerPlate.rectTransform, tickerText, () => closing);
+            tickerPlate.gameObject.SetActive(false);
+            // .rw{centered row, cyan} — tapping it opens the equipment that dropped.
+            Image reward = kit.NewImage("BattleReward", card, null, Color.clear);
+            reward.raycastTarget = true;
+            resultRewardButton = reward.gameObject.AddComponent<Button>();
+            resultRewardButton.transition = Selectable.Transition.None;
+            resultRewardButton.onClick.AddListener(() => { if (model.LastAwardedAccessory >= 0 && onGrowth != null) OpenRecovery("accessory"); });
+            resultRewardTitle = kit.NewPlacedText(reward.transform, string.Empty, 17, ChoSiren.UI.SirenStickerUi.Cyan,
+                0, 0, 10, 10, TextAnchor.MiddleLeft, FontStyle.Bold);
+            resultRewardTitle.gameObject.SetActive(false);
+            resultRewardScroll = BuildBattleScroll(reward.transform, "RewardScroll", 0, 0, 640, 96, out resultRewardContent);
+            resultRewards = kit.NewPlacedText(resultRewardContent, string.Empty, 22, ChoSiren.UI.SirenStickerUi.Cyan,
+                0, 0, 640, 96, TextAnchor.UpperCenter, FontStyle.Bold);
+            resultRewards.verticalOverflow = VerticalWrapMode.Overflow;
+            resultRewards.lineSpacing = 1.1f;
+            // .btn{left:18%;right:18%;background:var(--red);font-weight:900;transform:skewX(-10deg)}
+            Image hit = kit.NewImage("ResultContinue", card, null, Color.clear);
+            hit.raycastTarget = true;
+            var done = hit.gameObject.AddComponent<Button>();
+            done.transition = Selectable.Transition.None;
+            done.onClick.AddListener(Close);
+            var plateGo = new GameObject("RedSkew", typeof(RectTransform), typeof(CanvasRenderer), typeof(ChoSiren.UI.SkewedPlate1021));
+            plateGo.transform.SetParent(hit.transform, false);
+            var plate = plateGo.GetComponent<ChoSiren.UI.SkewedPlate1021>();
+            plate.color = Brand1025.Teal; plate.raycastTarget = false;
+            PanelKit.Stretch(plate.rectTransform);
+            Text doneLabel = kit.NewPlacedText(hit.transform, "继续", 38, Brand1025.Ink, 0, 0, 10, 10,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            PanelKit.Stretch(doneLabel.rectTransform); doneLabel.raycastTarget = false;
+            recoveryActions = kit.NewRect("RecoveryActions", card).gameObject;
             string[] labels = { "训练升级", "检查装备", "调整编队", "返回关卡" };
             string[] routes = { "training", "accessory", "team", "farm" };
             for (int i = 0; i < routes.Length; i++)
             {
                 string route = routes[i];
-                GameObject action = kit.NewButton("Recovery-" + route, recoveryActions.transform, labels[i], 18,
-                    i == 0 ? new Color32(126, 61, 177, 255) : PanelKit.ButtonDark, PanelKit.White,
-                    () => OpenRecovery(route), 12);
-                PanelKit.PlaceTop(action.GetComponent<RectTransform>(), i % 2 * 264, i / 2 * 58, 250, 50);
+                GameObject action = PunkUi.Button(kit, recoveryActions.transform, "Recovery-" + route, labels[i], 24,
+                    () => OpenRecovery(route), i == 0 ? PunkButtonStyle.Primary : PunkButtonStyle.Outline);
+                PanelKit.PlaceTop(action.GetComponent<RectTransform>(), i % 2 * 320, i / 2 * 76, 300, 64);
+                ChoSiren.UI.SirenStickerUi.SkinButton(action, i == 0);
             }
             recoveryActions.SetActive(false);
-            GameObject lootButton = kit.NewButton("VictoryEquipment", card.transform, "查看获得的装备", 16,
-                PanelKit.ButtonDark, PanelKit.Cyan, () => OpenRecovery("accessory"), 10);
-            PanelKit.PlaceTop(lootButton.GetComponent<RectTransform>(), 140, 562, 330, 40);
-            Image lootFrame = lootButton.GetComponent<Image>();
-            lootFrame.sprite = skillButtonFrameSprite;
-            lootFrame.type = Image.Type.Simple;
-            lootFrame.preserveAspect = false;
-            Image lootGlass = kit.NewImage("ResultButtonGlass", lootButton.transform, kit.RoundedSprite(20),
-                new Color32(48, 24, 88, 128));
-            PanelKit.Stretch(lootGlass.rectTransform, 10, 9, -10, -9);
-            lootGlass.type = Image.Type.Sliced;
-            lootGlass.raycastTarget = false;
-            lootGlass.transform.SetAsFirstSibling();
+            GameObject lootButton = PunkUi.Button(kit, card, "VictoryEquipment", "查看获得的装备", 19,
+                () => OpenRecovery("accessory"), PunkButtonStyle.Outline);
+            PanelKit.PlaceTop(lootButton.GetComponent<RectTransform>(), 0, 0, 10, 10);
             lootButton.SetActive(false);
             resultOverlay.SetActive(false);
+        }
+
+        private float resultHeroFraction = .58f, resultRowTop = -1f;
+
+        private void LayoutResult(bool victory)
+        {
+            RectTransform host = resultOverlay.GetComponent<RectTransform>();
+            float H = host.rect.height > 1f ? host.rect.height : 1536f;
+            float W = host.rect.width > 1f ? host.rect.width : 720f;
+            resultCardRect.localScale = Vector3.one;
+            // Background: this stage's scene art (as in the mock-up), else the battle stage.
+            Sprite scene = battle?.Stage != null ? ChoSiren.StoryArt1019.Load("Art/Story/Scenes1019/" + battle.Stage.Id) : null;
+            resultBackdrop.sprite = scene != null ? scene : BattlePsdArt928.Sprite("stage");
+            resultBackdrop.color = resultBackdrop.sprite != null ? Color.white : Color.clear;
+            var cover = resultBackdrop.GetComponent<AspectRatioFitter>();
+            if (resultBackdrop.sprite != null) cover.aspectRatio = resultBackdrop.sprite.rect.width / Mathf.Max(1f, resultBackdrop.sprite.rect.height);
+            // Bottom-up so the button clears the home indicator on tall phones and short web frames.
+            float buttonTop = H - Mathf.Max(56f, H * .04f) - 84f;
+            float rewardTop = buttonTop - 150f;
+            float rowTop = rewardTop - 212f;
+            float starsTop = Mathf.Min(H * .645f, rowTop - 80f);
+            resultHeroFraction = Mathf.Clamp((starsTop - 46f) / H - .06f, .42f, .58f);
+            resultRowTop = rowTop;
+            float top = Mathf.Max(H * .04f, 64f);
+            PanelKit.PlaceTop(resultTitle.rectTransform, W * .05f, top, W * .9f, 96);
+            resultTitle.rectTransform.pivot = new Vector2(0f, .5f);
+            resultTitle.rectTransform.anchoredPosition = new Vector2(W * .05f, -(top + 48f));
+            PanelKit.PlaceTop(resultTitleSub.rectTransform, W * .05f + 4f, top + 92f, 300, 44);
+            PanelKit.PlaceTop(resultStars.rectTransform, 0, starsTop, W, 80);
+            RectTransform reward = resultRewardScroll.transform.parent as RectTransform;
+            PanelKit.PlaceTop(reward, (W - 640f) * .5f, rewardTop, 640, 140);
+            PanelKit.PlaceTop(resultRewardScroll.transform as RectTransform, 0, 0, 640, 140);
+            PanelKit.PlaceTop(recoveryActions.GetComponent<RectTransform>(), (W - 620f) * .5f, rewardTop - 8f, 620, 140);
+            PanelKit.PlaceTop(resultCardRect.Find("ResultContinue") as RectTransform, W * .18f, buttonTop, W * .64f, 84);
         }
 
         /// <summary>
@@ -1491,6 +1749,11 @@ namespace ChoSiren.Panels
 
         private IEnumerator MainLoop()
         {
+            if (battle.IsTurnBased)
+            {
+                yield return TurnLoop();
+                yield break;
+            }
             if (battle.IsRealtime)
             {
                 yield return RealtimeLoop();
@@ -1534,7 +1797,7 @@ namespace ChoSiren.Panels
                     if (actor.Side == BattleSide.Player)
                     {
                         PrepareDiceTurn();
-                        if (diceTurn.CanEnergyReroll) diceTurn.EnergyRerollAll(out _);
+                        if (diceTurn.CanEnergyReroll) diceTurn.RerollSuggested(out _); // auto: at most 2 loose dice
                         AutoTuneDice();
                     }
                     BattleAction action = EnemyAi.Choose(battle, actor);
@@ -1578,13 +1841,20 @@ namespace ChoSiren.Panels
                 if (unit.Side == BattleSide.Player) { inputActor = unit; break; }
             RefreshRealtimeCommands();
             RefreshDiceUi();
+            // The transition constructs this panel before revealing it. Neither that covered
+            // interval nor a pending hidden die may consume the opening throw or battle clock.
+            while (!closing && EntryPresentationCovered) yield return null;
+            if (closing) yield break;
+            Sfx("dice", .8f); // One throw sound for the six-die opening, after the scene is visible.
+            while (!closing && (EntryPresentationCovered || awaitingDiceLanding ||
+                dicePresentations.Exists(item => item.Busy))) yield return null;
             yield return WaitBattleDelay(BattleIntroSeconds);
             while (!closing && battle.Outcome == BattleOutcome.Ongoing)
             {
-                if (!paused)
+                if (!paused && !EntryPresentationCovered && !ManualUltimateTimingActive)
                 {
                     // A suspended browser must not instantly consume the encounter on returning.
-                    realtimeFractionMs += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * speed * 1000f;
+                    realtimeFractionMs += Mathf.Min(Time.unscaledDeltaTime, 0.1f) * speed * ChoSiren.BattlePresentationOptions.Pace * 1000f;
                     int elapsedMs = Mathf.FloorToInt(realtimeFractionMs);
                     realtimeFractionMs -= elapsedMs;
                     // Dice rerolls are always a player decision; 自动/手动 only controls ultimates.
@@ -1627,10 +1897,37 @@ namespace ChoSiren.Panels
             {
                 bool available = !paused && !closing && battle.TacticalActor != null;
                 float guardCooldown = battle.GuardCooldownRemaining / 1000f;
-                PanelKit.SetButtonState(guardButton, available && guardCooldown <= 0, new Color32(6, 21, 42, 240));
-                guardHint.text = guardCooldown > 0 ? $"冷却 {guardCooldown:0.0}秒" : "全队减伤50% · 3秒";
+                PanelKit.SetButtonState(guardButton, available && !battle.TacticalGuardUsed,
+                    psdRoot != null ? Color.clear : new Color32(6, 21, 42, 240));
+                // Refreshing availability must never paint a rectangle behind the alpha-cut PSD art.
+                bool spent = battle.TacticalGuardUsed && guardCooldown <= 0;
+                if (psdGuardRing != null)
+                {
+                    // 2026-10-19 PSD: a fixed badge on the right. Ready: bright; guarding: the
+                    // cyan fill drains over 3 s; spent: greyed.
+                    guardButton.SetActive(true);
+                    guardButton.transform.SetAsLastSibling();
+                    int guarded = battle.IsTurnBased ? battle.GuardedCount : 0;
+                    if (battle.IsTurnBased) spent = battle.TacticalGuardUsed && guarded == 0;
+                    psdGuardRing.fillAmount = battle.IsTurnBased ? guarded / 4f : guardCooldown > 0 ? guardCooldown / 3f : 0f;
+                    float breathe = BattlePresentationOptions.ReduceMotion ? 1f : .85f + Mathf.Sin(Time.unscaledTime * 4f) * .15f;
+                    // Spent stays readable on the dark stage: only slightly desaturated.
+                    psdGuardArt.color = spent ? new Color(.78f, .76f, .86f, 1f) : new Color(breathe, breathe, 1f, 1f);
+                    // Turn battles (2026-10-24): every member gets a shield that blocks one whole hit, then breaks.
+                    guardHint.text = battle.IsTurnBased
+                        ? guarded > 0 ? $"护盾 {guarded} 人" : spent ? "本场已使用" : "全员挡一击"
+                        : guardCooldown > 0 ? $"守护中 {guardCooldown:0.0}秒" : spent ? "本场已使用" : "全队减伤50%";
+                    guardHint.color = spent ? new Color(.7f, .7f, .78f, 1f) : Color.white;
+                    if (psdGuardBeat != null) psdGuardBeat.Active = available && !battle.TacticalGuardUsed;
+                }
+                else
+                {
+                    if (psdGuardArt != null) psdGuardArt.color = spent ? new Color(.62f, .66f, .75f, .82f) : Color.white;
+                    guardHint.text = guardCooldown > 0 ? $"守护 0/1 · {guardCooldown:0.0}秒"
+                        : battle.TacticalGuardUsed ? "守护 0/1" : "守护 1/1 · 减伤50%";
+                }
                 if (commandFeedbackUntil > battle.ElapsedMilliseconds) eventText.text = commandFeedback;
-                else eventText.text = "点敌人集火 · 战术可主动释放";
+                else eventText.text = "点敌人集火 · 点「队长」牌换队长";
             }
             if (inputActor == null || !inputActor.Alive)
             {
@@ -1663,7 +1960,7 @@ namespace ChoSiren.Panels
                 skillWaitingText.text = "普攻与小技能自动 · 大招" +
                     (ultimateReady
                         ? autoMode ? "就绪 · 自动释放" : "就绪 · 点击满能量头像释放"
-                        : $"能量 {battle.EnergyOf(inputActor)}/{BattleSimulator.MaxUnitEnergy}");
+                        : "准备中");
                 skillWaitingText.color = ultimateReady ? PanelKit.Gold : PanelKit.Muted;
                 PanelKit.EnableBestFit(skillWaitingText, 15);
             }
@@ -1671,10 +1968,10 @@ namespace ChoSiren.Panels
             BattleUnit focused = battle.FindUnit(battle.FocusTargetId);
             int readyUltimates = battle.ReadyUltimateCount;
             previewText.text = readyUltimates > 0 && !autoMode
-                ? $"大招就绪 {readyUltimates} 人 · 点击满能量头像释放 · 点敌人集火"
+                ? $"大招就绪 {readyUltimates}人"
                 : focused != null && focused.Alive
-                    ? $"集火：{focused.Definition.Name} · 点击其他敌人切换"
-                    : "点击角色查看技能 · 点击敌人集火";
+                    ? $"集火：{focused.Definition.Name}"
+                    : "点敌人集火";
             // Selection is not an attack. Every actual actor animates through ActionStarted.
             actorGlow.enabled = false;
             foreach (CellView cell in cells)
@@ -1723,9 +2020,86 @@ namespace ChoSiren.Panels
             }
         }
 
+        private GameAudio gameAudio;
+
+        /// <summary>
+        /// The landing after the ultimate show: the skill name slams onto the enemy stage on a
+        /// slanted black plate, the stage shakes hard and the flash fires (damage numbers follow).
+        /// </summary>
+        private void UltimateImpact(string title, Color accent)
+        {
+            if (psdRoot == null) return;
+            Sfx("crit");
+            if (!BattlePresentationOptions.ReduceMotion)
+            {
+                if (stageShake != null) StopCoroutine(stageShake);
+                stageShake = StartCoroutine(ShakeStage(.4f, 16f));
+            }
+            StartCoroutine(UltimateTitleSlam(title, accent));
+        }
+
+        private IEnumerator UltimateTitleSlam(string title, Color accent)
+        {
+            var plateRect = kit.NewRect("UltimateImpactTitle", psdRoot);
+            PsdPlace(plateRect, -200, 1650, 3346, 520);
+            plateRect.localEulerAngles = new Vector3(0, 0, -7f);
+            var edge = kit.NewImage("Edge", plateRect, null, accent); edge.raycastTarget = false;
+            PanelKit.Stretch(edge.rectTransform); edge.rectTransform.offsetMin = new Vector2(0, -6); edge.rectTransform.offsetMax = new Vector2(0, 6);
+            var plate = kit.NewImage("Plate", plateRect, null, new Color32(6, 3, 12, 240)); plate.raycastTarget = false;
+            PanelKit.Stretch(plate.rectTransform);
+            var text = kit.NewPlacedText(plateRect, title, 44, Color.white, 0, 0, 10, 10, TextAnchor.MiddleCenter, FontStyle.BoldAndItalic);
+            PanelKit.Stretch(text.rectTransform); text.raycastTarget = false;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow; text.verticalOverflow = VerticalWrapMode.Overflow;
+            var outline = text.gameObject.AddComponent<Outline>(); outline.effectColor = accent; outline.effectDistance = new Vector2(3, -3);
+            var group = plateRect.gameObject.AddComponent<CanvasGroup>(); group.blocksRaycasts = false;
+            float t = 0f;
+            while (t < 1.1f && !closing)
+            {
+                if (!paused) t += Time.unscaledDeltaTime;
+                float slam = Mathf.Clamp01(t / .12f);
+                plateRect.localScale = new Vector3(1f, Mathf.Lerp(.1f, 1f, slam), 1f);
+                text.transform.localScale = Vector3.one * Mathf.Lerp(1.8f, 1f, 1f - Mathf.Pow(1f - slam, 3f));
+                group.alpha = t < .85f ? 1f : 1f - (t - .85f) / .25f;
+                yield return null;
+            }
+            Destroy(plateRect.gameObject);
+        }
+        private Coroutine stageShake;
+        private Vector2? stageRest;
+
+        /// <summary>A short decaying jolt of the whole stage for critical hits.</summary>
+        private IEnumerator ShakeStage(float duration, float strength, Vector2 kick = default)
+        {
+            var fitter = psdRoot.GetComponent<BattlePsdViewportFit1019>();
+            stageRest = fitter != null ? fitter.RestPosition : psdRoot.anchoredPosition;
+            // 2026-10-21 VFX pass: a damped kick along the blow instead of random jitter.
+            Vector2 dir = kick.sqrMagnitude > .01f ? kick.normalized : UnityEngine.Random.insideUnitCircle.normalized;
+            if (dir.sqrMagnitude < .01f) dir = Vector2.right;
+            Vector2 side = new Vector2(-dir.y, dir.x);
+            float elapsed = 0f;
+            while (elapsed < duration && !closing)
+            {
+                if (!paused && !BattleHitStop.Frozen) elapsed += Time.unscaledDeltaTime;
+                if (fitter != null) stageRest = fitter.RestPosition;
+                float k = Mathf.Clamp01(1f - elapsed / duration);
+                float swing = Mathf.Cos(elapsed * Mathf.PI * 2f * 15f);
+                psdRoot.anchoredPosition = stageRest.Value + dir * (strength * k * k * swing)
+                    + side * (strength * .2f * k * Mathf.Sin(elapsed * Mathf.PI * 2f * 23f));
+                yield return null;
+            }
+            psdRoot.anchoredPosition = fitter != null ? fitter.RestPosition : stageRest.Value;
+            stageRest = null;
+            stageShake = null;
+        }
+
+        private void Sfx(string name, float volume = 1f)
+        {
+            if (!closing) gameAudio?.PlaySfx(name, volume);
+        }
+
         private float BattleAnimationDelta()
         {
-            return Time.unscaledDeltaTime * Mathf.Clamp(speed, 1, 2);
+            return BattleHitStop.Delta(Time.unscaledDeltaTime) * Mathf.Clamp(speed, 1, 3) * ChoSiren.BattlePresentationOptions.Pace;
         }
 
         private bool TryFallbackAction(BattleUnit actor)
@@ -1764,6 +2138,27 @@ namespace ChoSiren.Panels
             string skillName = skill != null ? skill.Name : "技能";
             bool sameAction = previousActor == battleEvent.ActorId && battleEvent.Kind != BattleEventKind.RoundStart;
 
+            ObservePsdSkillCue1019(battleEvent, actor);
+            ObserveEnemyBark1031(battleEvent, actor, target); // 2026-10-31: enemy taunt bubbles (EnemyBarks1031)
+            if (battleEvent.Kind == BattleEventKind.Buff && battleEvent.SkillId == BattleSimulator.DiceTargetSkillId)
+            {
+                // 2026-10-21: the wave's hand target was reached — 队长演出 stamp + extra strike.
+                Sfx("stamp", .9f);
+                if (diceHandText != null && psdRoot != null)
+                {
+                    // 2026-10-23 review #35: a designed P5 banner instead of a red strip under plain text.
+                    RectTransform hand = diceHandText.rectTransform;
+                    Vector2 at = (Vector2)psdRoot.InverseTransformPoint(hand.TransformPoint(hand.rect.center)) - psdRoot.rect.center;
+                    CaptainShowBanner1023.Play(psdRoot, at + new Vector2(0f, 330f), kit.Font,
+                        "目标 ✓", () => paused || closing); // 2026-11-02 visual-battle: the target chip shows which hand
+                    PresentTargetReached1101();
+                }
+                else if (diceHandText != null)
+                    SpawnPopupAt(diceHandText.rectTransform, -102, "目标达成 · 队长演出！", PanelKit.Gold, 30, 40f);
+                AppendLog($"骰子目标达成：{battle.DiceTargetLabel} → {actorName} 追加演出");
+                RefreshDiceUi();
+                return .25f;
+            }
             switch (battleEvent.Kind)
             {
                 case BattleEventKind.ActionStarted:
@@ -1778,7 +2173,9 @@ namespace ChoSiren.Panels
                     return 0f;
                 case BattleEventKind.Spawned:
                     RefreshAllCells();
-                    Notify($"第 {battle.CurrentWave}/{battle.TotalWaves} 波 · {targetName} 加入战斗");
+                    PresentPsdWave1019();
+                    if (psdWave1019 == null || !psdWave1019.IsShowing)
+                        Notify($"第 {battle.CurrentWave}/{battle.TotalWaves} 波 · {targetName} 加入战斗");
                     AppendLog($"增援：{targetName}");
                     return 0f;
                 case BattleEventKind.RoundStart:
@@ -1788,6 +2185,7 @@ namespace ChoSiren.Panels
                     RefreshAllCells();
                     return 0.35f;
                 case BattleEventKind.Damage:
+                    hitDeferred1021 = false;
                     PresentHitEffect(actor, target, battleEvent);
                     RefreshCell(target);
                     if (actor != null && actor.Side == BattleSide.Player)
@@ -1803,17 +2201,20 @@ namespace ChoSiren.Panels
                     }
                     CellView damagedCell = FindCell(target);
                     if (damagedCell != null && damagedCell.Motion != null) damagedCell.Motion.PlayHit(battleEvent.Critical);
-                    if (target != null && enemyMotions.TryGetValue(target.Id, out var enemyHit)) enemyHit.PlayHit(battleEvent.Critical);
+                    if (damagedCell != null) damagedCell.Root.GetComponentInChildren<BattleGuardRing929>(true)?.PulseHit();
+                    // Flying strikes land later: their impact (flash, freeze, shake, sound) waits for contact.
+                    if (!hitDeferred1021) LandHit1021(actor, target, battleEvent);
                     bool presentedByBossLayer = target != null && target.Side == BattleSide.Enemy &&
                                                 target.Id == bossUnitId && bossPresentation != null;
                     if (presentedByBossLayer)
                     {
                         // The boss presentation owns its floating damage numbers.  Showing the generic
                         // cell popup as well makes one hit look like two separate damage events.
-                        bossPresentation.PlayHit(DamageHpLoss(battleEvent), battleEvent.Critical,
-                            battleEvent.DiceMultiplierPermille);
+                        bossPresentation.DecoratedHits = psdRoot == null;   // the PSD battle draws Fx1023 on the boss instead
+                        bossPresentation.FloatingNumbers = !SpawnBigDamage1101(actor, target, battleEvent); // 2026-11-01 big numbers
+                        PlayBossHit1031(actor, target, battleEvent);
                     }
-                    else
+                    else if (!SpawnBigDamage1101(actor, target, battleEvent)) // 2026-11-01: our hits on enemies → big numbers
                     {
                         bool fullyAbsorbed = battleEvent.AbsorbedAmount > 0 && DamageHpLoss(battleEvent) <= 0;
                         Color damageColor = fullyAbsorbed ? CombatFeedbackPalette.Shield
@@ -1823,13 +2224,13 @@ namespace ChoSiren.Panels
                                 ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Attack;
                         if (battleEvent.AbsorbedAmount > 0)
                             SpawnPopupIcon(target, DamagePopupLabel(battleEvent), damageColor,
-                                battleEvent.Critical ? 26 : 22, SkillIconKind.Shield);
+                                DamageFont1023(target, battleEvent.Critical), SkillIconKind.Shield);
                         else if (battleEvent.SkillId == "rt-poison")
                             SpawnPopupIcon(target, DamagePopupLabel(battleEvent), damageColor,
-                                battleEvent.Critical ? 26 : 22, SkillIconKind.Poison);
+                                DamageFont1023(target, battleEvent.Critical), SkillIconKind.Poison);
                         else
                             SpawnPopup(target, DamagePopupLabel(battleEvent), damageColor,
-                                battleEvent.Critical ? 26 : 22);
+                                DamageFont1023(target, battleEvent.Critical));
                     }
                     var damageNotes = new List<string>();
                     if (battleEvent.Critical) damageNotes.Add("暴击");
@@ -1843,16 +2244,19 @@ namespace ChoSiren.Panels
                     AppendLog(damageLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Heal:
-                    if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal,
+                    if (battleEvent.Amount > 0) Sfx("heal", .7f);
+                    if (psdRoot == null && battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Heal,
                         CombatFeedbackPalette.Heal, true);
                     RefreshCell(target);
-                    SpawnPopupIcon(target, $"+{battleEvent.Amount}", CombatFeedbackPalette.Heal, 22,
+                    if (battleEvent.Amount > 0) PlayHealBurst1026(target);
+                    SpawnPopupIcon(target, $"+{battleEvent.Amount}", CombatFeedbackPalette.Heal, psdRoot != null ? 30 : 22,
                         SkillIconKind.Heal);
                     string healLine = $"{actorName} 使用「{skillName}」为 {targetName} 恢复 {battleEvent.Amount}";
                     if (!battle.IsRealtime) eventText.text = healLine;
                     AppendLog(healLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Shield:
+                    if (battleEvent.Amount > 0) Sfx("shield", .7f);
                     if (battleEvent.Amount > 0) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Shield,
                         CombatFeedbackPalette.Shield, true);
                     RefreshCell(target);
@@ -1863,13 +2267,29 @@ namespace ChoSiren.Panels
                     AppendLog(shieldLine);
                     return sameAction ? 0.14f : BeatSeconds;
                 case BattleEventKind.Buff:
+                    if (battleEvent.SkillId == BattleSimulator.GuardBreakSkillId)
+                    {
+                        // The 应急守护 shield took this hit in full and breaks (turn battles, 2026-10-24).
+                        RefreshCell(target);
+                        FindCell(target)?.Root.GetComponentInChildren<BattleGuardRing929>(true)?.Shatter();
+                        Sfx("block", .9f);
+                        if (!PresentStatusPicture1101(battleEvent, actor, target))
+                            SpawnPopupIcon(target, "格挡！", CombatFeedbackPalette.Shield, 26, SkillIconKind.Shield);
+                        AppendLog($"{targetName} 的守护盾挡下 {battleEvent.Amount} 伤害后碎裂");
+                        return sameAction ? 0.14f : BeatSeconds;
+                    }
                     RefreshCell(target);
                     string effectLabel = battleEvent.SkillId.StartsWith("rt-") ? skillName : skill != null ? EffectShort(skill.Effect) : "状态";
+                    effectLabel = PresentTelegraph1101(battleEvent, target, effectLabel); // 2026-11-01: name the charged skill (Balance1101)
                     Color effectColor = CombatFeedbackPalette.Skill(battleEvent.SkillId);
+                    if (!PresentStatusPicture1101(battleEvent, actor, target)) // 2026-11-02: PSD symbols, not words
                     SpawnPopupIcon(target, effectLabel, effectColor, 20,
                         battleEvent.SkillId.StartsWith("rt-")
                             ? CombatStatusIconVisuals.ForSkill(battleEvent.SkillId)
                             : CombatStatusIconVisuals.ForStatusText(effectLabel));
+                    if (battleEvent.SkillId == "rt-seal") SnapSealChains1026(target);
+                    if (battleEvent.SkillId == "rt-stun" || battleEvent.SkillId == "rt-interrupt" ||
+                        battleEvent.SkillId == "rt-armor-break" || battleEvent.SkillId == "rt-seal") Sfx("debuff", .6f);
                     if (battleEvent.SkillId == "rt-stun" || battleEvent.SkillId == "rt-interrupt")
                         skillEffects?.Play(UnitVisual(target), SkillVisualKind.Hex, effectColor, true);
                     else if (battleEvent.SkillId == "rt-armor-break")
@@ -1887,7 +2307,26 @@ namespace ChoSiren.Panels
                     CellView cell = FindCell(target);
                     if (target != null && defeatedPresentations.Add(target.Id))
                     {
-                        if (enemyMotions.TryGetValue(target.Id, out var defeated)) defeated.PlayDefeat();
+                        if (target.Side == BattleSide.Enemy) Sfx("ko");
+                        else PresentMemberDefeat1031(target); // 2026-10-31 阵亡台词 + 字幕 (VoiceDefeat1031)
+                        // 2026-10-21: enemies break apart (white flash → erosion + shards + 「击破」) in the PSD battle.
+                        Image koFigure = null;
+                        bool broke = target.Side == BattleSide.Enemy && psdRoot != null && enemyFigures.TryGetValue(target.Id, out koFigure)
+                            && KoBreak1022.Play(psdRoot, koFigure, kit.Font, () => paused || closing, battle.Outcome == BattleOutcome.Victory) != null;
+                        if (broke) Fx1023Host().Defeat(koFigure.rectTransform);
+                        // The final blow lands harder: a longer hit-stop and a P5 impact frame on the last enemy.
+                        if (broke && battle.Outcome == BattleOutcome.Victory)
+                        {
+                            BattleHitStop.Freeze(.2f);
+                            RectTransform lastRect = UnitVisual(target);
+                            Vector2 lastLocal = lastRect != null
+                                ? (Vector2)psdRoot.InverseTransformPoint(lastRect.TransformPoint(lastRect.rect.center)) - psdRoot.rect.center
+                                : Vector2.zero;
+                            ImpactFrame1022.Play(psdRoot, lastLocal, new[] { koFigure }, () => paused || closing);
+                        }
+                        if (enemyMotions.TryGetValue(target.Id, out var defeated)) defeated.PlayDefeat(broke);
+                        // A fallen member keeps her portrait (black-and-white, see ShowFallen1023): only a hard flinch.
+                        else if (cell?.Motion != null && cell.Side == BattleSide.Player && psdRoot != null) cell.Motion.PlayHit(true);
                         else if (cell?.Motion != null) cell.Motion.PlayDefeat();
                         if (cell != null && cell.Side == BattleSide.Enemy) cell.Root.SetActive(false);
                     }
@@ -1904,11 +2343,18 @@ namespace ChoSiren.Panels
                     AppendLog(phaseMessage);
                     // A lethal hit may enqueue threshold events before Finished.  Keep the ordered
                     // HUD/log update, but never make a 0-HP boss stand back up to transform twice.
+                    // The turn loop waits on the phase card; the boss surge plays once the card has torn away.
+                    bool phaseCard = battle.Outcome == BattleOutcome.Ongoing && psdWave1019 != null && psdWave1019.PlayPhase(phase);
+                    if (phaseCard) Sfx("cut", .8f);
                     if (battle.Outcome == BattleOutcome.Ongoing && bossPresentation != null)
-                        bossPresentation.PlayPhaseSurge(phase);
+                    {
+                        if (phaseCard) StartCoroutine(PhaseSurgeAfterCard1022(phase));
+                        else bossPresentation.PlayPhaseSurge(phase);
+                    }
                     StartCoroutine(FlashPhase(phase));
                     return 0.45f;
                 case BattleEventKind.Finished:
+                    if (battleEvent.Outcome == BattleOutcome.Victory) Sfx("victory", .9f);
                     AppendLog(battleEvent.Outcome == BattleOutcome.Victory ? "战斗胜利" : "战斗失败");
                     eventText.text = battleEvent.Outcome == BattleOutcome.Victory ? "敌方全灭，演出成功"
                         : battle.IsRealtime ? $"我方全灭或已达到{battle.Stage.TimeLimitSeconds}秒时限" : "我方全灭或超出回合上限";
@@ -1979,22 +2425,30 @@ namespace ChoSiren.Panels
             }
         }
 
+        private int ultimateStrikeCount;
+        private int lastCaptainBonusPermille;
         private void PresentAction(BattleUnit actor, BattleUnit target, BattleEvent entry)
         {
             if (actor == null) return;
+            ultimateStrikeCount = 0;
             string stamp = entry.TimeMilliseconds + ":" + entry.SkillId;
             if (lastPresentedActions.TryGetValue(actor.Id, out string previous) && previous == stamp) return;
             lastPresentedActions[actor.Id] = stamp;
+            QueueBattleVoice(actor, entry);
             bool heavy = entry.SkillId != "rt-basic";
             string title = battle.LookupSkill(entry.SkillId)?.Name ?? (heavy ? "施放技能" : "普攻");
             CellView caster = FindCell(actor);
             bool ultimate = actor.Side == BattleSide.Player && entry.SkillId == battle.ActiveSkillId(actor, true);
             if (actor.Side == BattleSide.Player && caster != null)
             {
-                caster.Motion?.PlayAttack(heavy);
-                if (caster.ActionLabel != null)
+                // The local skill name and semantic icon identify passive casts; avoid a
+                // second floating copy of the character when several skills trigger together.
+                // 2026-10-31: the PSD card's bust acts out every cast itself (HeroLunge1031).
+                if (!PlayHeroLunge1031(caster, actor, entry.SkillId) && (psdRoot == null || !heavy)) caster.Motion?.PlayAttack(heavy);
+                if (caster.ActionLabel != null && heavy && psdRoot == null) // PSD: the skill cue icon + close-up name it (2026-11-02)
                 {
-                    // 短读法：普攻只显示“普攻”，技能只显示技能名；目标由光弹轨迹和命中环表达。
+                    // Skills keep their local names. Ordinary attacks already have motion,
+                    // a trajectory and a real damage number; repeating 普攻 adds visual noise.
                     caster.ActionLabel.text = ultimate ? "大招 · " + title : title;
                     caster.ActionLabel.color = ultimate ? PanelKit.Gold
                         : CombatFeedbackPalette.Skill(entry.SkillId, actor.Side);
@@ -2003,22 +2457,38 @@ namespace ChoSiren.Panels
                 }
                 if (ultimate)
                 {
-                    // Short local cut-in (bounded by SkillCutInPresentation) plus a readable badge
-                    // and a one-beat screen pulse so the cast reads as a moment, not a tick.
-                    SpawnPopupIcon(actor, "大招 · " + title, PanelKit.Gold, 22,
-                        CombatStatusIconVisuals.ForSkill(entry.SkillId));
-                    skillCutIn?.Enqueue(caster.Portrait.sprite, actor.Definition.Name, title,
+                    if (actor.Id != ultimateShownFor) Sfx("ultimate");
+                    else UltimateImpact(title, CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
+                    // The album cut-in and local skill label already identify this cast.
+                    // Do not repeat the same title in a third floating popup.
+                    CancelPsdPresentation1019();
+                    PresentUltimateVideoOrPortrait(actor, caster.Portrait.sprite, title,
                         CombatFeedbackPalette.Skill(entry.SkillId, actor.Side));
                     caster.Energy?.Refresh();
-                    if (ultFlash != null) StartCoroutine(FlashUltimate(
+                    // 2026-10-21: the PSD battle's P5 impact frame replaces this ~1 s gold full-screen veil
+                    // (it washed the whole stage, HUD and wave card yellow).
+                    if (ultFlash != null && psdRoot == null) StartCoroutine(FlashUltimate(
                         CombatFeedbackPalette.Skill(entry.SkillId, actor.Side)));
                 }
                 else if (heavy)
                 {
+                    // 2026-10-26 (少爷/赵金: "有些技能是出现技能图标的不是立绘"): small skills show their PSD icon at the
+                    // disc's top-right (SkillCues1019), no portrait close-up.
                     // 非大招技能：一枚语义图标闪现替代文字喊话，治疗/盾/毒/控场一眼可辨。
                     SpawnPopupIcon(actor, string.Empty,
                         CombatFeedbackPalette.Skill(entry.SkillId, actor.Side), 20,
                         CombatStatusIconVisuals.ForSkill(entry.SkillId));
+                    // 2026-10-30 (用户): small skills get their face close-up back, alongside the icons.
+                    Color skillColor = CombatFeedbackPalette.Skill(entry.SkillId, actor.Side);
+                    if (psdRoot != null && psdCloseup1019 != null)
+                    {
+                        string cutinKey = BattleAuthoredCutin1019.KeyForMember(actor.Definition.Id);
+                        Sprite cutArt = cutinKey != null ? BattlePsdArt928.Sprite(cutinKey) : null;
+                        Sprite closeArt = cutArt ?? PanelKit.MemberSpriteOrNull(actor.Definition.Id, false)
+                            ?? Resources.Load<Sprite>("Art/Members/Avatars/avatar-" + actor.Definition.Id) ?? caster.Portrait?.sprite;
+                        psdCloseup1019.Play(closeArt, actor.Definition.Name, title, skillColor, cutArt != null, actor.Definition.Id);
+                    }
+                    else skillCutIn?.Enqueue(caster.Portrait?.sprite, actor.Definition.Name, title, skillColor);
                 }
             }
             else if (enemyMotions.TryGetValue(actor.Id, out var motion))
@@ -2042,8 +2512,125 @@ namespace ChoSiren.Panels
             if (unit == null) return null;
             if (enemyFigures.TryGetValue(unit.Id, out Image image)) return image.rectTransform;
             if (unit.Id == bossUnitId)
-                return enemyStageRoot.Find("BossMotionRig") as RectTransform;
+                // The PSD layout moves the boss stage out of enemyStageRoot (Psd928), so look on the stage itself.
+                return (bossPresentation != null ? bossPresentation.transform.Find("BossMotionRig")
+                    : enemyStageRoot.Find("BossMotionRig")) as RectTransform;
             return FindCell(unit)?.Portrait.rectTransform;
+        }
+
+        private bool hitDeferred1021;
+        private float ultimateStrikeFlash1021;
+
+        /// <summary>
+        /// The moment of contact (2026-10-21 VFX pass): layered light burst, a short hit-stop,
+        /// the target's flinch, the hit sound and a directional shake — all on the same frame.
+        /// </summary>
+        private void LandHit1021(BattleUnit actor, BattleUnit target, BattleEvent entry)
+        {
+            if (closing || target == null) return;
+            HeroLungeImpact1031(actor);
+            bool towardsUs = target.Side == BattleSide.Player;
+            if (towardsUs) Sfx(entry.AbsorbedAmount > 0 && DamageHpLoss(entry) <= 0 ? "block" : "hurt", .75f);
+            else Sfx(entry.Critical ? "crit" : "hit", entry.Critical ? 1f : .8f);
+            BossHitLayer1031(target, entry); // 2026-10-31: heavier boss impact layer
+            // Layered hit (research §2.6): a quiet race "material" layer under our hits, a glitch tick under theirs.
+            if (actor != null && actor.Side == BattleSide.Player && entry.SkillId != "rt-poison")
+            {
+                CombatRace race = battle.RaceOf(actor);
+                Sfx("strike-" + (race == CombatRace.Demon ? "demon" : race == CombatRace.BloodElf ? "bloodelf"
+                    : race == CombatRace.Mermaid ? "mermaid" : "charm"), entry.Critical ? .5f : .3f);
+            }
+            else if (towardsUs) Sfx("glitch", .25f);
+            bool player = actor != null && actor.Side == BattleSide.Player;
+            int power = player && entry.SkillId == battle.ActiveSkillId(actor, true) ? 2
+                : entry.Critical || player && entry.SkillId == battle.ActiveSkillId(actor, false)
+                  || entry.SkillId == "rt-enemy-heavy" || entry.SkillId == "rt-enemy-finale" ? 1 : 0;
+            // Crits from our side flash the target black-and-white for two frames (light impact frame).
+            if (enemyMotions.TryGetValue(target.Id, out var enemyHit)) enemyHit.PlayHit(entry.Critical, player && power >= 1, KickDir1021(actor, target), power);
+            if (psdRoot == null || entry.SkillId == "rt-poison") return;
+            Vector2 kick = KickDir1021(actor, target);
+            // 2026-10-23: our side's hits use the shader VFX (Fx1023): slash / crit / race skill / ultimate.
+            // Enemy hits on us keep the hostile cel impact and flipbook.
+            if (player)
+            {
+                CombatRace hitRace = battle.RaceOf(actor);
+                string race = hitRace == CombatRace.Demon ? "demon" : hitRace == CombatRace.BloodElf ? "bloodelf"
+                    : hitRace == CombatRace.Mermaid ? "mermaid" : "charm";
+                RectTransform hitVisual = UnitVisual(target);
+                if (hitVisual != null)
+                {
+                    Fx1023 fx = Fx1023Host();
+                    fx.ImpactFrames = power < 2;   // the ultimate's impact frame below stays with ImpactFrame1022
+                    if (power == 2) fx.Ultimate(race, hitVisual);
+                    else if (power == 1 && entry.SkillId == battle.ActiveSkillId(actor, false)) fx.Skill(race, hitVisual, null, 1f, false);
+                    else if (entry.Critical) fx.Crit(race, hitVisual);
+                    else fx.Slash(race, hitVisual);
+                }
+            }
+            else
+            {
+                CelImpact1022.Play(psdRoot, UnitVisual(target), CelPalette.Enemy, power, kick, () => paused || closing);
+                if (towardsUs)
+                    Flipbook1022.Play(psdRoot, UnitVisual(target), "hit-enemy", power >= 1 ? 380f : 300f, true,
+                        UnityEngine.Random.Range(-20f, 20f), () => paused || closing);
+            }
+            // Hit-stop 4 / 8 / 12 frames.
+            BattleHitStop.Freeze(HitStopSeconds1031(target, power));
+            if (towardsUs) EdgeFlash1022.Play(psdRoot, new Color32(255, 30, 70, 255));
+            if (power == 2 && ultimateStrikeFlash1021 < Time.unscaledTime)
+            {
+                // One impact frame per ultimate, not one per AOE target.
+                ultimateStrikeFlash1021 = Time.unscaledTime + .5f;
+                RectTransform hitRect = UnitVisual(target);
+                Vector2 hitLocal = hitRect != null
+                    ? (Vector2)psdRoot.InverseTransformPoint(hitRect.TransformPoint(hitRect.rect.center)) - psdRoot.rect.center
+                    : Vector2.zero;
+                // Enemy figures only: member card portraits have opaque backgrounds and read as black boxes.
+                var figures = new List<Image>(enemyFigures.Values);
+                ImpactFrame1022.Play(psdRoot, hitLocal, figures, () => paused || closing);
+            }
+            if (BattlePresentationOptions.ReduceMotion) return;
+            if (stageShake != null)
+            {
+                if (power == 0) return;
+                StopCoroutine(stageShake);
+            }
+            stageShake = StartCoroutine(ShakeStage(power == 2 ? .3f : power == 1 ? .2f : .1f,
+                ShakeStrength1031(target, power, towardsUs), kick));
+        }
+
+        private Fx1023 fx1023;
+        /// <summary>The shader VFX layer: a full-stage child of the PSD battle root, kept above the stage art.</summary>
+        private Fx1023 Fx1023Host()
+        {
+            if (fx1023 == null)
+            {
+                var go = new GameObject("Fx1023", typeof(RectTransform));
+                var rt = (RectTransform)go.transform;
+                rt.SetParent(psdRoot, false);
+                rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = rt.offsetMax = Vector2.zero;
+                fx1023 = Fx1023.Ensure(rt, null, () => paused || closing);
+            }
+            // Above the enemy scene and its tags, under the member cards, dice, cut-ins and overlays
+            // (2026-10-23 review: the effects covered the skill close-up and the pause dialog).
+            int under = psdRoot.childCount - 1;
+            foreach (var c in cells)
+                if (c.Side == BattleSide.Player && c.Root.transform.parent == psdRoot) under = Mathf.Min(under, c.Root.transform.GetSiblingIndex());
+            Transform closeup = psdRoot.Find("ActiveSkillCloseup");
+            if (closeup != null) under = Mathf.Min(under, closeup.GetSiblingIndex());
+            if (fx1023.transform.GetSiblingIndex() < under) under--;
+            fx1023.transform.SetSiblingIndex(Mathf.Max(0, under));
+            return fx1023;
+        }
+
+        private Vector2 KickDir1021(BattleUnit actor, BattleUnit target)
+        {
+            RectTransform from = actor != null ? UnitVisual(actor) : null, to = UnitVisual(target);
+            Vector2 fallback = target != null && target.Side == BattleSide.Player ? Vector2.down : Vector2.up;
+            if (from == null || to == null || psdRoot == null) return fallback;
+            Vector2 d = (Vector2)psdRoot.InverseTransformPoint(to.TransformPoint(to.rect.center))
+                - (Vector2)psdRoot.InverseTransformPoint(from.TransformPoint(from.rect.center));
+            return d.sqrMagnitude > 1f ? d.normalized : fallback;
         }
 
         private void PresentHitEffect(BattleUnit actor, BattleUnit target, BattleEvent entry)
@@ -2051,7 +2638,7 @@ namespace ChoSiren.Panels
             if (actor == null || target == null || entry.Amount <= 0) return;
             if (entry.SkillId == "rt-poison")
             {
-                skillEffects?.Play(UnitVisual(target), SkillVisualKind.Thorn, CombatFeedbackPalette.Debuff, false);
+                if (psdRoot == null) skillEffects?.Play(UnitVisual(target), SkillVisualKind.Thorn, CombatFeedbackPalette.Debuff, false);
                 return;
             }
             bool player = actor.Side == BattleSide.Player;
@@ -2071,30 +2658,44 @@ namespace ChoSiren.Panels
                 : kind == SkillVisualKind.Prism || kind == SkillVisualKind.Thorn ? crystalBurstSprite
                 : kind == SkillVisualKind.Hex ? bossHeartImpactSprite
                 : kind == SkillVisualKind.Slash ? bossHitSlashSprite : null;
+            if (ultimate && psdRoot != null)
+            {
+                // 2026-10-20 (owner): the ultimate's own attack flies from her card into each
+                // target and bursts there; repeated AOE hits are staggered.
+                string key = race == CombatRace.Demon ? "demon" : race == CombatRace.BloodElf ? "bloodelf"
+                    : race == CombatRace.Mermaid ? "mermaid" : "charm";
+                float stagger = ultimateStrikeCount++ * .09f;
+                // 2026-10-21: the ultimate uses the race's own move at full size + its big hit art.
+                BasicStrike1021.Play(psdRoot, UnitVisual(actor), UnitVisual(target), key,
+                    () => paused || closing, () =>
+                    {
+                        if (closing) return;
+                        Sfx("strike-" + key);
+                        LandHit1021(actor, target, entry);
+                    }, 1f, stagger, key + "-hit", contact: false);   // the contact is Fx1023.Ultimate (LandHit1021)
+                hitDeferred1021 = Application.isPlaying;
+                return;
+            }
             BattleUnit playerUnit = player ? actor : target;
             int slot = 0;
             foreach (BattleUnit unit in battle.Units)
             {
                 if (unit.Side != BattleSide.Player) continue;
-                CellView view = FindCell(unit);
                 if (unit.Id == playerUnit.Id)
                 {
                     Sprite actorPortrait = player ? FindCell(actor)?.Portrait.sprite
                         : enemyFigures.TryGetValue(actor.Id, out Image figure) ? figure.sprite : userBossSprite;
-                    attackTrajectories?.Play(UnitVisual(actor), UnitVisual(target), actorPortrait,
+                    if (!TryPsdBasic1019(actor, target, entry, () => LandHit1021(actor, target, entry))
+                        && !TryEnemyStrike1021(actor, target, entry, () => LandHit1021(actor, target, entry))) attackTrajectories?.Play(UnitVisual(actor), UnitVisual(target), actorPortrait,
                         actor.Definition.Name, target.Definition.Name, player ? CombatFeedbackPalette.Attack : CombatFeedbackPalette.Hurt,
                         !player, special, slot);
-                    if (!player && view?.HurtLabel != null)
-                    {
-                        view.HurtLabel.text = "受击";
-                        view.HurtLabel.color = CombatFeedbackPalette.Hurt;
-                        view.HurtLabelUntil = presentationClock + .75f;
-                        view.HurtLabel.gameObject.SetActive(true);
-                    }
+                    // Pink HP-loss numbers, hit motion and the impact ring identify the
+                    // injured member. A second 受击 label would repeat that same event.
                 }
                 slot++;
             }
-            skillEffects?.Play(UnitVisual(target), kind, player ? PerformerColor(race) : PanelKit.Pink, strong, art);
+            // The PSD battle uses the race strikes + cel impact; the old generic overlay stays for the legacy layout only.
+            if (psdRoot == null) skillEffects?.Play(UnitVisual(target), kind, player ? PerformerColor(race) : PanelKit.Pink, strong, art);
         }
 
         private void BeginEnemyActionPresentation(BattleUnit actor, BattleAction action)
@@ -2135,6 +2736,12 @@ namespace ChoSiren.Panels
             roundFlash.color = reset;
         }
 
+        private IEnumerator PhaseSurgeAfterCard1022(int phase)
+        {
+            while (!closing && psdWave1019 != null && psdWave1019.IsShowing) yield return null;
+            if (!closing && battle.Outcome == BattleOutcome.Ongoing && bossPresentation != null) bossPresentation.PlayPhaseSurge(phase);
+        }
+
         private IEnumerator FlashPhase(int phase)
         {
             int version = ++phaseFlashVersion;
@@ -2163,15 +2770,37 @@ namespace ChoSiren.Panels
             phaseText.color = PanelKit.Gold;
         }
 
+        private void PositionUltimateFlashBelowOverlays()
+        {
+            if (ultFlash == null || psdRoot == null || ultFlash.transform.parent != psdRoot.parent) return;
+            // Moving from before the PSD removes a sibling and shifts its index down by one.
+            // Place immediately after the opaque PSD, never at the end over cut-ins or modals.
+            int afterPsd = psdRoot.GetSiblingIndex() + 1;
+            if (ultFlash.transform.GetSiblingIndex() < afterPsd) afterPsd--;
+            ultFlash.transform.SetSiblingIndex(afterPsd);
+        }
+
         /// <summary>Ultimate cast pulse: a fast full-panel colour beat keyed to the skill palette.</summary>
         private IEnumerator FlashUltimate(Color accent)
         {
             int version = ++ultFlashVersion;
+            if (ultFlash == null) yield break;
+            if (BattlePresentationOptions.ReduceMotion)
+            {
+                ultFlash.color = new Color(accent.r, accent.g, accent.b, 0f);
+                ultFlash.gameObject.SetActive(false);
+                yield break;
+            }
+            PositionUltimateFlashBelowOverlays();
             const float duration = 0.42f;
             float elapsed = 0f;
+            ultFlash.color = new Color(accent.r, accent.g, accent.b, 0f);
             ultFlash.gameObject.SetActive(true);
             while (elapsed < duration && version == ultFlashVersion)
             {
+                // Check before the pause branch so enabling reduced motion while paused
+                // immediately retires an in-flight flash as well.
+                if (BattlePresentationOptions.ReduceMotion) break;
                 if (paused)
                 {
                     yield return null;
@@ -2186,6 +2815,7 @@ namespace ChoSiren.Panels
             }
 
             if (version != ultFlashVersion) yield break;
+            ultFlash.color = new Color(accent.r, accent.g, accent.b, 0f);
             ultFlash.gameObject.SetActive(false);
         }
 
@@ -2194,6 +2824,8 @@ namespace ChoSiren.Panels
             const float duration = 0.45f;
             float elapsed = 0f;
             cell.Fallen.gameObject.SetActive(true);
+            float faded = FallenAlpha1023(cell);
+            ShowFallen1023(cell, true);
             while (elapsed < duration)
             {
                 if (paused)
@@ -2202,11 +2834,29 @@ namespace ChoSiren.Panels
                     continue;
                 }
                 elapsed += BattleAnimationDelta();
-                cell.Group.alpha = Mathf.Lerp(1f, 0.38f, Mathf.Clamp01(elapsed / duration));
+                cell.Group.alpha = Mathf.Lerp(1f, faded, Mathf.Clamp01(elapsed / duration));
                 yield return null;
             }
 
-            cell.Group.alpha = 0.38f;
+            cell.Group.alpha = faded;
+        }
+
+        private static Material fallenMaterial1023;
+
+        // 2026-10-23 review: a fallen member stays on her card in black-and-white and stops taking taps,
+        // instead of fading to a near-empty sleeve. Enemy cells keep the old fade.
+        private float FallenAlpha1023(CellView cell) => cell.Side == BattleSide.Player && psdRoot != null ? .85f : .38f;
+
+        private void ShowFallen1023(CellView cell, bool fallen)
+        {
+            if (cell.Side != BattleSide.Player || psdRoot == null) return;
+            cell.Group.interactable = !fallen; cell.Group.blocksRaycasts = !fallen;
+            if (fallen && fallenMaterial1023 == null)
+            {
+                Shader gray = Resources.Load<Shader>("Shaders/UIGrayscale");
+                if (gray != null) fallenMaterial1023 = new Material(gray) { hideFlags = HideFlags.DontSave };
+            }
+            if (cell.Portrait != null) cell.Portrait.material = fallen ? fallenMaterial1023 : null;
         }
 
         private IEnumerator AnimateCellImpact(CellView cell, bool critical)
@@ -2273,6 +2923,18 @@ namespace ChoSiren.Panels
             entry.AbsorbedAmount > 0 || entry.HpLostAmount > 0 ? entry.HpLostAmount : entry.Amount;
 
         /// <summary>Floating number text that separates shield absorption from real HP loss.</summary>
+        private readonly Dictionary<int, float> popupStamp1022 = new Dictionary<int, float>();
+
+        /// <summary>Reads "-123" or "暴击 -123" (no shield part) back into an amount.</summary>
+        private static bool TryParseDamage1022(string label, out int amount, out bool critical)
+        {
+            amount = 0; critical = false;
+            if (string.IsNullOrEmpty(label) || label.Contains("护盾")) return false;
+            string body = label;
+            if (body.StartsWith("暴击 ", StringComparison.Ordinal)) { critical = true; body = body.Substring(3); }
+            return body.StartsWith("-", StringComparison.Ordinal) && int.TryParse(body.Substring(1), out amount);
+        }
+
         private static string DamagePopupLabel(BattleEvent entry)
         {
             int lost = DamageHpLoss(entry);
@@ -2280,17 +2942,24 @@ namespace ChoSiren.Panels
                 ? entry.Critical ? $"暴击 -{lost}" : $"-{lost}"
                 : lost > 0 ? $"{(entry.Critical ? "暴击 " : string.Empty)}-{lost} 护盾-{entry.AbsorbedAmount}"
                 : $"护盾吸收 {entry.AbsorbedAmount}";
-            if (entry.DiceMultiplierPermille > 1000)
-                label += $" ×{entry.DiceMultiplierPermille / 1000f:0.##}";
+            // Dice multiplier stays on the authoritative hand readout and in the log.
+            // Each hit popup carries only HP loss and any separately absorbed shield amount.
             return label;
         }
+
+        // 2026-10-23 review: damage numbers read too small — bigger on the enemies, a little bigger on the cards.
+        private static int DamageFont1023(BattleUnit target, bool critical) =>
+            target != null && target.Side == BattleSide.Player ? (critical ? 30 : 26) : (critical ? 38 : 30);
 
         private void SpawnPopup(BattleUnit target, string text, Color color, int fontSize)
         {
             CellView cell = FindCell(target);
             if (cell == null) return;
-            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target) : cell.Rect;
-            SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, 22f);
+            bool lowerPlayerReading = psdRoot != null && target.Side == BattleSide.Player &&
+                psdAttackBadges.TryGetValue(cell, out _);
+            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target)
+                : lowerPlayerReading ? (RectTransform)psdAttackBadges[cell].transform : cell.Rect;
+            SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, lowerPlayerReading ? -20f : 22f);
         }
 
         /// <summary>Popup carrying a semantic icon (heal/shield/buff reads) beside the short text.</summary>
@@ -2299,8 +2968,11 @@ namespace ChoSiren.Panels
         {
             CellView cell = FindCell(target);
             if (cell == null) return;
-            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target) : cell.Rect;
-            SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, 22f, icon);
+            bool lowerPlayerReading = psdRoot != null && target.Side == BattleSide.Player &&
+                psdAttackBadges.TryGetValue(cell, out _);
+            RectTransform visual = target.Side == BattleSide.Enemy ? UnitVisual(target)
+                : lowerPlayerReading ? (RectTransform)psdAttackBadges[cell].transform : cell.Rect;
+            SpawnPopupAt(visual ?? cell.Rect, target.Id, text, color, fontSize, lowerPlayerReading ? -20f : 22f, icon);
         }
 
         /// <summary>Floating feedback anchored to any rect (used by dice/captain reroll readouts).</summary>
@@ -2315,7 +2987,26 @@ namespace ChoSiren.Panels
                 if (popupOwners[i] == ownerId && popupPool[i].gameObject.activeSelf) { slot = i; break; }
             if (slot < 0) { slot = popupIndex; popupIndex = (popupIndex + 1) % popupPool.Count; }
             Text popup = popupPool[slot];
-            if (popupRoutines[slot] != null) StopCoroutine(popupRoutines[slot]);
+            if (popupRoutines[slot] != null)
+            {
+                StopCoroutine(popupRoutines[slot]);
+                // The stopped routine never reaches its cleanup: drop its crit strip here, or it stays
+                // on screen as a bare red bar (2026-10-23 review "红框错误").
+                Transform stale = popupLayer.Find("CritStrip-" + slot);
+                if (stale != null) Destroy(stale.gameObject);
+            }
+            // 2026-10-21 research §5.4: plain damage on the same target within 0.4 s rolls into one
+            // running total that re-pops, instead of each number overwriting the last.
+            if (ownerId >= 0 && TryParseDamage1022(text, out int amount, out bool critHit) && popup.gameObject.activeSelf &&
+                popupOwners[slot] == ownerId && popupStamp1022.TryGetValue(slot, out float stamped1022) && Time.unscaledTime - stamped1022 < .4f &&
+                TryParseDamage1022(popup.text, out int previous, out bool wasCrit))
+            {
+                amount += previous;
+                bool crit = critHit || wasCrit;
+                text = crit ? $"暴击 -{amount}" : $"-{amount}";
+                if (crit) fontSize = Mathf.Max(fontSize, 30);
+            }
+            popupStamp1022[slot] = Time.unscaledTime;
             popupOwners[slot] = ownerId;
             popup.text = text;
             popup.color = color;
@@ -2325,10 +3016,15 @@ namespace ChoSiren.Panels
             Vector2 local = popupLayer.InverseTransformPoint(world);
             popup.rectTransform.anchoredPosition = local - new Vector2(popupLayer.rect.xMin, popupLayer.rect.yMax);
             SkillIconGraphic popupIcon = popupIcons[slot];
+            var authoredPopupIcon = popupIcon.GetComponent<BattlePsdEffectIcon1019>();
+            authoredPopupIcon?.Clear(); // The same owner can reuse a heal slot for a plain damage number.
+            Graphic animatedPopupIcon = popupIcon;
             if (icon.HasValue)
             {
                 popupIcon.Kind = icon.Value;
                 popupIcon.color = CombatStatusIconVisuals.ColorFor(icon.Value);
+                if (authoredPopupIcon != null)
+                    animatedPopupIcon = authoredPopupIcon.Apply(icon.Value, popupIcon.color);
                 // The glyph sits just left of the text; icon-only reads stay centered.
                 float half = string.IsNullOrEmpty(text) ? 0f
                     : popup.preferredWidth * .5f + popupIcon.rectTransform.sizeDelta.x * .5f + 3f;
@@ -2338,27 +3034,69 @@ namespace ChoSiren.Panels
             else popupIcon.gameObject.SetActive(false);
             popup.gameObject.SetActive(true);
             popup.transform.SetAsLastSibling();
-            popupRoutines[slot] = StartCoroutine(AnimatePopup(popup, popupIcon));
+            popupRoutines[slot] = StartCoroutine(AnimatePopup(popup, animatedPopupIcon, popupIcon));
+        }
+
+        /// <summary>
+        /// P5 crit plate drawn just behind a crit number (removed with its popup): black offset shadow, red slanted
+        /// strip and a small 「CRITICAL」 tag on its top-left corner (2026-10-23 review #38).
+        /// </summary>
+        private RectTransform CritStrip1022(Text popup)
+        {
+            Transform old = popupLayer.Find("CritStrip-" + popupPool.IndexOf(popup));
+            if (old != null) Destroy(old.gameObject);
+            var root = new GameObject("CritStrip-" + popupPool.IndexOf(popup), typeof(RectTransform), typeof(CanvasGroup)).GetComponent<RectTransform>();
+            root.SetParent(popupLayer, false);
+            root.SetSiblingIndex(popup.transform.GetSiblingIndex());
+            root.GetComponent<CanvasGroup>().blocksRaycasts = false;
+            root.anchorMin = popup.rectTransform.anchorMin; root.anchorMax = popup.rectTransform.anchorMax; root.pivot = new Vector2(.5f, .5f);
+            var size = new Vector2(popup.preferredWidth + 40f, popup.fontSize * 1.3f);
+            root.sizeDelta = size;
+            root.localEulerAngles = new Vector3(0f, 0f, 7f);
+            P5Letters1023.Plate(root, "Shadow", new Vector2(7f, -7f), size, new Color32(14, 8, 20, 235), -16f);
+            P5Letters1023.Plate(root, "Strip", Vector2.zero, size, Brand1025.Teal, -16f);
+            P5Letters1023.Plate(root, "Edge", new Vector2(0f, -size.y * .42f), new Vector2(size.x * .9f, 4f), new Color32(246, 240, 248, 255), -16f);
+            P5Letters1023.Plate(root, "TagPlate", new Vector2(-size.x * .5f + 46f, size.y * .5f + 6f), new Vector2(92f, 20f), new Color32(14, 8, 20, 255), -16f);
+            var label = new GameObject("Critical", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text)).GetComponent<Text>();
+            label.transform.SetParent(root, false);
+            label.font = kit.Font; label.text = "CRITICAL"; label.fontSize = 15; label.fontStyle = FontStyle.BoldAndItalic;
+            label.color = new Color32(255, 205, 110, 255); label.alignment = TextAnchor.MiddleCenter; label.raycastTarget = false;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow; label.verticalOverflow = VerticalWrapMode.Overflow;
+            label.rectTransform.anchoredPosition = new Vector2(-size.x * .5f + 46f, size.y * .5f + 6f); label.rectTransform.sizeDelta = new Vector2(92f, 20f);
+            return root;
         }
 
         private void ClearPopups()
         {
+            if (bigDamage1101 != null) bigDamage1101.Clear();
+            foreach (Transform child in popupLayer)
+                if (child.name.StartsWith("CritStrip-", StringComparison.Ordinal)) Destroy(child.gameObject);
             for (int index = 0; index < popupPool.Count; index++)
             {
                 if (popupRoutines[index] != null) StopCoroutine(popupRoutines[index]);
                 popupRoutines[index] = null;
                 popupOwners[index] = 0;
                 popupPool[index].gameObject.SetActive(false);
+                popupIcons[index].GetComponent<BattlePsdEffectIcon1019>()?.Clear();
                 popupIcons[index].gameObject.SetActive(false);
             }
         }
 
-        private IEnumerator AnimatePopup(Text popup, Graphic icon)
+        private IEnumerator AnimatePopup(Text popup, Graphic icon, SkillIconGraphic owner)
         {
             const float duration = 0.7f;
             float elapsed = 0f;
             Vector2 start = popup.rectTransform.anchoredPosition;
             Color color = popup.color;
+            bool grow = popup.text.StartsWith("+");
+            // 2026-10-21 research pass (§5.4): numbers pop 0 → 1.3 → 1.0 in ~7 frames, hold, then
+            // drift up and fade. Crits are bigger, tilted, and sit on a red slanted P5 strip.
+            // Only real crits get the red strip: banners and dice notes are big too but are not hits.
+            bool crit = popup.text.StartsWith("暴击", StringComparison.Ordinal);
+            bool calm = BattlePresentationOptions.ReduceMotion;
+            float drift = calm ? 0f : UnityEngine.Random.Range(-14f, 14f);
+            popup.rectTransform.localEulerAngles = new Vector3(0f, 0f, crit && !calm ? 7f : calm ? 0f : UnityEngine.Random.Range(-4f, 4f));
+            RectTransform strip = crit && !calm ? CritStrip1022(popup) : null;
             while (elapsed < duration && popup.gameObject.activeSelf)
             {
                 if (paused)
@@ -2368,8 +3106,20 @@ namespace ChoSiren.Panels
                 }
                 elapsed += BattleAnimationDelta();
                 float t = Mathf.Clamp01(elapsed / duration);
-                popup.rectTransform.anchoredPosition = start + new Vector2(0f, 46f * t);
-                color.a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.45f, 1f, t));
+                float rise = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.5f, 1f, t));
+                popup.rectTransform.anchoredPosition = start + new Vector2(drift * rise, calm ? 0f : 46f * rise);
+                float pop = Mathf.Clamp01(elapsed / .06f);
+                float stamp = calm ? 1f
+                    : grow ? (pop < 1f ? Mathf.Lerp(.45f, 1.15f, pop) : Mathf.Lerp(1.15f, 1f, Mathf.Clamp01((elapsed - .06f) / .1f)))
+                    : (pop < .55f ? Mathf.Lerp(0f, 1.3f, pop / .55f) : Mathf.Lerp(1.3f, 1f, (pop - .55f) / .45f)) * (crit ? 1.12f : 1f);
+                popup.rectTransform.localScale = Vector3.one * stamp;
+                color.a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.55f, 1f, t));
+                if (strip != null)
+                {
+                    strip.anchoredPosition = popup.rectTransform.anchoredPosition;
+                    strip.localScale = new Vector3(stamp, stamp, 1f);
+                    var stripGroup = strip.GetComponent<CanvasGroup>(); if (stripGroup != null) stripGroup.alpha = color.a;
+                }
                 popup.color = color;
                 if (icon != null && icon.gameObject.activeSelf)
                 {
@@ -2380,6 +3130,10 @@ namespace ChoSiren.Panels
                 yield return null;
             }
 
+            if (strip != null) Destroy(strip.gameObject);
+            // Retire the semantic owner as well as its optional authored child.
+            // Its OnDisable clears the pooled sprite before this slot is reused.
+            if (owner != null) owner.gameObject.SetActive(false);
             popup.gameObject.SetActive(false);
             if (icon != null) icon.gameObject.SetActive(false);
         }
@@ -2422,6 +3176,10 @@ namespace ChoSiren.Panels
             }
 
             int playerIndex = 0;
+            // PSD battle: the captain stands in the first slot, right above the PSD 「队长」 plate.
+            List<CellView> captainOrder = null;
+            if (psdRoot != null)
+                captainOrder = CaptainFirstOrder1026(cells.Where(c => c.Unit != null && c.Side == BattleSide.Player).ToList());
             for (int index = 0; index < cells.Count; index++)
             {
                 CellView cell = cells[index];
@@ -2431,7 +3189,15 @@ namespace ChoSiren.Panels
                     {
                         int row = playerIndex / 4;
                         int col = playerIndex % 4;
-                        PanelKit.PlaceTop(cell.Rect, 20f + col * 174f, PlayerRosterTop + row * 182f,
+                        if (psdRoot != null)
+                        {
+                            int slot = captainOrder.IndexOf(cell);
+                            bool placed = psdSlots.TryGetValue(cell, out int previousSlot);
+                            Vector2 previous = cell.Rect.anchoredPosition;
+                            PositionPsdMember(cell, slot);
+                            if (placed && previousSlot != slot) CardSlide1026.Move(cell.Rect, previous, CardSlideSeconds1026);
+                        }
+                        else PanelKit.PlaceTop(cell.Rect, 20f + col * 174f, PlayerRosterTop + row * 182f,
                             PlayerCellWidth, PlayerCellHeight);
                         playerIndex++;
                     }
@@ -2439,12 +3205,15 @@ namespace ChoSiren.Panels
                     {
                         RectTransform anchor = enemyAnchors[cell.Unit.Id];
                         if (cell.Rect.parent != anchor) cell.Rect.SetParent(anchor, false);
-                        PanelKit.PlaceTop(cell.Rect, (anchor.rect.width - EnemyCellWidth) / 2, 0,
+                        if (psdRoot != null) PositionPsdEnemyCell(cell, anchor);
+                        else PanelKit.PlaceTop(cell.Rect, (anchor.rect.width - EnemyCellWidth) / 2, 0,
                             EnemyCellWidth, EnemyCellHeight);
                     }
                 }
                 ApplyCell(cell);
+                EnsureSkillVisuals1026(cell);
             }
+            RefreshCaptainPlate1026();
         }
 
         private void RefreshCell(BattleUnit unit)
@@ -2477,7 +3246,7 @@ namespace ChoSiren.Panels
                 Sprite portrait = cell.Side == BattleSide.Player
                     ? BattlePortrait(unit.Definition.Id)
                     : EnemySprite(unit.Definition.Id);
-                cell.Portrait.sprite = portrait;
+                cell.Portrait.sprite = psdRoot != null && cell.Side == BattleSide.Player ? PsdMemberPortrait(unit, cell) : portrait;
                 cell.Portrait.enabled = portrait != null && cell.Side == BattleSide.Player;
                 if (cell.Motion != null && cell.MotionBoundId != unit.Id)
                 {
@@ -2501,9 +3270,10 @@ namespace ChoSiren.Panels
                 cell.CastFill.transform.parent.gameObject.SetActive(remaining > 0);
                 cell.CastFill.fillAmount = 1f - Mathf.Clamp01(remaining / 2000f);
                 cell.CastFill.color = remaining <= 700 ? CombatFeedbackPalette.Hurt : CombatFeedbackPalette.Control;
-                var castTarget = battle.CastTarget(unit);
-                bool allTargets = battle.Stage.HasBossPhases && battle.EnemyPhase >= 3;
-                cell.CastLabel.text = remaining > 0 ? $"→{(unit.Definition.Id == "velvet-hexer" ? "敌方治疗" : allTargets ? "全队" : castTarget?.Definition.Name ?? "全体")} {remaining / 1000f:0.0}s" : "";
+                string intent = battle.EnemyCastIntent(unit);
+                string intentTarget = battle.EnemyCastTargetDescription(unit);
+                cell.CastLabel.gameObject.SetActive(remaining > 0);
+                cell.CastLabel.text = remaining > 0 ? $"{intent}→{intentTarget} {remaining / 1000f:0.0}s" : "";
                 if (remaining > 0) cell.Status.text = battle.EnemyThreatName(unit);
             }
             bool stunned = battle.IsRealtime && battle.ConditionRemaining(unit, CombatCondition.Stun) > 0;
@@ -2524,13 +3294,15 @@ namespace ChoSiren.Panels
             if (!unit.Alive)
             {
                 cell.Fallen.gameObject.SetActive(true);
-                cell.Group.alpha = 0.38f;
+                cell.Group.alpha = FallenAlpha1023(cell);
             }
             else
             {
                 cell.Fallen.gameObject.SetActive(false);
                 cell.Group.alpha = 1f;
             }
+            ShowFallen1023(cell, !unit.Alive);
+            if (psdRoot != null) RefreshPsdCell(cell);
         }
 
         private Sprite BattlePortrait(string memberId)
@@ -2541,6 +3313,13 @@ namespace ChoSiren.Panels
             // UI-only framing, never replace the shared full-body artwork. Values are normalized
             // texture rectangles, with y measured from the bottom (Unity sprite coordinates).
             Rect focus = PanelKit.MemberBustFocus(memberId);
+            // The previous shared focus stopped at .90/.97 and shaved off native hair/ears.
+            // Keep the source's complete top edge and a generous horizontal head margin;
+            // the battle-only sprite still ends at the existing chest/waist focus bottom.
+            float left = Mathf.Max(0f, focus.xMin - .12f);
+            float right = Mathf.Min(1f, focus.xMax + .12f);
+            if (memberId == "wubai") right = 1f; // Her new right ponytail reaches the source edge.
+            focus = new Rect(left, focus.yMin, right - left, 1f - focus.yMin);
             Rect original = source.rect;
             Rect crop = new Rect(original.x + original.width * focus.x,
                 original.y + original.height * focus.y, original.width * focus.width, original.height * focus.height);
@@ -2629,10 +3408,23 @@ namespace ChoSiren.Panels
             actorGlow.transform.SetSiblingIndex(cell.Root.transform.GetSiblingIndex());
         }
 
+        private bool coveredByStory;
+        private bool EntryPresentationCovered => coveredByStory || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame;
+
         private void Update()
         {
-            if (paused || closing) return;
+            AdvanceTurnBanner();
+            if (pickingCaptain1024 && psdRoot != null)
+                foreach (var c in cells) if (c.Side == BattleSide.Player) PickHint1024(c);
+            AdvanceRerollGlow();
+            // A stage-intro story can still be on screen (its exit animation) when the battle
+            // opens; the opening dice roll waits until the player can actually see it. A story
+            // left on its end card (it starts the battle from there) no longer covers anything.
+            StoryPanel story = FindAnyObjectByType<StoryPanel>();
+            coveredByStory = story != null && !story.Ended;
+            if (paused || closing || EntryPresentationCovered) return;
             presentationClock += BattleAnimationDelta();
+            RefreshPsdSkillCues1019();
             foreach (CellView view in cells)
             {
                 if (view.ActionLabel != null && view.ActionLabel.gameObject.activeSelf &&
@@ -2640,11 +3432,12 @@ namespace ChoSiren.Panels
                 if (view.HurtLabel != null && view.HurtLabel.gameObject.activeSelf &&
                     presentationClock >= view.HurtLabelUntil) view.HurtLabel.gameObject.SetActive(false);
             }
-            if (awaitingDiceLanding && dicePresentations.Count > 0 && !dicePresentations.Exists(item => item.IsRolling))
+            if (awaitingDiceLanding && dicePresentations.Count > 0 && !dicePresentations.Exists(item => item.Busy))
             {
                 awaitingDiceLanding = false;
                 RefreshDiceUi();
                 StartCoroutine(FlashDiceResult());
+                PlayComboShow();
             }
             if (!paused && battle != null && !battle.IsRealtime && battle.Outcome == BattleOutcome.Ongoing)
                 battleElapsed += Time.unscaledDeltaTime;
@@ -2722,6 +3515,7 @@ namespace ChoSiren.Panels
             bool timeWarning = battle.IsRealtime && battle.Stage.TimeLimitSeconds - battleElapsed <= 20;
             timerText.color = timeWarning ? new Color32(255, 111, 118, 255) : new Color32(193, 187, 221, 255);
             if (timeWarning && battle.Outcome == BattleOutcome.Ongoing) phaseText.text = "即将超时判负";
+            if (psdRoot != null) RefreshPsdHud(timeWarning);
         }
 
         private void PrepareDiceTurn()
@@ -2783,7 +3577,8 @@ namespace ChoSiren.Panels
         private void ToggleDie(int index)
         {
             if (paused || !awaitingInput || diceTurn == null || awaitingDiceLanding) return;
-            // Held means "kept"; unheld dice are ticked for the next selective reroll.
+            // Held means "kept"; unheld dice are ticked for the next selective reroll (at most two).
+            if (!TrySelectDie1031(index)) return;
             diceTurn.ToggleHold(index);
             RefreshDiceUi();
         }
@@ -2794,6 +3589,7 @@ namespace ChoSiren.Panels
             int bonusBefore = diceTurn.AccumulatedBonusPermille;
             if (!diceTurn.RerollUnheld(out string error)) { Notify(error); return; }
             diceEnergy = diceTurn.Energy;
+            Sfx("dice", .8f);
             ShowRerollFeedback(bonusBefore);
             RefreshDiceUi();
         }
@@ -2804,6 +3600,7 @@ namespace ChoSiren.Panels
             int bonusBefore = diceTurn.AccumulatedBonusPermille;
             if (!diceTurn.RerollAll(out string error)) { Notify(error); return; }
             diceEnergy = diceTurn.Energy;
+            Sfx("dice", .8f);
             ShowRerollFeedback(bonusBefore);
             RefreshDiceUi();
         }
@@ -2815,16 +3612,21 @@ namespace ChoSiren.Panels
         private void ShowRerollFeedback(int bonusBefore)
         {
             if (diceTurn == null || diceTurn.Hand == null) return;
-            int gain = Mathf.Max(0, diceTurn.AccumulatedBonusPermille - bonusBefore);
+            int gain = diceTurn.RhythmMode ? diceTurn.AccumulatedBonusPermille - bonusBefore
+                : Mathf.Max(0, diceTurn.AccumulatedBonusPermille - bonusBefore);
             float total = diceTurn.AccumulatedBonusPermille / 10f;
-            string gainLabel = gain > 0 ? $"骰子加成 +{gain / 10f:0.#}%" : "骰子加成已达上限";
+            string gainLabel = gain > 0 ? $"骰子加成 +{gain / 10f:0.#}%"
+                // Rhythm rerolls can land a worse hand; say so, or "-6%" reads like a bug (2026-10-23 review).
+                : gain < 0 ? $"牌型变弱 · 加成 {gain / 10f:0.#}%"
+                : diceTurn.RhythmMode ? "骰子加成不变" : "骰子加成已达上限";
+            if (diceTurn.RhythmMode)
+                gainLabel += diceTurn.LastHeatChange > 0 ? $" · 热度{diceTurn.Heat}" : diceTurn.LastHeatChange < 0 ? " · 热度清零" : "";
             // 加成本次收益要一眼可读：大字号 + 金色浮字，盖过普通伤害读数。
             SpawnPopupAt(diceHandText.rectTransform, -101, gainLabel,
-                gain > 0 ? PanelKit.Gold : PanelKit.Cyan, 26, 12f);
+                gain > 0 ? PanelKit.Gold : gain < 0 ? PanelKit.Pink : PanelKit.Cyan, 26, 12f);
             string captain = CaptainBenefitLabel();
-            BattleUnit captainUnit = battle.FindUnit(battle.CurrentLeaderId);
-            if (!string.IsNullOrEmpty(captain) && captainUnit != null)
-                SpawnPopup(captainUnit, captain, PanelKit.Gold, 18);
+            // Captain benefit is already permanent in DiceInstruction; avoid a second
+            // moving sentence over the captain portrait. Its full attribution remains below.
             string line = $"重投 → {diceTurn.Hand.DisplayName} · {gainLabel} · 累计 +{total:0.#}%" +
                 (string.IsNullOrEmpty(captain) ? string.Empty : " · " + captain);
             AppendLog(line);
@@ -2841,7 +3643,7 @@ namespace ChoSiren.Panels
         {
             bool active = diceTurn != null && diceTurn.Hand != null;
             bool newRoll = active && displayedDiceRevision != diceTurn.Revision;
-            if (newRoll) { displayedDiceRevision = diceTurn.Revision; awaitingDiceLanding = true; }
+            if (newRoll) { displayedDiceRevision = diceTurn.Revision; awaitingDiceLanding = true; HideDiceAuras(); }
             bool battleSession = active && diceTurn.IsBattleSession;
             int selected = battleSession ? diceTurn.SelectedForRerollCount : 0;
             for (int index = 0; index < diceButtons.Count; index++)
@@ -2875,7 +3677,7 @@ namespace ChoSiren.Panels
                     float tintStrength = battleSession && !held ? 0.2f : participating ? 0.16f : 0.11f;
                     dicePresentations[index].SetRestingFace(faceSprite, face, participating,
                         Color.Lerp(PanelKit.White, background, tintStrength));
-                    if (newRoll && (!held || dicePresentations[index].RollCount == 0))
+                    if (newRoll && diceTurn.Rolled[index])
                         dicePresentations[index].PlayRoll(faceSprite, face, userDiceFaceSprites, index, participating);
                 }
                 if (index < diceOutlines.Count)
@@ -2895,7 +3697,8 @@ namespace ChoSiren.Panels
                         : Mathf.Clamp01(diceTurn.Energy / 100f))
                     : Mathf.Clamp01(bonus / (float)DiceTurn.MaxBattleBonusPermille);
             if (diceEnergyText != null)
-                diceEnergyText.text = battleSession
+                diceEnergyText.text = battleSession && diceTurn.RhythmMode ? $"×{diceTurn.AvailableRerolls}" // 2026-11-01c
+                    : battleSession
                     ? (diceTurn.EarnedRerolls >= diceTurn.BattleRerollLimit
                         ? (diceTurn.RerollsRemaining > 0
                             ? $"重投就绪 ×{diceTurn.RerollsRemaining} · 次数已发满"
@@ -2922,7 +3725,7 @@ namespace ChoSiren.Panels
             {
                 energyRerollLabel.text = !battleSession
                     ? active && diceTurn.Energy >= DiceTurn.MaxEnergy ? "能量重投 · 就绪" : "能量重投 · 充能中"
-                    : active && diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次" : "全部重投";
+                    : "全部重投";
                 bool energyUsable = active && (battleSession ? diceTurn.CanReroll
                     : diceTurn.Energy >= DiceTurn.MaxEnergy);
                 PanelKit.SetButtonState(energyRerollButton, awaitingInput && energyUsable,
@@ -2935,8 +3738,9 @@ namespace ChoSiren.Panels
                 rerollLabel.text = $"重投已选{selected}颗";
                 PanelKit.SetButtonState(rerollButton, canReroll && selected > 0,
                     canReroll && selected > 0 ? new Color32(126, 62, 181, 252) : PanelKit.Disabled);
-                energyRerollLabel.text = diceTurn.FreeRerolls > 0 ? "全部重投 · 免费1次"
-                    : diceTurn.RerollsRemaining > 0 ? $"全部重投 · 剩{diceTurn.RerollsRemaining}次"
+                // 2026-10-31: no more "全部重投" — this entry rerolls the two loosest dice for the player.
+                energyRerollLabel.text = diceTurn.RhythmMode ? $"重投 ×{diceTurn.AvailableRerolls}" // 2026-11-01c 骰子豆
+                    : diceTurn.AvailableRerolls > 0 ? $"全部重投 · 剩{diceTurn.AvailableRerolls}次"
                     : diceTurn.EarnedRerolls < diceTurn.BattleRerollLimit ? $"全部重投 · 充能{diceTurn.Energy}%"
                     : "本场重投已用完";
                 PanelKit.SetButtonState(energyRerollButton, canReroll,
@@ -2961,6 +3765,7 @@ namespace ChoSiren.Panels
                 diceInstructionText.color = total >= 75f ? new Color32(255, 168, 74, 255)
                     : total >= 40f ? PanelKit.Gold : PanelKit.Muted;
             }
+            if (psdRoot != null) RefreshPsdDice();
         }
 
         /// <summary>成员目录的种族文案 → 战斗种族；用于回合制模式下的队长收益读数。</summary>
@@ -3009,6 +3814,83 @@ namespace ChoSiren.Panels
                 default:
                     return string.Empty;
             }
+        }
+
+        /// <summary>Strong hands use a compact cue on their own readout; weak hands use dice auras.</summary>
+        private void PlayComboShow()
+        {
+            if (comboShow == null || diceTurn == null || diceTurn.Hand == null || battle == null) return;
+            int tier = ChoSiren.UI.DiceComboShow.TierOf((int)diceTurn.Hand.Pattern);
+            ShowDiceAuras(tier);
+            // 2026-10-20 (owner): every scoring hand (from 一对 up) gets its word-art stamp.
+            if (BattlePresentationOptions.ReduceMotion || tier <= 0)
+            {
+                comboShow.Cancel(); // A weak new hand must also remove a previous strong-hand cue.
+                return;
+            }
+            var from = new List<RectTransform>();
+            for (int i = 0; i < diceButtons.Count && i < diceTurn.Hand.Participating.Count; i++)
+                if (diceTurn.Hand.Participating[i]) from.Add(diceButtons[i].GetComponent<RectTransform>());
+            // Only members actually boosted by this hand participate in the number cue.
+            // The compact cue releases those badges immediately; no flying shard delays the values.
+            List<CellView> members = cells.Where(c => c.Side == BattleSide.Player && c.Unit != null && c.Unit.Alive
+                && battle.DiceMultiplierFor(c.Unit) > 1000).ToList();
+            var targets = members.Select(c => c.Rect).ToList();
+            float value = diceTurn.DamageMultiplierPermille / 1000f;
+            foreach (CellView member in members)
+                if (psdAttackBadges.TryGetValue(member, out var badge)) badge.Hold();
+            var hit = new HashSet<int>();
+            // 2026-10-20 (owner): the hand's bonus visibly flies from the scoring dice into the
+            // captain's card; the badges release when it lands.
+            CellView captainCell = cells.FirstOrDefault(c => c.Side == BattleSide.Player && c.Unit != null && c.Unit.Alive
+                && c.Unit.Id == battle.CurrentLeaderId);
+            int accumulated = diceTurn.AccumulatedBonusPermille;
+            int gain = Mathf.Max(0, accumulated - lastCaptainBonusPermille);
+            lastCaptainBonusPermille = accumulated;
+            comboShow.Play(diceTurn.Hand.DisplayName, value, tier, diceHandText.font, from, new List<RectTransform>(), null,
+                diceHandText.rectTransform);
+            if (ChoSiren.UI.DiceComboShow.StampFor(diceTurn.Hand.DisplayName) != null) Sfx("stamp", tier >= 3 ? 1f : .7f);
+            Action release = () =>
+            {
+                for (int i = 0; i < members.Count; i++)
+                    if (hit.Add(i) && psdAttackBadges.TryGetValue(members[i], out var badge)) badge.Release();
+            };
+            if (psdRoot != null && captainCell != null && !BattlePresentationOptions.ReduceMotion)
+            {
+                Sfx("orb-chime", .7f);
+                DiceBonusFlight1020.Play(psdRoot, from, captainCell.Rect,
+                    gain > 0 ? $"攻击 +{gain / 10f:0.#}%" : $"倍率 ×{value:0.##}", diceHandText.font, () => paused || closing, release);
+            }
+            else release();
+        }
+
+        /// <summary>Scoring dice burn and show "+pips"; the rest dim while a hand is formed.</summary>
+        private void ShowDiceAuras(int tier)
+        {
+            if (diceAuras.Count != diceButtons.Count)
+            {
+                diceAuras.Clear();
+                foreach (GameObject die in diceButtons)
+                    diceAuras.Add(ChoSiren.UI.DiceScoreAura.Attach(die.GetComponent<RectTransform>(), diceHandText.font,
+                        () => paused || closing || EntryPresentationCovered));
+            }
+            int order = 0;
+            for (int i = 0; i < diceAuras.Count; i++)
+            {
+                bool scoring = tier > 0 && diceTurn != null && i < diceTurn.Hand.Participating.Count && diceTurn.Hand.Participating[i];
+                var fx = scoring ? ChoSiren.UI.DiceFxStyle.For(diceTurn.Hand.Pattern, diceTurn.Hand.Values, i)
+                    : default;
+                diceAuras[i].Show(scoring, tier > 0, diceTurn != null ? diceTurn.Values[i] : 0,
+                    scoring ? .25f + order++ * .08f : 0f, fx);
+                if (i < dicePedestals.Count && dicePedestals[i] != null)
+                    dicePedestals[i].color = scoring ? Color.Lerp(Color.white, fx.Color, .5f) : PedestalIdle;
+            }
+        }
+
+        private void HideDiceAuras()
+        {
+            foreach (var aura in diceAuras) if (aura != null) aura.Hide();
+            foreach (Image pedestal in dicePedestals) if (pedestal != null) pedestal.color = PedestalIdle;
         }
 
         private IEnumerator FlashDiceResult()
@@ -3223,6 +4105,19 @@ namespace ChoSiren.Panels
             previewText.text = builder.ToString();
         }
 
+        /// <summary>Long-press a member card: make her captain (race passive + dice buff).</summary>
+        private void CellHeld(int row, int col)
+        {
+            if (paused || closing || battle == null || !battle.IsRealtime) return;
+            BattleUnit unit = battle.UnitAt(BattleSide.Player, row, col);
+            if (unit == null) return;
+            bool swapped = battle.TrySwapCaptain(unit.Id, out string message);
+            if (swapped) kit.PlaySuccess(); else kit.PlayClick();
+            Notify(swapped ? message + " · 骰子加成与种族效果随之切换" : message);
+            RefreshRealtimeCommands();
+            RefreshAllCells();
+        }
+
         private void CellClicked(BattleSide side, int row, int col)
         {
             kit.PlayClick();
@@ -3231,11 +4126,38 @@ namespace ChoSiren.Panels
             {
                 BattleUnit unit = battle.UnitAt(side, row, col);
                 if (unit == null) return;
+                if (side == BattleSide.Player && battle.IsTurnBased)
+                {
+                    // 换队长 mode (2026-10-24 review #21): the next card tapped becomes the captain.
+                    if (pickingCaptain1024)
+                    {
+                        pickingCaptain1024 = false;
+                        RefreshCaptainSwapButton1024();
+                        bool swapped = battle.TrySwapCaptain(unit.Id, out string swapMessage);
+                        if (swapped) kit.PlaySuccess();
+                        Notify(swapMessage);
+                        RefreshRealtimeCommands(); RefreshAllCells();
+                        return;
+                    }
+                    // 天命之子 (赵金 2026-10-24): a full card casts her ultimate right away, in auto and manual alike.
+                    if (battle.IsUltimateReady(unit))
+                    {
+                        // a tap launches the record too, so tap and swipe look the same
+                        CellView tapped = cells.FirstOrDefault(c => c.Unit == unit);
+                        if (tapped != null) LaunchUltimateDisc1025(tapped);
+                        else { tappedUltimateId = unit.Id; Notify($"{unit.Definition.Name} 大招！"); }
+                    }
+                    else if (battle.EnergyOf(unit) >= BattleSimulator.MaxUnitEnergy)
+                        Notify(battle.UltimatesUsed(unit) >= BattleSimulator.MaxUltimatesPerMember
+                            ? $"{unit.Definition.Name} 本场大招次数已用完" : "刚放过大招，下回合再来");
+                    else Notify($"{unit.Definition.Name} 能量 {battle.EnergyOf(unit)}%，满了再点");
+                    return;
+                }
                 if (side == BattleSide.Player)
                 {
                     inputActor = unit;
                     // Manual battle: a tap on a full-energy avatar is the release command.
-                    if (!autoMode && battle.IsEnergyFull(unit) && !battle.TryCastUltimate(unit.Id))
+                    if (!autoMode && battle.IsEnergyFull(unit) && !TryBeginManualUltimate(unit))
                     {
                         float cooldown = battle.UltimateCooldownRemaining(unit) / 1000f;
                         Notify(cooldown > 0 ? $"大招冷却 {cooldown:0.0}秒"
@@ -3294,6 +4216,7 @@ namespace ChoSiren.Panels
 
         private void ToggleAuto()
         {
+            CancelUltimateTiming();
             autoMode = !autoMode;
             if (battle.IsRealtime)
             {
@@ -3302,15 +4225,17 @@ namespace ChoSiren.Panels
                 battle.AutoCastUltimates = autoMode;
                 PanelKit.LabelOf(autoButton).text = autoMode ? "自动" : "手动";
                 PanelKit.SetButtonState(autoButton, true,
-                    autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
-                Notify(autoMode
+                    psdRoot != null ? Color.clear : autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
+                Notify(battle.IsTurnBased
+                    ? (autoMode ? "自动：重投和大招也自动" : "手动：重投和大招由你点")
+                    : autoMode
                     ? "自动战斗：满能量按队长→编队顺序自动放大招，普攻与小技能照常自动"
                     : "手动战斗：普攻与小技能自动，点击满能量头像放大招");
                 RefreshRealtimeCommands();
                 return;
             }
             PanelKit.LabelOf(autoButton).text = autoMode ? "自动" : "手动";
-            PanelKit.SetButtonState(autoButton, true, autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
+            PanelKit.SetButtonState(autoButton, true, psdRoot != null ? Color.clear : autoMode ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
             if (autoMode && awaitingInput)
             {
                 ClearSkillBar();
@@ -3323,18 +4248,33 @@ namespace ChoSiren.Panels
 
         private void ToggleSpeed()
         {
-            speed = speed == 1 ? 2 : 1;
-            PanelKit.LabelOf(speedButton).text = speed == 2 ? "2倍" : "1倍";
-            PanelKit.SetButtonState(speedButton, true, speed == 2 ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
-            Notify(speed == 2 ? "已切换到 2 倍速" : "已恢复 1 倍速");
+            // 2026-10-21: 1 → 2 → 3 → 1, remembered in the save for the next battle.
+            speed = speed >= 3 ? 1 : speed + 1;
+            model?.SetBattleSpeed(speed);
+            ApplySpeedLabel();
+            Notify(speed == 1 ? "已恢复 1 倍速" : $"已切换到 {speed} 倍速");
+        }
+
+        private void ApplySpeedLabel()
+        {
+            if (speedButton == null) return;
+            PanelKit.LabelOf(speedButton).text = speed + "倍";
+            PanelKit.SetButtonState(speedButton, true, psdRoot != null ? Color.clear : speed >= 2 ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
         }
 
         private void TogglePause()
         {
             paused = !paused;
-            PanelKit.LabelOf(retreatButton).text = paused ? "继续" : "暂停";
+            PanelKit.LabelOf(retreatButton).text = psdRoot != null ? "" : paused ? "继续" : "暂停";
+            if (psdRoot != null)
+            {
+                // Put the one resume control above the modal without lifting the whole battlefield.
+                retreatButton.transform.SetParent(paused ? transform : psdRoot, true);
+                if (psdPauseGlyph != null) psdPauseGlyph.gameObject.SetActive(!paused);
+                if (psdResumeGlyph != null) psdResumeGlyph.gameObject.SetActive(paused);
+            }
             PanelKit.SetButtonState(retreatButton, true,
-                paused ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
+                psdRoot != null ? Color.clear : paused ? new Color32(116, 43, 177, 252) : PanelKit.ButtonDark);
             if (pauseOverlay != null)
             {
                 pauseOverlay.SetActive(paused);
@@ -3345,8 +4285,11 @@ namespace ChoSiren.Panels
             }
             if (paused)
             {
+                battleChorus?.CancelPending();
+                CancelUltimateTiming();
                 // A paused battle must not leave a queued ultimate banner or attack trail on screen.
                 skillCutIn?.Cancel();
+                psdCloseup1019?.Cancel(); // the small-skill paper cut-in froze above the pause card
                 attackTrajectories?.Cancel();
                 ClearPopups();
                 CloseAbilityOverlay();
@@ -3377,8 +4320,12 @@ namespace ChoSiren.Panels
 
         private void ShowResult()
         {
+            CancelPsdPresentation1019();
+            CancelUltimateTiming();
             skillCutIn?.Cancel();
+                psdUltimate?.Cancel();
             skillEffects?.Clear();
+            comboShow?.Cancel();
             attackTrajectories?.Cancel();
             foreach (DiceRollPresentation roll in dicePresentations) roll.CancelRoll();
             ClearPopups();
@@ -3393,17 +4340,28 @@ namespace ChoSiren.Panels
             ReportBattleFinished();
 
             bool victory = battle.Outcome == BattleOutcome.Victory;
-            PanelKit.PlaceCentered(resultCardRect, 610, victory ? 720 : 810);
+            CompleteBattleVoices(victory);
+            LayoutResult(victory);
+            string ticker = resultScreens.Bind(battle, kit.Font, unit =>
+                PanelKit.MemberSpriteOrNull(unit.Definition.Id, false) ?? BattlePortrait(unit.Definition.Id),
+                resultHeroFraction, resultRowTop);
+            BattleUnit mvp = battle.FindUnit(resultScreens.MvpUnitId);
+            resultMvpNote.text = string.Empty; // R2: the hero band already names the MVP
+            resultTicker.SetText(ticker, mvp != null ? "输出 MVP · " + mvp.Definition.Name : "本场成员记录");
+            resultRewards.gameObject.SetActive(true);
+            Transform oldIcons = resultRewardContent.Find("EarnedRewardIcons");
+            if (oldIcons != null) { oldIcons.gameObject.SetActive(false); Destroy(oldIcons.gameObject); }
+            resultRewardContent.sizeDelta = new Vector2(0f, 96f);
             recoveryActions.SetActive(!victory);
-            resultCardRect.Find("VictoryEquipment").gameObject.SetActive(victory && model.LastAwardedAccessory >= 0 && onGrowth != null);
-            RectTransform continueRect = resultCardRect.Find("ResultContinue") as RectTransform;
-            PanelKit.PlaceTop(continueRect, 140, victory ? 604 : 720, 330, 70);
+            resultRewardButton.interactable = victory && model.LastAwardedAccessory >= 0 && onGrowth != null;
+            resultRewardScroll.transform.parent.gameObject.SetActive(victory);
             resultRewardTitle.text = victory ? "奖励" : "下一步怎么变强";
-            resultTitle.text = victory ? "胜利" : "失败";
-            resultTitle.color = victory ? PanelKit.White : new Color32(196, 190, 220, 255);
+            resultTitle.text = victory ? "VICTORY" : "DEFEAT";
+            resultTitleSub.text = victory ? "胜利" : "失败";
+            resultTitle.color = victory ? Color.white : new Color32(196, 190, 220, 255);
             int stars = battle.StarRating();
             resultStars.text = StarText(stars);
-            resultStars.color = victory ? PanelKit.Gold : new Color32(120, 116, 150, 255);
+            resultStars.color = victory ? (Color)new Color32(255, 212, 90, 255) : new Color32(120, 116, 150, 255);
             resultStats.text = battle.IsRealtime
                 ? $"{battle.Stage.Name}\n用时 {battle.ElapsedMilliseconds / 1000f:0.0} 秒 · 我方倒下 {battle.PlayerUnitsLost} 人"
                 : $"{battle.Stage.Name}\n共 {battle.Round} 回合 · 我方倒下 {battle.PlayerUnitsLost} 人";
@@ -3443,28 +4401,115 @@ namespace ChoSiren.Panels
             else if (model.LastBattleRewards.Count > 0)
             {
                 resultRewards.gameObject.SetActive(false);
-                Transform rewardHost = resultCardRect.Find("BattleReward");
+                Transform rewardHost = resultRewardContent;
                 Transform previous = rewardHost.Find("EarnedRewardIcons");
                 if (previous != null) { previous.gameObject.SetActive(false); Destroy(previous.gameObject); }
                 RectTransform icons = kit.NewRect("EarnedRewardIcons", rewardHost);
-                PanelKit.PlaceTop(icons, 12, 38, 490, 160);
                 var earned = model.LastBattleRewards.GroupBy(r => r.ItemId)
                     .Select(g => (ItemId: g.Key, Amount: g.Sum(r => r.Amount))).ToList();
-                for (int i = 0; i < earned.Count; i++)
+                // R2 .rw: currencies as one cyan text line; equipment (owner 2026-10-21: "结算页面要看到获得的装备")
+                // as real icons on a rarity glow with the item name in its rarity colour.
+                var line = new StringBuilder();
+                var gear = new List<(string ItemId, int Amount)>();
+                foreach (var item in earned)
                 {
-                    float x = i % 4 * 122, y = i / 4 * 80;
-                    var reward = earned[i];
-                    ChoSiren.UI.RewardItemVisuals.CreateIcon(icons, reward.ItemId, "Earned-" + reward.ItemId, x + 39, y, 44);
-                    kit.NewPlacedText(icons, GameModel.RewardItemName(reward.ItemId), 11, PanelKit.White,
-                        x + 2, y + 44, 118, 18, TextAnchor.MiddleCenter);
-                    kit.NewPlacedText(icons, "×" + reward.Amount.ToString("N0"), 13, PanelKit.Cyan,
-                        x + 2, y + 61, 118, 18, TextAnchor.MiddleCenter);
+                    if (GameModel.AccessoryIndexForItem(item.ItemId) >= 0) { gear.Add(item); continue; }
+                    if (line.Length > 0) line.Append("    ");
+                    line.Append(GameModel.RewardItemName(item.ItemId)).Append(" ×").Append(item.Amount.ToString("N0"));
+                }
+                const float areaHeight = 140f, gearWidth = 128f;
+                PanelKit.PlaceTop(icons, 0, 0, 640, areaHeight);
+                resultRewardContent.sizeDelta = new Vector2(0f, areaHeight);
+                Text chips = kit.NewPlacedText(icons, line.ToString(), 26, ChoSiren.UI.SirenStickerUi.Cyan,
+                    0, gear.Count > 0 ? 0 : 36, 640, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
+                if (gear.Count == 0)
+                    kit.NewPlacedText(icons, "本次未掉落装备", 20, new Color32(150, 140, 175, 255),
+                        0, 76, 640, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+                chips.horizontalOverflow = HorizontalWrapMode.Wrap; chips.verticalOverflow = VerticalWrapMode.Overflow;
+                PanelKit.EnableBestFit(chips, 16);
+                int shown = Mathf.Min(5, gear.Count);
+                float gearLeft = (640f - shown * gearWidth) * .5f;
+                for (int i = 0; i < shown; i++)
+                {
+                    var item = gear[i];
+                    float x = gearLeft + i * gearWidth;
+                    Color rarity = ChoSiren.UI.RewardItemVisuals.AccentFor(item.ItemId);
+                    Image halo = kit.NewImage("GearGlow-" + item.ItemId, icons, BattleFxArt1021.Dot, new Color(rarity.r, rarity.g, rarity.b, .75f));
+                    if (BattleFxArt1021.Additive != null) halo.material = BattleFxArt1021.Additive;
+                    halo.raycastTarget = false;
+                    PanelKit.PlaceTop(halo.rectTransform, x + (gearWidth - 104f) * .5f, 26, 104, 104);
+                    ChoSiren.UI.RewardItemVisuals.CreateIcon(icons, item.ItemId, "Earned-" + item.ItemId, x + (gearWidth - 76f) * .5f, 40, 76);
+                    Text gearName = kit.NewPlacedText(icons, GameModel.RewardItemName(item.ItemId) + (item.Amount > 1 ? " ×" + item.Amount : string.Empty),
+                        18, rarity, x, 114, gearWidth, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    PanelKit.EnableBestFit(gearName, 11);
+                    kit.AddOutline(gearName.gameObject, Color.black, 1.5f);
                 }
             }
 
+            if (resultRewards.gameObject.activeSelf)
+            {
+                float contentHeight = Mathf.Max(96f, resultRewards.preferredHeight + 8f);
+                resultRewardContent.sizeDelta = new Vector2(0f, contentHeight);
+                resultRewards.rectTransform.sizeDelta = new Vector2(640f, contentHeight);
+            }
+            resultRewardScroll.verticalNormalizedPosition = 1f;
             if (victory) kit.PlaySuccess();
             resultOverlay.SetActive(true);
             resultOverlay.transform.SetAsLastSibling();
+            ApplyResultB1025(victory, stars);
+            PlayResultEncore(victory, stars);
+        }
+
+        private ChoSiren.UI.BattleResultB1025 resultB1025;
+
+        /// <summary>
+        /// 2026-10-25 (少爷 picked option B): the P5 calling-card result replaces the R2 concert layout. The
+        /// old pieces stay built (tests and the encore still find them) but hidden; 继续 and the recovery
+        /// actions are restyled and moved onto the new page.
+        /// </summary>
+        private void ApplyResultB1025(bool victory, int stars)
+        {
+            Canvas.ForceUpdateCanvases();
+            resultScreens.gameObject.SetActive(false);
+            resultTitle.gameObject.SetActive(false);
+            resultTitleSub.gameObject.SetActive(false);
+            resultStars.gameObject.SetActive(false);
+            resultBackdrop.color = Color.clear;
+            resultRewardScroll.transform.parent.gameObject.SetActive(false);
+            var loot = new List<ChoSiren.UI.BattleResultB1025.Loot>();
+            if (victory)
+                foreach (var group in model.LastBattleRewards.GroupBy(r => r.ItemId))
+                    loot.Add(new ChoSiren.UI.BattleResultB1025.Loot { ItemId = group.Key, Amount = group.Sum(r => r.Amount) });
+            // Currencies first, then equipment.
+            loot = loot.OrderBy(l => GameModel.AccessoryIndexForItem(l.ItemId) >= 0 ? 1 : 0).ToList();
+            if (resultB1025 != null) Destroy(resultB1025.gameObject);
+            Action gearTapped = model.LastAwardedAccessory >= 0 && onGrowth != null ? () => OpenRecovery("accessory") : (Action)null;
+            resultB1025 = ChoSiren.UI.BattleResultB1025.Show(resultCardRect, kit.Font, battle, victory, stars, loot,
+                unit => PanelKit.MemberSpriteOrNull(unit.Definition.Id, false) ?? BattlePortrait(unit.Definition.Id),
+                gearTapped, name => Sfx(name, .8f));
+
+            float W = resultCardRect.rect.width > 1f ? resultCardRect.rect.width : 720f;
+            var cont = resultCardRect.Find("ResultContinue") as RectTransform;
+            if (cont != null)
+            {
+                Rect slot = resultB1025.ContinueSlot;
+                PanelKit.PlaceTop(cont, slot.x, slot.y, slot.width, slot.height);
+                cont.localEulerAngles = Vector3.zero;
+                // Unified design: the shared sticker button. Victory → the teal primary; on a defeat 训练升级 is the
+                // primary, so 继续 is the dark secondary (one green action per screen).
+                Transform oldPlate = cont.Find("RedSkew");
+                if (oldPlate != null) oldPlate.gameObject.SetActive(false);
+                Text label = cont.GetComponentsInChildren<Text>(true).FirstOrDefault();
+                if (label != null) { label.text = "继续 ▶"; label.name = "Label"; label.fontSize = 34; }
+                ChoSiren.UI.SirenStickerUi.SkinButton(cont.gameObject, victory);
+                cont.SetAsLastSibling();
+            }
+            if (!victory)
+            {
+                PanelKit.PlaceTop(recoveryActions.GetComponent<RectTransform>(), (W - 620f) * .5f, resultB1025.RecoveryTop, 620, 140);
+                recoveryActions.transform.SetAsLastSibling();
+                RestyleRecovery1101(); // 2026-11-02 visual-battle: icon + two characters
+            }
         }
 
         private void OpenRecovery(string route)
@@ -3512,6 +4557,8 @@ namespace ChoSiren.Panels
 
         private void ReportBattleFinished()
         {
+            // The map must be live again before its finish callback runs (it may start coroutines).
+            RestoreCoveredLayers1022();
             if (finishedReported || battle == null) return;
             finishedReported = true;
             try
@@ -3540,8 +4587,24 @@ namespace ChoSiren.Panels
             if (!string.IsNullOrEmpty(message)) notify?.Invoke(message);
         }
 
+        private float lastDiceShake = -1f;
+        private void OnDiceHardLanding(DiceRollPresentation die)
+        {
+            if (die == null || !dicePresentations.Contains(die) || psdRoot == null || closing) return;
+            if (Time.unscaledTime - lastDiceShake < .2f) return;
+            lastDiceShake = Time.unscaledTime;
+            Sfx("dice-land", .8f);
+            if (BattlePresentationOptions.ReduceMotion || stageShake != null) return;
+            stageShake = StartCoroutine(ShakeStage(.16f, 6f));
+        }
+
         private void OnDestroy()
         {
+            RestoreCoveredLayers1022();
+            // Phone browsers have little memory: drop the battle's art and clips once the battle closes.
+            if (Application.isPlaying) { Resources.UnloadUnusedAssets(); System.GC.Collect(); }
+            DiceRollPresentation.HardLanding -= OnDiceHardLanding;
+            CancelUltimateTiming();
             if (punkPlateTexture != null) Destroy(punkPlateTexture);
             closing = true;
             StopAllCoroutines();

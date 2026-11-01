@@ -15,11 +15,14 @@ namespace ChoSiren
 
         public static Color Skill(string id, BattleSide side = BattleSide.Player)
         {
-            if (id == "rt-tactical-guard") return Shield;
+            if (id == "rt-enemy-guard-shield" || id == "rt-tactical-guard") return Shield;
             if (id == "rt-mermaid-small" || id == "rt-cleanse") return Heal;
             if (id == "rt-mermaid-big" || id == "rt-control-ward" || id == "rt-tide-hand" || id == "rt-elite-harden" || id == "rt-boss-barrier") return Shield;
             if (id == "rt-stun" || id == "rt-slow" || id == "rt-interrupt" || id == "rt-resist" || id == "rt-cast" || id == "rt-charm-big") return Control;
             if (id == "rt-armor-break" || id == "rt-poison" || id == "rt-demon-small" || id == "rt-demon-big") return Debuff;
+            // 2026-11-01 BossMechanics1101: seals read as control, poisons as debuff.
+            if (id == "rt-boss-mass-silence" || id == "rt-enemy-charm-seal") return Control;
+            if (id == "rt-enemy-venom" || id == "rt-boss-corrode") return Debuff;
             return side == BattleSide.Player ? Attack : Hurt;
         }
 

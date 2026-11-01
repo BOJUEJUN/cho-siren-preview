@@ -1,0 +1,11 @@
+/* Media decoding only. Unity draws the transparent frames between the actual
+   background and UI siblings, so animated menus need no cutout mask. */
+#character-moment {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+#character-moment video { width: 1px; height: 1px; }

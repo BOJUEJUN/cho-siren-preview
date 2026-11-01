@@ -1,0 +1,130 @@
+{
+  "baseline": "4fecd6a3fa166385a353c6cfb0e4bbbea20450a5",
+  "changes": [
+    {
+      "path": "Build/1f966b3f038cad2aef9efbdba2032207.data.unityweb",
+      "before": "1f966b3f038cad2aef9efbdba2032207011cfea36a71bdfb6d1a7bacc3d6a98a",
+      "after": null
+    },
+    {
+      "path": "Build/6cb2f1d40d0db8688530e5efec76d6a7.loader.js",
+      "before": null,
+      "after": "6cb2f1d40d0db8688530e5efec76d6a7a43c4a639cde2c127251a0de75faa85c"
+    },
+    {
+      "path": "Build/6ebc3190ca094b0adc1b6e3b5416e170.framework.js.unityweb",
+      "before": null,
+      "after": "6ebc3190ca094b0adc1b6e3b5416e1701fe185b803f35893e1aa28f2ba68574a"
+    },
+    {
+      "path": "Build/cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb",
+      "before": "cec6028803ef98d0bbf52e649f5a2d82475c6e392d3ed621f3488aded3fccda5",
+      "after": null
+    },
+    {
+      "path": "Build/d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb",
+      "before": "d9fc45d186ab89c83b10bb3346a00b8923fa5c3777e937dbf554c05609b4d8f5",
+      "after": null
+    },
+    {
+      "path": "Build/e4bf3de9899ee77a4d76978eed1a67ff.wasm.unityweb",
+      "before": null,
+      "after": "e4bf3de9899ee77a4d76978eed1a67ff98a23393dad66464a767bf3f617a8e6f"
+    },
+    {
+      "path": "Build/e4c0a1ebe9a86f38521968a453663a94.loader.js",
+      "before": "e4c0a1ebe9a86f38521968a453663a948dc3de0467577f08db0be7e6cb51cd8c",
+      "after": null
+    },
+    {
+      "path": "Build/ff4ca4121bf785d00cd6edc515b97491.data.unityweb",
+      "before": null,
+      "after": "ff4ca4121bf785d00cd6edc515b97491490358a0a3b1f10a58a95afed0047bc0"
+    },
+    {
+      "path": "CLAUDE.md",
+      "before": "89c07f13354faa1154cedd641d968c86ebc8d4aadaac76e103d7a79fe320498f",
+      "after": "761d88c1381a1e3867f3d56c52e3c3315b69178ac1e1011c6526d1b4cb93aefb"
+    },
+    {
+      "path": "RELEASES.md",
+      "before": "ceed3db0d3ea65b406e96ddbfdf52147eddba796911671e7496aab92417966be",
+      "after": "d954ca8913e30d3894b0221629182a06fd10a6a294b827984c07d180d80930f9"
+    },
+    {
+      "path": "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3",
+      "before": null,
+      "after": "5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff"
+    },
+    {
+      "path": "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+      "before": null,
+      "after": "e16785a9cd795bb3fd024bce2912a9174d30f712ccb25b7cd34e5bd5ca596ced"
+    },
+    {
+      "path": "StreamingAssets/Reference038/10e43037245da785-vfx-die-face-6.png",
+      "before": null,
+      "after": "10e43037245da7854bad74ee5850df2af90fcea7988c702b447ce71b7aadde71"
+    },
+    {
+      "path": "StreamingAssets/Reference038/399c4b44d711bbe6-vfx-die-face-4.png",
+      "before": null,
+      "after": "399c4b44d711bbe6aa4c62d2e57b30b2332e08ba3eeb30dc0f7c78dcb0e397e4"
+    },
+    {
+      "path": "StreamingAssets/Reference038/3fa255782757fd7c-vfx-die-face-2.png",
+      "before": null,
+      "after": "3fa255782757fd7c56b197f937158b96a4b8bb0fe5bf758413f7471525b49b1c"
+    },
+    {
+      "path": "StreamingAssets/Reference038/af7e3a5403ac79b6-vfx-die-face-3.png",
+      "before": null,
+      "after": "af7e3a5403ac79b69f4f1ada01eab11bb834c7e9134dc0b477f8b8c27e284f39"
+    },
+    {
+      "path": "StreamingAssets/Reference038/d096905d0e02d68a-vfx-die-face-1.png",
+      "before": null,
+      "after": "d096905d0e02d68ab620e65f1eff9603f5eb0530d8f9681ae8235aafeff162cd"
+    },
+    {
+      "path": "StreamingAssets/Reference038/ee4a0f5b4ab28725-vfx-die-face-5.png",
+      "before": null,
+      "after": "ee4a0f5b4ab287252edbf2e00661d90bb285b2ae0069d2be24d3d6ee471ac4a1"
+    },
+    {
+      "path": "StreamingAssets/Reference038/manifest.json",
+      "before": "f96de39d77aab3d08ab0ca8f7f82916294fd981c7450a2252858a77590ca5ac1",
+      "after": "4b478194c2e4651a942e4bf369b9b1db598db004d31c08129ea5eb0dfe2e3a7e"
+    },
+    {
+      "path": "build-versions.json",
+      "before": "03082ed768a58279241a7c208f2eec3bb038b281d98dd8b2b1bbc53c5269c78e",
+      "after": "64a05b762f39015d15f79fcf2f2960a05f7d47a95b0cc4d34c7aa78cc743ec5b"
+    },
+    {
+      "path": "index.html",
+      "before": "8f592eb8b057942c1feb42e7d6a877f3776c4b1a1f4744d3cb06d9b58fc6630b",
+      "after": "3bdf6b4c6f1bbb7b2a2ce2c831e390700516630e9f155fbd53aeb0d0f9fcdcb4"
+    },
+    {
+      "path": "package.json",
+      "before": "9d5c5910dc76856b2bc6db240763f3f63c9bbe8c6812e649ffba210f942ad51d",
+      "after": "c0db6d0fec3317b50f2c0188ca1c480c6ea41c637b4bced6014ba9f40e8f5eae"
+    },
+    {
+      "path": "release.json",
+      "before": "7fbe8a916f533c30e8c61a3b3ce11153a205390dc7efc95f26d6e06136dfad94",
+      "after": "2ab003a75ecf50fb0cfff6a71121f87e8ea5324150bfa001a1e78492a87984c0"
+    },
+    {
+      "path": "releases/R66D.json",
+      "before": null,
+      "after": "7fbe8a916f533c30e8c61a3b3ce11153a205390dc7efc95f26d6e06136dfad94"
+    },
+    {
+      "path": "scripts/verify-webgl.mjs",
+      "before": "b0dccb34ce3d1c05a41d4eb209895520dd3dc30a513eb6ad483f266b0bc60bf7",
+      "after": "054789383cb37b36e7c165de1d702a4f77982659a808c2794ca8b169e24a40c1"
+    }
+  ]
+}

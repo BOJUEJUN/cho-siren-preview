@@ -1090,12 +1090,12 @@
     },
     {
       "Id": "echo-drone",
-      "Name": "回声无人机",
+      "Name": "幻魅歌姬",
       "Role": "敌方",
-      "MaxHp": 180,
+      "MaxHp": 160,
       "Attack": 12,
       "Defense": 3,
-      "Speed": 100,
+      "Speed": 105,
       "CritPermille": 40,
       "SkillIds": [
         "static-burst"
@@ -1103,7 +1103,7 @@
     },
     {
       "Id": "noise-wraith",
-      "Name": "噪声幽影",
+      "Name": "蚀音游魂",
       "Role": "敌方",
       "MaxHp": 180,
       "Attack": 12,
@@ -1117,10 +1117,10 @@
     },
     {
       "Id": "neon-scout",
-      "Name": "霓虹巡游",
+      "Name": "赤血刺客",
       "Role": "敌方",
-      "MaxHp": 180,
-      "Attack": 11,
+      "MaxHp": 150,
+      "Attack": 13,
       "Defense": 2,
       "Speed": 110,
       "CritPermille": 40,
@@ -1130,10 +1130,10 @@
     },
     {
       "Id": "pulse-guard",
-      "Name": "脉冲女卫",
+      "Name": "浊浪溺者",
       "Role": "敌方",
-      "MaxHp": 180,
-      "Attack": 12,
+      "MaxHp": 260,
+      "Attack": 10,
       "Defense": 8,
       "Speed": 90,
       "CritPermille": 30,
@@ -1144,9 +1144,9 @@
     },
     {
       "Id": "velvet-hexer",
-      "Name": "绯幕咒歌",
+      "Name": "毒蚀蛛娘",
       "Role": "敌方",
-      "MaxHp": 180,
+      "MaxHp": 170,
       "Attack": 14,
       "Defense": 2,
       "Speed": 80,
@@ -1158,7 +1158,7 @@
     },
     {
       "Id": "static-golem",
-      "Name": "静电魔像",
+      "Name": "狂响幻蚀歌姬",
       "Role": "敌方",
       "MaxHp": 576,
       "Attack": 20,
@@ -1196,59 +1196,35 @@
       "TurnLimit": 20,
       "ThreeStarRounds": 6,
       "EncounterType": "normal",
-      "GoldReward": 300,
-      "DiamondFirstClear": 20,
+      "GoldReward": 150,
+      "DiamondFirstClear": 5,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
       "RecommendedLevel": 1,
       "Enemies": [
         {
-          "UnitId": "neon-scout",
+          "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 600,
-          "HpScalePermille": 28112,
+          "ScalePermille": 2218,
+          "HpScalePermille": 30800,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 600,
-          "HpScalePermille": 28112,
+          "ScalePermille": 2218,
+          "HpScalePermille": 30800,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 600,
-          "HpScalePermille": 28112,
+          "ScalePermille": 2218,
+          "HpScalePermille": 30800,
           "Wave": 1
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 600,
-          "HpScalePermille": 28112,
-          "Wave": 1
-        },
-        {
-          "UnitId": "noise-wraith",
-          "Row": 1,
-          "Col": 1,
-          "ScalePermille": 600,
-          "HpScalePermille": 28112,
-          "Wave": 2
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 2,
-          "Col": 1,
-          "ScalePermille": 600,
-          "HpScalePermille": 28112,
-          "Wave": 2
         }
       ],
       "Drops": {
@@ -1313,59 +1289,43 @@
       "TurnLimit": 20,
       "ThreeStarRounds": 6,
       "EncounterType": "normal",
-      "GoldReward": 320,
-      "DiamondFirstClear": 20,
+      "GoldReward": 160,
+      "DiamondFirstClear": 5,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 2,
+      "RecommendedLevel": 1,
       "Enemies": [
         {
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 650,
-          "HpScalePermille": 31778,
+          "ScalePermille": 2031,
+          "HpScalePermille": 28500,
           "Wave": 0
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 1,
-          "Col": 0,
-          "ScalePermille": 650,
-          "HpScalePermille": 30556,
-          "Wave": 0
-        },
-        {
-          "UnitId": "noise-wraith",
-          "Row": 2,
-          "Col": 0,
-          "ScalePermille": 650,
-          "HpScalePermille": 31778,
-          "Wave": 1
         },
         {
           "UnitId": "echo-drone",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 650,
-          "HpScalePermille": 30556,
-          "Wave": 1
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 2031,
+          "HpScalePermille": 28500,
+          "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
-          "Row": 1,
-          "Col": 1,
-          "ScalePermille": 650,
-          "HpScalePermille": 31778,
-          "Wave": 2
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 2031,
+          "HpScalePermille": 28500,
+          "Wave": 1
         },
         {
           "UnitId": "neon-scout",
-          "Row": 2,
+          "Row": 0,
           "Col": 1,
-          "ScalePermille": 650,
-          "HpScalePermille": 30556,
-          "Wave": 2
+          "ScalePermille": 2031,
+          "HpScalePermille": 28500,
+          "Wave": 1
         }
       ],
       "Drops": {
@@ -1430,42 +1390,34 @@
       "TurnLimit": 20,
       "ThreeStarRounds": 7,
       "EncounterType": "elite",
-      "GoldReward": 350,
-      "DiamondFirstClear": 25,
+      "GoldReward": 180,
+      "DiamondFirstClear": 6,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 3,
+      "RecommendedLevel": 1,
       "Enemies": [
         {
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 456,
-          "HpScalePermille": 28073,
+          "ScalePermille": 1362,
+          "HpScalePermille": 17600,
           "Wave": 0
         },
         {
-          "UnitId": "neon-scout",
+          "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 456,
-          "HpScalePermille": 24445,
+          "ScalePermille": 1362,
+          "HpScalePermille": 17600,
           "Wave": 0
         },
         {
-          "UnitId": "noise-wraith",
+          "UnitId": "velvet-hexer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 456,
-          "HpScalePermille": 24445,
-          "Wave": 1
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 456,
-          "HpScalePermille": 27500,
+          "ScalePermille": 1362,
+          "HpScalePermille": 17600,
           "Wave": 1
         }
       ],
@@ -1531,59 +1483,43 @@
       "TurnLimit": 20,
       "ThreeStarRounds": 7,
       "EncounterType": "normal",
-      "GoldReward": 380,
-      "DiamondFirstClear": 25,
+      "GoldReward": 200,
+      "DiamondFirstClear": 6,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 4,
+      "RecommendedLevel": 1,
       "Enemies": [
         {
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 720,
-          "HpScalePermille": 36056,
+          "ScalePermille": 1673,
+          "HpScalePermille": 27200,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 720,
-          "HpScalePermille": 33612,
+          "ScalePermille": 1673,
+          "HpScalePermille": 27200,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 720,
-          "HpScalePermille": 36056,
+          "ScalePermille": 1673,
+          "HpScalePermille": 27200,
           "Wave": 1
         },
         {
-          "UnitId": "noise-wraith",
+          "UnitId": "echo-drone",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 720,
-          "HpScalePermille": 33612,
+          "ScalePermille": 1673,
+          "HpScalePermille": 27200,
           "Wave": 1
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 1,
-          "Col": 1,
-          "ScalePermille": 720,
-          "HpScalePermille": 36056,
-          "Wave": 2
-        },
-        {
-          "UnitId": "noise-wraith",
-          "Row": 2,
-          "Col": 1,
-          "ScalePermille": 720,
-          "HpScalePermille": 33612,
-          "Wave": 2
         }
       ],
       "Drops": {
@@ -1648,43 +1584,44 @@
       "TurnLimit": 20,
       "ThreeStarRounds": 8,
       "EncounterType": "boss",
-      "GoldReward": 420,
-      "DiamondFirstClear": 30,
+      "BossTier": "mini",
+      "GoldReward": 400,
+      "DiamondFirstClear": 7,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 5,
+      "RecommendedLevel": 10,
       "Enemies": [
         {
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 434,
-          "HpScalePermille": 12101,
+          "ScalePermille": 1143,
+          "HpScalePermille": 6026,
           "Wave": 0
         },
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 482,
-          "HpScalePermille": 18334,
+          "ScalePermille": 916,
+          "HpScalePermille": 6026,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 482,
-          "HpScalePermille": 21388,
+          "ScalePermille": 916,
+          "HpScalePermille": 6026,
           "Wave": 1,
           "BossPhase": 2
         },
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "velvet-hexer",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 482,
-          "HpScalePermille": 21388,
+          "ScalePermille": 916,
+          "HpScalePermille": 6026,
           "Wave": 1,
           "BossPhase": 2
         }
@@ -1751,42 +1688,42 @@
       "TurnLimit": 20,
       "ThreeStarRounds": 8,
       "EncounterType": "elite",
-      "GoldReward": 460,
-      "DiamondFirstClear": 30,
+      "GoldReward": 420,
+      "DiamondFirstClear": 7,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 6,
+      "RecommendedLevel": 11,
       "Enemies": [
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 824,
-          "HpScalePermille": 106945,
-          "Wave": 0
-        },
-        {
-          "UnitId": "noise-wraith",
-          "Row": 1,
-          "Col": 0,
-          "ScalePermille": 549,
-          "HpScalePermille": 27500,
+          "ScalePermille": 3399,
+          "HpScalePermille": 17118,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 3399,
+          "HpScalePermille": 17118,
+          "Wave": 0
+        },
+        {
+          "UnitId": "velvet-hexer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 549,
-          "HpScalePermille": 27500,
+          "ScalePermille": 3399,
+          "HpScalePermille": 17118,
           "Wave": 1
         },
         {
-          "UnitId": "neon-scout",
+          "UnitId": "echo-drone",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 549,
-          "HpScalePermille": 27500,
+          "ScalePermille": 3399,
+          "HpScalePermille": 17118,
           "Wave": 1
         }
       ],
@@ -1852,59 +1789,43 @@
       "TurnLimit": 22,
       "ThreeStarRounds": 9,
       "EncounterType": "normal",
-      "GoldReward": 500,
-      "DiamondFirstClear": 35,
+      "GoldReward": 440,
+      "DiamondFirstClear": 8,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 7,
+      "RecommendedLevel": 12,
       "Enemies": [
         {
-          "UnitId": "velvet-hexer",
+          "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 880,
-          "HpScalePermille": 42778,
-          "Wave": 0
-        },
-        {
-          "UnitId": "noise-wraith",
-          "Row": 1,
-          "Col": 0,
-          "ScalePermille": 880,
-          "HpScalePermille": 42778,
+          "ScalePermille": 4299,
+          "HpScalePermille": 26039,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 4299,
+          "HpScalePermille": 26039,
+          "Wave": 0
+        },
+        {
+          "UnitId": "pulse-guard",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 880,
-          "HpScalePermille": 42778,
+          "ScalePermille": 4299,
+          "HpScalePermille": 26039,
           "Wave": 1
-        },
-        {
-          "UnitId": "velvet-hexer",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 880,
-          "HpScalePermille": 42778,
-          "Wave": 1
-        },
-        {
-          "UnitId": "noise-wraith",
-          "Row": 1,
-          "Col": 1,
-          "ScalePermille": 880,
-          "HpScalePermille": 42778,
-          "Wave": 2
         },
         {
           "UnitId": "neon-scout",
-          "Row": 2,
+          "Row": 0,
           "Col": 1,
-          "ScalePermille": 880,
-          "HpScalePermille": 42778,
-          "Wave": 2
+          "ScalePermille": 4299,
+          "HpScalePermille": 26039,
+          "Wave": 1
         }
       ],
       "Drops": {
@@ -1969,58 +1890,50 @@
       "TurnLimit": 22,
       "ThreeStarRounds": 9,
       "EncounterType": "normal",
-      "GoldReward": 550,
-      "DiamondFirstClear": 35,
+      "GoldReward": 460,
+      "DiamondFirstClear": 8,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 8,
+      "RecommendedLevel": 13,
       "Enemies": [
         {
-          "UnitId": "neon-scout",
+          "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 930,
-          "HpScalePermille": 45834,
+          "ScalePermille": 4610,
+          "HpScalePermille": 35194,
           "Wave": 0
         },
         {
-          "UnitId": "velvet-hexer",
+          "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 930,
-          "HpScalePermille": 45834,
+          "ScalePermille": 4610,
+          "HpScalePermille": 35194,
           "Wave": 0
-        },
-        {
-          "UnitId": "pulse-guard",
-          "Row": 2,
-          "Col": 0,
-          "ScalePermille": 930,
-          "HpScalePermille": 45834,
-          "Wave": 1
         },
         {
           "UnitId": "echo-drone",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 930,
-          "HpScalePermille": 45834,
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 4610,
+          "HpScalePermille": 35194,
           "Wave": 1
         },
         {
-          "UnitId": "velvet-hexer",
-          "Row": 1,
+          "UnitId": "noise-wraith",
+          "Row": 0,
           "Col": 1,
-          "ScalePermille": 930,
-          "HpScalePermille": 45834,
-          "Wave": 2
+          "ScalePermille": 4610,
+          "HpScalePermille": 35194,
+          "Wave": 1
         },
         {
-          "UnitId": "pulse-guard",
-          "Row": 2,
+          "UnitId": "noise-wraith",
+          "Row": 1,
           "Col": 1,
-          "ScalePermille": 930,
-          "HpScalePermille": 45834,
+          "ScalePermille": 4610,
+          "HpScalePermille": 35194,
           "Wave": 2
         }
       ],
@@ -2086,50 +1999,42 @@
       "TurnLimit": 24,
       "ThreeStarRounds": 10,
       "EncounterType": "elite",
-      "GoldReward": 620,
-      "DiamondFirstClear": 40,
+      "GoldReward": 500,
+      "DiamondFirstClear": 10,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 9,
+      "RecommendedLevel": 14,
       "Enemies": [
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 935,
-          "HpScalePermille": 132610,
+          "ScalePermille": 4011,
+          "HpScalePermille": 19755,
           "Wave": 0
         },
         {
-          "UnitId": "velvet-hexer",
+          "UnitId": "pulse-guard",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 623,
-          "HpScalePermille": 27500,
+          "ScalePermille": 4011,
+          "HpScalePermille": 19755,
           "Wave": 0
         },
         {
-          "UnitId": "noise-wraith",
+          "UnitId": "echo-drone",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 623,
-          "HpScalePermille": 27500,
+          "ScalePermille": 4011,
+          "HpScalePermille": 19755,
           "Wave": 1
         },
         {
-          "UnitId": "velvet-hexer",
+          "UnitId": "neon-scout",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 623,
-          "HpScalePermille": 27500,
-          "Wave": 1
-        },
-        {
-          "UnitId": "pulse-guard",
-          "Row": 1,
-          "Col": 1,
-          "ScalePermille": 623,
-          "HpScalePermille": 27500,
+          "ScalePermille": 4011,
+          "HpScalePermille": 19755,
           "Wave": 1
         }
       ],
@@ -2195,53 +2100,1111 @@
       "TurnLimit": 24,
       "ThreeStarRounds": 10,
       "EncounterType": "boss",
+      "BossTier": "major",
       "GoldReward": 800,
-      "DiamondFirstClear": 50,
+      "DiamondFirstClear": 12,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 10,
+      "RecommendedLevel": 16,
       "Enemies": [
         {
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 543,
-          "HpScalePermille": 16133,
+          "ScalePermille": 735,
+          "HpScalePermille": 20700,
           "Wave": 0
         },
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 603,
-          "HpScalePermille": 18334,
+          "ScalePermille": 735,
+          "HpScalePermille": 20700,
+          "Wave": 0
+        },
+        {
+          "UnitId": "static-golem",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 735,
+          "HpScalePermille": 20700,
+          "Wave": 1,
+          "BossPhase": 2
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 735,
+          "HpScalePermille": 20700,
+          "Wave": 1,
+          "BossPhase": 2
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-ear-monitor",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-heart-necklace",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-dance-boots",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-neon-clip",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-neon-earring",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-stage-crown",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-09",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-1",
+      "Chapter": "第 02 章",
+      "Name": "2-1 霓虹码头",
+      "StaminaCost": 10,
+      "TurnLimit": 20,
+      "ThreeStarRounds": 6,
+      "EncounterType": "normal",
+      "GoldReward": 820,
+      "DiamondFirstClear": 7,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 17,
+      "Enemies": [
+        {
+          "UnitId": "pulse-guard",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 7918,
+          "HpScalePermille": 29239,
+          "Wave": 0
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 7918,
+          "HpScalePermille": 29239,
+          "Wave": 0
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 7918,
+          "HpScalePermille": 29239,
+          "Wave": 1
+        },
+        {
+          "UnitId": "velvet-hexer",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 7918,
+          "HpScalePermille": 29239,
+          "Wave": 1
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-ear-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-2",
+      "Chapter": "第 02 章",
+      "Name": "2-2 潮汐舞池",
+      "StaminaCost": 10,
+      "TurnLimit": 20,
+      "ThreeStarRounds": 6,
+      "EncounterType": "normal",
+      "GoldReward": 840,
+      "DiamondFirstClear": 7,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 18,
+      "Enemies": [
+        {
+          "UnitId": "echo-drone",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 5011,
+          "HpScalePermille": 47699,
+          "Wave": 0
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 5011,
+          "HpScalePermille": 47699,
+          "Wave": 0
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 5011,
+          "HpScalePermille": 47699,
+          "Wave": 1
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 5011,
+          "HpScalePermille": 47699,
+          "Wave": 1
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-wrist-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-3",
+      "Chapter": "第 02 章",
+      "Name": "2-3 摩天轮之约",
+      "StaminaCost": 11,
+      "TurnLimit": 20,
+      "ThreeStarRounds": 7,
+      "EncounterType": "elite",
+      "GoldReward": 860,
+      "DiamondFirstClear": 8,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 18,
+      "Enemies": [
+        {
+          "UnitId": "static-golem",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 3278,
+          "HpScalePermille": 28160,
+          "Wave": 0
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 3278,
+          "HpScalePermille": 28160,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 603,
-          "HpScalePermille": 18334,
+          "ScalePermille": 3278,
+          "HpScalePermille": 28160,
+          "Wave": 1
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 3278,
+          "HpScalePermille": 28160,
+          "Wave": 1
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-hair-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-01",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-03",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-02",
+            "Weight": 6,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-4",
+      "Chapter": "第 02 章",
+      "Name": "2-4 海风电台",
+      "StaminaCost": 11,
+      "TurnLimit": 20,
+      "ThreeStarRounds": 7,
+      "EncounterType": "normal",
+      "GoldReward": 880,
+      "DiamondFirstClear": 8,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 19,
+      "Enemies": [
+        {
+          "UnitId": "pulse-guard",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 5624,
+          "HpScalePermille": 35119,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 5624,
+          "HpScalePermille": 35119,
+          "Wave": 0
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 5624,
+          "HpScalePermille": 35119,
+          "Wave": 1
+        },
+        {
+          "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 603,
-          "HpScalePermille": 21388,
+          "ScalePermille": 5624,
+          "HpScalePermille": 35119,
+          "Wave": 1
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 1,
+          "Col": 1,
+          "ScalePermille": 5624,
+          "HpScalePermille": 35119,
+          "Wave": 2
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-ear-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-05",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-05",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-5",
+      "Chapter": "第 02 章",
+      "Name": "2-5 深海魅影",
+      "StaminaCost": 12,
+      "TurnLimit": 20,
+      "ThreeStarRounds": 8,
+      "EncounterType": "boss",
+      "BossTier": "mini",
+      "GoldReward": 1200,
+      "DiamondFirstClear": 10,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 20,
+      "Enemies": [
+        {
+          "UnitId": "siren-queen",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 1100,
+          "HpScalePermille": 24082,
+          "Wave": 0
+        },
+        {
+          "UnitId": "pulse-guard",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 879,
+          "HpScalePermille": 24082,
+          "Wave": 0
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 879,
+          "HpScalePermille": 24082,
           "Wave": 1,
           "BossPhase": 2
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 879,
+          "HpScalePermille": 24082,
+          "Wave": 1,
+          "BossPhase": 2
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-wrist-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-05",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-05",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-6",
+      "Chapter": "第 02 章",
+      "Name": "2-6 灯塔回声",
+      "StaminaCost": 12,
+      "TurnLimit": 20,
+      "ThreeStarRounds": 8,
+      "EncounterType": "elite",
+      "GoldReward": 1220,
+      "DiamondFirstClear": 10,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 21,
+      "Enemies": [
+        {
+          "UnitId": "static-golem",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 5688,
+          "HpScalePermille": 26993,
+          "Wave": 0
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 5688,
+          "HpScalePermille": 26993,
+          "Wave": 0
+        },
+        {
+          "UnitId": "pulse-guard",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 5688,
+          "HpScalePermille": 26993,
+          "Wave": 1
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 5688,
+          "HpScalePermille": 26993,
+          "Wave": 1
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-hair-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-05",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-06",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-04",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-05",
+            "Weight": 5,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-prism-monitor",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-pulse-necklace",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-7",
+      "Chapter": "第 02 章",
+      "Name": "2-7 彩虹栈桥",
+      "StaminaCost": 13,
+      "TurnLimit": 22,
+      "ThreeStarRounds": 9,
+      "EncounterType": "normal",
+      "GoldReward": 1240,
+      "DiamondFirstClear": 11,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 21,
+      "Enemies": [
+        {
+          "UnitId": "velvet-hexer",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 9445,
+          "HpScalePermille": 28419,
+          "Wave": 0
+        },
+        {
+          "UnitId": "velvet-hexer",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 9445,
+          "HpScalePermille": 28419,
+          "Wave": 0
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 9445,
+          "HpScalePermille": 28419,
+          "Wave": 1
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 9445,
+          "HpScalePermille": 28419,
+          "Wave": 1
         },
         {
           "UnitId": "pulse-guard",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 603,
-          "HpScalePermille": 21388,
+          "ScalePermille": 9445,
+          "HpScalePermille": 28419,
+          "Wave": 2
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-ear-07",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-08",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ear-09",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-07",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-neck-08",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-spotlight-boots",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-echo-note",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-8",
+      "Chapter": "第 02 章",
+      "Name": "2-8 浪潮天台",
+      "StaminaCost": 13,
+      "TurnLimit": 22,
+      "ThreeStarRounds": 9,
+      "EncounterType": "normal",
+      "GoldReward": 1260,
+      "DiamondFirstClear": 11,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 22,
+      "Enemies": [
+        {
+          "UnitId": "neon-scout",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 7467,
+          "HpScalePermille": 29973,
+          "Wave": 0
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 7467,
+          "HpScalePermille": 29973,
+          "Wave": 0
+        },
+        {
+          "UnitId": "pulse-guard",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 7467,
+          "HpScalePermille": 29973,
+          "Wave": 1
+        },
+        {
+          "UnitId": "velvet-hexer",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 7467,
+          "HpScalePermille": 29973,
+          "Wave": 1
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 1,
+          "Col": 1,
+          "ScalePermille": 7467,
+          "HpScalePermille": 29973,
+          "Wave": 2
+        },
+        {
+          "UnitId": "noise-wraith",
+          "Row": 2,
+          "Col": 1,
+          "ScalePermille": 7467,
+          "HpScalePermille": 29973,
+          "Wave": 2
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-wrist-07",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-08",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-wrist-09",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-07",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-08",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-ring-09",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-moon-bracelet",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-9",
+      "Chapter": "第 02 章",
+      "Name": "2-9 黎明前奏",
+      "StaminaCost": 14,
+      "TurnLimit": 24,
+      "ThreeStarRounds": 10,
+      "EncounterType": "elite",
+      "GoldReward": 1300,
+      "DiamondFirstClear": 12,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 23,
+      "Enemies": [
+        {
+          "UnitId": "static-golem",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 4858,
+          "HpScalePermille": 31034,
+          "Wave": 0
+        },
+        {
+          "UnitId": "velvet-hexer",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 4858,
+          "HpScalePermille": 31034,
+          "Wave": 0
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 4858,
+          "HpScalePermille": 31034,
+          "Wave": 1
+        },
+        {
+          "UnitId": "pulse-guard",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 4858,
+          "HpScalePermille": 31034,
+          "Wave": 1
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 1,
+          "Col": 1,
+          "ScalePermille": 4858,
+          "HpScalePermille": 31034,
+          "Wave": 2
+        }
+      ],
+      "Drops": {
+        "Rolls": 3,
+        "Entries": [
+          {
+            "ItemId": "accessory-collection-hair-07",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-08",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-hair-09",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-07",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-08",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-collection-charm-09",
+            "Weight": 4,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "accessory-starlit-crown",
+            "Weight": 3,
+            "Min": 1,
+            "Max": 1
+          },
+          {
+            "ItemId": "gold",
+            "Weight": 60,
+            "Min": 1,
+            "Max": 2
+          }
+        ]
+      }
+    },
+    {
+      "Id": "stage-2-10",
+      "Chapter": "第 02 章",
+      "Name": "2-10 海湾巨蛋",
+      "StaminaCost": 16,
+      "TurnLimit": 24,
+      "ThreeStarRounds": 10,
+      "EncounterType": "boss",
+      "BossTier": "major",
+      "GoldReward": 1800,
+      "DiamondFirstClear": 15,
+      "TimeLimitSeconds": 120,
+      "ThreeStarSeconds": 100,
+      "RecommendedLevel": 24,
+      "Enemies": [
+        {
+          "UnitId": "siren-queen",
+          "Row": 0,
+          "Col": 0,
+          "ScalePermille": 1317,
+          "HpScalePermille": 23400,
+          "Wave": 0
+        },
+        {
+          "UnitId": "echo-drone",
+          "Row": 1,
+          "Col": 0,
+          "ScalePermille": 1317,
+          "HpScalePermille": 23400,
+          "Wave": 0
+        },
+        {
+          "UnitId": "static-golem",
+          "Row": 2,
+          "Col": 0,
+          "ScalePermille": 1317,
+          "HpScalePermille": 23400,
           "Wave": 1,
           "BossPhase": 2
+        },
+        {
+          "UnitId": "velvet-hexer",
+          "Row": 0,
+          "Col": 1,
+          "ScalePermille": 1317,
+          "HpScalePermille": 23400,
+          "Wave": 1,
+          "BossPhase": 2
+        },
+        {
+          "UnitId": "neon-scout",
+          "Row": 1,
+          "Col": 1,
+          "ScalePermille": 1317,
+          "HpScalePermille": 23400,
+          "Wave": 2,
+          "BossPhase": 3
         }
       ],
       "Drops": {

@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-4",
+  "Title": "2-4 海风电台",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-4"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "电台在播被侵蚀的歌……是她们的声音。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "听到了吗？她们还在唱。我们一定能把她们带回来。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "先拿下电台，把真正的歌放出去。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

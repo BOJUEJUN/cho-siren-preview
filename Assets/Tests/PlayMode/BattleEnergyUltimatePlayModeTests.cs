@@ -17,10 +17,19 @@ namespace ChoSiren.Tests
     /// </summary>
     public sealed class BattleEnergyUltimatePlayModeTests
     {
+        private bool hadReduceMotion;
+        private int previousReduceMotion;
+        [SetUp]
+        public void CaptureReduceMotionPreference()
+        {
+            hadReduceMotion = PlayerPrefs.HasKey(BattlePresentationOptions.ReduceMotionKey);
+            previousReduceMotion = PlayerPrefs.GetInt(BattlePresentationOptions.ReduceMotionKey);
+        }
         [TearDown]
         public void RestoreReduceMotionPreference()
         {
-            PlayerPrefs.DeleteKey(BattlePresentationOptions.ReduceMotionKey);
+            if (hadReduceMotion) PlayerPrefs.SetInt(BattlePresentationOptions.ReduceMotionKey, previousReduceMotion);
+            else PlayerPrefs.DeleteKey(BattlePresentationOptions.ReduceMotionKey);
             PlayerPrefs.Save();
         }
 
@@ -30,12 +39,13 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Energy Row Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }), null);
                 panel.StopAllCoroutines();
                 RectTransform card = FindRect(panel.transform, "Cell-P-0-0");
                 RectTransform track = FindRect(card, "EnergyTrack");
-                RectTransform label = FindRect(card, "EnergyLabel");
+                RectTransform label = FindRect(card, "PsdEnergyReadout");
+                Assert.That(label.gameObject.activeInHierarchy, Is.True, "Validate the visible PSD label.");
                 Image fill = FindRect(card, "EnergyFill").GetComponent<Image>();
                 Assert.That(fill.color.b, Is.GreaterThan(fill.color.r), "能量条必须是蓝色，与生命区分。");
                 AssertNoOverlap(track, FindRect(card, "Hp"), "能量条不能压住生命条");
@@ -55,7 +65,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Energy Ready Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }, enemyHp: 100000000), null);
                 panel.StopAllCoroutines();
                 panel.Battle.AdvanceRealtime(30000);
@@ -65,8 +75,9 @@ namespace ChoSiren.Tests
                 Assert.That(panel.Battle.EnergyOf(panel.Battle.FindUnit(1)),
                     Is.EqualTo(BattleSimulator.MaxUnitEnergy));
                 Assert.That(FindRect(card, "EnergyLabel").GetComponent<Text>().text,
-                    Is.EqualTo("大招就绪 · 满能量"), "满能量必须有文字可用标记，不能只靠颜色。");
-                Assert.That(FindRect(card, "EnergyReadyMark").gameObject.activeSelf, Is.True);
+                    Is.EqualTo("大招就绪"), "满能量必须有文字可用标记，不能只靠颜色。");
+                Assert.That(FindRect(card, "PsdEnergyReadout").GetComponent<Text>().text, Does.Contain("大招就绪"));
+                Assert.That(FindRect(card, "PsdEnergyReadout").gameObject.activeInHierarchy, Is.True);
                 Assert.That(FindRect(card, "EnergyFill").GetComponent<Image>().fillAmount, Is.EqualTo(1f));
                 Assert.That(FindRect(card, "EnergyGlow").GetComponent<Image>().color.a,
                     Is.EqualTo(BattleEnergyMeter.ReadyGlowColor.a).Within(0.0001f),
@@ -81,7 +92,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Energy Glow Alpha Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }, enemyHp: 100000000), null);
                 panel.StopAllCoroutines();
                 RectTransform card = FindRect(panel.transform, "Cell-P-0-0");
@@ -128,7 +139,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Auto Mode Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }, enemyHp: 100000000), null);
                 panel.StopAllCoroutines();
                 BattleUnit player = panel.Battle.FindUnit(1);
@@ -155,7 +166,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Pause Rules Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }), null);
                 panel.StopAllCoroutines();
                 Invoke(panel, "TogglePause");
@@ -190,7 +201,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Dice Tick Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }), null);
                 panel.StopAllCoroutines();
                 SetField(panel, "awaitingInput", true);
@@ -205,7 +216,7 @@ namespace ChoSiren.Tests
                 Assert.That(FindRect(panel.transform, "DiceStatus-0").GetComponent<Text>().text,
                     Is.EqualTo("待重投"));
                 Assert.That(FindRect(panel.transform, "DiceStatus-2").GetComponent<Text>().text,
-                    Is.EqualTo("保留"), "没点选的骰子必须显示为保留。");
+                    Is.Empty, "新版只标记待重投骰子，未选择的保持原图。");
                 Assert.That(LabelOf(panel, "DiceReroll").text, Is.EqualTo("重投已选2颗"));
                 Assert.That(FindRect(panel.transform, "DiceReroll").GetComponent<Button>().interactable, Is.True);
 
@@ -213,7 +224,7 @@ namespace ChoSiren.Tests
                 Assert.That(dice.UsedRerolls, Is.EqualTo(1), "一次操作只扣一次额度。");
                 Assert.That(dice.SelectedForRerollCount, Is.Zero, "重投后的新骰面默认保留。");
                 Assert.That(dice.RerollsRemaining, Is.EqualTo(budget - 1));
-                Assert.That(LabelOf(panel, "EnergyReroll").text, Does.Contain("全部重投"));
+                Assert.That(LabelOf(panel, "EnergyReroll").text, Does.Contain("全部重投"), "2026-10-31: 不选骰子 = 全部重投");
             }
             finally { Object.DestroyImmediate(root); }
         }
@@ -224,7 +235,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Reroll Feedback Test", typeof(RectTransform));
             try
             {
-                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(),
+                TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore()),
                     CreateBattle(new[] { "xingli" }), null);
                 panel.StopAllCoroutines();
                 SetField(panel, "awaitingInput", true);
@@ -241,7 +252,7 @@ namespace ChoSiren.Tests
                         text.text.Contains("骰子加成")), Is.True,
                     "重投后要立刻给出骰子加成弹字。");
                 Assert.That(FindRect(panel.transform, "DiceInstruction").GetComponent<Text>().text,
-                    Does.Contain("待重投"), "骰子台要说明当前点选状态。");
+                    Does.Contain("魅族追击"), "新版摘要只保留实际队长收益，选择状态由骰子下方标记。");
             }
             finally { Object.DestroyImmediate(root); }
         }
@@ -252,7 +263,7 @@ namespace ChoSiren.Tests
             GameObject root = new GameObject("Captain Icon Test", typeof(RectTransform));
             try
             {
-                var model = new GameModel();
+                var model = new GameModel(() => new System.DateTime(2026, 10, 16, 12, 0, 0), new InMemorySaveStore());
                 model.Save.Team[0] = 2; // 雾白（人鱼，index 2）接任队长，验证护盾图标
                 BattleSimulator battle = CreateBattle(new[] { "wubai", "xingli" },
                     rolls: new ScriptedRandom(new[] { 999 }, new[] { 0, 0, 0, 1, 2 }));

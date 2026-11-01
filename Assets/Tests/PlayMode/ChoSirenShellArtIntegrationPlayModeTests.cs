@@ -299,10 +299,10 @@ namespace ChoSiren.Tests
             AssertSpriteTexture("EquipmentSelectedArt", itemPaths[0]);
             Click("EquipmentChooseMember");
             yield return null;
-            Require("EquipmentPolish038Selector");
+            Require("EquipmentMemberPicker");
             int nextMember = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(selectedMember) + 1)
                 % model.Save.UnlockedMembers.Count];
-            Click("EquipmentPolish038Member-" + nextMember);
+            Click("PickMember-" + nextMember);
             yield return null;
             Assert.That(Require("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[nextMember].Name));

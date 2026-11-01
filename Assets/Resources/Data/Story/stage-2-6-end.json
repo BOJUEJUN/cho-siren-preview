@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-6-end",
+  "Title": "2-6 灯塔回声",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-6"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "光转了一圈又一圈，我们的歌也跟着转。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "灯塔的节奏被我们抢回来了。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "栈桥尽头就是巨蛋。还有三站。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

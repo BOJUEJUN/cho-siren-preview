@@ -1,0 +1,127 @@
+{
+  "checkedAtUtc": "2026-10-15T09:11:11.895445+00:00",
+  "taskId": "2110658546537582594",
+  "taskRecord": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/battle-results/task-2110658546537582594.json",
+  "sourceVariants": [
+    {
+      "variant": 1,
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/battle-results/2110658546537582594-01.mp3",
+      "delivery": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/outputs/场景音乐-20261015/战斗伴奏-1.mp3",
+      "sourceSha256": "7ec42601ae9cbcb6582e4ebbacc46f0e0002eba2501e0542f2a7f32bfba13a05",
+      "deliverySha256": "7ec42601ae9cbcb6582e4ebbacc46f0e0002eba2501e0542f2a7f32bfba13a05",
+      "bytes": 3082569,
+      "copyShaUnchanged": true,
+      "sampleRate": 48000,
+      "channels": 2,
+      "frames": 6951048,
+      "durationSeconds": 144.8135,
+      "peakDbfs": -1.2752430252004745,
+      "rmsDbfs": -15.152801595919755,
+      "crestDb": 13.87755857071928,
+      "nonfiniteSamples": 0,
+      "samplesAtOrAboveFullScale": 0,
+      "fullDecodePassed": true,
+      "decoder": "libsndfile/soundfile float64",
+      "lowLevelRuns": {
+        "windowSeconds": 0.1,
+        "thresholdRmsDbfs": -60,
+        "wholeSongLongestRun": {
+          "durationSeconds": 1.1,
+          "startSeconds": 143.70000000000002
+        },
+        "interiorLongestRunExcludingFirst1sLast2s": {
+          "durationSeconds": 0.0,
+          "startSeconds": null
+        },
+        "longInteriorThresholdSeconds": 2.0
+      }
+    },
+    {
+      "variant": 2,
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/battle-results/2110658546537582594-02.mp3",
+      "delivery": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/outputs/场景音乐-20261015/战斗伴奏-2.mp3",
+      "sourceSha256": "0821fe859c67cee653a0f2c35175f9acbcd6c0aebd0a8e62a2a218ee7456aab8",
+      "deliverySha256": "0821fe859c67cee653a0f2c35175f9acbcd6c0aebd0a8e62a2a218ee7456aab8",
+      "bytes": 3328665,
+      "copyShaUnchanged": true,
+      "sampleRate": 48000,
+      "channels": 2,
+      "frames": 6951048,
+      "durationSeconds": 144.8135,
+      "peakDbfs": -0.9729647695966022,
+      "rmsDbfs": -14.39748647772031,
+      "crestDb": 13.42452170812371,
+      "nonfiniteSamples": 0,
+      "samplesAtOrAboveFullScale": 0,
+      "fullDecodePassed": true,
+      "decoder": "libsndfile/soundfile float64",
+      "lowLevelRuns": {
+        "windowSeconds": 0.1,
+        "thresholdRmsDbfs": -60,
+        "wholeSongLongestRun": {
+          "durationSeconds": 2.0,
+          "startSeconds": 142.8
+        },
+        "interiorLongestRunExcludingFirst1sLast2s": {
+          "durationSeconds": 0.30000000000000004,
+          "startSeconds": 8.700000000000001
+        },
+        "longInteriorThresholdSeconds": 2.0
+      }
+    }
+  ],
+  "selectedVariant": 1,
+  "selectedSourceSha256": "7ec42601ae9cbcb6582e4ebbacc46f0e0002eba2501e0542f2a7f32bfba13a05",
+  "selectionRule": "Eligible with no nonfinite values and no >2s interior run below -60 dBFS; prefer lower RMS, crest used only as tie-breaker.",
+  "selectionTradeoff": "Variant 1 has lower RMS and a shorter quiet tail; variant 2 has a slightly lower crest. Neither is lower on both metrics.",
+  "output": {
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/audio-prep/battle.wav",
+    "sha256": "38420c0391d6623780517f0a40790c475fc197013374a9cc653f92e4a2ed96bb",
+    "bytes": 38323912,
+    "sampleRate": 44100,
+    "channels": 2,
+    "format": "PCM_24",
+    "totalFrames": 6387300,
+    "clipDurationSeconds": 144.83673469387756,
+    "musicFrames": 6386276,
+    "musicDurationSeconds": 144.81351473922902,
+    "guardFrames": 1024,
+    "guardSeconds": 0.023219954648526078,
+    "loopStartFrame": 1024,
+    "loopEndFrameInclusive": 6387299,
+    "loopEndFrameExclusive": 6387300,
+    "loopStartSeconds": 0.023219954648526078,
+    "loopEndSecondsExclusive": 144.83673469387756,
+    "peakDbfs": -3.0582403890942587,
+    "rmsDbfs": -16.927562564298707,
+    "crestDb": 13.869322175204449,
+    "nonfiniteSamples": 0,
+    "samplesAtOrAboveFullScale": 0,
+    "loopBoundaryStepMax": 0.0,
+    "fullReadbackPassed": true,
+    "independentCoreAudioFullDecodePassed": true,
+    "coreaudioDecodedFrames": 6387300,
+    "coreaudioMaxError": 0.0
+  },
+  "processing": {
+    "resampler": "resample_poly 147/160, Kaiser beta 14, zero padding",
+    "gainDb": -1.7747569747995253,
+    "gainLinear": 0.8151962088238744,
+    "sourcePeakAmplitude": 0.8634513020515442,
+    "resampledPreGainPeakAmplitude": 0.862632510079426,
+    "peakTargetDbfs": -3.05,
+    "gainType": "one constant linear attenuation across the whole song",
+    "fadeType": "raised cosine",
+    "fadeFramesEach": 220,
+    "fadeSecondsEach": 0.004988662131519274,
+    "sourceValidFramesRemoved": 0,
+    "tempoOrPitchChange": false,
+    "dynamicCompressionOrLimiter": false,
+    "crossfadeOrSectionEditing": false
+  },
+  "limits": [
+    "Whole-song repeat with original intro/outro retained; not a beat-matched seamless loop.",
+    "Digital measurements only; no human listening or instrumental/style claim.",
+    "Only task-scoped audio-prep files and the two requested MP3 deliveries were written."
+  ]
+}

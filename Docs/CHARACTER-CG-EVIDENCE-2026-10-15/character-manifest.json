@@ -1,0 +1,313 @@
+{
+  "sourceSha256": "b826238790ff59e34b92240f6ab8eb904bdb00c803fa30add15b47eb0ee78a09",
+  "canvas": [
+    8334,
+    4625
+  ],
+  "method": "sRGB native PSD layers; normal alpha composite; no generated, color-keyed or recolored pixels. Runtime canvas excludes distant low-alpha stray pixels outside opaque bounds plus 64px guard. Cyan outlines remain separate and are cropped within 192px of the body. Raw layers/full composed masters retained locally.",
+  "characters": [
+    {
+      "id": "xingli",
+      "name": "星璃",
+      "bodyLayer": 6,
+      "outlineLayer": 5,
+      "patchLayers": [],
+      "bodyNativeBounds": [
+        0,
+        96,
+        2089,
+        4365
+      ],
+      "opaqueBodyBounds": [
+        3,
+        96,
+        2077,
+        4365
+      ],
+      "bodyCropBounds": [
+        0,
+        96,
+        2089,
+        4365
+      ],
+      "sharedCanvasBounds": [
+        0,
+        64,
+        2089,
+        4365
+      ],
+      "avatarCropLocal": [
+        500,
+        0,
+        1550,
+        1575
+      ],
+      "portrait": {
+        "file": "Assets/Resources/Art/Members/member-xingli.png",
+        "size": [
+          995,
+          2048
+        ],
+        "sha256": "70f34ad540d18cef2ae256e7453c2835217ea64f96d3b7c5e4646e778b976bc2",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 1091318,
+        "partialAlphaPixels": 52516
+      },
+      "outline": {
+        "file": "Assets/Resources/Art/CharacterRevision20261015/xingli-outline.png",
+        "size": [
+          995,
+          2048
+        ],
+        "sha256": "dc8dbe09ec88d8d15b1c5b8c3bf6a16d45c07b3e23811541b5281bb3a6c5c9af",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 1903943,
+        "partialAlphaPixels": 87102,
+        "runtimeUsed": false,
+        "note": "Unused outline export removed from project; original PSD outline layer remains in local raw masters."
+      },
+      "avatar": {
+        "file": "Assets/Resources/Art/Members/Avatars/avatar-xingli.png",
+        "size": [
+          512,
+          768
+        ],
+        "sha256": "df353701a98d1bc6ed875c9274f7a97be7a7777d53ea0e1afec4bbcf00dd3fc3",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 81297,
+        "partialAlphaPixels": 6458
+      }
+    },
+    {
+      "id": "feiyin",
+      "name": "绯音",
+      "bodyLayer": 8,
+      "outlineLayer": 7,
+      "patchLayers": [],
+      "bodyNativeBounds": [
+        2010,
+        155,
+        4757,
+        4470
+      ],
+      "opaqueBodyBounds": [
+        2010,
+        157,
+        3803,
+        4431
+      ],
+      "bodyCropBounds": [
+        2010,
+        155,
+        3867,
+        4470
+      ],
+      "sharedCanvasBounds": [
+        2010,
+        155,
+        3867,
+        4470
+      ],
+      "avatarCropLocal": [
+        350,
+        0,
+        1550,
+        1800
+      ],
+      "portrait": {
+        "file": "Assets/Resources/Art/Members/member-feiyin.png",
+        "size": [
+          881,
+          2048
+        ],
+        "sha256": "31489b59e62d0c97e35ecf11eaa51fd48deb3b7b97fd00348daea920e01e9add",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 1065850,
+        "partialAlphaPixels": 60129
+      },
+      "outline": {
+        "file": "Assets/Resources/Art/CharacterRevision20261015/feiyin-outline.png",
+        "size": [
+          881,
+          2048
+        ],
+        "sha256": "905043ba99ac99e6a29f95e79ba621cf7e9392ac76944e901eab4f5bb7eda552",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 1621258,
+        "partialAlphaPixels": 138908,
+        "runtimeUsed": false,
+        "note": "Unused outline export removed from project; original PSD outline layer remains in local raw masters."
+      },
+      "avatar": {
+        "file": "Assets/Resources/Art/Members/Avatars/avatar-feiyin.png",
+        "size": [
+          512,
+          768
+        ],
+        "sha256": "7da6a32b462ea8ffd811eff6b15bb6e53c91e1031b186953606cb9ce87545eeb",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 114708,
+        "partialAlphaPixels": 17795
+      }
+    },
+    {
+      "id": "wubai",
+      "name": "雾白",
+      "bodyLayer": 2,
+      "outlineLayer": 1,
+      "patchLayers": [],
+      "bodyNativeBounds": [
+        6201,
+        264,
+        7991,
+        4557
+      ],
+      "opaqueBodyBounds": [
+        6203,
+        266,
+        7989,
+        4557
+      ],
+      "bodyCropBounds": [
+        6201,
+        264,
+        7991,
+        4557
+      ],
+      "sharedCanvasBounds": [
+        6181,
+        264,
+        7991,
+        4574
+      ],
+      "avatarCropLocal": [
+        500,
+        0,
+        1550,
+        1575
+      ],
+      "portrait": {
+        "file": "Assets/Resources/Art/Members/member-wubai.png",
+        "size": [
+          860,
+          2048
+        ],
+        "sha256": "5ebf656a3c7104a4b9644190ea6d17256ffb278df443dd2f873265684bc093e2",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 770158,
+        "partialAlphaPixels": 75855
+      },
+      "outline": {
+        "file": "Assets/Resources/Art/CharacterRevision20261015/wubai-outline.png",
+        "size": [
+          860,
+          2048
+        ],
+        "sha256": "5677774ce03bc6979905a90d55def6ed788036f5e36d41f4c0a1e2d652086c63",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 1478474,
+        "partialAlphaPixels": 195216,
+        "runtimeUsed": false,
+        "note": "Unused outline export removed from project; original PSD outline layer remains in local raw masters."
+      },
+      "avatar": {
+        "file": "Assets/Resources/Art/Members/Avatars/avatar-wubai.png",
+        "size": [
+          512,
+          768
+        ],
+        "sha256": "d4f62b91e7da9d87cf1662d5aa1aa48fe595dd5e8c41c6f455c20ce04710e35b",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 64834,
+        "partialAlphaPixels": 27096
+      }
+    },
+    {
+      "id": "yeying",
+      "name": "夜莺",
+      "bodyLayer": 4,
+      "outlineLayer": 3,
+      "patchLayers": [
+        9
+      ],
+      "bodyNativeBounds": [
+        3944,
+        128,
+        6416,
+        4557
+      ],
+      "opaqueBodyBounds": [
+        3944,
+        135,
+        6416,
+        4550
+      ],
+      "bodyCropBounds": [
+        3944,
+        128,
+        6416,
+        4557
+      ],
+      "sharedCanvasBounds": [
+        3883,
+        102,
+        6416,
+        4557
+      ],
+      "avatarCropLocal": [
+        780,
+        0,
+        1680,
+        1350
+      ],
+      "portrait": {
+        "file": "Assets/Resources/Art/Members/member-yeying.png",
+        "size": [
+          1164,
+          2048
+        ],
+        "sha256": "9a56a68b0504baacfe6775d340070e888ac92e7ee4930bfdfaeb7889bfc59d4a",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 1203891,
+        "partialAlphaPixels": 139920
+      },
+      "outline": {
+        "file": "Assets/Resources/Art/CharacterRevision20261015/yeying-outline.png",
+        "size": [
+          1164,
+          2048
+        ],
+        "sha256": "0e6b87cf82967e96353f9f73113d88fb057ef8e9867c920bc71de4b39e904122",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 2184557,
+        "partialAlphaPixels": 174729,
+        "runtimeUsed": false,
+        "note": "Unused outline export removed from project; original PSD outline layer remains in local raw masters."
+      },
+      "avatar": {
+        "file": "Assets/Resources/Art/Members/Avatars/avatar-yeying.png",
+        "size": [
+          512,
+          768
+        ],
+        "sha256": "562b2af84b8c3eb5d5e9cfde5a6b45a8d4da2b28c25129f178b0330777767c8d",
+        "alphaMin": 0,
+        "alphaMax": 255,
+        "transparentPixels": 75205,
+        "partialAlphaPixels": 26312
+      }
+    }
+  ],
+  "homepagePolicy": "Member portraits/avatars only. Homepage retains exactly the two previous authored characters and their original assets; no automatic swaps."
+}

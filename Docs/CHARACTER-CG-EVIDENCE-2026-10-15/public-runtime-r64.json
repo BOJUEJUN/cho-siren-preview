@@ -1,0 +1,43 @@
+{
+  "version": "0.3.69",
+  "release": "PSD-20261015-CHARACTER-CG-R64",
+  "commit": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
+  "url": "https://bojuejun.github.io/cho-siren-preview/?v=0.3.69",
+  "homepage": {
+    "originalTwoCharacters": true,
+    "observedSwitchSequence": [
+      0,
+      1,
+      0
+    ],
+    "returnedToOriginalFirst": true
+  },
+  "members": {
+    "revisedFourAvatarsObserved": true,
+    "wubaiTransparentBodyAndEquipmentObserved": true
+  },
+  "cg": {
+    "ownAudioPlayback": {
+      "currentTime": 2.987736,
+      "muted": false,
+      "paused": false,
+      "readyState": 4
+    },
+    "afterDismiss": {
+      "currentTime": 0,
+      "muted": true,
+      "paused": true,
+      "readyState": 0,
+      "src": null
+    }
+  },
+  "musicPreference": {
+    "before": "false",
+    "restored": "false"
+  },
+  "currentPublicErrors": [],
+  "limitations": [
+    "Physical phone acoustics not verified",
+    "iOS installed application not verified"
+  ]
+}

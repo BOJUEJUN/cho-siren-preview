@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.2211728">
+  <test-suite type="TestSuite" id="1000" name="CHO-SIREN 幻域魅声" fullname="CHO-SIREN 幻域魅声" runstate="Runnable" testcasecount="503" result="Passed" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.221173" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1577" name="ChoSiren.Tests.EditMode.dll" fullname="/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/ui-unification-20261013/project/Library/ScriptAssemblies/ChoSiren.Tests.EditMode.dll" runstate="Runnable" testcasecount="503" result="Passed" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.218111" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="95580" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1578" name="ChoSiren" fullname="ChoSiren" runstate="Runnable" testcasecount="503" result="Passed" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.217866" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1579" name="Tests" fullname="ChoSiren.Tests" runstate="Runnable" testcasecount="503" result="Passed" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.217712" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="BattlePaceAuditTests" fullname="ChoSiren.Tests.BattlePaceAuditTests" classname="ChoSiren.Tests.BattlePaceAuditTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.210666" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1002" name="MeasureFreshRecommendedAndScreenshotPartiesWithoutChangingProductionRules" fullname="ChoSiren.Tests.BattlePaceAuditTests.MeasureFreshRecommendedAndScreenshotPartiesWithoutChangingProductionRules" methodname="MeasureFreshRecommendedAndScreenshotPartiesWithoutChangingProductionRules" classname="ChoSiren.Tests.BattlePaceAuditTests" runstate="Runnable" seed="477303901" result="Passed" start-time="2026-10-16 10:06:16Z" end-time="2026-10-16 10:06:16Z" duration="0.204911" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[PACE new-player-l1 manual/no-taps seed=1 Victory 72150ms firstDefeat=13500ms ultimates=0
+PACE new-player-l1 manual/no-taps seed=2 Victory 90000ms firstDefeat=17000ms ultimates=0
+PACE new-player-l1 manual/no-taps seed=3 Victory 89000ms firstDefeat=17000ms ultimates=0
+PACE new-player-l1 manual/no-taps seed=4 Victory 72500ms firstDefeat=13500ms ultimates=0
+PACE new-player-l1 manual/no-taps seed=5 Victory 97000ms firstDefeat=19125ms ultimates=0
+PACE new-player-l1 manual/no-taps seed=847 Victory 80000ms firstDefeat=15000ms ultimates=0
+PACE new-player-l1 auto-ultimates/no-rerolls seed=1 Victory 70000ms firstDefeat=13500ms ultimates=8
+PACE new-player-l1 auto-ultimates/no-rerolls seed=2 Victory 87500ms firstDefeat=17000ms ultimates=10
+PACE new-player-l1 auto-ultimates/no-rerolls seed=3 Victory 86725ms firstDefeat=17000ms ultimates=10
+PACE new-player-l1 auto-ultimates/no-rerolls seed=4 Victory 70000ms firstDefeat=13500ms ultimates=8
+PACE new-player-l1 auto-ultimates/no-rerolls seed=5 Victory 94000ms firstDefeat=19125ms ultimates=11
+PACE new-player-l1 auto-ultimates/no-rerolls seed=847 Victory 78000ms firstDefeat=15000ms ultimates=9
+PACE recommended-l9 manual/no-taps seed=1 Victory 100825ms firstDefeat=67625ms ultimates=0
+PACE recommended-l9 manual/no-taps seed=2 Defeat 120000ms firstDefeat=90975ms ultimates=0
+PACE recommended-l9 manual/no-taps seed=3 Defeat 120000ms firstDefeat=90000ms ultimates=0
+PACE recommended-l9 manual/no-taps seed=4 Victory 101000ms firstDefeat=67300ms ultimates=0
+PACE recommended-l9 manual/no-taps seed=5 Defeat 120000ms firstDefeat=100000ms ultimates=0
+PACE recommended-l9 manual/no-taps seed=847 Victory 113775ms firstDefeat=76275ms ultimates=0
+PACE recommended-l9 auto-ultimates/no-rerolls seed=1 Victory 95325ms firstDefeat=64000ms ultimates=11
+PACE recommended-l9 auto-ultimates/no-rerolls seed=2 Defeat 120000ms firstDefeat=84000ms ultimates=15
+PACE recommended-l9 auto-ultimates/no-rerolls seed=3 Defeat 120000ms firstDefeat=84000ms ultimates=15
+PACE recommended-l9 auto-ultimates/no-rerolls seed=4 Victory 96300ms firstDefeat=64325ms ultimates=12
+PACE recommended-l9 auto-ultimates/no-rerolls seed=5 Defeat 120000ms firstDefeat=92500ms ultimates=15
+PACE recommended-l9 auto-ultimates/no-rerolls seed=847 Victory 108450ms firstDefeat=74000ms ultimates=13
+PACE screenshot-l68-57-64-59 manual/no-taps seed=1 Victory 9000ms firstDefeat=5000ms ultimates=0
+PACE screenshot-l68-57-64-59 manual/no-taps seed=2 Victory 12000ms firstDefeat=7000ms ultimates=0
+PACE screenshot-l68-57-64-59 manual/no-taps seed=3 Victory 11950ms firstDefeat=6475ms ultimates=0
+PACE screenshot-l68-57-64-59 manual/no-taps seed=4 Victory 9250ms firstDefeat=5000ms ultimates=0
+PACE screenshot-l68-57-64-59 manual/no-taps seed=5 Victory 13125ms firstDefeat=7650ms ultimates=0
+PACE screenshot-l68-57-64-59 manual/no-taps seed=847 Victory 10000ms firstDefeat=5600ms ultimates=0
+PACE screenshot-l68-57-64-59 auto-ultimates/no-rerolls seed=1 Victory 9000ms firstDefeat=5000ms ultimates=0
+PACE screenshot-l68-57-64-59 auto-ultimates/no-rerolls seed=2 Victory 12000ms firstDefeat=7000ms ultimates=0
+PACE screenshot-l68-57-64-59 auto-ultimates/no-rerolls seed=3 Victory 11950ms firstDefeat=6475ms ultimates=0
+PACE screenshot-l68-57-64-59 auto-ultimates/no-rerolls seed=4 Victory 9250ms firstDefeat=5000ms ultimates=0
+PACE screenshot-l68-57-64-59 auto-ultimates/no-rerolls seed=5 Victory 13125ms firstDefeat=7650ms ultimates=0
+PACE screenshot-l68-57-64-59 auto-ultimates/no-rerolls seed=847 Victory 10000ms firstDefeat=5600ms ultimates=0
+BATTLE_PACE_AUDIT /Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/battle-pace-audit.json complete=True
+Saving results to: /Users/bojuejun/Library/Application Support/CHO-SIREN Studio/CHO-SIREN 幻域魅声/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

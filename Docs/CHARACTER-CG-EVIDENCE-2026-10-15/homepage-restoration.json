@@ -1,0 +1,41 @@
+{
+  "humanCorrection": "These four revised PSD characters are member art only; homepage keeps the two previous authored characters. Do not replace/add homepage art without a new user-supplied homepage reference.",
+  "restored": [
+    {
+      "path": "Assets/Scripts/PsdHomeCharacterCarousel.cs",
+      "sha256": "0ce155f0815044e2466da58cf7d0d6828f35349f54efc559e9b29287225ed4f6",
+      "matchesOriginal": true
+    },
+    {
+      "path": "Assets/Scripts/PsdHomeMotion.cs",
+      "sha256": "46214e46eb311691068655cc90f7838be6466e958806804754e0f52f936196bb",
+      "matchesOriginal": true
+    },
+    {
+      "path": "Assets/Scripts/ChoSirenAppPsdHome.cs",
+      "sha256": "8febdc9fa03aa348abc0068d4fa8b897c487b37ca1b274f22e6c1b2a4cb80c2b",
+      "matchesOriginal": true
+    },
+    {
+      "path": "Assets/Scripts/GameModel.cs",
+      "sha256": "2ad389945d3598ec10862d2869a542d90d9a3d740c011d7a31735ce173b6f2eb",
+      "matchesOriginal": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/PsdCharacterSwitchTests.cs",
+      "sha256": "faed5b31c6f32b505dec8ce6444019105a44f683a81a0e5315620743ea6c8203",
+      "matchesOriginal": true
+    }
+  ],
+  "removedUnusedNewOutlineAssets": [
+    "Assets/Resources/Art/CharacterRevision20261015.meta",
+    "Assets/Resources/Art/CharacterRevision20261015/xingli-outline.png",
+    "Assets/Resources/Art/CharacterRevision20261015/xingli-outline.png.meta",
+    "Assets/Resources/Art/CharacterRevision20261015/feiyin-outline.png",
+    "Assets/Resources/Art/CharacterRevision20261015/feiyin-outline.png.meta",
+    "Assets/Resources/Art/CharacterRevision20261015/wubai-outline.png",
+    "Assets/Resources/Art/CharacterRevision20261015/wubai-outline.png.meta",
+    "Assets/Resources/Art/CharacterRevision20261015/yeying-outline.png",
+    "Assets/Resources/Art/CharacterRevision20261015/yeying-outline.png.meta"
+  ]
+}

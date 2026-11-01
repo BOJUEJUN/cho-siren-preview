@@ -1,0 +1,18 @@
+{
+  "recommended_existing_cli": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/outputs/music-handoff-20261017/runninghub_music.py",
+  "credential_input": "RH_API_KEY temporary process environment or getpass hidden input",
+  "private_credential_reference": "Existing user-supplied Oct17 handoff README section 3; do not copy value",
+  "international_checks": [
+    "explicit approved credential source",
+    "currency USD",
+    "pending zero",
+    "price-preview currency USD",
+    "known successful task ownership",
+    "unique sentinel and one submit"
+  ],
+  "domestic_wallet_is_separate": true,
+  "legacy_CN_probe_must_not_be_universal_default": true,
+  "known_current_global_task": "2112110601486041089",
+  "api_key_in_this_file": false,
+  "generation_performed_by_this_note": false
+}

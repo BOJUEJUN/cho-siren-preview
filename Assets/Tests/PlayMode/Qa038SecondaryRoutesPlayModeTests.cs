@@ -81,11 +81,14 @@ namespace ChoSiren.Tests
             yield return null;
 
             RequireActiveObject("SignConfirmCard");
-            Text balance = RequireActiveObject("SignConfirmBalance").GetComponent<Text>();
-            Assert.That(balance.text, Does.Contain("星钻不足"),
-                "余额不足时确认卡必须明确提示缺口，不能只悄悄禁用按钮。");
-            Assert.That(balance.text, Does.Contain(diamondsBefore.ToString("N0")),
+            // 2026-11-01 visual-b: wallet row = diamond + held amount (red) + lock chip 「差 N」; button reads 星钻不足.
+            Transform balance = RequireActiveObject("SignConfirmBalance").transform;
+            Assert.That(balance.Find("From").GetComponent<Text>().text, Is.EqualTo(diamondsBefore.ToString("N0")),
                 "余额提示必须展示真实持有数。");
+            Assert.That(balance.Find("SignShortfall/Label").GetComponent<Text>().text,
+                Is.EqualTo("差 " + (candidateCost - diamondsBefore).ToString("N0")),
+                "余额不足时确认卡必须明确提示缺口，不能只悄悄禁用按钮。");
+            Assert.That(RequireActiveObject("SignConfirm").GetComponentInChildren<Text>().text, Is.EqualTo("星钻不足"));
             Button confirm = RequireActiveObject("SignConfirm").GetComponent<Button>();
             Assert.That(confirm.IsInteractable(), Is.False,
                 "余额不足时确认签约必须不可点击，杜绝欠费签约。");
@@ -245,7 +248,8 @@ namespace ChoSiren.Tests
                 "今日已交流", expectBlocked: true);
         }
 
-        /// <summary>角色选择验收：搜索/筛选/分页在真实 64 人目录上可用。</summary>
+        /// <summary>角色选择验收：搜索/筛选在真实 64 人目录上可用。2026-11-01 起改为可滚动的两列大卡片网格，
+        /// 不再分页：名单一次全部出现在滚动区内。</summary>
         [UnityTest]
         public IEnumerator MemberPickerPaginatesSearchesAndFiltersRealCatalog()
         {
@@ -255,29 +259,19 @@ namespace ChoSiren.Tests
 
             GameModel model = AppModel();
             int owned = model.Save.UnlockedMembers.Count;
-            Assert.That(Require("PickerPage").GetComponent<Text>().text,
-                Is.EqualTo($"1/{System.Math.Max(1, (owned + 7) / 8)}"),
-                "仅拥有筛选下的分页计数必须来自真实签约名单。");
-            Button next = Require("PickerNext").GetComponent<Button>();
-            Assert.That(next.IsInteractable(), Is.False,
-                "仅拥有名单不足一页时下一页必须禁用。");
+            Assert.That(PickerRowCount(), Is.EqualTo(owned),
+                "仅拥有筛选必须一次列出全部真实签约成员。");
+            Assert.That(GameObject.Find("PickerNext"), Is.Null, "滚动网格不再有分页按钮。");
+            Require("PickerScroll").GetComponent<ScrollRect>();
 
             Click("PickerOwnership");
             yield return null;
-            int expectedPages = (GameModel.Members.Length + 7) / 8;
-            Assert.That(Require("PickerPage").GetComponent<Text>().text, Is.EqualTo($"1/{expectedPages}"),
-                "全部名单分页总数必须等于真实目录页数。");
-            Assert.That(Require("PickerNext").GetComponent<Button>().IsInteractable(), Is.True);
-            Assert.That(Require("PickerPrevious").GetComponent<Button>().IsInteractable(), Is.False,
-                "第一页时上一页必须禁用。");
-            string pageOneRows = PickerRowSet();
-
-            Click("PickerNext");
-            yield return null;
-            Assert.That(Require("PickerPage").GetComponent<Text>().text, Is.EqualTo($"2/{expectedPages}"));
-            Assert.That(PickerRowSet(), Is.Not.EqualTo(pageOneRows),
-                "翻页必须真实更换列表内容。");
-            Assert.That(Require("PickerPrevious").GetComponent<Button>().IsInteractable(), Is.True);
+            Assert.That(PickerRowCount(), Is.EqualTo(GameModel.Members.Length),
+                "全部名单必须覆盖真实目录的每一名成员。");
+            ScrollRect scroll = Require("PickerScroll").GetComponent<ScrollRect>();
+            Canvas.ForceUpdateCanvases();
+            Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height),
+                "全部名单超出一屏时必须可滚动。");
 
             Require("PickerSearch").GetComponent<InputField>().onEndEdit
                 .Invoke(GameModel.Members[model.Save.Team[0]].Name);
@@ -336,11 +330,10 @@ namespace ChoSiren.Tests
             RequireActiveObject("LobbyCards");
         }
 
-        private static string PickerRowSet()
+        private static int PickerRowCount()
         {
-            return string.Join(",", Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
-                .Where(item => item.name.StartsWith("PickMember-"))
-                .Select(item => item.name).OrderBy(name => name));
+            return Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude)
+                .Count(item => item.name.StartsWith("PickMember-"));
         }
 
         /// <summary>档案行动态必须是真实渲染的元素：StateChip 背板 + StateLabel 文字

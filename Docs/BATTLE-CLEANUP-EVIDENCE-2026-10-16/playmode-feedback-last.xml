@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="19" result="Passed" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:39Z" duration="2.5727655">
+  <test-suite type="TestSuite" id="1315" name="CHO-SIREN 幻域魅声" fullname="CHO-SIREN 幻域魅声" runstate="Runnable" testcasecount="261" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:39Z" duration="2.572766" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1309" name="ChoSiren.Tests.PlayMode.dll" fullname="/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/ui-unification-20261013/project/Library/ScriptAssemblies/ChoSiren.Tests.PlayMode.dll" runstate="Runnable" testcasecount="261" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:39Z" duration="2.560300" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="98446" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+      <test-suite type="TestSuite" id="1310" name="ChoSiren" fullname="ChoSiren" runstate="Runnable" testcasecount="261" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:39Z" duration="2.549787" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+        <test-suite type="TestSuite" id="1311" name="Tests" fullname="ChoSiren.Tests" runstate="Runnable" testcasecount="261" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:39Z" duration="2.533142" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+          <test-suite type="TestFixture" id="1074" name="BattleUnitFeedbackPlayModeTests" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" testcasecount="19" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:39Z" duration="2.509324" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            <test-case id="1076" name="BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues" methodname="BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1383903630" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:36Z" duration="0.330540" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1084" name="BossRemainsStageDominantWithoutBreakingFocusOrPauseControls" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.BossRemainsStageDominantWithoutBreakingFocusOrPauseControls" methodname="BossRemainsStageDominantWithoutBreakingFocusOrPauseControls" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="872164122" result="Passed" start-time="2026-10-16 10:26:36Z" end-time="2026-10-16 10:26:37Z" duration="0.114053" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1083" name="DamagingBossAddAnimatesThatAddNotTheBoss" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DamagingBossAddAnimatesThatAddNotTheBoss" methodname="DamagingBossAddAnimatesThatAddNotTheBoss" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="601248676" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.120923" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1095" name="DefeatContinueRemainsAvailableWithoutForcingGrowthNavigation" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatContinueRemainsAvailableWithoutForcingGrowthNavigation" methodname="DefeatContinueRemainsAvailableWithoutForcingGrowthNavigation" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1091363942" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.135520" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1093" name="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.486446" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+              <test-case id="1089" name="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;training&quot;)" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;training&quot;)" methodname="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1080436764" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.121715" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1090" name="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;accessory&quot;)" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;accessory&quot;)" methodname="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="585081757" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.116620" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1091" name="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;team&quot;)" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;team&quot;)" methodname="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1046112779" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.117324" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1092" name="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;farm&quot;)" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(&quot;farm&quot;)" methodname="DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1564305236" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.126508" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1082" name="EnemyDefeatImmediatelyRemovesHpCardThenHidesFinishedFadeAnchor" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.EnemyDefeatImmediatelyRemovesHpCardThenHidesFinishedFadeAnchor" methodname="EnemyDefeatImmediatelyRemovesHpCardThenHidesFinishedFadeAnchor" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="76882502" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:37Z" duration="0.119371" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1081" name="EnemyHealthCardsAndArtShareTheCorrectUnitAnchorAndReserveRemainsHidden" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.EnemyHealthCardsAndArtShareTheCorrectUnitAnchorAndReserveRemainsHidden" methodname="EnemyHealthCardsAndArtShareTheCorrectUnitAnchorAndReserveRemainsHidden" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="2049844847" result="Passed" start-time="2026-10-16 10:26:37Z" end-time="2026-10-16 10:26:38Z" duration="0.124453" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1078" name="EveryPerformerAnimatesItsOwnBasicAndBothSkillsWithoutChangingHp" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.EveryPerformerAnimatesItsOwnBasicAndBothSkillsWithoutChangingHp" methodname="EveryPerformerAnimatesItsOwnBasicAndBothSkillsWithoutChangingHp" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="808709894" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.123278" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1088" name="HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.240784" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+              <test-case id="1086" name="HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(False)" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(False)" methodname="HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="972262246" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.118158" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1087" name="HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(True)" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(True)" methodname="HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="291611999" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.117582" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1079" name="HurtKeepsItsRealNumberAndMotionWithoutASecondHurtWord" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HurtKeepsItsRealNumberAndMotionWithoutASecondHurtWord" methodname="HurtKeepsItsRealNumberAndMotionWithoutASecondHurtWord" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="677022863" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.110867" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1085" name="InspectingAnotherPerformerDoesNotChangeBattleCommander" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.InspectingAnotherPerformerDoesNotChangeBattleCommander" methodname="InspectingAnotherPerformerDoesNotChangeBattleCommander" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="353034908" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.111557" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1077" name="PerformerNamesAndDiceSummaryHaveRoomToRenderAboveTheirBars" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.PerformerNamesAndDiceSummaryHaveRoomToRenderAboveTheirBars" methodname="PerformerNamesAndDiceSummaryHaveRoomToRenderAboveTheirBars" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1821192539" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.123454" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1080" name="RepeatedAoeActionEventDoesNotRestartCasterForEachTarget" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.RepeatedAoeActionEventDoesNotRestartCasterForEachTarget" methodname="RepeatedAoeActionEventDoesNotRestartCasterForEachTarget" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="2138600951" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:38Z" duration="0.111765" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1075" name="SkillEffectsUseActualRecipientsAndReplaceCrossScreenTrails" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.SkillEffectsUseActualRecipientsAndReplaceCrossScreenTrails" methodname="SkillEffectsUseActualRecipientsAndReplaceCrossScreenTrails" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1656092228" result="Passed" start-time="2026-10-16 10:26:38Z" end-time="2026-10-16 10:26:39Z" duration="0.119457" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1094" name="VictoryHidesRecoveryActionsAndContinueStillClosesOnce" fullname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.VictoryHidesRecoveryActionsAndContinueStillClosesOnce" methodname="VictoryHidesRecoveryActionsAndContinueStillClosesOnce" classname="ChoSiren.Tests.BattleUnitFeedbackPlayModeTests" runstate="Runnable" seed="1778166587" result="Passed" start-time="2026-10-16 10:26:39Z" end-time="2026-10-16 10:26:39Z" duration="0.124330" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: /Users/bojuejun/Library/Application Support/CHO-SIREN Studio/CHO-SIREN 幻域魅声/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -6,6 +6,7 @@ using ChoSiren.Panels;
 using ChoSiren.Systems.Gacha;
 using ChoSiren.Systems.Story;
 using NUnit.Framework;
+using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -117,6 +118,8 @@ namespace ChoSiren.Tests
             Assert.That(toast.gameObject.activeSelf, Is.True);
             Assert.That(toast.GetComponentInChildren<Text>(true).text, Does.Contain("尚未解锁"));
 
+            // The first-attempt stage scene is covered by its own story tests; skip it here.
+            model.CompleteStory("stage-1-1");
             Button start = FindButton(map.transform, "StartChallenge");
             start.onClick.Invoke();
             start.onClick.Invoke();
@@ -218,7 +221,7 @@ namespace ChoSiren.Tests
             FindButton(map.transform, "ChapterRewards").onClick.Invoke();
             Assert.That(FindNamed<Transform>(map.transform, "ChapterRewardsModal"), Is.Not.Null);
             FindButton(map.transform, "ChapterStarReward-10").onClick.Invoke();
-            Assert.That(model.Save.Diamonds, Is.EqualTo(diamondsBefore + 100),
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamondsBefore + 30),
                 "领取 10 星章节奖励必须真实写入星钻余额。");
             Assert.That(model.Save.ClaimedChapterOneStarRewards, Does.Contain(10));
 
@@ -276,9 +279,14 @@ namespace ChoSiren.Tests
             Assert.That(storyBackground.preserveAspect, Is.True, "剧情场景图不能被竖屏拉伸。");
             Assert.That(storyBackground.GetComponent<AspectRatioFitter>().aspectMode,
                 Is.EqualTo(AspectRatioFitter.AspectMode.EnvelopeParent));
-            AssertGlass(FindNamed<Image>(story.transform, "DialogueBox"), 0.78f, "剧情对话框");
-            AssertGlass(FindNamed<Image>(story.transform, "Choice-0"), 0.78f, "剧情选项");
-            AssertBright(FindNamed<Text>(FindNamed<Transform>(story.transform, "Choice-0"), "Label"), "剧情选项");
+            Transform dialogueRoot = FindNamed<Transform>(story.transform, "DialogueBox");
+            // 2026-10-20 owner pick C2: the reading surface is the torn-paper strip art (dark ink text).
+            Assert.That(FindNamed<Image>(dialogueRoot, "DialoguePaperStrip").sprite, Is.Not.Null, "剧情对话应使用撕纸对话条。");
+            Transform choiceRoot = FindNamed<Transform>(story.transform, "Choice-0");
+            Assert.That(choiceRoot.GetComponent<Button>().interactable, Is.True);
+            Assert.That(choiceRoot.Find("Body/SirenButtonFace").GetComponent<Image>().raycastTarget, Is.False,
+                "选项纸边装饰不应拦截按钮输入。");
+            AssertReadableAction(FindNamed<Transform>(story.transform, "Choice-0"), "剧情选项");
             UnityEngine.Object.DestroyImmediate(story.gameObject);
 
             PerformanceStagePanel performance = PerformanceStagePanel.Open(host.transform, model);
@@ -341,6 +349,7 @@ namespace ChoSiren.Tests
         [Test]
         public void TaskBoardUsesOneResponsiveGlassTaskSurfaceWithoutOverlap()
         {
+            host.GetComponent<RectTransform>().sizeDelta = new Vector2(720f, 1536f);
             GameModel model = CreateModel();
             TaskBoardPanel panel = TaskBoardPanel.Open(host.transform, model, model);
 
@@ -355,7 +364,7 @@ namespace ChoSiren.Tests
             RectTransform viewport = FindNamed<RectTransform>(panel.transform, "TaskList");
             Assert.That(viewport.anchorMin, Is.EqualTo(Vector2.zero));
             Assert.That(viewport.anchorMax, Is.EqualTo(Vector2.one));
-            Assert.That(viewport.offsetMax.y, Is.EqualTo(-238f).Within(0.01f));
+            Assert.That(viewport.rect.height, Is.GreaterThan(300f), "页头扩大后任务仍应有可用阅读空间。");
             Assert.That(viewport.offsetMin.y, Is.EqualTo(52f).Within(0.01f));
 
             RectTransform checkIn = FindNamed<RectTransform>(panel.transform, "CheckInTaskChip");
@@ -363,7 +372,7 @@ namespace ChoSiren.Tests
             float listTop = -viewport.offsetMax.y;
             Assert.That(listTop - checkInBottom, Is.GreaterThanOrEqualTo(10f),
                 "签到任务条与第一张任务卡之间必须留出稳定间距。");
-            Assert.That(checkIn.GetComponentInChildren<Text>(true).text, Does.StartWith("签到任务"));
+            Assert.That(checkIn.GetComponentsInChildren<Text>(true).Any(text => text.text.StartsWith("签到", StringComparison.Ordinal)), Is.True);
 
             Image[] taskCards = panel.GetComponentsInChildren<Image>(true)
                 .Where(image => image.name.StartsWith("Task-daily-", StringComparison.Ordinal))
@@ -371,15 +380,16 @@ namespace ChoSiren.Tests
             Assert.That(taskCards.Length, Is.GreaterThanOrEqualTo(5));
             for (int index = 0; index < taskCards.Length; index++)
             {
-                Assert.That(taskCards[index].color.a, Is.LessThanOrEqualTo(0.55f),
-                    "任务卡应保持轻量玻璃透明度，不能变成大块纯色卡片。");
+                Assert.That(taskCards[index].sprite, Is.Not.Null, "静态任务卡应有纸边阅读底板。");
+                Assert.That(taskCards[index].raycastTarget, Is.False, "卡片装饰不应吞掉领取和前往按钮。");
                 RectTransform cardRect = taskCards[index].rectTransform;
                 Assert.That(cardRect.rect.width, Is.EqualTo(680f).Within(0.01f));
                 Assert.That(cardRect.anchoredPosition.x, Is.Zero.Within(0.01f));
             }
 
             Assert.That(TaskBoardPanel.ListContentHeight(0), Is.Zero);
-            Assert.That(TaskBoardPanel.ListContentHeight(3), Is.EqualTo(420f).Within(0.01f));
+            Assert.That(TaskBoardPanel.ListContentHeight(3), Is.GreaterThan(TaskBoardPanel.ListContentHeight(2)),
+                "阅读字号增大后，内容高度仍须随任务数增长以便滚到最后一项。");
         }
 
         [Test]
@@ -413,8 +423,9 @@ namespace ChoSiren.Tests
 
             Assert.That(FindNamed<Transform>(panel.transform, "InterviewPool-0"), Is.Not.Null);
             Assert.That(FindNamed<Transform>(panel.transform, "InterviewPool-1"), Is.Not.Null);
+            // 2026-11-01 visual-b: the refresh line is a refresh icon + 「每日 18:00」.
             Assert.That(FindNamed<Text>(panel.transform, "InterviewRefresh").text,
-                Does.Contain("每日免费刷新"));
+                Does.Contain("18:00"));
             Assert.That(panel.InterviewPoolIndex, Is.Zero);
 
             RectTransform card = FindNamed<RectTransform>(panel.transform, "CandidateCard");
@@ -435,12 +446,14 @@ namespace ChoSiren.Tests
             Assert.That(portrait.sprite, Is.Not.Null, "候选卡必须使用现有本地角色立绘。");
             Assert.That(portrait.preserveAspect, Is.True, "候选立绘不能被拉伸。");
             Assert.That(FindNamed<Text>(panel.transform, "CandidateName").text, Is.Not.Empty);
-            Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
-                Does.Match("魅族|魔族|海灵族|血精灵"));
-            Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
-                Does.Match("主唱|主舞|Rapper|门面"), "候选资料必须使用新版四种偶像职业。");
-            Assert.That(FindNamed<Text>(panel.transform, "CandidateIdentity").text,
-                Does.Match("治疗|增益|输出|共鸣|破甲|护盾"), "候选资料必须在职能之后给出阵容定位。");
+            // 2026-11-01 visual-b: identity = race badge + role chip + battle-position chip (no sentence).
+            Assert.That(FindNamed<Image>(panel.transform, "CandidateRace").sprite, Is.Not.Null, "种族用徽章表达。");
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateCareer").text,
+                Does.Match("^(主唱|主舞|Rapper|门面)$"), "候选资料必须使用新版四种偶像职业。");
+            Assert.That(FindNamed<Text>(panel.transform, "CandidatePosition").text,
+                Does.Match("治疗|增益|输出|共鸣|破甲|护盾|毒伤|斩杀"), "候选资料必须在职能之后给出阵容定位。");
+            Assert.That(FindNamed<Transform>(panel.transform, "CandidatePositionChip").Find("Icon"), Is.Not.Null,
+                "阵容定位带图标。");
 
             string[] statKeys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
             string[] statNames = { "声波", "说唱", "舞蹈", "名气", "颜值" };
@@ -454,9 +467,8 @@ namespace ChoSiren.Tests
             Assert.That(panel.GetComponentsInChildren<Transform>(true)
                     .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
                 "五维只突出一个最强项，避免所有属性同时抢视觉焦点。");
-            Assert.That(FindNamed<Text>(panel.transform, "CandidateTrait").text,
-                Does.StartWith("舞台特质 · "),
-                "面试素质必须来自舞台四维，不能把战斗技能名当成面试素质。");
+            Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item => item.name == "CandidateTrait"), Is.False,
+                "舞台特质整句已去掉：最强项由 ★ 标出。");
 
             Text signingPrice = FindNamed<Text>(panel.transform, "SigningPrice");
             int onlinePrice = int.Parse(signingPrice.text.Replace(",", string.Empty));
@@ -643,6 +655,20 @@ namespace ChoSiren.Tests
             Assert.That(text.color.a, Is.GreaterThanOrEqualTo(0.80f), $"{description} 文字透明度不足。");
             Assert.That(Mathf.Max(text.color.r, text.color.g, text.color.b), Is.GreaterThanOrEqualTo(0.80f),
                 $"{description} 文字亮度不足。");
+        }
+
+        /// <summary>Unified design: ink on the green primary sticker, bright text on every dark one.</summary>
+        private static void AssertReadableAction(Transform action, string description)
+        {
+            Text label = FindNamed<Text>(action, "Label");
+            Image face = action.GetComponentsInChildren<Image>(true).FirstOrDefault(i => i.name == "SirenButtonFace");
+            if (face != null && face.sprite == SirenStickerUi.PrimarySprite)
+            {
+                Assert.That(label.color.a, Is.GreaterThanOrEqualTo(0.80f), $"{description} 文字透明度不足。");
+                Assert.That(Mathf.Max(label.color.r, label.color.g, label.color.b), Is.LessThanOrEqualTo(0.20f),
+                    $"{description} 在绿色主按钮上必须是深色字。");
+            }
+            else AssertBright(label, description);
         }
 
         private static T FindNamed<T>(Transform root, string name) where T : Component

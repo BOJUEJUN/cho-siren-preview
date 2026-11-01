@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": 1,
+  "Id": "prologue",
+  "Title": "序章 · 霓虹熄灭之夜",
+  "Chapter": "00",
+  "Lines": [
+    { "Label": "start", "Command": "bg", "Subject": "Art/Story/harbor-night" },
+    { "Command": "say", "Text": "幻域靠歌声点亮。如今，「杂音」正吞噬城市的光。" },
+    { "Command": "bg", "Subject": "Art/Story/rehearsal-night" },
+    { "Command": "show", "Subject": "xingli", "Expression": "surprised", "Position": "center" },
+    { "Command": "say", "Subject": "xingli", "Expression": "surprised", "Text": "{player}，欢迎！我是星璃。CHO-SIREN 的舞台，就交给你指挥啦。" },
+    { "Command": "show", "Subject": "feiyin", "Expression": "grin", "Position": "right" },
+    { "Command": "say", "Subject": "feiyin", "Expression": "grin", "Text": "我是绯音，旁边是雾白和夜莺。经纪人，来场实战热身？" },
+    { "Command": "choice", "Choices": [
+      { "Text": "交给我吧。", "Jump": "accept", "SetFlag": "prologue-accept" },
+      { "Text": "我会带你们站上最大的舞台。", "Jump": "bold", "SetFlag": "prologue-bold" }
+    ] },
+    { "Label": "accept", "Command": "jump", "Jump": "alarm" },
+    { "Label": "bold", "Command": "jump", "Jump": "alarm" },
+    { "Label": "alarm", "Command": "bg", "Subject": "Art/Story/rehearsal-night" },
+    { "Command": "hide", "Subject": "feiyin" },
+    { "Command": "hide", "Subject": "wubai" },
+    { "Command": "say", "Text": "霓虹骤暗，耳返里炸出一阵杂音。" },
+    { "Command": "say", "Subject": "yeying", "Expression": "serious", "Text": "后巷有动静。准备迎战。" },
+    { "Command": "say", "Subject": "xingli", "Expression": "determined", "Text": "第一场演出，现在开始。{player}，跟上我们的节拍！" },
+    { "Command": "end" }
+  ]
+}

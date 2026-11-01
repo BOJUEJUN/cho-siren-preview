@@ -1,0 +1,6 @@
+{
+  "tracks": [
+    { "id": "my-light-my-rules", "title": "光的规则", "artist": "莉莉丝 LILITH", "cover": "Art/Music1101/cover-lilith", "file": "home-f19d89ea8124a31b.mp3", "clip": "Audio/bgm", "categories": ["home", "char"], "isNew": false, "unlock": "", "unlockHint": "", "duration": 172.38 },
+    { "id": "chase-the-glow-a", "title": "Chase the Glow", "artist": "CHO-SIREN 全员", "cover": "Art/Music1101/cover-catalena", "file": "home-chase-5d360e8e7acbc7c6.mp3", "clip": "", "categories": ["home"], "isNew": false, "unlock": "", "unlockHint": "", "duration": 158.76 }
+  ]
+}

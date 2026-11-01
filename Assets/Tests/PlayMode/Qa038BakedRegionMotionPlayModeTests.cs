@@ -199,5 +199,87 @@ namespace ChoSiren.Tests.PlayMode
             Assert.Greater(outside, 0, "outside the silhouette must be fully transparent");
             Assert.AreEqual(new Vector2(160f, 80f), buttonRect.rect.size, "hit rect stayed fixed");
         }
+
+        [UnityTest]
+        public IEnumerator AttachNativeUsesSpriteOwnTextureAndKeepsHitFixed()
+        {
+            Vector2 hitSizeBefore = buttonRect.rect.size;
+            // Independent RGBA sprite standing in for generated native art: its own
+            // texture must reach RegionArt (no Sprite.Create board slice), so the
+            // flattened scene underneath is never copied or scaled.
+            Texture2D nativeTexture = new Texture2D(64, 96, TextureFormat.RGBA32, false);
+            Color32[] px = new Color32[64 * 96];
+            for (int i = 0; i < px.Length; i++) px[i] = new Color32(200, 60, 140, 200);
+            nativeTexture.SetPixels32(px); nativeTexture.Apply();
+            Sprite native = Sprite.Create(nativeTexture, new Rect(0, 0, 64, 96),
+                new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect);
+
+            BakedRegionMotion038 component = BakedRegionMotion038.AttachNative(
+                buttonGo, boardImage, new Rect(100f, 350f, 200f, 100f), native);
+            yield return null;
+
+            Assert.IsNotNull(component, "AttachNative must return the component");
+            Assert.AreEqual(hitSizeBefore, buttonRect.rect.size, "hit rect must not change");
+
+            Transform body = buttonGo.transform.Find(BakedRegionMotion038.BodyName);
+            Assert.IsNotNull(body, "BakedRegionBody missing");
+            Transform art = body.Find("RegionArt");
+            Transform sheen = body.Find("RegionSheen");
+            Assert.IsNotNull(art); Assert.IsNotNull(sheen);
+            var artGraphic = art.GetComponent<Graphic>();
+            var sheenGraphic = sheen.GetComponent<Graphic>();
+            Assert.AreSame(nativeTexture, artGraphic.mainTexture,
+                "native mode must draw the sprite's own texture, not the board");
+            Assert.AreSame(nativeTexture, sheenGraphic.mainTexture);
+            Assert.AreNotSame(boardTexture, artGraphic.mainTexture);
+            Assert.IsFalse(artGraphic.raycastTarget); Assert.IsFalse(sheenGraphic.raycastTarget);
+            Assert.AreEqual(0, body.GetSiblingIndex(), "overlay must render under live children");
+
+            Object.Destroy(nativeTexture); Object.Destroy(native);
+        }
+
+        [UnityTest]
+        public IEnumerator NativeModePressShrinksBelowOneAndSceneStaysPut()
+        {
+            Texture2D nativeTexture = new Texture2D(64, 96, TextureFormat.RGBA32, false);
+            Color32[] px = new Color32[64 * 96];
+            for (int i = 0; i < px.Length; i++) px[i] = new Color32(200, 60, 140, 200);
+            nativeTexture.SetPixels32(px); nativeTexture.Apply();
+            Sprite native = Sprite.Create(nativeTexture, new Rect(0, 0, 64, 96),
+                new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect);
+
+            BakedRegionMotion038.AttachNative(buttonGo, boardImage,
+                new Rect(100f, 350f, 200f, 100f), native);
+            yield return null;
+            RectTransform body = (RectTransform)buttonGo.transform.Find(BakedRegionMotion038.BodyName);
+            RectTransform boardRect = (RectTransform)boardImage.transform;
+            Vector3 boardPos = boardRect.position;
+            Vector3 boardScale = boardRect.localScale;
+            Vector2 artPos = ((RectTransform)body.Find("RegionArt")).anchoredPosition;
+
+            PointerEventData data = new PointerEventData(EventSystem.current);
+            ExecuteEvents.Execute(buttonGo, data, ExecuteEvents.pointerEnterHandler);
+            for (int i = 0; i < 20; i++) yield return null;
+            Assert.GreaterOrEqual(body.localScale.x, 1.035f, "native hover must reach 1.04");
+
+            ExecuteEvents.Execute(buttonGo, data, ExecuteEvents.pointerDownHandler);
+            for (int i = 0; i < 12; i++) yield return null;
+            Assert.Less(body.localScale.x, 1f, "native press must settle at 0.97 — no baked floor");
+            Assert.GreaterOrEqual(body.localScale.x, .96f, "press must not overshoot below 0.97 by more than spring");
+
+            // The board itself is never copied or moved: scene art stays pixel-stationary.
+            Assert.AreEqual(boardPos, boardRect.position, "board must not move on hover/press");
+            Assert.AreEqual(boardScale, boardRect.localScale, "board must not scale");
+            Assert.AreEqual(artPos, ((RectTransform)body.Find("RegionArt")).anchoredPosition,
+                "region art anchor stays fixed — only body scale changes");
+
+            ExecuteEvents.Execute(buttonGo, data, ExecuteEvents.pointerUpHandler);
+            ExecuteEvents.Execute(buttonGo, data, ExecuteEvents.pointerExitHandler);
+            for (int i = 0; i < 20; i++) yield return null;
+            Assert.AreEqual(1f, body.localScale.x, .0001f, "exit must restore exact idle scale");
+            Assert.AreEqual(new Vector2(160f, 80f), buttonRect.rect.size, "hit rect stayed fixed");
+
+            Object.Destroy(nativeTexture); Object.Destroy(native);
+        }
     }
 }

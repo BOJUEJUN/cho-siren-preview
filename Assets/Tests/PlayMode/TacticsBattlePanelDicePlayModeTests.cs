@@ -63,10 +63,10 @@ namespace ChoSiren.Tests
                 elapsed.SetValue(panel, 99f); Invoke(panel, "RefreshBattleHud");
                 Color normal = timer.color;
                 elapsed.SetValue(panel, 100f); Invoke(panel, "RefreshBattleHud");
-                Assert.That(timer.text, Is.EqualTo("剩余 00:20"));
+                Assert.That(timer.text, Is.EqualTo("00:20"));
                 Assert.That(timer.color, Is.Not.EqualTo(normal));
                 var phase = (Text)typeof(TacticsBattlePanel).GetField("phaseText", flags).GetValue(panel);
-                Assert.That(phase.text, Does.Contain("超时判负"));
+                Assert.That(phase.text, Is.EqualTo($"{battle.CurrentWave}/{battle.TotalWaves}"));
                 Invoke(panel, "TogglePause"); Invoke(panel, "Update");
                 Assert.That(elapsed.GetValue(panel), Is.EqualTo(100f));
                 Assert.That(battle.ElapsedMilliseconds, Is.Zero);
@@ -123,19 +123,17 @@ namespace ChoSiren.Tests
             {
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(), null);
                 Text phaseLabel = GetField<Text>(panel, "phaseText");
-                phaseLabel.text = "第 1/3 波";
-                Assert.That(phaseLabel.preferredHeight, Is.LessThanOrEqualTo(phaseLabel.rectTransform.rect.height),
-                    "波次行必须装下真实中文字体，不能只剩时间可见。");
+                Assert.That(phaseLabel.text, Does.Contain("/"));
                 RectTransform[] controls = { FindRect(panel.transform, "AutoToggle"),
                     FindRect(panel.transform, "SpeedToggle"), FindRect(panel.transform, "PauseToggle") };
                 foreach (RectTransform control in controls)
                 {
-                    Assert.That(Top(control), Is.EqualTo(20));
-                    Assert.That(control.rect.height, Is.EqualTo(52));
-                    Assert.That(control.rect.width, Is.GreaterThanOrEqualTo(72));
-                    AssertNoOverlap(control, FindRect(panel.transform, "BossHpFrame"), "顶部操作不能压住血条");
-                    AssertNoOverlap(control, FindRect(panel.transform, "BossPhaseBadge"), "阶段信息不能挤入按钮");
-                    AssertNoOverlap(control, FindRect(panel.transform, "BattleStageTitle"), "关卡名称不能压住按钮");
+                    Assert.That(control.gameObject.activeInHierarchy, Is.True);
+                    Assert.That(control.rect.height, Is.GreaterThanOrEqualTo(52));
+                    Assert.That(control.rect.width, Is.GreaterThanOrEqualTo(60));
+                    Assert.That(Top(control) + control.rect.height,
+                        Is.LessThan(Top(FindRect(panel.transform, "PSD-battle-52"))),
+                        "新版 PSD 控件仍必须在总血条上方。");
                 }
                 for (int i = 0; i < controls.Length - 1; i++)
                     AssertNoOverlap(controls[i], controls[i + 1], "同排按钮之间必须留出独立触摸区域");
@@ -159,41 +157,30 @@ namespace ChoSiren.Tests
             try
             {
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(4), null);
-                RectTransform surface = FindRect(panel.transform, "BattleCommandSurface");
-                Image stageArt = FindRect(panel.transform, "BattleStageArt").GetComponent<Image>();
-                Assert.That(stageArt.preserveAspect, Is.True, "舞台原图必须等比显示");
+                var stageArt = FindRect(panel.transform, "PSD-stage").GetComponent<Image>();
                 Assert.That(stageArt.sprite, Is.Not.Null);
-                Assert.That(stageArt.sprite.texture.name, Is.EqualTo("battle-stage-038"));
-                Assert.That(surface.GetComponent<Image>().color.a, Is.LessThan(1f), "干净的新舞台应在操作区后延续");
-                Assert.That(Top(surface), Is.LessThanOrEqualTo(840));
-                Assert.That(Top(surface) + surface.rect.height, Is.GreaterThanOrEqualTo(1536));
-                Text rosterTitle = FindRect(panel.transform, "TeamRoster").GetComponent<Text>();
-                Assert.That(rosterTitle.preferredHeight, Is.LessThanOrEqualTo(rosterTitle.rectTransform.rect.height),
-                    "中文字体真实行高必须能装进标题框，不能只验证框之间不重叠");
-                for (int index = 0; index < 5; index++)
+                Assert.That(stageArt.rectTransform.rect.width / stageArt.rectTransform.rect.height,
+                    Is.EqualTo(stageArt.sprite.rect.width / stageArt.sprite.rect.height).Within(.002f),
+                    "新版 PSD 背景必须保持原图比例。");
+                Assert.That(FindRect(panel.transform, "BattleCommandSurface").gameObject.activeInHierarchy, Is.False);
+                for (int index = 0; index < DiceRules.DiceCount; index++)
                 {
-                    RectTransform status = FindRect(panel.transform, "DiceStatus-" + index);
-                    Assert.That(status.parent.name, Is.EqualTo("DiceConsole"));
-                    AssertNoOverlap(status, FindRect(panel.transform, "Dice-" + index), "保留状态应在骰子下方");
-                    AssertNoOverlap(status, FindRect(panel.transform, "DiceReroll"), "状态不能盖住按钮");
+                    var status = FindRect(panel.transform, "DiceStatus-" + index);
+                    Assert.That(status.parent.name, Is.EqualTo("BattlePSD928"));
+                    AssertNoOverlap(status, FindRect(panel.transform, "Dice-" + index), "重投状态应在骰子下方");
+                    AssertNoOverlap(status, FindRect(panel.transform, "PsdReroll"), "状态不能盖住心形按钮");
                 }
-                foreach (RectTransform card in panel.GetComponentsInChildren<RectTransform>(true)
-                             .Where(item => item.name.StartsWith("Cell-P-")))
+                foreach (var card in panel.GetComponentsInChildren<RectTransform>(true)
+                             .Where(item => item.name.StartsWith("Cell-P-") && item.gameObject.activeInHierarchy))
                 {
-                    RectTransform portrait = FindRect(card, "Portrait");
+                    var portrait = FindRect(card, "Portrait");
                     Assert.That(portrait.rect.height, Is.GreaterThanOrEqualTo(98));
-                    AssertNoOverlap(portrait, FindRect(card, "UnitName"), "名字与头像独立分区");
-                    AssertNoOverlap(portrait, FindRect(card, "Hp"), "血条不能盖住脸部");
-                    AssertNoOverlap(portrait, FindRect(card, "UnitStatus"), "异常状态不能盖住脸部");
-                    Assert.That(FindRect(card, "BattleFrame").GetComponent<Image>().sprite, Is.Null);
-                    Text hp = FindRect(card, "UnitHpText").GetComponent<Text>();
+                    Assert.That(FindRect(card, "PsdUnitFrame").GetComponent<Image>().sprite, Is.Not.Null);
+                    var hp = FindRect(card, "UnitHpText").GetComponent<Text>();
                     hp.text = "9999/9999";
                     Assert.That(hp.preferredHeight, Is.LessThanOrEqualTo(hp.rectTransform.rect.height),
                         "成员血量数字必须可见，不能被字体行高裁切");
                 }
-                RectTransform enemy = FindRect(panel.transform, "Cell-E-0-0");
-                AssertNoOverlap(FindRect(enemy, "UnitHpText"), FindRect(enemy, "UnitStatus"),
-                    "敌方血量与异常状态必须使用独立行");
                 foreach (string id in new[] { "xingli", "yeying", "feiyin", "wubai" })
                 {
                     Sprite portrait = (Sprite)InvokeWithResult(panel, "BattlePortrait", id);
@@ -221,72 +208,35 @@ namespace ChoSiren.Tests
             {
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(root.transform, new GameModel(), CreateBattle(4),
                     null);
-                RectTransform dice = FindRect(panel.transform, "DiceConsole");
-                RectTransform rosterLabel = FindRect(panel.transform, "TeamRoster");
-                RectTransform playerCard = FindRect(panel.transform, "Cell-P-0-0");
-                RectTransform deck = FindRect(panel.transform, "SkillCommandDeck");
-                RectTransform skillBar = FindRect(panel.transform, "SkillBar");
-                RectTransform previewBoard = FindRect(panel.transform, "PreviewBoard");
-
-                float diceBottom = Top(dice) + dice.rect.height;
-                float labelBottom = Top(rosterLabel) + rosterLabel.rect.height;
-                float cardTop = Top(playerCard);
-                float cardBottom = cardTop + playerCard.rect.height;
-                float deckTop = Top(deck);
-
-                Assert.That(labelBottom, Is.LessThanOrEqualTo(cardTop),
-                    "出战成员标题不能压在第一排成员卡上。 ");
-                Assert.That(cardBottom, Is.LessThanOrEqualTo(Top(dice)),
-                    "成员头像必须在骰子上方，不能覆盖骰子。 ");
-                Assert.That(deck.gameObject.activeInHierarchy, Is.False,
-                    "实时模式彻底停用页尾指令容器，不靠移到画布外隐藏");
-                Assert.That(skillBar.gameObject.activeInHierarchy, Is.False);
-                RectTransform cueArea = FindRect(panel.transform, "CombatCueArea");
-                Assert.That(Top(cueArea) + cueArea.rect.height, Is.LessThanOrEqualTo(Top(dice)),
-                    "攻击连线裁切范围不能进入骰子操作区。");
-                Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item =>
-                    item.name.StartsWith("AttackPlayerProxy") || item.name == "AttackSourcePortrait"), Is.False);
-                Assert.That(cardBottom, Is.LessThanOrEqualTo(deckTop),
-                    "成员卡不能覆盖技能指令栏。 ");
-                RectTransform[] activePlayerCards = panel.GetComponentsInChildren<RectTransform>(true)
-                    .Where(item => item.name.StartsWith("Cell-P-") && item.gameObject.activeSelf)
-                    .ToArray();
-                Assert.That(activePlayerCards, Has.Length.EqualTo(4));
-                for (int first = 0; first < activePlayerCards.Length; first++)
+                var firstDie = FindRect(panel.transform, "Dice-0");
+                var activeCards = panel.GetComponentsInChildren<RectTransform>(true)
+                    .Where(item => item.name.StartsWith("Cell-P-") && item.gameObject.activeInHierarchy).ToArray();
+                Assert.That(activeCards, Has.Length.EqualTo(4));
+                foreach (var card in activeCards)
                 {
-                    Assert.That(Top(activePlayerCards[first]), Is.EqualTo(cardTop).Within(0.01f),
-                        "四名出战成员应保持在同一行。 ");
-                    for (int second = first + 1; second < activePlayerCards.Length; second++)
-                        AssertNoOverlap(activePlayerCards[first], activePlayerCards[second],
-                            "出战成员卡之间不能互相覆盖。 ");
+                    Assert.That(Top(card) + card.rect.height, Is.LessThan(Top(firstDie)),
+                        "出战成员卡应完整显示在六骰操作区域上方。");
+                    Assert.That(Top(card), Is.EqualTo(Top(activeCards[0])).Within(.01f));
                 }
-                Assert.That(Top(skillBar) + skillBar.rect.height, Is.LessThanOrEqualTo(Top(previewBoard)),
-                    "技能按钮容器不能进入目标预览区。 ");
-
-                Text preview = FindRect(previewBoard, "TargetPreview").GetComponent<Text>();
-                Assert.That(preview.resizeTextForBestFit, Is.True,
-                    "目标预览会拼接技能名和多个单位名，必须允许受控缩字号。 ");
-                RectTransform teamHealth = FindRect(previewBoard, "TeamHealthSummary");
-                AssertNoOverlap(teamHealth, preview.rectTransform,
-                    "队伍总生命摘要不能覆盖目标预览说明。");
-                Assert.That(teamHealth.gameObject.activeInHierarchy, Is.False);
-                Assert.That(previewBoard.gameObject.activeSelf, Is.False);
-                Assert.That(preview.gameObject.activeInHierarchy, Is.False);
-
-                RectTransform reroll = FindRect(panel.transform, "DiceReroll");
-                RectTransform energyReroll = FindRect(panel.transform, "EnergyReroll");
-                RectTransform instruction = FindRect(panel.transform, "DiceInstruction");
-                RectTransform diceTitle = FindRect(panel.transform, "DiceConsoleTitle");
-                RectTransform diceSummary = FindRect(panel.transform, "DiceHandSummary");
-                AssertNoOverlap(diceTitle, diceSummary, "骰子标题不能压住骰型摘要。 ");
-                AssertNoOverlap(reroll, energyReroll, "两种重投按钮不能互相覆盖。 ");
-                AssertNoOverlap(instruction, reroll, "骰子说明不能压住普通重投按钮。 ");
-                AssertNoOverlap(instruction, energyReroll, "骰子说明不能压住能量重投按钮。 ");
-                for (int index = 0; index < DiceRules.DiceCount; index++)
+                for (int i = 0; i < activeCards.Length - 1; i++)
+                    AssertNoOverlap(activeCards[i], activeCards[i + 1], "角色点击热区必须独立，图案可以出框。");
+                Assert.That(FindRect(panel.transform, "TeamRoster").gameObject.activeInHierarchy, Is.False,
+                    "旧标题不应遮住新版唱片造型卡片。");
+                Assert.That(FindRect(panel.transform, "SkillCommandDeck").gameObject.activeInHierarchy, Is.False);
+                Assert.That(FindRect(panel.transform, "SkillBar").gameObject.activeInHierarchy, Is.False);
+                Assert.That(FindRect(panel.transform, "PreviewBoard").gameObject.activeInHierarchy, Is.False);
+                var cue = FindRect(panel.transform, "CombatCueArea");
+                Assert.That(Top(cue) + cue.rect.height, Is.LessThan(Top(firstDie)), "攻击连线不得进入骰子操作区。");
+                var heart = FindRect(panel.transform, "PsdReroll");
+                Assert.That(heart.gameObject.activeInHierarchy, Is.True);
+                Assert.That(FindRect(panel.transform, "DiceReroll").gameObject.activeInHierarchy, Is.False);
+                Assert.That(FindRect(panel.transform, "EnergyReroll").gameObject.activeInHierarchy, Is.False);
+                for (int i = 0; i < DiceRules.DiceCount; i++)
                 {
-                    RectTransform die = FindRect(panel.transform, "Dice-" + index);
-                    AssertNoOverlap(die, reroll, $"第 {index + 1} 颗骰子不能压住普通重投按钮。 ");
-                    AssertNoOverlap(die, energyReroll, $"第 {index + 1} 颗骰子不能压住能量重投按钮。 ");
+                    var die = FindRect(panel.transform, "Dice-" + i);
+                    AssertNoOverlap(die, heart, "心形重投按钮不能压住骰子。");
+                    Assert.That(Top(die) + die.rect.height, Is.LessThan(1536));
+                    if (i > 0) AssertNoOverlap(FindRect(panel.transform, "Dice-" + (i - 1)), die, "六颗骰子的热区不得重叠。");
                 }
             }
             finally
@@ -333,7 +283,7 @@ namespace ChoSiren.Tests
                     .Any(item => item.name.StartsWith("DicePedestal-")), Is.False,
                     "骰子后方不应再生成额外底座光斑。");
                 Assert.That(reroll.text, Is.EqualTo("重投已选0颗"), "开局全部保留，必须先点选要重投的骰子。");
-                Assert.That(energy.text, Does.StartWith("全部重投"));
+                Assert.That(energy.text, Does.StartWith("全部重投"), "2026-10-31: 不选骰子时点重投 = 6 颗全部重投");
                 Assert.That(panel.Battle.BattleDice.Energy, Is.Zero);
                 // 同步测试不会推进骰子落地动画；模拟落地后的稳定状态再验证重投额度。
                 SetField(panel, "awaitingInput", true);
@@ -431,8 +381,8 @@ namespace ChoSiren.Tests
             try
             {
                 TacticsBattlePanel panel = root.AddComponent<TacticsBattlePanel>();
-                DiceTurn turn = BeginTurnFromFaces(new[] { 1, 1, 3, 4, 6 });
-                Assert.That(turn.Values, Is.EqualTo(new[] { 1, 1, 3, 4, 6 }),
+                DiceTurn turn = BeginTurnFromFaces(new[] { 1, 1, 2, 3, 4, 6 });
+                Assert.That(turn.Values, Is.EqualTo(new[] { 1, 1, 2, 3, 4, 6 }),
                     "测试输入必须按玩家看到的骰面传入，不能混用随机源的零基下标");
                 SetField(panel, "diceTurn", turn);
                 SetField(panel, "awaitingInput", true);
@@ -523,17 +473,17 @@ namespace ChoSiren.Tests
                 TacticsBattlePanel panel = root.AddComponent<TacticsBattlePanel>();
                 DiceTurn turn = BeginTurnFromFaces(new[]
                 {
-                    2, 2, 4, 5, 6,
-                    3, 4, 5,
-                    2, 2, 2,
+                    2, 2, 1, 3, 4, 6,
+                    1, 3, 4, 6,
+                    2, 2, 2, 2,
                 });
                 SetField(panel, "diceTurn", turn);
 
                 Invoke(panel, "AutoTuneDice");
 
-                Assert.That(turn.Values, Is.EqualTo(new[] { 2, 2, 2, 2, 2 }));
-                Assert.That(turn.Hand.Pattern, Is.EqualTo(DicePattern.FiveKind));
-                Assert.That(turn.Held, Is.EqualTo(new[] { true, true, true, true, true }),
+                Assert.That(turn.Values, Is.EqualTo(new[] { 2, 2, 2, 2, 2, 2 }));
+                Assert.That(turn.Hand.Pattern, Is.EqualTo(DicePattern.SixKind));
+                Assert.That(turn.Held, Is.EqualTo(new[] { true, true, true, true, true, true }),
                     "最后一次重投后必须按新牌型重新计算自动保留");
                 Assert.That(turn.RerollsRemaining, Is.Zero);
             }

@@ -1,0 +1,181 @@
+[
+  {
+    "phase": "cg-before-start",
+    "time": 1792052285548,
+    "musicState": {
+      "enabled": false,
+      "ready": true,
+      "settingKnown": true,
+      "hasSoundtrack": true,
+      "ducked": false,
+      "mediaOwnsMusic": true,
+      "mediaOwners": [
+        "loading-cg"
+      ]
+    },
+    "loops": [],
+    "media": [],
+    "signal": [],
+    "videos": [
+      {
+        "id": "moment-video",
+        "muted": false,
+        "paused": true,
+        "volume": 1,
+        "currentTime": 0,
+        "duration": null,
+        "readyState": 0,
+        "audioDecodedBytes": 0
+      },
+      {
+        "id": "",
+        "muted": true,
+        "paused": false,
+        "volume": 1,
+        "currentTime": 3.089157,
+        "duration": 4.041667,
+        "readyState": 4,
+        "audioDecodedBytes": 0
+      },
+      {
+        "id": "loading-cg",
+        "muted": true,
+        "paused": false,
+        "volume": 0.45,
+        "currentTime": 8.794475,
+        "duration": 10.08,
+        "readyState": 4,
+        "audioDecodedBytes": 1638015
+      }
+    ],
+    "totalLongStarts": 0
+  },
+  {
+    "phase": "original-home-after-title",
+    "time": 1792052358547,
+    "musicState": {
+      "enabled": true,
+      "ready": true,
+      "settingKnown": true,
+      "hasSoundtrack": true,
+      "ducked": false,
+      "mediaOwnsMusic": false,
+      "mediaOwners": []
+    },
+    "loops": [
+      {
+        "duration": 128.02125,
+        "sampleRate": 48000,
+        "channels": 2,
+        "loopStart": 0.023219954648526078,
+        "loopEnd": 128.02124716553288,
+        "offset": 0,
+        "startContext": 0.21333333333333335,
+        "contextTime": 72.53866666666667,
+        "contextState": "running",
+        "gains": [
+          0.18000000715255737
+        ]
+      }
+    ],
+    "media": [],
+    "signal": [
+      {
+        "rms": 0.02297602829074782,
+        "peak": 0.06896153837442398
+      }
+    ],
+    "videos": [
+      {
+        "id": "moment-video",
+        "muted": false,
+        "paused": true,
+        "volume": 1,
+        "currentTime": 0,
+        "duration": null,
+        "readyState": 0,
+        "audioDecodedBytes": 0
+      },
+      {
+        "id": "loading-cg",
+        "muted": true,
+        "paused": true,
+        "volume": 0.45,
+        "currentTime": 0,
+        "duration": null,
+        "readyState": 0,
+        "audioDecodedBytes": 0
+      }
+    ],
+    "totalLongStarts": 2
+  },
+  {
+    "phase": "two-home-characters-wrap",
+    "time": 1792052517548,
+    "musicState": {
+      "enabled": true,
+      "ready": true,
+      "settingKnown": true,
+      "hasSoundtrack": true,
+      "ducked": false,
+      "mediaOwnsMusic": false,
+      "mediaOwners": []
+    },
+    "loops": [
+      {
+        "duration": 128.02125,
+        "sampleRate": 48000,
+        "channels": 2,
+        "loopStart": 0.023219954648526078,
+        "loopEnd": 128.02124716553288,
+        "offset": 0,
+        "startContext": 0.21333333333333335,
+        "contextTime": 231.54133333333334,
+        "contextState": "running",
+        "gains": [
+          0.18000000715255737
+        ]
+      }
+    ],
+    "media": [],
+    "signal": [
+      {
+        "rms": 0.01458455640993979,
+        "peak": 0.0420975461602211
+      }
+    ],
+    "videos": [
+      {
+        "id": "moment-video",
+        "muted": false,
+        "paused": true,
+        "volume": 1,
+        "currentTime": 0,
+        "duration": null,
+        "readyState": 0,
+        "audioDecodedBytes": 0
+      },
+      {
+        "id": "",
+        "muted": true,
+        "paused": false,
+        "volume": 1,
+        "currentTime": 0.507034,
+        "duration": 4.041667,
+        "readyState": 4,
+        "audioDecodedBytes": 0
+      },
+      {
+        "id": "loading-cg",
+        "muted": true,
+        "paused": true,
+        "volume": 0.45,
+        "currentTime": 0,
+        "duration": null,
+        "readyState": 0,
+        "audioDecodedBytes": 0
+      }
+    ],
+    "totalLongStarts": 2
+  }
+]

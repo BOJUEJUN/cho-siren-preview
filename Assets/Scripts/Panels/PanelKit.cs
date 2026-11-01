@@ -52,7 +52,39 @@ namespace ChoSiren.Panels
             group.alpha = 1f;
             group.interactable = true;
             group.blocksRaycasts = true;
+            ChoSiren.UI.PageAmbient.SetColor(panelObject, new Color32(9, 6, 22, 255));
             return panelObject;
+        }
+
+        /// <summary>
+        /// Four strips just OUTSIDE the given rect, so a full-page overlay also covers the
+        /// notch band and side margins of a notched phone (which lie beyond the safe area)
+        /// instead of letting the lobby art show around it. Inside the rect nothing changes.
+        /// </summary>
+        public static void AddEdgeShade(Transform parent, Color color)
+        {
+            const float reach = 800f;
+            (string name, Vector2 min, Vector2 max, Vector2 offMin, Vector2 offMax)[] strips =
+            {
+                ("EdgeShadeTop", new Vector2(0, 1), new Vector2(1, 1), new Vector2(-reach, 0), new Vector2(reach, reach)),
+                ("EdgeShadeBottom", new Vector2(0, 0), new Vector2(1, 0), new Vector2(-reach, -reach), new Vector2(reach, 0)),
+                ("EdgeShadeLeft", new Vector2(0, 0), new Vector2(0, 1), new Vector2(-reach, 0), new Vector2(0, 0)),
+                ("EdgeShadeRight", new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 0), new Vector2(reach, 0)),
+            };
+            foreach (var strip in strips)
+            {
+                GameObject node = new GameObject(strip.name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                node.transform.SetParent(parent, false);
+                RectTransform rect = node.GetComponent<RectTransform>();
+                rect.anchorMin = strip.min;
+                rect.anchorMax = strip.max;
+                rect.offsetMin = strip.offMin;
+                rect.offsetMax = strip.offMax;
+                Image image = node.GetComponent<Image>();
+                image.color = color;
+                image.raycastTarget = false;
+                node.transform.SetAsFirstSibling();
+            }
         }
 
         public void PlayClick()
@@ -210,6 +242,11 @@ namespace ChoSiren.Panels
         {
             Image image = NewImage(name, parent, RoundedSprite(radius), color);
             image.type = Image.Type.Sliced;
+            if (ChoSiren.UI.SirenStickerUi.IsReadingPanel(name, color))
+            {
+                ChoSiren.UI.SirenStickerUi.SkinPanel(image.gameObject, false);
+                image.color = new Color(1f, 1f, 1f, color.a);
+            }
             return image.gameObject;
         }
 
@@ -248,13 +285,18 @@ namespace ChoSiren.Panels
                 TextAnchor.MiddleCenter);
             Stretch(text.rectTransform, 6, 4, -6, -4);
             EnableBestFit(text, Mathf.Max(10, fontSize - 4));
+            if (background.a > .2f && !string.IsNullOrEmpty(label))
+                ChoSiren.UI.SirenStickerUi.SkinButton(result, background.r > background.b, fontSize < 16);
             return result;
         }
 
         public static Text LabelOf(GameObject button)
         {
             Transform label = button.transform.Find("Label");
-            return label != null ? label.GetComponent<Text>() : null;
+            if (label != null) return label.GetComponent<Text>();
+            foreach (Text nested in button.GetComponentsInChildren<Text>(true))
+                if (nested.name == "Label") return nested;
+            return null;
         }
 
         /// <summary>Keeps dynamic Chinese copy inside its authored bounds instead of clipping the tail.</summary>
@@ -271,7 +313,8 @@ namespace ChoSiren.Panels
             Button component = button.GetComponent<Button>();
             if (component != null) component.interactable = interactable;
             Image image = button.GetComponent<Image>();
-            if (image != null) image.color = background;
+            if (image != null) image.color = button.GetComponent<ChoSiren.UI.SirenStickerButtonFeedback>() != null
+                ? Color.clear : background;
         }
 
         public Text NewText(string name, Transform parent, string value, int size, Color color, FontStyle style,
@@ -474,20 +517,63 @@ namespace ChoSiren.Panels
         /// </summary>
         public static Rect MemberBustFocus(string memberId)
         {
+            // 2026-11-01 avatar-face: 每张立绘按标注的人脸锚点取胸像（Resources/Data/portrait-faces.json）。
+            if (ChoSiren.UI.PortraitFace1101.TryMemberFocus(memberId, .9f, ChoSiren.UI.PortraitFace1101.Framing.Bust,
+                    out Rect faceFocus)) return faceFocus;
             switch (memberId)
             {
-                case "xingli": return new Rect(.50f, .62f, .46f, .29f);
-                case "yeying": return new Rect(.23f, .48f, .52f, .29f);
-                case "feiyin": return new Rect(.30f, .60f, .48f, .30f);
-                case "wubai": return new Rect(.32f, .66f, .48f, .29f);
+                case "xingli": return new Rect(.26f, .68f, .38f, .29f);
+                case "yeying": return new Rect(.35f, .68f, .38f, .29f);
+                case "feiyin": return new Rect(.24f, .67f, .38f, .29f);
+                case "wubai": return new Rect(.32f, .68f, .38f, .29f);
                 case "yaoguang": return new Rect(.32f, .61f, .48f, .30f);
                 case "hupo": return new Rect(.27f, .63f, .52f, .31f);
                 case "xianyue": return new Rect(.32f, .63f, .52f, .30f);
                 case "chuxue": return new Rect(.25f, .55f, .52f, .30f);
                 case "chengxia": return new Rect(.28f, .48f, .52f, .30f);
-                default: return new Rect(.20f, .48f, .65f, .42f);
+                default: return TryGeneratedBustFocus(memberId, out Rect focus) ? focus : new Rect(.20f, .48f, .65f, .42f);
             }
         }
+
+        private static Dictionary<string, Rect> generatedBustFocus;
+
+        /// <summary>
+        /// 通用 hero-* 立绘的头肩取景框，离线按每张缩略图的头部位置量出
+        /// （Resources/Data/bust-focus.txt，每行 "id x y w h"，y 自底向上）。
+        /// </summary>
+        private static bool TryGeneratedBustFocus(string memberId, out Rect focus)
+        {
+            if (generatedBustFocus == null)
+            {
+                generatedBustFocus = new Dictionary<string, Rect>();
+                TextAsset table = Resources.Load<TextAsset>("Data/bust-focus");
+                if (table != null)
+                {
+                    var inv = System.Globalization.CultureInfo.InvariantCulture;
+                    foreach (string line in table.text.Split('\n'))
+                    {
+                        string[] p = line.Trim().Split(' ');
+                        if (p.Length == 5 && float.TryParse(p[1], System.Globalization.NumberStyles.Float, inv, out float x)
+                            && float.TryParse(p[2], System.Globalization.NumberStyles.Float, inv, out float y)
+                            && float.TryParse(p[3], System.Globalization.NumberStyles.Float, inv, out float w)
+                            && float.TryParse(p[4], System.Globalization.NumberStyles.Float, inv, out float h))
+                            generatedBustFocus[p[0]] = new Rect(x, y, w, h);
+                    }
+                }
+            }
+            focus = default;
+            return memberId != null && generatedBustFocus.TryGetValue(memberId, out focus);
+        }
+
+        /// <summary>
+        /// 头像缩略图（Art/Members/Avatars/avatar-*）出图时已按头部取景，铺满宽度、顶边对齐即可；
+        /// 胸像表只用于整身立绘。
+        /// </summary>
+        public const string HeadAvatarPrefix = "avatar-";
+        private static readonly Rect HeadAvatarFocus = new Rect(0f, 0f, 1f, 1f);
+
+        public static bool IsHeadAvatar(Sprite sprite)
+            => sprite != null && sprite.name.StartsWith(HeadAvatarPrefix, StringComparison.Ordinal);
 
         /// <summary>
         /// 在带 Mask 的 frame 内摆放立绘：不改 sprite，仅放大并位移，让成员的胸像取景框
@@ -496,12 +582,19 @@ namespace ChoSiren.Panels
         /// </summary>
         public static void FrameBustPortrait(Image image, RectTransform frame, string memberId)
         {
+            // 2026-11-01 avatar-face: 统一走人脸锚点（方框=头像，高框=胸像/半身）。
             if (image == null || frame == null || image.sprite == null) return;
+            if (frame.rect.width > 0f && frame.rect.height > 0f)
+            {
+                ChoSiren.UI.PortraitFace1101.Apply(image, frame, memberId,
+                    ChoSiren.UI.PortraitFace1101.AutoFraming(frame.rect.size));
+                return;
+            }
             Rect src = image.sprite.rect;
             float fw = frame.rect.width, fh = frame.rect.height;
             if (src.width <= 0f || src.height <= 0f || fw <= 0f || fh <= 0f) return;
 
-            Rect focus = MemberBustFocus(memberId);
+            Rect focus = IsHeadAvatar(image.sprite) ? HeadAvatarFocus : MemberBustFocus(memberId);
             float vw = Mathf.Min(focus.width, 1f);
             float vh = Mathf.Min(vw * src.width * fh / (fw * src.height), 1f);
             float top = Mathf.Clamp(focus.yMax, vh, 1f);

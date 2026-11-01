@@ -34,7 +34,8 @@ namespace ChoSiren.Editor
         {
             PlayerSettings.companyName = "CHO-SIREN Studio";
             PlayerSettings.productName = "CHO-SIREN 幻域魅声";
-            PlayerSettings.bundleVersion = "0.3.8";
+            // The version is bumped per release in Player Settings; this setup must not reset it.
+            PlayerSettings.SplashScreen.show = false;
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToPortrait = true;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;

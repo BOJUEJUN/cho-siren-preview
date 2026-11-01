@@ -38,7 +38,12 @@ namespace ChoSiren.Tests
                 .Where(line => line.Command == StoryCommand.Background)
                 .ToArray();
 
-            Assert.That(backgrounds, Has.Length.EqualTo(2));
+            Assert.That(backgrounds.Select(line => line.Subject), Is.EqualTo(new[]
+            {
+                "Art/Story/Scenes1019/chapter-01-rehearsal-solo",
+                "Art/Story/Scenes1019/chapter-01-rehearsal-arrival",
+                "Art/Story/Scenes1019/chapter-01-alley-outro",
+            }), "章序按单人排练、绯音入场、后巷转场对应完整原画，不与关卡空景混用。");
             for (int index = 0; index < backgrounds.Length; index++)
             {
                 Assert.That(backgrounds[index].Subject, Does.StartWith("Art/"));

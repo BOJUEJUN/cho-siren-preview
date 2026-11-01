@@ -4,6 +4,7 @@ using UnityEngine.UI;
 namespace ChoSiren.Panels
 {
     // Reference-shaped decoration only. The real Button remains an unchanged hit target.
+    [RequireComponent(typeof(CanvasRenderer))]
     public sealed class BattleReferenceFrame038 : MaskableGraphic
     {
         public enum FrameKind { SelectedReroll, AllReroll, Member, Information, Heart }

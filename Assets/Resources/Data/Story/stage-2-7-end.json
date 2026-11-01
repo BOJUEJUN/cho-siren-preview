@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-7-end",
+  "Title": "2-7 彩虹栈桥",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-7"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "grin",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "咒术师又输了。这回她跑不掉了。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "巨蛋的光……越来越近了。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "天台能看到整片海湾。守住队长，拼到最后。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

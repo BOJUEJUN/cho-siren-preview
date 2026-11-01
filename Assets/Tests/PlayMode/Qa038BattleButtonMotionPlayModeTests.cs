@@ -48,21 +48,20 @@ namespace ChoSiren.Tests
                 Invoke(panel, "RefreshRealtimeCommands");
                 // Un-hold one die so the selective reroll button is genuinely usable.
                 FindRect(panel.transform, "Dice-0").GetComponent<Button>().onClick.Invoke();
-                yield return null;
+                yield return WaitRealtime(1.2f);
 
-                // DiceReroll / EnergyReroll / TacticalGuard / AbilityDetails each own one
-                // motion-wired visual group; the hit rect must never move.
-                AssertMotionPair(panel.transform, "DiceReroll", "SelectedRerollVisualGroup");
-                AssertMotionPair(panel.transform, "EnergyReroll", "AllRerollVisualGroup");
-                AssertMotionPair(panel.transform, "TacticalGuard", "GuardVisualGroup");
-                AssertMotionPair(panel.transform, "AbilityDetails", "AbilityVisualGroup");
+                AssertMotionPair(panel.transform, "PsdReroll", "PsdButtonVisual-PsdReroll");
+                AssertMotionPair(panel.transform, "TacticalGuard", "PsdButtonVisual-TacticalGuard");
+                AssertMotionPair(panel.transform, "AutoToggle", "PsdButtonVisual-AutoToggle");
+                AssertMotionPair(panel.transform, "SpeedToggle", "PsdButtonVisual-SpeedToggle");
+                AssertMotionPair(panel.transform, "PauseToggle", "PsdButtonVisual-PauseToggle");
 
                 foreach (var pair in new[]
                          {
-                             new KeyValuePair<string, string>("DiceReroll", "SelectedRerollVisualGroup"),
-                             new KeyValuePair<string, string>("EnergyReroll", "AllRerollVisualGroup"),
-                             new KeyValuePair<string, string>("TacticalGuard", "GuardVisualGroup"),
-                             new KeyValuePair<string, string>("AbilityDetails", "AbilityVisualGroup"),
+                             new KeyValuePair<string, string>("PsdReroll", "PsdButtonVisual-PsdReroll"),
+                             new KeyValuePair<string, string>("AutoToggle", "PsdButtonVisual-AutoToggle"),
+                             new KeyValuePair<string, string>("TacticalGuard", "PsdButtonVisual-TacticalGuard"),
+                             new KeyValuePair<string, string>("SpeedToggle", "PsdButtonVisual-SpeedToggle"),
                          })
                 {
                     RectTransform button = FindRect(panel.transform, pair.Key);

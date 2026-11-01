@@ -1,0 +1,22 @@
+{
+  "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/seed-sfx-bundle-20261019-v1/original/seed-sfx-bundle.wav",
+  "seconds": 5.9,
+  "sample_rate": 44100,
+  "channels": 2,
+  "peak_dbfs": -19.243477776452373,
+  "whisper_small_offline_transcript": "Thank you for watching!",
+  "silence_runs_ge_150ms": [
+    {
+      "start": 0.66,
+      "duration": 3.7600000000000002
+    },
+    {
+      "start": 5.26,
+      "duration": 0.64
+    }
+  ],
+  "asr_limits": "Whisper may hallucinate words on sound effects; intelligible transcript matching requested written instructions is evidence of a failed pure-SFX sample. Human listening remains required.",
+  "expected_three_separated_sfx": false,
+  "production_integrated": false,
+  "acceptance": "Failed the requested three separate sounds with >=1s silence between. Two observable non-silent groups at -45dBFS threshold; ASR may hallucinate speech. Do not force unusable segments into production. Kenney baseline retained."
+}

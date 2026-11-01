@@ -328,7 +328,7 @@ namespace ChoSiren
         // ------------------------------------------------------------------
         // team — central stellar orbit stage
 
-        private void BuildTeamReference() => BuildRosterPolish038TeamBoard();
+        private void BuildTeamReference() => BuildTeamBoard038();
 
         /// <summary>
         /// One orbit slot on the stellar stage. The hit rect stays unrotated so the
@@ -431,7 +431,7 @@ namespace ChoSiren
             GameObject button = RefButton(name, contentRoot, label, 14, x, y, width, 42,
                 selected ? new Color32(150, 62, 160, 190) : new Color32(18, 20, 62, 150),
                 selected ? White : Muted, action, mirror);
-            Outline outline = button.GetComponent<Outline>() ?? button.AddComponent<Outline>();
+            Outline outline = UnityNull.Real(button.GetComponent<Outline>()) ?? button.AddComponent<Outline>();
             outline.effectColor = selected ? new Color32(255, 109, 212, 220) : new Color32(113, 174, 255, 110);
             outline.effectDistance = new Vector2(1f, -1f);
         }
@@ -540,7 +540,7 @@ namespace ChoSiren
             band.GetComponent<Image>().type = Image.Type.Sliced;
             band.GetComponent<Image>().raycastTarget = false;
             PlaceTop(band.GetComponent<RectTransform>(), 5, 148, width - 10, 57);
-            NewPlacedText(card.transform, $"{MemberRaceFamily(member, index)} · {member.Career}", 10, Pink,
+            NewPlacedText(card.transform, $"{MemberRaceFamily(member, index)} · {member.Career}", 10, Accent,
                 10, 150, width - 20, 18, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(card.transform, member.Name, 16, White,
                 10, 166, width - 20, 24, TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -557,10 +557,9 @@ namespace ChoSiren
 
         private void OpenTeamMemberReference(int memberIndex, int teamSlot)
         {
-            Sprite authoredProfile = ReferenceArt038.Load("Art/Reference038/profile-board-038");
-            if (authoredProfile != null && model.IsUnlocked(memberIndex))
+            if (model.IsUnlocked(memberIndex))
             {
-                OpenProfileBoard038(memberIndex, teamSlot, authoredProfile);
+                OpenMemberDetail(memberIndex, teamSlot);
                 return;
             }
             memberProfileReturn = null;
@@ -654,7 +653,7 @@ namespace ChoSiren
             nameEdge.effectDistance = new Vector2(1.4f, -1.4f);
             NewPlacedText(panel.transform,
                 unlocked ? $"{MemberRace(member, memberIndex)} · {member.Career}" : MemberRosterVisibility.LockedCareer,
-                16, unlocked ? Pink : Muted,
+                16, unlocked ? Accent : Muted,
                 infoX, 140, infoW, 26, TextAnchor.MiddleLeft, FontStyle.Bold).name = "MemberRaceCareer";
             Text power = NewPlacedText(panel.transform,
                 unlocked ? $"等级 {level}  ·  战力 {displayPower:N0}"
@@ -732,7 +731,7 @@ namespace ChoSiren
             NewPlacedText(skillPanel.transform, "技能效果", 9, new Color32(150, 145, 200, 200),
                 424, 70, 130, 18, TextAnchor.MiddleRight, FontStyle.Italic).name = "MemberSectionActiveSkillsEn";
             BuildReadableMemberSkill(skillPanel.transform, "MemberSkillPrimary", firstSkillName, firstSkillEffect,
-                18, Pink, 96, 156);
+                18, Accent, 96, 156);
             BuildReadableMemberSkill(skillPanel.transform, "MemberSkillSecondary", secondSkillName, secondSkillEffect,
                 296, Cyan, 96, 156);
             NewPlacedText(skillPanel.transform, MemberTeamBonus(member), 12,
@@ -752,7 +751,7 @@ namespace ChoSiren
             Text cost = NewPlacedText(guidePanel.transform, atLevelCap
                     ? "已满级 · 无需继续训练"
                     : $"消耗星光币 {trainingCost:N0} · 持有 {model.Save.Gold:N0}",
-                15, canTrain || atLevelCap ? Cyan : Pink, 18, 60, 536, 26, TextAnchor.MiddleLeft);
+                15, canTrain || atLevelCap ? Cyan : Warn, 18, 60, 536, 26, TextAnchor.MiddleLeft);
             cost.name = "MemberTrainingCost";
             PanelKit.EnableBestFit(cost, 13);
 

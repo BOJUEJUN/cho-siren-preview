@@ -1,0 +1,27 @@
+[
+  {
+    "path": "music/index.html",
+    "sha256": "2c25a384fd29455e5c23ab54953b27880de23f58efa7cf2d766f07540e77261b",
+    "bytes": 1725
+  },
+  {
+    "path": "music/afterglow/index.html",
+    "sha256": "bdb71084dc46ae52932ba1c3191319c6313d11fb71590d15cef61f7d3b2a631a",
+    "bytes": 3043
+  },
+  {
+    "path": "media/neon-moonwalk-preview.mp3",
+    "sha256": "c390cac9ff8cdb4760a73dc75ca1069836728bf263af04ef3cfe717ffb7ce1ee",
+    "bytes": 4345506
+  },
+  {
+    "path": "media/afterglow-cruise-01.mp3",
+    "sha256": "226e43f1f846d8676ecea2fb1db74d10b22abf6907af186e4e578175fad6b671",
+    "bytes": 5017226
+  },
+  {
+    "path": "media/afterglow-cruise-02.mp3",
+    "sha256": "69994c144a5064e08511b6d617d2f220e6ac8526e5d78244b59b96f4c32b016f",
+    "bytes": 6633892
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "currentTime": 19.126771,
+    "duration": 204.63,
+    "error": null,
+    "paused": true,
+    "src": "./track-1.mp3"
+  },
+  {
+    "currentTime": 31.192306,
+    "duration": 210.19,
+    "error": null,
+    "paused": true,
+    "src": "./track-2.mp3"
+  },
+  {
+    "currentTime": 53.15313,
+    "duration": 210.87,
+    "error": null,
+    "paused": true,
+    "src": "./track-3.mp3"
+  },
+  {
+    "currentTime": 10.219429,
+    "duration": 192.19,
+    "error": null,
+    "paused": false,
+    "src": "./track-4.mp3"
+  }
+]

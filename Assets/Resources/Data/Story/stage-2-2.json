@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-2",
+  "Title": "2-2 潮汐舞池",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-2"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "舞池随着潮水一起起伏……站都站不稳！",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "跟着浪的节奏跳，就不会摔倒啦。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "节奏对了，伤害自然就上去了。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

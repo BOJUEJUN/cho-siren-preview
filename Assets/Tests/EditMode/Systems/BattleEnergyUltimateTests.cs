@@ -113,13 +113,13 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void FirstChapterRerollBudgetIsThreeAndChargesGrantProgressively()
+        public void NormalEncounterBudgetIsTwoAndChargesGrantProgressively()
         {
             var normal = new StageDefinition { Id = "budget-normal", EncounterType = "normal" };
-            Assert.That(normal.RerollLimit, Is.EqualTo(3), "首章普通战体验预算为 3 次重投");
+            Assert.That(normal.RerollLimit, Is.EqualTo(2), "企划规定普通战整场最多发放 2 次重投");
             BattleSimulator battle = RealtimeBattleTests.Create("charm", encounter: "normal");
             DiceTurn dice = battle.BattleDice;
-            Assert.That(dice.BattleRerollLimit, Is.EqualTo(3));
+            Assert.That(dice.BattleRerollLimit, Is.EqualTo(2));
             Assert.That(dice.Energy, Is.Zero, "开局没有伤害充能");
             Assert.That(dice.RerollsRemaining, Is.Zero, "重投次数靠充能发放，开局为 0");
             Assert.That(dice.CanReroll, Is.False);
@@ -132,10 +132,10 @@ namespace ChoSiren.Tests
             Assert.That(dice.RerollsRemaining, Is.EqualTo(0));
 
             dice.GainEnergy(DiceTurn.MaxEnergy * 3);
-            Assert.That(dice.EarnedRerolls, Is.EqualTo(3), "一条充能可连续补发欠的额度");
+            Assert.That(dice.EarnedRerolls, Is.EqualTo(2), "过量充能只能补到整场上限");
             Assert.That(dice.Energy, Is.Zero, "额度发满后充能不再积累");
             dice.GainEnergy(DiceTurn.MaxEnergy);
-            Assert.That(dice.EarnedRerolls, Is.EqualTo(3), "本场最多发满 3 次");
+            Assert.That(dice.EarnedRerolls, Is.EqualTo(2), "本场最多发满 2 次");
         }
 
         [Test]

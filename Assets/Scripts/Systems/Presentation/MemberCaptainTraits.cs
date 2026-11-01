@@ -41,10 +41,10 @@ namespace ChoSiren.Systems.Presentation
             switch (Resolve(raceLabel))
             {
                 case "charm": return "魅族指挥：骰型赋予全队追击次数，随普攻触发；好骰型获得更多追击。";
-                case "mermaid": return "人鱼指挥：骰型为全队提供护盾；五同时全队额外减伤。";
+                case "mermaid": return "人鱼指挥：深海壁垒——骰型为全队提供护盾，五同时全队额外减伤。";
                 case "demon": return "魔族指挥：全队普攻附加中毒，持续消耗敌人；骰型决定叠毒层数。";
-                case "bloodelf": return "血精灵指挥：骰型提供穿甲，收割低血量目标；首次散点可免费重投一次。";
-                default: return "全队享有骰子累计伤害增益。当前成员暂无额外种族指挥效果。";
+                case "bloodelf": return "血精灵指挥：骰型提供穿甲，全队攻击无视部分防御，越好的骰型穿得越多。";
+                default: return "队长享有骰子累计伤害与充能增益。当前成员暂无额外种族指挥效果。";
             }
         }
     }

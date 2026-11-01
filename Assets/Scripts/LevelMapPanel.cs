@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChoSiren.Systems.Economy;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Story;
@@ -17,7 +18,7 @@ namespace ChoSiren
     /// opened from the existing application with one call:
     /// LevelMapPanel.Open(safeRoot, model, null, Toast);
     /// </summary>
-    public sealed class LevelMapPanel : MonoBehaviour
+    public sealed partial class LevelMapPanel : MonoBehaviour
     {
         private enum LevelState
         {
@@ -50,7 +51,10 @@ namespace ChoSiren
 
         private static readonly Color White = new Color32(249, 247, 255, 255);
         private static readonly Color Muted = new Color32(171, 181, 213, 255);
-        private static readonly Color Pink = new Color32(255, 112, 220, 255);
+        // Unified design (2026-10-25): the map accent is the brand teal; stars stay gold, warnings amber.
+        private static readonly Color Accent = Brand1025.Teal;
+        private static readonly Color StarGold = new Color32(255, 214, 92, 255);
+        private static readonly Color Warn = new Color32(255, 190, 92, 255);
         private static readonly Color Cyan = new Color32(104, 198, 255, 255);
         private static readonly Color Glass = new Color32(8, 18, 48, 232);
         private const int ChapterStageCount = GameModel.ChapterOneStageCount;
@@ -102,12 +106,21 @@ namespace ChoSiren
         private GameModel model;
         private Action onBack;
         private Action<string> onGrowth;
+        // Opens the stamina refill when a challenge cannot start for lack of stamina.
+        private Action onStamina;
         private Action<string> onMessage;
         private Font font;
         private bool built;
         private bool challengeOpen;
         private bool closing;
         private int selectedStage = 1;
+        // Two ten-stage chapters share this map; the chapter last viewed is remembered.
+        public const int ChapterCount = 2;
+        private static int lastChapter;
+        private int chapter = 1;
+        private Text chapterSwitchLabel;
+        private string StageId(int stage) => $"stage-{chapter}-{stage}";
+        private bool ChapterUnlocked(int number) => number == 1 || model.IsStageUnlocked($"stage-{number}-1");
 
         private Text staminaText;
         private Text stageText;
@@ -121,6 +134,7 @@ namespace ChoSiren
         private string lastDropPreviewStage;
         private Text startLabel;
         private Text stageTitleText;
+        private Text activeTeamText1028;
         private Text storyChapterLabel;
         private Text rewardSummaryText;
         private Text taskSummaryText;
@@ -144,7 +158,7 @@ namespace ChoSiren
         /// panel instead of stacking overlays. The host is normally ChoSirenApp's safeRoot.
         /// </summary>
         public static LevelMapPanel Open(Transform host, GameModel gameModel, Action back = null,
-            Action<string> message = null, Action<string> growth = null)
+            Action<string> message = null, Action<string> growth = null, Action stamina = null)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (gameModel == null) throw new ArgumentNullException(nameof(gameModel));
@@ -156,6 +170,7 @@ namespace ChoSiren
                 existing.transform.SetAsLastSibling();
                 existing.Bind(gameModel, back, message);
                 existing.onGrowth = growth;
+                existing.onStamina = stamina;
                 return existing;
             }
 
@@ -168,14 +183,24 @@ namespace ChoSiren
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
+            ChoSiren.UI.PageAmbient.SetColor(panelObject, new Color32(9, 6, 22, 255));
 
             LevelMapPanel panel = panelObject.AddComponent<LevelMapPanel>();
             panel.Bind(gameModel, back, message);
             panel.onGrowth = growth;
+            panel.onStamina = stamina;
             return panel;
         }
 
         public int SelectedStage => selectedStage;
+        private static Sprite selectedFlame;
+        private static Sprite SelectedFlameSprite()
+        {
+            if (selectedFlame != null) return selectedFlame;
+            Texture2D texture = Resources.Load<Texture2D>("UI/MapFx/stage-selected-flame");
+            if (texture == null) return null;
+            return selectedFlame = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(.5f, .5f), 100f);
+        }
 
         public void Close()
         {
@@ -194,6 +219,10 @@ namespace ChoSiren
             onBack = back;
             onMessage = message;
             model.Changed += HandleModelChanged;
+            RewardGain1101.Bind(model, transform, null); // chapter rewards / sweeps use the shared 获得奖励 popup
+            // Open the chapter the player last looked at; once chapter two has begun, open it.
+            chapter = lastChapter > 0 && ChapterUnlocked(lastChapter) ? lastChapter
+                : model.IsStageCleared("stage-2-1") && !model.IsStageCleared("stage-2-10") ? 2 : 1;
             selectedStage = CurrentStoryStage();
 
             if (!built)
@@ -241,7 +270,9 @@ namespace ChoSiren
             rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
             actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
 
-            Sprite board = ReferenceArt038.Load("Art/Reference038/map-board-038");
+            Sprite board = chapter == 2
+                ? ReferenceArt038.Load("Art/Reference038/map-board-038-ch2") ?? ReferenceArt038.Load("Art/Reference038/map-board-038")
+                : ReferenceArt038.Load("Art/Reference038/map-board-038");
             if (board != null)
             {
                 authoredMap = true;
@@ -260,7 +291,8 @@ namespace ChoSiren
 
         private void BuildAuthoredMap(Sprite board)
         {
-            Image blocker = NewImage("LevelMapInputBlocker", transform, null, new Color32(7, 4, 20, 255));
+            // Input-only: the blurred page ambient shows through around the board.
+            Image blocker = NewImage("LevelMapInputBlocker", transform, null, new Color32(7, 4, 20, 0));
             Stretch(blocker.rectTransform); blocker.raycastTarget = true;
             Canvas.ForceUpdateCanvases();
             RectTransform host = (RectTransform)transform;
@@ -273,17 +305,25 @@ namespace ChoSiren
             page.localScale = Vector3.one * scale;
             Image art = NewImage("MapReferenceBoard", page, board, Color.white);
             Stretch(art.rectTransform); art.preserveAspect = true; art.raycastTarget = false;
+            PageAmbient.Set(gameObject, board, featherEdges: art.rectTransform);
             GameObject back = MapBoardHit("Back", page, 12, 15, 96, 100, Close);
             BakedRegionMotion038.Attach(back, art, new Rect(3f, 3f, 102f, 112f));
-            NewPlacedText(page, "第01章", 23, Pink, 145, 25, 300, 35, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(page, "踏梦迷踪", 38, White, 135, 62, 355, 64, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(page, chapter == 2 ? "第02章" : "第01章", 23, Accent, 145, 25, 300, 35, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(page, chapter == 2 ? "浪潮巡演" : "踏梦迷踪", 38, White, 135, 62, 355, 64, TextAnchor.MiddleLeft, FontStyle.Bold);
+            // Chapter switch, in the header between the title and stamina.
+            GameObject switcher = MapBoardHit("ChapterSwitch", page, 420, 34, 180, 62,
+                () => SwitchChapter(chapter == 1 ? 2 : 1));
+            chapterSwitchLabel = NewPlacedText(switcher.transform, string.Empty, 21, White, 0, 0, 180, 62,
+                TextAnchor.MiddleCenter, FontStyle.Bold);
+            chapterSwitchLabel.name = "ChapterSwitchLabel";
+            SirenStickerUi.SkinButton(switcher, false, true);
             Image staminaIcon = NewImage("StaminaIcon", page, Resources.Load<Sprite>("Art/UI/ResourceStamina-C"), White);
             PlaceTop(staminaIcon.rectTransform, 620, 30, 44, 44);
             staminaIcon.preserveAspect = true; staminaIcon.raycastTarget = false;
             staminaText = NewPlacedText(page, string.Empty, 24, new Color32(255, 186, 235, 255),
                 672, 30, 124, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
-            storyChapterLabel = NewPlacedText(page, string.Empty, 20, Pink, 65, 207, 300, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
-            GameObject story = MapBoardHit("StoryChapter-01", page, 24, 210, 370, 190,
+            storyChapterLabel = NewPlacedText(page, string.Empty, 20, Accent, 65, 207, 300, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
+            GameObject story = MapBoardHit(chapter == 2 ? "StoryChapter-02" : "StoryChapter-01", page, 24, 210, 370, 190,
                 OpenStoryChapter01);
             // The 欲望都市 burst is bigger than the hit; bind the traced silhouette and let
             // the live 主线剧情 label ride along in place (it keeps its page parent).
@@ -298,15 +338,21 @@ namespace ChoSiren
             {
                 int stage = i + 1;
                 Vector2 c = centers[i];
-                GameObject node = MapBoardHit($"Level-1-{stage}", page, c.x - 82, c.y - 33, 164, 66, () => SelectStage(stage));
-                Image glow = NewImage($"Glow-1-{stage}", node.transform, null, new Color(.7f,.25f,1f,.15f));
+                GameObject node = MapBoardHit($"Level-{chapter}-{stage}", page, c.x - 82, c.y - 33, 164, 66, () => SelectStage(stage));
+                // 2026-10-20 (owner): the selected stage burns — GPT flame frame around the plaque.
+                Image flame = NewImage($"SelectedFlame-{chapter}-{stage}", node.transform, null, Color.clear);
+                PlaceTop(flame.rectTransform, 0, 0, 164, 66); flame.raycastTarget = false;
+                flame.gameObject.AddComponent<MapSelectedFlame1020>().Configure(new Vector2(150f, 58f), 22f);
+                flame.transform.SetAsFirstSibling();
+                flame.gameObject.SetActive(false);
+                Image glow = NewImage($"Glow-{chapter}-{stage}", node.transform, null, new Color(.7f,.25f,1f,.15f));
                 PlaceTop(glow.rectTransform, 12, 51, 138, 3); glow.raycastTarget = false;
                 Image lockIcon = NewImage("LockIcon", node.transform,
                     ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Lock), White);
-                PlaceTop(lockIcon.rectTransform, 18, 17, 20, 24); lockIcon.raycastTarget = false;
-                Text label = NewPlacedText(node.transform, $"1-{stage}", 27, White, 36, 6, 106, 42,
+                PlaceTop(lockIcon.rectTransform, 10, 15, 27, 30); lockIcon.raycastTarget = false;
+                Text label = NewPlacedText(node.transform, $"{chapter}-{stage}", 27, White, 36, 6, 106, 42,
                     TextAnchor.MiddleCenter, FontStyle.Bold); label.name = "StageLabel";
-                Text status = NewPlacedText(node.transform, string.Empty, 12, Pink, 43, 44, 100, 18,
+                Text status = NewPlacedText(node.transform, string.Empty, 12, Accent, 43, 44, 100, 18,
                     TextAnchor.MiddleCenter, FontStyle.Bold); status.name = "StatusLabel";
                 nodeViews[stage] = new NodeView { Stage=stage, Button=node.GetComponent<Button>(),
                     Background=node.GetComponent<Image>(), Glow=glow, StageLabel=label,
@@ -316,21 +362,39 @@ namespace ChoSiren
                 BakedRegionMotion038.Attach(node, art,
                     new Rect(c.x - 82f, c.y - 33f, 164f, 66f));
             }
-            GameObject selected = NewObject("SelectedLevel", page);
-            PlaceTop(selected.AddComponent<RectTransform>(), 54, 1284, 490, 325);
+            GameObject selected = NewPanel("SelectedLevel", page, SirenStickerUi.Ink, 0);
+            GameObject team = MapBoardHit("StageTeamPreset", page, 54, 1214, 778, 54, OpenStageTeamPresets1028);
+            SirenStickerUi.SkinPanel(team, false);
+            activeTeamText1028 = NewPlacedText(team.transform, string.Empty, 23, White, 18, 4, 742, 46,
+                TextAnchor.MiddleLeft, FontStyle.Bold);
+            activeTeamText1028.name = "ActiveTeamName";
+            activeTeamText1028.supportRichText = false;
+            PlaceTop(selected.GetComponent<RectTransform>(), 54, 1284, 490, 325);
+            SirenStickerUi.SkinPanel(selected, false);
             stageText = NewPlacedText(selected.transform, string.Empty, 40, White, 8, 0, 126, 55, TextAnchor.MiddleLeft, FontStyle.Bold);
             stageTitleText = NewPlacedText(selected.transform, string.Empty, 29, White, 138, 5, 327, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
-            stageStatusText = NewPlacedText(selected.transform, string.Empty, 18, Pink, 14, 58, 445, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
-            progressText = NewPlacedText(selected.transform, string.Empty, 16, Muted, 14, 93, 445, 42, TextAnchor.MiddleLeft);
-            equipmentDropText = NewPlacedText(selected.transform, string.Empty, 15, Cyan, 14, 132, 445, 35, TextAnchor.MiddleLeft);
+            SirenStickerUi.SkinTitle(stageTitleText);
+            stageStatusText = NewPlacedText(selected.transform, string.Empty, 23, Accent, 14, 56, 460, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Readable(stageStatusText);
+            progressText = NewPlacedText(selected.transform, string.Empty, 20, White, 14, 56, 460, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Readable(progressText);
+            equipmentDropText = NewPlacedText(selected.transform, string.Empty, 20, Cyan, 14, 124, 460, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Readable(equipmentDropText);
             equipmentDropText.name = "StageDropSummary";
-            GameObject drops = MapBoardHit("StageDropPreview", selected.transform, 10, 172, 456, 108, OpenDropPreview);
+            GameObject drops = MapBoardHit("StageDropPreview", selected.transform, 10, 100, 470, 170, OpenDropPreview);
             dropPreviewIcons = drops.transform;
-            staminaCostText = NewPlacedText(selected.transform, string.Empty, 15, Pink, 8, 286, 130, 30, TextAnchor.MiddleLeft);
-            diamondRewardText = NewPlacedText(selected.transform, string.Empty, 15, Cyan, 156, 286, 135, 30, TextAnchor.MiddleLeft);
-            goldRewardText = NewPlacedText(selected.transform, string.Empty, 15, White, 300, 286, 155, 30, TextAnchor.MiddleLeft);
+            RewardItemVisuals.CreateIcon(selected.transform, CurrencyIds.Stamina, "CostStaminaIcon", 14, 280, 34);
+            staminaCostText = NewPlacedText(selected.transform, string.Empty, 22, White, 52, 281, 100, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Readable(staminaCostText);
+            RewardItemVisuals.CreateIcon(selected.transform, CurrencyIds.Diamond, "RewardDiamondIcon", 166, 280, 34);
+            diamondRewardText = NewPlacedText(selected.transform, string.Empty, 22, Cyan, 204, 281, 110, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Readable(diamondRewardText);
+            RewardItemVisuals.CreateIcon(selected.transform, CurrencyIds.Gold, "RewardGoldIcon", 318, 280, 34);
+            goldRewardText = NewPlacedText(selected.transform, string.Empty, 22, new Color32(255, 214, 92, 255), 356, 281, 120, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
+            Readable(goldRewardText);
             GameObject start = MapBoardHit("StartChallenge", page, 576, 1324, 256, 284, StartChallenge);
             startButton = start.GetComponent<Button>(); startBackground = start.GetComponent<Image>();
+            BuildSweepRow(page);
             // The authored 开始挑战 remains the primary caption; this live sublabel can say 再次挑战.
             startLabel = NewPlacedText(start.transform, string.Empty, 17, White, 32, 232, 190, 35, TextAnchor.MiddleCenter);
             startLabel.name = "Label";
@@ -352,6 +416,7 @@ namespace ChoSiren
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 222, 5);
             BakedRegionMotion038.Attach(tasks, art, new Rect(346f, 1676f, 351f, 124f), 3f,
                 MapTasksSilhouette);
+            BuildStageInfo1101(selected.transform, team.transform, rewards.transform, tasks.transform); // 2026-11-01 visual-b
         }
 
         private GameObject MapBoardHit(string name, Transform parent, float x, float y, float w, float h, UnityEngine.Events.UnityAction action)
@@ -434,6 +499,7 @@ namespace ChoSiren
         {
             Image header = NewImage("HeaderGlass", transform, null, new Color32(2, 8, 25, 236));
             PlaceTop(header.rectTransform, 0, 0, 720, 116);
+            SirenStickerUi.SkinPanel(header.gameObject, false);
 
             GameObject back = NewButton("Back", header.transform, string.Empty, 20,
                 new Color32(11, 22, 54, 120), White, Close, 12);
@@ -605,6 +671,7 @@ namespace ChoSiren
             GameObject card = NewPanel("SelectedLevel", transform, Glass, 28);
             PlaceTop(card.GetComponent<RectTransform>(), 20, 1100, 680, 318);
             AddGlassOutline(card, new Color32(132, 164, 238, 126), 1.5f);
+            SirenStickerUi.SkinPanel(card);
             ReferencePunkFx.CornerCuts(card.GetComponent<RectTransform>(),
                 new Color32(255, 122, 222, 170), 30f, 3.5f, 5f);
             ReferencePunkFx.Slash(card.transform, "SelectedLevelSlash", 652, 16, 52, 3.5f, -40f,
@@ -655,83 +722,15 @@ namespace ChoSiren
             startLabel.resizeTextForBestFit = true;
             startLabel.resizeTextMinSize = 17;
             startLabel.resizeTextMaxSize = 20;
+            SirenStickerUi.SkinButton(start, true);
         }
 
-        private void OpenDropPreview()
-        {
-            string stageId = $"stage-1-{selectedStage}";
-            StageDefinition stage = model.Tactics.FindStage(stageId);
-            GameObject card = OpenModalShell("StageLootModal", 204, 1080);
-            NewPlacedText(card.transform, $"1-{selectedStage} · 奖励与掉落", 25, White, 28, 26, 526, 48, TextAnchor.MiddleLeft, FontStyle.Bold);
-            bool cleared = model.IsStageCleared(stageId);
-            NewPlacedText(card.transform, cleared ? "首通已领取 · 历史奖励保留" : "首次通关额外必得", 19, Cyan,
-                28, 84, 600, 32, TextAnchor.MiddleLeft, FontStyle.Bold);
-            int equipment = GameModel.FirstClearAccessory(stageId);
-            BuildFirstReward(card.transform, "FirstClearDiamonds", CurrencyIds.Diamond,
-                $"星钻 ×{stage?.DiamondFirstClear ?? 0}", 28, cleared);
-            if (equipment >= 0) BuildFirstReward(card.transform, "FirstClearEquipment", GameModel.AccessoryItemIds[equipment],
-                GameModel.AccessoryNames[equipment] + " ×1", 340, cleared);
-            NewPlacedText(card.transform, $"每次胜利：星光币 {model.PreviewStageGoldReward(stageId)} + 随机池抽取 {stage?.Drops?.Rolls ?? 0} 次", 18,
-                White, 28, 264, 604, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
-            IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
-            Image viewport = NewImage("LootScrollViewport", card.transform, null, new Color(0, 0, 0, .01f));
-            PlaceTop(viewport.rectTransform, 28, 310, 604, 516);
-            viewport.raycastTarget = true;
-            viewport.gameObject.AddComponent<RectMask2D>();
-            Image body = NewImage("LootScrollContent", viewport.transform, null, Color.clear);
-            PlaceTop(body.rectTransform, 0, 0, 604, Mathf.Max(516, ((candidates.Count + 1) / 2) * 170 - 14));
-            ScrollRect scroll = viewport.gameObject.AddComponent<ScrollRect>();
-            scroll.scrollSensitivity = 48f;
-            scroll.viewport = viewport.rectTransform;
-            scroll.content = body.rectTransform;
-            scroll.horizontal = false;
-            scroll.movementType = ScrollRect.MovementType.Clamped;
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                StageLootCandidate candidate = candidates[i];
-                // Angular ModalPolish038 plate — keeps the modal's slash-frame family instead
-                // of the old rounded rect; the rarity rim is recoloured onto the plate's own
-                // outline so higher tiers still get the heavier edge.
-                GameObject tile = ModalPolish038Chrome.RowPlate(body.transform,
-                    "LootCandidate-" + candidate.ItemId, (i & 1) == 1);
-                PlaceTop(tile.GetComponent<RectTransform>(), i % 2 * 312, i / 2 * 170, 292, 156);
-                int lootAccessory = GameModel.AccessoryIndexForItem(candidate.ItemId);
-                Color tierAccent = RewardItemVisuals.AccentFor(candidate.ItemId);
-                Outline tierRim = tile.GetComponent<Outline>();
-                tierRim.effectColor = tierAccent;
-                float rim = lootAccessory >= 0 &&
-                    GameModel.AccessoryRarityOf(lootAccessory) >= GameModel.AccessoryRarity.Epic ? 2f : 1f;
-                tierRim.effectDistance = new Vector2(rim, -rim);
-                RewardItemVisuals.CreateIcon(tile.transform, candidate.ItemId, "RewardArt", 10, 16, 58);
-                NewPlacedText(tile.transform, candidate.Name, 18, tierAccent, 80, 10, 132, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-                if (lootAccessory >= 0)
-                    NewPlacedText(tile.transform, GameModel.AccessoryRarityNameOf(lootAccessory), 13, tierAccent,
-                        216, 12, 64, 24, TextAnchor.MiddleRight, FontStyle.Bold).name =
-                        "LootTier-" + candidate.ItemId;
-                NewPlacedText(tile.transform, $"至少一次 {candidate.Chance:P1}", 15, Cyan, 80, 44, 198, 26, TextAnchor.MiddleLeft);
-                NewPlacedText(tile.transform, "每次抽中 " + candidate.AmountLabel, 14, Muted, 80, 74, 198, 24, TextAnchor.MiddleLeft);
-                NewPlacedText(tile.transform, candidate.Use, 14, White, 12, 106, 268, 44, TextAnchor.UpperLeft);
-            }
-            NewPlacedText(card.transform, $"共 {candidates.Count} 种候选 · 上下滑动查看完整奖池", 15, Cyan,
-                28, 832, 604, 26, TextAnchor.MiddleLeft);
-            NewPlacedText(card.transform,
-                "概率表示本场至少获得一次；多次独立抽取，概率不可相加。\n新装备进入饰品页；每件重复装备转为金币。\n金币用于成员训练与饰品强化。\n再次挑战仍可随机掉落；首通奖励不再发放，失败无奖励。", 16, Muted,
-                28, 870, 604, 170, TextAnchor.UpperLeft);
-        }
-
-        private void BuildFirstReward(Transform parent, string name, string itemId, string label, float x, bool claimed)
-        {
-            GameObject tile = ModalPolish038Chrome.RowPlate(parent, name);
-            PlaceTop(tile.GetComponent<RectTransform>(), x, 126, 292, 116);
-            Image icon = RewardItemVisuals.CreateIcon(tile.transform, itemId, "RewardArt", 14, 20, 68);
-            if (claimed) icon.color = new Color(1, 1, 1, .45f);
-            NewPlacedText(tile.transform, label, 17, White, 94, 22, 184, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(tile.transform, claimed ? "已领取" : "首通 100%", 15, Cyan, 94, 72, 184, 28, TextAnchor.MiddleLeft);
-        }
+        /// <summary>2026-11-01 visual-b: icon grid with rate badges; rules behind 「?」 (LevelMapPanel.Visual1101.cs).</summary>
+        private void OpenDropPreview() => OpenDropPreview1101();
 
         private void RefreshDropPreview(string stageId)
         {
-            equipmentDropText.text = model.StageEquipmentPreview(stageId).Split('\n')[0] + $" · {model.StageLootCandidates(stageId).Count} 种掉落详情";
+            equipmentDropText.text = string.Empty;
             if (lastDropPreviewStage == stageId) return;
             lastDropPreviewStage = stageId;
             for (int i = dropPreviewIcons.childCount - 1; i >= 0; i--)
@@ -742,19 +741,23 @@ namespace ChoSiren
             }
             IReadOnlyList<StageLootCandidate> candidates = model.StageLootCandidates(stageId);
             int count = Mathf.Min(5, candidates.Count);
-            float previewWidth = authoredMap ? 456f : 632f;
+            float previewWidth = authoredMap ? 470f : 632f;
             float width = previewWidth / Mathf.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 int candidateIndex = candidates.Count > 5 && i >= 3 ? candidates.Count - 5 + i : i;
                 StageLootCandidate reward = candidates[candidateIndex];
-                RewardItemVisuals.CreateIcon(dropPreviewIcons, reward.ItemId, "DropIcon-" + reward.ItemId,
-                    i * width + (width - 68) * .5f, 2, 68);
-                string shortName = reward.Name.Length > 7 ? reward.Name.Substring(0, 7) + "…" : reward.Name;
-                // Tier is the point of the preview strip: white-on-every-item hid the rarity.
-                NewPlacedText(dropPreviewIcons, shortName, 13, RewardItemVisuals.AccentFor(reward.ItemId),
-                    i * width + 2, 72, width - 4, 26, TextAnchor.MiddleCenter, FontStyle.Bold);
+                // 2026-11-01 visual-b: big icon + drop-rate corner badge (LevelMapPanel.Visual1101.cs).
+                DropTile1101(i, i * width + width * .5f, reward, stageId);
             }
+        }
+
+        /// <summary>Hard dark outline so small map text stays readable over the neon art.</summary>
+        private static void Readable(Text text)
+        {
+            Outline edge = text.gameObject.AddComponent<Outline>();
+            edge.effectColor = new Color(0f, 0f, 0f, .9f);
+            edge.effectDistance = new Vector2(1.5f, -1.5f);
         }
 
         private Text InfoChip(Transform parent, string name, string label, float x, float y, float width, Color accent)
@@ -762,6 +765,7 @@ namespace ChoSiren
             GameObject chip = NewPanel(name, parent, new Color32(13, 24, 58, 228), 14);
             PlaceTop(chip.GetComponent<RectTransform>(), x, y, width, 54);
             AddGlassOutline(chip, new Color32(120, 151, 222, 68), 1f);
+            SirenStickerUi.SkinPanel(chip, false);
             Image accentLine = NewImage("Accent", chip.transform, null, accent);
             PlaceTop(accentLine.rectTransform, 0, 8, 3, 38);
             return NewPlacedText(chip.transform, label, 13, White,
@@ -773,6 +777,7 @@ namespace ChoSiren
             GameObject dock = NewPanel("ChapterControlDock", transform, new Color32(4, 12, 36, 236), 24);
             PlaceTop(dock.GetComponent<RectTransform>(), 20, 1430, 680, 88);
             AddGlassOutline(dock, new Color32(122, 157, 231, 98), 1.25f);
+            SirenStickerUi.SkinPanel(dock, false);
             ReferencePunkFx.CornerCuts(dock.GetComponent<RectTransform>(),
                 new Color32(168, 128, 255, 150), 22f, 3f, 4f);
 
@@ -798,66 +803,112 @@ namespace ChoSiren
             taskSummaryText = NewPlacedText(tasks.transform, "0/3 已完成", 11, Muted,
                 22, 36, 230, 24, TextAnchor.MiddleLeft, FontStyle.Normal);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 278, 8);
+            SirenStickerUi.SkinButton(rewards, false, true);
+            SirenStickerUi.SkinButton(tasks, false, true);
+        }
+
+        private int ChapterStars()
+        {
+            int stars = 0;
+            for (int stage = 1; stage <= ChapterStageCount; stage++) stars += model.StarsOf(StageId(stage));
+            return stars;
+        }
+
+        private int ChapterClears()
+        {
+            int clears = 0;
+            for (int stage = 1; stage <= ChapterStageCount; stage++) if (model.IsStageCleared(StageId(stage))) clears++;
+            return clears;
         }
 
         private void OpenChapterRewards()
         {
-            GameObject card = OpenModalShell("ChapterRewardsModal", 232, 1048);
-            Image chest = NewImage("ChapterRewardsAIChest", card.transform, rewardChestSprite, Color.white);
-            PlaceTop(chest.rectTransform, 242, 16, 176, 138);
-            chest.preserveAspect = true;
-            NewPlacedText(card.transform, "章节奖励", 27, White,
-                205, 139, 250, 42, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(card.transform, $"已获得 {model.ChapterOneTotalStars}/30 星  ·  达成里程碑即可领取",
-                12, Muted, 105, 178, 450, 28, TextAnchor.MiddleCenter, FontStyle.Normal);
-
-            List<ChapterStarRewardView> rewards = model.ChapterOneStarRewardViews();
+            // 2026-10-20 (owner: redraw): P5-style card — red slanted title band, a star track
+            // with milestone notches, and slanted tag rows; claimable rows turn to white paper.
+            GameObject card = OpenModalShell("ChapterRewardsModal", 390, 720);
+            int stars = model.ChapterTotalStars(chapter);
+            ModalHeader(card.transform, chapter == 2 ? "第二章" : "本章", "章节奖励", $"★ {stars}/30");
+            List<ChapterStarRewardView> rewards = model.ChapterStarRewardViews(chapter);
+            int maxStars = 30;
+            foreach (var r in rewards) maxStars = Mathf.Max(maxStars, r.RequiredStars);
+            // Star track
+            Image track = NewImage("StarTrack", card.transform, null, new Color32(40, 28, 62, 255));
+            PlaceTop(track.rectTransform, 50, 168, 560, 16);
+            Image fill = NewImage("StarTrackFill", track.transform, null, Brand1025.Teal);
+            fill.rectTransform.anchorMin = Vector2.zero; fill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(stars / (float)maxStars), 1f);
+            fill.rectTransform.offsetMin = fill.rectTransform.offsetMax = Vector2.zero;
+            foreach (var r in rewards)
+            {
+                float x = 50 + 560 * r.RequiredStars / (float)maxStars;
+                Image notch = NewImage("Milestone-" + r.RequiredStars, card.transform, null,
+                    r.Completed ? new Color32(255, 214, 92, 255) : new Color32(120, 104, 150, 255));
+                PlaceTop(notch.rectTransform, x - 13, 163, 26, 26);
+                notch.rectTransform.localEulerAngles = new Vector3(0, 0, 45);
+                NewPlacedText(card.transform, r.RequiredStars.ToString(), 13, r.Completed ? White : Muted, x - 30, 192, 60, 22, TextAnchor.MiddleCenter, FontStyle.Bold);
+            }
             for (int index = 0; index < rewards.Count; index++)
             {
                 ChapterStarRewardView view = rewards[index];
-                Image rowImage = NewImage($"StarRewardRow-{view.RequiredStars}", card.transform,
-                    ReferencePunkFx.SlashPanel(false), new Color32(29, 18, 55, 245));
-                rowImage.type = Image.Type.Sliced;
-                GameObject row = rowImage.gameObject;
-                PlaceTop(row.GetComponent<RectTransform>(), 35, 226 + index * 204, 590, 174);
-                AddGlassOutline(row, view.Claimable
-                    ? new Color32(255, 104, 211, 205)
-                    : new Color32(132, 108, 211, 92), view.Claimable ? 2f : 1f);
-
-                NewPlacedText(row.transform, $"{view.RequiredStars} 星", 25,
-                    view.Completed ? new Color32(255, 218, 104, 255) : White,
-                    22, 16, 118, 42, TextAnchor.MiddleLeft, FontStyle.Bold);
-                NewPlacedText(row.transform, FormatRewards(view.Rewards), 14, White,
-                    22, 62, 365, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
-                string progress = view.Claimed
-                    ? "奖励已领取"
-                    : view.Claimable
-                        ? "里程碑已达成"
-                        : $"当前 {view.CurrentStars}/{view.RequiredStars} 星";
-                NewPlacedText(row.transform, progress, 12, view.Claimable ? Pink : Muted,
-                    22, 104, 360, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
-
                 int requiredStars = view.RequiredStars;
-                GameObject claim = NewSpriteButton($"ChapterStarReward-{requiredStars}", row.transform,
-                    actionFrameSprite,
-                    view.Claimed ? new Color32(100, 105, 143, 190) : Color.white,
-                    () => ClaimStarReward(requiredStars));
-                PlaceTop(claim.GetComponent<RectTransform>(), 406, 45, 160, 82);
-                NewPlacedText(claim.transform, view.Claimed ? "已领取" : view.Claimable ? "领取" : "未达成", 16,
-                    view.Claimable ? White : Muted,
-                    14, 22, 132, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
-                claim.GetComponent<Button>().interactable = view.Claimable;
+                GameObject row = P5Row(card.transform, $"StarRewardRow-{view.RequiredStars}", 236 + index * 136, view.Claimable, view.Claimed);
+                NewPlacedText(row.transform, $"{view.RequiredStars}★", 30, view.Completed ? new Color32(255, 214, 92, 255) : (Color)White,
+                    38, 30, 110, 60, TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
+                NewPlacedText(row.transform, FormatRewards(view.Rewards), 20, White,
+                    136, 18, 280, 44, TextAnchor.MiddleLeft, FontStyle.Bold);
+                NewPlacedText(row.transform, view.Claimed ? "已领取" : view.Claimable ? "可以领取了" : $"还差 {Mathf.Max(0, view.RequiredStars - view.CurrentStars)} 星",
+                    16, view.Claimable ? (Color)Brand1025.Teal : new Color32(176, 164, 210, 255), 136, 66, 280, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+                P5Claim(row.transform, $"ChapterStarReward-{requiredStars}", view.Claimable, view.Claimed, "进行中", () => ClaimStarReward(requiredStars));
             }
+            NewPlacedText(card.transform, "星数取每关最佳评价 · 同一关可重复挑战提升星级", 12,
+                new Color32(170, 160, 210, 255), 60, 236 + rewards.Count * 136 + 8, 540, 28, TextAnchor.MiddleCenter, FontStyle.Normal);
+        }
 
-            NewPlacedText(card.transform, "章节星数取每一关的最佳评价，同一关可重复挑战提升星级", 11,
-                new Color32(170, 180, 222, 255), 60, 884, 540, 30, TextAnchor.MiddleCenter, FontStyle.Normal);
+        /// <summary>
+        /// The shared modal header (unified design 2026-10-25, same as ModalPolish038 modals): teal eyebrow, white title on the
+        /// sticker title plate, a short teal beam, and an optional gold tally on the right.
+        /// </summary>
+        private void ModalHeader(Transform card, string eyebrow, string title, string tally)
+        {
+            Text brow = NewPlacedText(card, eyebrow, 15, Brand1025.Teal, 44, 24, 300, 22, TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
+            brow.name = "Eyebrow";
+            Text head = NewPlacedText(card, title, 30, White, 44, 48, 300, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+            head.name = "Title";
+            SirenStickerUi.SkinTitle(head, true);
+            Image beam = NewImage("TitleBeam", card, PunkUi.SlantFill, Brand1025.Teal);
+            PlaceTop(beam.rectTransform, 44, 104, 64, 6);
+            if (!string.IsNullOrEmpty(tally))
+                NewPlacedText(card, tally, 26, new Color32(255, 214, 92, 255), 330, 48, 240, 46, TextAnchor.MiddleRight, FontStyle.BoldAndItalic).name = "Tally";
+        }
+
+        /// <summary>The shared list row: quiet sticker frame with a left state bar (teal = something to do).</summary>
+        private GameObject P5Row(Transform card, string name, float y, bool claimable, bool claimed)
+        {
+            Image row = NewImage(name, card, SirenStickerUi.QuietPanelSprite, claimed ? new Color32(255, 255, 255, 115) : (Color32)Color.white);
+            row.type = Image.Type.Sliced;
+            PlaceTop(row.rectTransform, 30, y, 600, 120);
+            Image edge = NewImage("Edge", row.transform, null, claimable ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .22f));
+            PlaceTop(edge.rectTransform, 14, 15, 6, 90);
+            return row.gameObject;
+        }
+
+        /// <summary>The shared sticker button: teal 领取 when claimable, a faded tab for 进行中 / 已领取.</summary>
+        private void P5Claim(Transform row, string name, bool claimable, bool claimed, string waiting, UnityEngine.Events.UnityAction action)
+        {
+            GameObject claim = NewSpriteButton(name, row, null, Color.clear, action);
+            PlaceTop(claim.GetComponent<RectTransform>(), 426, 26, 150, 68);
+            Text label = NewPlacedText(claim.transform, claimed ? "已领取 ✓" : claimable ? "领取" : waiting, claimable ? 24 : 18,
+                White, 0, 0, 150, 68, TextAnchor.MiddleCenter, FontStyle.Bold);
+            label.name = "Label";
+            claim.GetComponent<Button>().interactable = claimable;
+            SirenStickerUi.SkinButton(claim, claimable, !claimable);
         }
 
         private void ClaimStarReward(int requiredStars)
         {
-            bool claimed = model.TryClaimChapterOneStarReward(requiredStars, out string message);
+            bool claimed = model.TryClaimChapterStarReward(chapter, requiredStars, out string message);
             if (claimed)
             {
+                ModalPolish038Chrome.PlaySuccess();
                 CloseChapterModal();
                 Refresh();
             }
@@ -866,58 +917,51 @@ namespace ChoSiren
 
         private void OpenChapterTasks()
         {
-            GameObject card = OpenModalShell("ChapterTasksModal", 246, 1016);
-            Image headerArt = NewImage("ChapterTasksAIHeader", card.transform, actionFrameSprite, Color.white);
-            PlaceTop(headerArt.rectTransform, 126, 24, 408, 208);
-            headerArt.preserveAspect = true;
-            NewPlacedText(card.transform, "章节任务", 27, White,
-                186, 82, 288, 40, TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(card.transform, "沿着欲望都市的舞台航线完成挑战", 12, Muted,
-                146, 124, 368, 26, TextAnchor.MiddleCenter, FontStyle.Normal);
-
-            List<ChapterTaskView> tasks = model.ChapterOneTaskViews();
+            GameObject card = OpenModalShell("ChapterTasksModal", 420, 640);
+            List<ChapterTaskView> tasks = model.ChapterTaskViews(chapter);
+            int done = 0; foreach (var t in tasks) if (t.Claimed || t.Claimable) done++;
+            ModalHeader(card.transform, chapter == 2 ? "第二章" : "本章", "章节任务", $"{done}/{tasks.Count}");
             for (int index = 0; index < tasks.Count; index++)
             {
                 ChapterTaskView view = tasks[index];
-                Image rowImage = NewImage($"ChapterTaskRow-{view.Id}", card.transform,
-                    ReferencePunkFx.SlashPanel(false), new Color32(29, 18, 55, 245));
-                rowImage.type = Image.Type.Sliced;
-                GameObject row = rowImage.gameObject;
-                PlaceTop(row.GetComponent<RectTransform>(), 35, 232 + index * 200, 590, 170);
-                AddGlassOutline(row, view.Claimable
-                    ? new Color32(91, 218, 255, 200)
-                    : new Color32(132, 108, 211, 92), view.Claimable ? 2f : 1f);
-
-                NewPlacedText(row.transform, view.Title, 18, White,
-                    22, 17, 360, 34, TextAnchor.MiddleLeft, FontStyle.Bold);
-                NewPlacedText(row.transform, FormatRewards(view.Rewards), 13,
-                    new Color32(255, 201, 110, 255),
-                    22, 56, 360, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
-                string progress = view.Claimed ? "已完成并领取" : $"任务进度 {Mathf.Min(view.Progress, view.Target)}/{view.Target}";
-                NewPlacedText(row.transform, progress, 12, view.Claimable ? Cyan : Muted,
-                    22, 96, 360, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
-
                 string taskId = view.Id;
-                GameObject claim = NewSpriteButton($"ChapterTaskClaim-{index + 1}", row.transform,
-                    actionFrameSprite,
-                    view.Claimed ? new Color32(100, 105, 143, 190) : Color.white,
-                    () => ClaimChapterTask(taskId));
-                PlaceTop(claim.GetComponent<RectTransform>(), 406, 44, 160, 82);
-                NewPlacedText(claim.transform, view.Claimed ? "已领取" : view.Claimable ? "领取" : "进行中", 16,
-                    view.Claimable ? White : Muted,
-                    14, 22, 132, 34, TextAnchor.MiddleCenter, FontStyle.Bold);
-                claim.GetComponent<Button>().interactable = view.Claimable;
+                GameObject row = P5Row(card.transform, $"ChapterTaskRow-{view.Id}", 176 + index * 136, view.Claimable, view.Claimed);
+                Color ink = White;
+                // visual-a 1101c: an icon says what (flag = clear a stage, star = collect stars), the rewards are badges.
+                RectTransform kind = VisualA1101.NeonIcon(row.transform, "TaskIcon", view.Title.Contains("星") ? "star" : "flag",
+                    view.Claimable ? VisualA1101.Teal : VisualA1101.Gold, 34f);
+                PlaceTop(kind, 36, 12, 34, 34);
+                NewPlacedText(row.transform, view.Title, 20, ink, 78, 8, 340, 38, TextAnchor.MiddleLeft, FontStyle.Bold);
+                float rx = 40f;
+                foreach (CurrencyAmount reward in view.Rewards)
+                {
+                    if (reward == null) continue;
+                    Image badge = NewImage("Reward-" + reward.Currency, row.transform, RewardItemVisuals.SpriteFor(reward.Currency), Color.white);
+                    badge.preserveAspect = true;
+                    PlaceTop(badge.rectTransform, rx, 46, 30, 30);
+                    Text amount = NewPlacedText(row.transform, $"×{reward.Amount}", 17, new Color32(255, 201, 110, 255),
+                        rx + 32, 46, 90, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+                    rx += 32f + amount.preferredWidth + 16f;
+                }
+                // Progress bar inside the row.
+                float progress = view.Target > 0 ? Mathf.Clamp01(view.Progress / (float)view.Target) : 1f;
+                Image bar = NewImage("Progress", row.transform, null, new Color32(48, 36, 70, 255));
+                PlaceTop(bar.rectTransform, 40, 88, 290, 12);
+                Image barFill = NewImage("Fill", bar.transform, null, Brand1025.Teal);
+                barFill.rectTransform.anchorMin = Vector2.zero; barFill.rectTransform.anchorMax = new Vector2(progress, 1f);
+                barFill.rectTransform.offsetMin = barFill.rectTransform.offsetMax = Vector2.zero;
+                NewPlacedText(row.transform, $"{Mathf.Min(view.Progress, view.Target)}/{view.Target}", 15, Muted,
+                    334, 80, 80, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
+                P5Claim(row.transform, $"ChapterTaskClaim-{index + 1}", view.Claimable, view.Claimed, "未达成", () => ClaimChapterTask(taskId));
             }
-
-            NewPlacedText(card.transform, "章节任务奖励每个存档仅可领取一次", 11,
-                new Color32(170, 180, 222, 255), 60, 872, 540, 28, TextAnchor.MiddleCenter, FontStyle.Normal);
         }
 
         private void ClaimChapterTask(string taskId)
         {
-            bool claimed = model.TryClaimChapterOneTask(taskId, out string message);
+            bool claimed = model.TryClaimChapterTask(chapter, taskId, out string message);
             if (claimed)
             {
+                ModalPolish038Chrome.PlaySuccess();
                 CloseChapterModal();
                 Refresh();
             }
@@ -939,23 +983,14 @@ namespace ChoSiren
             blockerButton.targetGraphic = blocker;
             blockerButton.onClick.AddListener(CloseChapterModal);
 
-            // Same dark-purple slanted frame family as the settings/confirm modals.
+            // Shared paper contour, while the city/harbor art remains visible behind it.
             Image cardImage = NewImage("ModalCard", modalRoot.transform,
-                ReferencePunkFx.SlashPanel(false), new Color32(151, 96, 218, 235));
+                null, SirenStickerUi.Ink);
             cardImage.type = Image.Type.Sliced;
             cardImage.raycastTarget = true;
             GameObject card = cardImage.gameObject;
             PlaceTop(card.GetComponent<RectTransform>(), 30, top, 660, height);
-            Image fill = NewImage("ObsidianPlate", card.transform,
-                ReferencePunkFx.SlashPanel(false), new Color32(12, 7, 28, 253));
-            fill.type = Image.Type.Sliced;
-            fill.raycastTarget = false;
-            Stretch(fill.rectTransform, 2, 2, -2, -2);
-            fill.transform.SetAsFirstSibling();
-            ReferencePunkFx.Beam(card.transform, "TopShard", new Vector2(18, 14), new Vector2(193, 3), 2,
-                new Color32(236, 218, 255, 220));
-            ReferencePunkFx.Beam(card.transform, "BottomShard", new Vector2(469, height - 3),
-                new Vector2(644, height - 15), 2, new Color32(157, 144, 247, 210));
+            SirenStickerUi.SkinPanel(card);
 
             Image closeImage = NewImage("CloseChapterModal", card.transform,
                 ReferencePunkFx.SlashPanel(false), new Color32(35, 19, 59, 255));
@@ -970,7 +1005,72 @@ namespace ChoSiren
             NewPlacedText(close.transform, "×", 28, White, 0, 0, 52, 52,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             close.AddComponent<LobbyHotspotFeedback>().Configure(LobbyHotspotFeedback.VisualKind.Settings);
+            SirenStickerUi.SkinButton(close, false, true);
             return card;
+        }
+
+        // ------------------------------------------------------------------ 扫荡 (2026-10-21)
+
+        private GameObject sweepRow;
+        private Text sweepOneLabel, sweepThreeLabel;
+
+        private void BuildSweepRow(Transform page)
+        {
+            sweepRow = NewObject("SweepRow", page);
+            RectTransform row = sweepRow.AddComponent<RectTransform>();
+            PlaceTop(row, 330, 1184, 330, 52); // right of the bottom stage node (1-1 / 2-1), which it used to cover
+            sweepOneLabel = SweepButton(row, "SweepOnce", 0, 150, () => Sweep(1));
+            sweepThreeLabel = SweepButton(row, "SweepThree", 166, 164, () => Sweep(3));
+            sweepRow.SetActive(false);
+        }
+
+        private void LateUpdateSweepOrder()
+        {
+            if (sweepRow != null && sweepRow.activeSelf && sweepRow.transform.GetSiblingIndex() != sweepRow.transform.parent.childCount - 1)
+                sweepRow.transform.SetAsLastSibling();
+        }
+
+        private Text SweepButton(Transform row, string name, float x, float width, UnityAction action)
+        {
+            Image hit = NewImage(name, row, null, Color.clear);
+            hit.raycastTarget = true;
+            PlaceTop(hit.rectTransform, x, 0, width, 52);
+            Button button = hit.gameObject.AddComponent<Button>();
+            button.targetGraphic = hit; button.transition = Selectable.Transition.None;
+            button.onClick.AddListener(action);
+            Text label = NewPlacedText(hit.transform, string.Empty, 20, White, 0, 0, width, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Stretch(label.rectTransform); label.raycastTarget = false; label.name = "Label";
+            label.supportRichText = true;
+            // Unified design: the shared dark sticker button (no slanted plate + underline of its own).
+            SirenStickerUi.SkinButton(hit.gameObject);
+            hit.gameObject.AddComponent<LobbyHotspotFeedback>().Configure(LobbyHotspotFeedback.VisualKind.Settings);
+            return label;
+        }
+
+        private void RefreshSweepRow(string stageId, int staminaCost)
+        {
+            if (sweepRow == null) return;
+            bool can = model.CanSweep(stageId);
+            sweepRow.SetActive(can && !challengeOpen);
+            LateUpdateSweepOrder();
+            if (!can) return;
+            sweepOneLabel.text = $"扫荡×1  <color=#FFBE5C>-{staminaCost}</color>";
+            sweepThreeLabel.text = $"扫荡×3  <color=#FFBE5C>-{staminaCost * 3}</color>";
+            sweepOneLabel.supportRichText = sweepThreeLabel.supportRichText = true;
+        }
+
+        private void Sweep(int times)
+        {
+            if (challengeOpen || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame) return;
+            string stageId = StageId(selectedStage);
+            ulong seed = unchecked((ulong)DateTime.UtcNow.Ticks ^ (ulong)(selectedStage * 7919));
+            if (!model.TrySweepStage(stageId, times, seed, out string message))
+            {
+                Notify(message);
+                return;
+            }
+            Refresh();
+            Notify(message); // reward-ui 1101: the shared 获得奖励 popup shows the haul; this becomes its caption
         }
 
         private void CloseChapterModal()
@@ -984,11 +1084,13 @@ namespace ChoSiren
 
         private Text NewNotificationBadge(Transform parent, string name, float x, float y)
         {
-            GameObject badge = NewPanel(name, parent, Pink, 14);
-            PlaceTop(badge.GetComponent<RectTransform>(), x, y, 31, 31);
+            // 2026-10-31: the shared torn-paper teal notice sticker (no count), same as the lobby.
+            GameObject badge = ChoSiren.UI.NoticeSticker1031.Create(name, parent);
+            PlaceTop(badge.GetComponent<RectTransform>(), x + 11, y + 2, 18, 18);
             Text value = NewPlacedText(badge.transform, "0", 13, White,
                 2, 1, 27, 28, TextAnchor.MiddleCenter, FontStyle.Bold);
             value.name = "Value";
+            value.gameObject.SetActive(false);
             return value;
         }
 
@@ -1021,13 +1123,12 @@ namespace ChoSiren
 
         private void BuildToast()
         {
+            // Unified design: the shared sticker panel (no rounded pink-rimmed card of its own).
             toastObject = NewPanel("LevelToast", transform, new Color32(10, 11, 42, 247), 20);
-            PlaceTop(toastObject.GetComponent<RectTransform>(), 70, 900, 580, 64);
-            Outline outline = toastObject.AddComponent<Outline>();
-            outline.effectColor = new Color32(255, 105, 211, 120);
-            outline.effectDistance = new Vector2(1, -1);
-            toastText = NewPlacedText(toastObject.transform, string.Empty, 15, White,
-                20, 8, 540, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
+            PlaceTop(toastObject.GetComponent<RectTransform>(), 70, 900, 580, 70);
+            SirenStickerUi.SkinPanel(toastObject);
+            toastText = NewPlacedText(toastObject.transform, string.Empty, 18, White,
+                24, 8, 532, 54, TextAnchor.MiddleCenter, FontStyle.Bold);
             toastObject.SetActive(false);
         }
 
@@ -1036,20 +1137,77 @@ namespace ChoSiren
             LevelState state = StateFor(stage);
             if (state == LevelState.Locked)
             {
-                Notify($"1-{stage} 尚未解锁，请先完成当前关卡");
+                Notify($"{chapter}-{stage} 尚未解锁，请先完成当前关卡");
                 return;
             }
 
             selectedStage = stage;
             Refresh();
             Notify(state == LevelState.Cleared
-                ? $"已选择 1-{stage}，可再次挑战；首通奖励不会重复发放"
-                : $"已选择当前关卡 1-{stage}");
+                ? $"已选择 {chapter}-{stage}，可再次挑战；首通奖励不会重复发放"
+                : $"已选择当前关卡 {chapter}-{stage}");
+        }
+
+        private bool introOpen;
+
+        private void OpenStageTeamPresets1028()
+        {
+            GameObject card = OpenModalShell("StageTeamPresets", 500, 620);
+            NewPlacedText(card.transform, "出战队伍", 30, White, 32, 30, 540, 54, TextAnchor.MiddleLeft, FontStyle.Bold);
+            for (int i = 0; i < model.VisibleTeamPresetCount; i++)
+            {
+                int slot = i;
+                var preset = model.Save.TeamPresets[i];
+                bool empty = preset.Members.Count == 0;
+                GameObject button = NewButton("StageTeam-" + i, card.transform,
+                    preset.Name + (empty ? " · 未保存" : i == model.Save.ActiveTeamPreset ? " · 出战中" : ""),
+                    25, i == model.Save.ActiveTeamPreset ? Accent : new Color32(35, 19, 59, 255), White, () =>
+                    {
+                        if (!model.SelectTeamPreset(slot, out string message)) { Notify(message); return; }
+                        CloseChapterModal(); Refresh();
+                    }, 12);
+                PlaceTop(button.GetComponent<RectTransform>(), 32, 108 + i * 86, 576, 72);
+                button.GetComponent<Button>().interactable = !empty;
+            }
+        }
+
+        private void OpenFormationProblem(string problem)
+        {
+            // Keep the selected chapter and its explanation visible until the player
+            // chooses to adjust the formation. A transient map toast disappears on exit.
+            GameObject card = OpenModalShell("FormationProblemModal", 420, 480);
+            SirenStickerUi.SkinTitle(NewPlacedText(card.transform, "编队需要调整", 27, White,
+                30, 34, 520, 52, TextAnchor.MiddleLeft, FontStyle.Bold));
+            Text reason = NewPlacedText(card.transform, problem, 23, Warn,
+                34, 118, 588, 132, TextAnchor.MiddleLeft, FontStyle.Bold);
+            reason.name = "FormationProblemReason";
+            reason.horizontalOverflow = HorizontalWrapMode.Wrap;
+            reason.verticalOverflow = VerticalWrapMode.Overflow;
+            NewPlacedText(card.transform, "角色和培养进度已保留，本次未消耗体力", 18, White,
+                34, 266, 588, 42, TextAnchor.MiddleCenter, FontStyle.Normal);
+            GameObject cancel = NewButton("FormationProblemCancel", card.transform, "暂不调整", 22,
+                new Color32(35, 19, 59, 255), White, CloseChapterModal, 12);
+            PlaceTop(cancel.GetComponent<RectTransform>(), 34, 350, 264, 76);
+            if (onGrowth != null)
+            {
+                GameObject adjust = NewButton("FormationProblemAdjust", card.transform, "调整编队", 22,
+                    Accent, White, () =>
+                    {
+                        Action<string> growth = onGrowth;
+                        CloseChapterModal();
+                        gameObject.SetActive(false);
+                        Destroy(gameObject);
+                        growth("team-fix");
+                    }, 12);
+                PlaceTop(adjust.GetComponent<RectTransform>(), 326, 350, 300, 76);
+            }
         }
 
         private void StartChallenge()
         {
-            if (challengeOpen) return;
+            // A callback must obey the same cover as pointer input. Starting another
+            // transition while one owns the screen would spend stamina then lose Play.
+            if (challengeOpen || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame) return;
             if (StateFor(selectedStage) == LevelState.Locked)
             {
                 Notify("该关卡尚未解锁");
@@ -1062,7 +1220,40 @@ namespace ChoSiren
                 return;
             }
 
-            string stageId = $"stage-1-{selectedStage}";
+            string stageId = StageId(selectedStage);
+            if (!model.IsTeamReady(out string teamProblem))
+            {
+                OpenFormationProblem(teamProblem);
+                return;
+            }
+            StageDefinition costDefinition = model.Tactics.FindStage(stageId);
+            if (onStamina != null && costDefinition != null && model.Save.Stamina < costDefinition.StaminaCost)
+            {
+                Notify($"体力不足：本关需要 {costDefinition.StaminaCost} 点");
+                onStamina();
+                return;
+            }
+            // First time on a stage: a short scene plays, then the challenge continues.
+            string introId = stageId;
+            if (introOpen) return;
+            if (!model.IsStageCleared(stageId) && !model.IsStoryCompleted(introId) &&
+                model.TryStartStory(introId, out StoryRunner intro, out _))
+            {
+                introOpen = true;
+                StoryPanel.Open(transform.parent, model, intro,
+                    finished: () =>
+                    {
+                        introOpen = false;
+                        model.CompleteStory(introId);
+                        StartChallenge();
+                    },
+                    audio: null,
+                    characterName: ResolveStoryCharacterName,
+                    back: () => { introOpen = false; model.CompleteStory(introId); Refresh(); },
+                    message: Notify);
+                return;
+            }
+
             ulong seed = unchecked((ulong)DateTime.UtcNow.Ticks ^ (ulong)selectedStage);
             BattleSimulator battle = model.StartStageBattle(stageId, seed, out string message);
             if (battle == null)
@@ -1074,12 +1265,19 @@ namespace ChoSiren
             challengeOpen = true;
             Refresh();
             lastSettleMessage = string.Empty;
+            bool firstClear = !model.IsStageCleared(stageId);
+            pendingOutro = null;
             Notify(message);
-            TacticsBattlePanel.Open(transform.parent, model, battle,
+            Transform battleHost = transform.parent;
+            Action openBattle = () => TacticsBattlePanel.Open(battleHost, model, battle,
                 finished: simulator =>
                 {
                     model.SettleStageBattle(simulator, out lastSettleMessage);
+                    // 2026-10-24 (owner): a first clear ends with the cast talking about the win, not a system card.
+                    if (firstClear && simulator.Outcome == BattleOutcome.Victory) pendingOutro = stageId + "-end";
                     if (!string.IsNullOrEmpty(lastSettleMessage)) Notify(lastSettleMessage);
+                    if (model.IsStageCleared("stage-1-10") && model.FirstTime("notice-chapter-two-open"))
+                        lastSettleMessage += "\n第二章已开放：点右上「第二章 ▶」";
                 },
                 rewards: BuildBattleRewardLines,
                 growth: destination =>
@@ -1091,8 +1289,8 @@ namespace ChoSiren
                         gameObject.SetActive(true);
                         Refresh();
                         Notify(StateFor(selectedStage) == LevelState.Cleared
-                            ? "重刷已通关关卡可获得基础资源，首通奖励不重复发放"
-                            : "尚无已通关关卡，可先训练成员、检查装备后挑战 1-1");
+                            ? "重刷可拿基础资源，首通奖励只发一次"
+                            : "先升级成员，再来挑战 1-1");
                     }
                     else if (onGrowth != null)
                     {
@@ -1107,7 +1305,29 @@ namespace ChoSiren
                     challengeOpen = false;
                     selectedStage = CurrentStoryStage();
                     Refresh();
+                    PlayPendingOutro();
                 },
+                message: Notify);
+            // The reference clip plays first; the battle is built underneath once it covers the map.
+            GameAudio audio = FindAnyObjectByType<GameAudio>();
+            ChoSiren.UI.ChallengeVideoTransition.Warm(transform).Play(battleHost, openBattle, sound => audio?.PlaySfx(sound));
+        }
+
+        private string pendingOutro;
+
+        /// <summary>The short post-battle scene of a first clear (Data/Story/stage-x-y-end), once.</summary>
+        private void PlayPendingOutro()
+        {
+            string outroId = pendingOutro;
+            pendingOutro = null;
+            if (string.IsNullOrEmpty(outroId) || model.IsStoryCompleted(outroId) || introOpen) return;
+            if (!model.TryStartStory(outroId, out StoryRunner outro, out _)) return;
+            introOpen = true;
+            StoryPanel.Open(transform.parent, model, outro,
+                finished: () => { introOpen = false; model.CompleteStory(outroId); Refresh(); },
+                audio: null,
+                characterName: ResolveStoryCharacterName,
+                back: () => { introOpen = false; model.CompleteStory(outroId); Refresh(); },
                 message: Notify);
         }
 
@@ -1143,7 +1363,8 @@ namespace ChoSiren
 
         private void OpenStoryChapter01()
         {
-            if (!model.TryStartStory("chapter-01", out StoryRunner runner, out string message))
+            string storyId = chapter == 2 ? "chapter-02" : "chapter-01";
+            if (!model.TryStartStory(storyId, out StoryRunner runner, out string message))
             {
                 Notify(string.IsNullOrEmpty(message) ? "剧情无法开始" : message);
                 return;
@@ -1152,8 +1373,8 @@ namespace ChoSiren
             StoryPanel.Open(transform.parent, model, runner,
                 finished: () =>
                 {
-                    model.CompleteStory("chapter-01");
-                    Notify("已读完第 01 章");
+                    model.CompleteStory(storyId);
+                    Notify(chapter == 2 ? "已读完第 02 章" : "已读完第 01 章");
                     Refresh();
                 },
                 audio: null,
@@ -1162,10 +1383,10 @@ namespace ChoSiren
                 message: Notify);
         }
 
-        private static string ResolveStoryCharacterName(string characterId)
+        private string ResolveStoryCharacterName(string characterId)
         {
             if (string.IsNullOrEmpty(characterId)) return "未知";
-            if (string.Equals(characterId, "producer", StringComparison.Ordinal)) return "制作人";
+            if (string.Equals(characterId, "producer", StringComparison.Ordinal)) return model.PlayerName;
             int index = GameModel.IndexOfMember(characterId);
             return index >= 0 ? GameModel.Members[index].Name : "未知";
         }
@@ -1175,41 +1396,59 @@ namespace ChoSiren
             Refresh();
         }
 
+        private string StagePaceLabel(StageDefinition stage)
+        {
+            var party = model.Save.Team.Where(i => i >= 0 && i < GameModel.Members.Length).ToArray();
+            double average = party.Length > 0 ? party.Average(i => model.Save.MemberLevels[i]) : 1f;
+            string comparison = $"\u5efa\u8bae{stage.RecommendedLevel}\u7ea7 \u00b7 \u961f\u5747{average:0.#}\u7ea7";
+            return average >= stage.RecommendedLevel * 2f ? comparison + " \u00b7 \u9002\u5408\u901f\u5237" : comparison;
+        }
+
         private void Refresh()
         {
             if (!built || model == null) return;
+            if (activeTeamText1028 != null) activeTeamText1028.text = "出战：" + model.ActiveTeamName + "    切换 ›";
+            // Keep the 开始挑战 clip decoded while the map is on screen.
+            if (isActiveAndEnabled && !challengeOpen) ChoSiren.UI.ChallengeVideoTransition.Warm(transform);
 
             staminaText.text = $"{model.Save.Stamina}/{model.StaminaCap}";
             if (storyChapterLabel != null)
-                storyChapterLabel.text = model.IsStoryCompleted("chapter-01") ? "主线剧情 · 已读" : "主线剧情 · 第一章";
-            stageText.text = $"1-{selectedStage}";
+                storyChapterLabel.text = chapter == 2
+                    ? (model.IsStoryCompleted("chapter-02") ? "主线剧情 · 已读" : "主线剧情 · 第二章")
+                    : model.IsStoryCompleted("chapter-01") ? "主线剧情 · 已读" : "主线剧情 · 第一章";
+            stageText.text = $"{chapter}-{selectedStage}";
+            if (chapterSwitchLabel != null)
+            {
+                bool otherOpen = ChapterUnlocked(chapter == 1 ? 2 : 1);
+                chapterSwitchLabel.text = chapter == 1 ? (otherOpen ? "第二章 ▶" : "第二章 · 未解锁") : "◀ 第一章";
+                chapterSwitchLabel.color = otherOpen ? White : Muted;
+            }
 
             LevelState state = StateFor(selectedStage);
-            string selectedStageId = $"stage-1-{selectedStage}";
+            string selectedStageId = StageId(selectedStage);
             StageDefinition selectedDefinition = model.Tactics.FindStage(selectedStageId);
             int staminaCost = selectedDefinition != null ? selectedDefinition.StaminaCost : GameModel.StoryStaminaCost;
             int diamondReward = selectedDefinition != null ? selectedDefinition.DiamondFirstClear : GameModel.StoryDiamondReward;
             int goldReward = selectedDefinition != null
                 ? model.PreviewStageGoldReward(selectedStageId)
                 : GameModel.StoryGoldReward;
-            bool chapterComplete = model.IsChapterOneComplete;
+            bool chapterComplete = chapter == 1 ? model.IsChapterOneComplete : model.IsStageCleared("stage-2-10");
             stageTitleText.text = selectedDefinition != null && !string.IsNullOrWhiteSpace(selectedDefinition.Name)
                 ? selectedDefinition.Name
-                : "欲望都市演出";
-            stageStatusText.text = chapterComplete && selectedStage == ChapterStageCount
-                ? "章节已完成"
-                : state == LevelState.Cleared
-                    ? $"已通关 · 最佳 {Mathf.Max(1, model.StarsOf(selectedStageId))} 星"
-                    : "当前关卡";
-            progressText.text = selectedDefinition != null && selectedDefinition.UsesRealtime
-                ? $"{selectedDefinition.EncounterLabel} · 建议队均 {selectedDefinition.RecommendedLevel} 级 · 约 1 分钟"
-                : $"严格顺序解锁  ·  敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}";
-            staminaCostText.text = $"体力 -{staminaCost}";
-            diamondRewardText.text = state == LevelState.Cleared ? "首通已领" : $"星钻 ×{diamondReward}";
-            goldRewardText.text = $"星币 ×{goldReward}";
+                : chapter == 2 ? "魅声海湾演出" : "欲望都市演出";
+            // One short line: pace + (when cleared) the best stars. Everything else is visual.
+            stageStatusText.text = string.Empty;
+            string bestStars = state == LevelState.Cleared ? "   " + new string('★', Mathf.Clamp(model.StarsOf(selectedStageId), 1, 3)) : string.Empty;
+            progressText.text = (selectedDefinition != null && selectedDefinition.UsesRealtime
+                ? StagePaceLabel(selectedDefinition)
+                : $"敌方战力 {model.EnemyPowerOfStage(selectedStageId):N0}") + bestStars;
+            staminaCostText.text = $"-{staminaCost}";
+            diamondRewardText.text = state == LevelState.Cleared ? "已领" : $"+{diamondReward}";
+            goldRewardText.text = $"+{goldReward}";
             RefreshDropPreview(selectedStageId);
             startLabel.text = state == LevelState.Cleared ? "再次挑战" : "开始挑战";
             startButton.interactable = !challengeOpen;
+            RefreshSweepRow(selectedStageId, staminaCost);
             startBackground.color = model.Save.Stamina < staminaCost
                 ? new Color32(125, 135, 160, 175)
                 : state == LevelState.Cleared
@@ -1221,19 +1460,21 @@ namespace ChoSiren
                 startLabel.text = state == LevelState.Cleared ? "再次挑战" : string.Empty;
             }
 
-            int claimableRewards = model.ChapterOneClaimableStarRewardCount;
-            rewardSummaryText.text = claimableRewards > 0 ? $"{claimableRewards} 项奖励可领取" : "查看星级奖励";
+            int claimableRewards = model.ChapterClaimableStarRewardCount(chapter);
+            rewardSummaryText.text = claimableRewards > 0 ? "有奖励可领取" : "查看星级奖励";
             rewardBadgeText.text = claimableRewards.ToString();
             rewardBadgeText.transform.parent.gameObject.SetActive(claimableRewards > 0);
 
-            List<ChapterTaskView> chapterTasks = model.ChapterOneTaskViews();
+            List<ChapterTaskView> chapterTasks = model.ChapterTaskViews(chapter);
             int completedTasks = 0;
             for (int taskIndex = 0; taskIndex < chapterTasks.Count; taskIndex++)
                 if (chapterTasks[taskIndex].Completed) completedTasks++;
             taskSummaryText.text = $"{completedTasks}/{chapterTasks.Count} 已完成";
-            int claimableTasks = model.ChapterOneClaimableTaskCount;
+            int claimableTasks = model.ChapterClaimableTaskCount(chapter);
             taskBadgeText.text = claimableTasks.ToString();
             taskBadgeText.transform.parent.gameObject.SetActive(claimableTasks > 0);
+            if (authoredMap) RefreshStageInfo1101(selectedDefinition, state, selectedStageId, completedTasks, chapterTasks.Count);
+
 
             foreach (KeyValuePair<int, NodeView> pair in nodeViews)
             {
@@ -1243,11 +1484,19 @@ namespace ChoSiren
                 if (view.LockIcon != null) view.LockIcon.enabled = view.State == LevelState.Locked;
                 if (authoredMap)
                 {
-                    view.Background.color = Color.clear;
+                    view.Background.color = view.State == LevelState.Locked
+                        ? new Color32(8, 7, 23, 162) : Color.clear;
                     view.Glow.enabled = selected || view.State == LevelState.Current;
-                    view.StageLabel.color = view.State == LevelState.Locked ? Muted : White;
+                    Transform flameNode = view.Button != null ? view.Button.transform.Find($"SelectedFlame-{chapter}-{view.Stage}") : null;
+                    if (flameNode != null) flameNode.gameObject.SetActive(selected && view.State != LevelState.Locked);
+                    // The selected stage sits on the teal plate: ink text, pink/white vanish on it.
+                    bool onGreen = selected && view.State != LevelState.Locked;
+                    view.StageLabel.color = view.State == LevelState.Locked ? Muted : onGreen ? (Color)Brand1025.Ink : White;
                     view.StatusLabel.text = view.State == LevelState.Cleared
-                        ? new string('★', Mathf.Clamp(model.StarsOf($"stage-1-{view.Stage}"), 1, 3)) : string.Empty;
+                        ? new string('★', Mathf.Clamp(model.StarsOf(StageId(view.Stage)), 1, 3))
+                        : view.State == LevelState.Locked ? string.Empty : "可挑战";
+                    view.StatusLabel.color = view.State == LevelState.Locked ? Muted : onGreen ? (Color)Brand1025.Ink
+                        : view.State == LevelState.Cleared ? StarGold : Accent;
                     continue;
                 }
                 if (view.State == LevelState.Locked)
@@ -1268,7 +1517,7 @@ namespace ChoSiren
                         : new Color32(104, 198, 255, 205);
                 view.Glow.enabled = selected || view.State == LevelState.Current;
                 if (view.State == LevelState.Current) currentGlow = view.Glow;
-                int stars = model.StarsOf($"stage-1-{view.Stage}");
+                int stars = model.StarsOf(StageId(view.Stage));
                 view.StatusLabel.text = view.State == LevelState.Cleared
                     ? new string('★', Mathf.Clamp(stars, 1, 3))
                     : StateLabel(view.State);
@@ -1305,6 +1554,7 @@ namespace ChoSiren
         private void Notify(string message)
         {
             if (string.IsNullOrEmpty(message)) return;
+            if (RewardGain1101.Absorb(message)) return; // same action just raised the 获得奖励 popup
             onMessage?.Invoke(message);
             if (toastObject == null) return;
             toastText.text = message;
@@ -1316,15 +1566,42 @@ namespace ChoSiren
         private LevelState StateFor(int stage)
         {
             if (stage < 1 || stage > ChapterStageCount) return LevelState.Locked;
-            string stageId = $"stage-1-{stage}";
-            if (model.IsStageCleared(stageId) || IsStoryStageCleared(stage, model.Save.StoryProgress))
+            string stageId = StageId(stage);
+            if (model.IsStageCleared(stageId) || (chapter == 1 && IsStoryStageCleared(stage, model.Save.StoryProgress)))
                 return LevelState.Cleared;
             return model.IsStageUnlocked(stageId) ? LevelState.Current : LevelState.Locked;
         }
 
         private int CurrentStoryStage()
         {
-            return model.CurrentChapterOneStage;
+            if (chapter == 1) return model.CurrentChapterOneStage;
+            for (int stage = 1; stage <= ChapterStageCount; stage++)
+                if (!model.IsStageCleared(StageId(stage))) return stage;
+            return ChapterStageCount;
+        }
+
+        /// <summary>Rebuilds the map for the other chapter; a locked chapter only explains why.</summary>
+        private void SwitchChapter(int number)
+        {
+            if (number < 1 || number > ChapterCount || number == chapter) return;
+            if (!ChapterUnlocked(number))
+            {
+                Notify("通关 1-10「魅声王座」后开放第二章");
+                return;
+            }
+            lastChapter = number;
+            chapter = number;
+            for (int index = transform.childCount - 1; index >= 0; index--)
+                Destroy(transform.GetChild(index).gameObject);
+            nodeViews.Clear();
+            routeViews.Clear();
+            currentGlow = null;
+            built = false;
+            selectedStage = CurrentStoryStage();
+            Build();
+            built = true;
+            Refresh();
+            Notify(chapter == 2 ? "第二章 · 魅声海湾" : "第一章 · 欲望都市");
         }
 
         public static int StoryStageForProgress(int progress)
@@ -1635,6 +1912,8 @@ namespace ChoSiren
             Text text = NewText("Label", result.transform, label, fontSize, foreground, FontStyle.Bold,
                 TextAnchor.MiddleCenter);
             Stretch(text.rectTransform, 6, 4, -6, -4);
+            // one teal main action per dialog (unified design 2026-10-25)
+            SirenStickerUi.SkinButton(result, name == "StartChallenge" || name == "SweepResultOk" || name == "FormationProblemAdjust", true);
             return result;
         }
 

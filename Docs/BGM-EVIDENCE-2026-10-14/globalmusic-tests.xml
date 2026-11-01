@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="5" result="Passed" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:53Z" duration="1.8594106">
+  <test-suite type="TestSuite" id="1267" name="CHO-SIREN 幻域魅声" fullname="CHO-SIREN 幻域魅声" runstate="Runnable" testcasecount="222" result="Passed" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:53Z" duration="1.859411" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1261" name="ChoSiren.Tests.PlayMode.dll" fullname="/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/ui-unification-20261013/project/Library/ScriptAssemblies/ChoSiren.Tests.PlayMode.dll" runstate="Runnable" testcasecount="222" result="Passed" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:53Z" duration="1.845466" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="41525" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+      <test-suite type="TestSuite" id="1262" name="ChoSiren" fullname="ChoSiren" runstate="Runnable" testcasecount="222" result="Passed" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:53Z" duration="1.840455" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+        <test-suite type="TestSuite" id="1263" name="Tests" fullname="ChoSiren.Tests" runstate="Runnable" testcasecount="222" result="Passed" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:53Z" duration="1.821806" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+          <test-suite type="TestFixture" id="1107" name="GlobalMusicTests" fullname="ChoSiren.Tests.GlobalMusicTests" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:53Z" duration="1.797624" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            <test-case id="1109" name="BrowserDuckChangesOnlyTheTrueSoundtrackGainAndBackgroundClearsIt" fullname="ChoSiren.Tests.GlobalMusicTests.BrowserDuckChangesOnlyTheTrueSoundtrackGainAndBackgroundClearsIt" methodname="BrowserDuckChangesOnlyTheTrueSoundtrackGainAndBackgroundClearsIt" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="1514756900" result="Passed" start-time="2026-10-14 11:28:51Z" end-time="2026-10-14 11:28:52Z" duration="1.138432" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（128s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1112" name="DestroyingTransportLeavesSharedSoundtrackUsableByTheNextApp" fullname="ChoSiren.Tests.GlobalMusicTests.DestroyingTransportLeavesSharedSoundtrackUsableByTheNextApp" methodname="DestroyingTransportLeavesSharedSoundtrackUsableByTheNextApp" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="1606646114" result="Passed" start-time="2026-10-14 11:28:52Z" end-time="2026-10-14 11:28:52Z" duration="0.098464" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（128s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+[GameAudio] 使用自定义背景音乐：bgm（128s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1111" name="NativeTitleUsesSavedMusicAndNeverOutputsCgAudio" fullname="ChoSiren.Tests.GlobalMusicTests.NativeTitleUsesSavedMusicAndNeverOutputsCgAudio" methodname="NativeTitleUsesSavedMusicAndNeverOutputsCgAudio" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="966478965" result="Passed" start-time="2026-10-14 11:28:52Z" end-time="2026-10-14 11:28:53Z" duration="0.108408" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（128s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1108" name="RepeatedRoutingAndMusicSwitchKeepOneSourceAndResumeTheActualPlayhead" fullname="ChoSiren.Tests.GlobalMusicTests.RepeatedRoutingAndMusicSwitchKeepOneSourceAndResumeTheActualPlayhead" methodname="RepeatedRoutingAndMusicSwitchKeepOneSourceAndResumeTheActualPlayhead" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="785485176" result="Passed" start-time="2026-10-14 11:28:53Z" end-time="2026-10-14 11:28:53Z" duration="0.366626" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（128s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1110" name="SfxSwitchMutesAnAlreadyPlayingVoiceWithoutMutingMusic" fullname="ChoSiren.Tests.GlobalMusicTests.SfxSwitchMutesAnAlreadyPlayingVoiceWithoutMutingMusic" methodname="SfxSwitchMutesAnAlreadyPlayingVoiceWithoutMutingMusic" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="165006397" result="Passed" start-time="2026-10-14 11:28:53Z" end-time="2026-10-14 11:28:53Z" duration="0.078483" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（128s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+Saving results to: /Users/bojuejun/Library/Application Support/CHO-SIREN BGM Review 20261014/CHO-SIREN 幻域魅声/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

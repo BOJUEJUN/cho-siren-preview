@@ -1,0 +1,188 @@
+{
+  "integratedAt": "2026-10-15T08:15:55.691065+00:00",
+  "sourceRoot": "/Users/bojuejun/cho-siren-unity",
+  "candidateRoot": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/ui-unification-20261013/project",
+  "scope": "Only the 30 owned member-art/CG audio/import/test/policy files. Homepage code restored byte-for-byte, retaining exactly the two previous authored characters. Preserve all other dirty work. Original PSD and raw layer masters retained locally.",
+  "files": [
+    {
+      "path": "Assets/Scripts/GameAudio.cs",
+      "beforeSha256": "e1efd82219a6a92ede56fb1fa4bc547b1a04393529a9bc92d9fac56ccdd423b3",
+      "afterSha256": "a1626e361f2f9658e684f7042468fe19bd494bf83923b2ff25f3f70e1e0811f7",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Scripts/ChoSirenMusicBridge.cs",
+      "beforeSha256": "36b069dbd70b03d2b1e9863cd3af88b4615e7222832f5d183b64e58de1a00341",
+      "afterSha256": "97405a221159c62ee3930e1deefcd0f0a9066c3dff5c779e7ec7d570124eedf5",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Scripts/UI/NativeTitleScreen.cs",
+      "beforeSha256": "fb1d9947a373661c6104c87d0b3ebb5c5f1ef9068c74459498b39155fc774b2a",
+      "afterSha256": "ac4c4e0fb79acb27ee9ff0273bba9e1aff1c3903b19de86a59b40abbcda88b4b",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Scripts/ChoSirenApp.cs",
+      "beforeSha256": "70d96a685e6b5b9658f419c88f16b683ac2134d6caf8b7534e6da1e280310e15",
+      "afterSha256": "62fd988298f83a590057c1067a8ff00904955b6d0d4aa2cab42519610bf35ac5",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/GlobalMusicTests.cs",
+      "beforeSha256": "f8b2e0e021201e3d206536750dc44046deeca65e9594e88ebcc724988dee0da2",
+      "afterSha256": "eecce8aba029bd5c651d90de147d8055801e77f5c136841921f519d2e4a53e6d",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/WebGLTemplates/ChoSirenPortrait/audio-skin.js",
+      "beforeSha256": "5f7d8f01c99b0589a61140feb4fcbc7eb71eb998d1c632194dd596c6632a9855",
+      "afterSha256": "abaa2bc9345bb34572adc7465673d3c4ebfe2a5b75c8377218ee95fbb68ad4ae",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/WebGLTemplates/ChoSirenPortrait/loading-cg.js",
+      "beforeSha256": "89f84d0a5d463be411bd4033eb50ea0888c5988db83e0b90a77ee8599e0cdcfd",
+      "afterSha256": "8b09194d975ba95783d9e7f4661899c12b3f8549cd36abd059acdb23971bc9a7",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/WebGLTemplates/ChoSirenPortrait/index.html",
+      "beforeSha256": "3a83b4123c94c942c0c3287092180dcbe505f05943498e3c5aa37389c300606c",
+      "afterSha256": "a34a2ef34f5e1e2d64cb14e1ae8fdd3daeca65ab27f97542de182de784a22af1",
+      "alreadyMatches": true
+    },
+    {
+      "path": "ProjectSettings/ProjectSettings.asset",
+      "beforeSha256": "0c02eee347e74d2794440a3b76434688a084f9b3d090e20ce995137d4dc16eb7",
+      "afterSha256": "73d679ebf17ec31793bb20ce8d8971c7bb7cf905153da293efb81487293de754",
+      "alreadyMatches": true
+    },
+    {
+      "path": "AGENTS.md",
+      "beforeSha256": "eedc471268e1e163a68947ea2e2aec89a97a32a718cd40582318d873849823da",
+      "afterSha256": "eb99956cda7f4607e8883116e1c1c8a89cce003392df43b8e0e3da8a7f31a495",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Plugins/WebGL/ChoSirenMusicBridge.jslib",
+      "beforeSha256": "eec69e32f3bd497d74f10546171722e0f5b15f46c2e45a8e97cd753f889b2a4b",
+      "afterSha256": "c5d60ef19dbd76e4e726245a5121b978b9eebf6f8710c5fec6c5df41068a9d46",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/PsdHomeIntegrationTests.cs",
+      "beforeSha256": "2078f51d940936e8df36bcfd0c515e682addf4750a9fb55ecf0895eea28a4687",
+      "afterSha256": "5e4fc8d6a4fc4e804c2b79e2a564b01c717ee213b159f555bc8ccbc7bdbb705f",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Editor/ChoSirenCharacterCgBuild.cs",
+      "beforeSha256": null,
+      "afterSha256": "f9d05562fdd5bee668bd800914ef24b204b673be5b037d7a45f8269ce4878d0e",
+      "alreadyMatches": false
+    },
+    {
+      "path": "Assets/Editor/ChoSirenCharacterCgBuild.cs.meta",
+      "beforeSha256": null,
+      "afterSha256": "0f7775df6dcac2b9259097aa6fe628eb12c496d5efbdff3107220e7c0c9c9911",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-xingli.png",
+      "beforeSha256": "7ccdcdf9bd90468892e6e83dbe0baae1c3151857de807f6d61ccafdf7cda8878",
+      "afterSha256": "70f34ad540d18cef2ae256e7453c2835217ea64f96d3b7c5e4646e778b976bc2",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-xingli.png.meta",
+      "beforeSha256": "5959120d861dd052da649e01abc571e84c5d0fcff1488fdba087efba1bfc0dff",
+      "afterSha256": "02affaeb8784f0b5d50443f4ad1ce3e68a78ec631c2e2deb4e32b9f5631453a3",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-xingli.png",
+      "beforeSha256": "33ae3c48f441666ac6f9cde2953ac5eb9305610f1a90d35a35e20f7932dda636",
+      "afterSha256": "df353701a98d1bc6ed875c9274f7a97be7a7777d53ea0e1afec4bbcf00dd3fc3",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-xingli.png.meta",
+      "beforeSha256": "bee5cf1f73cc1d2419a670c0723818b2d4cc67f9443bcb92a8610aa43ec389b6",
+      "afterSha256": "e5a674a51d0b146bc989007a702b2a9ca3af15413873d0bdc50bc58b52a278c4",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-feiyin.png",
+      "beforeSha256": "2d0856aba80bacebce6487f6c6592872f2dec48ce7c98d012fe346f995538fb0",
+      "afterSha256": "31489b59e62d0c97e35ecf11eaa51fd48deb3b7b97fd00348daea920e01e9add",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-feiyin.png.meta",
+      "beforeSha256": "f71f22e3c57c1d27e2439c59605feeb311c16bca3993e9b4a9a39075bb2cb945",
+      "afterSha256": "bde4a8791c4c9f207e0fcbe1671b4f25ad9cec9e4b011fd0648ab05be5bd49d8",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-feiyin.png",
+      "beforeSha256": "94d33a629b488309c6ed2b92e6f986c3f35da8c8f91665053cad0316f5d0e51d",
+      "afterSha256": "7da6a32b462ea8ffd811eff6b15bb6e53c91e1031b186953606cb9ce87545eeb",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-feiyin.png.meta",
+      "beforeSha256": "452d0dc8697670a870a4b810375a10fed6e3cba79d73c267d7227d6c123bf5b9",
+      "afterSha256": "922387fa814ff5172bab7f86fb1deeeff52005659659d19d950c9f9db52a6e95",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-wubai.png",
+      "beforeSha256": "a892e99783a0fe697cb7df4ec0361fee1407f214bf7c65890d9ee458b530ed80",
+      "afterSha256": "5ebf656a3c7104a4b9644190ea6d17256ffb278df443dd2f873265684bc093e2",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-wubai.png.meta",
+      "beforeSha256": "42a3b588f064f839c3ed512b7373bdbbede6f3b3af59fc846edf023d9d985403",
+      "afterSha256": "693b66a32890c13805ffc54ac1139048a2a965b06d4fd169b329dbcbc2f82b13",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-wubai.png",
+      "beforeSha256": "24256c67fd1e80f767ebb5a393dca530696dcc991fdd34c338fd60e17eb4cd11",
+      "afterSha256": "d4f62b91e7da9d87cf1662d5aa1aa48fe595dd5e8c41c6f455c20ce04710e35b",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-wubai.png.meta",
+      "beforeSha256": "677fc2c5563b748d4f4f6a0b09b0ff2e2f6b5bfe067b0cca600fb4e6c8aa4045",
+      "afterSha256": "d927e0028e7dbde101f71da5fc5844c0d2b3bb7374bfda25935c4be66e8c4d8c",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-yeying.png",
+      "beforeSha256": "35a0e684573b0695f81fecb2ef313cdd815f5ff91d0aa9f60826137968cb69c6",
+      "afterSha256": "9a56a68b0504baacfe6775d340070e888ac92e7ee4930bfdfaeb7889bfc59d4a",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/member-yeying.png.meta",
+      "beforeSha256": "a33d3408d4c3bd99e4ccaf7a329a34763637cce5b1dcf31975aa11f58078a095",
+      "afterSha256": "85b73eb2e706eb70bd36812a43b865d83acb6352fb8bdea4fc22408f25a21cc5",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-yeying.png",
+      "beforeSha256": "6155370e151a5904c7086fb00bc2205fe34464be1497dd65f6265747cfc1fc4f",
+      "afterSha256": "562b2af84b8c3eb5d5e9cfde5a6b45a8d4da2b28c25129f178b0330777767c8d",
+      "alreadyMatches": true
+    },
+    {
+      "path": "Assets/Resources/Art/Members/Avatars/avatar-yeying.png.meta",
+      "beforeSha256": "56291d21d21573b8f91569645215d204f61e7ab7e3f2bb1f689736670a725802",
+      "afterSha256": "b155d7ab712456a5c44e5aa9598dc68d472d273051f240b77c316dda40af39b3",
+      "alreadyMatches": true
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "revision": "emotion-v2",
+  "approval": "Human rejected first samples for realism/emotion. Root relayed approval to redo up to 8 samples within the SAME cumulative CNY1 cap, no 16-line expansion, no production integration.",
+  "model": "minimax/speech-2.8-hd",
+  "parameter_evidence": "Official RunningHub contract text field explicitly supports (inhale), (exhale), (chuckle), (breath). emotion enum supports happy, angry, surprised, neutral. speed .5–2, pitch -12–12. No instructions field is sent.",
+  "official_parameter_url": "https://rhtv.runninghub.cn/runninghub-api-doc-cn/api-448183268",
+  "official_japanese_voice_ids_url": "https://github.com/MiniMax-AI/skills/blob/main/skills/frontend-dev/references/minimax-voice-catalog.md#japanese-voices",
+  "samples": [
+    {
+      "id": "xingli-v2-a",
+      "member": "xingli",
+      "name": "星璃",
+      "variant": "A",
+      "brief": "明亮自信、起手吸气，干脆抛出爆发句",
+      "text": "(inhale)いくよっ！　私の歌で、輝けっ！",
+      "voice_id": "Japanese_DecisivePrincess",
+      "emotion": "happy",
+      "speed": 1.14,
+      "pitch": 1
+    },
+    {
+      "id": "xingli-v2-b",
+      "member": "xingli",
+      "name": "星璃",
+      "variant": "B",
+      "brief": "轻笑开场、俏皮号召，保留短促尾音",
+      "text": "(chuckle)さあっ！　もっと、盛り上がろっ！",
+      "voice_id": "Japanese_DependableWoman",
+      "emotion": "happy",
+      "speed": 1.16,
+      "pitch": 2
+    },
+    {
+      "id": "feiyin-v2-a",
+      "member": "feiyin",
+      "name": "绯音",
+      "variant": "A",
+      "brief": "短促出力声、低一点的音高、愤怒而有控制",
+      "text": "(inhale)はっ！　その隙、もらったぁ！",
+      "voice_id": "Japanese_DependableWoman",
+      "emotion": "angry",
+      "speed": 1.14,
+      "pitch": 0
+    },
+    {
+      "id": "feiyin-v2-b",
+      "member": "feiyin",
+      "name": "绯音",
+      "variant": "B",
+      "brief": "用舞步台词做强释放，前短后长",
+      "text": "(exhale)燃えろっ！　最後まで、踊り抜く！",
+      "voice_id": "Japanese_DecisivePrincess",
+      "emotion": "angry",
+      "speed": 1.16,
+      "pitch": -2
+    },
+    {
+      "id": "wubai-v2-a",
+      "member": "wubai",
+      "name": "雾白",
+      "variant": "A",
+      "brief": "温柔但有急迫感，不再平铺安慰播报",
+      "text": "(inhale)大丈夫っ！　私が、守るから！",
+      "voice_id": "Japanese_GracefulMaiden",
+      "emotion": "happy",
+      "speed": 1.12,
+      "pitch": 0
+    },
+    {
+      "id": "wubai-v2-b",
+      "member": "wubai",
+      "name": "雾白",
+      "variant": "B",
+      "brief": "先坚定阻止、再温柔鼓励，有句内情绪转折",
+      "text": "(breath)大丈夫！　ほら、顔を上げて。",
+      "voice_id": "Japanese_KindLady",
+      "emotion": "happy",
+      "speed": 1.1,
+      "pitch": 1
+    },
+    {
+      "id": "yeying-v2-a",
+      "member": "yeying",
+      "name": "夜莺",
+      "variant": "A",
+      "brief": "压低声线、前句收住，后句干脆爆发",
+      "text": "(inhale)逃がさない。　この一撃で、決めるっ！",
+      "voice_id": "Japanese_ColdQueen",
+      "emotion": "angry",
+      "speed": 1.16,
+      "pitch": -2
+    },
+    {
+      "id": "yeying-v2-b",
+      "member": "yeying",
+      "name": "夜莺",
+      "variant": "B",
+      "brief": "更短更有节拍，分句咬字果断",
+      "text": "(exhale)聴けっ。　これが、私のビート！",
+      "voice_id": "Japanese_CalmLady",
+      "emotion": "angry",
+      "speed": 1.12,
+      "pitch": -2
+    }
+  ]
+}

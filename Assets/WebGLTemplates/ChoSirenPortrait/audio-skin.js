@@ -1,0 +1,156 @@
+// Unity owns the one global soundtrack and its saved music/SFX switches.
+// This layer skins only short UI placeholders, resumes Web Audio on mobile
+// gestures, and lets character videos duck Unity's real music without replacing it.
+(() => {
+  const media = name => new URL(`media/${name}?v=20261005-r17d`, document.baseURI).href;
+  const SKINS = [
+    { kind: 'click', length: 1654, file: 'ui-click.wav' },
+    { kind: 'success', length: 7497, file: 'ui-success.wav' }
+  ];
+  const voices = new Map();
+  const contexts = new Set();
+  const mediaOwners = new Set();
+  let unityContext = null, ownContext = null;
+  let bridgeName = null, musicEnabled = true, pendingMusicChoice = null;
+  let ducked = false, hasSoundtrack = false;
+
+  function state() {
+    return { enabled: pendingMusicChoice ?? musicEnabled,
+      ready: !!bridgeName && !!window.choSirenUnityInstance?.SendMessage,
+      settingKnown: !!bridgeName || pendingMusicChoice !== null, hasSoundtrack, ducked,
+      mediaOwnsMusic: mediaOwners.size > 0, mediaOwners: Array.from(mediaOwners) };
+  }
+  function publishState() {
+    if (window.CustomEvent && window.dispatchEvent)
+      window.dispatchEvent(new window.CustomEvent('cho-siren-music-state', { detail: state() }));
+  }
+  function send(method, value) {
+    return sendValue(method, value ? '1' : '0');
+  }
+  function sendValue(method, value) {
+    const instance = window.choSirenUnityInstance;
+    if (!bridgeName || !instance?.SendMessage) return false;
+    try { instance.SendMessage(bridgeName, method, value); return true; }
+    catch (_) { return false; }
+  }
+  function flushBridge() {
+    sendValue('SetMediaMusicOwners', Array.from(mediaOwners).join(','));
+    send('SetMusicDucked', ducked);
+    if (pendingMusicChoice !== null && send('SetMusicEnabled', pendingMusicChoice)) {
+      musicEnabled = pendingMusicChoice;
+      pendingMusicChoice = null;
+    }
+    publishState();
+  }
+
+  const Context = window.AudioContext || window.webkitAudioContext;
+  const Source = window.AudioBufferSourceNode;
+  const Offline = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  function decode(url) {
+    return fetch(url).then(response => {
+      if (!response.ok) throw new Error(`Audio fetch failed (${response.status})`);
+      return response.arrayBuffer();
+    }).then(data => new Promise((resolve, reject) => new Offline(2, 1, 48000).decodeAudioData(data, resolve, reject)));
+  }
+  if (Source && Offline) {
+    for (const skin of SKINS) decode(media(skin.file)).then(buffer => { skin.buffer = buffer; }).catch(() => {});
+    const bufferProp = Object.getOwnPropertyDescriptor(Source.prototype, 'buffer');
+    if (bufferProp?.set && bufferProp?.get) Object.defineProperty(Source.prototype, 'buffer', {
+      configurable: true, enumerable: bufferProp.enumerable,
+      get() { return bufferProp.get.call(this); },
+      set(value) {
+        if (value && this.context && this.context !== ownContext) unityContext = this.context;
+        let skin = null;
+        try {
+          if (value?.sampleRate === 22050 && value.numberOfChannels === 1) {
+            skin = SKINS.find(item => item.buffer && item.length === value.length);
+            if (skin) {
+              const data = value.getChannelData(0);
+              let audible = false;
+              for (let i = 0; i < data.length; i += 97) if (Math.abs(data[i]) > 1e-4) { audible = true; break; }
+              if (!audible) skin = null;
+            }
+          }
+        } catch (_) { skin = null; }
+        bufferProp.set.call(this, skin ? skin.buffer : value);
+      }
+    });
+  }
+
+  function context() {
+    if (unityContext?.state === 'running') return unityContext;
+    if (!ownContext) ownContext = new Context();
+    return ownContext;
+  }
+  const nativeResume = Context?.prototype.resume;
+  if (nativeResume) Context.prototype.resume = function (...args) {
+    contexts.add(this);
+    return nativeResume.apply(this, args);
+  };
+  const unlock = () => {
+    for (const ctx of new Set([...contexts, unityContext, ownContext])) {
+      if (!ctx || (ctx.state !== 'suspended' && ctx.state !== 'interrupted')) continue;
+      try { (nativeResume || ctx.resume).call(ctx).catch(() => {}); } catch (_) {}
+    }
+  };
+  for (const type of ['pointerdown', 'pointerup', 'touchend', 'keydown'])
+    window.addEventListener(type, unlock, { capture: true, passive: true });
+
+  window.choSirenAudio = {
+    bindMusicBridge(name, enabled, soundtrack) {
+      bridgeName = name;
+      musicEnabled = !!enabled;
+      hasSoundtrack = !!soundtrack;
+      flushBridge();
+    },
+    // Awake can run before createUnityInstance resolves. Replay when it does.
+    attachUnity() { flushBridge(); },
+    unbindMusicBridge(name) { if (bridgeName === name) { bridgeName = null; publishState(); } },
+    syncMusicEnabled(enabled) { musicEnabled = !!enabled; publishState(); },
+    setMusicEnabled(enabled) {
+      pendingMusicChoice = !!enabled;
+      flushBridge();
+      unlock();
+    },
+    get musicState() { return state(); },
+    setMediaMusicActive(owner, active) {
+      if (!/^[a-zA-Z0-9_-]{1,48}$/.test(owner)) return;
+      if (mediaOwners.has(owner) === !!active) return;
+      if (active) mediaOwners.add(owner); else mediaOwners.delete(owner);
+      sendValue('SetMediaMusicOwners', Array.from(mediaOwners).join(','));
+      publishState();
+    },
+    playVoice(name, currentTime, onEnded) {
+      let source = null, stopped = false, ended = false;
+      const finish = () => {
+        if (ended) return;
+        ended = true;
+        try { source?.disconnect(); } catch (_) {}
+        // Let the caller receive its handle before reporting any terminal outcome.
+        Promise.resolve().then(() => onEnded?.());
+      };
+      const handle = { stop() { stopped = true; try { source?.stop(); } catch (_) {} finish(); } };
+      if (!Context || !Offline) { finish(); return handle; }
+      let voice = voices.get(name);
+      if (!voice) {
+        voice = decode(media(`${name}.voice.mp3`)).catch(error => {
+          if (voices.get(name) === voice) voices.delete(name);
+          throw error;
+        });
+        voices.set(name, voice);
+      }
+      voice.then(buffer => {
+        if (stopped) return;
+        const ctx = context();
+        source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(ctx.destination);
+        source.onended = finish;
+        source.start(0, Math.max(0, Math.min(buffer.duration, currentTime())));
+      }).catch(finish);
+      return handle;
+    },
+    duck(on) { ducked = !!on; send('SetMusicDucked', ducked); },
+    get skins() { return SKINS.map(({ kind, buffer }) => ({ kind, ready: !!buffer })); }
+  };
+})();

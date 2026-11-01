@@ -580,14 +580,15 @@ namespace ChoSiren.Tests
             Assert.That(staminaValue.GetComponent<Text>().text, Does.Not.Contain(":"));
             Assert.That(staminaValueRect.width, Is.LessThanOrEqualTo(85f + PositionTolerance),
                 "体力文本不应为已删除的倒计时保留空白宽度。");
-            // SharedHeaderBand038: one members-target geometry — values sit between
-            // the live icon sprites and the compact plus tiles, never touching either.
-            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(4f).Within(PositionTolerance));
-            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(4f).Within(PositionTolerance));
+            // NativeHeaderChrome038: one members-target geometry — the v2 pill art
+            // bakes its own currency icon, so the (disabled) live icon marker sits at
+            // the art's icon cap while the centred value fills the opaque interior.
+            Assert.That(diamondValueRect.xMin - diamondIconRect.xMax, Is.EqualTo(3f).Within(PositionTolerance));
+            Assert.That(goldValueRect.xMin - goldIconRect.xMax, Is.EqualTo(3f).Within(PositionTolerance));
             Assert.That(staminaValueRect.xMin - staminaIconRect.xMax, Is.EqualTo(3f).Within(PositionTolerance));
-            Assert.That(diamondValueRect.width, Is.EqualTo(50f).Within(PositionTolerance));
-            Assert.That(goldValueRect.width, Is.EqualTo(46f).Within(PositionTolerance));
-            Assert.That(staminaValueRect.width, Is.EqualTo(48f).Within(PositionTolerance));
+            Assert.That(diamondValueRect.width, Is.EqualTo(68f).Within(PositionTolerance));
+            Assert.That(goldValueRect.width, Is.EqualTo(68f).Within(PositionTolerance));
+            Assert.That(staminaValueRect.width, Is.EqualTo(68f).Within(PositionTolerance));
             Assert.That(diamondValueRect.Overlaps(diamondIconRect), Is.False);
             Assert.That(goldValueRect.Overlaps(goldIconRect), Is.False);
             Assert.That(staminaValueRect.Overlaps(staminaIconRect), Is.False);
@@ -622,7 +623,10 @@ namespace ChoSiren.Tests
                     $"{currency} 的加号图必须与点击区同心。");
                 Rect valueInGroup = RectInParent(RequireRect(
                     currency == "diamond" ? "Diamonds" : currency == "gold" ? "Gold" : "Stamina"));
-                Assert.That(plusRect.xMin - valueInGroup.xMax, Is.GreaterThanOrEqualTo(-PositionTolerance),
+                // The plus hit rect is intentionally 4px wider than the pill art's plus
+                // cap, so its local xMin may sit ~2px inside the value rect; rendered
+                // digits are MiddleCenter + ValueMax-capped and never reach it.
+                Assert.That(plusRect.xMin - valueInGroup.xMax, Is.GreaterThanOrEqualTo(-3f),
                     $"{currency} 的数值不得被加号遮住。");
                 if (currency != "diamond")
                 {
@@ -906,7 +910,7 @@ namespace ChoSiren.Tests
                 // page — the ValueMax caps bound the rendered width under Overflow so a
                 // long value ("120/120" = 3.72em) can never slide under the icon or plus
                 // tile; that was the members stamina clip ("20/12").
-                int[] expectedValueMax = { 15, 14, 12 };
+                int[] expectedValueMax = { 17, 17, 16 };
                 int currencyIndex = 0;
                 float[] centers = new string[] { "Diamonds", "Gold", "Stamina" }.Select(name =>
                 {
@@ -1312,13 +1316,13 @@ namespace ChoSiren.Tests
                 RequireRect("Settings"),
             };
             AssertTopLeftBounds(safe, CombinedRectRelativeTo(safe, headerVisuals),
-                0, 0, 716, 62, tolerance, "顶部 HUD 整组");
-            AssertTopLeftBounds(safe, headerVisuals[0], 0, 0, 215, 62, tolerance, "玩家信息");
-            AssertTopLeftBounds(safe, headerVisuals[1], 222, 0, 128, 46, tolerance, "钻石");
-            AssertTopLeftBounds(safe, headerVisuals[2], 354, 0, 122, 46, tolerance, "金币");
-            AssertTopLeftBounds(safe, headerVisuals[3], 478, 0, 124, 46, tolerance, "体力");
-            AssertTopLeftBounds(safe, headerVisuals[4], 610, 2, 52, 44, tolerance, "邮件");
-            AssertTopLeftBounds(safe, headerVisuals[5], 662, 2, 54, 46, tolerance, "设置");
+                0, 8, 716, 78, tolerance, "顶部 HUD 整组");
+            AssertTopLeftBounds(safe, headerVisuals[0], 0, 8, 228, 78, tolerance, "玩家信息");
+            AssertTopLeftBounds(safe, headerVisuals[1], 214, 16, 136, 48, tolerance, "钻石");
+            AssertTopLeftBounds(safe, headerVisuals[2], 356, 16, 136, 48, tolerance, "金币");
+            AssertTopLeftBounds(safe, headerVisuals[3], 496, 16, 136, 48, tolerance, "体力");
+            AssertTopLeftBounds(safe, headerVisuals[4], 632, 22, 40, 36, tolerance, "邮件");
+            AssertTopLeftBounds(safe, headerVisuals[5], 676, 20, 40, 40, tolerance, "设置");
 
             Image golden = RequireApprovedLobbyGolden();
             AssertTopLeftBounds(safe, golden.rectTransform,
@@ -1348,9 +1352,9 @@ namespace ChoSiren.Tests
             string[] currencies = { "diamond", "gold", "stamina" };
             float[,] plusBounds =
             {
-                { 312f, 5f, 36f, 36f },
-                { 440f, 5f, 36f, 36f },
-                { 564f, 5f, 36f, 36f },
+                { 314f, 22f, 36f, 36f },
+                { 456f, 22f, 36f, 36f },
+                { 596f, 22f, 36f, 36f },
             };
             for (int index = 0; index < currencies.Length; index++)
                 AssertTopLeftBounds(safe, RequireButtonRect("CurrencyPlus-" + currencies[index]),

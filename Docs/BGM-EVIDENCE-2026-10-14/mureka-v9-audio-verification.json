@@ -1,0 +1,36 @@
+[
+  {
+    "sourcePath": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/outputs/bgm-20261014/mureka-alt-01.mp3",
+    "sourceBytes": 5017226,
+    "decoder": "/usr/bin/afconvert",
+    "audioDecoded": true,
+    "nativeOriginalPreserved": true,
+    "listeningAccepted": false,
+    "loopAccepted": false,
+    "unityIntegrated": false,
+    "decodeExitCode": 0,
+    "decodedFrames": 6910911,
+    "channels": 2,
+    "sampleRateHz": 44100,
+    "durationSeconds": 156.71,
+    "decodedBytes": 27643644,
+    "candidate": 1
+  },
+  {
+    "sourcePath": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/outputs/bgm-20261014/mureka-alt-02.mp3",
+    "sourceBytes": 6633892,
+    "decoder": "/usr/bin/afconvert",
+    "audioDecoded": true,
+    "nativeOriginalPreserved": true,
+    "listeningAccepted": false,
+    "loopAccepted": false,
+    "unityIntegrated": false,
+    "decodeExitCode": 0,
+    "decodedFrames": 9138863,
+    "channels": 2,
+    "sampleRateHz": 44100,
+    "durationSeconds": 207.23045351473922,
+    "decodedBytes": 36555452,
+    "candidate": 2
+  }
+]

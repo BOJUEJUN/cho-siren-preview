@@ -1,0 +1,45 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-5",
+  "Title": "1-5 午夜商圈",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-5"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "那个声音……是「魅声女王」？她在商圈的大屏上唱歌。",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "整条街的人都在跟着她的节拍走。这是第一个大关。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "她会分阶段变强。重投骰子，把最好的骰型留到她狂暴的时候。"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "这一次，换我们来唱！",
+      "Expression": "determined"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

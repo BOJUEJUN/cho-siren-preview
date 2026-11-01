@@ -27,6 +27,7 @@ namespace ChoSiren
             go.transform.SetParent(parent, false);
             var graphic = go.GetComponent<SkillIconGraphic>();
             graphic.Kind = Resolve(skillName, description);
+            graphic.SkillKey = skillName;
             graphic.color = color;
             graphic.raycastTarget = false;
             return graphic;
@@ -36,13 +37,16 @@ namespace ChoSiren
     public sealed class SkillIconGraphic : MaskableGraphic
     {
         private SkillIconKind kind;
-        public SkillIconKind Kind { get => kind; set { kind = value; SetVerticesDirty(); } }
+        private string skillKey;
+        public SkillIconKind Kind { get => kind; set { if (kind == value) return; kind = value; SetVerticesDirty(); } }
+        public string SkillKey { get => skillKey; set { if (skillKey == value) return; skillKey = value; SetVerticesDirty(); } }
         private Vector2 Point(float x, float y) => new Vector2(rectTransform.rect.xMin + x * rectTransform.rect.width,
             rectTransform.rect.yMin + y * rectTransform.rect.height);
 
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear();
+            if (DrawNamedSkill(mesh)) return;
             switch (kind)
             {
                 case SkillIconKind.Heal:
@@ -77,6 +81,76 @@ namespace ChoSiren
                     break;
             }
         }
+
+        // These are the simulator's actual skill names, not invented items or downloaded artwork.
+        // Each active and captain passive has a distinct silhouette; semantic fallback remains
+        // available for statuses and legacy skills which supply only Kind.
+        private bool DrawNamedSkill(VertexHelper mesh)
+        {
+            switch (skillKey)
+            {
+                case "普攻":
+                    Blade(mesh, .16f, .15f, .83f, .86f); break;
+                case "毒蚀斩":
+                    Drop(mesh, .31f, .40f, .45f); Blade(mesh, .36f, .15f, .88f, .80f); break;
+                case "万毒噬体":
+                    Drop(mesh, .27f, .59f, .36f); Drop(mesh, .72f, .59f, .36f); Drop(mesh, .5f, .27f, .42f); break;
+                case "狐影瞬击":
+                    Blade(mesh, .08f, .18f, .66f, .9f); Blade(mesh, .40f, .08f, .92f, .73f);
+                    Line(mesh, .08f, .58f, .3f, .58f, .05f); break;
+                case "魅语迷心":
+                    Heart(mesh); Path(mesh, false, .035f, .17f,.2f, .07f,.48f, .17f,.83f);
+                    Path(mesh, false, .035f, .83f,.2f, .93f,.48f, .83f,.83f); break;
+                case "汐愈微光":
+                    Quad(mesh, .43f, .38f, .57f, .87f); Quad(mesh, .25f, .55f, .75f, .69f);
+                    Wave(mesh, .2f); Wave(mesh, .1f); break;
+                case "深海佑域":
+                    Path(mesh, true, .06f, .15f,.78f, .5f,.93f, .85f,.78f, .77f,.38f, .5f,.1f, .23f,.38f);
+                    Wave(mesh, .5f); Wave(mesh, .35f); break;
+                case "血刃穿刺":
+                    Blade(mesh, .12f, .12f, .9f, .90f);
+                    Path(mesh, true, .035f, .2f,.55f, .45f,.81f, .72f,.54f, .45f,.28f); break;
+                case "猩红处决":
+                    Blade(mesh, .13f, .14f, .85f, .85f); Blade(mesh, .84f, .14f, .15f, .85f);
+                    Quad(mesh, .43f, .04f, .57f, .17f); break;
+                case "音浪冲击":
+                    Wave(mesh, .25f); Wave(mesh, .45f); Wave(mesh, .65f); break;
+                case "舞台共鸣":
+                    Path(mesh, true, .055f, .5f,.91f, .9f,.5f, .5f,.09f, .1f,.5f);
+                    Quad(mesh, .44f, .29f, .56f, .71f); Quad(mesh, .29f, .44f, .71f, .56f); break;
+                case "魅族指挥":
+                    Dice(mesh); Line(mesh, .27f,.27f,.66f,.66f,.075f);
+                    Line(mesh, .37f,.2f,.76f,.59f,.045f); break;
+                case "魔族指挥":
+                    Dice(mesh); Drop(mesh, .5f, .46f, .40f); break;
+                case "人鱼指挥":
+                    Dice(mesh); Wave(mesh, .48f); Wave(mesh, .34f); break;
+                case "血精灵指挥":
+                    Dice(mesh); Blade(mesh, .3f,.28f,.72f,.72f); break;
+                default: return false;
+            }
+            return true;
+        }
+
+        private void Blade(VertexHelper mesh, float ax, float ay, float bx, float by)
+        {
+            Line(mesh, ax, ay, bx, by, .085f);
+            Fan(mesh, bx, by, bx-.18f,by-.03f, bx,by+.09f, bx+.07f,by-.1f);
+        }
+
+        private void Drop(VertexHelper mesh, float x, float y, float size) =>
+            Fan(mesh, x,y, x,y+size*.64f, x-size*.32f,y+.02f, x-size*.26f,y-size*.3f,
+                x+size*.26f,y-size*.3f, x+size*.32f,y+.02f);
+
+        private void Heart(VertexHelper mesh) =>
+            Fan(mesh, .5f,.47f, .5f,.17f, .18f,.5f, .17f,.7f, .29f,.82f,
+                .42f,.81f, .5f,.7f, .58f,.81f, .71f,.82f, .83f,.7f, .82f,.5f);
+
+        private void Wave(VertexHelper mesh, float y) =>
+            Path(mesh, false, .045f, .22f,y, .37f,y+.055f, .62f,y-.025f, .78f,y+.035f);
+
+        private void Dice(VertexHelper mesh) =>
+            Path(mesh, true, .055f, .5f,.94f, .89f,.51f, .5f,.06f, .11f,.51f);
 
         private void Quad(VertexHelper mesh, float l, float b, float r, float t) =>
             Fan(mesh, (l+r)*.5f, (b+t)*.5f, l,b, r,b, r,t, l,t);

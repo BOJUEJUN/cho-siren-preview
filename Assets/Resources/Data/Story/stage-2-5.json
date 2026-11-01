@@ -1,0 +1,45 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-5",
+  "Title": "2-5 深海魅影",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-5"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "海底有歌声……是另一位「女王」。",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "深海里的她，比王座那位更难缠。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "她狂暴时会全体攻击。人鱼的护盾是关键。"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "交给我。这片海，我熟。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

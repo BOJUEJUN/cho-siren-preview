@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using UnityEditor;
 using UnityEditor.Build;
@@ -29,7 +30,16 @@ public sealed class ReferenceArtWebBuild : IDisposable
         string[] keys = { "lobby-board-038", "team-board-038", "members-board-038",
             "profile-board-038", "accessory-board-038", "audition-board-038",
             "map-board-038", "battle-stage-038", "unknown-member-038" };
-        foreach (string key in keys)
+        // Optional cleaned plates stream only when a <key>-clean.png source exists.
+        string[] optional = { "lobby-board-038-clean", "team-board-038-clean",
+            "members-board-038-clean", "profile-board-038-clean",
+            "accessory-board-038-clean", "audition-board-038-clean", "map-board-038-clean",
+            "map-board-038-ch2" };
+        var homeLayers = new[] { "home-layer-*.png", "race-*.png", "idol-*.png", "member-detail-*.png", "vfx-*.png" }
+            .SelectMany(pattern => Directory.EnumerateFiles(Source, pattern))
+            .Select(Path.GetFileNameWithoutExtension).OrderBy(k => k);
+        foreach (string key in keys.Concat(optional.Where(k =>
+                File.Exists(Path.Combine(Source, k + ".png")))).Concat(homeLayers))
         {
             byte[] bytes = File.ReadAllBytes(Path.Combine(Source, key + ".png"));
             using var sha = SHA256.Create();

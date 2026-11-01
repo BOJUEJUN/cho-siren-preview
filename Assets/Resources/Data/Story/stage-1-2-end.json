@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-2-end",
+  "Title": "1-2 地下电台",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-2"
+    },
+    {
+      "Command": "show",
+      "Subject": "yeying",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "噪声停了。电台现在放的，是我们的歌。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "嘿嘿，第一次上电台，有点害羞呢。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "城里有人听见了。往天桥走，那边还有回响。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

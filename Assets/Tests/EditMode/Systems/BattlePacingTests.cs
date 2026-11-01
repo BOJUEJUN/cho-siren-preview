@@ -15,7 +15,7 @@ namespace ChoSiren.Tests.Systems
             var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
             Assert.That(repository.LoadAll(), Is.True);
             var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
-            foreach (StageDefinition stage in repository.Tactics.Stages)
+            foreach (StageDefinition stage in repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")))
             {
                 var battle = new BattleSimulator(repository.Tactics, stage, DefaultParty(), new SeededRandom(847));
                 battle.EnableRealtime(races, "xingli", stage.RerollLimit);
@@ -33,10 +33,10 @@ namespace ChoSiren.Tests.Systems
         {
             var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
             Assert.That(repository.LoadAll(), Is.True, string.Join("\n", repository.Errors));
-            Assert.That(repository.Tactics.Stages.Count, Is.EqualTo(GameModel.ChapterOneStageCount));
+            Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).Count, Is.EqualTo(GameModel.ChapterOneStageCount));
             var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
             foreach (int level in new[] { 1, 5, 10, 15, 20 })
-            foreach (StageDefinition stage in repository.Tactics.Stages)
+            foreach (StageDefinition stage in repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")))
             {
                 var party = DefaultParty();
                 foreach (PlayerUnitSetup member in party) member.Level = level;
@@ -57,7 +57,7 @@ namespace ChoSiren.Tests.Systems
             var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
             Assert.That(repository.LoadAll(), Is.True);
             var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
-            foreach (StageDefinition stage in repository.Tactics.Stages)
+            foreach (StageDefinition stage in repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")))
             {
                 var times = new List<int>();
                 int wins = 0, lost = 0, rerolls = 0;
@@ -85,7 +85,7 @@ namespace ChoSiren.Tests.Systems
             var repository = new GameDataRepository(new ResourcesGameDataSource(), new UnityJsonReader());
             Assert.That(repository.LoadAll(), Is.True);
             var races = GameModel.Members.ToDictionary(member => member.Id, member => member.Race);
-            foreach (var stage in repository.Tactics.Stages)
+            foreach (var stage in repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")))
             foreach (string captain in new[] { "feiyin", "wubai", "yeying" })
             {
                 var times = new List<int>();

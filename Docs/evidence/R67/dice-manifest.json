@@ -1,0 +1,163 @@
+{
+  "source": "/Users/bojuejun/.codex/attachments/aa02cd9e-2541-497a-96a6-5491a1d22b8a/未标题34566-2.psd",
+  "sourceSha256": "1da3230e23f778476257a1984af729672b5117a15ff2c25664ed82fff5ecfc97",
+  "canvas": [
+    1024,
+    439
+  ],
+  "target": "existing six battle die face sprites; authored aspect retained, UI hit regions unchanged",
+  "layers": "15 original layers preserved in input and layers/",
+  "alphaNotes": "New face/pip layers use native alpha. Shared blue/gold outer rim is flattened in original PSD; silhouette derived from connected bright boundary, exact RGB retained. Backdrop and decorative stars excluded. No generated or redrawn art.",
+  "faces": [
+    {
+      "value": 1,
+      "layers": [
+        14,
+        13
+      ],
+      "sourceBounds": [
+        56,
+        151,
+        204,
+        303
+      ],
+      "asset": "vfx-die-face-1.png",
+      "size": [
+        148,
+        152
+      ],
+      "sha256": "d096905d0e02d68ab620e65f1eff9603f5eb0530d8f9681ae8235aafeff162cd",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "fullyOpaquePixels": 16399,
+      "opaquePixelDifferenceFromPsd": 0
+    },
+    {
+      "value": 2,
+      "layers": [
+        12,
+        11
+      ],
+      "sourceBounds": [
+        214,
+        151,
+        362,
+        303
+      ],
+      "asset": "vfx-die-face-2.png",
+      "size": [
+        148,
+        152
+      ],
+      "sha256": "3fa255782757fd7c56b197f937158b96a4b8bb0fe5bf758413f7471525b49b1c",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "fullyOpaquePixels": 15835,
+      "opaquePixelDifferenceFromPsd": 0
+    },
+    {
+      "value": 3,
+      "layers": [
+        10,
+        9
+      ],
+      "sourceBounds": [
+        366,
+        151,
+        514,
+        303
+      ],
+      "asset": "vfx-die-face-3.png",
+      "size": [
+        148,
+        152
+      ],
+      "sha256": "af7e3a5403ac79b69f4f1ada01eab11bb834c7e9134dc0b477f8b8c27e284f39",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "fullyOpaquePixels": 15929,
+      "opaquePixelDifferenceFromPsd": 0
+    },
+    {
+      "value": 4,
+      "layers": [
+        8,
+        6
+      ],
+      "sourceBounds": [
+        518,
+        151,
+        666,
+        303
+      ],
+      "asset": "vfx-die-face-4.png",
+      "size": [
+        148,
+        152
+      ],
+      "sha256": "399c4b44d711bbe6aa4c62d2e57b30b2332e08ba3eeb30dc0f7c78dcb0e397e4",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "fullyOpaquePixels": 15790,
+      "opaquePixelDifferenceFromPsd": 0
+    },
+    {
+      "value": 5,
+      "layers": [
+        7,
+        5
+      ],
+      "sourceBounds": [
+        672,
+        151,
+        820,
+        303
+      ],
+      "asset": "vfx-die-face-5.png",
+      "size": [
+        148,
+        152
+      ],
+      "sha256": "ee4a0f5b4ab287252edbf2e00661d90bb285b2ae0069d2be24d3d6ee471ac4a1",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "fullyOpaquePixels": 16004,
+      "opaquePixelDifferenceFromPsd": 0
+    },
+    {
+      "value": 6,
+      "layers": [
+        4,
+        3
+      ],
+      "sourceBounds": [
+        823,
+        151,
+        971,
+        303
+      ],
+      "asset": "vfx-die-face-6.png",
+      "size": [
+        148,
+        152
+      ],
+      "sha256": "10e43037245da7854bad74ee5850df2af90fcea7988c702b447ce71b7aadde71",
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "fullyOpaquePixels": 15702,
+      "opaquePixelDifferenceFromPsd": 0
+    }
+  ]
+}

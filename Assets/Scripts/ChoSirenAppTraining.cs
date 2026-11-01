@@ -12,6 +12,7 @@ namespace ChoSiren
     {
         private void OpenTrainingPractice(int memberIndex, int teamSlot)
         {
+            if (DeferUntilReferenceArtReady(() => OpenTrainingPractice(memberIndex, teamSlot))) return;
             if (!model.IsUnlocked(memberIndex))
             {
                 Toast("请先签约该成员");
@@ -20,11 +21,14 @@ namespace ChoSiren
 
             CloseModal();
             SuspendLobbyMedia();
-            MemberPracticePanel.Open(safeRoot, model, memberIndex,
+            MemberPracticePanel practice = null;
+            practice = MemberPracticePanel.Open(safeRoot, model, memberIndex,
                 () =>
                 {
+                    // 2026-11-01: a stage tap can switch the trainee; return to whoever was trained last.
+                    int shown = ReferenceEquals(practice, null) ? memberIndex : practice.MemberIndex;
                     ShowScreen(currentScreen);
-                    OpenTeamMember(memberIndex, teamSlot);
+                    OpenTeamMember(shown, shown == memberIndex ? teamSlot : -1);
                 },
                 Toast);
         }

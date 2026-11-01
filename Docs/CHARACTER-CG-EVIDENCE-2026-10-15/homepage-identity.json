@@ -1,0 +1,25 @@
+{
+  "originalDesigns": [
+    {
+      "key": "home-layer-03",
+      "sha256": "d9c81a8ab038c4835c3c8693e334a3f0801fa3ee8d677ab42642b1fc8ad6ee1c",
+      "streaming": "Reference038/d9c81a8ab038c483-home-layer-03.png"
+    },
+    {
+      "key": "home-layer-04",
+      "sha256": "7d8136024651e7c8acdcf145075441793e7f015240184841f92650620902de36",
+      "streaming": "Reference038/7d8136024651e7c8-home-layer-04.png"
+    },
+    {
+      "key": "home-layer-character2-portrait",
+      "sha256": "f276eefbdc8f4b2e7449609800219bfb5f3190ffbdab3e5b943192209ec0236b",
+      "streaming": "Reference038/f276eefbdc8f4b2e-home-layer-character2-portrait.png"
+    },
+    {
+      "key": "home-layer-character2-outline",
+      "sha256": "8e97ce3c67dcebe8dbe81317a790f2252f1fad48794b72305f7a652cc79815d3",
+      "streaming": "Reference038/8e97ce3c67dcebe8-home-layer-character2-outline.png"
+    }
+  ],
+  "sourceCodeRestored": true
+}

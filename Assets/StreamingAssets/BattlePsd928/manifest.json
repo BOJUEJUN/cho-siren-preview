@@ -1,0 +1,767 @@
+{
+  "version": "battle-20261019-native",
+  "sourceSha256": "90a0ff8d3ba75dfc140ba79e36ca81f6d1e7b21a41e694230855be281a1c2029",
+  "width": 2946,
+  "height": 6144,
+  "targetWidth": 720,
+  "targetHeight": 1536,
+  "scaleMode": "contain",
+  "entries": [
+    {
+      "key": "stage",
+      "file": "fc645c95b3956bea-stage.png",
+      "x": 0,
+      "y": 0,
+      "width": 2946,
+      "height": 6144,
+      "note": "background-only blend bake; linear light preserved"
+    },
+    {
+      "key": "member-rear-0",
+      "file": "a303c8f437b9fd5e-member-rear-0.png",
+      "x": 34,
+      "y": 4002,
+      "width": 606,
+      "height": 674,
+      "note": "native rear sleeve without disc; independent disc animated by readiness"
+    },
+    {
+      "key": "member-0",
+      "file": "17bac8b42a9062fc-member-0.png",
+      "x": 41,
+      "y": 4047,
+      "width": 668,
+      "height": 1004,
+      "note": "native foreground frame; sample live value glyphs cleared"
+    },
+    {
+      "key": "member-rear-1",
+      "file": "637418bdeb6b244f-member-rear-1.png",
+      "x": 754,
+      "y": 3990,
+      "width": 602,
+      "height": 671,
+      "note": "native rear sleeve without disc; independent disc animated by readiness"
+    },
+    {
+      "key": "member-1",
+      "file": "0d6db73a55a04cfa-member-1.png",
+      "x": 761,
+      "y": 4035,
+      "width": 664,
+      "height": 999,
+      "note": "native foreground frame; sample live value glyphs cleared"
+    },
+    {
+      "key": "member-rear-2",
+      "file": "a77426234b2724e8-member-rear-2.png",
+      "x": 1509,
+      "y": 3981,
+      "width": 606,
+      "height": 674,
+      "note": "native rear sleeve without disc; independent disc animated by readiness"
+    },
+    {
+      "key": "member-2",
+      "file": "3fc7d2786e189bc2-member-2.png",
+      "x": 1516,
+      "y": 4026,
+      "width": 668,
+      "height": 1004,
+      "note": "native foreground frame; sample live value glyphs cleared"
+    },
+    {
+      "key": "member-rear-3",
+      "file": "a77426234b2724e8-member-rear-3.png",
+      "x": 2223,
+      "y": 3981,
+      "width": 606,
+      "height": 674,
+      "note": "native rear sleeve without disc; independent disc animated by readiness"
+    },
+    {
+      "key": "member-3",
+      "file": "ac7b6bbbdd18ab52-member-3.png",
+      "x": 2230,
+      "y": 4026,
+      "width": 668,
+      "height": 1004,
+      "note": "native foreground frame; sample live value glyphs cleared"
+    },
+    {
+      "key": "battle-37",
+      "file": "c35faeb9971dbaaa-battle-37.png",
+      "x": 814,
+      "y": 3788,
+      "width": 616,
+      "height": 975,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-38",
+      "file": "fdef047706ba8b0a-battle-38.png",
+      "x": 1562,
+      "y": 3788,
+      "width": 632,
+      "height": 971,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-39",
+      "file": "830192ff58ef306c-battle-39.png",
+      "x": 59,
+      "y": 3635,
+      "width": 517,
+      "height": 1091,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-40",
+      "file": "014dab24dfe664fb-battle-40.png",
+      "x": 2364,
+      "y": 3998,
+      "width": 438,
+      "height": 688,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-48",
+      "file": "f8f1bd1a9b956f98-battle-48.png",
+      "x": 872,
+      "y": -102,
+      "width": 1500,
+      "height": 583,
+      "note": "latest 2026-10-19 PSD native RGBA"
+    },
+    {
+      "key": "battle-52",
+      "file": "5c2d1bfe5d614c5d-battle-52.png",
+      "x": 187,
+      "y": 499,
+      "width": 2588,
+      "height": 179,
+      "note": "latest 2026-10-19 PSD native RGBA"
+    },
+    {
+      "key": "battle-53",
+      "file": "2b36245cf5719662-battle-53.png",
+      "x": 2317,
+      "y": 394,
+      "width": 499,
+      "height": 174,
+      "note": "latest 2026-10-19 PSD native RGBA"
+    },
+    {
+      "key": "battle-55",
+      "file": "795c5b758e43f191-battle-55.png",
+      "x": 2115,
+      "y": 3265,
+      "width": 780,
+      "height": 488,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-56",
+      "file": "6abdf2590973558c-battle-56.png",
+      "x": 2280,
+      "y": 3388,
+      "width": 450,
+      "height": 220,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-57",
+      "file": "815e32786418009c-battle-57.png",
+      "x": 499,
+      "y": 1010,
+      "width": 618,
+      "height": 318,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-58",
+      "file": "bbbad4923eb57614-battle-58.png",
+      "x": 1670,
+      "y": 1011,
+      "width": 618,
+      "height": 317,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-62",
+      "file": "c55783edffad3099-battle-62.png",
+      "x": 2608,
+      "y": 101,
+      "width": 125,
+      "height": 162,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-49",
+      "file": "ef6d01924105ed98-battle-49.png",
+      "x": 158,
+      "y": 4842,
+      "width": 2464,
+      "height": 635,
+      "note": "native dice plate; sample charge isolated"
+    },
+    {
+      "key": "reroll-fill",
+      "file": "c67099fae9b1f336-reroll-fill.png",
+      "x": 274,
+      "y": 5208,
+      "width": 2187,
+      "height": 53,
+      "note": "native charge slot alpha; live fill"
+    },
+    {
+      "key": "battle-65",
+      "file": "0214f50360b2e334-battle-65.png",
+      "x": 1995,
+      "y": 4918,
+      "width": 1668,
+      "height": 559,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "pause-glyph",
+      "file": "c55783edffad3099-pause-glyph.png",
+      "x": 2608,
+      "y": 101,
+      "width": 125,
+      "height": 162,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "control-auto",
+      "file": "d9762aa194c8d14c-control-auto.png",
+      "x": 2020,
+      "y": 150,
+      "width": 375,
+      "height": 272,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "control-speed",
+      "file": "ba2bfdc12898d5d8-control-speed.png",
+      "x": 2395,
+      "y": 128,
+      "width": 261,
+      "height": 271,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "control-pause",
+      "file": "740e221005970f0b-control-pause.png",
+      "x": 2656,
+      "y": 85,
+      "width": 290,
+      "height": 286,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-51",
+      "file": "9619a221a8440baf-battle-51.png",
+      "x": 11,
+      "y": -77,
+      "width": 2869,
+      "height": 868,
+      "note": "latest 2026-10-19 PSD native RGBA, full uncensored layer; control outlines retained for review"
+    },
+    {
+      "key": "enemy-0",
+      "file": "672301ac2cc2e12e-enemy-0.png",
+      "x": 339,
+      "y": 1408,
+      "width": 1079,
+      "height": 2017,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "enemy-1",
+      "file": "d776a8f6929bf235-enemy-1.png",
+      "x": 1565,
+      "y": 1324,
+      "width": 877,
+      "height": 2034,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-41",
+      "file": "9c877294e794d2f8-battle-41.png",
+      "x": 191,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-42",
+      "file": "9c877294e794d2f8-battle-42.png",
+      "x": 609,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-43",
+      "file": "9c877294e794d2f8-battle-43.png",
+      "x": 1033,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-44",
+      "file": "9c877294e794d2f8-battle-44.png",
+      "x": 1446,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-45",
+      "file": "9c877294e794d2f8-battle-45.png",
+      "x": 1860,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "battle-46",
+      "file": "9c877294e794d2f8-battle-46.png",
+      "x": 2294,
+      "y": 5722,
+      "width": 2689,
+      "height": 422,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "die-1",
+      "file": "b8170de48378848e-die-1.png",
+      "x": 221,
+      "y": 5452,
+      "width": 395,
+      "height": 490,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "die-2",
+      "file": "f13196e7a5e885ea-die-2.png",
+      "x": 656,
+      "y": 5458,
+      "width": 380,
+      "height": 491,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "die-3",
+      "file": "3fcf4341407cbebc-die-3.png",
+      "x": 1074,
+      "y": 5459,
+      "width": 378,
+      "height": 484,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "die-4",
+      "file": "4a9810c8d84d6462-die-4.png",
+      "x": 1493,
+      "y": 5466,
+      "width": 374,
+      "height": 477,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "die-5",
+      "file": "0c46693b94f99750-die-5.png",
+      "x": 1909,
+      "y": 5455,
+      "width": 386,
+      "height": 483,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "die-6",
+      "file": "cad5db1126b98e85-die-6.png",
+      "x": 2340,
+      "y": 5457,
+      "width": 379,
+      "height": 480,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "album-disc",
+      "file": "5a22a0e78bb66d48-album-disc.png",
+      "x": -5,
+      "y": 3670,
+      "width": 714,
+      "height": 630,
+      "note": "native PSD RGBA"
+    },
+    {
+      "key": "reroll-smoke",
+      "file": "72bf2ea5214a1bf0-reroll-smoke.png",
+      "x": -312,
+      "y": 2639,
+      "width": 1434,
+      "height": 762,
+      "note": "cyan smoke behind the left reroll control"
+    },
+    {
+      "key": "reroll-bar",
+      "file": "40d31e3698f89887-reroll-bar.png",
+      "x": -693,
+      "y": 2743,
+      "width": 1668,
+      "height": 559,
+      "note": "slanted reroll bar with heart microphone"
+    },
+    {
+      "key": "reroll-dice",
+      "file": "11189994437a0878-reroll-dice.png",
+      "x": 595,
+      "y": 2969,
+      "width": 126,
+      "height": 152,
+      "note": "reroll dice glyph"
+    },
+    {
+      "key": "reroll-arrows",
+      "file": "73bda5e73c03638d-reroll-arrows.png",
+      "x": 503,
+      "y": 2916,
+      "width": 324,
+      "height": 259,
+      "note": "reroll arrows glyph"
+    },
+    {
+      "key": "guard-badge",
+      "file": "0ec219c7236db1f9-guard-badge.png",
+      "x": 2362,
+      "y": 2615,
+      "width": 639,
+      "height": 696,
+      "note": "emergency guard badge; subtitle covered by live text"
+    },
+    {
+      "key": "ult-pillar",
+      "file": "e876c32c6fb2edd2-ult-pillar.png",
+      "x": 1488,
+      "y": 2912,
+      "width": 678,
+      "height": 785,
+      "note": "ultimate-ready light cone; baked face circle cropped away"
+    },
+    {
+      "key": "captain-plate",
+      "file": "e3de999ccd1a0ab3-captain-plate.png",
+      "x": 11,
+      "y": 4896,
+      "width": 516,
+      "height": 198,
+      "note": "captain plate under the captain card"
+    },
+    {
+      "key": "enemy-tag-l",
+      "file": "2d805aa222ec368a-enemy-tag-l.png",
+      "x": -72,
+      "y": 698,
+      "width": 667,
+      "height": 338,
+      "note": "left enemy name frame"
+    },
+    {
+      "key": "enemy-tag-r",
+      "file": "ce40232f2badd19e-enemy-tag-r.png",
+      "x": 2333,
+      "y": 712,
+      "width": 621,
+      "height": 319,
+      "note": "right enemy name frame"
+    },
+    {
+      "key": "bar-white",
+      "file": "0f0cfcb190fd427e-bar-white.png",
+      "x": 120,
+      "y": 4807,
+      "width": 433,
+      "height": 126,
+      "note": "clean slanted bar, desaturated for live tint"
+    },
+    {
+      "key": "bar-energy",
+      "file": "687b749afad61a26-bar-energy.png",
+      "x": 120,
+      "y": 4807,
+      "width": 433,
+      "height": 126,
+      "note": "clean energy bar, native blue"
+    },
+    {
+      "key": "dice-bar",
+      "file": "b27ad995c570af6c-dice-bar.png",
+      "x": 473,
+      "y": 5034,
+      "width": 1869,
+      "height": 364,
+      "note": "dice hand bar; sample text covered by live text"
+    },
+    {
+      "key": "icon-demon-mask",
+      "file": "5b8e9e988db1537a-icon-demon-mask.png",
+      "x": 615,
+      "y": 3520,
+      "width": 245,
+      "height": 233,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-claw-white",
+      "file": "584338c8d7f068ac-icon-claw-white.png",
+      "x": 651,
+      "y": 3732,
+      "width": 216,
+      "height": 222,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-claw-red",
+      "file": "b33bce788d265bac-icon-claw-red.png",
+      "x": 654,
+      "y": 3716,
+      "width": 213,
+      "height": 223,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-sword-zig",
+      "file": "576d68d5c5e2e031-icon-sword-zig.png",
+      "x": 1359,
+      "y": 3318,
+      "width": 176,
+      "height": 190,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-gold-shield",
+      "file": "77fb84e9067312d1-icon-gold-shield.png",
+      "x": 1344,
+      "y": 3555,
+      "width": 182,
+      "height": 198,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-dagger",
+      "file": "29294250597853ad-icon-dagger.png",
+      "x": 1351,
+      "y": 3313,
+      "width": 179,
+      "height": 192,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-star-burst",
+      "file": "d74544204357b7d7-icon-star-burst.png",
+      "x": 1952,
+      "y": 3258,
+      "width": 324,
+      "height": 324,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-red-slash",
+      "file": "4f43c1ef9c061fc2-icon-red-slash.png",
+      "x": 1249,
+      "y": 3734,
+      "width": 416,
+      "height": 192,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-blood-dice",
+      "file": "7828dd5223563bdf-icon-blood-dice.png",
+      "x": 1363,
+      "y": 3751,
+      "width": 193,
+      "height": 201,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-dice",
+      "file": "17301e281f8e1c21-icon-dice.png",
+      "x": 717,
+      "y": 3838,
+      "width": 95,
+      "height": 111,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-water-heal",
+      "file": "9217b9677f1b7305-icon-water-heal.png",
+      "x": 2644,
+      "y": 3549,
+      "width": 169,
+      "height": 168,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-wave-dice",
+      "file": "cefd3193ddf70d8b-icon-wave-dice.png",
+      "x": 2635,
+      "y": 3752,
+      "width": 221,
+      "height": 221,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-cyan-shield",
+      "file": "59ee6366a1175a9d-icon-cyan-shield.png",
+      "x": 2657,
+      "y": 3318,
+      "width": 182,
+      "height": 171,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-virus-dice",
+      "file": "80694f93b31b347b-icon-virus-dice.png",
+      "x": 2030,
+      "y": 3726,
+      "width": 239,
+      "height": 302,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-purple-drop",
+      "file": "354ea9a627d8d556-icon-purple-drop.png",
+      "x": 2050,
+      "y": 3569,
+      "width": 195,
+      "height": 192,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "icon-heart-lock",
+      "file": "6157491eef4ab38c-icon-heart-lock.png",
+      "x": 632,
+      "y": 3308,
+      "width": 181,
+      "height": 241,
+      "note": "battle skill icon"
+    },
+    {
+      "key": "symbol-charm-passive",
+      "file": "45b6e5ba40c25116-symbol-charm-passive.png",
+      "x": 651,
+      "y": 3716,
+      "width": 216,
+      "height": 238,
+      "note": "native PSD overlapping layers grouped without rearranging; original relative positions preserved"
+    },
+    {
+      "key": "symbol-elf-ultimate",
+      "file": "fe648ed986d1291e-symbol-elf-ultimate.png",
+      "x": 1351,
+      "y": 3313,
+      "width": 184,
+      "height": 195,
+      "note": "native PSD overlapping layers grouped without rearranging; original relative positions preserved"
+    },
+    {
+      "key": "symbol-elf-passive",
+      "file": "e0d6e50bf812a97d-symbol-elf-passive.png",
+      "x": 1249,
+      "y": 3734,
+      "width": 416,
+      "height": 218,
+      "note": "native PSD overlapping layers grouped without rearranging; original relative positions preserved"
+    },
+    {
+      "key": "cutin-demon",
+      "file": "0f606c2a929dcac6-cutin-demon.png",
+      "x": 755,
+      "y": 130,
+      "width": 2911,
+      "height": 2459,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "cutin-charm",
+      "file": "364ef88a655da02e-cutin-charm.png",
+      "x": -34,
+      "y": 499,
+      "width": 2312,
+      "height": 2003,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "cutin-mermaid",
+      "file": "9c839082afbe28ce-cutin-mermaid.png",
+      "x": -41,
+      "y": 2292,
+      "width": 1802,
+      "height": 1517,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "cutin-bloodelf",
+      "file": "69259647bdeafc7b-cutin-bloodelf.png",
+      "x": 1095,
+      "y": 2386,
+      "width": 1845,
+      "height": 1822,
+      "note": "optional transient active-skill cut-in; original hidden PSD race group, all native parts preserved"
+    },
+    {
+      "key": "effect-heal-plus",
+      "file": "66c806d76118635a-effect-heal-plus.png",
+      "x": 2466,
+      "y": 4284,
+      "width": 68,
+      "height": 67,
+      "note": "L079 native RGBA rectangular crop of clean plus; excludes baked recovery caption and demo digits; transient actual Heal popup only"
+    },
+    {
+      "key": "effect-poison-drop",
+      "file": "9830efad45612de3-effect-poison-drop.png",
+      "x": 2054,
+      "y": 1253,
+      "width": 156,
+      "height": 271,
+      "note": "L081 native RGBA poison droplet; only affected actor real PoisonStacks state, live count separate"
+    },
+    {
+      "key": "basic-portrait-feiyin",
+      "file": "0007cc27f687e33e-basic-portrait-feiyin.png",
+      "x": 1021,
+      "y": 2104,
+      "width": 2186,
+      "height": 3727,
+      "note": "native PSD L012 attack portrait, original RGBA including transparent padding; transient only"
+    },
+    {
+      "key": "bar-outline",
+      "file": "3d3761238bae2eb8-bar-outline.png",
+      "x": 120,
+      "y": 4807,
+      "width": 433,
+      "height": 126,
+      "note": "white rim of L037, always drawn over the energy fill"
+    },
+    {
+      "key": "reroll-halo",
+      "file": "d861299f3bfc7686-reroll-halo.png",
+      "x": -789,
+      "y": 2647,
+      "width": 1860,
+      "height": 751,
+      "note": "soft feathered glow around the reroll bar silhouette"
+    }
+  ]
+}

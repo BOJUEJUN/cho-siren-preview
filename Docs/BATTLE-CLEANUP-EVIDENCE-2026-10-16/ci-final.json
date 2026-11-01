@@ -1,0 +1,257 @@
+{
+  "checkedAtUtc": "2026-10-16T10:58:14.214847+00:00",
+  "requestedHeadSha": "303927d70df1bf809185b23c5f8f74b8f4dfebb6",
+  "totalCount": 3,
+  "complete": true,
+  "requiredWorkflowNames": [
+    "Quality checks",
+    "pages build and deployment"
+  ],
+  "workflowInventory": [
+    {
+      "id": 348092706,
+      "name": "Temporary Unity installer relay",
+      "path": ".github/workflows/fetch-unity-installer.yml",
+      "state": "active",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/blob/main/.github/workflows/fetch-unity-installer.yml"
+    },
+    {
+      "id": 347366646,
+      "name": "Quality checks",
+      "path": ".github/workflows/quality.yml",
+      "state": "active",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/blob/main/.github/workflows/quality.yml"
+    },
+    {
+      "id": 354764684,
+      "name": "unity-tests",
+      "path": ".github/workflows/unity-tests.yml",
+      "state": "active",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/blob/main/.github/workflows/unity-tests.yml"
+    },
+    {
+      "id": 346534593,
+      "name": "pages-build-deployment",
+      "path": "dynamic/pages/pages-build-deployment",
+      "state": "active",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/workflows/pages/pages-build-deployment"
+    }
+  ],
+  "completionTimeMeaning": "jobsCompletedAtUtc is the latest exact completed_at among jobs returned for that run. updated_at is GitHub run status update time.",
+  "runs": [
+    {
+      "id": 38890486061,
+      "name": "Quality checks",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890486061",
+      "head_sha": "303927d70df1bf809185b23c5f8f74b8f4dfebb6",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-16T10:56:12Z",
+      "run_started_at": "2026-10-16T10:56:12Z",
+      "updated_at": "2026-10-16T10:56:28Z",
+      "event": "push",
+      "run_attempt": 1,
+      "workflow_id": 347366646,
+      "jobs": [
+        {
+          "id": 116938497649,
+          "name": "verify",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890486061/job/116938497649",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-16T10:56:14Z",
+          "completed_at": "2026-10-16T10:56:27Z",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:15Z",
+              "completed_at": "2026-10-16T10:56:16Z"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:16Z",
+              "completed_at": "2026-10-16T10:56:23Z"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:23Z",
+              "completed_at": "2026-10-16T10:56:24Z"
+            },
+            {
+              "number": 4,
+              "name": "Run npm run verify",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:24Z",
+              "completed_at": "2026-10-16T10:56:25Z"
+            },
+            {
+              "number": 7,
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:25Z",
+              "completed_at": "2026-10-16T10:56:25Z"
+            },
+            {
+              "number": 8,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:25Z",
+              "completed_at": "2026-10-16T10:56:25Z"
+            },
+            {
+              "number": 9,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:56:25Z",
+              "completed_at": "2026-10-16T10:56:25Z"
+            }
+          ]
+        }
+      ],
+      "jobsCompletedAtUtc": "2026-10-16T10:56:27Z"
+    },
+    {
+      "id": 38890360736,
+      "name": "Quality checks",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890360736",
+      "head_sha": "303927d70df1bf809185b23c5f8f74b8f4dfebb6",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-16T10:55:03Z",
+      "run_started_at": "2026-10-16T10:55:03Z",
+      "updated_at": "2026-10-16T10:55:29Z",
+      "event": "push",
+      "run_attempt": 1,
+      "workflow_id": 347366646,
+      "jobs": [
+        {
+          "id": 116938084389,
+          "name": "verify",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890360736/job/116938084389",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-16T10:55:05Z",
+          "completed_at": "2026-10-16T10:55:28Z",
+          "steps": [
+            {
+              "number": 1,
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:05Z",
+              "completed_at": "2026-10-16T10:55:06Z"
+            },
+            {
+              "number": 2,
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:06Z",
+              "completed_at": "2026-10-16T10:55:24Z"
+            },
+            {
+              "number": 3,
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:24Z",
+              "completed_at": "2026-10-16T10:55:25Z"
+            },
+            {
+              "number": 4,
+              "name": "Run npm run verify",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:25Z",
+              "completed_at": "2026-10-16T10:55:26Z"
+            },
+            {
+              "number": 7,
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:26Z",
+              "completed_at": "2026-10-16T10:55:26Z"
+            },
+            {
+              "number": 8,
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:26Z",
+              "completed_at": "2026-10-16T10:55:27Z"
+            },
+            {
+              "number": 9,
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-16T10:55:27Z",
+              "completed_at": "2026-10-16T10:55:27Z"
+            }
+          ]
+        }
+      ],
+      "jobsCompletedAtUtc": "2026-10-16T10:55:28Z"
+    },
+    {
+      "id": 38890357588,
+      "name": "pages build and deployment",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890357588",
+      "head_sha": "303927d70df1bf809185b23c5f8f74b8f4dfebb6",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-16T10:55:01Z",
+      "run_started_at": "2026-10-16T10:55:01Z",
+      "updated_at": "2026-10-16T10:57:00Z",
+      "event": "dynamic",
+      "run_attempt": 1,
+      "workflow_id": 346534593,
+      "jobs": [
+        {
+          "id": 116938080964,
+          "name": "build",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890357588/job/116938080964",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-16T10:55:05Z",
+          "completed_at": "2026-10-16T10:55:45Z"
+        },
+        {
+          "id": 116938334836,
+          "name": "report-build-status",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890357588/job/116938334836",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-16T10:55:47Z",
+          "completed_at": "2026-10-16T10:55:50Z"
+        },
+        {
+          "id": 116938334846,
+          "name": "deploy",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38890357588/job/116938334846",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-16T10:55:49Z",
+          "completed_at": "2026-10-16T10:56:59Z"
+        }
+      ],
+      "jobsCompletedAtUtc": "2026-10-16T10:56:59Z"
+    }
+  ],
+  "webglArtifactVerificationSteps": [],
+  "allRequiredJobsCompletedAtUtc": "2026-10-16T10:56:59Z"
+}

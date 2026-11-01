@@ -58,10 +58,12 @@ namespace ChoSiren
 
         private void BuildPunkLobby()
         {
+            if (BuildPsdHome()) return;
             GameObject heroLayer = NewObject("HeroLayer", contentRoot);
             Stretch(heroLayer.AddComponent<RectTransform>());
 
-            Sprite latest = ReferenceArt038.Load("Art/Reference038/lobby-board-038");
+            Sprite latest = ReferenceArt038.Load("Art/Reference038/lobby-board-038-clean")
+                ?? ReferenceArt038.Load("Art/Reference038/lobby-board-038");
             GameObject golden = NewImage("LobbyHomeGolden038", safeRoot,
                 latest != null ? latest : AiUiSprite("Art/LobbyPunk/038/lobby-home-base-038"), White);
             RectTransform goldenRect = golden.GetComponent<RectTransform>();
@@ -99,17 +101,22 @@ namespace ChoSiren
             responsiveLayout.Add(faceRect, FaceSafeSpec, new Rect(710f, 0f, 8f, 8f), false);
             responsiveLayout.Configure(cardLayerRect);
 
-            // Whole-body feedback for the four baked entry zones: the slice region is
-            // derived from each control's real footprint on the displayed board, since
-            // these specs live in 720x1290 design space, not board pixels. The three
-            // stacked cards' spike halos interleave across the hit seams, so each card
-            // gets its own authored silhouette (board source px) to keep a neighbour's
-            // burst static; the isolated CTA only needs edge bleed margin.
+            // Whole-body feedback for the four baked entry zones: each prefers an
+            // independent RGBA sprite (native silhouette, pixel-stationary scene) and
+            // falls back to a board slice derived from the control's real footprint on
+            // the displayed board, since these specs live in 720x1290 design space, not
+            // board pixels. While the fallback is active the three stacked cards still
+            // pass their authored silhouettes so a neighbour's burst stays static; the
+            // isolated CTA only needs edge bleed margin.
             Canvas.ForceUpdateCanvases();
-            MainBakedMotion038AttachFootprint(practiceRoom, goldenImage, 0f, LobbyPracticeSilhouette);
-            MainBakedMotion038AttachFootprint(albumProduction, goldenImage, 0f, LobbyAlbumSilhouette);
-            MainBakedMotion038AttachFootprint(tasks, goldenImage, 0f, LobbyTasksSilhouette);
-            MainBakedMotion038AttachFootprint(liveOnStage, goldenImage, 12f);
+            MainNativeOrBakedMotion038Attach(practiceRoom, goldenImage, 0f,
+                "Art/LobbyPunk/038/Native/lobby-practice-room-038", LobbyPracticeSilhouette);
+            MainNativeOrBakedMotion038Attach(albumProduction, goldenImage, 0f,
+                "Art/LobbyPunk/038/Native/lobby-album-production-038", LobbyAlbumSilhouette);
+            MainNativeOrBakedMotion038Attach(tasks, goldenImage, 0f,
+                "Art/LobbyPunk/038/Native/lobby-daily-tasks-038", LobbyTasksSilhouette);
+            MainNativeOrBakedMotion038Attach(liveOnStage, goldenImage, 12f,
+                "Art/LobbyPunk/038/Native/lobby-live-on-stage-038");
 
             golden.transform.SetAsFirstSibling();
 
@@ -147,7 +154,7 @@ namespace ChoSiren
         private static void AttachLobbyHotspotFeedback(GameObject hotspot,
             LobbyHotspotFeedback.VisualKind visualKind, Sprite glyph = null)
         {
-            LobbyHotspotFeedback feedback = hotspot.GetComponent<LobbyHotspotFeedback>() ??
+            LobbyHotspotFeedback feedback = UnityNull.Real(hotspot.GetComponent<LobbyHotspotFeedback>()) ??
                                               hotspot.AddComponent<LobbyHotspotFeedback>();
             feedback.Configure(visualKind, glyph);
         }
@@ -250,6 +257,7 @@ namespace ChoSiren
 
         private void OpenLobbyPractice()
         {
+            if (DeferUntilReferenceArtReady(OpenLobbyPractice)) return;
             int memberIndex = model.Save.Team.Count > 0 ? model.Save.Team[0] : -1;
             if (memberIndex < 0 || !model.IsUnlocked(memberIndex))
             {

@@ -1,0 +1,54 @@
+[
+  {
+    "member": "xingli",
+    "order": [
+      "xingli-active-01",
+      "xingli-active-02",
+      "xingli-ultimate-01",
+      "xingli-ultimate-02"
+    ],
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/selected-b-full-16/xingli-selected-B-all-four.mp3",
+    "seconds": 11.72,
+    "sha256": "644ac92514eea36e5a9cace75fd6676d5109d304bbb820670b8a82608d2687d2",
+    "no_new_generation": true
+  },
+  {
+    "member": "feiyin",
+    "order": [
+      "feiyin-active-01",
+      "feiyin-active-02",
+      "feiyin-ultimate-01",
+      "feiyin-ultimate-02"
+    ],
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/selected-b-full-16/feiyin-selected-B-all-four.mp3",
+    "seconds": 11.83,
+    "sha256": "a88b14c3150d6e0b91af2ea695a8aaf6ab14bfcab138d48e38f1e134b6407154",
+    "no_new_generation": true
+  },
+  {
+    "member": "wubai",
+    "order": [
+      "wubai-active-01",
+      "wubai-active-02",
+      "wubai-ultimate-01",
+      "wubai-ultimate-02"
+    ],
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/selected-b-full-16/wubai-selected-B-all-four.mp3",
+    "seconds": 13.31,
+    "sha256": "5c09f8f0b12ac148d024dae2385282558edca3baf372a614df959a9ee4cb38a4",
+    "no_new_generation": true
+  },
+  {
+    "member": "yeying",
+    "order": [
+      "yeying-active-01",
+      "yeying-active-02",
+      "yeying-ultimate-01",
+      "yeying-ultimate-02"
+    ],
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/selected-b-full-16/yeying-selected-B-all-four.mp3",
+    "seconds": 14.78,
+    "sha256": "97a7a2a187e79a3cdaa679acd9e34cf83a43dc10a5b00941ad8c674a277310f4",
+    "no_new_generation": true
+  }
+]

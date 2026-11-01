@@ -1,0 +1,45 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-10",
+  "Title": "1-10 魅声王座",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-10"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "王座就在前面。女王把整座城的声音都收进了她的王冠。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "我们来，是要把那些声音还给大家。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "三个阶段，三次机会。一次都别浪费。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "全员——开演！"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

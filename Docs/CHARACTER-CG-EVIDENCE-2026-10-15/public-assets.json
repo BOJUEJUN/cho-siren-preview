@@ -1,0 +1,118 @@
+{
+  "targetSha": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
+  "checkedAt": "2026-10-15T08:34:18.552466+00:00",
+  "assets": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "bytes": 47677,
+      "sha256": "ea29d7e60bec6e21ba3ef67aab76bab57620c75687dd532ae3029f4d93ef221c",
+      "matches": true
+    },
+    {
+      "file": "release.json",
+      "status": 200,
+      "bytes": 3574,
+      "sha256": "04aa40a03a05ff4070194607a5d72724eba2c97f2864af55020770d3b16dbb0a",
+      "matches": true
+    },
+    {
+      "file": "build-versions.json",
+      "status": 200,
+      "bytes": 504,
+      "sha256": "da28a005a60ee9ff3748f1d4e00cae0904c4488b34506b9fae3b9e6eb29bf901",
+      "matches": true
+    },
+    {
+      "file": "audio-skin.js",
+      "status": 200,
+      "bytes": 6205,
+      "sha256": "abaa2bc9345bb34572adc7465673d3c4ebfe2a5b75c8377218ee95fbb68ad4ae",
+      "matches": true
+    },
+    {
+      "file": "loading-cg.js",
+      "status": 200,
+      "bytes": 3399,
+      "sha256": "8b09194d975ba95783d9e7f4661899c12b3f8549cd36abd059acdb23971bc9a7",
+      "matches": true
+    },
+    {
+      "file": "Build/9d303568f595fd69bdab3aaad7a23241.framework.js.unityweb",
+      "status": 200,
+      "bytes": 81896,
+      "sha256": "9d303568f595fd69bdab3aaad7a23241b737e27a9072f927d89292d087ebecd9",
+      "matches": true
+    },
+    {
+      "file": "Build/a82436d0b88d3e754aa41a45a9e038a4.wasm.unityweb",
+      "status": 200,
+      "bytes": 9374803,
+      "sha256": "a82436d0b88d3e754aa41a45a9e038a4aac8f910a1daa1c99a2c631277f0d07d",
+      "matches": true
+    },
+    {
+      "file": "Build/7198c895e1aed6da0ce4c524f69ac30b.loader.js",
+      "status": 200,
+      "bytes": 41128,
+      "sha256": "7198c895e1aed6da0ce4c524f69ac30b3af5751ffd19d26c5a42a3774d70d793",
+      "matches": true
+    },
+    {
+      "file": "StreamingAssets/Reference038/d9c81a8ab038c483-home-layer-03.png",
+      "status": 200,
+      "bytes": 196185,
+      "sha256": "d9c81a8ab038c4835c3c8693e334a3f0801fa3ee8d677ab42642b1fc8ad6ee1c",
+      "matches": true
+    },
+    {
+      "file": "StreamingAssets/Reference038/7d8136024651e7c8-home-layer-04.png",
+      "status": 200,
+      "bytes": 4065747,
+      "sha256": "7d8136024651e7c8acdcf145075441793e7f015240184841f92650620902de36",
+      "matches": true
+    },
+    {
+      "file": "StreamingAssets/Reference038/8e97ce3c67dcebe8-home-layer-character2-outline.png",
+      "status": 200,
+      "bytes": 169674,
+      "sha256": "8e97ce3c67dcebe8dbe81317a790f2252f1fad48794b72305f7a652cc79815d3",
+      "matches": true
+    },
+    {
+      "file": "StreamingAssets/Reference038/f276eefbdc8f4b2e-home-layer-character2-portrait.png",
+      "status": 200,
+      "bytes": 4340199,
+      "sha256": "f276eefbdc8f4b2e7449609800219bfb5f3190ffbdab3e5b943192209ec0236b",
+      "matches": true
+    }
+  ],
+  "allFullHashesMatch": true,
+  "previousAvailabilityOnly": [
+    {
+      "file": "a512340e6f2c2c0721d0201611822d54.data.unityweb",
+      "status": 200,
+      "bytes": 88718376,
+      "localBytes": 88718376
+    },
+    {
+      "file": "d911351b4fb5301ba348cd312c0d78c7.framework.js.unityweb",
+      "status": 200,
+      "bytes": 81860,
+      "localBytes": 81860
+    },
+    {
+      "file": "d6a4be69c2c92952c0acc0773e59e299.wasm.unityweb",
+      "status": 200,
+      "bytes": 9372728,
+      "localBytes": 9372728
+    },
+    {
+      "file": "2f433476f81dee6a8f19259317088560.loader.js",
+      "status": 200,
+      "bytes": 41128,
+      "localBytes": 41128
+    }
+  ],
+  "previousFullHashRechecked": false
+}

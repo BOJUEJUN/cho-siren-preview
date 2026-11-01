@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-6-end",
+  "Title": "1-6 镜面廊桥",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-6"
+    },
+    {
+      "Command": "show",
+      "Subject": "yeying",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "镜子不再反射杂音了，只照出我们自己。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "镜子里的大家，看起来都很帅气呢！",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "剧院的灯已经亮了。下一场，是飞音的主场。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "newAuditionInRelease": false,
+  "tracks": [
+    {
+      "path": "StreamingAssets/Music/home-neon-e16785a9cd795bb3.mp3",
+      "sha256": "e16785a9cd795bb3fd024bce2912a9174d30f712ccb25b7cd34e5bd5ca596ced",
+      "sameAsR67": true
+    },
+    {
+      "path": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "sameAsR67": true
+    },
+    {
+      "path": "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3",
+      "sha256": "5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff",
+      "sameAsR67": true
+    }
+  ]
+}

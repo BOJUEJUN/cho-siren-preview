@@ -166,6 +166,9 @@ namespace ChoSiren.Tests
         public void AdvancedEquipmentHasStableUniqueIdsAndRealPersonalStats()
         {
             var model = new GameModel(() => Now);
+            // 2026-11-01: one item is at most +5% a stat (GameModelBalance1101); at level 1 a few hundredths of a point can
+            // round away, so the "every item really adds stats" check uses a level-20 wearer.
+            model.Save.MemberLevels[0] = 20;
             Assert.That(GameModel.AccessoryItemIds.Length, Is.EqualTo(GameModel.AccessoryNames.Length));
             Assert.That(GameModel.AccessoryItemIds.Distinct().Count(), Is.EqualTo(GameModel.AccessoryNames.Length));
             for (int i = 6; i < GameModel.AccessoryNames.Length; i++)

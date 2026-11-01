@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,12 +10,15 @@ using ChoSiren.Systems.Tactics;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.TestTools;
 
 namespace ChoSiren.Tests
 {
     public sealed class BattleUnitFeedbackPlayModeTests
     {
         private bool hadSave, hadLegacy;
+        private bool hadReduced;
+        private int reduced;
         private string saved, legacy;
 
         [SetUp]
@@ -24,6 +28,9 @@ namespace ChoSiren.Tests
             hadLegacy = PlayerPrefs.HasKey(GameModel.LegacySaveKey);
             saved = PlayerPrefs.GetString(GameModel.SaveKey);
             legacy = PlayerPrefs.GetString(GameModel.LegacySaveKey);
+            hadReduced = PlayerPrefs.HasKey(BattlePresentationOptions.ReduceMotionKey);
+            reduced = PlayerPrefs.GetInt(BattlePresentationOptions.ReduceMotionKey);
+            PlayerPrefs.SetInt(BattlePresentationOptions.ReduceMotionKey, 0);
         }
 
         [TearDown]
@@ -31,6 +38,16 @@ namespace ChoSiren.Tests
         {
             if (hadSave) PlayerPrefs.SetString(GameModel.SaveKey, saved); else PlayerPrefs.DeleteKey(GameModel.SaveKey);
             if (hadLegacy) PlayerPrefs.SetString(GameModel.LegacySaveKey, legacy); else PlayerPrefs.DeleteKey(GameModel.LegacySaveKey);
+            if (hadReduced) PlayerPrefs.SetInt(BattlePresentationOptions.ReduceMotionKey, reduced);
+            else PlayerPrefs.DeleteKey(BattlePresentationOptions.ReduceMotionKey);
+        }
+
+        [Test]
+        public void GuardSupportActionUsesShieldGlyphAndTintInsteadOfFallbackSlash()
+        {
+            Assert.That(CombatStatusIconVisuals.ForSkill("rt-enemy-guard-shield"), Is.EqualTo(SkillIconKind.Shield));
+            Assert.That(CombatFeedbackPalette.Skill("rt-enemy-guard-shield", BattleSide.Enemy),
+                Is.EqualTo(CombatFeedbackPalette.Shield));
         }
 
         [Test]
@@ -38,34 +55,60 @@ namespace ChoSiren.Tests
         {
             using (var fixture = new Fixture(false))
             {
-                var caster = fixture.Battle.Units.First(u => u.Side == BattleSide.Player);
-                var enemy = fixture.Battle.Units.First(u => u.Side == BattleSide.Enemy);
-                int hp = enemy.Hp;
+                var players = fixture.Battle.Units.Where(u => u.Side == BattleSide.Player).ToArray();
+                var caster = players[0]; var healTarget = players[1]; var shieldTarget = players[2];
+                var enemy = fixture.Battle.Units.First(u => u.Side == BattleSide.Enemy && u.Alive);
+                var hp = fixture.Battle.Units.ToDictionary(u => u.Id, u => u.Hp);
+                var shields = fixture.Battle.Units.ToDictionary(u => u.Id, u => u.Shield);
                 Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Damage, ActorId = caster.Id,
                     TargetId = enemy.Id, SkillId = fixture.Battle.ActiveSkillId(caster, true), Amount = 20 });
                 var fx = fixture.Panel.GetComponent<SkillEffectPresentation>();
                 Assert.That(fx.ActiveCount, Is.EqualTo(1));
                 var trajectory = fixture.Panel.GetComponent<AttackTrajectoryPresentation>();
-                Assert.That(trajectory.ActiveCount, Is.EqualTo(1), "真实伤害事件必须接入攻击者到目标的因果提示。");
-                Assert.That(enemy.Hp, Is.EqualTo(hp), "特效不能重复执行伤害。");
+                Assert.That(trajectory.ActiveCount, Is.EqualTo(1), "A real damage recipient retains its causal attack cue.");
+                AssertBigNumber(fixture.Panel, enemy, 20); // 2026-11-01: our hits on enemies are big glyph numbers
+
                 Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Heal, ActorId = caster.Id,
-                    TargetId = caster.Id, Amount = 10 });
+                    TargetId = healTarget.Id, SkillId = "rt-mermaid-small", Amount = 10 });
+                Text healing = PopupFor(fixture.Panel, healTarget, "+10");
+                AssertPopupIcon(healing, SkillIconKind.Heal);
+                Assert.That(fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>(true)
+                    .Any(g => g.gameObject.activeInHierarchy && g.Kind == SkillVisualKind.Heal), Is.False,
+                    "The PSD uses a compact heal glyph and value instead of bringing back the large healing ring.");
+
                 Present(fixture.Panel, new BattleEvent { Kind = BattleEventKind.Shield, ActorId = caster.Id,
-                    TargetId = caster.Id, Amount = 10 });
-                var graphics = fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>();
-                Assert.That(graphics.Any(g => g.Kind == SkillVisualKind.Heal), Is.True);
-                Assert.That(graphics.Any(g => g.Kind == SkillVisualKind.Shield), Is.True);
+                    TargetId = shieldTarget.Id, SkillId = "rt-mermaid-big", Amount = 10 });
+                Text shielding = PopupFor(fixture.Panel, shieldTarget, "+10");
+                AssertPopupIcon(shielding, SkillIconKind.Shield);
+                Assert.That(healing.gameObject.activeInHierarchy, Is.True, "Different recipients keep independent feedback.");
+                var shieldFx = fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>(true)
+                    .Single(g => g.gameObject.activeInHierarchy && g.Kind == SkillVisualKind.Shield);
+                var targetVisual = (RectTransform)typeof(TacticsBattlePanel).GetMethod("UnitVisual",
+                    BindingFlags.Instance | BindingFlags.NonPublic).Invoke(fixture.Panel, new object[] { shieldTarget });
+                Assert.That(Vector3.Distance(shieldFx.rectTransform.TransformPoint(shieldFx.rectTransform.rect.center),
+                    targetVisual.TransformPoint(targetVisual.rect.center)), Is.LessThan(.5f),
+                    "Shield geometry must be on the protected recipient, not on the caster or a random card.");
+                Assert.That(shieldFx.raycastTarget, Is.False);
                 Assert.That(fixture.Panel.GetComponentsInChildren<Transform>().Any(t => t.name.StartsWith("ActionTrail-")), Is.False);
+                fx.AdvancePresentation(2f); trajectory.AdvancePresentation(2f);
+                Assert.That(fx.ActiveCount, Is.Zero, "Local effect geometry must retire after its own presentation lifetime.");
+                Assert.That(trajectory.ActiveCount, Is.Zero);
+                foreach (BattleUnit unit in fixture.Battle.Units)
+                {
+                    Assert.That(unit.Hp, Is.EqualTo(hp[unit.Id]), "Presentation events cannot reapply HP changes.");
+                    Assert.That(unit.Shield, Is.EqualTo(shields[unit.Id]), "Presentation events cannot grant a second model shield.");
+                }
             }
         }
 
-        [Test]
-        public void BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues()
+        [UnityTest]
+        public IEnumerator BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues()
         {
             using (var fixture = new Fixture(false))
             {
                 BattleUnit caster = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Player);
                 BattleUnit enemy = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Enemy && unit.Alive);
+                var before = fixture.Battle.Units.ToDictionary(unit => unit.Id, unit => unit.Hp);
                 Present(fixture.Panel, new BattleEvent
                 {
                     Kind = BattleEventKind.Damage, ActorId = caster.Id, TargetId = enemy.Id,
@@ -76,28 +119,30 @@ namespace ChoSiren.Tests
                     Kind = BattleEventKind.Heal, ActorId = caster.Id, TargetId = caster.Id,
                     SkillId = "rt-mermaid-small", Amount = 11,
                 });
+                var impactIcons = fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>(true)
+                    .Where(graphic => graphic.gameObject.activeInHierarchy).ToArray();
+                Assert.That(impactIcons.Any(icon => icon.Kind == SkillVisualKind.Impact), Is.True,
+                    "An ordinary attack needs visible impact feedback in addition to its value.");
+                foreach (SkillEffectGraphic icon in impactIcons)
+                    Assert.That(icon.raycastTarget, Is.False, "Combat effects must not block unit/command clicks.");
+                AssertBigNumber(fixture.Panel, enemy, 18); // 2026-11-01: our hits on enemies are big glyph numbers
+                Text healing = PopupFor(fixture.Panel, caster, "+11");
+                AssertPopupIcon(healing, SkillIconKind.Heal);
+                Assert.That(healing.fontSize, Is.GreaterThanOrEqualTo(18));
+                Assert.That(healing.color.g, Is.GreaterThan(healing.color.r), "Healing has a distinct green value.");
+                Assert.That(new[] { healing }.Any(text => text.text.Contains("攻击") || text.text.Contains("治疗")), Is.False,
+                    "Compact glyphs carry meaning; popup text keeps the authoritative signed values.");
 
-                SkillEffectGraphic[] icons = fixture.Panel.GetComponentsInChildren<SkillEffectGraphic>(true)
-                    .Where(graphic => graphic.gameObject.activeSelf).ToArray();
-                Assert.That(icons.Any(icon => icon.Kind == SkillVisualKind.Impact), Is.True,
-                    "普攻必须出现攻击图形，不能只显示“攻击/普攻”文字。");
-                Assert.That(icons.Any(icon => icon.Kind == SkillVisualKind.Heal), Is.True,
-                    "治疗必须出现治疗图形，不能只显示“治疗”文字。");
-                foreach (SkillEffectGraphic icon in icons)
-                {
-                    Assert.That(icon.raycastTarget, Is.False, "战斗效果图标不得遮断单位和暂停按钮的点击。");
-                    Assert.That(icon.rectTransform.rect.width, Is.GreaterThanOrEqualTo(30f));
-                    Assert.That(icon.rectTransform.rect.height, Is.GreaterThanOrEqualTo(30f));
-                }
-
-                Text[] popups = fixture.Panel.GetComponentsInChildren<Text>(true)
-                    .Where(text => text.name == "Popup" && text.gameObject.activeSelf).ToArray();
-                Assert.That(popups.Any(text => text.text.Contains("-18")), Is.True,
-                    "攻击图标不能替代真实伤害数值。");
-                Assert.That(popups.Any(text => text.text.Contains("+11")), Is.True,
-                    "治疗图标不能替代真实治疗数值。");
-                Assert.That(popups.Any(text => text.text.Contains("攻击") || text.text.Contains("治疗")), Is.False,
-                    "攻击/治疗语义应由图标承担，浮字只保留结果数值。");
+                float deadline = Time.realtimeSinceStartup + 20f;
+                var bigNumbers = fixture.Panel.GetComponentInChildren<BigDamageNumbers1101>(true);
+                while ((bigNumbers.ActiveCount + bigNumbers.PendingCount > 0 || healing.gameObject.activeSelf) && Time.realtimeSinceStartup < deadline)
+                    yield return null;
+                Assert.That(bigNumbers.ActiveCount + bigNumbers.PendingCount, Is.Zero, "Damage feedback must retire naturally.");
+                Assert.That(healing.gameObject.activeSelf, Is.False, "Healing feedback must retire naturally.");
+                Assert.That(healing.GetComponentInChildren<SkillIconGraphic>(true).gameObject.activeSelf, Is.False,
+                    "The semantic icon cannot linger after its number disappears.");
+                foreach (BattleUnit unit in fixture.Battle.Units)
+                    Assert.That(unit.Hp, Is.EqualTo(before[unit.Id]), "A visual feedback lifetime cannot mutate combat HP.");
             }
         }
 
@@ -114,7 +159,11 @@ namespace ChoSiren.Tests
                 }
                 Text hand = Find(fixture.Panel.transform, "DiceHandSummary").GetComponent<Text>();
                 Assert.That(hand.text, Does.Not.Contain("\n"), "充能条上方只放单行骰型，剩余次数已在按钮显示。");
-                Assert.That(-hand.rectTransform.anchoredPosition.y + hand.rectTransform.rect.height, Is.LessThan(37));
+                var fill = Find(fixture.Panel.transform, "DiceEnergy");
+                var fillRect = fill as RectTransform;
+                Assert.That(hand.rectTransform.parent, Is.EqualTo(fillRect.parent));
+                Assert.That(-hand.rectTransform.anchoredPosition.y + hand.rectTransform.rect.height,
+                    Is.LessThan(-fillRect.anchoredPosition.y), "新版 PSD 的骰型文案必须在充能条上方");
             }
         }
 
@@ -125,12 +174,19 @@ namespace ChoSiren.Tests
             {
                 var originalHp = fixture.Battle.Units.ToDictionary(unit => unit.Id, unit => unit.Hp);
                 BattleUnit enemy = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Enemy && unit.Alive);
+                var ultimate = fixture.Panel.GetComponent<BattleAlbumUltimate929>();
+                Assert.That(ultimate, Is.Not.Null, "当前PSD战斗使用专属的大招头像演出。");
                 int timestamp = 1000;
                 foreach (BattleUnit actor in fixture.Battle.Units.Where(unit => unit.Side == BattleSide.Player))
                 {
                     Transform cell = Find(fixture.Panel.transform, CellName(actor));
-                    var motion = cell.Find("PerformerMotion").GetComponent<EnemyUnitPresentation>();
+                    var motion = Find(cell, "PerformerMotion").GetComponent<EnemyUnitPresentation>();
                     Assert.That(motion, Is.Not.Null, actor.Definition.Name + " 必须有自己的施法动作组件。");
+                    var album = cell.GetComponent<BattleMemberAlbum929>();
+                    Assert.That(album, Is.Not.Null, "当前PSD的小技能提示应属于该成员自己的专辑卡。");
+                    Image actorPortrait = motion.transform.Find("Portrait").GetComponent<Image>();
+                    Assert.That(actorPortrait.sprite, Is.Not.Null, "验收必须使用该成员实际可见的画像。");
+                    ultimate.Cancel();
                     var skills = new[] { "rt-basic", fixture.Battle.ActiveSkillId(actor, false),
                         fixture.Battle.ActiveSkillId(actor, true) };
                     foreach (string skill in skills)
@@ -142,18 +198,74 @@ namespace ChoSiren.Tests
                             TargetId = mermaid && skill != "rt-basic" ? actor.Id : enemy.Id,
                             SkillId = skill, TimeMilliseconds = timestamp++,
                         });
+                        Text action = cell.Find("PerformerAction").GetComponent<Text>();
+                        if (skill == "rt-basic")
+                        {
+                            Assert.That(action.gameObject.activeSelf, Is.False,
+                                "普攻已有角色动作与轨迹，不应再常规喊话。");
+                            // 2026-10-31 (赵金): the bust inside her own card acts out; the old head nudge stays off.
+                            Assert.That(cell.GetComponentInChildren<HeroCardLunge1031>(true)?.PlayCount ?? 0, Is.EqualTo(1),
+                                "普攻必须驱动该成员自己卡内的立绘动作。");
+                            Assert.That(motion.ActionCount, Is.Zero, "旧的头像微动不能与卡内立绘表演叠加。");
+                        }
+                        else
+                        {
+                            Assert.That(action.text, Does.EndWith(fixture.Battle.LookupSkill(skill).Name),
+                                "减少重复文字不能删去该成员自己的技能提示。");
+                            Assert.That(motion.ActionCount, Is.Zero, "PSD技能提示不应再次猛推整张半身卡。");
+                            Assert.That(cell.GetComponentInChildren<HeroCardLunge1031>(true).CurrentTier,
+                                Is.EqualTo(skill == skills[1] ? HeroCardLunge1031.Tier.Skill : HeroCardLunge1031.Tier.Ultimate),
+                                "技能与大招的卡内立绘表演逐级加强。");
+                            if (skill == skills[1])
+                            {
+                                Assert.That(album.PassiveVisible, Is.False,
+                                    "The caster's skill name and semantic icon must not add a duplicate portrait.");
+                                Assert.That(action.gameObject.activeSelf, Is.True);
+                            }
+                            else
+                            {
+                                Assert.That(ultimate.IsShowing, Is.True);
+                                Assert.That(ultimate.PendingCount, Is.Zero, "每次施法只应生成一个大招演出。");
+                                Assert.That(Find(fixture.Panel.transform, "UltimatePortrait").GetComponent<Image>().sprite,
+                                    Is.SameAs(actorPortrait.sprite), "大招演出必须使用该成员自己的画像。");
+                            }
+                        }
                     }
-                    Assert.That(motion.ActionCount, Is.EqualTo(3),
-                        actor.Definition.Name + " 的普攻、小技能、大技能不能都显示成首位队员行动。");
                     Text label = cell.Find("PerformerAction").GetComponent<Text>();
                     Assert.That(label.gameObject.activeInHierarchy, Is.True);
                     // 大招带「大招 · 」前缀（0.3.5 上线形态），回归点是必须指向该成员自己的大招名。
                     Assert.That(label.text, Does.EndWith(fixture.Battle.LookupSkill(skills[2]).Name),
                         actor.Definition.Name + " 的大招标签没有指向自己的大招");
+                    Assert.That(fixture.Panel.GetComponentsInChildren<Text>(true).Any(text =>
+                        text.name == "Popup" && text.gameObject.activeSelf && text.text.StartsWith("大招 · ")),
+                        Is.False, "专辑演出与卡片已显示大招名，不应再复制为头像浮字。");
                 }
                 foreach (BattleUnit unit in fixture.Battle.Units)
                     Assert.That(unit.Hp, Is.EqualTo(originalHp[unit.Id]),
                         "ActionStarted 是表现事件，不能重复扣血或为了播放治疗而修改满血角色。");
+            }
+        }
+
+        [Test]
+        public void HurtKeepsItsRealNumberAndMotionWithoutASecondHurtWord()
+        {
+            using (var fixture = new Fixture(false))
+            {
+                BattleUnit target = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Player);
+                BattleUnit enemy = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Enemy && unit.Alive);
+                Transform cell = Find(fixture.Panel.transform, CellName(target));
+                var motion = Find(cell, "PerformerMotion").GetComponent<EnemyUnitPresentation>();
+                int before = target.Hp;
+                Present(fixture.Panel, new BattleEvent
+                {
+                    Kind = BattleEventKind.Damage, ActorId = enemy.Id, TargetId = target.Id,
+                    SkillId = "rt-basic", Amount = 18, HpLostAmount = 18,
+                });
+                Assert.That(cell.Find("PerformerHurt").gameObject.activeSelf, Is.False);
+                Assert.That(motion.HitReactionCount, Is.EqualTo(1));
+                Assert.That(fixture.Panel.GetComponentsInChildren<Text>(true).Any(text =>
+                    text.name == "Popup" && text.gameObject.activeSelf && text.text == "-18"), Is.True);
+                Assert.That(target.Hp, Is.EqualTo(before), "表现事件不能再次结算伤害。");
             }
         }
 
@@ -163,21 +275,33 @@ namespace ChoSiren.Tests
             using (var fixture = new Fixture(false))
             {
                 BattleUnit actor = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Player);
-                var motion = Find(fixture.Panel.transform, CellName(actor)).Find("PerformerMotion")
+                var motion = Find(Find(fixture.Panel.transform, CellName(actor)), "PerformerMotion")
                     .GetComponent<EnemyUnitPresentation>();
+                var ultimate = fixture.Panel.GetComponent<BattleAlbumUltimate929>();
+                Assert.That(ultimate, Is.Not.Null);
+                ultimate.Cancel();
                 foreach (BattleUnit enemy in fixture.Battle.Units.Where(unit => unit.Side == BattleSide.Enemy && unit.Alive))
                     Present(fixture.Panel, new BattleEvent
                     {
                         Kind = BattleEventKind.ActionStarted, ActorId = actor.Id, TargetId = enemy.Id,
                         SkillId = fixture.Battle.ActiveSkillId(actor, true), TimeMilliseconds = 4000,
                     });
-                Assert.That(motion.ActionCount, Is.EqualTo(1), "同一次群攻不能按命中目标数重复起手。");
+                Assert.That(ultimate.IsShowing, Is.True);
+                Assert.That(ultimate.PendingCount, Is.Zero, "同一次群攻不能按命中目标数重复排队大招演出。");
+                Assert.That(motion.ActionCount, Is.Zero, "PSD大招用独立头像演出，不应同时猛推整张卡。");
                 Present(fixture.Panel, new BattleEvent
                 {
                     Kind = BattleEventKind.ActionStarted, ActorId = actor.Id,
                     SkillId = "rt-basic", TimeMilliseconds = 4000,
                 });
-                Assert.That(motion.ActionCount, Is.EqualTo(2), "同一tick的普攻与大招是不同动作，不能误去重。");
+                // 2026-10-31: the PSD card's bust lunge (HeroCardLunge1031) replaces the old head nudge; the
+                // basic is still presented (not de-duplicated away) but merges into the stronger ultimate swell.
+                var lunge = Find(fixture.Panel.transform, CellName(actor)).GetComponentInChildren<HeroCardLunge1031>(true);
+                Assert.That(lunge, Is.Not.Null);
+                Assert.That(lunge.CurrentTier, Is.EqualTo(HeroCardLunge1031.Tier.Ultimate), "同一tick的普攻不能削弱正在进行的大招表演。");
+                Assert.That(motion.ActionCount, Is.Zero, "旧的头像微动不能与卡内立绘表演叠加。");
+                Assert.That(ultimate.IsShowing, Is.True);
+                Assert.That(ultimate.PendingCount, Is.Zero, "普攻不能重新复制已播放的大招。");
             }
         }
 
@@ -186,6 +310,9 @@ namespace ChoSiren.Tests
         {
             using (var fixture = new Fixture(false))
             {
+                var psd = Find(fixture.Panel.transform, "BattlePSD928") as RectTransform;
+                var active = fixture.Battle.Units.Where(unit => unit.Side == BattleSide.Enemy && unit.Alive).ToArray();
+                Assert.That(active.Length, Is.EqualTo(2));
                 foreach (BattleUnit enemy in fixture.Battle.Units.Where(unit => unit.Side == BattleSide.Enemy))
                 {
                     Transform anchor = Find(fixture.Panel.transform, "EnemyAnchor-" + enemy.Id);
@@ -194,25 +321,41 @@ namespace ChoSiren.Tests
                     Transform figure = Find(fixture.Panel.transform, "EnemyFigure-" + enemy.Id);
                     Assert.That(motion.parent, Is.SameAs(anchor));
                     Assert.That(figure.parent, Is.SameAs(motion));
-                    Assert.That(cell.IsChildOf(motion), Is.False, "敌人受击位移不能让血条一起乱抖。");
+                    Assert.That(cell.IsChildOf(motion), Is.False, "Hit motion must not shake the name/HP readout.");
                     Assert.That(anchor.gameObject.activeInHierarchy, Is.EqualTo(enemy.Spawned));
                     Assert.That(cell.gameObject.activeInHierarchy, Is.EqualTo(enemy.Spawned));
-                    if (enemy.Spawned)
-                    {
-                        Assert.That(cell.parent, Is.SameAs(anchor), "血条应绑定该敌人的单位锚点，不留在左右边栏。");
-                        var cardRect = cell.GetComponent<RectTransform>();
-                        var motionRect = motion.GetComponent<RectTransform>();
-                        Assert.That(cardRect.position.y, Is.GreaterThan(motionRect.position.y),
-                            "敌人血条应位于对应立绘上方。");
-                        Assert.That(cell.Find("UnitName").GetComponent<Text>().text, Is.EqualTo(enemy.Definition.Name));
-                    }
+                    if (!enemy.Spawned) continue;
+                    Assert.That(cell.parent, Is.SameAs(psd), "The current PSD puts two enemy nameplates in the stage corners.");
+                    Assert.That(cell.Find("UnitName").GetComponent<Text>().text, Is.EqualTo(enemy.Definition.Name));
+                    Assert.That(cell.Find("UnitHpText").GetComponent<Text>().text, Is.EqualTo($"{enemy.Hp}/{enemy.MaxHp}"));
+                    Assert.That(cell.position.y, Is.GreaterThan(motion.position.y), "Corner HP readouts stay above the figures.");
+                    // The PSD ornamental frame intentionally bleeds past the edge; live labels cannot.
+                    AssertContained(psd, cell.Find("UnitName").GetComponent<RectTransform>(), enemy.Definition.Name + " name");
+                    AssertContained(psd, cell.Find("UnitHpText").GetComponent<RectTransform>(), enemy.Definition.Name + " HP");
                 }
+                Transform left = Find(fixture.Panel.transform, CellName(active.Single(u => u.Definition.Id == "noise-wraith")));
+                Transform right = Find(fixture.Panel.transform, CellName(active.Single(u => u.Definition.Id == "echo-drone")));
+                Assert.That(psd.InverseTransformPoint(left.position).x, Is.LessThan(psd.rect.center.x));
+                Assert.That(psd.InverseTransformPoint(right.position).x, Is.GreaterThan(psd.rect.center.x));
+
+                active[0].Hp -= 37;
+                Invoke(fixture.Panel, "RefreshAllCells");
+                foreach (BattleUnit enemy in active)
+                    Assert.That(Find(fixture.Panel.transform, CellName(enemy)).Find("UnitHpText").GetComponent<Text>().text,
+                        Is.EqualTo($"{enemy.Hp}/{enemy.MaxHp}"), "Updating one enemy cannot copy its HP to the other corner.");
+
                 BattleUnit reserve = fixture.Battle.Units.First(unit => unit.Side == BattleSide.Enemy && !unit.Spawned);
                 reserve.Spawned = true;
                 Invoke(fixture.Panel, "RefreshAllCells");
-                Assert.That(Find(fixture.Panel.transform, CellName(reserve)).parent,
-                    Is.SameAs(Find(fixture.Panel.transform, "EnemyAnchor-" + reserve.Id)),
-                    "后续波出生时，其血条也必须绑定自己的画像锚点。");
+                foreach (BattleUnit enemy in fixture.Battle.Units.Where(unit => unit.Side == BattleSide.Enemy && unit.Alive))
+                {
+                    Transform cell = Find(fixture.Panel.transform, CellName(enemy));
+                    Assert.That(cell.gameObject.activeInHierarchy, Is.True);
+                    Assert.That(cell.parent, Is.SameAs(Find(fixture.Panel.transform, "EnemyAnchor-" + enemy.Id)),
+                        "When three enemies share the stage, every live HP card falls back to its own unit anchor.");
+                    Assert.That(cell.Find("UnitName").GetComponent<Text>().text, Is.EqualTo(enemy.Definition.Name));
+                    Assert.That(cell.Find("UnitHpText").GetComponent<Text>().text, Is.EqualTo($"{enemy.Hp}/{enemy.MaxHp}"));
+                }
             }
         }
 
@@ -290,7 +433,10 @@ namespace ChoSiren.Tests
                     "Boss 主视觉宽度至少应为伴生敌人的两倍，保持首领层级。");
                 Assert.That(bossRig.rect.height, Is.GreaterThanOrEqualTo(addRig.rect.height * 2f),
                     "Boss 主视觉高度至少应为伴生敌人的两倍，不能退化成普通单位卡。");
-                AssertContained(stage, bossRig, "Boss 主视觉");
+                // 2026-10-31 (赵金, refs/07): the boss now runs from under the top HUD down to the member cards,
+                // past the legacy EnemyStage rect, so it is bounded by the PSD stage instead and must be large.
+                AssertContained(Find(fixture.Panel.transform, "BattlePSD928") as RectTransform, bossRig, "Boss 主视觉");
+                Assert.That(bossRig.rect.height, Is.GreaterThanOrEqualTo(600f), "Boss 应从顶部 HUD 下方延伸到卡片上方。");
 
                 Button focus = Find(fixture.Panel.transform, "BossPortrait").GetComponent<Button>();
                 Assert.That(focus, Is.Not.Null);
@@ -498,6 +644,41 @@ namespace ChoSiren.Tests
             Transform found = root.GetComponentsInChildren<Transform>(true).FirstOrDefault(item => item.name == name);
             Assert.That(found, Is.Not.Null, "缺少验收节点：" + name);
             return found;
+        }
+
+        private static Text PopupFor(TacticsBattlePanel panel, BattleUnit target, string value)
+        {
+            var owners = (int[])typeof(TacticsBattlePanel).GetField("popupOwners",
+                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(panel);
+            var popups = (List<Text>)typeof(TacticsBattlePanel).GetField("popupPool",
+                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(panel);
+            var matches = Enumerable.Range(0, popups.Count).Where(i => owners[i] == target.Id &&
+                popups[i].gameObject.activeInHierarchy && popups[i].text == value).ToArray();
+            Assert.That(matches.Length, Is.EqualTo(1), "Exactly one signed value must belong to " + target.Definition.Name);
+            return popups[matches[0]];
+        }
+
+        private static void AssertBigNumber(TacticsBattlePanel panel, BattleUnit target, int amount)
+        {
+            var big = panel.GetComponentInChildren<BigDamageNumbers1101>(true);
+            Assert.That(big, Is.Not.Null);
+            Assert.That(big.ActiveCountFor(target.Id) + big.PendingCount, Is.GreaterThanOrEqualTo(1), "our hit on " + target.Definition.Name + " shows a big number");
+            if (big.TryNewest(out int shown, out _, out float width, out _, out _))
+            {
+                Assert.That(shown, Is.EqualTo(amount));
+                Assert.That(width, Is.GreaterThanOrEqualTo(BigDamageNumbers1101.MinWidth - .5f), "about a third of the screen wide or more");
+            }
+        }
+
+        private static void AssertPopupIcon(Text popup, SkillIconKind kind)
+        {
+            var icon = popup.GetComponentInChildren<SkillIconGraphic>(true);
+            Assert.That(icon, Is.Not.Null);
+            Assert.That(icon.gameObject.activeInHierarchy, Is.True);
+            Assert.That(icon.Kind, Is.EqualTo(kind));
+            Assert.That(icon.raycastTarget, Is.False);
+            Assert.That(icon.rectTransform.rect.width, Is.InRange(18f, 28f), "Semantic glyphs remain legible and compact.");
+            Assert.That(icon.rectTransform.rect.height, Is.InRange(18f, 28f));
         }
 
         private static void AssertContained(RectTransform outer, RectTransform inner, string label)

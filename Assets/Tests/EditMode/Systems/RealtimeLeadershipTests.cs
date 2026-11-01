@@ -71,7 +71,7 @@ namespace ChoSiren.Tests
             Assert.That(battle.BattleDice.UsedRerolls, Is.EqualTo(used));
             Assert.That(battle.BattleDice.FreeRerolls, Is.EqualTo(free));
             Assert.That(battle.BattleDice.AccumulatedBonusPermille, Is.EqualTo(bonus));
-            Assert.That(battle.BattleDice.SelectedForRerollCount, Is.EqualTo(3),
+            Assert.That(battle.BattleDice.SelectedForRerollCount, Is.EqualTo(ChoSiren.Systems.Dice.DiceTurn.MaxDicePerReroll),
                 "接任不清空玩家已点选的重投骰，也不能重投或刷新骰面");
             Assert.That(battle.SkillCooldownRemaining(successor, false), Is.EqualTo(small));
             Assert.That(battle.SkillCooldownRemaining(successor, true), Is.EqualTo(big));
@@ -89,7 +89,7 @@ namespace ChoSiren.Tests
         [Test]
         public void DeadDemonCaptainStopsGrantingNewPoisonButExistingPoisonSurvives()
         {
-            BattleSimulator battle = CreatePartyWithHand(new[] { 0, 0, 1, 2, 3 }, "demon", "none");
+            BattleSimulator battle = CreatePartyWithHand(new[] { 0, 0, 1, 2, 3, 5 }, "demon", "none");
             BattleUnit enemy = battle.Units.Last();
             battle.AdvanceRealtime(3000);
             int layers = battle.PoisonStacks(enemy);
@@ -105,15 +105,35 @@ namespace ChoSiren.Tests
         [Test]
         public void IncomingDemonCommanderImmediatelyGrantsContinuousPoisonPassive()
         {
-            BattleSimulator battle = CreatePartyWithHand(new[] { 0, 0, 1, 2, 3 }, "none", "demon");
+            // 2026-11-01b: 一对 no longer poisons (CaptainPassive1101), so the shared hand is 三条 (2 layers).
+            BattleSimulator battle = CreatePartyWithHand(new[] { 0, 0, 0, 2, 3, 5 }, "none", "demon");
             BattleUnit enemy = battle.Units.Last();
             battle.AdvanceRealtime(1000);
             Assert.That(battle.PoisonStacks(enemy), Is.Zero);
             int revision = battle.BattleDice.Revision;
             Kill(battle, 1);
             battle.AdvanceRealtime(1000);
-            Assert.That(battle.PoisonStacks(enemy), Is.EqualTo(1));
+            Assert.That(battle.PoisonStacks(enemy), Is.EqualTo(BattleSimulator.PoisonLayers(ChoSiren.Systems.Dice.DicePattern.ThreeKind)));
+            Assert.That(battle.PoisonStacks(enemy), Is.GreaterThan(0));
             Assert.That(battle.BattleDice.Revision, Is.EqualTo(revision));
+        }
+
+        [Test]
+        public void ManualCaptainSwapMovesCommandAndRespectsCooldown()
+        {
+            BattleSimulator battle = CreateParty("charm", "demon", "mermaid");
+            int first = battle.CurrentLeaderId;
+            BattleUnit demon = battle.Units.First(u => u.Side == BattleSide.Player && u.Id != first);
+            Assert.That(battle.TrySwapCaptain(first, out _), Is.False, "already captain");
+            Assert.That(battle.TrySwapCaptain(demon.Id, out string message), Is.True, message);
+            Assert.That(battle.CurrentLeaderId, Is.EqualTo(demon.Id));
+            Assert.That(battle.CurrentLeaderRace, Is.EqualTo(CombatRace.Demon));
+            Assert.That(battle.Log.Any(e => e.Kind == BattleEventKind.LeaderChanged && e.SkillId == "command-swap"), Is.True);
+            Assert.That(battle.TrySwapCaptain(first, out string cooling), Is.False);
+            Assert.That(cooling, Does.Contain("冷却"));
+            battle.AdvanceRealtime(BattleSimulator.CaptainSwapCooldownMilliseconds);
+            Assert.That(battle.TrySwapCaptain(first, out _), Is.True, "cooldown over");
+            Assert.That(battle.CurrentLeaderId, Is.EqualTo(first));
         }
 
         [Test]
@@ -141,23 +161,15 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void MultipleElfSuccessorsCannotRefreshTheOncePerBattleRescue()
+        public void ElfCaptainNeverGrantsFreeRerolls()
         {
             BattleSimulator battle = CreateParty("elf", "none", "elf");
-            battle.AdvanceRealtime(25);
-            Assert.That(battle.BattleDice.FreeRerolls, Is.EqualTo(1));
-            Assert.That(battle.BattleDice.EnergyRerollAll(out _), Is.True);
             battle.AdvanceRealtime(25);
             Assert.That(battle.BattleDice.FreeRerolls, Is.Zero);
             Kill(battle, 1);
             Kill(battle, 2);
             battle.AdvanceRealtime(25);
-            Assert.That(battle.BattleDice.FreeRerolls, Is.Zero);
-            battle.BattleDice.GainEnergy(200); // 两条充能发 2 次重投
-            Assert.That(battle.BattleDice.EnergyRerollAll(out _), Is.True);
-            battle.AdvanceRealtime(25);
-            Assert.That(battle.BattleDice.RerollsRemaining, Is.GreaterThan(0));
-            Assert.That(battle.BattleDice.FreeRerolls, Is.Zero, "接任或新骰型都不能重置本场已使用的救场资格");
+            Assert.That(battle.BattleDice.FreeRerolls, Is.Zero, "血精灵队长（含接任）不再送免费重投");
         }
 
         private static void Kill(BattleSimulator battle, int unitId)
@@ -205,7 +217,7 @@ namespace ChoSiren.Tests
                 Enemies = new List<EnemySpawn> { new EnemySpawn { UnitId = "enemy", Row = 0, Col = 0 } } };
             manifest.Stages.Add(stage);
             var battle = new BattleSimulator(manifest, stage, party,
-                new ScriptedRandom(new[] { 999 }, Enumerable.Range(0, 50).Select(i => hand[i % 5]).ToArray()));
+                new ScriptedRandom(new[] { 999 }, Enumerable.Range(0, 50).Select(i => hand[i % hand.Length]).ToArray()));
             battle.EnableRealtime(labels, party[0].UnitId, 4);
             return battle;
         }

@@ -1,0 +1,155 @@
+{
+  "success": true,
+  "canvas": "720x1536",
+  "githubFileLimit": 104857600,
+  "lobbyVideo": {
+    "file": "StreamingAssets/Lobby/lobby-loop.mp4",
+    "bytes": 4880863,
+    "sha256": "aaa9231a0cf5c681d4fe1d142d22ade2e7f9c1b935f5e99914d7165791d0065a"
+  },
+  "current": [
+    "d491199586e3e8ea805a054827c39cc9.data.unityweb",
+    "9d303568f595fd69bdab3aaad7a23241.framework.js.unityweb",
+    "a82436d0b88d3e754aa41a45a9e038a4.wasm.unityweb",
+    "7198c895e1aed6da0ce4c524f69ac30b.loader.js"
+  ],
+  "previous": [
+    "a512340e6f2c2c0721d0201611822d54.data.unityweb",
+    "d911351b4fb5301ba348cd312c0d78c7.framework.js.unityweb",
+    "d6a4be69c2c92952c0acc0773e59e299.wasm.unityweb",
+    "2f433476f81dee6a8f19259317088560.loader.js"
+  ],
+  "assets": [
+    {
+      "file": "d491199586e3e8ea805a054827c39cc9.data.unityweb",
+      "bytes": 102063756,
+      "sha256": "d491199586e3e8ea805a054827c39cc9f427169aef2a36a59577c72320bf744d"
+    },
+    {
+      "file": "9d303568f595fd69bdab3aaad7a23241.framework.js.unityweb",
+      "bytes": 81896,
+      "sha256": "9d303568f595fd69bdab3aaad7a23241b737e27a9072f927d89292d087ebecd9"
+    },
+    {
+      "file": "a82436d0b88d3e754aa41a45a9e038a4.wasm.unityweb",
+      "bytes": 9374803,
+      "sha256": "a82436d0b88d3e754aa41a45a9e038a4aac8f910a1daa1c99a2c631277f0d07d"
+    },
+    {
+      "file": "7198c895e1aed6da0ce4c524f69ac30b.loader.js",
+      "bytes": 41128,
+      "sha256": "7198c895e1aed6da0ce4c524f69ac30b3af5751ffd19d26c5a42a3774d70d793"
+    },
+    {
+      "file": "a512340e6f2c2c0721d0201611822d54.data.unityweb",
+      "bytes": 88718376,
+      "sha256": "a512340e6f2c2c0721d0201611822d54b762aac777cef21527d0579f08c2daec"
+    },
+    {
+      "file": "d911351b4fb5301ba348cd312c0d78c7.framework.js.unityweb",
+      "bytes": 81860,
+      "sha256": "d911351b4fb5301ba348cd312c0d78c70ca87c3fc4f586bd2f827e480cce474f"
+    },
+    {
+      "file": "d6a4be69c2c92952c0acc0773e59e299.wasm.unityweb",
+      "bytes": 9372728,
+      "sha256": "d6a4be69c2c92952c0acc0773e59e2994793bb017f413f95fcd9fd9f275c92ba"
+    },
+    {
+      "file": "2f433476f81dee6a8f19259317088560.loader.js",
+      "bytes": 41128,
+      "sha256": "2f433476f81dee6a8f192593170885609fc9145d13ec479f398cb3e3ddd507cf"
+    }
+  ]
+}
+✔ global soundtracks are never fetched, replaced or given web-owned loop points (9.892542ms)
+✔ silent twins, real soundtracks and other clips are left exactly as Unity made them (4.796125ms)
+✔ clicks and success arpeggios get the composed sounds; their loop points stay Unity's (4.798625ms)
+✔ pending title choice and duck survive binding before the Unity instance resolves (4.153583ms)
+✔ a saved disabled music setting wins unless the player explicitly changes it (1.736542ms)
+✔ overlapping media leases survive early Unity binding and release independently (2.645042ms)
+✔ voice tracks start at the video's time and never start once stopped (4.064042ms)
+✔ a tap resumes Unity's suspended or interrupted context and leaves a running one alone (2.888416ms)
+✔ slow next clip keeps currently displayed character until ready (1.74625ms)
+✔ failed or timed-out next clip retains current character (0.431833ms)
+✔ superseded playing/error callbacks cannot replace or close latest clip (0.478292ms)
+✔ exit invalidates delayed callbacks and releases both video elements (0.423292ms)
+✔ natural end returns to portrait (1.225292ms)
+✔ frame upload preserves Unity GL state and skips duplicate video frame (1.123542ms)
+✔ old rejected audio retry cannot close the newer playing clip (0.6165ms)
+✔ Safari and iOS load a packed copy (WebM where it plays, else HEVC), other browsers keep VP9 alpha (2.459791ms)
+✔ a packed copy that fails to load hands over to the next one; the last failure leaves the portrait (0.532667ms)
+✔ play() refused as unsupported also moves on to the next copy (0.440792ms)
+✔ packed frame is recombined into the Unity texture and every GL state is restored (1.315208ms)
+✔ sRGB Unity textures receive linear values so the stored bytes match a plain upload (0.612875ms)
+✔ a target Unity cannot render into closes the clip and leaves GL state untouched (0.577458ms)
+✔ a clip refused sound plays its voice through Web Audio and ducks the music until it ends (0.534333ms)
+✔ a clip that plays with its own sound needs no voice track but still ducks the music (0.397625ms)
+✔ a tap unlocks spare players, and the next clip plays on one of them (0.562583ms)
+✔ leaving the page ends the clip instead of leaving it frozen with the music ducked (0.412208ms)
+✔ clips download in the background once the lobby is up, one after another, unless data saving is on (1.026667ms)
+✔ the idle loop starts once Unity allows it and the lobby is up, and stops when Unity says so (0.677584ms)
+✔ a tap during the loop waits for its first frame; the loop's last frame stays until the performance plays (0.340958ms)
+✔ a performance hands back to the loop, holding its last frame until the loop plays (0.295708ms)
+✔ with no tap the loop restarts on the same player (0.21825ms)
+✔ a loop that cannot load is given up and performances return to the portrait (0.263417ms)
+✔ clip size reports the colour half of a packed copy (0.419875ms)
+✔ green-screen copies are chosen for every browser and keyed on the GPU at full width (0.374416ms)
+✔ a tap inside one of the loop's cut stretches starts at once; outside, at the next one (0.450208ms)
+✔ a green-screen performance speaks its line beside it; the line outlives the clip and the next one replaces it (0.463958ms)
+✔ cached HTML selects all four fresh assets before starting Unity (4.886083ms)
+✔ offline metadata falls back to the complete embedded bundle (1.406666ms)
+✔ missing metadata falls back to the complete embedded bundle (0.653375ms)
+✔ incomplete metadata falls back to the complete embedded bundle (0.964917ms)
+✔ malicious metadata falls back to the complete embedded bundle (1.014916ms)
+✔ duplicate metadata falls back to the complete embedded bundle (1.01375ms)
+✔ unsupported metadata falls back to the complete embedded bundle (0.926167ms)
+✔ slow version check times out and starts embedded game once (1.11875ms)
+✔ a normal visit registers the asset worker for this game only (2.33525ms)
+✔ a first visit waits at most 1.5 s for the new worker before starting Unity (0.813917ms)
+✔ a browser that refuses the worker starts Unity without waiting (0.558334ms)
+✔ retry drops only this game's worker, not other same-origin projects (0.576083ms)
+✔ the worker is told to keep the current and previous builds only (0.691416ms)
+✔ download progress hands over to a no-traffic start-up message (0.619958ms)
+✔ one loading screen stays up through Unity's own asset loading until the lobby is live (0.749625ms)
+✔ the loading screen gives up waiting for the lobby after a minute (1.149292ms)
+✔ the title screen ignores taps on its buttons and opens only on the screen itself (1.333416ms)
+✔ repair asks first, then restarts clean without cached game files (1.383541ms)
+✔ the announcement shows the live release notice (1.337417ms)
+✔ WASM error remains actionable even if a warning or old timer follows (0.683875ms)
+✔ loader script failure exposes a retry without starting Unity (1.1025ms)
+✔ worker activation deletes only the prototype caches and takes control (18.570042ms)
+✔ content-addressed build files and art download once, then come from the cache (0.997583ms)
+✔ pages, manifests, unhashed art, media, ranges and other sites bypass the worker (0.508291ms)
+✔ character clips download once, are kept, and replace their older encodes (0.616125ms)
+✔ green-screen clips are kept like the packed ones (0.591917ms)
+✔ a stored clip answers the video element's byte ranges with 206 slices (3.696291ms)
+✔ retry downloads again and replaces the stored copy (0.478375ms)
+✔ unavailable storage falls back to the network (0.325083ms)
+✔ only the builds named by the page stay cached; old art is evicted oldest first (0.58825ms)
+✔ retry bypasses stale asset caches with fresh metadata (0.690125ms)
+✔ retry bypasses stale asset caches with embedded metadata (0.430459ms)
+✔ browser double-click reaches the homepage gesture owner only while home is active (0.432375ms)
+✔ a lost WebGL context offers a plain reload that keeps the cached game files (1.270625ms)
+✔ a page brought back to the foreground offers a newer live release once (0.891917ms)
+✔ the same live release, a hidden page or a failed check show nothing (1.549417ms)
+✔ a loading error cannot be dismissed by tapping it (0.429292ms)
+✔ the game renders at the screen density, within a pixel budget on very large screens (1.195375ms)
+✔ a phone that cannot keep up steps the render density down, and never back up (0.866542ms)
+✔ CG claims music before playback and becomes audible only after a gesture (2.659458ms)
+✔ title speaker shares the game preference and never controls SFX (0.378084ms)
+✔ a saved mute setting is resolved before an early tap can unmute the CG (0.260709ms)
+✔ background pauses and mutes CG while retaining its music lease (0.522667ms)
+✔ dismissal stops audible CG before releasing global music and unloads once (0.394208ms)
+✔ blocked autoplay waits for a later tap without releasing the media owner (3.439959ms)
+✔ decode failure releases music only after stopping the video and cannot restart (1.155208ms)
+✔ reduced motion or a silent movie leaves global BGM available (0.908792ms)
+✔ back-forward restoration retains ownership and resumes CG instead of global music (0.363416ms)
+ℹ tests 83
+ℹ suites 0
+ℹ pass 83
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108.798208

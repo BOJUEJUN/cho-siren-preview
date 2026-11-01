@@ -67,7 +67,7 @@ namespace ChoSiren
         public bool Play(RectTransform sourceRect, RectTransform targetRect, Sprite sourcePortrait,
             string sourceName, string targetName, Color color, bool enemyAttack, bool heavy, int playerIndex = 0)
         {
-            if (!configured || !isActiveAndEnabled || playerIndex < 0 || playerIndex >= 4) return false;
+            if (!configured || !isActiveAndEnabled || BattlePresentationOptions.ReduceMotion || playerIndex < 0 || playerIndex >= 4) return false;
             Flight flight = null;
             for (int i = 0; i < flights.Count; i++)
             {
@@ -105,10 +105,11 @@ namespace ChoSiren
             if (layer != null) layer.gameObject.SetActive(false);
         }
 
-        private void Update() => AdvancePresentation(Time.unscaledDeltaTime);
+        private void Update() => AdvancePresentation(Time.unscaledDeltaTime * BattlePresentationOptions.Pace);
 
         public void AdvancePresentation(float unscaledSeconds)
         {
+            if (BattlePresentationOptions.ReduceMotion) { Cancel(); return; }
             if (!configured || !isActiveAndEnabled || (pauseProbe != null && pauseProbe()) ||
                 unscaledSeconds <= 0f || float.IsNaN(unscaledSeconds) || float.IsInfinity(unscaledSeconds)) return;
             float delta = unscaledSeconds * Mathf.Clamp(speedProbe != null ? speedProbe() : 1, 1, 2);
@@ -178,7 +179,7 @@ namespace ChoSiren
                 Color core = Color.Lerp(flight.Color, Color.white, flight.Heavy ? .78f : .66f);
                 flight.BoltCore.color = WithAlpha(core, .95f);
                 flight.BoltCore.rectTransform.sizeDelta =
-                    new Vector2(boltSize * 1.35f, boltSize * (flight.Heavy ? .34f : .3f));
+                    Vector2.one * boltSize;
             }
             if (hit)
             {
@@ -203,7 +204,7 @@ namespace ChoSiren
                     Vector2 point = flight.End + shardDirection * distance;
                     float length = Mathf.Lerp(flight.Heavy ? 34f : 22f, 5f, impact);
                     Place(flight.Shards[index].rectTransform, point,
-                        new Vector2(length, flight.Heavy ? 5f : 3.5f));
+                        Vector2.one * Mathf.Max(8f, length * .65f));
                     flight.Shards[index].rectTransform.localRotation =
                         Quaternion.Euler(0f, 0f, ShardAngles[index]);
                     flight.Shards[index].color = WithAlpha(
@@ -259,7 +260,7 @@ namespace ChoSiren
                 flight.Bolt.pivot = new Vector2(.5f, .5f);
                 flight.BoltGlow = kit.NewImage("BoltGlow", flight.Bolt, kit.RadialSprite(), Color.clear);
                 PanelKit.Stretch(flight.BoltGlow.rectTransform);
-                flight.BoltCore = kit.NewImage("BoltCore", flight.Bolt, kit.RoundedSprite(6), Color.clear);
+                flight.BoltCore = kit.NewImage("BoltCore", flight.Bolt, ChoSiren.UI.BattleStickerVisuals.Star, Color.clear);
                 flight.BoltCore.rectTransform.anchorMin = flight.BoltCore.rectTransform.anchorMax =
                     new Vector2(.5f, .5f);
                 flight.BoltCore.rectTransform.pivot = new Vector2(.5f, .5f);
@@ -275,7 +276,7 @@ namespace ChoSiren
                 flight.Shards = new Image[ShardCount];
                 for (int shard = 0; shard < ShardCount; shard++)
                     flight.Shards[shard] = kit.NewImage("AttackShard-" + shard, root,
-                        kit.RoundedSprite(3), Color.clear);
+                        ChoSiren.UI.BattleStickerVisuals.Star, Color.clear);
 
                 flight.Caption = kit.NewText("AttackCausalLabel", root, string.Empty, 14, PanelKit.White,
                     FontStyle.Bold, TextAnchor.MiddleCenter);

@@ -3,6 +3,7 @@ using System.Linq;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Economy;
 using ChoSiren.Systems.Presentation;
+using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,20 +28,21 @@ namespace ChoSiren
             rect.localScale = Vector3.one * scale;
             board.GetComponent<Image>().preserveAspect = true;
             board.GetComponent<Image>().raycastTarget = false;
+            ChoSiren.UI.PageAmbient.Set(board, art, featherEdges: rect);
             ConfigureReferenceHeader038(true);
             return rect;
         }
 
         /// <summary>
-        /// HeaderPolish038 / SharedHeaderBand038: user-directed unified header. One
-        /// members-target band artwork (HeaderBandMembers038) is drawn at the back of
-        /// the TopBar on every common-HUD screen and covers whatever header the page
-        /// bakes underneath, so lobby/team/native header looks are no longer kept
-        /// per page. One geometry below is the members reference measured on the
-        /// board art: left profile cell + ring, three empty slanted resource frames,
-        /// and the right icon cell that hosts a live mail envelope and the gear.
-        /// Only live values, icons, avatar, compact plus tiles, mail and gear
-        /// overlay are positioned here; hit rects stay fixed while visuals respond.
+        /// HeaderPolish038 / NativeHeaderChrome038: user-directed unified header,
+        /// second revision. The opaque universal band was rejected — each page's own
+        /// art must stay continuous behind the header. So the shared header is now
+        /// composed only of the genuine individual RGBA chrome sprites (v2 profile
+        /// plaque, three v2 resource pills, gear) plus the live mail envelope, all
+        /// at one shared members-target geometry on every common-HUD screen. The
+        /// chrome interiors are opaque so they still sit cleanly over whatever each
+        /// page bakes in its header region. Contents are centred inside each frame;
+        /// hit rects stay fixed and larger than the compact plus/mail/gear visuals.
         /// </summary>
         private sealed class HeaderPolish038Layout
         {
@@ -50,8 +52,8 @@ namespace ChoSiren
             public Rect Level;       // local to Profile
             public Rect Power;       // local to Profile
             public Rect[] Pills = new Rect[3];
-            public Rect[] Icons = new Rect[3];   // local to pill; the band frames are empty so icons are live
-            public Rect[] Values = new Rect[3];  // local to pill
+            public Rect[] Icons = new Rect[3];   // local to pill; v2 pills bake their currency icon
+            public Rect[] Values = new Rect[3];  // local to pill, centred in the interior
             public Rect[] Tiles = new Rect[3];   // bar coordinates; hit rect stays larger than the compact tile
             public int[] ValueMax = new int[3];  // per-currency resizeTextMaxSize: bounds the
                                                  // rendered width so long values ("120/120")
@@ -66,26 +68,34 @@ namespace ChoSiren
             public static HeaderPolish038Layout For(string screen)
             {
                 // One shared members-target geometry on every common-HUD screen.
-                // Band frames: (222,0,128,46) (354,0,122,46) (478,0,124,46); the
-                // right icon cell spans ~x606-714 and holds mail then settings.
+                // The v2 pill art is 1152x256: icon cap x43-300, interior x300-880,
+                // plus cap x880-1113 -> at the sizes below the cap centres land on
+                // the tile hit centres and interiors hold icon+value.
+                // Matches the lobby's approved header: profile plaque, three equal pills
+                // (v2 art: icon cap 4-26%, interior 26-76%, plus cap 76-97%), and mail over
+                // gear stacked at the right edge so nothing is squeezed.
+                // Mail + gear live only on the lobby (stacked at its right edge), so the three
+                // pills spread across the full width after the profile plaque.
+                const float pillW = 156f, pillH = 52f, pillY = 14f;
+                float[] pillX = { 226f, 390f, 554f };
                 return new HeaderPolish038Layout
                 {
-                    Profile = new Rect(0, 0, 215, 62),
-                    Avatar = new Rect(29, 26, 52, 52),
-                    Name = new Rect(108, 4, 100, 20),
-                    Level = new Rect(108, 26, 96, 14),
-                    Power = new Rect(108, 42, 100, 16),
-                    Pills = new[] { new Rect(222, 0, 128, 46), new Rect(354, 0, 122, 46), new Rect(478, 0, 124, 46) },
-                    Icons = new[] { new Rect(8, 9, 24, 24), new Rect(8, 9, 24, 24), new Rect(8, 9, 24, 24) },
-                    Values = new[] { new Rect(36, 9, 50, 26), new Rect(36, 9, 46, 26), new Rect(35, 9, 48, 26) },
-                    Tiles = new[] { new Rect(312, 5, 36, 36), new Rect(440, 5, 36, 36), new Rect(564, 5, 36, 36) },
-                    Settings = new Rect(662, 2, 54, 46),
-                    Gear = new Rect(0, 0, 48, 46),
-                    Mail = new Rect(610, 2, 52, 44),
-                    MailIcon = new Rect(-5, -7, 58, 58),
-                    NativeChrome = false,
-                    LiveIcons = true,
-                    ValueMax = new[] { 15, 14, 12 },
+                    Profile = new Rect(4, 8, 214, 78),
+                    Avatar = new Rect(16, 12, 56, 56),
+                    Name = new Rect(84, 9, 64, 25),
+                    Level = new Rect(84, 34, 100, 18),
+                    Power = new Rect(84, 53, 128, 22),
+                    Pills = pillX.Select(x => new Rect(x, pillY, pillW, pillH)).ToArray(),
+                    Icons = Enumerable.Repeat(new Rect(6, 13, 26, 26), 3).ToArray(),
+                    Values = Enumerable.Repeat(new Rect(pillW * .26f, 8, pillW * .5f, 36), 3).ToArray(),
+                    Tiles = pillX.Select(x => new Rect(x + pillW * .76f, pillY + 8, 34, 36)).ToArray(),
+                    Settings = new Rect(678, 48, 38, 38),
+                    Gear = new Rect(3, 3, 32, 32),
+                    Mail = new Rect(678, 8, 38, 36),
+                    MailIcon = new Rect(0, 3, 38, 30),
+                    NativeChrome = true,
+                    LiveIcons = false,
+                    ValueMax = new[] { 21, 21, 19 },
                 };
             }
         }
@@ -113,28 +123,14 @@ namespace ChoSiren
             // (avatar ring, gear tips, tiles) never bleeds above the safe area.
             if (bar.GetComponent<RectMask2D>() == null) bar.gameObject.AddComponent<RectMask2D>();
 
-            // SharedHeaderBand038: the members-target band art is the one shared
-            // header on every common-HUD page. Drawn as the bar's rearmost child it
-            // covers each page's own baked header (lobby pill strip, team quad,
-            // empty clean tops) with the unified profile cell, three empty slanted
-            // resource frames and the right icon cell that hosts mail + settings.
+            // NativeHeaderChrome038: the opaque universal band was rejected — the
+            // page background must stay continuous under individual chrome sprites.
+            // Remove any leftover shared band node so nothing can seam.
             Transform band = bar.Find("HeaderBandMembers038");
-            if (band == null)
-            {
-                Sprite bandSprite = AiUiSprite("Art/LobbyPunk/038/header-band-members-038");
-                if (bandSprite != null)
-                {
-                    band = NewImage("HeaderBandMembers038", bar, bandSprite, White).transform;
-                    Image created = band.GetComponent<Image>();
-                    created.preserveAspect = false;
-                    created.raycastTarget = false;
-                }
-            }
             if (band != null)
             {
-                band.gameObject.SetActive(true);
-                PlaceTop((RectTransform)band, 0f, 0f, 720f, 100f);
-                band.SetAsFirstSibling();
+                band.gameObject.SetActive(false);
+                Destroy(band.gameObject);
             }
 
             Transform profile = bar.Find("Profile");
@@ -161,10 +157,25 @@ namespace ChoSiren
             Text name = profile.Find("PlayerName")?.GetComponent<Text>();
             if (name != null)
             {
+                // A small ink patch sits only behind the live name, clearing the frame's
+                // diagonal paper marks without replacing the authored profile chrome.
+                Transform quiet = profile.Find("ProfileNameQuietPlate1019");
+                if (quiet == null)
+                {
+                    GameObject plate = NewImage("ProfileNameQuietPlate1019", profile,
+                        PunkUi.SlantFill, new Color32(5, 3, 14, 255));
+                    plate.GetComponent<Image>().raycastTarget = false;
+                    quiet = plate.transform;
+                }
+                PlaceTop((RectTransform)quiet, layout.Name.x - 4, layout.Name.y,
+                    layout.Name.width + 8, layout.Name.height + 1);
+                quiet.SetSiblingIndex(name.transform.GetSiblingIndex());
+                name.transform.SetAsLastSibling();
                 PlaceTop(name.rectTransform, layout.Name.x, layout.Name.y,
                     layout.Name.width, layout.Name.height);
                 name.alignment = TextAnchor.MiddleLeft;
-                name.fontSize = 17;
+                name.text = model.PlayerName;
+                FitPlayerName1028(name);
                 name.fontStyle = FontStyle.Bold;
                 name.horizontalOverflow = HorizontalWrapMode.Overflow;
                 // NotoSansSC line height is 1.448em: at 17pt the line needs ~24.6px,
@@ -179,13 +190,24 @@ namespace ChoSiren
             PlaceTop(level.rectTransform, layout.Level.x, layout.Level.y,
                 layout.Level.width, layout.Level.height);
             level.alignment = TextAnchor.MiddleLeft;
-            level.fontSize = 11;
+            level.fontSize = 12;
+            level.color = new Color32(225, 215, 242, 255);
             level.horizontalOverflow = HorizontalWrapMode.Overflow;
+            level.verticalOverflow = VerticalWrapMode.Overflow;
             PlaceTop(teamLevelText.rectTransform, layout.Power.x, layout.Power.y,
                 layout.Power.width, layout.Power.height);
             teamLevelText.alignment = TextAnchor.MiddleLeft;
-            teamLevelText.fontSize = 13;
+            teamLevelText.resizeTextForBestFit = false;
+            teamLevelText.fontSize = 15;
+            teamLevelText.color = White;
             teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            teamLevelText.verticalOverflow = VerticalWrapMode.Overflow;
+            // Achievement red dot on the plaque (the lobby's painted header used to carry it).
+            if (profile.Find("AchievementBadge") == null)
+            {
+                GameObject badge = UI.NoticeSticker1031.Create("AchievementBadge", profile);
+                PlaceTop(badge.GetComponent<RectTransform>(), 58, 6, 18, 18);
+            }
 
             string[] currencies = { CurrencyIds.Diamond, CurrencyIds.Gold, CurrencyIds.Stamina };
             string[] iconNames = { "DiamondIcon", "GoldIcon", "StaminaIcon" };
@@ -231,7 +253,10 @@ namespace ChoSiren
                 Text value = values[i];
                 PlaceTop(value.rectTransform, valueRect.x, valueRect.y, valueRect.width, valueRect.height);
                 value.alignment = TextAnchor.MiddleCenter;
+                value.color = White;
+                value.fontStyle = FontStyle.Bold;
                 value.horizontalOverflow = HorizontalWrapMode.Overflow;
+                value.verticalOverflow = VerticalWrapMode.Overflow;
                 value.resizeTextForBestFit = true;
                 value.resizeTextMinSize = 10;
                 // Bound the rendered width: under Overflow, bestFit only checks the
@@ -263,10 +288,11 @@ namespace ChoSiren
             // SharedHeaderBand038: the members icon cell hosts a live mail entry on
             // its left half and the gear on its right. Mail keeps the existing
             // OpenInbox route; only visibility/geometry is unified here.
+            settings.gameObject.SetActive(false);
             Transform mail = bar.Find("Mail");
             if (mail != null)
             {
-                mail.gameObject.SetActive(true);
+                mail.gameObject.SetActive(false);
                 PlaceTop((RectTransform)mail, layout.Mail.x, layout.Mail.y,
                     layout.Mail.width, layout.Mail.height);
                 Transform mailIcon = mail.Find("Icon");
@@ -371,6 +397,33 @@ namespace ChoSiren
                 MainBakedMotion038Attach(button, board, region.Value, silhouetteBoardPixels, extras);
         }
 
+        /// <summary>Attach using an independent RGBA sprite when the native art asset
+        /// exists, falling back to the baked board slice while assets are generated.
+        /// The native body owns its alpha silhouette (artist-padded so glow/overshoot
+        /// are never clipped), so the flattened scene under the control is never
+        /// copied or scaled — neighbouring art stays pixel-stationary in all four
+        /// pointer states. Hit RectTransforms still never move. Sprites load via
+        /// Resources so they resolve identically in the editor and WebGL builds
+        /// (the Reference038 streaming manifest only covers page boards).</summary>
+        private void MainNativeOrBakedMotion038Attach(GameObject button, Image board,
+            float inflateBoardPixels, string nativeResourcePath,
+            Vector2[] silhouetteBoardPixels = null, params Transform[] extras)
+        {
+            if (button == null || board == null) return;
+            Rect? region = MainBakedMotion038Footprint(button, board, inflateBoardPixels);
+            if (!region.HasValue) return;
+            Sprite native = string.IsNullOrEmpty(nativeResourcePath)
+                ? null : Resources.Load<Sprite>(nativeResourcePath);
+            if (native != null && BakedRegionMotion038.AttachNative(
+                    button, board, region.Value, native, extras) != null)
+            {
+                Transform body = button.transform.Find(BakedRegionMotion038.BodyName);
+                if (body != null) body.SetAsFirstSibling();
+                return;
+            }
+            MainBakedMotion038Attach(button, board, region.Value, silhouetteBoardPixels, extras);
+        }
+
         private Rect? MainBakedMotion038Footprint(GameObject button, Image board, float inflate)
         {
             if (button == null || board == null || board.sprite == null) return null;
@@ -410,65 +463,173 @@ namespace ChoSiren
 
         private void BuildTeamBoard038()
         {
+            // Meeting row 27: NIKKE-style squad screen — calm backdrop, four upright member
+            // cards (bust, level, name, race/role, power), squad power up top, two actions.
             RectTransform root = ReferenceBoard038("TeamReferenceBoard038", "Art/Reference038/team-board-038");
             int count = Math.Min(GameModel.TeamCapacity, model.Save.Team.Count);
             int roles = model.Save.Team.Take(count).Where(i => i >= 0 && i < GameModel.Members.Length)
                 .Select(i => GameModel.Members[i].Career).Distinct().Count();
-            BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 64, White, 556, 232, 218, 92);
-            BoardText038(root, "TeamResonanceValue", $"职业种类 {roles}/4", 19, Cyan, 560, 331, 192, 32);
-            BoardText038(root, "TeamMemberCount", $"成员 {count}/{GameModel.TeamCapacity}", 17, Muted, 561, 366, 180, 28);
-            Rect[] portraits = { new Rect(235, 382, 365, 348), new Rect(12, 605, 315, 360),
-                new Rect(550, 579, 295, 380), new Rect(210, 806, 390, 305) };
-            Rect[] plates = { new Rect(352, 728, 163, 67), new Rect(81, 956, 183, 74),
-                new Rect(635, 948, 178, 77), new Rect(334, 1107, 205, 69) };
-            Rect[] targets = { new Rect(327, 382, 201, 413), new Rect(45, 605, 220, 425),
-                new Rect(620, 579, 193, 446), new Rect(291, 806, 250, 370) };
+            GameObject titleHit = BoardButton038("RenameTeamTitle", root, new Rect(36, 198, 226, 88),
+                () => OpenTeamNameDialog1028(model.Save.ActiveTeamPreset));
+            titleHit.GetComponent<Image>().color = Color.clear;
+            Text teamTitle = BoardText038(root, "TeamTitle", model.ActiveTeamName, 48, White, 44, 206, 210, 72);
+            teamTitle.raycastTarget = false;
+            PanelKit.EnableBestFit(teamTitle, 24);
+            SirenStickerUi.SkinTitle(teamTitle, true);
+            GameObject renameTeam = BoardButton038("RenameTeam", root, new Rect(268, 226, 84, 44),
+                () => OpenTeamNameDialog1028(model.Save.ActiveTeamPreset));
+            BoardText038(renameTeam.transform, "Label", "改名", 21, Cyan, 0, 0, 84, 44, TextAnchor.MiddleCenter);
+            bool ready = model.IsTeamReady(out string formationProblem);
+            if (ready)
+                BoardText038(root, "TeamSubtitle", "点头像看详情 · 点下方换人", 18, Muted, 48, 282, 380, 28);
+            else
+                BoardText038(root, "TeamFormationIssue", formationProblem.Split('\n').Last(), 26, Warn, 48, 282, 380, 82);
+            GameObject powerPill = NewImage("TeamPowerPill", root, Panels.PunkUi.SlantFill, new Color32(6, 3, 12, 255));
+            PlaceTop(powerPill.GetComponent<RectTransform>(), 452, 214, 372, 92);
+            powerPill.GetComponent<Image>().raycastTarget = false;
+            SirenStickerUi.SkinPanel(powerPill);
+            BoardText038(powerPill.transform, "Label", "队伍战力", 17, Accent, 30, 8, 150, 26);
+            BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 46, White, 482, 236, 320, 64, TextAnchor.MiddleRight);
+            BoardText038(root, "TeamResonanceValue", $"职业种类 {roles}/4", 18, Cyan, 470, 314, 180, 28);
+            BoardText038(root, "TeamMemberCount", $"成员 {count}/{GameModel.TeamCapacity}", 18, Muted, 660, 314, 160, 28, TextAnchor.MiddleRight);
+
+            const float cardW = 334f, cardH = 452f, artH = 336f;
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
             {
                 int capturedSlot = slot;
                 int index = slot < count ? model.Save.Team[slot] : -1;
                 bool valid = index >= 0 && index < GameModel.Members.Length;
-                Rect p = portraits[slot], label = plates[slot];
-                GameObject hit = BoardButton038("TeamOrbit-" + slot, root,
-                    targets[slot], () =>
+                Rect cardRect = new Rect(80 + (slot % 2) * (cardW + 36), 372 + (slot / 2) * (cardH + 22), cardW, cardH);
+                GameObject hit = BoardButton038("TeamOrbit-" + slot, root, cardRect, () =>
                     { if (valid) OpenTeamMember(index, capturedSlot); else OpenTeamSlotPicker(Math.Min(capturedSlot, model.Save.Team.Count)); });
+                Image back = hit.GetComponent<Image>();
+                back.color = new Color32(8, 4, 16, 255);
+                Outline rim = hit.AddComponent<Outline>();
+                rim.effectDistance = new Vector2(3, -3);
+                SirenStickerUi.SkinPanel(hit);
                 if (!valid)
                 {
-                    BoardText038(root, "TeamEmpty-" + slot, "+", 46, Cyan, p.x, p.y + p.height * .5f, p.width, 60, TextAnchor.MiddleCenter);
+                    rim.effectColor = new Color(1, 1, 1, .25f);
+                    BoardText038(hit.transform, "TeamEmpty-" + slot, "+", 72, Cyan, 0, 130, cardW, 100, TextAnchor.MiddleCenter);
+                    BoardText038(hit.transform, "EmptyHint", "添加成员", 22, Muted, 0, 240, cardW, 36, TextAnchor.MiddleCenter);
                     continue;
                 }
                 MemberDefinition m = GameModel.Members[index];
-                GameObject portrait = NewImage("TeamCharacter-" + slot, hit.transform, Resources.Load<Sprite>(m.ResourcePath), White);
-                PlaceTop(portrait.GetComponent<RectTransform>(), p.x - targets[slot].x,
-                    p.y - targets[slot].y, p.width, p.height);
+                string race = MemberRaceFamily(m, index);
+                Color raceColor = TeamRaceColor(race);
+                rim.effectColor = raceColor;
+                GameObject window = NewImage("PortraitWindow", hit.transform, null, new Color32(24, 14, 40, 255));
+                PlaceTop(window.GetComponent<RectTransform>(), 6, 6, cardW - 12, artH - 6);
+                window.GetComponent<Image>().raycastTarget = false;
+                window.AddComponent<RectMask2D>();
+                GameObject portrait = NewImage("TeamCharacter-" + slot, window.transform, Resources.Load<Sprite>(m.ResourcePath), White);
                 portrait.GetComponent<Image>().preserveAspect = true;
                 portrait.GetComponent<Image>().raycastTarget = false;
-                GameObject tag = NewImage("TeamLabel-" + slot, root, null, Color.clear);
-                PlaceTop(tag.GetComponent<RectTransform>(), label.x, label.y, label.width, label.height);
-                tag.GetComponent<Image>().raycastTarget = false;
-                BoardText038(tag.transform, "MemberName", m.Name, 21, White, 3, 3, label.width - 6, 23);
-                BoardText038(tag.transform, "MemberCareer", $"{m.Career} · 等级 {model.LevelOf(index)}", 13, Pink, 3, 28, label.width - 6, 17);
-                BoardText038(tag.transform, "MemberPower", $"战力 {model.PowerOf(index):N0}", 14, Cyan, 3, 47, label.width - 6, 17);
+                PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(), window.GetComponent<RectTransform>(), m.Id);
+                // Dark fade at the bust's foot so level and name read over any outfit.
+                GameObject fade = NewImage("Fade", window.transform, BottomFade(), new Color(0, 0, 0, .92f));
+                PlaceTop(fade.GetComponent<RectTransform>(), 0, artH - 130, cardW, 130);
+                fade.GetComponent<Image>().raycastTarget = false;
+                BoardText038(window.transform, "LvTag", "LV.", 16, White, 14, artH - 74, 40, 20);
+                BoardText038(window.transform, "Level", model.LevelOf(index).ToString(), 48, White, 12, artH - 60, 90, 56);
+                Text name = BoardText038(window.transform, "MemberName", m.Name, 30, White, 96, artH - 54, cardW - 108, 44, TextAnchor.MiddleRight);
+                PanelKit.EnableBestFit(name, 20);
+                name.verticalOverflow = VerticalWrapMode.Truncate;
+                GameObject band = NewImage("Band", hit.transform, null, raceColor);
+                PlaceTop(band.GetComponent<RectTransform>(), 0, artH, cardW, 6);
+                band.GetComponent<Image>().raycastTarget = false;
+                // Race + role badges stacked top-left like NIKKE's element / class hexes.
+                Sprite raceIcon = RaceIconSprite(race);
+                GameObject raceChip = NewImage("RaceChip", hit.transform, raceIcon ?? Panels.PunkUi.SlantFill, raceIcon != null ? (Color)White : raceColor);
+                PlaceTop(raceChip.GetComponent<RectTransform>(), 8, 8, 58, 58);
+                raceChip.GetComponent<Image>().preserveAspect = true;
+                raceChip.GetComponent<Image>().raycastTarget = false;
+                if (raceIcon == null) BoardText038(raceChip.transform, "Race", race, 15, Color.black, 0, 0, 58, 58, TextAnchor.MiddleCenter);
+                GameObject roleChip = NewImage("RoleChip", hit.transform, SirenStickerUi.TabSprite, SirenStickerUi.Ink);
+                PlaceTop(roleChip.GetComponent<RectTransform>(), 8, 70, 92, 28);
+                roleChip.GetComponent<Image>().raycastTarget = false;
+                BoardText038(roleChip.transform, "Role", m.Career, 16, White, 0, 0, 92, 28, TextAnchor.MiddleCenter);
+                if (slot == 0)
+                {
+                    GameObject captain = NewImage("CaptainTag", hit.transform, SirenStickerUi.TabSprite, SirenStickerUi.Violet);
+                    PlaceTop(captain.GetComponent<RectTransform>(), cardW - 100, 10, 90, 34);
+                    captain.GetComponent<Image>().raycastTarget = false;
+                    BoardText038(captain.transform, "Label", "队长", 19, White, 0, 0, 90, 34, TextAnchor.MiddleCenter);
+                }
+                // Keep the portrait's detail action; the whole information band is a
+                // separate, phone-sized replacement target rather than a tiny text link.
+                GameObject tag = BoardButton038("TeamLabel-" + slot, hit.transform,
+                    new Rect(0, artH + 6, cardW, cardH - artH - 6),
+                    () => OpenTeamSlotPicker(capturedSlot));
+                BoardText038(tag.transform, "MemberCareer", $"{race} · {m.Career}", 18, SirenStickerUi.Paper, 16, 12, cardW - 32, 28);
+                BoardText038(tag.transform, "MemberPower", $"战力 {model.PowerOf(index):N0}", 24, Cyan, 16, 50, cardW - 130, 40);
+                GameObject swapTag = NewImage("TeamSwapTag", tag.transform, SirenStickerUi.TabSprite, SirenStickerUi.Violet);
+                PlaceTop(swapTag.GetComponent<RectTransform>(), cardW - 104, 50, 92, 42);
+                swapTag.GetComponent<Image>().raycastTarget = false;
+                BoardText038(swapTag.transform, "Info", "换人 ›", 25, White, 0, 0, 92, 42, TextAnchor.MiddleCenter);
             }
+
             GameObject synergy = NewImage("TeamSynergy", root, null, Color.clear);
-            PlaceTop(synergy.GetComponent<RectTransform>(), 78, 1268, 690, 164);
+            PlaceTop(synergy.GetComponent<RectTransform>(), 80, 1328, 704, 52);
             synergy.GetComponent<Image>().raycastTarget = false;
-            BoardText038(synergy.transform, "TeamAttributes", "职业自由搭配", 14, Muted, 492, 0, 190, 26, TextAnchor.MiddleRight);
             for (int i = 0; i < MemberCareers.All.Count; i++)
             {
                 string career = MemberCareers.All[i];
                 int number = model.Save.Team.Count(index => index >= 0 && index < GameModel.Members.Length && GameModel.Members[index].Career == career);
-                float x = 29 + i * 156;
-                BoardText038(synergy.transform, "CareerStatus-" + i, $"{career} · {number}人", 17, White, x, 28, 150, 32, TextAnchor.MiddleCenter);
-                GameObject glyph = NewImage("CareerGlyph-" + i, synergy.transform, NavIconSprite(i), White);
-                PlaceTop(glyph.GetComponent<RectTransform>(), x + 37, 67, 76, 74);
-                glyph.GetComponent<Image>().preserveAspect = true;
-                glyph.GetComponent<Image>().raycastTarget = false;
+                GameObject chip = NewImage("CareerChip-" + i, synergy.transform, Panels.PunkUi.SlantFill,
+                    number > 0 ? new Color32(6, 3, 12, 235) : new Color32(6, 3, 12, 140));
+                PlaceTop(chip.GetComponent<RectTransform>(), i * 178, 0, 168, 50);
+                chip.GetComponent<Image>().raycastTarget = false;
+                BoardText038(chip.transform, "CareerStatus-" + i, $"{career} ×{number}", 18, number > 0 ? (Color)White : Muted,
+                    0, 0, 168, 50, TextAnchor.MiddleCenter);
             }
-            BoardButton038("ChangeLeader", root, new Rect(118, 1450, 304, 110), OpenCaptainPicker);
-            BoardButton038("AutoTeam", root, new Rect(465, 1450, 303, 110), () =>
-            { model.AutoTeam(); Toast("已优先兼顾职业并补齐阵容"); ShowScreen("team"); });
+            TeamActionButton038("ChangeLeader", root, new Rect(80, 1404, 334, 92), "更换队长", false, OpenCaptainPicker);
+            TeamActionButton038("AutoTeam", root, new Rect(450, 1404, 334, 92), "一键编队", true, () =>
+            {
+                model.TryAutoTeam(out string message);
+                ShowScreen("team");
+                Toast(message);
+            });
+            BuildTeamPresetControls1028(root);
         }
+
+        private void TeamActionButton038(string name, Transform parent, Rect bounds, string label, bool primary, UnityEngine.Events.UnityAction action)
+        {
+            GameObject button = BoardButton038(name, parent, bounds, action);
+            BoardText038(button.transform, "Label", label, 30, White, 0, 0, bounds.width, bounds.height, TextAnchor.MiddleCenter);
+            SirenStickerUi.SkinButton(button, primary);
+        }
+
+        private static Sprite bottomFade;
+
+        /// <summary>Vertical alpha ramp: clear at the top, opaque at the bottom.</summary>
+        private static Sprite BottomFade()
+        {
+            if (bottomFade != null) return bottomFade;
+            const int length = 64;
+            var texture = new Texture2D(1, length, TextureFormat.RGBA32, false)
+                { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, hideFlags = HideFlags.DontSave };
+            var pixels = new Color32[length];
+            for (int i = 0; i < length; i++)
+            {
+                float t = 1f - i / (length - 1f);
+                pixels[i] = new Color32(255, 255, 255, (byte)(255f * Mathf.SmoothStep(0f, 1f, t)));
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            bottomFade = Sprite.Create(texture, new Rect(0, 0, 1, length), new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect);
+            bottomFade.hideFlags = HideFlags.DontSave;
+            return bottomFade;
+        }
+
+        private static Color TeamRaceColor(string race) => race switch
+        {
+            "魅族" => new Color32(255, 46, 147, 255),
+            "魔族" => new Color32(178, 92, 255, 255),
+            "海灵族" => new Color32(63, 240, 255, 255),
+            "血精灵" => new Color32(255, 84, 84, 255),
+            _ => new Color32(220, 220, 230, 255),
+        };
 
         private void BuildMembersBoard038()
         {
@@ -488,7 +649,7 @@ namespace ChoSiren
             BoardText038(root, "ScreenSubtitle", $"已拥有 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} · 本页 {page.VisibleCount} 名",
                 18, White, 46, 307, 735, 32);
             string[] names = { "MemberRoleFilter", "MemberRaceFilter", "MemberOwnedFilter" };
-            string[] labels = { "职业：" + (role.Length == 0 ? "全部" : role), "种族：" + (race.Length == 0 ? "全部" : race), "仅已拥有：" + (memberOwnedOnly ? "开" : "关") };
+            string[] labels = { "职业：" + (role.Length == 0 ? "全部" : role), "种族：" + (race.Length == 0 ? "全部" : race), memberOwnedOnly ? "范围：已拥有" : "范围：全部图鉴" };
             for (int i = 0; i < 3; i++)
             {
                 int filter = i;
@@ -552,8 +713,8 @@ namespace ChoSiren
                 PanelKit.FrameBustPortrait(art.GetComponent<Image>(), frame.GetComponent<RectTransform>(), m.Id);
                 GameObject ribbon = NewImage("DeploymentBadge", card.transform, RibbonSprite(), model.IsInTeam(index) ? new Color32(36, 16, 45, 235) : new Color32(13, 8, 32, 230));
                 PlaceTop(ribbon.GetComponent<RectTransform>(), 0, 4, 103, 27);
-                BoardText038(ribbon.transform, "DeploymentLabel", MemberDeploymentLabel(index), 14, model.Save.Team.IndexOf(index) == 0 ? Pink : new Color32(255, 216, 110, 255), 0, 0, 103, 27, TextAnchor.MiddleCenter);
-                BoardText038(card.transform, "Taxonomy", $"{MemberRaceFamily(m, index)} · {m.Career}", 12, Pink, 6, 185, 130, 25);
+                BoardText038(ribbon.transform, "DeploymentLabel", MemberDeploymentLabel(index), 14, model.Save.Team.IndexOf(index) == 0 ? Accent : new Color32(255, 216, 110, 255), 0, 0, 103, 27, TextAnchor.MiddleCenter);
+                BoardText038(card.transform, "Taxonomy", $"{MemberRaceFamily(m, index)} · {m.Career}", 12, Accent, 6, 185, 130, 25);
                 BoardText038(card.transform, "MemberName", m.Name, 19, White, 6, 208, 130, 31);
                 BoardText038(card.transform, "MemberLevel", $"等级 {model.LevelOf(index)}", 13, Cyan, 6, 238, 130, 22);
             }

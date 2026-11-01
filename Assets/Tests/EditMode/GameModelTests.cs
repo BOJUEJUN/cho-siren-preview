@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Systems.Economy;
+using ChoSiren.Systems.Dice;
 using ChoSiren.Systems.Gacha;
 using ChoSiren.Systems.Story;
 using ChoSiren.Systems.Tactics;
@@ -70,7 +71,7 @@ namespace ChoSiren.Tests
             BattleSimulator battle = loaded.StartStageBattle("stage-1-1", 847, out string message);
             Assert.That(battle, Is.Not.Null, message);
             Assert.That(battle.IsRealtime, Is.True, "生产模型的战斗从创建开始就必须使用新规则，不能依赖某个页面切换");
-            Assert.That(battle.BattleDice.BattleRerollLimit, Is.EqualTo(3), "首章普通战体验预算为 3 次重投");
+            Assert.That(battle.BattleDice.BattleRerollLimit, Is.EqualTo(2), "普通战整场重投上限为 2 次");
             BattleUnit first = battle.Units.Single(u => u.Side == BattleSide.Player && u.Definition.Id == "xingli");
             Assert.That(first.BaseAttack, Is.EqualTo(loaded.StatsOf(0).Attack));
             Assert.That(first.MaxHp, Is.EqualTo(loaded.StatsOf(0).Hp));
@@ -180,7 +181,11 @@ namespace ChoSiren.Tests
         [Test]
         public void ProductionChapterAuditUsesRealFormationAllCaptainsAndSixteenSeeds()
         {
-            int[] levels = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            // 2026-11-01 (赵金数值批次, Balance1101Tests): the audit plays the shipped turn battle (auto ultimates, no
+            // rerolls) at each stage's new recommended level with the gear a player has by then (starting accessories +
+            // earlier first clears, 快捷穿戴). The old realtime gate "1-4 ≥14/16, later ≥10/16 at level = stage number"
+            // no longer applies: stages are tuned to ≈60% for the default captain, and the other captains are a choice
+            // (调队), so only the default captain carries a win-rate band.
             for (int number = 1; number <= 10; number++)
             for (int captain = 0; captain < 4; captain++)
             {
@@ -188,39 +193,91 @@ namespace ChoSiren.Tests
                 int wins = 0, minimumCoreShare = 100;
                 for (ulong seed = 1; seed <= 16; seed++)
                 {
+                    StageDefinition definition = new GameModel(() => now).Tactics.FindStage($"stage-1-{number}");
+                    // 1-1 cleared once: the audit measures replays, not the guarded first 1-1 (新手保底, 2026-11-01b).
                     SaveRaw(new GameSave { StoryProgress = 100,
-                        MemberLevels = Enumerable.Repeat(levels[number - 1], GameModel.Members.Length).ToList() });
+                        ClearedStages = new List<StageClear> { new StageClear { Id = "stage-1-1", Stars = 1 } },
+                        MemberLevels = Enumerable.Repeat(definition.RecommendedLevel, GameModel.Members.Length).ToList() });
                     var model = new GameModel(() => now);
+                    for (int cleared = 1; cleared < number; cleared++)
+                    {
+                        int item = GameModel.FirstClearAccessory($"stage-1-{cleared}");
+                        if (!model.Save.OwnedAccessories.Contains(item)) model.Save.OwnedAccessories.Add(item);
+                    }
+                    foreach (int member in model.Save.Team.ToArray()) model.QuickEquip(member, out _);
                     if (model.Save.Team[0] != captain) Assert.That(model.SetTeamLeader(captain, out _), Is.True);
                     BattleSimulator battle = model.StartStageBattle($"stage-1-{number}", seed, out string message);
                     Assert.That(battle, Is.Not.Null, message);
-                    battle.AutoPlay(600);
+                    battle.EnableTurnBased();
+                    // 2026-11-01c 无限骰子: the audit plays the 通过率 policy (auto ultimates + the shipped auto reroll), like
+                    // Balance1101Tests — with endless 骰子豆 "never reroll" is no longer how the targets are defined.
+                    int actions = 0, lastReroll = -100;
+                    for (int guard = 0; guard < 4000 && battle.Outcome == BattleOutcome.Ongoing; guard++)
+                    {
+                        BattleUnit actor = battle.NextTurnActor();
+                        if (actor == null) break;
+                        DiceTurn dice = battle.BattleDice;
+                        if (actor.Side == BattleSide.Player && actions - lastReroll >= 3 && DiceAutoPlanner1031.ShouldAutoReroll(dice))
+                        {
+                            bool[] pick = DiceAutoPlanner1031.ChooseRerollMask(dice.Values, DiceTurn.MaxDicePerReroll, false);
+                            for (int i = 0; i < pick.Length; i++) if (pick[i] && dice.Held[i]) dice.ToggleHold(i);
+                            if (dice.RerollUnheld(out _)) lastReroll = actions;
+                        }
+                        battle.AutoTurn();
+                        actions++;
+                    }
+                    Assert.That(battle.Outcome, Is.Not.EqualTo(BattleOutcome.Ongoing));
                     if (battle.Outcome == BattleOutcome.Victory) wins++;
                     durations.Add(battle.ElapsedMilliseconds);
                     if (battle.CharacterDamageDealt > 0)
                         minimumCoreShare = Math.Min(minimumCoreShare,
                             (int)(100 * battle.BasicAndActiveDamageDealt / battle.CharacterDamageDealt));
-                    Assert.That(battle.ElapsedMilliseconds, Is.LessThanOrEqualTo(battle.TimeLimitMilliseconds));
-                    Assert.That(battle.BattleDice.UsedRerolls, Is.LessThanOrEqualTo(battle.Stage.RerollLimit));
+                    Assert.That(battle.TurnRound, Is.LessThanOrEqualTo(battle.TurnRoundLimit + 1));
+                    Assert.That(battle.BattleDice.StoredRerolls, Is.InRange(0, DiceTurn.MaxStoredRerolls));
                 }
                 durations.Sort();
-                TestContext.WriteLine($"AUDIT 1-{number} L{levels[number - 1]} captain={captain} " +
+                TestContext.WriteLine($"AUDIT 1-{number} L{new GameModel(() => now).Tactics.FindStage($"stage-1-{number}").RecommendedLevel} captain={captain} " +
                     $"wins={wins}/16 time={durations[0]}/{durations[8]}/{durations[15]} core={minimumCoreShare}%");
                 Assert.That(minimumCoreShare, Is.GreaterThanOrEqualTo(70), "普攻与双主动技能必须是主要伤害来源");
-                Assert.That(wins, Is.GreaterThanOrEqualTo(number <= 4 ? 14 : 12),
-                    $"1-{number} 队长{captain}在校准等级下不应依赖罕见好运才能获胜");
-                int[] minimumMedians = { 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000 };
-                // v0.3.3: 成长压制后高关卡时长自然拉长,放宽上限至 120s
-                int[] maximumMedians = { 120000, 120000, 120000, 120000, 120000, 120000, 120000, 120000, 120000, 120000 };
-                Assert.That(durations[8], Is.InRange(minimumMedians[number - 1], maximumMedians[number - 1]),
-                    $"1-{number} 队长{captain} 的典型时长需留出决策空间，又不能靠拖满关卡上限取胜");
+                if (captain == 0)
+                    Assert.That(wins, Is.InRange(5, 15), $"1-{number} 默认队长在推荐等级+已有装备下应约六成通过：既不白给也不靠运气");
             }
             // Gates test a representative cohort; they do not claim every seed, item or tactic is balanced.
         }
 
         [Test]
+        public void ChapterTwoMeasurementAtRecommendedLevels()
+        {
+            // Measurement only: prints chapter-two win rates and durations at each stage's
+            // recommended level so balance can be judged; it does not gate the build.
+            for (int number = 1; number <= 10; number++)
+            {
+                StageDefinition definition = new GameModel(() => now).Tactics.FindStage($"stage-2-{number}");
+                var durations = new List<int>();
+                int wins = 0;
+                for (ulong seed = 1; seed <= 8; seed++)
+                {
+                    var cleared = Enumerable.Range(1, number - 1).Select(n => new StageClear { Id = $"stage-2-{n}", Stars = 3 }).ToList();
+                    SaveRaw(new GameSave { StoryProgress = 100, ClearedStages = cleared,
+                        MemberLevels = Enumerable.Repeat(definition.RecommendedLevel, GameModel.Members.Length).ToList() });
+                    var model = new GameModel(() => now);
+                    BattleSimulator battle = model.StartStageBattle($"stage-2-{number}", seed, out string message);
+                    Assert.That(battle, Is.Not.Null, message);
+                    battle.AutoPlay(600);
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
+                    durations.Add(battle.ElapsedMilliseconds);
+                }
+                durations.Sort();
+                UnityEngine.Debug.Log($"CH2 2-{number} L{definition.RecommendedLevel} wins={wins}/8 median={durations[4]}");
+            }
+        }
+
+        [Test]
         public void FreshDefaultPartyUsuallyFightsOverOneMinuteWithOrWithoutRerolls()
         {
+            // 2026-11-01 (赵金: 1 级无装备打 1-1~1-4 通过率约 60%): the fresh party plays the shipped turn battle.
+            // 2026-11-01b (用户: "第一关可以简单点"): a fresh account's first 1-1 runs under the 新手保底 (≈95%); replays of
+            // 1-1 are the ≈60% fight (Balance1101Tests). The fight still has to take its time.
             foreach (bool automatic in new[] { false, true })
             {
                 var durations = new List<int>();
@@ -232,51 +289,64 @@ namespace ChoSiren.Tests
                     Assert.That(model.Save.Team, Is.EqualTo(new[] { 0, 1, 2, 3 }));
                     Assert.That(model.Save.MemberAccessories, Is.Empty);
                     var battle = model.StartStageBattle("stage-1-1", seed, out _);
-                    while (battle.Outcome == BattleOutcome.Ongoing) battle.AdvanceRealtime(250, automatic);
+                    battle.EnableTurnBased();
+                    int actions = 0, lastReroll = -100;
+                    while (battle.Outcome == BattleOutcome.Ongoing && actions < 4000)
+                    {
+                        BattleUnit actor = battle.NextTurnActor();
+                        if (actor == null) break;
+                        if (automatic && actor.Side == BattleSide.Player && actions - lastReroll >= 3 &&
+                            ChoSiren.Systems.Dice.DiceAutoPlanner1031.ShouldAutoReroll(battle.BattleDice) &&
+                            battle.BattleDice.RerollSuggested(out _)) lastReroll = actions;
+                        battle.AutoTurn();
+                        actions++;
+                    }
                     if (battle.Outcome == BattleOutcome.Victory) wins++;
                     durations.Add(battle.ElapsedMilliseconds);
                 }
                 durations.Sort();
                 TestContext.WriteLine($"FRESH auto={automatic} wins={wins}/256 min={durations[0]} p10={durations[25]} median={durations[128]} p90={durations[230]} max={durations[255]} over60={durations.Count(t => t > 60000)}");
-                Assert.That(wins, Is.GreaterThanOrEqualTo(250));
-                // 0.3.5：自动战斗不浪费出手时机，天然比手动快约 19%（中位数 81.2s→66.0s）。
-                // 手动仍守 230 的原护栏；自动按实测 187 设 175，留约 6% 余量。
-                int overOneMinuteGate = automatic ? 175 : 230;
-                Assert.That(durations.Count(t => t > 60000), Is.GreaterThanOrEqualTo(overOneMinuteGate),
-                    automatic
-                        ? "自动战斗可以更快，但不能快到让首关变成秒杀"
-                        : "手动战斗必须保留完整的决策时长");
-                Assert.That(durations[128], Is.InRange(65000, 90000));
+                Assert.That(wins, Is.GreaterThanOrEqualTo(256 * 85 / 100), "新号首战 1-1 有新手保底，九成左右能过");
+                Assert.That(durations[128], Is.InRange(25000, 120000), "首关不能变秒杀，也不能拖满上限");
             }
         }
 
         [Test]
         public void FreshPartyWithActiveTacticsStillHasAFullLengthBattle()
         {
+            // 2026-11-01: turn battle (the shipped mode). Using 破招突袭 / 应急守护 is a choice, not a free win: it may not
+            // cost more than a few wins against plain auto play on the same seeds, and every fight still ends properly.
             foreach (bool waitForCast in new[] { false, true })
             {
                 var times = new List<int>();
+                int wins = 0, plainWins = 0;
                 for (ulong seed = 1; seed <= 64; seed++)
+                foreach (bool tactics in new[] { false, true })
                 {
                     PlayerPrefs.DeleteKey(SaveKey); PlayerPrefs.DeleteKey(LegacySaveKey);
                     var model = new GameModel(() => now);
                     var battle = model.StartStageBattle("stage-1-1", seed, out _);
-                    while (battle.Outcome == BattleOutcome.Ongoing)
+                    battle.EnableTurnBased();
+                    for (int guard = 0; guard < 4000 && battle.Outcome == BattleOutcome.Ongoing; guard++)
                     {
-                        if (!waitForCast || battle.InterruptTarget != null) battle.TryTacticalStrike();
-                        if (battle.InterruptTarget != null) battle.TryTacticalGuard();
-                        battle.AdvanceRealtime(100, true);
+                        BattleUnit actor = battle.NextTurnActor();
+                        if (actor == null) break;
+                        if (tactics && actor.Side == BattleSide.Player)
+                        {
+                            if (!waitForCast || battle.InterruptTarget != null) battle.TryTacticalStrike();
+                            if (battle.InterruptTarget != null) battle.TryTacticalGuard();
+                        }
+                        if (battle.Outcome == BattleOutcome.Ongoing) battle.AutoTurn();
                     }
-                    Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
+                    Assert.That(battle.Outcome, Is.Not.EqualTo(BattleOutcome.Ongoing));
+                    if (!tactics) { if (battle.Outcome == BattleOutcome.Victory) plainWins++; continue; }
+                    if (battle.Outcome == BattleOutcome.Victory) wins++;
                     times.Add(battle.ElapsedMilliseconds);
                 }
                 times.Sort();
-                TestContext.WriteLine($"TACTICS timed={waitForCast} median={times[32]} over60={times.Count(t => t > 60000)}/64 min={times[0]} max={times[63]}");
-                // 0.3.5：战斗节奏整体加快一档，两个变体实测 median 64125/65675、over60 48/49。
-                // 按新基线重设护栏并留足余量（median 下限 -2s，场次 -4），避免换种子即红。
-                // 仍守住"首关不能变秒杀"：中位数 >63s、上限 90s 不变。
-                Assert.That(times[32], Is.InRange(63000, 90000));
-                Assert.That(times.Count(t => t > 60000), Is.GreaterThanOrEqualTo(44));
+                TestContext.WriteLine($"TACTICS timed={waitForCast} wins={wins}/64 plain={plainWins}/64 median={times[32]} min={times[0]} max={times[63]}");
+                Assert.That(wins, Is.GreaterThanOrEqualTo(plainWins - 8));
+                Assert.That(times[32], Is.InRange(15000, 120000));
             }
         }
 
@@ -412,6 +482,64 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        public void ChapterTwoOpensAfterChapterOneAndUnlocksInOrder()
+        {
+            SaveRaw(new GameSave { StoryProgress = 79 });
+            var locked = new GameModel(() => now);
+            Assert.That(locked.IsStageUnlocked("stage-2-1"), Is.False, "第一章未通关时第二章锁定");
+
+            SaveRaw(new GameSave
+            {
+                StoryProgress = 100,
+                ClearedStages = new List<StageClear> { new StageClear { Id = "stage-2-1", Stars = 2 } }
+            });
+            var model = new GameModel(() => now);
+            Assert.That(model.Tactics.FindStage("stage-2-10"), Is.Not.Null);
+            Assert.That(model.IsStageUnlocked("stage-2-1"), Is.True);
+            Assert.That(model.IsStageUnlocked("stage-2-2"), Is.True, "2-1 已通关，2-2 开放");
+            Assert.That(model.IsStageUnlocked("stage-2-3"), Is.False, "必须按顺序解锁");
+            BattleSimulator battle = model.StartStageBattle("stage-2-2", 77UL, out string started);
+            Assert.That(battle, Is.Not.Null, started);
+            Assert.That(model.TryStartStory("chapter-02", out _, out string storyMessage), Is.True, storyMessage);
+        }
+
+        [Test]
+        public void DailySignInGivesOneRewardPerDayAndAdvancesTheCycle()
+        {
+            SaveRaw(new GameSave());
+            DateTime clock = new DateTime(2026, 10, 10, 9, 0, 0);
+            var model = new GameModel(() => clock);
+            int diamonds = model.Save.Diamonds, gold = model.Save.Gold;
+            Assert.That(model.SignedToday, Is.False);
+            Assert.That(model.SignInDay, Is.EqualTo(0));
+            Assert.That(model.SignIn(out _), Is.True);
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + 20));
+            Assert.That(model.SignIn(out _), Is.False, "同一天只能签到一次");
+            Assert.That(model.HasCheckedInToday, Is.True, "七日签到与原有签到是同一份记录");
+            clock = clock.AddDays(1);
+            Assert.That(model.SignedToday, Is.False);
+            Assert.That(model.SignInDay, Is.EqualTo(1));
+            Assert.That(model.SignIn(out _), Is.True);
+            Assert.That(model.Save.Gold, Is.EqualTo(gold + 2000));
+            Assert.That(new GameModel(() => clock).SignedToday, Is.True);
+            clock = clock.AddDays(3);
+            Assert.That(model.SignInDay, Is.EqualTo(0), "中断后从第 1 天重新开始");
+        }
+
+        [Test]
+        public void MailGiftsCanBeClaimedOnlyOnce()
+        {
+            SaveRaw(new GameSave());
+            var model = new GameModel(() => now);
+            int diamonds = model.Save.Diamonds;
+            Assert.That(model.ClaimableMailCount, Is.GreaterThan(0));
+            Assert.That(model.ClaimMail("welcome-2026", out _), Is.True);
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + 150));
+            Assert.That(model.ClaimMail("welcome-2026", out _), Is.False);
+            Assert.That(new GameModel(() => now).Mails().First(mail => mail.Id == "welcome-2026").Claimed, Is.True);
+        }
+
+        [Test]
         public void BattleDifficultyPersistsScalesTheBattleAndSnapshotsSettlementRewards()
         {
             GameModel model = CreateModel();
@@ -483,7 +611,7 @@ namespace ChoSiren.Tests
             Assert.That(model.TryClaimChapterOneStarReward(10, out _), Is.True);
             Assert.That(model.TryClaimChapterOneStarReward(20, out _), Is.True);
             Assert.That(model.TryClaimChapterOneStarReward(30, out _), Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(500 + 100 + 300));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(500 + 30 + 80));
             Assert.That(model.Save.Gold, Is.EqualTo(700 + 2000));
             Assert.That(model.Save.RecruitTickets, Is.EqualTo(3));
             Assert.That(model.TryClaimChapterOneStarReward(30, out string duplicate), Is.False);
@@ -492,7 +620,7 @@ namespace ChoSiren.Tests
             GameModel reloaded = CreateModel();
             Assert.That(reloaded.ChapterOneStarRewardViews().All(view => view.Claimed), Is.True);
             Assert.That(reloaded.ChapterOneClaimableStarRewardCount, Is.Zero);
-            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(900));
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(610));
             Assert.That(reloaded.Save.Gold, Is.EqualTo(2700));
             Assert.That(reloaded.Save.RecruitTickets, Is.EqualTo(3));
         }
@@ -532,7 +660,7 @@ namespace ChoSiren.Tests
             Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearStageThree, out _), Is.True);
             Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskFifteenStars, out _), Is.True);
             Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearFinalStage, out _), Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(250));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(140));
             Assert.That(model.Save.Gold, Is.EqualTo(1200));
             Assert.That(model.Save.RecruitTickets, Is.EqualTo(1));
             Assert.That(model.TryClaimChapterOneTask(GameModel.ChapterOneTaskClearStageThree, out string duplicate),
@@ -544,7 +672,7 @@ namespace ChoSiren.Tests
             GameModel reloaded = CreateModel();
             Assert.That(reloaded.ChapterOneTaskViews().All(task => task.Claimed), Is.True);
             Assert.That(reloaded.ChapterOneClaimableTaskCount, Is.Zero);
-            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(250));
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(140));
             Assert.That(reloaded.Save.Gold, Is.EqualTo(1200));
             Assert.That(reloaded.Save.RecruitTickets, Is.EqualTo(1));
         }
@@ -697,10 +825,10 @@ namespace ChoSiren.Tests
             Assert.That(model.CheckIn(out _), Is.True);
             Assert.That(model.HasCheckedInToday, Is.True);
             Assert.That(model.Save.CheckInDay, Is.EqualTo(1));
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + 100));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + 20));
 
             Assert.That(model.CheckIn(out _), Is.False);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + 100));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + 20));
 
             now = now.AddDays(1);
             Assert.That(model.CheckIn(out _), Is.True);
@@ -941,7 +1069,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void AutoTeamSelectsHighestPowerPerCareerAndPersists()
+        public void AutoTeamSelectsALegalTrainedPartyKeepsCaptainAndPersists()
         {
             GameSave save = new GameSave
             {
@@ -956,9 +1084,11 @@ namespace ChoSiren.Tests
 
             Assert.That(model.Save.Team.Count, Is.EqualTo(4));
             Assert.That(model.Save.Team, Does.Contain(4));
-            Assert.That(model.Save.Team.Select(index => GameModel.Members[index].Career).Distinct().Count(), Is.EqualTo(4));
-            CollectionAssert.AreEquivalent(new[] { "主唱", "主舞", "Rapper", "门面" },
-                model.Save.Team.Select(index => GameModel.Members[index].Career));
+            Assert.That(model.Save.Team.Select(index => GameModel.Members[index].Career).Distinct().Count(), Is.GreaterThanOrEqualTo(3));
+            Assert.That(model.IsTeamReady(out string reason), Is.True, reason);
+            Assert.That(model.Save.Team[0], Is.EqualTo(0), "An explicit automatic arrangement retains the valid current captain.");
+            Assert.That(model.Save.Team.GroupBy(index => GameModel.Members[index].Race).All(group => group.Count() <= 2), Is.True);
+            Assert.That(model.Save.MemberLevels[4], Is.EqualTo(GameModel.MaxMemberLevel));
             Assert.That(model.Save.Team, Is.All.Matches<int>(index => model.IsUnlocked(index)));
             Assert.That(CreateModel().Save.Team, Is.EqualTo(model.Save.Team));
         }

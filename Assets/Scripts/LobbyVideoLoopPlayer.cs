@@ -24,6 +24,7 @@ namespace ChoSiren
         private bool waitingForPrepare;
         private bool loopRequested;
         private bool musicEnabled = true;
+        private bool soundtrackOwnsMusic;
         private bool audioUnlocked;
         private float prepareDeadline;
         private Vector2 lastSurfaceSize;
@@ -34,7 +35,7 @@ namespace ChoSiren
         public bool HasAudioTrack => IsReady && player.audioTrackCount > 0;
         public bool HasEnabledAudioTrack => HasAudioTrack && player.IsAudioTrackEnabled(0);
         public bool IsVideoAudioMuted => !HasAudioTrack || player.GetDirectAudioMute(0);
-        public bool CanProvideMusic => ShouldVideoOwnMusic(
+        public bool CanProvideMusic => !soundtrackOwnsMusic && ShouldVideoOwnMusic(
             musicEnabled,
             audioUnlocked,
             loopRequested,
@@ -82,6 +83,14 @@ namespace ChoSiren
             NotifyMusicAvailabilityIfChanged();
         }
 
+        public void SetSoundtrackOwnsMusic(bool active)
+        {
+            if (soundtrackOwnsMusic == active) return;
+            soundtrackOwnsMusic = active;
+            ApplyAudioState();
+            NotifyMusicAvailabilityIfChanged();
+        }
+
         public void ResumeAudioAfterUserGesture()
         {
             audioUnlocked = true;
@@ -108,7 +117,7 @@ namespace ChoSiren
             player.controlledAudioTrackCount = 1;
             player.EnableAudioTrack(0, true);
             player.SetDirectAudioVolume(0, GameAudio.MusicOutputVolume);
-            player.SetDirectAudioMute(0, ShouldMuteVideoAudio(musicEnabled, audioUnlocked, loopRequested));
+            player.SetDirectAudioMute(0, soundtrackOwnsMusic || ShouldMuteVideoAudio(musicEnabled, audioUnlocked, loopRequested));
             player.source = VideoSource.Url;
             string root = Application.streamingAssetsPath.TrimEnd('/', '\\');
             player.url = $"{root}/Lobby/lobby-loop.mp4";
@@ -195,7 +204,7 @@ namespace ChoSiren
         private void ApplyAudioState()
         {
             if (player == null) return;
-            player.SetDirectAudioMute(0, ShouldMuteVideoAudio(musicEnabled, audioUnlocked, loopRequested));
+            player.SetDirectAudioMute(0, soundtrackOwnsMusic || ShouldMuteVideoAudio(musicEnabled, audioUnlocked, loopRequested));
         }
 
         public static bool ShouldMuteVideoAudio(bool enabled, bool unlocked, bool playingOnLobby) =>

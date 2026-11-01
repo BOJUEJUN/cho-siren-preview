@@ -160,11 +160,15 @@ namespace ChoSiren.Systems.Tactics
         public bool UsesRealtime => !string.IsNullOrEmpty(EncounterType);
         public bool HasBossPhases => EncounterType == "boss" || EncounterType == "world";
         /// <summary>
-        /// Per-battle reroll operations. Chapter one's experience budget is three (normal/elite),
-        /// so a fresh save can try selective rerolls without first farming damage.
+        /// 2026-11-01 (赵金): "mini" = 小BOSS (each chapter's x-5), "major" = 大BOSS (chapter finale). Empty on other
+        /// stages. Drives the boss skill set in <see cref="BattleSimulator"/> (BossMechanics1101).
         /// </summary>
-        public int RerollLimit => EncounterType == "normal" || EncounterType == "elite" ? 3
-            : EncounterType == "world" ? 5 : 4;
+        public string BossTier = string.Empty;
+        /// <summary>
+        /// Authored whole-encounter charge budget: normal 2, elite / boss / world 3 (2026-10-31 赵金: 每局上限三次;
+        /// boss 4 and world 5 before). Waves and captain changes share it; nothing ever passes three a battle.
+        /// </summary>
+        public int RerollLimit => EncounterType == "normal" ? 2 : 3;
         public string EncounterLabel => EncounterType == "normal" ? "普通战" : EncounterType == "elite" ? "精英战"
             : EncounterType == "world" ? "世界首领" : "首领战";
         public int StaminaCost = 8;
@@ -191,7 +195,8 @@ namespace ChoSiren.Systems.Tactics
                 TimeLimitSeconds < 30 || TimeLimitSeconds > 120 || ThreeStarSeconds <= 0 ||
                 ThreeStarSeconds > TimeLimitSeconds || RecommendedLevel < 1 ||
                 (UsesRealtime && EncounterType != "normal" && EncounterType != "elite" &&
-                    EncounterType != "boss" && EncounterType != "world"))
+                    EncounterType != "boss" && EncounterType != "world") ||
+                (!string.IsNullOrEmpty(BossTier) && (!HasBossPhases || BossTier != "mini" && BossTier != "major")))
             {
                 error = $"关卡 {Id} 的数值无效";
                 return false;

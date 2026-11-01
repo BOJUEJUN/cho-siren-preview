@@ -1,0 +1,34 @@
+{
+    "tracks": [
+        {
+            "asset": "Assets/Resources/Audio/bgm.wav",
+            "sourceSha256": "e306ed4d9a1f3e1f9de2a72f84a59e6c1367a721c675c39cdafbb75f1446abaf",
+            "nativeCompression": "Vorbis",
+            "webCompression": "AAC",
+            "seconds": 172.3567352294922,
+            "webQuality": 0.75,
+            "samples": 7600932,
+            "expectedFrames": 7600932,
+            "importedFrameDelta": 0,
+            "channels": 2,
+            "sampleRate": 44100,
+            "estimatedWebDecodedPcmBytes": 60807456
+        },
+        {
+            "asset": "Assets/Resources/Audio/bgm-battle.wav",
+            "sourceSha256": "38420c0391d6623780517f0a40790c475fc197013374a9cc653f92e4a2ed96bb",
+            "nativeCompression": "Vorbis",
+            "webCompression": "AAC",
+            "seconds": 144.83673095703125,
+            "webQuality": 0.75,
+            "samples": 6387300,
+            "expectedFrames": 6387300,
+            "importedFrameDelta": 0,
+            "channels": 2,
+            "sampleRate": 44100,
+            "estimatedWebDecodedPcmBytes": 51098400
+        }
+    ],
+    "activeBuildTarget": "WebGL",
+    "outputSampleRate": 48000
+}

@@ -1,0 +1,91 @@
+{
+  "passed": true,
+  "version": "0.3.71",
+  "commit": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+  "clean": true,
+  "assets": [
+    {
+      "file": "1f966b3f038cad2aef9efbdba2032207.data.unityweb",
+      "group": "previous",
+      "bytes": 99508519,
+      "sha256": "1f966b3f038cad2aef9efbdba2032207011cfea36a71bdfb6d1a7bacc3d6a98a"
+    },
+    {
+      "file": "3fa1adbb740a1d4dbeb6618621a40262.loader.js",
+      "group": "current",
+      "bytes": 41128,
+      "sha256": "3fa1adbb740a1d4dbeb6618621a402626cf7efa936ed2680da970124e9d461ea"
+    },
+    {
+      "file": "5426e449948404481f637e5ff3e35e52.framework.js.unityweb",
+      "group": "current",
+      "bytes": 82029,
+      "sha256": "5426e449948404481f637e5ff3e35e52041de3ba599f1381957871a526be4d87"
+    },
+    {
+      "file": "8557c0baed26e62ad7a00752c72fc2ba.wasm.unityweb",
+      "group": "current",
+      "bytes": 9393359,
+      "sha256": "8557c0baed26e62ad7a00752c72fc2ba84c04752a173a0d44a24d27ab4dd457b"
+    },
+    {
+      "file": "cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb",
+      "group": "previous",
+      "bytes": 82029,
+      "sha256": "cec6028803ef98d0bbf52e649f5a2d82475c6e392d3ed621f3488aded3fccda5"
+    },
+    {
+      "file": "d981d07160bbcd5d2bb6cb784859ce97.data.unityweb",
+      "group": "current",
+      "bytes": 99506644,
+      "sha256": "d981d07160bbcd5d2bb6cb784859ce97e94f74051d79b339d713a19e076cfefe"
+    },
+    {
+      "file": "d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb",
+      "group": "previous",
+      "bytes": 9393539,
+      "sha256": "d9fc45d186ab89c83b10bb3346a00b8923fa5c3777e937dbf554c05609b4d8f5"
+    },
+    {
+      "file": "e4c0a1ebe9a86f38521968a453663a94.loader.js",
+      "group": "previous",
+      "bytes": 41128,
+      "sha256": "e4c0a1ebe9a86f38521968a453663a948dc3de0467577f08db0be7e6cb51cd8c"
+    }
+  ],
+  "retainedPreviousVerified": true,
+  "scope": {
+    "baselineCommit": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+    "baselineVersion": "0.3.70",
+    "changedFiles": [
+      "Build/3fa1adbb740a1d4dbeb6618621a40262.loader.js",
+      "Build/5426e449948404481f637e5ff3e35e52.framework.js.unityweb",
+      "Build/8557c0baed26e62ad7a00752c72fc2ba.wasm.unityweb",
+      "Build/9d303568f595fd69bdab3aaad7a23241.framework.js.unityweb",
+      "Build/d981d07160bbcd5d2bb6cb784859ce97.data.unityweb",
+      "RELEASES.md",
+      "build-versions.json",
+      "index.html",
+      "package.json",
+      "release.json",
+      "releases/R65.json"
+    ],
+    "runtimeOutsideBuildUnchanged": true,
+    "archivedReleaseExact": true
+  },
+  "source": {
+    "passed": true,
+    "change": "CTA quad centre expansion 1.3 only; green, other cards, .008 impact and animation unchanged",
+    "current": {
+      "bytes": 12167,
+      "sha256": "458c747459803a25e63ed0a78ce90b44bb4e19ada2381d2c3776a322cd07b01b"
+    },
+    "baseline": {
+      "bytes": 12028,
+      "sha256": "96acd930af878f9811c3849a90955d0fec85b92e0ca1fd6c473c084977696cb9"
+    }
+  },
+  "productionTextScan": "passed (credential-shaped literals and known QA markers; not a comprehensive secret audit)",
+  "acceptanceBoundary": "Static file/source audit only; browser behavior and physical devices require separate evidence.",
+  "checkedAt": "2026-10-15T10:53:33.067334+00:00"
+}

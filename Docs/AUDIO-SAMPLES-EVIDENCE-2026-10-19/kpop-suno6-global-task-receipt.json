@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-19T09:16:19.823401+00:00",
+  "host": "https://www.runninghub.ai",
+  "accountBefore": {
+    "remainMoney": "2.7840",
+    "remainCoins": "1000",
+    "currentTaskCounts": "0",
+    "currency": "USD",
+    "apiType": "SHARED"
+  },
+  "quote": {
+    "estimatedPrice": "0.08",
+    "currency": "USD"
+  },
+  "status": "SUCCESS",
+  "submissionAttempts": 1,
+  "taskId": "2112110601486041089",
+  "errorCode": null,
+  "mp3Count": 2,
+  "usage": {
+    "thirdPartyConsumeMoney": "0.08",
+    "consumeMoney": null,
+    "consumeCoins": null,
+    "taskCostTime": "0"
+  },
+  "outputs": [
+    {
+      "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/kpop-comparison-20261019-v1/suno-global/original/2112110601486041089-01.mp3",
+      "bytes": 2795289,
+      "sha256": "60bc7eda6ba843e606fdc98a222038a2a906080a71ae90108f4a1ba2c3a41b0e",
+      "host": "rh-hk-images-1252422369.cos.ap-hongkong.myqcloud.com"
+    },
+    {
+      "file": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/kpop-comparison-20261019-v1/suno-global/original/2112110601486041089-02.mp3",
+      "bytes": 2806665,
+      "sha256": "14f31a161f06d27fcc1df7140487f86bcee92f3ef0f7078f9f03ec5e6af94696",
+      "host": "rh-hk-images-1252422369.cos.ap-hongkong.myqcloud.com"
+    }
+  ]
+}

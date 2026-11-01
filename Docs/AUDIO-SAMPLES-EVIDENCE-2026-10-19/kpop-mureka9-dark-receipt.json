@@ -1,0 +1,29 @@
+{
+  "id": "mureka9-dark-kpop",
+  "model": "Mureka v9",
+  "endpoint": "/openapi/v2/mureka-ai/mureka-v9/generate-bgm",
+  "quote_cny": 0.34,
+  "attempts": 1,
+  "submitted_at": "2026-10-19T09:04:55.497113+00:00",
+  "payload_sha256": "368967f3ec72a77c16be576218c87564c57c64656168187e0a26315fea1ce867",
+  "status": "SUCCESS",
+  "task_id": "2112107721917882370",
+  "error_code": "",
+  "error_message": "",
+  "usage": {
+    "consumeMoney": null,
+    "consumeCoins": null,
+    "taskCostTime": "0",
+    "thirdPartyConsumeMoney": "0.34",
+    "billingSeconds": "163390"
+  },
+  "downloaded": true,
+  "files": [
+    {
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/kpop-comparison-20261019-v1/original/mureka9-dark-kpop.mp3",
+      "bytes": 5230385,
+      "sha256": "6f574dec9da39085ca0d3f400e9df973c50fce856e558e9d32bede10a3590ad6",
+      "source_host": "rh-images-1252422369.cos.ap-beijing.myqcloud.com"
+    }
+  ]
+}

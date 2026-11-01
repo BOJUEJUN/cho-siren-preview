@@ -37,6 +37,46 @@ namespace ChoSiren
             .Where(b => b.MemberId == MemberIdAt(member)).Select(b => b.Accessory).ToArray();
         public int EquippedAccessoryInSlot(int member, string category) => EquippedAccessoriesFor(member)
             .Where(i => AccessoryCategory(i) == category).DefaultIfEmpty(-1).First();
+
+        // v0.3.46 (meeting row 11): every member has 4 fixed equipment slots. Display
+        // categories stay as they are; items whose categories share a slot replace each other.
+        public const int EquipmentSlotCount = 4;
+        public static readonly string[] EquipmentSlotNames = { "耳饰", "项链", "手饰", "头饰" };
+        public static readonly string[] EquipmentSlotHints = { "耳饰 · 耳返", "项链 · 挂饰", "手环 · 戒指", "发饰 · 舞台" };
+
+        /// <summary>Which of the 4 slots an accessory occupies (-1 for an unknown index).</summary>
+        public static int AccessorySlot(int index)
+        {
+            switch (AccessoryCategory(index))
+            {
+                case "耳饰": return 0;
+                case "项链": case "挂饰": return 1;
+                case "手环": case "戒指": return 2;
+                case "发饰": case "舞台": return 3;
+                default: return -1;
+            }
+        }
+
+        /// <summary>The item in a member's slot, or -1 when the slot is empty.</summary>
+        public int EquippedInSlot(int member, int slot) => EquippedAccessoriesFor(member)
+            .Where(i => AccessorySlot(i) == slot).DefaultIfEmpty(-1).First();
+
+        /// <summary>Old saves allowed one item per category (up to 7); keep the strongest per slot.</summary>
+        private void NormalizeEquipmentSlots()
+        {
+            if (Save.MemberAccessories == null) return;
+            var keep = Save.MemberAccessories
+                .GroupBy(b => (b.MemberId, AccessorySlot(b.Accessory)))
+                .Select(g => g.OrderByDescending(b => EffectiveAccessoryPower(b.Accessory)).First())
+                .ToList();
+            if (keep.Count != Save.MemberAccessories.Count) Save.MemberAccessories = keep;
+        }
+
+        private int EffectiveAccessoryPower(int item)
+        {
+            CombatStatBonuses b = EffectiveAccessoryBonuses(item);
+            return b.Hp + b.Attack * 3 + b.Defense * 2;
+        }
         public CombatStatBonuses MemberEquipmentBonuses(int member) => SumEquipmentBonuses(EquippedAccessoriesFor(member));
         private CombatStatBonuses SumEquipmentBonuses(IEnumerable<int> items)
         {
@@ -48,7 +88,7 @@ namespace ChoSiren
             var items = EquippedAccessoriesFor(member).ToList();
             if (member == target)
             {
-                items.RemoveAll(i => i == item || (!remove && AccessoryCategory(i) == AccessoryCategory(item)));
+                items.RemoveAll(i => i == item || (!remove && AccessorySlot(i) == AccessorySlot(item)));
                 if (!remove && item >= 0) items.Add(item);
             }
             else if (!remove) items.Remove(item);
@@ -68,12 +108,47 @@ namespace ChoSiren
             string id = MemberIdAt(member);
             bool remove = AccessoryOwner(item) == member;
             Save.MemberAccessories.RemoveAll(b => b.Accessory == item ||
-                (!remove && b.MemberId == id && AccessoryCategory(b.Accessory) == AccessoryCategory(item)));
+                (!remove && b.MemberId == id && AccessorySlot(b.Accessory) == AccessorySlot(item)));
             if (!remove) Save.MemberAccessories.Add(new MemberAccessoryBinding { MemberId = id, Accessory = item });
             SaveState();
             message = $"{Members[member].Name} 已{(remove ? "卸下" : "装备")}{AccessoryNames[item]}，下场战斗生效";
             return true;
         }
+        /// <summary>
+        /// 快捷穿戴: fills each of the member's 4 slots with the strongest owned item that nobody
+        /// else is wearing. Items already worn by teammates are never taken away.
+        /// </summary>
+        public int QuickEquip(int member, out string message)
+        {
+            if (!IsUnlocked(member)) { message = "请先签约该成员"; return 0; }
+            string id = MemberIdAt(member);
+            int changed = 0;
+            for (int slot = 0; slot < EquipmentSlotCount; slot++)
+            {
+                int current = EquippedInSlot(member, slot);
+                int best = Save.OwnedAccessories.Distinct()
+                    .Where(i => AccessorySlot(i) == slot && (AccessoryOwner(i) < 0 || i == current))
+                    .OrderByDescending(EffectiveAccessoryPower).DefaultIfEmpty(-1).First();
+                if (best < 0 || best == current) continue;
+                Save.MemberAccessories.RemoveAll(b => b.MemberId == id && AccessorySlot(b.Accessory) == slot);
+                Save.MemberAccessories.Add(new MemberAccessoryBinding { MemberId = id, Accessory = best });
+                changed++;
+            }
+            if (changed > 0) SaveState();
+            message = changed > 0 ? $"{Members[member].Name} 已穿戴 {changed} 件更强的饰品" : "已是当前最强搭配";
+            return changed;
+        }
+
+        /// <summary>全部解除: frees every slot of the member.</summary>
+        public int UnequipAll(int member, out string message)
+        {
+            string id = MemberIdAt(member);
+            int removed = Save.MemberAccessories.RemoveAll(b => b.MemberId == id);
+            if (removed > 0) SaveState();
+            message = removed > 0 ? $"已卸下 {removed} 件饰品" : "当前没有穿戴饰品";
+            return removed;
+        }
+
         // Legacy drop IDs remain stable so existing cosmetic-only records can be recovered.
         public static readonly string[] AccessoryItemIds = new[] { "accessory-ear-monitor", "accessory-heart-necklace", "accessory-dance-boots",
             "accessory-neon-clip", "accessory-neon-earring", "accessory-stage-crown", "accessory-prism-monitor",
@@ -181,8 +256,10 @@ namespace ChoSiren
         public CombatStatBonuses EffectiveAccessoryBonuses(int index)
         {
             CombatStatBonuses b = AccessoryBonuses(index);
-            int extra = AccessoryUpgradeLevel(index) * 20;
-            return new CombatStatBonuses(b.Hp > 0 ? b.Hp + extra : 0, b.Attack > 0 ? b.Attack + extra : 0, b.Defense > 0 ? b.Defense + extra : 0);
+            // 2026-11-01 (赵金 "装备的提升也就5%哈最多"): +0.5% per upgrade level, never past the per-item cap.
+            int extra = AccessoryUpgradeLevel(index) * AccessoryUpgradeStepPermille;
+            int Up(int value) => value > 0 ? Math.Min(MaxItemStatPermille, value + extra) : 0;
+            return new CombatStatBonuses(Up(b.Hp), Up(b.Attack), Up(b.Defense));
         }
         /// <summary>强化只花金币（与「签约用钻石、升级只用金币」口径一致）。
         /// 原先还要 (level+1)*3 强化碎片，碎片系统已移除，成本折进金币。</summary>
@@ -195,13 +272,13 @@ namespace ChoSiren
         public bool UpgradeAccessory(int index, out string message)
         {
             if (!OwnsAccessory(index)) { message = "尚未获得该饰品"; return false; }
-            if (AccessoryUpgradeLevel(index) >= 3) { message = "已达强化上限 +3"; return false; }
+            if (AccessoryUpgradeLevel(index) >= 3) { message = "已满级 Lv.4"; return false; }
             if (!CanUpgradeAccessory(index, out int gold))
             { message = $"需要金币 {gold}"; return false; }
             Save.Gold -= gold;
             Save.AccessoryUpgradeLevels[index]++;
             SaveState();
-            message = $"{AccessoryNames[index]} 强化 +{AccessoryUpgradeLevel(index)}，下场战斗生效";
+            message = $"{AccessoryNames[index]} 升到 Lv.{AccessoryUpgradeLevel(index) + 1}，下场战斗生效";
             return true;
         }
         /// <summary>重复获得的饰品折算成金币（原为 3 强化碎片）。</summary>
@@ -256,6 +333,7 @@ namespace ChoSiren
             Save.MemberAccessories = Save.MemberAccessories.Where(b => b != null &&
                 IsUnlocked(IndexOfMember(b.MemberId)) && OwnsAccessory(b.Accessory) &&
                 !items.Contains(b.Accessory) && members.Add(b.MemberId + ":" + AccessoryCategory(b.Accessory)) && items.Add(b.Accessory)).ToList();
+            NormalizeEquipmentSlots();
             // Compatibility projection only; changing captain must never move her equipment.
             Save.EquippedAccessory = EquippedAccessoryFor(Save.Team[0]);
         }

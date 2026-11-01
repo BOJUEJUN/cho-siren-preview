@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Passed" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.0534876">
+  <test-suite type="TestSuite" id="1000" name="CHO-SIREN 幻域魅声" fullname="CHO-SIREN 幻域魅声" runstate="Runnable" testcasecount="502" result="Passed" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.053488" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1575" name="ChoSiren.Tests.EditMode.dll" fullname="/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/ui-unification-20261013/project/Library/ScriptAssemblies/ChoSiren.Tests.EditMode.dll" runstate="Runnable" testcasecount="502" result="Passed" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.049861" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="87582" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1576" name="ChoSiren" fullname="ChoSiren" runstate="Runnable" testcasecount="502" result="Passed" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.048975" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1577" name="Tests" fullname="ChoSiren.Tests" runstate="Runnable" testcasecount="502" result="Passed" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.048293" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1104" name="GameModelTests" fullname="ChoSiren.Tests.GameModelTests" classname="ChoSiren.Tests.GameModelTests" runstate="Runnable" testcasecount="74" result="Passed" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.045569" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1142" name="AutoTeamSelectsALegalTrainedPartyKeepsCaptainAndPersists" fullname="ChoSiren.Tests.GameModelTests.AutoTeamSelectsALegalTrainedPartyKeepsCaptainAndPersists" methodname="AutoTeamSelectsALegalTrainedPartyKeepsCaptainAndPersists" classname="ChoSiren.Tests.GameModelTests" runstate="Runnable" seed="1749511518" result="Passed" start-time="2026-10-16 09:02:52Z" end-time="2026-10-16 09:02:52Z" duration="0.035436" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: /Users/bojuejun/Library/Application Support/CHO-SIREN Studio/CHO-SIREN 幻域魅声/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

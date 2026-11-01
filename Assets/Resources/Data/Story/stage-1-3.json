@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-3",
+  "Title": "1-3 天桥回响",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-3"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "那个大家伙……是静电凝成的傀儡，皮很硬。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "硬的才好。找到缝，一口气撕开。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "精英关，记得用应急守护，别硬吃它的重击。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

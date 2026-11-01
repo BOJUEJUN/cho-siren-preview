@@ -1,0 +1,414 @@
+{
+  "neon-scout": {
+    "enter": [
+      {
+        "text": "目标，确认。",
+        "clip": "Voice/Enemy/neon-scout-enter-01"
+      },
+      {
+        "text": "从阴影中，狩猎。",
+        "clip": "Voice/Enemy/neon-scout-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "太慢了。",
+        "clip": "Voice/Enemy/neon-scout-taunt-01"
+      },
+      {
+        "text": "你的脑袋，我收下了。",
+        "clip": "Voice/Enemy/neon-scout-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "……血，不够了……",
+        "clip": "Voice/Enemy/neon-scout-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "解决一个。",
+        "clip": "Voice/Enemy/neon-scout-kill-01"
+      },
+      {
+        "text": "真脆弱。",
+        "clip": "Voice/Enemy/neon-scout-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "任务……失败……",
+        "clip": "Voice/Enemy/neon-scout-death-01"
+      }
+    ]
+  },
+  "noise-wraith": {
+    "enter": [
+      {
+        "text": "呐，来玩吧？",
+        "clip": "Voice/Enemy/noise-wraith-enter-01"
+      },
+      {
+        "text": "呐，你的声音……给我？",
+        "clip": "Voice/Enemy/noise-wraith-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "来呀来呀，这边哦～",
+        "clip": "Voice/Enemy/noise-wraith-taunt-01"
+      },
+      {
+        "text": "用杂音，把你融化掉。",
+        "clip": "Voice/Enemy/noise-wraith-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "不要……不想消失……",
+        "clip": "Voice/Enemy/noise-wraith-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "声音，拿到啦！",
+        "clip": "Voice/Enemy/noise-wraith-kill-01"
+      },
+      {
+        "text": "啊哈，安静了。",
+        "clip": "Voice/Enemy/noise-wraith-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "真无……聊……",
+        "clip": "Voice/Enemy/noise-wraith-death-01"
+      }
+    ]
+  },
+  "pulse-guard": {
+    "enter": [
+      {
+        "text": "沉下来……和我一起……",
+        "clip": "Voice/Enemy/pulse-guard-enter-01"
+      },
+      {
+        "text": "到冰冷的海里来……",
+        "clip": "Voice/Enemy/pulse-guard-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "呼吸，很痛苦吧？",
+        "clip": "Voice/Enemy/pulse-guard-taunt-01"
+      },
+      {
+        "text": "被浪吞没吧。",
+        "clip": "Voice/Enemy/pulse-guard-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "水……不够了……",
+        "clip": "Voice/Enemy/pulse-guard-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "沉下去一个……",
+        "clip": "Voice/Enemy/pulse-guard-kill-01"
+      },
+      {
+        "text": "在海底，安眠吧……",
+        "clip": "Voice/Enemy/pulse-guard-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "终于……能浮上去了……",
+        "clip": "Voice/Enemy/pulse-guard-death-01"
+      }
+    ]
+  },
+  "velvet-hexer": {
+    "enter": [
+      {
+        "text": "落入蛛丝了呢。",
+        "clip": "Voice/Enemy/velvet-hexer-enter-01"
+      },
+      {
+        "text": "尝尝甜美的毒吧？",
+        "clip": "Voice/Enemy/velvet-hexer-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "越挣扎，缠得越紧哦？",
+        "clip": "Voice/Enemy/velvet-hexer-taunt-01"
+      },
+      {
+        "text": "慢慢地，把你溶掉。",
+        "clip": "Voice/Enemy/velvet-hexer-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "骗人……丝要断了……",
+        "clip": "Voice/Enemy/velvet-hexer-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "我开动啦！",
+        "clip": "Voice/Enemy/velvet-hexer-kill-01"
+      },
+      {
+        "text": "毒很有效吧？",
+        "clip": "Voice/Enemy/velvet-hexer-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "怎么会……我的，巢……",
+        "clip": "Voice/Enemy/velvet-hexer-death-01"
+      }
+    ]
+  },
+  "echo-drone": {
+    "enter": [
+      {
+        "text": "沉醉在我的歌声里吧。",
+        "clip": "Voice/Enemy/echo-drone-enter-01"
+      },
+      {
+        "text": "舞台，属于我。",
+        "clip": "Voice/Enemy/echo-drone-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "听得入迷，动不了了吧？",
+        "clip": "Voice/Enemy/echo-drone-taunt-01"
+      },
+      {
+        "text": "再靠近一点听吧？",
+        "clip": "Voice/Enemy/echo-drone-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "声音……沙哑了……",
+        "clip": "Voice/Enemy/echo-drone-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "没有安可了哦。",
+        "clip": "Voice/Enemy/echo-drone-kill-01"
+      },
+      {
+        "text": "真是美妙的悲鸣。",
+        "clip": "Voice/Enemy/echo-drone-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "我的……歌……",
+        "clip": "Voice/Enemy/echo-drone-death-01"
+      }
+    ]
+  },
+  "static-golem": {
+    "enter": [
+      {
+        "text": "唱到坏掉为止吧！",
+        "clip": "Voice/Enemy/static-golem-enter-01"
+      },
+      {
+        "text": "音量，开到最大！",
+        "clip": "Voice/Enemy/static-golem-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "叫啊！再大声点叫啊！",
+        "clip": "Voice/Enemy/static-golem-taunt-01"
+      },
+      {
+        "text": "连耳朵一起，砸烂！",
+        "clip": "Voice/Enemy/static-golem-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "还没完……还没停下！",
+        "clip": "Voice/Enemy/static-golem-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "最棒的悲鸣啊！",
+        "clip": "Voice/Enemy/static-golem-kill-01"
+      },
+      {
+        "text": "下一个！把下一个声音交出来！",
+        "clip": "Voice/Enemy/static-golem-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "声音……在消失……",
+        "clip": "Voice/Enemy/static-golem-death-01"
+      }
+    ]
+  },
+  "siren-queen": {
+    "enter": [
+      {
+        "text": "欢迎来到，我的王座。",
+        "clip": "Voice/Enemy/siren-queen-enter-01"
+      },
+      {
+        "text": "向我，俯首称臣吧。",
+        "clip": "Voice/Enemy/siren-queen-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "凭那种程度的歌，也想传到我这里？",
+        "clip": "Voice/Enemy/siren-queen-taunt-01"
+      },
+      {
+        "text": "跪下吧。要跪得美丽些。",
+        "clip": "Voice/Enemy/siren-queen-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "我竟然……被压制了……？",
+        "clip": "Voice/Enemy/siren-queen-lowhp-01"
+      },
+      {
+        "text": "不可饶恕……绝对，不可饶恕！",
+        "clip": "Voice/Enemy/siren-queen-lowhp-02"
+      }
+    ],
+    "kill": [
+      {
+        "text": "先解决，一个。",
+        "clip": "Voice/Enemy/siren-queen-kill-01"
+      },
+      {
+        "text": "美丽地凋零吧。",
+        "clip": "Voice/Enemy/siren-queen-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "不可能……我的，魅声……",
+        "clip": "Voice/Enemy/siren-queen-death-01"
+      },
+      {
+        "text": "给我……记住……",
+        "clip": "Voice/Enemy/siren-queen-death-02"
+      }
+    ]
+  },
+  "boss-default": {
+    "enter": [
+      {
+        "text": "欢迎来到，我的王座。",
+        "clip": "Voice/Enemy/siren-queen-enter-01"
+      },
+      {
+        "text": "向我，俯首称臣吧。",
+        "clip": "Voice/Enemy/siren-queen-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "凭那种程度的歌，也想传到我这里？",
+        "clip": "Voice/Enemy/siren-queen-taunt-01"
+      },
+      {
+        "text": "跪下吧。要跪得美丽些。",
+        "clip": "Voice/Enemy/siren-queen-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "我竟然……被压制了……？",
+        "clip": "Voice/Enemy/siren-queen-lowhp-01"
+      },
+      {
+        "text": "不可饶恕……绝对，不可饶恕！",
+        "clip": "Voice/Enemy/siren-queen-lowhp-02"
+      }
+    ],
+    "kill": [
+      {
+        "text": "先解决，一个。",
+        "clip": "Voice/Enemy/siren-queen-kill-01"
+      },
+      {
+        "text": "美丽地凋零吧。",
+        "clip": "Voice/Enemy/siren-queen-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "不可能……我的，魅声……",
+        "clip": "Voice/Enemy/siren-queen-death-01"
+      },
+      {
+        "text": "给我……记住……",
+        "clip": "Voice/Enemy/siren-queen-death-02"
+      }
+    ]
+  },
+  "minion-default": {
+    "enter": [
+      {
+        "text": "目标，确认。",
+        "clip": "Voice/Enemy/neon-scout-enter-01"
+      },
+      {
+        "text": "音量，开到最大！",
+        "clip": "Voice/Enemy/static-golem-enter-02"
+      }
+    ],
+    "taunt": [
+      {
+        "text": "太慢了。",
+        "clip": "Voice/Enemy/neon-scout-taunt-01"
+      },
+      {
+        "text": "被浪吞没吧。",
+        "clip": "Voice/Enemy/pulse-guard-taunt-02"
+      }
+    ],
+    "lowhp": [
+      {
+        "text": "声音……沙哑了……",
+        "clip": "Voice/Enemy/echo-drone-lowhp-01"
+      }
+    ],
+    "kill": [
+      {
+        "text": "解决一个。",
+        "clip": "Voice/Enemy/neon-scout-kill-01"
+      },
+      {
+        "text": "真是美妙的悲鸣。",
+        "clip": "Voice/Enemy/echo-drone-kill-02"
+      }
+    ],
+    "death": [
+      {
+        "text": "任务……失败……",
+        "clip": "Voice/Enemy/neon-scout-death-01"
+      }
+    ]
+  }
+}

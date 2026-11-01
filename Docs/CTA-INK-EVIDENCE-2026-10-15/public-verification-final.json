@@ -1,0 +1,312 @@
+{
+  "passed": true,
+  "version": "0.3.71",
+  "commit": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+  "baseUrl": "https://bojuejun.github.io/cho-siren-preview/",
+  "verified": [
+    {
+      "path": "Build/d981d07160bbcd5d2bb6cb784859ce97.data.unityweb",
+      "bytes": 99506644,
+      "sha256": "d981d07160bbcd5d2bb6cb784859ce97e94f74051d79b339d713a19e076cfefe",
+      "completeShaVerified": true,
+      "group": "current"
+    },
+    {
+      "path": "Build/5426e449948404481f637e5ff3e35e52.framework.js.unityweb",
+      "bytes": 82029,
+      "sha256": "5426e449948404481f637e5ff3e35e52041de3ba599f1381957871a526be4d87",
+      "completeShaVerified": true,
+      "group": "current"
+    },
+    {
+      "path": "Build/8557c0baed26e62ad7a00752c72fc2ba.wasm.unityweb",
+      "bytes": 9393359,
+      "sha256": "8557c0baed26e62ad7a00752c72fc2ba84c04752a173a0d44a24d27ab4dd457b",
+      "completeShaVerified": true,
+      "group": "current"
+    },
+    {
+      "path": "Build/3fa1adbb740a1d4dbeb6618621a40262.loader.js",
+      "bytes": 41128,
+      "sha256": "3fa1adbb740a1d4dbeb6618621a402626cf7efa936ed2680da970124e9d461ea",
+      "completeShaVerified": true,
+      "group": "current"
+    },
+    {
+      "path": "Build/1f966b3f038cad2aef9efbdba2032207.data.unityweb",
+      "bytes": 99508519,
+      "sha256": "1f966b3f038cad2aef9efbdba2032207011cfea36a71bdfb6d1a7bacc3d6a98a",
+      "completeShaVerified": true,
+      "group": "previous"
+    },
+    {
+      "path": "Build/cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb",
+      "bytes": 82029,
+      "sha256": "cec6028803ef98d0bbf52e649f5a2d82475c6e392d3ed621f3488aded3fccda5",
+      "completeShaVerified": true,
+      "group": "previous"
+    },
+    {
+      "path": "Build/d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb",
+      "bytes": 9393539,
+      "sha256": "d9fc45d186ab89c83b10bb3346a00b8923fa5c3777e937dbf554c05609b4d8f5",
+      "completeShaVerified": true,
+      "group": "previous"
+    },
+    {
+      "path": "Build/e4c0a1ebe9a86f38521968a453663a94.loader.js",
+      "bytes": 41128,
+      "sha256": "e4c0a1ebe9a86f38521968a453663a948dc3de0467577f08db0be7e6cb51cd8c",
+      "completeShaVerified": true,
+      "group": "previous"
+    },
+    {
+      "path": ".nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "StreamingAssets/Lobby/lobby-loop.mp4",
+      "bytes": 4880863,
+      "sha256": "aaa9231a0cf5c681d4fe1d142d22ade2e7f9c1b935f5e99914d7165791d0065a",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "bytes": 3477045,
+      "sha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "bytes": 4137839,
+      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "app.js",
+      "bytes": 52899,
+      "sha256": "ea2260bf7a85504d6006e995f88cf82c26facca8fd6eb70165a322f7570faa47",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "audio-skin.js",
+      "bytes": 6205,
+      "sha256": "abaa2bc9345bb34572adc7465673d3c4ebfe2a5b75c8377218ee95fbb68ad4ae",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "build-versions.json",
+      "bytes": 504,
+      "sha256": "03082ed768a58279241a7c208f2eec3bb038b281d98dd8b2b1bbc53c5269c78e",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "character-moments.css",
+      "bytes": 335,
+      "sha256": "c53ec20b1dab0c9629c6965dfe605af52cdc50993ef848e19b6aa4adff6d9181",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "character-moments.js",
+      "bytes": 23912,
+      "sha256": "06777f2dd27d51a75a307f3521749edf85d89de11266b98cc9740963189738d6",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "character-motion.js",
+      "bytes": 3796,
+      "sha256": "fae5a3743a97a1c6bcf3d1d0ae418c43b3c95c2cbec7ccc542577822452145cf",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "favicon.svg",
+      "bytes": 575,
+      "sha256": "7f3e86c23e1601055d43cdde3bd6f460cd9e5f280c2cacf3f6dc7c66cabf8d8d",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "game-core.js",
+      "bytes": 19545,
+      "sha256": "3eedb7c0fb8c502fea410699f6be782c37749ec24a9a733d5a93a1efacbe070a",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "game-core.test.js",
+      "bytes": 9624,
+      "sha256": "73ec37705b6630a15c62f34b562a97f7c438ab85faf06d79fd91b3aad74bbf97",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "generated-assets.css",
+      "bytes": 5204,
+      "sha256": "94089fc3bf131007683152174c05dd7ffd9165c4dd330c298449028aa88ea8fa",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "home-stage.css",
+      "bytes": 1392,
+      "sha256": "d236d1772d2c656b800c147fbe42c8273b4bd11724ea8cc0f79c14974a4e9e16",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "home-stage.js",
+      "bytes": 7695,
+      "sha256": "ba1f10e462094fb7c0127bdbee7a98fa38410177248d18011e2e17378548b394",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "index.html",
+      "bytes": 50909,
+      "sha256": "ef7b23539b3455927555da54b42613a61f5003142acc9ebe4539996bafe899fb",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "layout-fixes.css",
+      "bytes": 29296,
+      "sha256": "7a5732842de89c3d8a944003d5f6912fe0fb6f02f0cd3cce17477f56c33e0335",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "lipstick-cursor.svg",
+      "bytes": 1103,
+      "sha256": "2bfcb15b1a43dfa07e698d0c6d6b834035733a9371cf2ee9673df758d5ec34d3",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "loading-cg.js",
+      "bytes": 3399,
+      "sha256": "8b09194d975ba95783d9e7f4661899c12b3f8549cd36abd059acdb23971bc9a7",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 846,
+      "sha256": "243564c1a468f863a628ed306eeb4e90d7fb4e344249a9ace9a1f654665363bb",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "media/afterglow-cruise-01.mp3",
+      "bytes": 5017226,
+      "sha256": "226e43f1f846d8676ecea2fb1db74d10b22abf6907af186e4e578175fad6b671",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "media/afterglow-cruise-02.mp3",
+      "bytes": 6633892,
+      "sha256": "69994c144a5064e08511b6d617d2f220e6ac8526e5d78244b59b96f4c32b016f",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "media/my-light-my-rules-preview.mp3",
+      "bytes": 3993057,
+      "sha256": "9fdedf1e184d33ea03be30acbc5d0e9869c22dde6a4e779a25b2bca3a8024ab9",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "motion.css",
+      "bytes": 2038,
+      "sha256": "919907eb3f2a99afbf1fe30a094ca72829ff64a79b2de07fb3376b629ac510ff",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "music/afterglow/index.html",
+      "bytes": 3043,
+      "sha256": "bdb71084dc46ae52932ba1c3191319c6313d11fb71590d15cef61f7d3b2a631a",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "music/index.html",
+      "bytes": 1748,
+      "sha256": "8450c8007ec29f3813e30c1987e6d334323ac4d8aad66cadb82976fd5b81ce76",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "package.json",
+      "bytes": 775,
+      "sha256": "07ac12600e26d5e3592213f13d758bc8b3f077dfc8a5c5277c6df0bbd627c6de",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "release.json",
+      "bytes": 3762,
+      "sha256": "a20d5e36e8e8e3b8e0ef57375e07bd5d20b48b9c168ca0e29767838397620808",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "releases/R65.json",
+      "bytes": 4329,
+      "sha256": "3a129921f0376f8b4cf6e1295db30aa2268350020750891af6f6781fe89d8aff",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "secondary-polish.css",
+      "bytes": 15739,
+      "sha256": "2e104af199ce12a7da2f134a2f539fcf01138c7c6a9d73a48433e2d6beed76da",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "service-worker.js",
+      "bytes": 7649,
+      "sha256": "34a1cc84728ea142acb03e9383281d021af2d98e389f546be7301a917630a39e",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "styles.css",
+      "bytes": 12515,
+      "sha256": "eb63ee73b05a8fd7cbb88d48c883ec30e52f85c40bfa71a69836ede830dbdf11",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "topbar-row.css",
+      "bytes": 6060,
+      "sha256": "970953907dedd61bdc75a26e29d34da3e86f6d8207d1300ac9fa8ebeab848499",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    },
+    {
+      "path": "video-motion.css",
+      "bytes": 1025,
+      "sha256": "40edfe9f177945dd11e8aff98ea3cdd141366b0bcfa4c89fd1f6c3bc988748ed",
+      "completeShaVerified": true,
+      "group": "sidecar"
+    }
+  ],
+  "retainedPreviousCompleteShaVerified": true,
+  "acceptanceBoundary": "Exact remote bytes matched the clean local commit. This does not verify UI, audio behavior or physical devices.",
+  "checkedAt": "2026-10-15T10:57:22.079130+00:00"
+}

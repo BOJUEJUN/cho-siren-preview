@@ -1,0 +1,24 @@
+{
+  "targetSha": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
+  "runs": [
+    {
+      "id": 38705754194,
+      "name": "Quality checks",
+      "headSha": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
+      "branch": "main",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38705754194"
+    },
+    {
+      "id": 38705753050,
+      "name": "pages build and deployment",
+      "headSha": "1ce9d318f762c59e73c3fc36821a09a333b5474f",
+      "branch": "main",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38705753050"
+    }
+  ],
+  "bothSucceeded": true
+}

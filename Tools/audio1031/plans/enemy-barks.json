@@ -1,0 +1,854 @@
+{
+ "purpose": "B enemy barks",
+ "voices": {
+  "neon-scout": [
+   "English_ConfidentWoman",
+   1.0,
+   -2
+  ],
+  "noise-wraith": [
+   "English_PlayfulGirl",
+   1.05,
+   2
+  ],
+  "pulse-guard": [
+   "English_Whispering_girl",
+   0.92,
+   -3
+  ],
+  "velvet-hexer": [
+   "English_captivating_female1",
+   1.0,
+   1
+  ],
+  "echo-drone": [
+   "Japanese_GracefulMaiden",
+   0.95,
+   -1
+  ],
+  "static-golem": [
+   "English_UpsetGirl",
+   1.12,
+   0
+  ],
+  "siren-queen": [
+   "Japanese_ColdQueen",
+   0.95,
+   -1
+  ]
+ },
+ "lines": [
+  {
+   "id": "neon-scout-enter-01",
+   "enemy": "neon-scout",
+   "cat": "enter",
+   "variant": 1,
+   "text": "(exhale)標的、確認。",
+   "zh": "目标，确认。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "neutral",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "neon-scout-enter-02",
+   "enemy": "neon-scout",
+   "cat": "enter",
+   "variant": 2,
+   "text": "影の中から、狩らせてもらう。",
+   "zh": "从阴影中，狩猎。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "neutral",
+   "speed": 1.0,
+   "pitch": -2,
+   "history": [
+    {
+     "text": "影から、狩る。",
+     "speed": 1.0
+    }
+   ]
+  },
+  {
+   "id": "neon-scout-taunt-01",
+   "enemy": "neon-scout",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "遅い。",
+   "zh": "太慢了。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "neutral",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "neon-scout-taunt-02",
+   "enemy": "neon-scout",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "その首、もらう。",
+   "zh": "你的脑袋，我收下了。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "angry",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "neon-scout-lowhp-01",
+   "enemy": "neon-scout",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "(pant)…血が、足りない…",
+   "zh": "……血，不够了……",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "fearful",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "neon-scout-kill-01",
+   "enemy": "neon-scout",
+   "cat": "kill",
+   "variant": 1,
+   "text": "一人、片付けた。",
+   "zh": "解决一个。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "neutral",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "neon-scout-kill-02",
+   "enemy": "neon-scout",
+   "cat": "kill",
+   "variant": 2,
+   "text": "(chuckle)脆いな。",
+   "zh": "真脆弱。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "neon-scout-death-01",
+   "enemy": "neon-scout",
+   "cat": "death",
+   "variant": 1,
+   "text": "(gasps)任務…失敗…",
+   "zh": "任务……失败……",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "sad",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "noise-wraith-enter-01",
+   "enemy": "noise-wraith",
+   "cat": "enter",
+   "variant": 1,
+   "text": "(laughs)ねえ、あそぼ？",
+   "zh": "呐，来玩吧？",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "(laughs)ねえ、あそぼ？",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-enter-02",
+   "enemy": "noise-wraith",
+   "cat": "enter",
+   "variant": 2,
+   "text": "ねえ、キミの声…ちょうだい？",
+   "zh": "呐，你的声音……给我？",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "キミの声、ちょうだい。",
+     "speed": 1.05
+    },
+    {
+     "text": "キミの声、ちょうだい？",
+     "speed": 1.05
+    },
+    {
+     "text": "ねえ…声、ちょうだい？",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-taunt-01",
+   "enemy": "noise-wraith",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "ほらほら、こっちだよ～",
+   "zh": "来呀来呀，这边哦～",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "ほらほら、こっちだよ～",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-taunt-02",
+   "enemy": "noise-wraith",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "ノイズで、溶かしてあげる。",
+   "zh": "用杂音，把你融化掉。",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "ノイズで、溶かしてあげる。",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-lowhp-01",
+   "enemy": "noise-wraith",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "やだ…消えたくない…",
+   "zh": "不要……不想消失……",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "fearful",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "やだ…消えたくない…",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-kill-01",
+   "enemy": "noise-wraith",
+   "cat": "kill",
+   "variant": 1,
+   "text": "(laughs)声、もーらった！",
+   "zh": "声音，拿到啦！",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "(laughs)声、もーらった！",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-kill-02",
+   "enemy": "noise-wraith",
+   "cat": "kill",
+   "variant": 2,
+   "text": "あはっ、静かになった。",
+   "zh": "啊哈，安静了。",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "あはっ、静かになった。",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "noise-wraith-death-01",
+   "enemy": "noise-wraith",
+   "cat": "death",
+   "variant": 1,
+   "text": "(sighs)つまんな…い…",
+   "zh": "真无……聊……",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "sad",
+   "speed": 1.05,
+   "pitch": 2,
+   "history": [
+    {
+     "text": "(sighs)つまんな…い…",
+     "voice_id": "English_WhimsicalGirl"
+    }
+   ]
+  },
+  {
+   "id": "pulse-guard-enter-01",
+   "enemy": "pulse-guard",
+   "cat": "enter",
+   "variant": 1,
+   "text": "沈んで…一緒に…",
+   "zh": "沉下来……和我一起……",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "sad",
+   "speed": 1.0,
+   "pitch": -3,
+   "history": [
+    {
+     "text": "(breath)沈んで…一緒に…",
+     "speed": 0.92
+    }
+   ]
+  },
+  {
+   "id": "pulse-guard-enter-02",
+   "enemy": "pulse-guard",
+   "cat": "enter",
+   "variant": 2,
+   "text": "冷たい海へ…おいで…",
+   "zh": "到冰冷的海里来……",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "sad",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "pulse-guard-taunt-01",
+   "enemy": "pulse-guard",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "息、苦しいでしょう？",
+   "zh": "呼吸，很痛苦吧？",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "neutral",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "pulse-guard-taunt-02",
+   "enemy": "pulse-guard",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "波に、呑まれて。",
+   "zh": "被浪吞没吧。",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "neutral",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "pulse-guard-lowhp-01",
+   "enemy": "pulse-guard",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "水が…足りない…",
+   "zh": "水……不够了……",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "fearful",
+   "speed": 1.0,
+   "pitch": -3,
+   "history": [
+    {
+     "text": "(gasps)水が…足りない…",
+     "speed": 0.92
+    }
+   ]
+  },
+  {
+   "id": "pulse-guard-kill-01",
+   "enemy": "pulse-guard",
+   "cat": "kill",
+   "variant": 1,
+   "text": "ひとり、沈んだ…",
+   "zh": "沉下去一个……",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "sad",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "pulse-guard-kill-02",
+   "enemy": "pulse-guard",
+   "cat": "kill",
+   "variant": 2,
+   "text": "海の底で、眠って…",
+   "zh": "在海底，安眠吧……",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "sad",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "pulse-guard-death-01",
+   "enemy": "pulse-guard",
+   "cat": "death",
+   "variant": 1,
+   "text": "やっと…浮かべる…",
+   "zh": "终于……能浮上去了……",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "sad",
+   "speed": 1.0,
+   "pitch": -3,
+   "history": [
+    {
+     "text": "(sighs)やっと…浮かべる…",
+     "speed": 0.92
+    }
+   ]
+  },
+  {
+   "id": "velvet-hexer-enter-01",
+   "enemy": "velvet-hexer",
+   "cat": "enter",
+   "variant": 1,
+   "text": "(chuckle)糸に、かかったね。",
+   "zh": "落入蛛丝了呢。",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-enter-02",
+   "enemy": "velvet-hexer",
+   "cat": "enter",
+   "variant": 2,
+   "text": "甘い毒、味わって？",
+   "zh": "尝尝甜美的毒吧？",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-taunt-01",
+   "enemy": "velvet-hexer",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "もがくほど、絡まるよ？",
+   "zh": "越挣扎，缠得越紧哦？",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-taunt-02",
+   "enemy": "velvet-hexer",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "じわじわ、溶かしてあげる。",
+   "zh": "慢慢地，把你溶掉。",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-lowhp-01",
+   "enemy": "velvet-hexer",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "(gasps)うそ…糸が、切れちゃう…",
+   "zh": "骗人……丝要断了……",
+   "voice_id": "English_captivating_female1",
+   "emotion": "surprised",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-kill-01",
+   "enemy": "velvet-hexer",
+   "cat": "kill",
+   "variant": 1,
+   "text": "(laughs)いただきまーす！",
+   "zh": "我开动啦！",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-kill-02",
+   "enemy": "velvet-hexer",
+   "cat": "kill",
+   "variant": 2,
+   "text": "毒、よく効いたでしょ？",
+   "zh": "毒很有效吧？",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "velvet-hexer-death-01",
+   "enemy": "velvet-hexer",
+   "cat": "death",
+   "variant": 1,
+   "text": "そんな…私の、巣が…",
+   "zh": "怎么会……我的，巢……",
+   "voice_id": "English_captivating_female1",
+   "emotion": "sad",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "echo-drone-enter-01",
+   "enemy": "echo-drone",
+   "cat": "enter",
+   "variant": 1,
+   "text": "(humming)私の歌に、酔いなさい。",
+   "zh": "沉醉在我的歌声里吧。",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-enter-02",
+   "enemy": "echo-drone",
+   "cat": "enter",
+   "variant": 2,
+   "text": "ステージは、私のものよ。",
+   "zh": "舞台，属于我。",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "neutral",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-taunt-01",
+   "enemy": "echo-drone",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "聴き惚れて、動けないでしょう？",
+   "zh": "听得入迷，动不了了吧？",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-taunt-02",
+   "enemy": "echo-drone",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "もっと、近くで聴いて？",
+   "zh": "再靠近一点听吧？",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-lowhp-01",
+   "enemy": "echo-drone",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "(gasps)声が…かすれる…",
+   "zh": "声音……沙哑了……",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "fearful",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-kill-01",
+   "enemy": "echo-drone",
+   "cat": "kill",
+   "variant": 1,
+   "text": "(chuckle)アンコールは、なしよ。",
+   "zh": "没有安可了哦。",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-kill-02",
+   "enemy": "echo-drone",
+   "cat": "kill",
+   "variant": 2,
+   "text": "素敵な悲鳴ね。",
+   "zh": "真是美妙的悲鸣。",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "echo-drone-death-01",
+   "enemy": "echo-drone",
+   "cat": "death",
+   "variant": 1,
+   "text": "私の…歌が…",
+   "zh": "我的……歌……",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "sad",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "static-golem-enter-01",
+   "enemy": "static-golem",
+   "cat": "enter",
+   "variant": 1,
+   "text": "(laughs)壊れるまで、歌おうか！",
+   "zh": "唱到坏掉为止吧！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "static-golem-enter-02",
+   "enemy": "static-golem",
+   "cat": "enter",
+   "variant": 2,
+   "text": "ボリューム、最大だぁっ！",
+   "zh": "音量，开到最大！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0,
+   "history": [
+    {
+     "text": "音量、最大だぁっ！",
+     "speed": 1.12
+    }
+   ]
+  },
+  {
+   "id": "static-golem-taunt-01",
+   "enemy": "static-golem",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "叫べ！ もっと叫べぇっ！",
+   "zh": "叫啊！再大声点叫啊！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "static-golem-taunt-02",
+   "enemy": "static-golem",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "耳ごと、ぶっ壊す！",
+   "zh": "连耳朵一起，砸烂！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0,
+   "history": [
+    {
+     "text": "鼓膜ごと、ぶっ壊す！",
+     "speed": 1.12
+    },
+    {
+     "text": "こまくごと、ぶっ壊す！",
+     "speed": 1.12
+    }
+   ]
+  },
+  {
+   "id": "static-golem-lowhp-01",
+   "enemy": "static-golem",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "まだだ…まだ鳴り止まないっ！",
+   "zh": "还没完……还没停下！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "static-golem-kill-01",
+   "enemy": "static-golem",
+   "cat": "kill",
+   "variant": 1,
+   "text": "(laughs)最高の悲鳴だぁ！",
+   "zh": "最棒的悲鸣啊！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "happy",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "static-golem-kill-02",
+   "enemy": "static-golem",
+   "cat": "kill",
+   "variant": 2,
+   "text": "次ぃ！ 次の音をよこせ！",
+   "zh": "下一个！把下一个声音交出来！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "static-golem-death-01",
+   "enemy": "static-golem",
+   "cat": "death",
+   "variant": 1,
+   "text": "(groans)音が…消えて…いく…",
+   "zh": "声音……在消失……",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "sad",
+   "speed": 1.12,
+   "pitch": 0,
+   "history": [
+    {
+     "text": "(groans)音が…消え…る…",
+     "speed": 1.12
+    },
+    {
+     "text": "(groans)おとが…きえ…る…",
+     "speed": 1.12
+    }
+   ]
+  },
+  {
+   "id": "siren-queen-enter-01",
+   "enemy": "siren-queen",
+   "cat": "enter",
+   "variant": 1,
+   "text": "(chuckle)ようこそ、私の王座へ。",
+   "zh": "欢迎来到，我的王座。",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "neutral",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-enter-02",
+   "enemy": "siren-queen",
+   "cat": "enter",
+   "variant": 2,
+   "text": "この私に、ひれ伏しなさい。",
+   "zh": "向我，俯首称臣吧。",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "neutral",
+   "speed": 0.95,
+   "pitch": -1,
+   "history": [
+    {
+     "text": "魅声の女王に、ひれ伏しなさい。",
+     "speed": 0.95
+    },
+    {
+     "text": "みせいの女王に、ひれ伏しなさい。",
+     "speed": 0.95
+    }
+   ]
+  },
+  {
+   "id": "siren-queen-taunt-01",
+   "enemy": "siren-queen",
+   "cat": "taunt",
+   "variant": 1,
+   "text": "その程度の歌で、私に届くと？",
+   "zh": "凭那种程度的歌，也想传到我这里？",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "disgusted",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-taunt-02",
+   "enemy": "siren-queen",
+   "cat": "taunt",
+   "variant": 2,
+   "text": "跪きなさい。美しく、ね。",
+   "zh": "跪下吧。要跪得美丽些。",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-lowhp-01",
+   "enemy": "siren-queen",
+   "cat": "lowhp",
+   "variant": 1,
+   "text": "(gasps)この私が…押されている…？",
+   "zh": "我竟然……被压制了……？",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "surprised",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-lowhp-02",
+   "enemy": "siren-queen",
+   "cat": "lowhp",
+   "variant": 2,
+   "text": "許さない…絶対に、許さないっ！",
+   "zh": "不可饶恕……绝对，不可饶恕！",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "angry",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-kill-01",
+   "enemy": "siren-queen",
+   "cat": "kill",
+   "variant": 1,
+   "text": "(laughs)まずは、ひとり。",
+   "zh": "先解决，一个。",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-kill-02",
+   "enemy": "siren-queen",
+   "cat": "kill",
+   "variant": 2,
+   "text": "美しく、散りなさい。",
+   "zh": "美丽地凋零吧。",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "neutral",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-death-01",
+   "enemy": "siren-queen",
+   "cat": "death",
+   "variant": 1,
+   "text": "(gasps)ありえない…私の、魅声が…",
+   "zh": "不可能……我的，魅声……",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "sad",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "siren-queen-death-02",
+   "enemy": "siren-queen",
+   "cat": "death",
+   "variant": 2,
+   "text": "覚えて…おきなさい…",
+   "zh": "给我……记住……",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "sad",
+   "speed": 0.95,
+   "pitch": -1
+  }
+ ]
+}

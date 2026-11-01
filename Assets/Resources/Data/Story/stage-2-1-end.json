@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-1-end",
+  "Title": "2-1 霓虹码头",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-1"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "码头安静下来了……能听见浪声了。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "巡演第一站，热身完毕。雾白，你的主场表现不错嘛。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "下一站，潮汐舞池。跟着浪的节奏走。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

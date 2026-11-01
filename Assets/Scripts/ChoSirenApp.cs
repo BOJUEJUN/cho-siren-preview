@@ -17,21 +17,23 @@ namespace ChoSiren
         private static readonly Color Ink = new Color32(8, 12, 42, 255);
         private static readonly Color White = new Color32(248, 246, 255, 255);
         private static readonly Color Muted = new Color32(193, 187, 221, 255);
-        private static readonly Color Pink = new Color32(255, 102, 190, 255);
+        // Unified design (2026-10-25): the UI accent is the brand teal. Pink survives only where it means something —
+        // hearts / affection (Heart); warnings and blocked states read amber (Warn), never red.
+        private static readonly Color Accent = Brand1025.Teal;
+        private static readonly Color Heart = new Color32(255, 102, 190, 255);
+        private static readonly Color Warn = new Color32(255, 190, 92, 255);
         private static readonly Color Purple = new Color32(153, 97, 228, 255);
         private static readonly Color Cyan = new Color32(91, 215, 255, 255);
         private static readonly Color Glass = new Color32(28, 26, 78, 210);
         private static readonly Color GlassLight = new Color32(91, 55, 132, 215);
 
         private readonly Dictionary<int, Sprite> roundedSprites = new Dictionary<int, Sprite>();
-        private readonly Dictionary<int, Sprite> generatedLobbySprites = new Dictionary<int, Sprite>();
         private readonly Dictionary<string, Sprite> aiUiSprites = new Dictionary<string, Sprite>();
         private readonly List<Sprite> runtimeAiUiSprites = new List<Sprite>();
         private readonly List<Image> navHighlights = new List<Image>();
         private Sprite[] navIconSprites;
         private Sprite[] lobbyEmblemSprites;
         private Sprite stageGlowSprite;
-        private Sprite accessoryDressingRoomSprite;
         private Sprite teamStellarStageSprite;
         private Sprite memberGalleryCalmSprite;
 
@@ -50,16 +52,20 @@ namespace ChoSiren
         private Text toastText;
         private GameObject toastObject;
         private GameObject modalObject;
+        private bool stagePausedForModal;
         private GameObject startupLoadingObject;
         private CanvasGroup startupLoadingGroup;
         private Text startupProgressText;
         private Image startupProgressFill;
         private bool startupFinished;
         private string currentScreen = "lobby";
+        private bool returningFromStage;
+        private bool lobbyMusicSuspended = true;
         private int memberPageIndex;
         private int memberRoleFilterIndex;
         private int memberRaceFilterIndex;
-        private bool memberOwnedOnly;
+        // 2026-10-20: the roster opens on owned members; 图鉴 (all 64) is one tap away.
+        private bool memberOwnedOnly = true;
         private string memberSearchQuery = string.Empty;
         private int selectedAccessoryIndex = -1;
         private int lastViewportWidth;
@@ -77,38 +83,59 @@ namespace ChoSiren
 
         private void Awake()
         {
-            DontDestroyOnLoad(gameObject);
-            Application.targetFrameRate = 60;
-            Screen.sleepTimeout = SleepTimeout.NeverSleep;
-            model = new GameModel();
-            model.Changed += UpdateTopBar;
-            gameAudio = gameObject.AddComponent<GameAudio>();
-            gameAudio.Initialize(model);
-            font = Resources.Load<Font>("Fonts/NotoSansSC-Subset") ??
-                   Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            BuildShell();
-            lastViewportWidth = Screen.width;
-            lastViewportHeight = Screen.height;
+            StartupLoadingBridge.Begin();
+            try
+            {
+                DontDestroyOnLoad(gameObject);
+                Application.targetFrameRate = 60;
+                Screen.sleepTimeout = SleepTimeout.NeverSleep;
+                model = new GameModel();
+                model.Changed += UpdateTopBar;
+                gameAudio = gameObject.AddComponent<GameAudio>();
+                gameAudio.SetBaseMusicContext(GameAudio.MusicContext.Silent);
+                gameAudio.Initialize(model);
+                font = Resources.Load<Font>("Fonts/NotoSansSC-Subset") ??
+                       Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                BuildShell();
+                ChoSiren.UI.RewardGain1101.Bind(model, safeRoot, font);
+                lastViewportWidth = Screen.width;
+                lastViewportHeight = Screen.height;
 #if UNITY_WEBGL && !UNITY_EDITOR
-            StartCoroutine(PreloadReferenceArt038());
+                StartCoroutine(PreloadReferenceArt038());
 #else
-            ShowScreen("lobby");
+                ShowScreen("lobby");
+                AppUpdate1022.CheckLater(this, safeRoot, font, () => nativeTitle);
 #endif
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+                ShowStartupFailure("游戏界面启动失败，请重新载入");
+            }
         }
 
         private IEnumerator PreloadReferenceArt038()
         {
             string failure = null;
+            bool completed = false;
             Transform oldRetry = startupLoadingObject != null ? startupLoadingObject.transform.Find("ReferenceArtRetry") : null;
             if (oldRetry != null) oldRetry.gameObject.SetActive(false);
             if (startupLoadingGroup != null) startupLoadingGroup.interactable = false;
             UpdateStartupLoading(0);
-            yield return ReferenceArt038.Preload(UpdateStartupLoading, error => failure = error);
-            if (failure == null)
+            yield return GuardReferenceLoad(ReferenceArt038.PreloadHome(UpdateStartupLoading,
+                error => { completed = true; failure = error; }), error => failure = error);
+            if (completed && failure == null)
             {
                 ShowScreen("lobby");
                 yield break;
             }
+            ShowStartupFailure(failure ?? "界面素材未能完成载入，请重新载入");
+        }
+
+        private void ShowStartupFailure(string failure)
+        {
+            StartupLoadingBridge.Fail(failure);
+            Transform oldRetry = startupLoadingObject != null ? startupLoadingObject.transform.Find("ReferenceArtRetry") : null;
             if (startupProgressText != null)
             {
                 startupProgressText.text = failure;
@@ -121,10 +148,226 @@ namespace ChoSiren
                 else
                 {
                     GameObject retry = NewButton("ReferenceArtRetry", startupLoadingObject.transform,
-                        "重新载入", 22, Pink, White, () => StartCoroutine(PreloadReferenceArt038()));
+                        "重新载入", 22, Accent, Brand1025.Ink, () => StartCoroutine(PreloadReferenceArt038()));
                     PlaceTop(retry.GetComponent<RectTransform>(), 235, 1060, 250, 64);
                 }
             }
+        }
+
+        // Flatten nested loaders so Unity cannot swallow a child coroutine exception while
+        // the HTML title keeps waiting without either a success or a failure signal.
+        private static IEnumerator GuardReferenceLoad(IEnumerator root, Action<string> failed)
+        {
+            var stack = new Stack<IEnumerator>();
+            stack.Push(root);
+            try
+            {
+                while (stack.Count > 0)
+                {
+                    IEnumerator current = stack.Peek();
+                    bool next = false;
+                    object yielded = null;
+                    Exception failure = null;
+                    try { next = current.MoveNext(); if (next) yielded = current.Current; }
+                    catch (Exception exception) { failure = exception; }
+                    if (failure != null)
+                    {
+                        Debug.LogException(failure);
+                        failed("界面素材处理失败，请重新载入");
+                        yield break;
+                    }
+                    if (!next)
+                    {
+                        stack.Pop();
+                        (current as IDisposable)?.Dispose();
+                        continue;
+                    }
+                    if (yielded is IEnumerator child) stack.Push(child);
+                    else yield return yielded;
+                }
+            }
+            finally
+            {
+                while (stack.Count > 0) (stack.Pop() as IDisposable)?.Dispose();
+            }
+        }
+
+        private Action pendingArtRoute;
+        private bool routeArtLoading, routeArtBackground;
+        private float routeArtProgress;
+        private GameObject routeArtGate, routeArtRetry, routeArtWaitView, routeArtAskView;
+        private Text routeArtStatus;
+        private Image routeArtFill;
+
+        private bool DeferUntilReferenceArtReady(Action route)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            if (!ReferenceArt038.AllResourcesReady)
+            {
+                pendingArtRoute = route;
+                routeArtBackground = false;
+                ShowReferenceArtGate();
+                if (!routeArtLoading) StartCoroutine(EnsureRemainingReferenceArt());
+                return true;
+            }
+#endif
+            return false;
+        }
+
+        /// <summary>
+        /// First-visit asset gate: a progress bar and a top-right ✕. The ✕ asks whether to keep
+        /// preparing in the background (the lobby stays usable and a toast says when it is ready)
+        /// or to keep waiting. Loading itself is never thrown away.
+        /// </summary>
+        private void ShowReferenceArtGate()
+        {
+            if (routeArtGate != null) return;
+            routeArtGate = NewImage("ReferenceArtRouteGate", safeRoot.parent, null, new Color32(5, 6, 35, 230));
+            routeArtGate.GetComponent<Image>().raycastTarget = true;
+            Stretch(routeArtGate.GetComponent<RectTransform>());
+            routeArtGate.transform.SetAsLastSibling();
+            MusicContextScope.Attach(routeArtGate, GameAudio.MusicContext.Silent);
+            PsdHomeStageBridge.SetActive(false);
+            GameObject card = NewPanel("Card", routeArtGate.transform, new Color32(35, 25, 78, 255), 26);
+            PlaceTop(card.GetComponent<RectTransform>(), 70, 590, 580, 300);
+            NewPlacedText(card.transform, "正在准备界面", 28, White, 70, 34, 440, 48, TextAnchor.MiddleCenter, FontStyle.Bold);
+            BuildReferenceArtClose(card.transform);
+
+            // Waiting view: thin progress bar, one short line, retry only after a failure.
+            routeArtWaitView = NewObject("Waiting", card.transform);
+            Stretch(RectOf(routeArtWaitView));
+            GameObject track = NewImage("ProgressTrack", routeArtWaitView.transform, RoundedSprite(6), new Color32(255, 255, 255, 38));
+            track.GetComponent<Image>().type = Image.Type.Sliced;
+            PlaceTop(track.GetComponent<RectTransform>(), 70, 130, 440, 12);
+            GameObject fill = NewImage("ProgressFill", track.transform, null, new Color32(255, 70, 170, 255));
+            Stretch(fill.GetComponent<RectTransform>());
+            routeArtFill = fill.GetComponent<Image>();
+            routeArtFill.type = Image.Type.Filled;
+            routeArtFill.fillMethod = Image.FillMethod.Horizontal;
+            routeArtFill.fillOrigin = 0;
+            routeArtStatus = NewPlacedText(routeArtWaitView.transform, "", 19, new Color32(220, 214, 240, 255),
+                40, 160, 500, 44, TextAnchor.MiddleCenter);
+            routeArtRetry = NewButton("Retry", routeArtWaitView.transform, "重试", 22, Accent, Brand1025.Ink,
+                () => { if (!routeArtLoading) StartCoroutine(EnsureRemainingReferenceArt()); });
+            PlaceTop(routeArtRetry.GetComponent<RectTransform>(), 190, 216, 200, 60);
+            routeArtRetry.SetActive(false);
+
+            // Close view: what should happen to the preparation.
+            routeArtAskView = NewObject("CloseChoice", card.transform);
+            Stretch(RectOf(routeArtAskView));
+            NewPlacedText(routeArtAskView.transform, "素材还没准备好\n可以放到后台继续，好了会提醒你", 19,
+                new Color32(220, 214, 240, 255), 40, 104, 500, 70, TextAnchor.MiddleCenter);
+            GameObject background = NewButton("Background", routeArtAskView.transform, "后台准备", 22, Accent, Brand1025.Ink,
+                SendReferenceArtToBackground);
+            PlaceTop(background.GetComponent<RectTransform>(), 60, 202, 220, 62);
+            GameObject keep = NewButton("KeepWaiting", routeArtAskView.transform, "继续等待", 22,
+                new Color32(75, 63, 112, 255), White, () => SetReferenceArtAsking(false));
+            PlaceTop(keep.GetComponent<RectTransform>(), 300, 202, 220, 62);
+            SetReferenceArtAsking(false);
+            UpdateReferenceArtGate(routeArtProgress);
+        }
+
+        private static RectTransform RectOf(GameObject go)
+        {
+            RectTransform rect = go.GetComponent<RectTransform>();
+            return rect != null ? rect : go.AddComponent<RectTransform>();
+        }
+
+        private void BuildReferenceArtClose(Transform card)
+        {
+            // Drawn ✕ (two bars) so it never depends on a glyph in the font subset.
+            GameObject close = NewImage("Close", card, null, new Color(0, 0, 0, .004f));
+            PlaceTop(close.GetComponent<RectTransform>(), 506, 14, 60, 60);
+            close.GetComponent<Image>().raycastTarget = true;
+            close.AddComponent<Button>().onClick.AddListener(() =>
+            {
+                // A failed load has nothing to keep running: close straight away.
+                if (!routeArtLoading) { pendingArtRoute = null; HideReferenceArtGate(); }
+                else SetReferenceArtAsking(true);
+                ResumeMediaAfterUserGesture();
+            });
+            for (int i = 0; i < 2; i++)
+            {
+                GameObject bar = NewImage("Bar" + i, close.transform, null, White);
+                RectTransform rect = bar.GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+                rect.sizeDelta = new Vector2(26, 3.5f);
+                rect.localEulerAngles = new Vector3(0, 0, i == 0 ? 45f : -45f);
+                bar.GetComponent<Image>().raycastTarget = false;
+            }
+        }
+
+        private void SetReferenceArtAsking(bool asking)
+        {
+            if (routeArtWaitView != null) routeArtWaitView.SetActive(!asking);
+            if (routeArtAskView != null) routeArtAskView.SetActive(asking);
+        }
+
+        private void SendReferenceArtToBackground()
+        {
+            routeArtBackground = true;
+            pendingArtRoute = null;
+            HideReferenceArtGate();
+            Toast("素材在后台准备，好了会提醒你");
+        }
+
+        private void HideReferenceArtGate()
+        {
+            if (routeArtGate != null) { routeArtGate.SetActive(false); Destroy(routeArtGate); }
+            routeArtGate = routeArtRetry = routeArtWaitView = routeArtAskView = null;
+            routeArtStatus = null;
+            routeArtFill = null;
+            if (currentScreen == "lobby")
+            {
+                lobbyMusicSuspended = false;
+                ApplyMusicRouting();
+                if (psdHome != null && psdHome.activeInHierarchy && modalObject == null)
+                    PsdHomeStageBridge.SetActive(true);
+            }
+        }
+
+        private void UpdateReferenceArtGate(float progress)
+        {
+            routeArtProgress = Mathf.Clamp01(progress);
+            if (routeArtFill != null) routeArtFill.fillAmount = routeArtProgress;
+            if (routeArtStatus != null)
+                routeArtStatus.text = $"首次打开需要准备素材 · {Mathf.RoundToInt(routeArtProgress * 100f)}%";
+        }
+
+        private IEnumerator EnsureRemainingReferenceArt()
+        {
+            routeArtLoading = true;
+            if (routeArtRetry != null) routeArtRetry.SetActive(false);
+            bool completed = false;
+            string failure = null;
+            yield return GuardReferenceLoad(ReferenceArt038.EnsureAll(UpdateReferenceArtGate,
+                error => { completed = true; failure = error; }), error => failure = error);
+            routeArtLoading = false;
+            if (!completed || failure != null)
+            {
+                if (routeArtGate == null && routeArtBackground)
+                {
+                    routeArtBackground = false;
+                    Toast("素材准备失败，再点一次会重新准备");
+                    yield break;
+                }
+                SetReferenceArtAsking(false);
+                if (routeArtStatus != null) routeArtStatus.text = failure ?? "素材未能完成载入，请重试";
+                if (routeArtRetry != null) routeArtRetry.SetActive(true);
+                yield break;
+            }
+            if (routeArtBackground && routeArtGate == null)
+            {
+                // Finished while the player kept browsing: tell them, never yank them away.
+                routeArtBackground = false;
+                Toast("界面素材已准备好，可以进入了");
+                yield break;
+            }
+            Action route = pendingArtRoute;
+            pendingArtRoute = null;
+            routeArtBackground = false;
+            HideReferenceArtGate();
+            route?.Invoke();
         }
 
         private void Update()
@@ -135,6 +378,22 @@ namespace ChoSiren
 
             if (toastObject != null && toastObject.activeSelf && Time.unscaledTime >= toastHideAt)
                 toastObject.SetActive(false);
+
+            // The HTML stage lights sit above the Unity canvas; pause them while a modal
+            // covers the lobby so beams never sweep across the dialog, then bring them back.
+            bool modalOpen = (modalObject != null && modalObject.activeInHierarchy) ||
+                             (routeArtGate != null && routeArtGate.activeInHierarchy);
+            if (modalOpen && PsdHomeStageBridge.Active)
+            {
+                PsdHomeStageBridge.SetActive(false);
+                stagePausedForModal = true;
+            }
+            else if (!modalOpen && stagePausedForModal)
+            {
+                stagePausedForModal = false;
+                if (psdHome != null && psdHome.activeInHierarchy && currentScreen == "lobby")
+                    PsdHomeStageBridge.SetActive(true);
+            }
 
             if (Screen.width != lastViewportWidth || Screen.height != lastViewportHeight)
             {
@@ -166,7 +425,6 @@ namespace ChoSiren
             if (lobbyVideoPlayer != null) lobbyVideoPlayer.MusicAvailabilityChanged -= ApplyMusicRouting;
             DestroyRuntimeSprite(ref teamStellarStageSprite);
             DestroyRuntimeSprite(ref memberGalleryCalmSprite);
-            DestroyRuntimeSprite(ref accessoryDressingRoomSprite);
             for (int index = 0; index < runtimeAiUiSprites.Count; index++)
                 if (runtimeAiUiSprites[index] != null) Destroy(runtimeAiUiSprites[index]);
             runtimeAiUiSprites.Clear();
@@ -180,7 +438,8 @@ namespace ChoSiren
             GameObject canvasObject = NewObject("Canvas", transform);
             Canvas canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.pixelPerfect = false;
+            // Keep dynamic UI glyphs aligned to display pixels when the portrait stage scales.
+            canvas.pixelPerfect = true;
             CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(720, 1536);
@@ -213,6 +472,7 @@ namespace ChoSiren
             Stretch(safeRect);
             safe.AddComponent<SafeAreaFitter>();
             safeRoot = safe.transform;
+            ChoSiren.UI.PageAmbient.Install(canvasObject.transform, safeRoot);
 
             BuildTopBar();
 
@@ -252,6 +512,7 @@ namespace ChoSiren
             // artwork exactly. Visuals are hidden on the lobby because the golden
             // image already contains the complete header without stretching.
             GameObject bar = NewImage("TopBar", safeRoot, null, Color.clear);
+            bar.AddComponent<ChoSiren.UI.TopBarCoverWatch>();
             RectTransform barRect = bar.GetComponent<RectTransform>();
             barRect.anchorMin = new Vector2(0, 1);
             barRect.anchorMax = new Vector2(1, 1);
@@ -283,13 +544,26 @@ namespace ChoSiren
             PlaceTop(avatarMask.GetComponent<RectTransform>(), 12f, 16f, 54f, 54f);
             Mask mask = avatarMask.AddComponent<Mask>();
             mask.showMaskGraphic = false;
-            GameObject avatar = NewImage("Avatar", avatarMask.transform,
-                AiUiSprite("Art/ProfileAvatarUser") ?? Resources.Load<Sprite>("Art/ProfileAvatar"), White);
+            GameObject avatar = NewImage("Avatar", avatarMask.transform, PlayerAvatarSpriteNow(), White);
             Stretch(avatar.GetComponent<RectTransform>());
             avatar.GetComponent<Image>().preserveAspect = true;
 
-            Text name = NewText("PlayerName", profile.transform, "音律少女", 17, White, FontStyle.Bold, TextAnchor.MiddleLeft);
+            // 2026-11-01 (赵金: "这个头像要支持点击头像换头像"): the portrait alone opens the picker; the rest
+            // of the plate still opens the profile. It sits above the plate so only its own button fires.
+            GameObject avatarHit = NewImage("AvatarHit", bar.transform, null, Color.clear);
+            PlaceTop(avatarHit.GetComponent<RectTransform>(), 19f, 26f, 58f, 58f);
+            avatarHit.GetComponent<Image>().raycastTarget = true;
+            Button avatarHitButton = avatarHit.AddComponent<Button>();
+            avatarHitButton.transition = Selectable.Transition.None;
+            avatarHitButton.onClick.AddListener(() =>
+            {
+                OpenAvatarPicker1101();
+                ResumeMediaAfterUserGesture();
+            });
+
+            Text name = NewText("PlayerName", profile.transform, model.PlayerName, 17, White, FontStyle.Bold, TextAnchor.MiddleLeft);
             PlaceTop(name.rectTransform, 72f, 14f, 106f, 26f);
+            FitPlayerName1028(name); // signed names run up to 8 characters (2026-10-28)
             AddReadableShadow(name);
             teamLevelText = NewText("PlayerLevel", profile.transform, string.Empty, 13,
                 new Color32(225, 215, 242, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
@@ -344,9 +618,17 @@ namespace ChoSiren
             GameObject mail = AddSpriteIconButton(bar.transform, "Mail",
                 Resources.Load<Sprite>("Art/UI/HudIcons/Mail"), 0, OpenInbox);
             mail.SetActive(true);
+            // Same torn-paper notice sticker as the lobby mail when a gift is waiting (2026-10-31).
+            topMailBadge = UI.NoticeSticker1031.Create("MailBadge", mail.transform);
+            RectTransform badgeRect = topMailBadge.GetComponent<RectTransform>();
+            badgeRect.anchorMin = badgeRect.anchorMax = badgeRect.pivot = new Vector2(1f, 1f);
+            badgeRect.anchoredPosition = new Vector2(2f, 2f);
+            badgeRect.sizeDelta = new Vector2(18f, 18f);
 
             UpdateTopBar();
         }
+
+        private float navDiscAngle, navDiscTarget;
 
         private void BuildNavigation()
         {
@@ -354,48 +636,14 @@ namespace ChoSiren
             navHighlights.Clear();
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
             string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
-            Rect[] goldenHitRects038 =
-            {
-                new Rect(18f, 1328f, 132f, 143f),
-                new Rect(161f, 1343f, 118f, 128f),
-                new Rect(280f, 1337f, 142f, 149f),
-                new Rect(424f, 1343f, 125f, 128f),
-                new Rect(554f, 1326f, 147f, 148f),
-            };
-            // Keep visible art placement independent from pointer hit testing. These are
-            // the per-item icon/frame/Chinese-label bounds measured from the 0.3.8 lobby.
-            // Do not derive them from an equal-width strip or stretch them to another hit grid.
-            Rect[] goldenVisualRects038 =
-            {
-                new Rect(18.375f, 1325.225f, 132f, 143f),
-                new Rect(153.92f, 1337.81f, 118f, 128f),
-                new Rect(276.55f, 1319.87f, 142f, 149f),
-                new Rect(417.55f, 1337.375f, 125f, 128f),
-                new Rect(528.815f, 1328.415f, 147f, 148f),
-            };
-            float[] goldenLabelCenters038 = { 84.63f, 212.67f, 347.28f, 479.27f, 602.05f };
-            const float goldenUnderlineBaseline038 = 1473.09f;
-            const float goldenUnderlineWidth038 = 87.7f;
-            // The measured 0.3.8 art paints the five-item group at x~34.9-652.3
-            // (centre 343.6), i.e. ~16.4px left of the 720 canvas centre. Every
-            // child anchor - icon visual, Chinese label, selected bar and the
-            // shared-baseline hover underline - is positioned relative to this
-            // button, so one offset on the hit rect centres the whole group while
-            // hit/visual/underline stay locked together and the five nonuniform
-            // regions keep their measured shapes.
-            const float navGroupCenterOffsetX038 = 16.4f;
 
-            // The 0.3.8 golden is uniformly contained in the full 720x1536 SafeArea.
-            // Its five painted destinations are deliberately not an equal-width grid,
-            // so lobby input follows their measured screen-space bounds exactly while
-            // the transparent navigation parent remains confined to the bottom strip.
             navRoot.anchorMin = new Vector2(0f, 0f);
             navRoot.anchorMax = new Vector2(1f, 0f);
             navRoot.pivot = new Vector2(0.5f, 0f);
             navRoot.offsetMin = new Vector2(12f, 34f);
             navRoot.offsetMax = new Vector2(-12f, 218f);
-            // v2 bakes icon + label into one PNG per destination. The shared visual strip
-            // is [17,1329,684,168] on screen, i.e. (5,11,136.8,168) per item inside navRoot.
+            // One shared nav on every screen (the lobby's painted nav is skipped); the five
+            // original punk icons stand on the rim of a vinyl slice.
             string[] navArt =
             {
                 "Art/LobbyPunk/lobby-nav-team-punk-v2",
@@ -409,6 +657,33 @@ namespace ChoSiren
                 "NavTeamVisualV2", "NavMemberVisualV2", "NavLobbyVisualV2",
                 "NavAccessoryVisualV2", "NavAuditionVisualV2",
             };
+            // The approved thin optical rail is stationary and keeps its native 3:1 aspect.
+            // Its transparent upper half leaves the character and the original icons visible.
+            GameObject rail = NewImage("NavOpticalRail", navRoot,
+                AiUiSprite("Art/LobbyPunk/nav-optical-rail-1019-v2"), Color.white);
+            PlaceTop(rail.GetComponent<RectTransform>(), -132f, -84f, 960f, 320f);
+            rail.GetComponent<Image>().preserveAspect = true;
+            rail.GetComponent<Image>().raycastTarget = false;
+
+            // A separate, genuinely round record sits mostly below the screen. The source
+            // has a 53px transparent top margin: only about 38px of its rim is visible here.
+            // Keep the full square so a menu selection turns the grooves without flattening.
+            GameObject disc = NewImage("NavDiscArc", navRoot,
+                AiUiSprite("Art/LobbyPunk/nav-optical-vinyl-1019-v2"), Color.white);
+            PlaceTop(disc.GetComponent<RectTransform>(), -452f, 112f, 1600f, 1600f);
+            ChoSiren.Panels.PanelKit.CenterPivot(disc.GetComponent<RectTransform>());
+            Image discImage = disc.GetComponent<Image>();
+            // 2026-10-20: the record only spins; as a rotated 1600px square its hit box poked
+            // above the nav and swallowed taps on buttons like 更换队长. It must not catch input.
+            discImage.raycastTarget = false;
+            discImage.preserveAspect = true;
+            disc.AddComponent<LobbyNavigationDisc1019>().Configure(discImage.rectTransform,
+                navDiscAngle, navDiscTarget, value => navDiscAngle = value);
+
+            // Original icon and input geometry stays independent of both background layers.
+            float[] centerX = { 72f, 210f, 348f, 486f, 624f };
+            float[] rimY = { 120f, 90f, 80f, 90f, 120f };
+            const float column = 136f;
 
             for (int index = 0; index < ids.Length; index++)
             {
@@ -416,66 +691,50 @@ namespace ChoSiren
                 bool selected = currentScreen == ids[index];
                 GameObject buttonObject = NewImage($"Nav-{ids[index]}", navRoot, null, Color.clear);
                 RectTransform rect = buttonObject.GetComponent<RectTransform>();
-                Rect hit = goldenHitRects038[index];
-                PlaceTop(rect, hit.x - 12f + navGroupCenterOffsetX038,
-                    hit.y - 1318f, hit.width, hit.height);
+                PlaceTop(rect, centerX[index] - column * .5f, rimY[index] - 80f, column, 128f);
                 Image buttonGraphic = buttonObject.GetComponent<Image>();
                 buttonGraphic.raycastTarget = true;
                 Button button = buttonObject.AddComponent<Button>();
                 button.targetGraphic = buttonGraphic;
+                button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() =>
                 {
+                    navDiscTarget = navDiscAngle + 60f;
                     ShowScreen(ids[captured]);
                     ResumeMediaAfterUserGesture();
                 });
 
+                // Original icon standing on the rim; the current page is a little larger and
+                // fully lit, the others slightly dimmed.
+                float iconSize = selected ? 108f : 90f;
                 Sprite art = NavigationIconOnly038(navArt[index]);
                 if (art != null)
                 {
                     GameObject visual = NewVisualV2(navVisualNames[index], buttonObject.transform, art);
-                    Rect visualBounds = goldenVisualRects038[index];
-                    PlaceTop(visual.GetComponent<RectTransform>(),
-                        visualBounds.x - hit.x, visualBounds.y - hit.y,
-                        visualBounds.width, visualBounds.height - 20f);
+                    PlaceTop(visual.GetComponent<RectTransform>(), (column - iconSize) * .5f, 80f - iconSize * .62f,
+                        iconSize, iconSize);
                     Image visualImage = visual.GetComponent<Image>();
                     visualImage.preserveAspect = true;
-                    visual.transform.SetAsFirstSibling();
-                }
-                else
-                {
-                    GameObject icon = NewImage("Icon", buttonObject.transform, NavIconSprite(index),
-                        selected ? White : new Color32(197, 183, 218, 215));
-                    RectTransform iconRect = icon.GetComponent<RectTransform>();
-                    iconRect.anchorMin = iconRect.anchorMax = new Vector2(0.5f, 1);
-                    iconRect.pivot = new Vector2(0.5f, 1);
-                    iconRect.anchoredPosition = new Vector2(0, -6);
-                    iconRect.sizeDelta = new Vector2(68, 66);
-                    Image iconImage = icon.GetComponent<Image>();
-                    iconImage.preserveAspect = true;
-                    iconImage.useSpriteMesh = true;
+                    visualImage.raycastTarget = false;
+                    if (!selected) visualImage.color = new Color(.82f, .78f, .92f, .82f);
+                    AttachNavigationFlame1031(button, visualImage, selected);
                 }
 
-                // All five pages use the same actual icon, Chinese label and baseline.
-                Color labelColor = White;
-                Text label = NewText("Label", buttonObject.transform, labels[index], 18,
-                    labelColor, FontStyle.Normal, TextAnchor.MiddleCenter);
-                PlaceTop(label.rectTransform, goldenLabelCenters038[index] - hit.x - 38,
-                    1432f - hit.y, 76, 28);
+                float labelTop = 80f + iconSize * .38f;
+                Text label = NewText("Label", buttonObject.transform, labels[index], selected ? 20 : 18,
+                    selected ? Accent : new Color32(214, 204, 236, 235), FontStyle.Bold, TextAnchor.MiddleCenter);
+                PlaceTop(label.rectTransform, 0f, labelTop, column, 30f);
+                label.verticalOverflow = VerticalWrapMode.Overflow;
+                label.raycastTarget = false;
 
-                GameObject highlight = NewImage("Highlight", buttonObject.transform, null,
-                    selected ? Pink : Color.clear);
-                highlight.GetComponent<Image>().enabled = true;
-                RectTransform highlightRect = highlight.GetComponent<RectTransform>();
-                // 3px bar centred on the same baseline as the 8px hover underline.
-                PlaceTop(highlightRect, goldenLabelCenters038[index] - hit.x - goldenUnderlineWidth038 * .5f,
-                    goldenUnderlineBaseline038 - hit.y - 1.5f, goldenUnderlineWidth038, 3f);
+                // Unified design: the selected tab's bar is the brand-teal slant (the old art bar was pink).
+                GameObject highlight = NewImage("Highlight", buttonObject.transform, selected ? Panels.PunkUi.SlantFill : null,
+                    selected ? (Color)Brand1025.Teal : Color.clear);
+                PlaceTop(highlight.GetComponent<RectTransform>(), column * .5f - 30f, labelTop + 30f, 60f, 11f);
+                highlight.GetComponent<Image>().raycastTarget = false;
                 navHighlights.Add(highlight.GetComponent<Image>());
                 AttachLobbyHotspotFeedback(buttonObject, LobbyHotspotFeedback.VisualKind.Navigation);
-                LobbyHotspotFeedback navFeedback = buttonObject.GetComponent<LobbyHotspotFeedback>();
-                navFeedback.ConfigureNavigationVisual(
-                    goldenLabelCenters038[index] - hit.x,
-                    goldenUnderlineBaseline038 - hit.y,
-                    goldenUnderlineWidth038);
+                buttonObject.GetComponent<LobbyHotspotFeedback>()?.ConfigureNavigationVisual(column * .5f, labelTop + 35f, 52f);
             }
         }
 
@@ -502,8 +761,38 @@ namespace ChoSiren
 
         private void ShowScreen(string screen)
         {
+            if (UI.ChallengeVideoTransition.IsCoveringGame) return;
+            if (screen != "lobby" && DeferUntilReferenceArtReady(() => ShowScreen(screen))) return;
+            bool fromStage = returningFromStage;
+            returningFromStage = false;
+            // 2026-10-20: only the stage flow (map / battle) earns the record transition back.
+            // Menu pages (团队、成员、饰品、任务…) return to the lobby directly.
+            if (screen == "lobby" && fromStage && StartupLoadingBridge.IsReady && safeRoot != null)
+            {
+                var transition = UI.ChallengeVideoTransition.Warm(safeRoot);
+                transition.Play(safeRoot, () => ShowScreenSafely("lobby"), sound => gameAudio?.PlaySfx(sound), true);
+                return;
+            }
+            ShowScreenSafely(screen);
+        }
+
+        private void ShowScreenSafely(string screen)
+        {
+            try { ShowScreenCore(screen); }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception);
+                if (!StartupLoadingBridge.IsReady) ShowStartupFailure("游戏界面启动失败，请重新载入");
+                else Toast("界面未能打开，请重试");
+            }
+        }
+
+        private void ShowScreenCore(string screen)
+        {
+            ClearPsdHome();
             model.RefreshDailyState();
             currentScreen = screen;
+            lobbyMusicSuspended = false;
             GameObject previousGolden = GameObject.Find("LobbyHomeGolden038");
             if (previousGolden != null) Destroy(previousGolden);
             SetGoldenLobbyShell(screen == "lobby");
@@ -526,11 +815,27 @@ namespace ChoSiren
                 default: BuildLobby(); break;
             }
             ConfigureReferenceHeader038(true);
+            // One header for every screen, the lobby included.
+            safeRoot.Find("TopBar").gameObject.SetActive(true);
+            // Every screen, the lobby included, shares the disc dock above its content.
+            navRoot.gameObject.SetActive(true);
+            navRoot.SetAsLastSibling();
+            if (screen == "lobby" && !StartupLoadingBridge.IsReady)
+            {
+                Canvas.ForceUpdateCanvases();
+                StartupLoadingBridge.Ready();
+            }
         }
 
         private void ApplyMusicRouting()
         {
             if (model == null) return;
+            // 2026-10-21 (owner): the menu soundtrack plays on every page — the five nav screens,
+            // the chapter map, tasks and practice. Story (voices) and battle (its own track) still
+            // override it through their MusicContextScope.
+            gameAudio?.SetBaseMusicContext(GameAudio.MusicContext.Home);
+            // A movie's own BGM takes priority over the persistent menu soundtrack.
+            lobbyVideoPlayer?.SetSoundtrackOwnsMusic(false);
             lobbyVideoPlayer?.SetMusicEnabled(model.Save.MusicEnabled);
             bool videoOwnsMusic = currentScreen == "lobby" && lobbyVideoPlayer != null &&
                                    lobbyVideoPlayer.CanProvideMusic;
@@ -547,6 +852,10 @@ namespace ChoSiren
 
         private void SuspendLobbyMedia()
         {
+            lobbyMusicSuspended = true;
+            // Only the lobby video pauses; the soundtrack keeps playing on the page that opens.
+            gameAudio?.SetBaseMusicContext(GameAudio.MusicContext.Home);
+            PsdHomeStageBridge.SetActive(false);
             lobbyVideoPlayer?.PauseLoop();
             if (lobbyVideoObject != null) lobbyVideoObject.SetActive(false);
             gameAudio?.SetLobbyVideoMusicActive(false);
@@ -655,7 +964,7 @@ namespace ChoSiren
                     TextAnchor.MiddleCenter, FontStyle.Bold);
                 NewPlacedText(complete.transform, "所有候选人都已加入成员列表。\n去训练和编队，打造你的顶流女团。", 18, Muted,
                     50, 150, 500, 90, TextAnchor.MiddleCenter);
-                GameObject goMembers = NewButton("GoMembers", complete.transform, "查看全部成员", 18, Pink, White,
+                GameObject goMembers = NewButton("GoMembers", complete.transform, "查看全部成员", 18, Accent, Brand1025.Ink,
                     () => ShowScreen("members"));
                 PlaceTop(goMembers.GetComponent<RectTransform>(), 160, 270, 280, 58);
                 return;
@@ -669,7 +978,7 @@ namespace ChoSiren
 
             GameObject info = NewPanel("AuditionInfo", contentRoot, new Color32(32, 23, 76, 225), 20);
             PlaceTop(info.GetComponent<RectTransform>(), 20, 600, 680, 170);
-            NewPlacedText(info.transform, "星探评估", 20, Pink, 22, 18, 200, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
+            NewPlacedText(info.transform, "星探评估", 20, Accent, 22, 18, 200, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(info.transform,
                 "签约后成员将永久加入账号，可参与训练、编队与舞台演出。角色数据会保存在本机。",
                 16, White, 22, 58, 636, 70, TextAnchor.UpperLeft);
@@ -690,11 +999,11 @@ namespace ChoSiren
             PanelKit.FrameBustPortrait(portrait.GetComponent<Image>(),
                 portraitFrame.GetComponent<RectTransform>(), member.Id);
             NewPlacedText(card.transform, member.Name, 25, White, 14, 244, 186, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
-            NewPlacedText(card.transform, $"{MemberRaceFamily(member, memberIndex)} · {member.Career}", 14, Pink,
+            NewPlacedText(card.transform, $"{MemberRaceFamily(member, memberIndex)} · {member.Career}", 14, Accent,
                 14, 282, 186, 25, TextAnchor.MiddleLeft);
             NewPlacedText(card.transform, $"入队战力\n{model.PowerOf(memberIndex):N0}", 15, Cyan,
                 14, 314, 186, 52, TextAnchor.MiddleLeft, FontStyle.Bold);
-            GameObject recruit = NewButton("Recruit", card.transform, $"签约 ◇{GameModel.RecruitCost}", 16, Pink, White, () =>
+            GameObject recruit = NewButton("Recruit", card.transform, $"签约 ◇{GameModel.RecruitCost}", 16, Accent, Brand1025.Ink, () =>
             {
                 model.Recruit(memberIndex, out string message);
                 Toast(message);
@@ -708,47 +1017,10 @@ namespace ChoSiren
             BuildPersonalEquipment();
         }
 
-        private void BuildAccessoryStageBackdrop()
-        {
-            Sprite backdrop = AccessoryDressingRoomSprite();
-            GameObject stage = NewImage("AccessoryDressingRoomStage", contentRoot, backdrop, Color.white);
-            Stretch(stage.GetComponent<RectTransform>());
-            Image stageImage = stage.GetComponent<Image>();
-            stageImage.preserveAspect = false;
-            stageImage.raycastTarget = false;
-            if (backdrop != null)
-            {
-                AspectRatioFitter fitter = stage.AddComponent<AspectRatioFitter>();
-                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
-                fitter.aspectRatio = backdrop.rect.width / Mathf.Max(1f, backdrop.rect.height);
-            }
-
-            GameObject veil = NewImage("AccessoryDressingRoomVeil", contentRoot, null,
-                new Color32(3, 6, 29, 92));
-            Stretch(veil.GetComponent<RectTransform>());
-            veil.GetComponent<Image>().raycastTarget = false;
-        }
-
-        private Sprite AccessoryDressingRoomSprite()
-        {
-            if (accessoryDressingRoomSprite != null) return accessoryDressingRoomSprite;
-            const string path = "Art/AccessoryAI/accessory-calm-bg-ai-v2-20260903";
-            accessoryDressingRoomSprite = Resources.Load<Sprite>(path);
-            if (accessoryDressingRoomSprite != null) return accessoryDressingRoomSprite;
-
-            Texture2D texture = Resources.Load<Texture2D>(path);
-            if (texture == null) return null;
-            accessoryDressingRoomSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
-            accessoryDressingRoomSprite.name = "Accessory-Calm-Stage-AI";
-            accessoryDressingRoomSprite.hideFlags = HideFlags.DontSave;
-            return accessoryDressingRoomSprite;
-        }
-
-
         private void OpenMember(int memberIndex) => OpenTeamMember(memberIndex, -1);
         private void OpenTeamMember(int memberIndex, int teamSlot)
         {
+            if (DeferUntilReferenceArtReady(() => OpenTeamMember(memberIndex, teamSlot))) return;
             OpenTeamMemberReference(memberIndex, teamSlot);
         }
 
@@ -802,50 +1074,44 @@ namespace ChoSiren
             return "在选秀的线上或线下面试查看候选；浏览免费，按报价签约后可培养、编队并出战。";
         }
 
-        private void OpenProfile()
-        {
-            OpenInfoModal("制作人档案",
-                $"音律少女  ·  队伍均级 {TeamAverageLevel}\n当前编队 {model.Save.Team.Count}/4 人\n组合战力 {model.TeamPower:N0}\n已签约 {model.Save.UnlockedMembers.Count}/{GameModel.Members.Length} 名成员",
-                "返回大厅", null);
-        }
+        // visual-a 1101c: the low-text picture versions live in ChoSirenApp.VisualA1101.cs.
+        private void OpenProfile() => OpenProfile1101();
 
-        private void OpenInbox()
-        {
-            OpenInfoModal("事务收件箱",
-                "目前没有未读事务。演出奖励、签约结果和活动进度都会在完成操作时立即结算并保存。",
-                "知道了", null);
-        }
+        private PanelKit cleanKit;   // the calm list-page parts (CleanUi1025) used by the record modals
 
-        private void OpenActivity()
-        {
-            IdleIncomeReport preview = model.PreviewIdleIncome();
-            int gold = preview.AmountOf(CurrencyIds.Gold);
-            int diamonds = preview.AmountOf(CurrencyIds.Diamond);
-            bool canClaim = model.CanClaimIdleIncome && (gold > 0 || diamonds > 0);
-            string body = $"挂机舞台收益\n已累积星光币 {gold:N0}\n已累积星钻 {diamonds:N0}";
-            if (preview.Capped) body += "\n收益已达上限，请尽快领取。";
-            else if (!canClaim) body += "\n收益还在累积，稍后再来。";
+        private void OpenAchievements() => OpenAchievements1101();
 
-            OpenInfoModal("闪耀舞台", body,
-                canClaim ? $"领取 · 星光币 {gold:N0} / 星钻 {diamonds:N0}" : "暂无收益",
-                canClaim
-                    ? () =>
-                    {
-                        if (model.ClaimIdleIncome(out string message)) Toast(message);
-                        else Toast(string.IsNullOrEmpty(message) ? "暂无收益" : message);
-                    }
-                    : null);
-        }
+        private void OpenInbox() => OpenInbox1101();
+
+        private void OpenSignIn() => OpenSignIn1101();
+
+        private void OpenActivity() => OpenStageIncome1101();
 
         private void OpenDailyTasks()
         {
+            if (DeferUntilReferenceArtReady(OpenDailyTasks)) return;
             CloseModal();
             SuspendLobbyMedia();
-            TaskBoardPanel.Open(safeRoot, model, model, () => ShowScreen("lobby"), Toast);
+            model.FirstTime(GuideTasksFlag);
+            TaskBoardPanel.Open(safeRoot, model, model, () => ShowScreen("lobby"), Toast, GoToTask);
+        }
+
+        /// <summary>前往 on an unfinished task: open the place where it is done.</summary>
+        private void GoToTask(string trigger)
+        {
+            switch (trigger)
+            {
+                case TaskTriggers.Train: OpenLobbyPractice(); break;
+                case TaskTriggers.ClaimIdle: OpenActivity(); break;
+                case TaskTriggers.GachaPull: ShowScreen("audition"); break;
+                case TaskTriggers.CheckIn: OpenSignIn(); break;
+                default: OpenLevelMap(); break;
+            }
         }
 
         private void OpenGacha()
         {
+            if (DeferUntilReferenceArtReady(OpenGacha)) return;
             CloseModal();
             GachaPanel.OpenEmbedded(contentRoot, model, model, Toast, member =>
             {
@@ -864,6 +1130,7 @@ namespace ChoSiren
 
         private void OpenPerformanceStage()
         {
+            if (DeferUntilReferenceArtReady(OpenPerformanceStage)) return;
             CloseModal();
             if (model.Save.Stamina < GameModel.PerformanceStaminaCost)
             {
@@ -877,16 +1144,28 @@ namespace ChoSiren
 
         private void OpenLevelMap()
         {
+            if (DeferUntilReferenceArtReady(OpenLevelMap)) return;
             CloseModal();
             SuspendLobbyMedia();
+            // Its round record extends beyond the safe area; the full-screen map and
+            // stories must hide the entire lobby dock until ShowScreen restores it.
+            if (navRoot != null) navRoot.gameObject.SetActive(false);
             // The chapter map owns a dedicated in-context toast positioned above its dock.
             // Forwarding the same message to the app toast creates two simultaneous notices,
             // with the global one covering chapter rewards and tasks.
-            LevelMapPanel.Open(safeRoot, model, () => ShowScreen("lobby"), growth: OpenBattleGrowth);
+            LevelMapPanel.Open(safeRoot, model, () => { returningFromStage = true; ShowScreen("lobby"); }, growth: OpenBattleGrowth,
+                stamina: () => OpenCurrency(CurrencyIds.Stamina));
         }
 
         private void OpenBattleGrowth(string destination)
         {
+            if (destination == "team-fix")
+            {
+                // The map closed itself; the app toast carries the reason onto the team page.
+                ShowScreen("team");
+                if (!model.IsTeamReady(out string problem)) Toast(problem + "，请调整编队后再挑战");
+                return;
+            }
             if (destination == "training")
             {
                 ShowScreen("members");
@@ -1085,101 +1364,6 @@ namespace ChoSiren
             }
         }
 
-        private void LobbyHotspot(Transform parent, string title, int emblemIndex,
-            int x, int y, int width, int height, UnityEngine.Events.UnityAction action)
-        {
-            GameObject hotspot = NewImage(title, parent, null, Color.clear);
-            PlaceTop(hotspot.GetComponent<RectTransform>(), x, y, width, height);
-            Image hitArea = hotspot.GetComponent<Image>();
-            hitArea.raycastTarget = true;
-            Button button = hotspot.AddComponent<Button>();
-            button.targetGraphic = hitArea;
-            button.onClick.AddListener(() =>
-            {
-                action?.Invoke();
-                ResumeMediaAfterUserGesture();
-                gameAudio?.PlayClick();
-            });
-
-            GameObject emblem = NewImage("Emblem", hotspot.transform, GeneratedLobbySprite(emblemIndex), White);
-            Stretch(emblem.GetComponent<RectTransform>());
-            Image emblemImage = emblem.GetComponent<Image>();
-            emblemImage.preserveAspect = true;
-            emblemImage.useSpriteMesh = true;
-            emblemImage.raycastTarget = false;
-
-            Text labelText = NewPlacedText(hotspot.transform, title, 22, White,
-                22, height - 58, width - 44, 46, TextAnchor.MiddleCenter, FontStyle.Bold);
-            AddReadableShadow(labelText);
-            Outline outline = labelText.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color32(238, 118, 255, 215);
-            outline.effectDistance = new Vector2(1.4f, -1.4f);
-        }
-
-        private void BuildStageCallToAction(Transform parent)
-        {
-            GameObject stage = NewImage("LiveOnStage", parent, null, Color.clear);
-            PlaceTop(stage.GetComponent<RectTransform>(), 165, 1002, 390, 264);
-            Image hitImage = stage.GetComponent<Image>();
-            hitImage.raycastTarget = true;
-            Button button = stage.AddComponent<Button>();
-            button.targetGraphic = hitImage;
-            button.onClick.AddListener(() =>
-            {
-                OpenLevelMap();
-                ResumeMediaAfterUserGesture();
-            });
-
-            GameObject frame = NewImage("StageFrame", stage.transform, GeneratedLobbySprite(5), White);
-            Stretch(frame.GetComponent<RectTransform>());
-            Image frameImage = frame.GetComponent<Image>();
-            frameImage.preserveAspect = true;
-            frameImage.useSpriteMesh = true;
-            frameImage.raycastTarget = false;
-
-            Text live = NewPlacedText(stage.transform, "开始演出", 40, White, 67, 77, 256, 70,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
-            live.fontStyle = FontStyle.Bold;
-            AddReadableShadow(live);
-            Outline outline = live.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color32(239, 77, 255, 220);
-            outline.effectDistance = new Vector2(1.5f, -1.5f);
-            NewPlacedText(stage.transform, "舞台已就绪", 16, new Color32(255, 231, 249, 255),
-                91, 139, 208, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
-        }
-
-        private Sprite GeneratedLobbySprite(int index)
-        {
-            if (generatedLobbySprites.TryGetValue(index, out Sprite cached) && cached != null)
-                return cached;
-
-            string path = index switch
-            {
-                1 => "Art/LobbyAI/lobby-stage-hotspot-v2",
-                2 => "Art/LobbyAI/lobby-story-hotspot-v2",
-                3 => "Art/LobbyAI/lobby-task-hotspot-v2",
-                5 => "Art/LobbyAI/lobby-perform-cta-v2",
-                _ => string.Empty
-            };
-
-            Sprite sprite = string.IsNullOrEmpty(path) ? null : Resources.Load<Sprite>(path);
-            if (sprite == null && !string.IsNullOrEmpty(path))
-            {
-                Texture2D texture = Resources.Load<Texture2D>(path);
-                if (texture != null)
-                {
-                    sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height),
-                        new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
-                    sprite.name = $"GeneratedLobby-{index}";
-                    sprite.hideFlags = HideFlags.DontSave;
-                }
-            }
-
-            sprite ??= LobbyEmblemSprite(index);
-            generatedLobbySprites[index] = sprite;
-            return sprite;
-        }
-
         private GameObject NewAiDecoration(string name, Transform parent, string resourcePath)
         {
             Sprite sprite = AiUiSprite(resourcePath);
@@ -1332,6 +1516,8 @@ namespace ChoSiren
             if (background != null) background.SetActive(!active);
         }
 
+
+
         /// <summary>Full-bleed baked artwork node. Always raycastTarget=false so the
         /// measured hit areas keep exclusive ownership of UI input.</summary>
         private GameObject NewVisualV2(string name, Transform parent, Sprite sprite)
@@ -1465,8 +1651,14 @@ namespace ChoSiren
         private int TeamAverageLevel => model.Save.Team.Count == 0 ? 0
             : Mathf.FloorToInt((float)model.Save.Team.Average(index => model.LevelOf(index)));
 
+        private GameObject topMailBadge;
+
         private void UpdateTopBar()
         {
+            UpdatePsdHomeHud();
+            RefreshPlayerIdentity1028();
+            if (topMailBadge != null) topMailBadge.SetActive(model.ClaimableMailCount > 0);
+            safeRoot.Find("TopBar/Profile/AchievementBadge")?.gameObject.SetActive(model.ClaimableAchievementCount > 0);
             if (diamondText == null) return;
             teamLevelText.text = model.Save.Team.Count == 0 ? "尚未编队" : $"战力 {model.TeamPower:N0}";
             diamondText.text = HudAmount038(model.Save.Diamonds);
@@ -1479,7 +1671,8 @@ namespace ChoSiren
 
         private void BuildToast()
         {
-            toastObject = NewPanel("Toast", safeRoot, new Color32(14, 13, 42, 245), 18);
+            toastObject = NewPanel("Toast", safeRoot, new Color32(10, 6, 26, 245), 6);
+            toastObject.AddComponent<Outline>().effectColor = new Color32(255, 46, 147, 220);
             RectTransform rect = toastObject.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.5f, 0);
             rect.anchorMax = new Vector2(0.5f, 0);
@@ -1492,8 +1685,16 @@ namespace ChoSiren
             toastObject.SetActive(false);
         }
 
+        private ChoSiren.UI.NativeTitleScreen nativeTitle;
+
         private void BuildStartupLoading()
         {
+#if !UNITY_WEBGL && !UNITY_EDITOR
+            // Installed app: full-screen CG title screen (the web build uses its HTML one).
+            nativeTitle = ChoSiren.UI.NativeTitleScreen.Create(safeRoot.parent, safeRoot as RectTransform,
+                model == null || model.Save.MusicEnabled, gameAudio);
+            return;
+#endif
             startupLoadingObject = NewImage("StartupLoading", safeRoot,
                 Resources.Load<Sprite>("Art/LobbyBackground"), White);
             RectTransform rootRect = startupLoadingObject.GetComponent<RectTransform>();
@@ -1529,7 +1730,7 @@ namespace ChoSiren
             Outline recordOutline = record.AddComponent<Outline>();
             recordOutline.effectColor = new Color32(255, 112, 218, 180);
             recordOutline.effectDistance = new Vector2(2, -2);
-            NewPlacedText(record.transform, "♪", 74, Pink, 20, 35, 180, 105,
+            NewPlacedText(record.transform, "♪", 74, Accent, 20, 35, 180, 105,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             NewPlacedText(record.transform, "演出", 28, White, 20, 128, 180, 50,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -1537,7 +1738,7 @@ namespace ChoSiren
             GameObject track = NewPanel("ProgressTrack", startupLoadingObject.transform,
                 new Color32(39, 32, 89, 232), 12);
             PlaceTop(track.GetComponent<RectTransform>(), 110, 918, 500, 18);
-            GameObject fill = NewPanel("ProgressFill", track.transform, Pink, 12);
+            GameObject fill = NewPanel("ProgressFill", track.transform, Accent, 12);
             RectTransform fillRect = fill.GetComponent<RectTransform>();
             fillRect.anchorMin = Vector2.zero;
             fillRect.anchorMax = new Vector2(0f, 1f);
@@ -1546,10 +1747,8 @@ namespace ChoSiren
             startupProgressFill = fill.GetComponent<Image>();
 
             startupProgressText = NewPlacedText(startupLoadingObject.transform,
-                "正在载入舞台资源 · 0%", 16, White, 110, 950, 500, 38,
+                "载入中 · 0%", 16, White, 110, 950, 500, 38,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
-            NewPlacedText(startupLoadingObject.transform, "首次进入会准备界面素材，完成后将自动进入大厅",
-                13, Muted, 90, 1002, 540, 40, TextAnchor.MiddleCenter);
 
             startupLoadingObject.transform.SetAsLastSibling();
             UpdateStartupLoading(0f);
@@ -1557,16 +1756,19 @@ namespace ChoSiren
 
         private void UpdateStartupLoading(float progress)
         {
+            StartupLoadingBridge.Progress(progress);
+            if (nativeTitle != null) nativeTitle.SetProgress(progress);
             if (startupLoadingObject == null || startupFinished) return;
             float clamped = Mathf.Clamp01(progress);
             if (startupProgressFill != null)
                 startupProgressFill.rectTransform.anchorMax = new Vector2(clamped, 1f);
             if (startupProgressText != null)
-                startupProgressText.text = $"正在载入舞台资源 · {Mathf.RoundToInt(clamped * 100f)}%";
+                startupProgressText.text = $"载入中 · {Mathf.RoundToInt(clamped * 100f)}%";
         }
 
         private void FinishStartupLoading()
         {
+            if (nativeTitle != null) nativeTitle.MarkReady();
             if (startupLoadingObject == null || startupFinished) return;
             UpdateStartupLoading(1f);
             startupFinished = true;
@@ -1591,7 +1793,7 @@ namespace ChoSiren
             GameObject overlay = startupLoadingObject;
             CanvasGroup group = startupLoadingGroup;
             if (group == null)
-                group = overlay.GetComponent<CanvasGroup>() ?? overlay.AddComponent<CanvasGroup>();
+                group = UnityNull.Real(overlay.GetComponent<CanvasGroup>()) ?? overlay.AddComponent<CanvasGroup>();
             const float duration = 0.34f;
             float started = Time.unscaledTime;
             while (overlay != null && Time.unscaledTime - started < duration)
@@ -1609,6 +1811,7 @@ namespace ChoSiren
         private void Toast(string message)
         {
             if (toastObject == null) return;
+            if (ChoSiren.UI.RewardGain1101.Absorb(message)) return; // the 获得奖励 popup carries it (reward-ui 1101)
             toastText.text = message;
             toastObject.transform.SetAsLastSibling();
             toastObject.SetActive(true);
@@ -1655,6 +1858,11 @@ namespace ChoSiren
             Image image = result.GetComponent<Image>();
             image.type = Image.Type.Sliced;
             image.raycastTarget = true;
+            if (UI.SirenStickerUi.IsReadingPanel(name, color))
+            {
+                UI.SirenStickerUi.SkinPanel(result, false);
+                image.color = new Color(1f, 1f, 1f, color.a);
+            }
             return result;
         }
 
@@ -1681,6 +1889,8 @@ namespace ChoSiren
             Text text = NewText("Label", result.transform, label, fontSize, foreground, FontStyle.Bold, TextAnchor.MiddleCenter);
             Stretch(text.rectTransform, 6, 4, -6, -4);
             text.raycastTarget = false;
+            if (background.a > .2f && !string.IsNullOrEmpty(label))
+                UI.SirenStickerUi.SkinButton(result, background.r > background.b, fontSize < 16);
             return result;
         }
 
@@ -1710,6 +1920,23 @@ namespace ChoSiren
             Text text = NewText("Text", parent, value, size, color, style, alignment);
             PlaceTop(text.rectTransform, x, y, width, height);
             return text;
+        }
+
+        private static Sprite dotSprite;
+        /// <summary>The one round red-dot shape used by every notification badge.</summary>
+        private static Sprite DotSprite()
+        {
+            if (dotSprite != null) return dotSprite;
+            const int n = 32; var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { hideFlags = HideFlags.DontSave };
+            var px = new Color32[n * n];
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float d = Vector2.Distance(new Vector2(x + .5f, y + .5f), Vector2.one * n / 2f);
+                    px[y * n + x] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(n / 2f - d) * 255));
+                }
+            tex.SetPixels32(px); tex.Apply();
+            return dotSprite = Sprite.Create(tex, new Rect(0, 0, n, n), Vector2.one * .5f, 100);
         }
 
         private Sprite RoundedSprite(int radius)

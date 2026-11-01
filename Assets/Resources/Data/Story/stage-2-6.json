@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-6",
+  "Title": "2-6 灯塔回声",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-6"
+    },
+    {
+      "Command": "show",
+      "Subject": "yeying",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "灯塔的光每转一圈，杂音就强一次。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "那我们的歌就跟着光一起转吧。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "精英关，注意节奏，别在它强的时候硬拼。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

@@ -76,6 +76,49 @@ if ($unexpectedBuildEntries.Count -gt 0) {
     throw "WebGL Build contains entries not referenced by index.html: $($unexpectedBuildEntries.Name -join ', ')"
 }
 
+# Keep the original 25 streamed assets plus exactly the three complete Chapter 01 paintings.
+$storyManifestPath = Join-Path $resolvedBuildPath 'StreamingAssets/Story1019/manifest.json'
+if (-not (Test-Path -LiteralPath $storyManifestPath -PathType Leaf)) {
+    throw "Missing Story1019 original-image manifest: $storyManifestPath"
+}
+$storyManifest = Get-Content -Raw -LiteralPath $storyManifestPath | ConvertFrom-Json
+$storyEntries = @($storyManifest.entries)
+if ($storyEntries.Count -ne 28) {
+    throw "Expected exactly 28 Story1019 originals, found $($storyEntries.Count)."
+}
+$requiredStoryKeys = @(
+    foreach ($chapter in 1..2) { foreach ($stage in 1..10) { "Art/Story/Scenes1019/stage-$chapter-$stage" } }
+    foreach ($id in @('xingli', 'feiyin', 'wubai', 'yeying')) { "Art/Story/Portraits1019/$id" }
+    'Art/Story/Transitions1019/xingli-hand-reach-cg'
+    foreach ($name in @('chapter-01-rehearsal-solo', 'chapter-01-rehearsal-arrival', 'chapter-01-alley-outro')) {
+        "Art/Story/Scenes1019/$name"
+    }
+)
+$storyKeys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+$storyArt = foreach ($entry in $storyEntries) {
+    if ($entry.key -isnot [string] -or $entry.key -cnotin $requiredStoryKeys -or -not $storyKeys.Add($entry.key)) {
+        throw "Unexpected or duplicate Story1019 key: $($entry.key)"
+    }
+    if ($entry.file -isnot [string] -or
+        $entry.file -cnotmatch '^Story1019/[0-9a-f]{16}-(?:scenes1019|portraits1019|transitions1019)-[a-z0-9-]+\.(?:png|jpe?g)$') {
+        throw "Unsafe Story1019 original path: $($entry.file)"
+    }
+    $storyPath = Join-Path (Join-Path $resolvedBuildPath 'StreamingAssets') $entry.file
+    if (-not (Test-Path -LiteralPath $storyPath -PathType Leaf)) {
+        throw "Missing Story1019 original: $storyPath"
+    }
+    $storyItem = Get-Item -LiteralPath $storyPath
+    $storyHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $storyPath).Hash.ToLowerInvariant()
+    if ($entry.sha256 -cne $storyHash -or $entry.bytes -ne $storyItem.Length -or
+        -not $entry.file.StartsWith('Story1019/' + $storyHash.Substring(0, 16) + '-', [StringComparison]::Ordinal)) {
+        throw "Story1019 original bytes/SHA differ: $($entry.key)"
+    }
+    [pscustomobject]@{ key = $entry.key; file = $entry.file; bytes = $storyItem.Length; sha256 = $storyHash }
+}
+if (-not $storyKeys.SetEquals([string[]]$requiredStoryKeys)) {
+    throw 'Story1019 is missing a required original.'
+}
+
 [pscustomobject]@{
     success = $true
     buildPath = $resolvedBuildPath
@@ -89,4 +132,5 @@ if ($unexpectedBuildEntries.Count -gt 0) {
         sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $lobbyVideoPath).Hash.ToLowerInvariant()
     }
     assets = @($assets)
+    storyArt = @($storyArt)
 } | ConvertTo-Json -Depth 4

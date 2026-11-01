@@ -12,13 +12,13 @@ using UnityEngine.UI;
 namespace ChoSiren.Tests
 {
     /// <summary>
-    /// v0.3.5 dice/battle feedback: the floating numbers and log must explain how much of a hit
-    /// came from the dice bonus and how much was eaten by a shield instead of silently changing HP.
+    /// Damage popups preserve HP/shield attribution; the hand readout and log carry the dice
+    /// multiplier once, rather than repeating it on every moving damage number.
     /// </summary>
     public sealed class BattleFeedbackAttributionPlayModeTests
     {
         [Test]
-        public void PlayerDamagePopupAndLogNameTheDiceMultiplier()
+        public void PlayerDamagePopupShowsHpLossWhileLogKeepsTheDiceMultiplier()
         {
             GameObject root = new GameObject("Dice attribution popup", typeof(RectTransform));
             try
@@ -34,12 +34,10 @@ namespace ChoSiren.Tests
                     SkillId = "strike", Amount = 100, HpLostAmount = 100, DiceMultiplierPermille = 1450
                 });
 
-                Assert.That(ActivePopups(panel).Any(text => text.Contains("-100") && text.Contains("×1.45")),
-                    Is.True, "我方伤害弹字必须同时给出伤害与本次骰子累计倍率。实际弹字: [" +
-                    string.Join(" | ", ActivePopups(panel)) + "] 诊断: 弹字池节点" +
-                    panel.GetComponentsInChildren<Text>(true).Count(t => t.name == "Popup") + "个 / 激活" +
-                    panel.GetComponentsInChildren<Text>(true).Count(t => t.name == "Popup" && t.gameObject.activeSelf) + "个 / 敌方格子" +
-                    (FindRectOrNull(panel.transform, "Cell-E-0-0") != null ? "有" : "无"));
+                Assert.That(ActivePopups(panel), Does.Contain("-100"),
+                    "真实伤害不能因为减少重复文字而丢失。");
+                Assert.That(ActivePopups(panel).Any(text => text.Contains("×")), Is.False,
+                    "倍率已在手牌摘要和日志显示，不应尾随每一跳伤害。");
                 Assert.That(LogText(panel).text, Does.Contain("骰子 ×1.45"));
                 Assert.That(LogText(panel).text, Does.Contain("造成 100 伤害"));
             }
@@ -113,7 +111,7 @@ namespace ChoSiren.Tests
                 panel.StopAllCoroutines();
                 Invoke(panel, "RefreshDiceUi");
                 Text instruction = FindRect(panel.transform, "DiceInstruction").GetComponent<Text>();
-                Assert.That(instruction.text, Does.Contain("累计 +"));
+                Assert.That(instruction.text, Does.Contain("魅族追击"));
                 Assert.That(instruction.text, Does.Not.Contain("已封顶"));
 
                 DiceTurn dice = panel.Battle.BattleDice;
@@ -121,8 +119,9 @@ namespace ChoSiren.Tests
                     .Invoke(dice, new object[] { DiceTurn.MaxBattleBonusPermille });
                 Invoke(panel, "RefreshDiceUi");
 
-                Assert.That(instruction.text, Does.Contain("已封顶"), "累计 +100% 后必须明确封顶，不能显示 +0% 的假增长。");
-                Assert.That(instruction.text, Does.Contain("×2"));
+                Assert.That(instruction.text, Does.Contain("倍率封顶"), "累计 +100% 后必须明确封顶，不能显示 +0% 的假增长。");
+                SetField(panel, "awaitingDiceLanding", false); Invoke(panel, "RefreshDiceUi");
+                Assert.That(FindRect(panel.transform, "DiceHandSummary").GetComponent<Text>().text, Does.Contain("×2"));
                 Assert.That(instruction.text, Does.Not.Contain("本次 +0"));
             }
             finally { Object.DestroyImmediate(root); }
@@ -144,14 +143,14 @@ namespace ChoSiren.Tests
 
                 Text instruction = FindRect(panel.transform, "DiceInstruction").GetComponent<Text>();
                 Text hand = FindRect(panel.transform, "DiceHandSummary").GetComponent<Text>();
-                Assert.That(hand.text, Does.Contain("五条"), "默认测试骰面为五条，摘要必须显示真实骰型。");
+                Assert.That(hand.text, Does.Contain("六同"), "默认测试骰面为六同，摘要必须显示真实骰型。");
                 // 战斗内倍率是「累计」口径（起手 +25%，封顶 ×2），摘要必须与模型读数一致，不得展示假倍率。
                 Assert.That(hand.text, Does.Contain(
-                    $"累计 ×{panel.Battle.BattleDice.DamageMultiplierPermille / 1000f:0.##}"),
+                    $"×{panel.Battle.BattleDice.DamageMultiplierPermille / 1000f:0.##}"),
                     "骰型摘要的倍率必须与模型当前累计读数一致。");
-                Assert.That(instruction.text, Does.Contain("累计 +"));
+                Assert.That(instruction.text, Does.Contain("魅族追击"));
                 Assert.That(instruction.text, Does.Contain("魅族追击 3次"),
-                    "默认队长星璃是魅族，五条应显示 3 次追击，而不是硬编码文案。");
+                    "默认队长星璃是魅族，六同应显示 3 次追击，而不是硬编码文案。");
                 Text captainEffect = FindRect(panel.transform, "CaptainEffect").GetComponent<Text>();
                 Assert.That(captainEffect.text, Does.Contain("当前骰型追击 3 次"),
                     "流派说明必须写明当前骰型实际给到的收益。");
@@ -211,12 +210,12 @@ namespace ChoSiren.Tests
                 // Inspecting another member moves the cyan selection frame; the captain keeps gold.
                 SetField(panel, "inputActor", other);
                 Invoke(panel, "RefreshRealtimeCommands");
-                Outline captainOutline = captainCard.Find("PunkFrameEdge-0").GetComponent<Outline>();
+                Outline captainOutline = captainCard.Find("PsdUnitFrame").GetComponent<Outline>();
                 Assert.That(captainOutline.effectColor.r, Is.GreaterThan(0.9f));
                 Assert.That(captainOutline.effectColor.g, Is.GreaterThan(0.7f));
                 Assert.That(captainOutline.effectColor.a, Is.GreaterThan(0.5f),
                     "队长必须始终保留金色描边徽章。");
-                Outline otherOutline = otherCard.Find("PunkFrameEdge-0").GetComponent<Outline>();
+                Outline otherOutline = otherCard.Find("PsdUnitFrame").GetComponent<Outline>();
                 Assert.That(otherOutline.effectColor.b, Is.GreaterThan(0.8f), "被查看的队员保留青色选中框。");
             }
             finally { Object.DestroyImmediate(root); }

@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-7",
+  "Title": "1-7 欲望剧院",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-7"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "grin",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "剧院？这可是我的主场。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "台下坐满了被魅惑的观众……她们的眼睛都是空的。",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "天鹅绒咒术师在操纵她们。打倒她，观众就会醒。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

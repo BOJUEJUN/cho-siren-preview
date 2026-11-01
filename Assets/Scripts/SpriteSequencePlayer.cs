@@ -240,6 +240,16 @@ namespace ChoSiren
     [RequireComponent(typeof(RectTransform))]
     public sealed class SafeAreaFitter : MonoBehaviour
     {
+        /// <summary>The authored portrait stage (720×1536).</summary>
+        public const float PortraitAspect = 720f / 1536f;
+        /// <summary>
+        /// Screens wider than this keep the portrait game in a centred 720:1536 column. 2026-11-01
+        /// (edge-fit): lowered from .8 so 3:4 / 10:16 tablets get the full-height column too — matched
+        /// to width they squeezed every page into a 720×960 canvas with ~⅓-screen side margins.
+        /// Phones and the ~1:2 Mac window stay full-width (their few-unit margins are bled by
+        /// ScreenEdgeExtend).
+        /// </summary>
+        public const float WideAspect = .6f;
         private RectTransform panel;
         private Rect lastSafeArea;
         private Vector2Int lastScreen;
@@ -261,17 +271,45 @@ namespace ChoSiren
             Rect safe = Screen.safeArea;
             lastSafeArea = safe;
             lastScreen = new Vector2Int(Screen.width, Screen.height);
-
-            Vector2 min = safe.position;
-            Vector2 max = safe.position + safe.size;
-            min.x /= Mathf.Max(1, Screen.width);
-            min.y /= Mathf.Max(1, Screen.height);
-            max.x /= Mathf.Max(1, Screen.width);
-            max.y /= Mathf.Max(1, Screen.height);
+            Layout(safe, new Vector2(Screen.width, Screen.height), out Vector2 min, out Vector2 max, out bool wide);
+            var scaler = GetComponentInParent<UnityEngine.UI.CanvasScaler>();
+            if (scaler != null) scaler.matchWidthOrHeight = wide ? 1f : 0f;
             panel.anchorMin = min;
             panel.anchorMax = max;
             panel.offsetMin = Vector2.zero;
             panel.offsetMax = Vector2.zero;
+        }
+
+        /// <summary>
+        /// The safe-root anchors (0..1 of the screen) and scaler mode for a screen of
+        /// <paramref name="screen"/> pixels with the given system safe area. Pure, so the
+        /// edge-fit audit (EdgeFit1101Tests) can lay the game out for any simulated device.
+        /// </summary>
+        public static void Layout(Rect safe, Vector2 screen, out Vector2 min, out Vector2 max, out bool wide)
+        {
+            float width = Mathf.Max(1f, screen.x), height = Mathf.Max(1f, screen.y);
+            min = safe.position;
+            max = safe.position + safe.size;
+            // 2026-10-20: the system inset includes the status-bar row below the Dynamic
+            // Island; the island itself ends higher. Use 72% of a tall top inset so the top
+            // bar sits just under the island instead of a finger-width lower.
+            float topInset = height - max.y;
+            if (topInset > height * .03f) max.y = height - topInset * .72f;
+            min.x /= width;
+            min.y /= height;
+            max.x /= width;
+            max.y /= height;
+            // 2026-10-24: on a landscape screen (desktop fullscreen, a 4K monitor, a wide window) the portrait game
+            // keeps its shape: the canvas matches height and every page lives in a centred 720:1536 column, while
+            // the full-screen background/ambient layers outside this root fill the sides.
+            float aspect = width / height;
+            wide = aspect > WideAspect;
+            if (wide)
+            {
+                float half = PortraitAspect / aspect * .5f;
+                min.x = Mathf.Max(min.x, .5f - half);
+                max.x = Mathf.Min(max.x, .5f + half);
+            }
         }
     }
 }

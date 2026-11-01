@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "runs": {
+    "qualityMain": {
+      "id": 38723412279,
+      "name": "Quality checks",
+      "head_sha": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+      "head_branch": "main",
+      "status": "completed",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723412279",
+      "updated_at": "2026-10-15T10:53:34Z",
+      "jobs": [
+        {
+          "name": "verify",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723412279/job/116383298240"
+        }
+      ],
+      "allJobsSuccessful": true
+    },
+    "qualityBackup": {
+      "id": 38723433938,
+      "name": "Quality checks",
+      "head_sha": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+      "head_branch": "backup/v0.3.71",
+      "status": "completed",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723433938",
+      "updated_at": "2026-10-15T10:53:46Z",
+      "jobs": [
+        {
+          "name": "verify",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723433938/job/116383365954"
+        }
+      ],
+      "allJobsSuccessful": true
+    },
+    "pages": {
+      "id": 38723410059,
+      "name": "pages build and deployment",
+      "head_sha": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+      "head_branch": "main",
+      "status": "completed",
+      "conclusion": "success",
+      "run_attempt": 1,
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723410059",
+      "updated_at": "2026-10-15T10:54:23Z",
+      "jobs": [
+        {
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723410059/job/116383295941"
+        },
+        {
+          "name": "deploy",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723410059/job/116383567396"
+        },
+        {
+          "name": "report-build-status",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38723410059/job/116383567455"
+        }
+      ],
+      "allJobsSuccessful": true
+    }
+  },
+  "checkedAt": "2026-10-15T10:55:22.249384+00:00",
+  "commit": "8712c84546a0d36bb0c53d32586665b3dcd2a2f6",
+  "version": "0.3.71",
+  "method": "Read-only unauthenticated GitHub REST API; 30-second polling interval",
+  "scope": "Quality main+backup/v0.3.71 and Pages workflow/jobs only; browser and full public bytes verified separately."
+}

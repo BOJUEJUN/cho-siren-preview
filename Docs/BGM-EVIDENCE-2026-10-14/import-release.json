@@ -1,0 +1,21 @@
+{
+    "asset": "Assets/Resources/Audio/bgm.wav",
+    "name": "bgm",
+    "activeBuildTarget": "WebGL",
+    "defaultLoadType": "CompressedInMemory",
+    "defaultCompression": "Vorbis",
+    "webLoadType": "CompressedInMemory",
+    "webCompression": "AAC",
+    "seconds": 128.02127075195313,
+    "webQuality": 0.75,
+    "samples": 5645738,
+    "channels": 2,
+    "sampleRate": 44100,
+    "outputSampleRate": 48000,
+    "dspBufferSize": 1024,
+    "dspBufferCount": 4,
+    "forceToMono": false,
+    "loadInBackground": true,
+    "webOverrideEnabled": true,
+    "estimatedWebDecodedPcmBytes": 45165904
+}

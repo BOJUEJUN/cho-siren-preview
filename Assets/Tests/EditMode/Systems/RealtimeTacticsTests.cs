@@ -51,13 +51,14 @@ namespace ChoSiren.Tests
             var guarded = RealtimeBattleTests.Create("none", encounter: "normal");
             Assert.That(guarded.TryTacticalGuard(), Is.True);
             Assert.That(guarded.TryTacticalGuard(), Is.False);
-            Assert.That(guarded.GuardCooldownRemaining, Is.EqualTo(18000));
+            Assert.That(guarded.GuardCooldownRemaining, Is.EqualTo(3000));
             normal.AdvanceRealtime(2000); guarded.AdvanceRealtime(2000);
             int Damage(BattleSimulator b) => b.Log.First(e => e.Kind == BattleEventKind.Damage && e.ActorId == 2).Amount;
             Assert.That(Damage(guarded), Is.EqualTo(System.Math.Max(1, Damage(normal) / 2)));
             guarded.AdvanceRealtime(1000);
             Assert.That(guarded.GuardRemaining(guarded.FindUnit(1)), Is.Zero);
-            Assert.That(guarded.GuardCooldownRemaining, Is.EqualTo(15000));
+            Assert.That(guarded.GuardCooldownRemaining, Is.Zero);
+            Assert.That(guarded.TryTacticalGuard(), Is.False, "同场守护不能在持续期结束后重复使用");
         }
 
         [Test]

@@ -1,0 +1,94 @@
+{
+  "checkedAtUtc": "2026-10-15T09:25:14.414413+00:00",
+  "variants": [
+    {
+      "kind": "home",
+      "processedWav": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/audio-prep/newbgm.wav",
+      "processedWavSha256": "e306ed4d9a1f3e1f9de2a72f84a59e6c1367a721c675c39cdafbb75f1446abaf",
+      "outputPath": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/audio-prep/web-home.mp3",
+      "outputSha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "bytes": 4137839,
+      "immutableFilename": "home-1c7f72fed9af8b53.mp3",
+      "codec": "MP3/libmp3lame CBR 192k, compression_level 0",
+      "sampleRate": 44100,
+      "channels": 2,
+      "frames": 7599908,
+      "durationSeconds": 172.33351473922903,
+      "referenceMusicFramesAfterGuard": 7599908,
+      "referenceMusicDurationSecondsAfterGuard": 172.33351473922903,
+      "removedProtectionFrames": 1024,
+      "removedMusicFrames": 0,
+      "peakDbfs": -1.2449295950937944,
+      "rmsDbfs": -19.622827850288687,
+      "processedWavMusicRmsDbfs": -19.362862154217034,
+      "nonfiniteSamples": 0,
+      "samplesAtOrAboveFullScale": 0,
+      "fullDecodePassed": true,
+      "correlationPerChannelWithProcessedWavAtSameGain": [
+        0.9981094365319866,
+        0.9973416204984205
+      ],
+      "errorRmsComparedWithProcessedWavAtSameGainDbfs": -42.11852628939077,
+      "additionalConstantGainDb": 0.0,
+      "encodeAttempts": [
+        {
+          "attempt": 1,
+          "additionalConstantGainDb": 0.0,
+          "decodedPeakDbfs": -1.2449295950937944,
+          "samplesAtOrAboveFullScale": 0
+        }
+      ],
+      "decodeFramesExactlyMatchReference": true,
+      "processing": "Only 1024-frame guard removed, one high-quality MP3 encode from processed WAV; no tempo, pitch, arrangement or dynamic-range processing.",
+      "webLoopStartSeconds": 0,
+      "webLoopEndSeconds": 172.33351473922903
+    },
+    {
+      "kind": "battle",
+      "processedWav": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/audio-prep/battle.wav",
+      "processedWavSha256": "38420c0391d6623780517f0a40790c475fc197013374a9cc653f92e4a2ed96bb",
+      "outputPath": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/audio-prep/web-battle.mp3",
+      "outputSha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "bytes": 3477045,
+      "immutableFilename": "battle-11700e9a4a918ffe.mp3",
+      "codec": "MP3/libmp3lame CBR 192k, compression_level 0",
+      "sampleRate": 44100,
+      "channels": 2,
+      "frames": 6386276,
+      "durationSeconds": 144.81351473922902,
+      "referenceMusicFramesAfterGuard": 6386276,
+      "referenceMusicDurationSecondsAfterGuard": 144.81351473922902,
+      "removedProtectionFrames": 1024,
+      "removedMusicFrames": 0,
+      "peakDbfs": -3.3222041661858785,
+      "rmsDbfs": -17.192068346772082,
+      "processedWavMusicRmsDbfs": -16.927562564298707,
+      "nonfiniteSamples": 0,
+      "samplesAtOrAboveFullScale": 0,
+      "fullDecodePassed": true,
+      "correlationPerChannelWithProcessedWavAtSameGain": [
+        0.9999814645338763,
+        0.9999811567947142
+      ],
+      "errorRmsComparedWithProcessedWavAtSameGainDbfs": -47.215463265622844,
+      "additionalConstantGainDb": 0.0,
+      "encodeAttempts": [
+        {
+          "attempt": 1,
+          "additionalConstantGainDb": 0.0,
+          "decodedPeakDbfs": -3.3222041661858785,
+          "samplesAtOrAboveFullScale": 0
+        }
+      ],
+      "decodeFramesExactlyMatchReference": true,
+      "processing": "Only 1024-frame guard removed, one high-quality MP3 encode from processed WAV; no tempo, pitch, arrangement or dynamic-range processing.",
+      "webLoopStartSeconds": 0,
+      "webLoopEndSeconds": 144.81351473922902
+    }
+  ],
+  "limits": [
+    "These Web MP3s are encoded from the already processed native WAVs. The original generation was MP3; this lossy encode is for small Web delivery, not a new lossless master.",
+    "Full digital decode/correlation checks do not prove subjective quality, instrumental content or physical-device audibility.",
+    "Native WAVs were read only. No project, Unity or browser action was performed."
+  ]
+}

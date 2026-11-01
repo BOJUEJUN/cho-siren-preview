@@ -36,7 +36,9 @@ namespace ChoSiren
         {
             public RectTransform Rect;
             public Vector3 BaseScale, LastScale;
-            public Vector3 BaseWorldPos, LastWorldPos;
+            // Parent-local, not world: a page that is hidden and shown again after the screen/canvas changed
+            // (battle over the map, phone browser bars) must not snap its labels back to stale world spots (2026-10-24).
+            public Vector3 BaseLocalPos, LastLocalPos;
             public Vector2 BaseCentreHost;
         }
 
@@ -48,6 +50,7 @@ namespace ChoSiren
         private readonly List<Part> parts = new List<Part>();
         private Vector3 bodyBaseScale = Vector3.one;
         private bool hovered, pressed;
+        private bool nativeMode;
         private int state;
         private float elapsed, duration, fromScale = 1f, fromAlpha;
         private float scale = 1f, alpha;
@@ -56,7 +59,7 @@ namespace ChoSiren
         /// <summary>Default edge-feather width, in board source pixels.</summary>
         public static BakedRegionMotion038 Attach(GameObject target, Image board,
             Rect regionInBoardPixels, params Transform[] extras)
-            => Attach(target, board, regionInBoardPixels, 3f, null, extras);
+            => AttachInternal(target, board, regionInBoardPixels, 3f, null, null, extras);
 
         /// <param name="target">Hit-only button whose visible body lives in the board art.</param>
         /// <param name="board">The authored board Image this page is built on.</param>
@@ -67,7 +70,7 @@ namespace ChoSiren
         /// belong to this control; they are animated in place like the button's children.</param>
         public static BakedRegionMotion038 Attach(GameObject target, Image board,
             Rect regionInBoardPixels, float featherPixels, params Transform[] extras)
-            => Attach(target, board, regionInBoardPixels, featherPixels, null, extras);
+            => AttachInternal(target, board, regionInBoardPixels, featherPixels, null, null, extras);
 
         /// <param name="silhouetteBoardPixels">Optional polygon (board source pixels,
         /// top-left origin) tracing the control's own baked silhouette. When set, the
@@ -78,6 +81,25 @@ namespace ChoSiren
         public static BakedRegionMotion038 Attach(GameObject target, Image board,
             Rect regionInBoardPixels, float featherPixels, Vector2[] silhouetteBoardPixels,
             params Transform[] extras)
+            => AttachInternal(target, board, regionInBoardPixels, featherPixels,
+                silhouetteBoardPixels, null, extras);
+
+        /// <summary>
+        /// Native-layer variant: the control's visible body is an independent RGBA
+        /// sprite asset whose own alpha carries the silhouette, padded by the artist so
+        /// hover glow and overshoot are never mask-clipped. The flattened board beneath
+        /// is never copied or scaled, so scene and character art stay pixel-stationary
+        /// through enter/down/up/exit and no rectangular crop edge can tear art that
+        /// crosses the region. With no static baked frame to cover, press settles at
+        /// 0.97 and hover grows to 1.04. The hit RectTransform still never moves.
+        /// </summary>
+        public static BakedRegionMotion038 AttachNative(GameObject target, Image board,
+            Rect regionInBoardPixels, Sprite nativeArt, params Transform[] extras)
+            => AttachInternal(target, board, regionInBoardPixels, 0f, null, nativeArt, extras);
+
+        private static BakedRegionMotion038 AttachInternal(GameObject target, Image board,
+            Rect regionInBoardPixels, float featherPixels, Vector2[] silhouetteBoardPixels,
+            Sprite nativeArt, params Transform[] extras)
         {
             if (target == null || board == null || board.sprite == null || board.sprite.texture == null)
                 return null;
@@ -141,11 +163,15 @@ namespace ChoSiren
                 (host.pivot.y - .5f) * hit.height);
             Vector2 artCentre = centreInHost + centreAnchorOffset;
 
-            Rect source = sprite.rect;
-            Rect slice = new Rect(source.x + regionInBoardPixels.x,
-                source.y + source.height - regionInBoardPixels.y - regionInBoardPixels.height,
-                regionInBoardPixels.width, regionInBoardPixels.height);
-            Sprite region = Sprite.Create(sprite.texture, slice, new Vector2(.5f, .5f), 100f);
+            Sprite region = nativeArt;
+            if (region == null)
+            {
+                Rect source = sprite.rect;
+                Rect slice = new Rect(source.x + regionInBoardPixels.x,
+                    source.y + source.height - regionInBoardPixels.y - regionInBoardPixels.height,
+                    regionInBoardPixels.width, regionInBoardPixels.height);
+                region = Sprite.Create(sprite.texture, slice, new Vector2(.5f, .5f), 100f);
+            }
             float featherLocal = Mathf.Max(0f, featherPixels * unitScale);
             Vector2[] silhouetteLocal = null;
             if (silhouetteBoardPixels != null && silhouetteBoardPixels.Length >= 3
@@ -199,8 +225,9 @@ namespace ChoSiren
             sheenNode.transform.SetAsLastSibling();
 
             BakedRegionMotion038 component =
-                target.GetComponent<BakedRegionMotion038>() ??
+                UnityNull.Real(target.GetComponent<BakedRegionMotion038>()) ??
                 target.AddComponent<BakedRegionMotion038>();
+            component.nativeMode = nativeArt != null;
             component.Configure(host, body, sheenGroup, centreInHost);
             component.CaptureChildren(host, extras);
             return component;
@@ -251,10 +278,19 @@ namespace ChoSiren
                 Rect = rect,
                 BaseScale = rect.localScale,
                 LastScale = rect.localScale,
-                BaseWorldPos = rect.position,
-                LastWorldPos = rect.position,
+                BaseLocalPos = rect.localPosition,
+                LastLocalPos = rect.localPosition,
                 BaseCentreHost = host.InverseTransformPoint(worldCentre),
             });
+        }
+
+        /// <summary>Includes a newly added skin in this control's existing motion owner.</summary>
+        public void RegisterVisual(RectTransform visual)
+        {
+            if (visual == null || host == null || visual == body || visual.IsChildOf(body)) return;
+            foreach (Part part in parts)
+                if (part.Rect != null && (visual == part.Rect || visual.IsChildOf(part.Rect))) return;
+            AddPart(visual);
         }
 
         private void OnEnable() => ResetImmediately();
@@ -277,10 +313,13 @@ namespace ChoSiren
             float t = duration <= 0f ? 1f : elapsed / duration;
             float eased = 1f - Mathf.Pow(1f - t, 3f);
             float spring = release ? 1f + 1.65f * Mathf.Pow(t - 1f, 3f) + .65f * Mathf.Pow(t - 1f, 2f) : eased;
-            // Scale floor is 1: the overlay always covers the identical baked art, so a
-            // press can never shrink the copy inside its own static frame.
-            float targetScale = target == 2 ? 1.006f : target == 1 ? 1.03f : 1f;
-            scale = Mathf.Max(1f, Mathf.LerpUnclamped(fromScale, targetScale, spring));
+            // Baked slices keep a scale floor of 1: the overlay must always cover the
+            // identical baked art. A native-layer body owns its silhouette outright, so
+            // its press may settle at 0.97 and its hover grow to 1.04.
+            float targetScale = target == 2 ? (nativeMode ? .97f : 1.006f)
+                : target == 1 ? (nativeMode ? 1.04f : 1.03f) : 1f;
+            scale = nativeMode ? Mathf.LerpUnclamped(fromScale, targetScale, spring)
+                : Mathf.Max(1f, Mathf.LerpUnclamped(fromScale, targetScale, spring));
             alpha = Mathf.Lerp(fromAlpha, target == 2 ? .55f : target == 1 ? .30f : 0f, eased);
             body.localScale = bodyBaseScale * scale;
             if (sheen != null) sheen.alpha = alpha;
@@ -289,23 +328,24 @@ namespace ChoSiren
             foreach (Part part in parts)
             {
                 if (part.Rect == null) continue;
-                Vector3 applied = host.TransformVector(
+                Vector3 appliedWorld = host.TransformVector(
                     new Vector3((part.BaseCentreHost.x - regionCentreHost.x) * shift,
                         (part.BaseCentreHost.y - regionCentreHost.y) * shift, 0f));
-                Vector3 expectedPos = part.BaseWorldPos + applied;
+                Vector3 applied = part.Rect.parent != null ? part.Rect.parent.InverseTransformVector(appliedWorld) : appliedWorld;
+                Vector3 expectedPos = part.BaseLocalPos + applied;
                 Vector3 expectedScale = part.BaseScale * scale;
                 // An external layout change becomes the new baseline (TactileVisualMotion rule).
-                if ((part.Rect.position - part.LastWorldPos).sqrMagnitude > .000001f
+                if ((part.Rect.localPosition - part.LastLocalPos).sqrMagnitude > .0001f
                     || (part.Rect.localScale - part.LastScale).sqrMagnitude > .000001f)
                 {
-                    part.BaseWorldPos = part.Rect.position - applied;
+                    part.BaseLocalPos = part.Rect.localPosition - applied;
                     part.BaseScale = part.Rect.localScale / Mathf.Max(scale, .0001f);
-                    expectedPos = part.Rect.position;
+                    expectedPos = part.Rect.localPosition;
                     expectedScale = part.Rect.localScale;
                 }
-                part.LastWorldPos = expectedPos;
+                part.LastLocalPos = expectedPos;
                 part.LastScale = expectedScale;
-                part.Rect.position = expectedPos;
+                part.Rect.localPosition = expectedPos;
                 part.Rect.localScale = expectedScale;
             }
         }
@@ -333,9 +373,9 @@ namespace ChoSiren
             foreach (Part part in parts)
             {
                 if (part.Rect == null) continue;
-                part.Rect.position = part.BaseWorldPos;
+                part.Rect.localPosition = part.BaseLocalPos;
                 part.Rect.localScale = part.BaseScale;
-                part.LastWorldPos = part.BaseWorldPos;
+                part.LastLocalPos = part.BaseLocalPos;
                 part.LastScale = part.BaseScale;
             }
         }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using ChoSiren.UI;
 
 namespace ChoSiren.Panels
 {
@@ -33,17 +34,17 @@ namespace ChoSiren.Panels
     /// </summary>
     internal static class SecondaryStory038Chrome
     {
-        public static readonly Color SocketDark = new Color32(10, 11, 42, 190);
-        public static readonly Color SocketChoice = new Color32(23, 20, 72, 190);
-        public static readonly Color SocketUtility = new Color32(16, 14, 48, 200);
-        public static readonly Color SocketStage = new Color32(20, 10, 40, 235);
+        public static readonly Color SocketDark = new Color32(11, 8, 18, 190);
+        public static readonly Color SocketChoice = new Color32(11, 8, 18, 215);
+        public static readonly Color SocketUtility = new Color32(11, 8, 18, 220);
+        public static readonly Color SocketStage = new Color32(11, 8, 18, 235);
         public static readonly Color EdgeViolet = new Color32(166, 112, 255, 150);
         public static readonly Color EdgePink = new Color32(255, 126, 226, 200);
         public static readonly Color EdgeCyan = new Color32(91, 215, 255, 170);
         public static readonly Color EdgeStage = new Color32(255, 91, 209, 235);
-        public static readonly Color FaceDark = new Color32(15, 13, 46, 243);
-        public static readonly Color FaceStage = new Color32(120, 26, 86, 250);
-        public static readonly Color FaceToggleOn = new Color32(88, 38, 150, 243);
+        public static readonly Color FaceDark = new Color32(11, 8, 18, 235);
+        public static readonly Color FaceStage = new Color32(11, 8, 18, 250);
+        public static readonly Color FaceToggleOn = new Color32(31, 22, 43, 243);
         public static readonly Color TextWhite = new Color32(249, 247, 255, 255);
         public static readonly Color CutViolet = new Color32(152, 105, 226, 120);
         public static readonly Color CutPink = new Color32(255, 126, 226, 110);
@@ -101,6 +102,7 @@ namespace ChoSiren.Panels
                 action?.Invoke();
             });
             root.AddComponent<ModalPolish038PressFeedback>().Configure(body, sheen, sheenStrength);
+            if (name != "DialogueBox") SirenStickerUi.SkinButton(root, name.StartsWith("Choice-"), true);
 
             return new SecondaryStory038Action
             {
@@ -138,8 +140,8 @@ namespace ChoSiren.Panels
             Image plate = NewImage(name, parent, ReferencePunkFx.SlashPanel(mirror), color);
             plate.type = Image.Type.Sliced;
             if (width > 0f && height > 0f) PlaceTop(plate.rectTransform, x, y, width, height);
-            if (cornerCut > 0f)
-                ReferencePunkFx.CornerCuts(plate.rectTransform, cutColor, cornerCut, 2.5f, 5f);
+            SirenStickerUi.SkinPanel(plate.gameObject, cornerCut > 0f);
+            plate.color = new Color(1f, 1f, 1f, color.a);
             return plate;
         }
 

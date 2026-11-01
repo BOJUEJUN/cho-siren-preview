@@ -18,6 +18,7 @@ namespace ChoSiren
                 case "rt-mermaid-small":
                 case "rt-cleanse":
                     return SkillIconKind.Heal;
+                case "rt-enemy-guard-shield":
                 case "rt-mermaid-big":
                 case "rt-tide-hand":
                 case "rt-tactical-guard":
@@ -29,7 +30,18 @@ namespace ChoSiren
                 case "rt-poison":
                 case "rt-demon-small":
                 case "rt-demon-big":
+                case "rt-enemy-venom":   // 2026-11-01 BossMechanics1101: 毒牙·剧毒 / 蚀心侵染
+                case "rt-boss-corrode":
                     return SkillIconKind.Poison;
+                case "rt-boss-mass-silence":
+                case "rt-enemy-charm-seal":
+                case "rt-seal":
+                    return SkillIconKind.Charm;
+                case "rt-boss-sweep":
+                case "rt-boss-nova":
+                    return SkillIconKind.Burst;
+                case "rt-enemy-regen":
+                    return SkillIconKind.Heal;
                 case "rt-armor-break":
                     return SkillIconKind.Pierce;
                 case "rt-stun":

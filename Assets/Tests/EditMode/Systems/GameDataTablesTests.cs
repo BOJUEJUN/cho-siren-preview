@@ -31,20 +31,20 @@ namespace ChoSiren.Tests.Systems
             Assert.That(repository.Economy.Tasks.Count, Is.GreaterThanOrEqualTo(6));
             Assert.That(repository.Gacha.Banners.Count, Is.GreaterThanOrEqualTo(2));
             Assert.That(repository.Tactics.Units.Count, Is.GreaterThanOrEqualTo(9));
-            Assert.That(repository.Tactics.Stages.Count, Is.EqualTo(GameModel.ChapterOneStageCount));
-            Assert.That(repository.Tactics.Stages.ConvertAll(stage => stage.Id),
+            Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).Count, Is.EqualTo(GameModel.ChapterOneStageCount));
+            Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).ConvertAll(stage => stage.Id),
                 Is.EqualTo(new[]
                 {
                     "stage-1-1", "stage-1-2", "stage-1-3", "stage-1-4", "stage-1-5",
                     "stage-1-6", "stage-1-7", "stage-1-8", "stage-1-9", "stage-1-10",
                 }));
-            Assert.That(repository.Tactics.Stages.TrueForAll(stage => stage.Chapter == "第 01 章"),
+            Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).TrueForAll(stage => stage.Chapter == "第 01 章"),
                 Is.True);
             Assert.That(repository.Tactics.FindUnit("siren-queen"), Is.Not.Null,
                 "1-10 必须有与用户王座 BOSS 美术对应的战斗单位。");
-            Assert.That(repository.Tactics.Stages.ConvertAll(stage => stage.StaminaCost),
+            Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).ConvertAll(stage => stage.StaminaCost),
                 Is.Ordered.Ascending, "第一章体力消耗应随难度平滑上升。");
-            Assert.That(repository.Tactics.Stages.ConvertAll(stage => stage.GoldReward),
+            Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).ConvertAll(stage => stage.GoldReward),
                 Is.Ordered.Ascending, "第一章基础星光币奖励应随关卡递增。");
         }
 
@@ -108,9 +108,9 @@ namespace ChoSiren.Tests.Systems
                 new PlayerUnitSetup { UnitId = "yeying", Row = 2, Col = 0, Level = 40 },
             };
 
-            for (int index = 0; index < repository.Tactics.Stages.Count; index++)
+            for (int index = 0; index < repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).Count; index++)
             {
-                StageDefinition stage = repository.Tactics.Stages[index];
+                StageDefinition stage = repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-"))[index];
                 var battle = new BattleSimulator(repository.Tactics, stage, party, new SeededRandom(1000 + (ulong)index));
                 battle.EnableRealtime(GameModel.Members.ToDictionary(m => m.Id, m => m.Race), "xingli", stage.RerollLimit);
                 Assert.That(battle.AutoPlay(), Is.EqualTo(BattleOutcome.Victory), $"{stage.Name} 用 40 级满编队自动战斗应能通关");

@@ -1,0 +1,114 @@
+{
+  "creative_directions": 2,
+  "audio_candidates": 3,
+  "suno_A_B_same_request": true,
+  "separate_new_submissions": 2,
+  "new_fees": {
+    "international_USD": 0.08,
+    "domestic_CNY": 0.34
+  },
+  "approved_platform_equivalent_CNY_cap": 0.88,
+  "prior_68_proposal_replaced": true,
+  "audition_only": true,
+  "files": [
+    {
+      "id": "01_Suno6_PrismRush_A",
+      "model": "Suno custom v6",
+      "direction": "same bright composition, candidate A",
+      "task_id": "2112110601486041089",
+      "original": {
+        "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/kpop-comparison-20261019-v1/suno-global/original/2112110601486041089-01.mp3",
+        "sha256": "60bc7eda6ba843e606fdc98a222038a2a906080a71ae90108f4a1ba2c3a41b0e",
+        "bytes": 2795289,
+        "seconds": 119.6135,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak_dbfs": -0.8065686115181698,
+        "rms_dbfs": -15.321749656200778,
+        "over_full_scale_samples": 0
+      },
+      "level_matched_audition": {
+        "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/kpop-comparison/01_Suno6_PrismRush_A.mp3",
+        "sha256": "10e55e2addcf7712bd34d0afc95c89029ad90f18b89a6e18075591d8b10a665a",
+        "bytes": 2871980,
+        "seconds": 119.6135,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak_dbfs": -3.7389936875128327,
+        "rms_dbfs": -18.269123253696197,
+        "over_full_scale_samples": 0
+      },
+      "gain_db": -2.6782503437992204,
+      "processing": "Conservative gain only to target -18dBFS RMS with -1.5dBFS PCM peak ceiling. Original file untouched. No composition changes, cuts, loop, EQ or time stretch.",
+      "instrumental_api_requested": true,
+      "human_listened": false,
+      "production_integrated": false
+    },
+    {
+      "id": "02_Suno6_PrismRush_B",
+      "model": "Suno custom v6",
+      "direction": "same bright composition, candidate B",
+      "task_id": "2112110601486041089",
+      "original": {
+        "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/kpop-comparison-20261019-v1/suno-global/original/2112110601486041089-02.mp3",
+        "sha256": "14f31a161f06d27fcc1df7140487f86bcee92f3ef0f7078f9f03ec5e6af94696",
+        "bytes": 2806665,
+        "seconds": 120.0135,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak_dbfs": -0.6518121937072938,
+        "rms_dbfs": -15.057115106226073,
+        "over_full_scale_samples": 0
+      },
+      "level_matched_audition": {
+        "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/kpop-comparison/02_Suno6_PrismRush_B.mp3",
+        "sha256": "24c963ac89c4f342395d0f468e606c85a567c78e2fce20068cccfba0af7cd312",
+        "bytes": 2881772,
+        "seconds": 120.0135,
+        "sample_rate": 48000,
+        "channels": 2,
+        "peak_dbfs": -3.871353608238928,
+        "rms_dbfs": -18.263892939831305,
+        "over_full_scale_samples": 0
+      },
+      "gain_db": -2.9428848937739254,
+      "processing": "Conservative gain only to target -18dBFS RMS with -1.5dBFS PCM peak ceiling. Original file untouched. No composition changes, cuts, loop, EQ or time stretch.",
+      "instrumental_api_requested": true,
+      "human_listened": false,
+      "production_integrated": false
+    },
+    {
+      "id": "03_Mureka9_NightPulse",
+      "model": "Mureka v9",
+      "direction": "separate dark bass K-pop direction",
+      "task_id": "2112107721917882370",
+      "original": {
+        "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/kpop-comparison-20261019-v1/original/mureka9-dark-kpop.mp3",
+        "sha256": "6f574dec9da39085ca0d3f400e9df973c50fce856e558e9d32bede10a3590ad6",
+        "bytes": 5230385,
+        "seconds": 163.39002267573696,
+        "sample_rate": 44100,
+        "channels": 2,
+        "peak_dbfs": -0.5700460293453427,
+        "rms_dbfs": -17.21816059606916,
+        "over_full_scale_samples": 0
+      },
+      "level_matched_audition": {
+        "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/kpop-comparison/03_Mureka9_NightPulse.mp3",
+        "sha256": "6cb68da41a542dc2a7c553a7d47cfc60302ff3de0c8a29f279ce14868f4ffa23",
+        "bytes": 3922799,
+        "seconds": 163.39002267573696,
+        "sample_rate": 44100,
+        "channels": 2,
+        "peak_dbfs": -1.8909491517915735,
+        "rms_dbfs": -18.40057057509267,
+        "over_full_scale_samples": 0
+      },
+      "gain_db": -0.9299539706546567,
+      "processing": "Conservative gain only to target -18dBFS RMS with -1.5dBFS PCM peak ceiling. Original file untouched. No composition changes, cuts, loop, EQ or time stretch.",
+      "instrumental_api_requested": true,
+      "human_listened": false,
+      "production_integrated": false
+    }
+  ]
+}

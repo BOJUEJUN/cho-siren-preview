@@ -1,0 +1,295 @@
+{
+  "source": "/Users/bojuejun/cho-siren-unity",
+  "candidate": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/project",
+  "release": "0.3.70 / R65",
+  "existingDirtyWorkPreserved": true,
+  "files": [
+    {
+      "file": "Assets/Resources/Audio/bgm.wav",
+      "baselineSha256": "ec785df024e0a4bf56d6f6aa807d14ee3519702a0868d3bd9de745fe7450bfb1",
+      "previousSha256": "ec785df024e0a4bf56d6f6aa807d14ee3519702a0868d3bd9de745fe7450bfb1",
+      "newSha256": "e306ed4d9a1f3e1f9de2a72f84a59e6c1367a721c675c39cdafbb75f1446abaf",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Tests/PlayMode/GlobalMusicTests.cs",
+      "baselineSha256": "eecce8aba029bd5c651d90de147d8055801e77f5c136841921f519d2e4a53e6d",
+      "previousSha256": "eecce8aba029bd5c651d90de147d8055801e77f5c136841921f519d2e4a53e6d",
+      "newSha256": "a24ff64b5e6d95ac5d8cc60d3e3b8e7ca5d6405441167c765d399cffaea51216",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Tests/PlayMode/PsdHomeIntegrationTests.cs",
+      "baselineSha256": "5e4fc8d6a4fc4e804c2b79e2a564b01c717ee213b159f555bc8ccbc7bdbb705f",
+      "previousSha256": "5e4fc8d6a4fc4e804c2b79e2a564b01c717ee213b159f555bc8ccbc7bdbb705f",
+      "newSha256": "b4ff10843fc2f1105ac6255f45e9f753a1b0c119fdbde6a7610f246950ba4b81",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/WebGLTemplates/ChoSirenPortrait/index.html",
+      "baselineSha256": "a34a2ef34f5e1e2d64cb14e1ae8fdd3daeca65ab27f97542de182de784a22af1",
+      "previousSha256": "a34a2ef34f5e1e2d64cb14e1ae8fdd3daeca65ab27f97542de182de784a22af1",
+      "newSha256": "8fd083a7d7fa09ff906ffc4d9e90cd9dc17165f3efad407123158bb8f2262050",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/WebGLTemplates/ChoSirenPortrait/service-worker.js",
+      "baselineSha256": "e26ded2f2c646bc244d159be64da535a14945612f7bd544cdab30541dabae801",
+      "previousSha256": "e26ded2f2c646bc244d159be64da535a14945612f7bd544cdab30541dabae801",
+      "newSha256": "34a1cc84728ea142acb03e9383281d021af2d98e389f546be7301a917630a39e",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/WebGLTemplates/ChoSirenPortrait/music/index.html",
+      "baselineSha256": "2c25a384fd29455e5c23ab54953b27880de23f58efa7cf2d766f07540e77261b",
+      "previousSha256": "2c25a384fd29455e5c23ab54953b27880de23f58efa7cf2d766f07540e77261b",
+      "newSha256": "8450c8007ec29f3813e30c1987e6d334323ac4d8aad66cadb82976fd5b81ce76",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/GameAudio.cs",
+      "baselineSha256": "a1626e361f2f9658e684f7042468fe19bd494bf83923b2ff25f3f70e1e0811f7",
+      "previousSha256": "a1626e361f2f9658e684f7042468fe19bd494bf83923b2ff25f3f70e1e0811f7",
+      "newSha256": "61fb3bf9d83742802b38335dd77b8ef154b573218585de63f2222247de5f50b1",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/ChoSirenAppLobbyPunk.cs",
+      "baselineSha256": "0bc83cc8a562e2a7c3d6c157305799f64931dccd18c355949760aae77be7d495",
+      "previousSha256": "0bc83cc8a562e2a7c3d6c157305799f64931dccd18c355949760aae77be7d495",
+      "newSha256": "13b46b12c1af814b7accfbbfd1dd6190757c008175b572b0854000bac516f84f",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/StoryBattlePanel.cs",
+      "baselineSha256": "f2b91114d3cc1f7bed960d0db362f6b2d2b2a44ec60585a3578ec5a28c232f2b",
+      "previousSha256": "f2b91114d3cc1f7bed960d0db362f6b2d2b2a44ec60585a3578ec5a28c232f2b",
+      "newSha256": "0a6d59d5139861ec22e7d78a446bcfdd7845a37f05a8488357591bbea48eb454",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/ReferenceArt038.cs",
+      "baselineSha256": "19d6c3fdc315c42d009a4448c4f60fbe2a6832a97ba3666be3cf33909918727b",
+      "previousSha256": "19d6c3fdc315c42d009a4448c4f60fbe2a6832a97ba3666be3cf33909918727b",
+      "newSha256": "23eaf7e548034a3d4bd15ff8681712e3afdb64240282d9982d480c77912201a4",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/ChoSirenAppTraining.cs",
+      "baselineSha256": "a7b9537bea87e6cc2f168b976e3c85d29f6274d04a3f6bf33f920ec22aafbec2",
+      "previousSha256": "a7b9537bea87e6cc2f168b976e3c85d29f6274d04a3f6bf33f920ec22aafbec2",
+      "newSha256": "6a719f2312fac22c30d3b187e1e11dff9cd4e85edb9eef9d40f2e4f7029b95dc",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/ChoSirenApp.cs",
+      "baselineSha256": "62fd988298f83a590057c1067a8ff00904955b6d0d4aa2cab42519610bf35ac5",
+      "previousSha256": "62fd988298f83a590057c1067a8ff00904955b6d0d4aa2cab42519610bf35ac5",
+      "newSha256": "d6064ccd0f09ee3c182b8607fa9703fb943f0c1f54c9db217f0187e7cdcc70d9",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/PsdHomeAlbumInkMotion.cs",
+      "baselineSha256": "64bf3018c8e5256b75f62e01cea01c999d8c5bc0d00f45827650f3febb27bbc8",
+      "previousSha256": "64bf3018c8e5256b75f62e01cea01c999d8c5bc0d00f45827650f3febb27bbc8",
+      "newSha256": "96acd930af878f9811c3849a90955d0fec85b92e0ca1fd6c473c084977696cb9",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/ChoSirenAppProgression.cs",
+      "baselineSha256": "a51b6b060e95c607ee4c63d1a9a04e3c8e4a162f59776e43c075342437f62751",
+      "previousSha256": "a51b6b060e95c607ee4c63d1a9a04e3c8e4a162f59776e43c075342437f62751",
+      "newSha256": "84673c0b31c8b538c6d87c10864454e4a5307728cb0bc5bba8876309fa3b3aa6",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/ChoSirenAppReferenceBoards.cs",
+      "baselineSha256": "6a8cb45b409e060383bf61609900cb8e71d8449bd97a213f633d381646c05333",
+      "previousSha256": "6a8cb45b409e060383bf61609900cb8e71d8449bd97a213f633d381646c05333",
+      "newSha256": "a40e0d0fd7c668916df323933339ccedbf7fcfefe200724d4d0271c75b20ff0f",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/Panels/StoryPanel.cs",
+      "baselineSha256": "f415212b8f501bf03eeff9d290b4b137ea5c1efa802ad3d7e386af4eabc47555",
+      "previousSha256": "f415212b8f501bf03eeff9d290b4b137ea5c1efa802ad3d7e386af4eabc47555",
+      "newSha256": "88d4844e26c250157e81b725203381461f43a5cb3afa6a4fa63bfea9e675363a",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/Panels/TacticsBattlePanel.cs",
+      "baselineSha256": "c22bda914dc07f731bc14ec77e73b0843ec3593f742ae3cbe4326484a772f998",
+      "previousSha256": "c22bda914dc07f731bc14ec77e73b0843ec3593f742ae3cbe4326484a772f998",
+      "newSha256": "72227c8363aaa4fc2a56e6c31f39c7108eae1be1165d5e29784ed8a9d57d546b",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Editor/ChoSirenBgmBuild.cs",
+      "baselineSha256": "86131e2025be187fb9790d0433fd8a7bec962030a3d1f69fd2073f78dc98fbc1",
+      "previousSha256": "86131e2025be187fb9790d0433fd8a7bec962030a3d1f69fd2073f78dc98fbc1",
+      "newSha256": "88be3025f2e5b05483cd9b40dd553047d50b81dd219face39d4dcee01bb5ad23",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Editor/ChoSirenBuild.cs",
+      "baselineSha256": "00350e0ef9991d5de0eedb31ca505c80f616d286b023ba196de3ea473a24516f",
+      "previousSha256": "00350e0ef9991d5de0eedb31ca505c80f616d286b023ba196de3ea473a24516f",
+      "newSha256": "e33fa7a892c0396095eb9b0f6ecc6cd68dd27fe054e4198db883611105185184",
+      "action": "copy"
+    },
+    {
+      "file": "ProjectSettings/ProjectSettings.asset",
+      "baselineSha256": "73d679ebf17ec31793bb20ce8d8971c7bb7cf905153da293efb81487293de754",
+      "previousSha256": "73d679ebf17ec31793bb20ce8d8971c7bb7cf905153da293efb81487293de754",
+      "newSha256": "af5a865dbb4bfd620e89b150e92c11fb260da0410223686e6274c578b69561cd",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Plugins/WebGL/ChoSirenAudioSampleRate.jslib",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "02bcb4dcb50836ccf8ab04d9d3e0bae3a9e20165cded07b98afd42c748f2d7fa",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Plugins/WebGL/ChoSirenAudioSampleRate.jslib.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "0d47d86d8c17555c4e6502aae1df45f0f548f49d073fac8aa84e3fb7aa7d3322",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Plugins/WebGL/StartupLoadingBridge.jslib",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "444eca846759dc5deb51f04fae9db3febcea3532e415b08c39995eecb70a5d44",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Plugins/WebGL/StartupLoadingBridge.jslib.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "40644af77aa1b9a30f77bcb17417393e94b948fd4f169c6308240559542f114b",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Resources/Audio/bgm-battle.wav",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "38420c0391d6623780517f0a40790c475fc197013374a9cc653f92e4a2ed96bb",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Resources/Audio/bgm-battle.wav.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "2421f6a95b20726f46427cd76200791d42002f927cb282ab5dceff7f73fd4570",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Tests/PlayMode/ContextMusicTests.cs.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "93b1cedd63087e89ad9ff5198a76acae51decb499ef04bb25d8e00a53821cc5e",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Tests/PlayMode/TeamSwapPlayModeTests.cs",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "4dee6550b0af69529915bdfd7b243d9a282f739aa981f2b1e74a231dac84b7b5",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Tests/PlayMode/ContextMusicTests.cs",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "c482a50f15f898bafc741764de75240e1b0c292289ac045693b0cee38d2ae5a2",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Tests/PlayMode/TeamSwapPlayModeTests.cs.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "8b879667dc7985ff623f0a8a80ae4331c16fedd19da6ac1e5c26718a2355a2ff",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/WebGLTemplates/ChoSirenPortrait/media/my-light-my-rules-preview.mp3.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "2bc6b00428b1fc3962eb9964f042ad85ffc5af998929b4e79293540988ed0d97",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/WebGLTemplates/ChoSirenPortrait/media/my-light-my-rules-preview.mp3",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "9fdedf1e184d33ea03be30acbc5d0e9869c22dde6a4e779a25b2bca3a8024ab9",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/StreamingAssets/Music.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "a7849acd8714fdda8c7436472bc216ebd520962fead30e8ae64567374f69b4fb",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/StreamingAssets/Music/battle-11700e9a4a918ffe.mp3.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "10e24c8b9cc5caa161d85523b24b772d51e8a80a4223639c5b95fc4ec517da1f",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/StreamingAssets/Music/home-1c7f72fed9af8b53.mp3.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "5db6a763cf5126458f9ccbabdc8f4b03d1550568ce76d71319a19b80fe623bda",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/StartupLoadingBridge.cs",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "4cdbe57fdaa3c75d5df0ef152004ed4462f3d7f8e25e8471a5087dd49a4f3a8c",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/MusicContextScope.cs",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "908cfa9b603783e039a81200b45970361f226e5e7d2d6081b15a24b6ff91d472",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/StartupLoadingBridge.cs.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "43aac0e47dbe8b1282df5fe3483053b51e243e33ab2c3e5c6fb2db6b644e4479",
+      "action": "copy"
+    },
+    {
+      "file": "Assets/Scripts/MusicContextScope.cs.meta",
+      "baselineSha256": null,
+      "previousSha256": null,
+      "newSha256": "8cc7a01d42f36c29d0c8d8fddf630c1ebaf7ed65bfa4f5239d27355096aa239f",
+      "action": "copy"
+    }
+  ]
+}

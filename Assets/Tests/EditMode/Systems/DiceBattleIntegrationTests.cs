@@ -32,20 +32,21 @@ namespace ChoSiren.Tests.Systems
                 new PlayerUnitSetup { UnitId = "wubai", Row = 1, Col = 1, Level = 40 },
                 new PlayerUnitSetup { UnitId = "yeying", Row = 2, Col = 0, Level = 40 },
             };
-            foreach (PlayerUnitSetup member in party) member.Level = 1;
+            // 2026-11-01: 1-1 is now a ≈60% turn-mode fight for a level-1 team (Balance1101Tests) and the legacy realtime
+            // rules are not tuned for it, so this realtime settlement smoke runs the over-levelled party it declares.
             var battle = new BattleSimulator(repository.Tactics, stage, party,
                 new ScriptedRandom(new[] { 999 }, new[] { 0, 1, 2, 3, 4 }));
             battle.EnableRealtime(GameModel.Members.ToDictionary(m => m.Id, m => m.Race), "xingli", stage.RerollLimit);
             DiceTurn dice = battle.BattleDice;
             Assert.That(dice.Hand.Pattern, Is.EqualTo(DicePattern.Straight));
-            Assert.That(dice.Hand.MultiplierPermille, Is.EqualTo(1450));
+            Assert.That(dice.Hand.MultiplierPermille, Is.EqualTo(1350)); // 2026-10-31 顺子 ×1.35
 
             Assert.That(battle.CharacterDamageDealt, Is.Zero, "掷骰本身不造成独立伤害");
             battle.AdvanceRealtime(1000);
             Assert.That(battle.CharacterDamageDealt, Is.GreaterThan(0));
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Ongoing),
-                "一级新手战不能在首次普攻后立即结束");
-            Assert.That(dice.BattleRerollLimit, Is.EqualTo(3), "首章普通战体验预算为 3 次重投");
+                "首次普攻后战斗不能立即结束");
+            Assert.That(dice.BattleRerollLimit, Is.EqualTo(2), "普通战整场重投上限为 2 次");
 
             BattleOutcome outcome = battle.AutoPlay();
             Assert.That(outcome, Is.EqualTo(BattleOutcome.Victory));

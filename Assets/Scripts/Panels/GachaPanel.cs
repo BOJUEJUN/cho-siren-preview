@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using ChoSiren.Systems.Gacha;
 using ChoSiren.Systems.Presentation;
+using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,7 +32,7 @@ namespace ChoSiren.Panels
     /// 星光签约 (gacha) screen: banner tabs, published rates, pity counter, ×1 / ×10 pulls and a
     /// staggered reveal grid. Opened with GachaPanel.Open(safeRoot, model, service, onBack, toast).
     /// </summary>
-    public sealed class GachaPanel : MonoBehaviour
+    public sealed partial class GachaPanel : MonoBehaviour
     {
         private const float RevealInterval = 0.12f;
         private const float RevealDuration = 0.22f;
@@ -283,6 +284,7 @@ namespace ChoSiren.Panels
                 -104f + (pageHeight - board.rect.height * scale) * .5f, board.rect.width, board.rect.height);
             page.localScale = Vector3.one * scale;
             Image art = kit.NewImage("AuditionReferenceBoard", page, board, Color.white);
+            ChoSiren.UI.PageAmbient.Set(gameObject, board, featherEdges: art.rectTransform);
             PanelKit.Stretch(art.rectTransform);
             art.preserveAspect = true;
             art.raycastTarget = false;
@@ -291,15 +293,10 @@ namespace ChoSiren.Panels
                 () => SelectInterviewPool(0));
             GameObject pool1 = InterviewBoardHotspot("InterviewPool-1", page, 480, 185, 350, 120,
                 () => SelectInterviewPool(1));
-            Text poolSubtitle0 = kit.NewPlacedText(page, "视频候选 · 预算较低", 15,
-                new Color32(205, 232, 255, 235), 95, 258, 330, 28, TextAnchor.MiddleCenter);
-            poolSubtitle0.name = "PoolSubtitle-0";
-            Text poolSubtitle1 = kit.NewPlacedText(page, "当面试镜 · 预算较高", 15,
-                new Color32(233, 208, 255, 235), 490, 258, 330, 28, TextAnchor.MiddleCenter);
-            poolSubtitle1.name = "PoolSubtitle-1";
-            Text refresh = kit.NewPlacedText(page, "每日免费刷新 · 18:00 更新", 18, PanelKit.Muted,
-                150, 316, 550, 35, TextAnchor.MiddleCenter);
-            refresh.name = "InterviewRefresh";
+            // 2026-11-01 visual-b: channel subtitles + refresh line drawn as icons (GachaPanel.Audition1101.cs).
+            Transform poolSubtitle0 = AuditionPoolSubtitle1101(page, 0, 95f, 252f);
+            Transform poolSubtitle1 = AuditionPoolSubtitle1101(page, 1, 490f, 252f);
+            AuditionRefresh1101(page);
             // Selection marker: a saturated underline plus a soft radial glow under the
             // active plaque — unmistakable at 720w while the baked tab art stays untouched.
             Color channelColor = interviewPoolIndex == 0 ? PanelKit.Cyan : new Color32(202, 151, 255, 255);
@@ -346,23 +343,17 @@ namespace ChoSiren.Panels
             RectTransform card = kit.NewRect("CandidateCard", page);
             PanelKit.PlaceTop(card, 55, 430, 390, 800);
             ReferencePunkFx.Tilt(card, -3.5f);
-
-            kit.NewPlacedText(card, member.Name, 50, PanelKit.White, 22, 58, 330, 84,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateName";
-            Text identity = kit.NewPlacedText(card,
-                $"{InterviewShortRace(member, memberIndex)} · {career} · 战斗定位：{InterviewPosition(career, memberIndex)}",
-                17, new Color32(225, 220, 245, 255), 22, 150, 340, 30,
+            Image face = kit.NewImage("CandidateStickerFace", card, null, SirenStickerUi.Ink);
+            PanelKit.Stretch(face.rectTransform);
+            face.raycastTarget = false;
+            SirenStickerUi.SkinPanel(face.gameObject);
+            Text candidateName = kit.NewPlacedText(card, member.Name, 50, PanelKit.White, 22, 58, 330, 84,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
-            identity.name = "CandidateIdentity";
-            PanelKit.EnableBestFit(identity, 11);
-            kit.NewPlacedText(card, InterviewTrait(career, memberIndex), 16,
-                new Color32(205, 167, 255, 255), 22, 186, 340, 34,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateTrait";
-
-            kit.NewPlacedText(card, "舞台五维", 22, PanelKit.White, 22, 232, 180, 36,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "StatsTitle";
-            ReferencePunkFx.Beam(card, "StatsTitleBeam", new Vector2(150, 260), new Vector2(306, 260),
-                1.5f, new Color32(255, 105, 212, 140));
+            candidateName.name = "CandidateName";
+            SirenStickerUi.SkinTitle(candidateName, true);
+            // 2026-11-01 visual-b: identity as race badge + role chip + position chip; the 舞台特质 line,
+            // the 舞台五维 title and the three management sentences became icons (GachaPanel.Audition1101.cs).
+            AuditionIdentity1101(card, member, memberIndex, career, 150f);
 
             CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
                 out int dance, out int fame, out int beauty);
@@ -379,54 +370,31 @@ namespace ChoSiren.Panels
             for (int i = 1; i < values.Length; i++) if (values[i] > values[strongest]) strongest = i;
             for (int i = 0; i < keys.Length; i++)
             {
-                float y = 284 + i * 58;
+                float y = 250 + i * 64;
                 bool lead = i == strongest;
-                Color accent = lead ? PanelKit.Pink : i == 4 ? PanelKit.Cyan : PanelKit.Purple;
+                Color accent = lead ? (Color)Brand1025.Teal : i == 4 ? PanelKit.Cyan : PanelKit.Purple;
                 Image icon = kit.NewImage("StatIcon-" + keys[i], card,
                     ReferencePunkFx.StatGlyph(glyphs[i]),
                     lead ? accent : new Color32(178, 166, 224, 235));
-                PanelKit.PlaceTop(icon.rectTransform, 22, y + 2, 26, 26);
+                PanelKit.PlaceTop(icon.rectTransform, 22, y + 2, 28, 28);
                 icon.raycastTarget = false;
-                kit.NewPlacedText(card, labels[i], 19, lead ? accent : PanelKit.Muted,
-                    56, y, 80, 30, TextAnchor.MiddleLeft,
+                kit.NewPlacedText(card, labels[i], 20, lead ? accent : PanelKit.Muted,
+                    58, y, 80, 32, TextAnchor.MiddleLeft,
                     lead ? FontStyle.Bold : FontStyle.Normal).name = "StatLabel-" + keys[i];
                 if (lead)
-                    kit.NewPlacedText(card, "强项", 15, accent, 142, y, 56, 28,
-                        TextAnchor.MiddleLeft, FontStyle.Bold).name = "StrongestStat";
-                kit.NewPlacedText(card, values[i].ToString(), 22, PanelKit.White,
-                    252, y - 2, 90, 32, TextAnchor.MiddleRight, FontStyle.Bold)
+                {
+                    Image star = VisualB1101.NeonIcon(card, "StrongestStat", "star", PanelKit.Gold, 136, y + 2, 28);
+                    VisualB1101.Pulse(star, 1.2f, .55f);
+                }
+                kit.NewPlacedText(card, values[i].ToString(), 24, PanelKit.White,
+                    252, y - 6, 90, 42, TextAnchor.MiddleRight, FontStyle.Bold)
                     .name = "StatValue-" + keys[i];
-                Image fill = kit.NewBar("StatBar-" + keys[i], card, 56, y + 34, 286, 8,
+                Image fill = kit.NewBar("StatBar-" + keys[i], card, 58, y + 36, 284, 9,
                     new Color32(26, 20, 55, 255), accent, 0);
                 fill.fillAmount = Mathf.Clamp01(values[i] / 100f);
             }
 
-            // Bottom block: the baked card's lower-left is cut by a jagged frame slash, so
-            // these rows sit deeper inside the dark interior than the stat rows above.
-            ReferencePunkFx.Beam(card, "ManagementBeam", new Vector2(122, 588), new Vector2(345, 588),
-                1.2f, new Color32(153, 133, 204, 96));
-            kit.NewPlacedText(card,
-                $"魅力 {beauty} · 收益 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期",
-                17, new Color32(229, 217, 249, 255), 130, 600, 258, 30,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateCharm";
-            int risk = model.InterviewRisk(interviewPoolIndex, memberIndex);
-            string riskTier = GameModel.InterviewRiskLabel(risk);
-            Color32 riskColor = riskTier == "高" ? new Color32(255, 108, 128, 255)
-                : riskTier == "中" ? new Color32(255, 196, 92, 255) : new Color32(104, 226, 160, 255);
-            kit.NewPlacedText(card, $"风险值 {risk} · {riskTier}", 16, riskColor,
-                130, 634, 180, 30, TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRisk";
-            Image riskFill = kit.NewBar("CandidateRiskBar", card, 130, 668, 232, 8,
-                new Color32(83, 78, 126, 86), riskColor, 6);
-            riskFill.fillAmount = risk / 100f;
-            Text salary = kit.NewPlacedText(card,
-                $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期（7 天一期）",
-                14, PanelKit.Gold, 134, 686, 254, 28, TextAnchor.MiddleLeft, FontStyle.Bold);
-            salary.name = "CandidateSalary";
-            PanelKit.EnableBestFit(salary, 10);
-            kit.NewPlacedText(card, TeamNeedsCareer(career) ? $"★ 团队缺少{career} · 推荐"
-                    : $"★ {InterviewShortRace(member, memberIndex)} · 阵容适配",
-                16, PanelKit.Gold, 140, 724, 246, 34,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "CandidateRecommendation";
+            AuditionManagement1101(card, member, memberIndex, career);
         }
 
         /// <summary>
@@ -439,19 +407,17 @@ namespace ChoSiren.Panels
             RectTransform actions = kit.NewRect("InterviewActions", page);
             PanelKit.PlaceTop(actions, 15, 1400, 830, 268);
             int cost = InterviewCost(memberIndex);
-            kit.NewPlacedText(actions, "签约报价", 15, PanelKit.Muted,
-                30, 18, 150, 26, TextAnchor.MiddleLeft);
             Image currency = kit.NewImage("SigningCurrency", actions,
                 PanelKit.CurrencyIcon("diamond"),
                 PanelKit.CurrencyIcon("diamond") != null ? Color.white : PanelKit.CurrencyColor("diamond"));
-            PanelKit.PlaceTop(currency.rectTransform, 30, 48, 38, 38);
+            PanelKit.PlaceTop(currency.rectTransform, 30, 30, 46, 46);
             currency.preserveAspect = true; currency.raycastTarget = false;
-            kit.NewPlacedText(actions, cost.ToString("N0"), 30, PanelKit.Cyan,
-                76, 42, 150, 50, TextAnchor.MiddleLeft, FontStyle.Bold).name = "SigningPrice";
+            kit.NewPlacedText(actions, cost.ToString("N0"), 38, PanelKit.Cyan,
+                84, 24, 160, 58, TextAnchor.MiddleLeft, FontStyle.Bold).name = "SigningPrice";
             TimeSpan refreshIn = model.TimeUntilNextInterviewCycle();
-            kit.NewPlacedText(actions,
-                $"{(int)refreshIn.TotalHours:00}:{refreshIn.Minutes:00} 后更新名单",
-                14, PanelKit.Muted, 30, 102, 200, 52, TextAnchor.UpperLeft)
+            VisualB1101.NeonIcon(actions, "CountdownIcon", "clock", PanelKit.Muted, 32, 104, 26, false);
+            kit.NewPlacedText(actions, $"{(int)refreshIn.TotalHours:00}:{refreshIn.Minutes:00}",
+                20, PanelKit.Muted, 66, 100, 160, 34, TextAnchor.MiddleLeft, FontStyle.Bold)
                 .name = "CandidateRefreshCountdown";
 
             string detailLabel = interviewPoolIndex == 0 ? "查看视频面试" : "开始现场面试";
@@ -569,7 +535,7 @@ namespace ChoSiren.Panels
         {
             GameObject complete = kit.NewPanel("InterviewComplete", parent, new Color32(20, 23, 67, 188), 26);
             PanelKit.PlaceTop(complete.GetComponent<RectTransform>(), x, y, 560, 350);
-            kit.AddOutline(complete, new Color32(153, 97, 228, 98), 1);
+            SirenStickerUi.SkinPanel(complete);
             kit.NewPlacedText(complete.transform, "本期候选已全部签约", 28, PanelKit.White,
                 30, 76, 500, 52, TextAnchor.MiddleCenter, FontStyle.Bold);
             kit.NewPlacedText(complete.transform,
@@ -580,6 +546,7 @@ namespace ChoSiren.Panels
                 new Color32(66, 49, 128, 210), PanelKit.White,
                 () => SelectInterviewPool(1 - interviewPoolIndex), 18);
             PanelKit.PlaceTop(switchPool.GetComponent<RectTransform>(), 140, 252, 280, 58);
+            SirenStickerUi.SkinButton(switchPool, true);
         }
 
         /// <summary>
@@ -655,6 +622,7 @@ namespace ChoSiren.Panels
                 interviewPoolIndex == 0 ? new Color32(104, 224, 255, 220) : new Color32(216, 150, 255, 210),
                 30f, 3f, 5f);
             ReferencePunkFx.Tilt(cardRect, -3.5f);
+            SirenStickerUi.SkinPanel(card);
 
             Text index = kit.NewPlacedText(card.transform,
                 $"{interviewCandidateIndex + 1:00} / {candidateCount:00}", 18,
@@ -805,6 +773,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 34, compact ? 766 : 880,
                 652, compact ? 206 : 220);
             kit.AddOutline(action, new Color32(136, 111, 213, 68), 1);
+            SirenStickerUi.SkinPanel(action);
             ReferencePunkFx.CornerCuts(action.GetComponent<RectTransform>(),
                 new Color32(169, 120, 255, 150), 24f, 3f, 5f);
             ReferencePunkFx.Slash(action.transform, "ActionsSlash", 636, 20, 44, 3f, -38f,
@@ -849,6 +818,8 @@ namespace ChoSiren.Panels
                 ? new Color32(91, 215, 255, 168)
                 : new Color32(255, 102, 190, 160), 1.5f);
 
+            SirenStickerUi.SkinButton(details);
+            SirenStickerUi.SkinButton(sign, true);
             BuildInterviewDots(action.transform, InterviewCandidates().Count);
         }
 
@@ -891,60 +862,10 @@ namespace ChoSiren.Panels
         private void SignInterviewCandidate(int memberIndex, int cost) => ShowSignConfirm(memberIndex, cost);
 
         /// <summary>
-        /// 签约确认：水晶面板 + 候选人立绘槽 + 实际费用/余额/后果。余额不足时确认键
-        /// 锁定并显示星钻缺口；任何路径都不在确认前扣款或解锁。
+        /// 签约确认：大立绘 + 种族/定位徽章 + 星钻报价 + 余额 A→B（2026-11-01 visual-b，见
+        /// GachaPanel.Sign1101.cs）。余额不足时确认键锁定并显示缺口；任何路径都不在确认前扣款或解锁。
         /// </summary>
-        private void ShowSignConfirm(int memberIndex, int cost)
-        {
-            CloseSignModal();
-            MemberDefinition member = GameModel.Members[memberIndex];
-            string career = InterviewCareer(member, memberIndex);
-            ModalPolish038Frame frame = kit.NewModal038(transform, "SignConfirmOverlay",
-                "确认签约", "星光签约 · 候选确认", CloseSignModal, 620f, "SignModalClose");
-            frame.Panel.gameObject.name = "SignConfirmCard";
-            signModal = frame.Overlay;
-            Transform body = frame.Body;
-
-            ModalPolish038Chrome.PortraitSlot(body, "CandidatePortraitSlot", CandidateSprite(member),
-                member.Id, 175f, 6f, 140f, 140f, Color.white);
-            kit.NewPlacedText(body, $"{member.Name} · {career}", 22, PanelKit.White,
-                0, 154, 490, 34, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignConfirmName";
-            kit.NewPlacedText(body,
-                $"{InterviewRace(member, memberIndex)} · 战斗定位：{InterviewPosition(career, memberIndex)}",
-                13, PanelKit.Muted, 0, 192, 490, 26, TextAnchor.MiddleCenter);
-            Image costIcon = kit.NewImage("SignCostIcon", body, PanelKit.CurrencyIcon("diamond"),
-                PanelKit.CurrencyIcon("diamond") != null ? Color.white : PanelKit.CurrencyColor("diamond"));
-            PanelKit.PlaceTop(costIcon.rectTransform, 95, 230, 32, 32);
-            costIcon.preserveAspect = true; costIcon.raycastTarget = false;
-            kit.NewPlacedText(body, $"签约费用  星钻 {cost:N0}", 19,
-                PanelKit.CurrencyColor("diamond"), 138, 226, 330, 40,
-                TextAnchor.MiddleLeft, FontStyle.Bold).name = "SignConfirmCost";
-            int balance = model.Save.Diamonds;
-            bool affordable = balance >= cost;
-            kit.NewPlacedText(body,
-                affordable ? $"当前余额 {balance:N0} · 签约后剩 {balance - cost:N0}"
-                    : $"星钻不足 · 当前 {balance:N0} · 还差 {cost - balance:N0}",
-                13, affordable ? PanelKit.Muted : ModalPolish038Chrome.AccentDanger,
-                0, 270, 490, 26, TextAnchor.MiddleCenter).name = "SignConfirmBalance";
-            float detailY = 302f;
-            if (!affordable)
-            {
-                GameObject hint = kit.NewModal038State(body, "SignInsufficientHint",
-                    ModalPolish038StateKind.Locked, "星钻不足",
-                    "可通过章节奖励与演出结算获取星钻");
-                PanelKit.PlaceTop(hint.GetComponent<RectTransform>(), 20, 300, 450, 58);
-                detailY = 368f;
-            }
-            kit.NewPlacedText(body, "签约后进入成员页 · 按 7 天经营期结算预估月薪",
-                12, PanelKit.Muted, 0, detailY, 490, 24, TextAnchor.MiddleCenter);
-            GameObject cancel = kit.NewModal038Button(body, "SignCancel", "再想想", 18,
-                CloseSignModal, ModalPolish038ButtonStyle.Secondary);
-            PanelKit.PlaceTop(cancel.GetComponent<RectTransform>(), 30, 500, 200, 64);
-            GameObject confirm = kit.NewModal038Button(body, "SignConfirm", "确认签约", 20,
-                () => ConfirmSign(memberIndex, cost), ModalPolish038ButtonStyle.Primary);
-            PanelKit.PlaceTop(confirm.GetComponent<RectTransform>(), 260, 500, 200, 64);
-            ModalPolish038Chrome.SetActionEnabled(confirm, affordable);
-        }
+        private void ShowSignConfirm(int memberIndex, int cost) => ShowSignConfirm1101(memberIndex, cost);
 
         private void ConfirmSign(int memberIndex, int cost)
         {
@@ -962,47 +883,22 @@ namespace ChoSiren.Panels
                 ? 0
                 : Mathf.Clamp(interviewCandidateIndex, 0, remaining.Count - 1);
             RebuildInterview();
-            ShowSignedCard(memberIndex);
+            // 2026-10-21: the signing moment gets a full-screen P5 reveal before the result card.
+            CloseSignModal();
+            MemberDefinition signedMember = GameModel.Members[memberIndex];
+            if (Application.isPlaying)
+                ChoSiren.UI.SignReveal1022.Play(transform, kit.Font, CandidateSprite(signedMember), signedMember.Name,
+                    $"{InterviewRace(signedMember, memberIndex)} · {InterviewCareer(signedMember, memberIndex)}",
+                    () => FindAnyObjectByType<ChoSiren.GameAudio>()?.PlaySfx("stamp", .9f),
+                    () => { if (this != null) ShowSignedCard(memberIndex); });
+            else ShowSignedCard(memberIndex);
         }
 
         /// <summary>
         /// 签约成功：立绘结果卡 + 实际等级/定位/预估月薪，可继续面试或跳转成员档案。
         /// 只在真实扣款成功后由 ConfirmSign 调用。
         /// </summary>
-        private void ShowSignedCard(int memberIndex)
-        {
-            CloseSignModal();
-            MemberDefinition member = GameModel.Members[memberIndex];
-            string career = InterviewCareer(member, memberIndex);
-            ModalPolish038Frame frame = kit.NewModal038(transform, "SignResultOverlay",
-                "签约成功", "星光签约 · 已完成", CloseSignModal, 620f, "SignModalClose");
-            frame.Panel.gameObject.name = "SignResultCard";
-            signModal = frame.Overlay;
-            Transform body = frame.Body;
-
-            ModalPolish038Chrome.PortraitSlot(body, "ResultPortraitSlot", CandidateSprite(member),
-                member.Id, 175f, 8f, 140f, 140f, Color.white);
-            kit.NewPlacedText(body, $"{member.Name} 已加入团队", 22, PanelKit.White,
-                0, 156, 490, 34, TextAnchor.MiddleCenter, FontStyle.Bold).name = "SignResultName";
-            kit.NewPlacedText(body,
-                $"等级 Lv.{model.LevelOf(memberIndex)} · 战斗定位：{InterviewPosition(career, memberIndex)}",
-                13, PanelKit.Muted, 0, 196, 490, 26, TextAnchor.MiddleCenter);
-            GameObject hint = kit.NewModal038State(body, "SignResultHint",
-                ModalPolish038StateKind.Confirm, "签约完成",
-                $"预估月薪 {model.EstimatedMonthlySalary(memberIndex):N0} 星光币/期 · 可在成员页查看档案并编队上阵");
-            PanelKit.PlaceTop(hint.GetComponent<RectTransform>(), 20, 238, 450, 64);
-            GameObject stay = kit.NewModal038Button(body, "SignResultStay", "继续面试", 18,
-                CloseSignModal, ModalPolish038ButtonStyle.Secondary);
-            PanelKit.PlaceTop(stay.GetComponent<RectTransform>(), 30, 500, 200, 64);
-            GameObject view = kit.NewModal038Button(body, "SignResultProfile", "查看档案", 20,
-                () =>
-                {
-                    CloseSignModal();
-                    onSigned?.Invoke(memberIndex);
-                }, ModalPolish038ButtonStyle.Primary);
-            PanelKit.PlaceTop(view.GetComponent<RectTransform>(), 260, 500, 200, 64);
-            ModalPolish038Chrome.PlaySuccess();
-        }
+        private void ShowSignedCard(int memberIndex) => ShowSignedCard1101(memberIndex);
 
         private void CloseSignModal()
         {
@@ -1064,7 +960,15 @@ namespace ChoSiren.Panels
 
         private string InterviewPosition(string career, int memberIndex)
         {
-            return MemberBattlePresentation.Position(model.Tactics, GameModel.Members[memberIndex].Id);
+            // 2026-10-20: battles act by race (design doc 四大定位), so the label follows the race.
+            switch (MemberCaptainTraits.Resolve(InterviewRace(GameModel.Members[memberIndex], memberIndex)))
+            {
+                case "charm": return "连击输出";
+                case "demon": return "持续毒伤";
+                case "mermaid": return "治疗 / 护盾";
+                case "bloodelf": return "爆发斩杀";
+                default: return MemberBattlePresentation.Position(model.Tactics, GameModel.Members[memberIndex].Id);
+            }
         }
 
         /// <summary>
@@ -1417,9 +1321,11 @@ namespace ChoSiren.Panels
             pullAgainButton = kit.NewButton("PullAgain", overlay.transform, "再来十连", 21, PanelKit.Pink,
                 PanelKit.White, PullAgain, 24);
             PanelKit.PlaceTop(pullAgainButton.GetComponent<RectTransform>(), 60, 1000, 290, 74);
+            SirenStickerUi.SkinButton(pullAgainButton, true);   // unified design: the shared teal primary
             GameObject back = kit.NewButton("ResultBack", overlay.transform, "返回", 21, PanelKit.ButtonDark,
                 PanelKit.White, CloseResult, 24);
             PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 370, 1000, 290, 74);
+            SirenStickerUi.SkinButton(back);
             kit.NewPlacedText(overlay.transform, "揭示过程中点击任意处可直接查看全部结果", 12, PanelKit.Muted,
                 40, 1090, 640, 28, TextAnchor.MiddleCenter);
 
@@ -1450,9 +1356,9 @@ namespace ChoSiren.Panels
             Text profile = kit.NewPlacedText(root.transform, "候选资料", 10, PanelKit.White, 6, 4, 72, 30,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             profile.name = "CandidateProfile";
-            GameObject badge = kit.NewPanel("NewBadge", root.transform, PanelKit.Pink, 8);
+            GameObject badge = kit.NewPanel("NewBadge", root.transform, Brand1025.Teal, 8);
             PanelKit.PlaceTop(badge.GetComponent<RectTransform>(), 80, 6, 34, 22);
-            kit.NewPlacedText(badge.transform, "新", 12, PanelKit.White, 0, 0, 34, 22, TextAnchor.MiddleCenter,
+            kit.NewPlacedText(badge.transform, "新", 12, Brand1025.Ink, 0, 0, 34, 22, TextAnchor.MiddleCenter,
                 FontStyle.Bold);
             Text name = kit.NewPlacedText(root.transform, string.Empty, 14, PanelKit.White, 6, 122, 108, 24,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
@@ -1562,7 +1468,7 @@ namespace ChoSiren.Panels
             int remaining = Mathf.Max(0, banner.HardPity - pity);
             pityText.text = remaining == 0 ? "下一次将触发特别邀约" : $"已累计 {pity} 次 · 再 {remaining} 次触发特别邀约";
             pityFill.fillAmount = banner.HardPity > 0 ? Mathf.Clamp01(pity / (float)banner.HardPity) : 0f;
-            pityFill.color = pity >= banner.SoftPityStart ? PanelKit.Gold : PanelKit.Pink;
+            pityFill.color = pity >= banner.SoftPityStart ? PanelKit.Gold : (Color)Brand1025.Teal;
             totalsText.text = state != null
                 ? $"累计签约 {state.TotalPulls} 次 · 特别邀约 {state.TotalSsr} 次"
                 : "尚未参与此签约企划";
@@ -1911,7 +1817,7 @@ namespace ChoSiren.Panels
             if (result.HitHardPity) footer = "特别邀约 · " + footer;
             else if (result.UpgradedByTenPullGuarantee) footer = "重点邀约 · " + footer;
             cell.Footer.text = footer;
-            cell.Footer.color = result.IsNew ? PanelKit.Pink : PanelKit.Muted;
+            cell.Footer.color = result.IsNew ? (Color)Brand1025.Teal : PanelKit.Muted;
         }
 
         private static Sprite ResolveResultPortrait(string itemId)

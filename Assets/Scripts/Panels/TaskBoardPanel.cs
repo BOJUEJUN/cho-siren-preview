@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ChoSiren.Systems.Economy;
 using UnityEngine;
 using UnityEngine.UI;
+using ChoSiren.UI;
 
 namespace ChoSiren.Panels
 {
@@ -25,28 +27,34 @@ namespace ChoSiren.Panels
     public sealed class TaskBoardPanel : MonoBehaviour
     {
         private const string StageBackgroundResource = "Art/TaskAI/task-board-bg-ai-v1-20260903";
-        private const float RowHeight = 132f;
+        // 2026-10-25 readability pass (少爷: "一大推信息文字太乱了"): one line of info and one action per row.
+        private const float RowHeight = 118f;
         private const float RowGap = 12f;
-        private const float ListTop = 238f;
+        private const float ListTop = 272f;
         private const float ListBottom = 52f;
         private const float ProgressX = 24f;
         private const float ProgressY = 58f;
         private const float ProgressWidth = 330f;
         private const float ProgressHeight = 14f;
-        private static readonly Color RowGlass = new Color32(15, 14, 54, 108);
+        private static readonly Color RowGlass = new Color32(16, 8, 38, 140);
 
         private sealed class RowView
         {
             public TaskView Task;
             public Image ProgressFill;
-            public Image ProgressMarker;
             public Text ProgressText;
             public GameObject ClaimButton;
-            public Text ClaimLabel;
+            public Button Action;
+            public Text ActionText;
+            public RectTransform ActionIcon;
+            public RectTransform Medal;
+            public VisualA1101Motion Pulse;
             public Image RowBackground;
-            public Image Accent;
-            public Image ClaimGlow;
-            public Outline Edge;
+            public Image Stripe;
+            public Text Title;
+            public Text Reward;
+            public CanvasGroup Group;
+            public bool CanGo;
         }
 
         private readonly List<RowView> rows = new List<RowView>();
@@ -56,23 +64,27 @@ namespace ChoSiren.Panels
         private ITaskBoardService service;
         private Action onBack;
         private Action<string> onMessage;
+        // Takes the player to where an unfinished task is done (keyed by its trigger).
+        private Action<string> onGo;
         private bool closing;
         private string cadence = TaskCadence.Daily;
 
-        private GameObject tabDaily;
-        private GameObject tabWeekly;
-        private Image tabDailyGlyph;
-        private Image tabWeeklyGlyph;
+        private CleanUi1025.Segment tabs;
+        private Image summaryFill;
         private GameObject claimAllButton;
+        private Button claimAll;
+        private Text claimAllText;
         private Text summaryText;
         private GameObject checkInButton;
+        private Button checkIn;
+        private Text checkInText;
         private RectTransform listViewport;
         private RectTransform listContent;
         private GameObject emptyState;
-        private Text hintText;
+        private RectTransform checkInIcon;
 
         public static TaskBoardPanel Open(Transform host, GameModel gameModel, ITaskBoardService taskService,
-            Action back = null, Action<string> message = null)
+            Action back = null, Action<string> message = null, Action<string> go = null)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (gameModel == null) throw new ArgumentNullException(nameof(gameModel));
@@ -87,6 +99,7 @@ namespace ChoSiren.Panels
             panel.service = taskService;
             panel.onBack = back;
             panel.onMessage = message;
+            panel.onGo = go;
             panel.Build();
             return panel;
         }
@@ -99,43 +112,72 @@ namespace ChoSiren.Panels
         {
             kit = new PanelKit("TaskBoard");
             model.Changed += HandleModelChanged;
+            ChoSiren.UI.RewardGain1101.Bind(model, transform, kit.Font);
             BuildStageBackdrop();
 
-            GameObject header = SecondaryTasks038Chrome.Header(kit, transform, "活跃奖励", "任务面板",
-                "Back", Close);
-            claimAllButton = SecondaryTasks038Chrome.Button(header.transform, "ClaimAll", "一键领取",
-                15, ClaimAll, ModalPolish038ButtonStyle.Primary);
-            PanelKit.PlaceTop(claimAllButton.GetComponent<RectTransform>(), 540, 27, 162, 56);
+            SecondaryTasks038Chrome.Header(kit, transform, string.Empty, "任务", "Back", Close);
+            claimAll = CleanUi1025.Pill(kit, transform, "ClaimAll", "一键领取", 24, ClaimAll, out claimAllText);
+            claimAllButton = claimAll.gameObject;
+            PanelKit.PlaceTop(claimAllButton.GetComponent<RectTransform>(), 512, 32, 188, 56);
+            // visual-a 1101c: the footer sentence lives behind 「?」 now.
+            GameObject help = VisualA1101.HelpButton(transform, "TaskHelp", transform, 50f,
+                ("mic", "完成演出、战斗与签到会自动计入任务进度"),
+                ("clock", "每日任务每天刷新，每周任务每周一刷新"),
+                ("gift", "完成后点「领取」，或一键领取全部"));
+            VisualA1101.Place(help.GetComponent<RectTransform>(), 446, 35, 50, 50);
+            tabs = CleanUi1025.Segmented(kit, transform, "CadenceTabs", "每日", "每周", 26,
+                () => SelectCadence(TaskCadence.Daily), () => SelectCadence(TaskCadence.Weekly));
+            PanelKit.PlaceTop(tabs.Track.rectTransform, 20, 128, 680, 64);
 
-            tabDaily = SecondaryTasks038Chrome.Button(transform, "TabDaily", "每日任务", 17,
-                () => SelectCadence(TaskCadence.Daily), ModalPolish038ButtonStyle.Secondary);
-            PanelKit.PlaceTop(tabDaily.GetComponent<RectTransform>(), 20, 126, 335, 56);
-            tabDailyGlyph = AddTabGlyph(tabDaily);
-            tabWeekly = SecondaryTasks038Chrome.Button(transform, "TabWeekly", "每周任务", 17,
-                () => SelectCadence(TaskCadence.Weekly), ModalPolish038ButtonStyle.Secondary);
-            PanelKit.PlaceTop(tabWeekly.GetComponent<RectTransform>(), 365, 126, 335, 56);
-            tabWeeklyGlyph = AddTabGlyph(tabWeekly);
-
-            summaryText = kit.NewPlacedText(transform, string.Empty, 13, PanelKit.Muted, 24, 192, 470, 34,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(summaryText, 10);
-
-            checkInButton = SecondaryTasks038Chrome.Button(transform, "CheckInTaskChip", string.Empty,
-                13, CheckIn, ModalPolish038ButtonStyle.Ghost);
-            PanelKit.PlaceTop(checkInButton.GetComponent<RectTransform>(), 510, 190, 190, 38);
+            // Today's share as a ring and two numbers (was 「今日完成 1/6」 + a bar).
+            summaryFill = VisualA1101.Ring(transform, "SummaryRing", 46, 0f, Brand1025.Teal);
+            VisualA1101.Place((RectTransform)summaryFill.transform.parent, 24, 206, 46, 46);
+            summaryText = VisualA1101.Number(transform, "Summary", string.Empty, 26, VisualA1101.Paper, TextAnchor.MiddleLeft);
+            VisualA1101.Place(summaryText.rectTransform, 82, 206, 160, 46);
+            checkIn = CleanUi1025.Pill(kit, transform, "CheckInTaskChip", string.Empty, 22, CheckIn, out checkInText);
+            checkInButton = checkIn.gameObject;
+            PanelKit.PlaceTop(checkInButton.GetComponent<RectTransform>(), 500, 204, 200, 50);
+            checkInIcon = PillIcon(checkIn, checkInText, "calendar", 34f);
 
             BuildList();
-
-            hintText = kit.NewPlacedText(transform, "完成演出、战斗与签约会自动推进任务进度", 12,
-                new Color32(220, 206, 239, 255), 24, 0, 672, 30, TextAnchor.MiddleCenter, FontStyle.Bold);
-            RectTransform hintRect = hintText.rectTransform;
-            hintRect.anchorMin = new Vector2(0f, 0f);
-            hintRect.anchorMax = new Vector2(1f, 0f);
-            hintRect.pivot = new Vector2(0.5f, 0f);
-            hintRect.anchoredPosition = new Vector2(0f, 12f);
-            hintRect.sizeDelta = new Vector2(-48f, 30f);
-
             Refresh();
+        }
+
+        /// <summary>A neon icon at the left of a CleanUi1025 pill; its label keeps the rest.</summary>
+        private static RectTransform PillIcon(Button pill, Text label, string icon, float size)
+        {
+            RectTransform glyph = VisualA1101.NeonIcon(pill.transform, "ActionIcon", icon, Brand1025.Ink, size, 0f);
+            glyph.anchorMin = glyph.anchorMax = glyph.pivot = new Vector2(0f, .5f);
+            glyph.anchoredPosition = new Vector2(16f, 0f);
+            RectTransform rect = label.rectTransform;
+            rect.offsetMin = new Vector2(16f + size, rect.offsetMin.y);
+            return glyph;
+        }
+
+        private static void SetPillIcon(RectTransform glyph, string icon, bool brand, bool interactable)
+        {
+            if (glyph == null) return;
+            Image image = VisualA1101.Glyph(glyph);
+            if (image == null) return;
+            image.sprite = VisualA1101.Icon(icon);
+            image.color = brand ? (Color)Brand1025.Ink : interactable ? VisualA1101.Teal : VisualA1101.Muted;
+        }
+
+        private static (string icon, string verb) TriggerArt(string trigger)
+        {
+            switch (trigger)
+            {
+                case TaskTriggers.Login: return ("login", "登录");
+                case TaskTriggers.CheckIn: return ("calendar", "签到");
+                case TaskTriggers.Perform: return ("mic", "演出");
+                case TaskTriggers.BattleWin: return ("dice", "胜利");
+                case TaskTriggers.GachaPull: return ("gacha", "签约");
+                case TaskTriggers.Train: return ("dumbbell", "训练");
+                case TaskTriggers.SpendStamina: return ("heart", "体力");
+                case TaskTriggers.ClaimIdle: return ("coin", "收益");
+                case TaskTriggers.ReadStory: return ("book", "剧情");
+                default: return ("star", null);
+            }
         }
 
         private void BuildStageBackdrop()
@@ -159,6 +201,7 @@ namespace ChoSiren.Panels
             }
 
             Image background = kit.NewImage("TaskBoardStageBackground", transform, stageSprite, Color.white);
+            ChoSiren.UI.PageAmbient.Set(gameObject, stageSprite, .3f);
             PanelKit.Stretch(background.rectTransform);
             background.raycastTarget = true;
             background.type = Image.Type.Simple;
@@ -168,7 +211,8 @@ namespace ChoSiren.Panels
             cover.aspectRatio = stageSprite.rect.width / Mathf.Max(1f, stageSprite.rect.height);
 
             // Keep the generated stage visible while gently damping its brightest floor lights behind text.
-            Image shade = kit.NewImage("TaskBoardStageShade", transform, null, new Color32(3, 6, 27, 54));
+            // Darken the stage art so the black cards read as one calm surface.
+            Image shade = kit.NewImage("TaskBoardStageShade", transform, null, new Color32(11, 8, 18, 190));
             PanelKit.Stretch(shade.rectTransform);
         }
 
@@ -201,24 +245,10 @@ namespace ChoSiren.Panels
             scroll.scrollSensitivity = 40f;
 
             emptyState = ModalPolish038Chrome.StateBlock(listViewport, "TaskEmpty",
-                ModalPolish038StateKind.Empty, "本周期暂无任务",
-                "周期刷新后会开放新的任务与奖励");
+                ModalPolish038StateKind.Empty, "暂无任务", null);
             PanelKit.PlaceCentered(emptyState.GetComponent<RectTransform>(), 560f, 120f);
+            SirenStickerUi.SkinPanel(emptyState);
             emptyState.SetActive(false);
-        }
-
-        /// <summary>Spark marker inside the tab body so it scales with the press feedback.</summary>
-        private Image AddTabGlyph(GameObject tab)
-        {
-            Transform body = tab.transform.Find("Body");
-            if (body == null) return null;
-            Image glyph = kit.NewImage("TabGlyph", body,
-                ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Spark),
-                SecondaryTasks038Chrome.EdgeSelected);
-            PanelKit.PlaceTop(glyph.rectTransform, 14f, 16f, 24f, 24f);
-            glyph.preserveAspect = true;
-            glyph.raycastTarget = false;
-            return glyph;
         }
 
         private void RebuildRows(List<TaskView> tasks)
@@ -270,122 +300,132 @@ namespace ChoSiren.Panels
 
         private RowView BuildRow(TaskView task, int index)
         {
+            // visual-a 1101c: one row = a medallion that says what (icon) inside a ring that says how far, a 2-character
+            // verb, the count, the reward badge and one icon button.
             TaskDefinition definition = task.Definition;
-            GameObject row = SecondaryTasks038Chrome.Plate(kit, listContent, "Task-" + definition.Id,
-                RowGlass, new Color32(104, 224, 255, 70));
-            PanelKit.PlaceTop(row.GetComponent<RectTransform>(), 0, index * (RowHeight + RowGap), 680, RowHeight);
-            Image accent = ReferencePunkFx.Slash(row.transform, "Accent", 13f, 66f, 108f, 4f, 78f,
-                PanelKit.Cyan);
+            Image card = CleanUi1025.RowPanel(kit, listContent, "Task-" + definition.Id, out Image stripe);
+            PanelKit.PlaceTop(card.rectTransform, 0, index * (RowHeight + RowGap), 680, RowHeight);
+            CanvasGroup group = card.gameObject.AddComponent<CanvasGroup>();
 
-            Text title = kit.NewPlacedText(row.transform, definition.Title, 18, PanelKit.White,
-                30, 16, 386, 30, TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(title, 13);
+            (string icon, string verb) = TriggerArt(definition.Trigger);
+            Image fill = VisualA1101.Ring(card.transform, "ProgressRing", 96f, 0f, Brand1025.Teal);
+            VisualA1101.Place((RectTransform)fill.transform.parent, 22, 11, 96, 96);
+            RectTransform medal = VisualA1101.Medallion(card.transform, "TaskMedal", icon, VisualA1101.Teal, 78f);
+            VisualA1101.Place(medal, 31, 20, 78, 78);
 
-            GameObject cadence = SecondaryTasks038Chrome.Plate(kit, row.transform, "Cadence",
-                new Color32(35, 24, 80, 170), new Color32(166, 112, 255, 70), true);
-            PanelKit.PlaceTop(cadence.GetComponent<RectTransform>(), 424, 17, 80, 26);
-            kit.NewPlacedText(cadence.transform, definition.Cadence == TaskCadence.Weekly ? "每周" : "每日",
-                12, new Color32(255, 173, 226, 255), 0, 0, 80, 26,
-                TextAnchor.MiddleCenter, FontStyle.Bold);
+            Text title = VisualA1101.Label(card.transform, "Title", verb ?? definition.Title, 30, CleanUi1025.Text, TextAnchor.MiddleLeft);
+            VisualA1101.Place(title.rectTransform, 138, 16, 170, 44);
+            Text progress = VisualA1101.Number(card.transform, "Count", string.Empty, 24, CleanUi1025.Muted, TextAnchor.MiddleLeft);
+            VisualA1101.Place(progress.rectTransform, 138, 62, 170, 38);
 
-            Image fill = SecondaryTasks038Chrome.Progress(kit, row.transform, "Progress",
-                ProgressX, ProgressY, ProgressWidth, ProgressHeight,
-                new Color32(30, 26, 74, 190), PanelKit.Cyan, out Image marker);
-            Text progress = kit.NewPlacedText(row.transform, string.Empty, 13, PanelKit.White, 362, 50, 132, 30,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(progress, 10);
-
-            GameObject reward = SecondaryTasks038Chrome.Plate(kit, row.transform, "Reward",
-                new Color32(30, 25, 76, 150), new Color32(255, 205, 96, 60), true);
-            PanelKit.PlaceTop(reward.GetComponent<RectTransform>(), 24, 86, 250, 36);
+            // the reward sits on its own, between the task and the button
             string currency = definition.Reward != null ? definition.Reward.Currency : string.Empty;
             int amount = definition.Reward != null ? definition.Reward.Amount : 0;
-            Sprite icon = PanelKit.CurrencyIcon(currency);
-            Image iconImage = kit.NewImage("Icon", reward.transform,
-                icon ?? ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Gem),
-                icon != null ? Color.white : PanelKit.CurrencyColor(currency));
-            PanelKit.PlaceTop(iconImage.rectTransform, 10, 6, 24, 24);
-            iconImage.preserveAspect = true;
-            Text rewardText = kit.NewPlacedText(reward.transform,
-                $"{PanelKit.CurrencyName(currency)} ×{amount:N0}", 14, PanelKit.White,
-                42, 0, 200, 36, TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(rewardText, 10);
-
-            Image glow = kit.NewImage("ClaimGlow", row.transform, kit.RadialSprite(),
-                new Color32(255, 82, 194, 0));
-            PanelKit.PlaceTop(glow.rectTransform, 500, 16, 190, 100);
-            glow.raycastTarget = false;
+            Sprite rewardSprite = ChoSiren.UI.RewardItemVisuals.SpriteFor(currency); // reward-ui 1101: the HUD badge set
+            Image iconImage = kit.NewImage("RewardIcon", card.transform,
+                rewardSprite ?? ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Gem),
+                rewardSprite != null && !ChoSiren.UI.RewardItemVisuals.IsCodeSymbol(rewardSprite) ? Color.white : PanelKit.CurrencyColor(currency));
+            PanelKit.PlaceTop(iconImage.rectTransform, 318, 30, 58, 58);
+            iconImage.preserveAspect = true; iconImage.raycastTarget = false;
+            Text rewardText = VisualA1101.Number(card.transform, "Reward", $"×{amount:N0}",
+                26, currency == CurrencyIds.Diamond ? (Color)CleanUi1025.Cyan : CleanUi1025.Gold, TextAnchor.MiddleLeft);
+            VisualA1101.Place(rewardText.rectTransform, 380, 36, 130, 46);
 
             string taskId = definition.Id;
-            GameObject claim = SecondaryTasks038Chrome.Button(row.transform, "Claim-" + taskId, "领取",
-                17, () => Claim(taskId), ModalPolish038ButtonStyle.Primary);
-            PanelKit.PlaceTop(claim.GetComponent<RectTransform>(), 532, 38, 124, 56);
+            string trigger = definition.Trigger;
+            RowView view = null;
+            Button action = CleanUi1025.Pill(kit, card.transform, "Claim-" + taskId, "领取", 24, () =>
+            {
+                if (view == null) return;
+                if (view.Task.Claimable) Claim(taskId);
+                else if (view.CanGo) Go(trigger);
+                else VisualA1101.Deny();
+            }, out Text actionText);
+            PanelKit.PlaceTop(action.GetComponent<RectTransform>(), 524, 31, 140, 56);
 
-            RowView view = new RowView
+            view = new RowView
             {
                 Task = task,
                 ProgressFill = fill,
-                ProgressMarker = marker,
                 ProgressText = progress,
-                ClaimButton = claim,
-                ClaimLabel = SecondaryTasks038Chrome.LabelOf(claim),
-                RowBackground = row.GetComponent<Image>(),
-                Accent = accent,
-                ClaimGlow = glow,
-                Edge = row.GetComponent<Outline>(),
+                ClaimButton = action.gameObject,
+                Action = action,
+                ActionText = actionText,
+                ActionIcon = PillIcon(action, actionText, "gift", 34f),
+                Medal = medal,
+                RowBackground = card,
+                Stripe = stripe,
+                Title = title,
+                Reward = rewardText,
+                Group = group,
+                CanGo = onGo != null && HasDestination(trigger),
             };
             ApplyRowState(view);
+            card.gameObject.AddComponent<VisualA1101Motion>().Pop(Mathf.Min(.35f, index * .05f));
             return view;
         }
+
+        /// <summary>Triggers that have a place to go and do them.</summary>
+        private static bool HasDestination(string trigger) =>
+            trigger == TaskTriggers.Perform || trigger == TaskTriggers.BattleWin ||
+            trigger == TaskTriggers.SpendStamina || trigger == TaskTriggers.Train ||
+            trigger == TaskTriggers.ClaimIdle || trigger == TaskTriggers.GachaPull ||
+            trigger == TaskTriggers.ReadStory || trigger == TaskTriggers.CheckIn;
 
         private static void ApplyRowState(RowView view)
         {
             TaskView task = view.Task;
             int target = Mathf.Max(1, task.Definition.Target);
             int progress = Mathf.Clamp(task.Progress, 0, target);
-            float amount = progress / (float)target;
-            view.ProgressFill.fillAmount = amount;
+            view.ProgressFill.fillAmount = progress / (float)target;
             view.ProgressText.text = $"{progress}/{target}";
+            Color accent;
 
             if (task.Claimed)
             {
-                SecondaryTasks038Chrome.SetState(view.ClaimButton, false,
-                    SecondaryTasks038Chrome.EdgeDisabled, SecondaryTasks038Chrome.InsetDisabled,
-                    new Color32(196, 190, 220, 255), "已领取");
-                view.RowBackground.color = new Color32(13, 12, 43, 88);
-                view.ProgressFill.color = new Color32(140, 132, 180, 255);
-                view.Accent.color = new Color32(126, 119, 164, 180);
-                if (view.Edge != null) view.Edge.effectColor = new Color32(126, 119, 164, 50);
-                if (view.ClaimGlow != null) view.ClaimGlow.color = new Color32(255, 82, 194, 0);
-                SecondaryTasks038Chrome.SetProgressMarker(view.ProgressMarker,
-                    ProgressX, ProgressY, ProgressWidth, ProgressHeight, amount,
-                    new Color32(140, 132, 180, 255));
+                // done: the whole row steps back
+                CleanUi1025.StylePill(view.Action, view.ActionText, CleanUi1025.Weight.Quiet, "已领", false);
+                SetPillIcon(view.ActionIcon, "check", false, false);
+                view.RowBackground.color = CleanUi1025.RowDone;
+                view.Stripe.color = new Color(1f, 1f, 1f, .15f);
+                accent = VisualA1101.Muted;
+                view.Group.alpha = .55f;
             }
             else if (task.Claimable)
             {
-                SecondaryTasks038Chrome.SetState(view.ClaimButton, true,
-                    ModalPolish038Chrome.AccentPink, new Color32(44, 17, 56, 250),
-                    PanelKit.White, "领取");
-                view.RowBackground.color = new Color32(39, 21, 88, 132);
-                view.ProgressFill.color = PanelKit.Pink;
-                view.Accent.color = PanelKit.Pink;
-                if (view.Edge != null) view.Edge.effectColor = new Color32(255, 138, 226, 110);
-                if (view.ClaimGlow != null) view.ClaimGlow.color = new Color32(255, 82, 194, 44);
-                SecondaryTasks038Chrome.SetProgressMarker(view.ProgressMarker,
-                    ProgressX, ProgressY, ProgressWidth, ProgressHeight, amount, PanelKit.Pink);
+                // the one thing to do: green button, green edge
+                CleanUi1025.StylePill(view.Action, view.ActionText, CleanUi1025.Weight.Primary, "领取", true);
+                SetPillIcon(view.ActionIcon, "gift", true, true);
+                view.RowBackground.color = CleanUi1025.Row;
+                view.Stripe.color = Brand1025.Teal;
+                accent = Brand1025.Teal;
+                view.Group.alpha = 1f;
             }
             else
             {
-                SecondaryTasks038Chrome.SetState(view.ClaimButton, false,
-                    SecondaryTasks038Chrome.EdgeViolet, SecondaryTasks038Chrome.InsetViolet,
-                    new Color32(214, 206, 236, 255), "进行中", .62f);
-                view.RowBackground.color = RowGlass;
-                view.ProgressFill.color = PanelKit.Cyan;
-                view.Accent.color = PanelKit.Cyan;
-                if (view.Edge != null) view.Edge.effectColor = new Color32(104, 224, 255, 70);
-                if (view.ClaimGlow != null) view.ClaimGlow.color = new Color32(255, 82, 194, 0);
-                SecondaryTasks038Chrome.SetProgressMarker(view.ProgressMarker,
-                    ProgressX, ProgressY, ProgressWidth, ProgressHeight, amount, PanelKit.Cyan);
+                if (view.CanGo) CleanUi1025.StylePill(view.Action, view.ActionText, CleanUi1025.Weight.Outline, "前往", true);
+                else CleanUi1025.StylePill(view.Action, view.ActionText, CleanUi1025.Weight.Quiet, "未达成", false);
+                SetPillIcon(view.ActionIcon, view.CanGo ? "arrow" : "clock", false, view.CanGo);
+                view.RowBackground.color = CleanUi1025.Row;
+                view.Stripe.color = new Color(1f, 1f, 1f, .22f);
+                accent = VisualA1101.Lavender;
+                view.Group.alpha = 1f;
+            }
+            view.ProgressFill.color = task.Claimable ? (Color)Brand1025.Teal : task.Claimed ? VisualA1101.Muted : VisualA1101.Violet;
+            view.ProgressText.color = task.Claimable ? (Color)Brand1025.Teal : VisualA1101.Muted;
+            if (view.Medal != null)
+            {
+                Image rim = view.Medal.Find("MedallionRim")?.GetComponent<Image>();
+                if (rim != null) rim.color = accent;
+                VisualA1101.Tint((RectTransform)view.Medal.Find("MedallionIcon"), accent);
+            }
+            // the claimable button breathes; nothing else moves
+            if (task.Claimable && view.Pulse == null) view.Pulse = view.ClaimButton.AddComponent<VisualA1101Motion>().Pulse();
+            else if (!task.Claimable && view.Pulse != null)
+            {
+                Destroy(view.Pulse);
+                view.Pulse = null;
+                view.ClaimButton.transform.localScale = Vector3.one;
             }
         }
 
@@ -395,16 +435,24 @@ namespace ChoSiren.Panels
         {
             if (cadence == value) return;
             cadence = value;
+            // visual-a 1101c: the lit tab says it; no 「已切换到…」 toast on top.
             Refresh();
-            Notify(value == TaskCadence.Weekly ? "已切换到每周任务" : "已切换到每日任务");
         }
 
         private void Claim(string taskId)
         {
+            // reward-ui 1101: the grant itself raises the shared 获得奖励 presentation; the message becomes its caption.
             bool succeeded = service.TryClaimTask(taskId, out string message);
             if (succeeded) kit.PlaySuccess();
             Notify(string.IsNullOrEmpty(message) ? (succeeded ? "奖励已领取" : "领取失败") : message);
             Refresh();
+        }
+
+        private void Go(string trigger)
+        {
+            Action<string> go = onGo;
+            Close();
+            go?.Invoke(trigger);
         }
 
         private void ClaimAll()
@@ -454,45 +502,32 @@ namespace ChoSiren.Panels
         {
             if (kit == null) return;
             bool daily = cadence == TaskCadence.Daily;
-            SecondaryTasks038Chrome.SetState(tabDaily, true,
-                daily ? SecondaryTasks038Chrome.EdgeSelected : SecondaryTasks038Chrome.EdgeIdle,
-                daily ? SecondaryTasks038Chrome.InsetSelected : SecondaryTasks038Chrome.InsetIdle,
-                daily ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle);
-            SecondaryTasks038Chrome.SetState(tabWeekly, true,
-                !daily ? SecondaryTasks038Chrome.EdgeSelected : SecondaryTasks038Chrome.EdgeIdle,
-                !daily ? SecondaryTasks038Chrome.InsetSelected : SecondaryTasks038Chrome.InsetIdle,
-                !daily ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle);
-            if (tabDailyGlyph != null) tabDailyGlyph.gameObject.SetActive(daily);
-            if (tabWeeklyGlyph != null) tabWeeklyGlyph.gameObject.SetActive(!daily);
+            tabs.Select(daily);
 
-            List<TaskView> tasks = service.TaskViews(cadence) ?? new List<TaskView>();
+            // what can be claimed first, then what is in progress, finished last
+            List<TaskView> tasks = new List<TaskView>(service.TaskViews(cadence) ?? new List<TaskView>());
+            tasks = tasks.Select((t, i) => (t, i))
+                .OrderBy(p => p.t.Claimable ? 0 : p.t.Claimed ? 2 : 1).ThenBy(p => p.i).Select(p => p.t).ToList();
             RebuildRows(tasks);
 
             int completed = 0;
-            int claimedCount = 0;
             for (int index = 0; index < tasks.Count; index++)
             {
                 if (tasks[index].Completed) completed++;
-                if (tasks[index].Claimed) claimedCount++;
             }
 
-            summaryText.text = tasks.Count == 0
-                ? string.Empty
-                : $"{(daily ? "今日" : "本周")}完成 {completed}/{tasks.Count} · 已领取 {claimedCount}";
+            summaryText.text = tasks.Count == 0 ? string.Empty : $"{completed}/{tasks.Count}";
+            summaryFill.fillAmount = tasks.Count == 0 ? 0f : completed / (float)tasks.Count;
 
             int claimable = service.ClaimableTaskCount;
-            SecondaryTasks038Chrome.SetState(claimAllButton, claimable > 0,
-                claimable > 0 ? ModalPolish038Chrome.AccentPink : SecondaryTasks038Chrome.EdgeDisabled,
-                claimable > 0 ? new Color32(44, 17, 56, 250) : SecondaryTasks038Chrome.InsetDisabled,
-                claimable > 0 ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle,
-                claimable > 0 ? $"一键领取 ({claimable})" : "一键领取", .58f);
+            // only offered when there is something to collect
+            claimAllButton.SetActive(claimable > 0);
+            CleanUi1025.StylePill(claimAll, claimAllText, CleanUi1025.Weight.Primary, $"一键领取 {claimable}", claimable > 0);
 
             bool canCheckIn = !model.HasCheckedInToday;
-            SecondaryTasks038Chrome.SetState(checkInButton, canCheckIn,
-                canCheckIn ? SecondaryTasks038Chrome.EdgeGold : SecondaryTasks038Chrome.EdgeDisabled,
-                canCheckIn ? SecondaryTasks038Chrome.InsetGold : SecondaryTasks038Chrome.InsetDisabled,
-                canCheckIn ? PanelKit.White : SecondaryTasks038Chrome.LabelIdle,
-                canCheckIn ? $"签到任务 · 连续 {model.Save.CheckInDay} 天" : "签到任务 · 已完成", .6f);
+            CleanUi1025.StylePill(checkIn, checkInText, canCheckIn ? CleanUi1025.Weight.Primary : CleanUi1025.Weight.Quiet,
+                canCheckIn ? "签到" : $"{model.Save.CheckInDay} 天", canCheckIn);
+            SetPillIcon(checkInIcon, canCheckIn ? "calendar" : "check", canCheckIn, canCheckIn);
         }
 
         // ------------------------------------------------------------------ lifecycle

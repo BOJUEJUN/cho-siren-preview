@@ -1,0 +1,58 @@
+{
+  "offline": true,
+  "model": "Whisper-small",
+  "revision": "973afd24965f72e36ca33b3055d56a652f456b4d",
+  "new_model_downloaded": false,
+  "elapsed_seconds": 9.635668291011825,
+  "samples": [
+    {
+      "id": "xingli-v2-a",
+      "target": "いくよっ！　私の歌で、輝けっ！",
+      "transcribed": "あ、行くよ!私の歌で輝け!",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "xingli-v2-b",
+      "target": "さあっ！　もっと、盛り上がろっ！",
+      "transcribed": "ふっふっさあもっと盛り上がろう",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "feiyin-v2-a",
+      "target": "はっ！　その隙、もらったぁ！",
+      "transcribed": "はその劇もらった",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "feiyin-v2-b",
+      "target": "燃えろっ！　最後まで、踊り抜く！",
+      "transcribed": "燃えろ最後まで踊り抜く",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "wubai-v2-a",
+      "target": "大丈夫っ！　私が、守るから！",
+      "transcribed": "大丈夫私が守るから",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "wubai-v2-b",
+      "target": "大丈夫！　ほら、顔を上げて。",
+      "transcribed": "大丈夫 ほら顔上げて",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "yeying-v2-a",
+      "target": "逃がさない。　この一撃で、決めるっ！",
+      "transcribed": "逃がさないこの一撃で決める",
+      "english_direction_word_detected": false
+    },
+    {
+      "id": "yeying-v2-b",
+      "target": "聴けっ。　これが、私のビート！",
+      "transcribed": "フッ 聞け これが私のビート",
+      "english_direction_word_detected": false
+    }
+  ],
+  "limits": "ASR is an imperfect language/direction-word sanity check; it does not prove human realism, acting quality or listening acceptance."
+}

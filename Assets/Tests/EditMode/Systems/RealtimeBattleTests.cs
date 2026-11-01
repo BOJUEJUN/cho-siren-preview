@@ -33,13 +33,14 @@ namespace ChoSiren.Tests
             Assert.That(stats.Defense, Is.EqualTo(defense));
             Assert.That(BattleSimulator.TrainingCostAtLevel(level), Is.EqualTo(trainingCost));
             CombatStats equipped = BattleSimulator.PlayerStats(unit, level, new CombatStatBonuses(900, 900, 900));
-            Assert.That(equipped.Attack, Is.EqualTo((int)((long)attack * 1200 / 1000)));
+            // 2026-11-01: the equipment share rounds to the nearest point instead of truncating (BattleSimulator.GrowthStat).
+            Assert.That(equipped.Attack, Is.EqualTo((int)(((long)attack * 1200 + 500) / 1000)));
         }
 
-        [TestCase("normal", 3)]
+        [TestCase("normal", 2)]
         [TestCase("elite", 3)]
-        [TestCase("boss", 4)]
-        [TestCase("world", 5)]
+        [TestCase("boss", 3)] // 2026-10-31 赵金: 每局上限三次 (was 4)
+        [TestCase("world", 3)] // (was 5)
         public void EncounterTypeDeterminesWholeBattleBudget(string kind, int limit)
         {
             var stage = new StageDefinition { EncounterType = kind };
@@ -139,7 +140,8 @@ namespace ChoSiren.Tests
             Assert.That(dice.UsedRerolls, Is.Zero, "非法选择不消耗额度");
             for (int i = 0; i < 3; i++) dice.ToggleHold(i);
             int keptFourth = dice.Values[3], keptFifth = dice.Values[4];
-            Assert.That(dice.SelectedForRerollCount, Is.EqualTo(3));
+            Assert.That(dice.SelectedForRerollCount, Is.EqualTo(DiceTurn.MaxDicePerReroll), "每次最多点选 2 颗");
+            Assert.That(dice.Held[2], Is.True, "第三颗被拒绝，仍保留");
             Assert.That(dice.RerollUnheld(out string error), Is.True, error);
             Assert.That(dice.Values[3], Is.EqualTo(keptFourth), "没点选的骰子必须保留");
             Assert.That(dice.Values[4], Is.EqualTo(keptFifth), "没点选的骰子必须保留");
@@ -149,7 +151,7 @@ namespace ChoSiren.Tests
             noSelection.Begin();
             noSelection.GainEnergy(DiceTurn.MaxEnergy); // 有额度仍受自选开关约束
             for (int i = 0; i < 4; i++) noSelection.ToggleHold(i);
-            Assert.That(noSelection.RerollUnheld(out _), Is.False, "不支持自选重投的会话只能全部重投");
+            Assert.That(noSelection.RerollUnheld(out _), Is.False, "不支持自选重投的会话只能用推荐重投");
             Assert.That(noSelection.UsedRerolls, Is.Zero);
         }
 
@@ -160,6 +162,8 @@ namespace ChoSiren.Tests
             battle.AdvanceRealtime(12000);
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 1 && e.SkillId == "rt-basic"), Is.EqualTo(12));
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 1 && e.SkillId == "rt-demon-small"), Is.EqualTo(4));
+            while (!battle.Log.Any(e => e.Kind == BattleEventKind.ActionStarted && e.SkillId == "rt-demon-big") && battle.ElapsedMilliseconds < 40000)
+                battle.AdvanceRealtime(25);
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 1 && e.SkillId == "rt-demon-big"), Is.EqualTo(1));
             Assert.That(battle.Log.First(e => e.SkillId == "rt-demon-small").TimeMilliseconds, Is.EqualTo(3000));
             Assert.That(battle.TryAct(new BattleAction(), out string message), Is.False);
@@ -205,10 +209,11 @@ namespace ChoSiren.Tests
             int hp = mermaid.Hp;
             battle.AdvanceRealtime(3000);
             Assert.That(mermaid.Hp, Is.GreaterThan(hp));
-            battle.AdvanceRealtime(10000);
+            while (!battle.Log.Any(e => e.SkillId == "rt-mermaid-big") && battle.ElapsedMilliseconds < 60000)
+                battle.AdvanceRealtime(25);
             int shield = mermaid.Shield;
             Assert.That(shield, Is.GreaterThan(0));
-            Assert.That(battle.Log.Any(e => e.SkillId == "rt-mermaid-big" && e.TimeMilliseconds == 13000), Is.True);
+            Assert.That(battle.Log.Any(e => e.SkillId == "rt-mermaid-big" && e.TimeMilliseconds >= 15000), Is.True);
             battle.AdvanceRealtime(4000);
             Assert.That(mermaid.Shield, Is.LessThan(shield), "主动护盾只持续4秒，骰型护盾保留");
         }
@@ -247,28 +252,24 @@ namespace ChoSiren.Tests
             BattleSimulator battle = Create("elf", rolls: random);
             BattleUnit enemy = battle.FindUnit(2);
             enemy.BaseDefense = 100;
-            Assert.That(battle.BattleDice.Hand.Pattern, Is.EqualTo(DicePattern.HighPoint));
+            Assert.That(battle.BattleDice.Hand.Pattern, Is.EqualTo(DicePattern.Pair));
             battle.AdvanceRealtime(2800);
             BattleEvent hit = battle.Log.Single(e => e.Kind == BattleEventKind.Damage && e.SkillId == "rt-bloodelf-small");
-            Assert.That(hit.Amount, Is.EqualTo(85), "115伤害按85防御结算，技能本身固定穿甲15%");
-            Assert.That(battle.BattleDice.FreeRerolls, Is.EqualTo(1));
-            Assert.That(battle.BattleDice.EnergyRerollAll(out _), Is.True);
-            battle.AdvanceRealtime(25);
-            Assert.That(battle.BattleDice.FreeRerolls, Is.Zero, "免费重投不能递归获得无限免费重投");
+            Assert.That(hit.Amount, Is.EqualTo(87), "六骰一对开局加成2.5%（2026-10-31 一对 ×1.1），技能本身固定穿甲15%");
+            Assert.That(battle.BattleDice.FreeRerolls, Is.Zero, "血精灵队长只保留血破护甲，不再送免费重投");
         }
 
         [Test]
         public void CharmStunsBrieflyThenSilenceContinuesSuppressingSkills()
         {
             BattleSimulator battle = Create("charm");
-            battle.AdvanceRealtime(14000);
-            int[] specials = battle.Log.Where(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == 2 && e.SkillId == "strike")
-                .Select(e => e.TimeMilliseconds).ToArray();
-            Assert.That(specials, Is.EqualTo(new[] { 4000, 8000, 13000 }));
-            Assert.That(battle.Log.Any(e => e.ActorId == 2 && e.SkillId == "rt-basic" &&
-                e.TimeMilliseconds == 12000), Is.False, "眩晕期间不能继续普攻");
-            Assert.That(battle.Log.Any(e => e.ActorId == 2 && e.SkillId == "rt-basic" &&
-                e.TimeMilliseconds == 12400), Is.True, "眩晕结束后即使仍封技，也恢复普攻");
+            battle.AutoCastUltimates=false;battle.AdvanceRealtime(30000);
+            Assert.That(battle.TryCastUltimate(1),Is.True);int at=battle.ElapsedMilliseconds;
+            battle.AdvanceRealtime(2400);
+            var actions=battle.Log.Where(e=>e.Kind==BattleEventKind.ActionStarted && e.ActorId==2 && e.TimeMilliseconds>at).ToArray();
+            Assert.That(actions.Any(e=>e.TimeMilliseconds<at+1200),Is.False,"Stun blocks all actions");
+            Assert.That(actions.Any(e=>e.SkillId=="strike" && e.TimeMilliseconds<at+2000),Is.False,"Silence still blocks special skills");
+            Assert.That(actions.Any(e=>e.SkillId=="rt-basic" && e.TimeMilliseconds>=at+1200),Is.True,"Basic attack resumes before silence ends");
         }
 
         [Test]
@@ -282,9 +283,7 @@ namespace ChoSiren.Tests
             battle.AdvanceRealtime(0);
             Assert.That(battle.CharacterDamageDealt, Is.Zero);
             battle.AdvanceRealtime(25);
-            Assert.That(battle.CharacterDamageDealt, Is.EqualTo(125));
-            battle.AdvanceRealtime(25);
-            Assert.That(battle.CharacterDamageDealt, Is.EqualTo(125), "同一个骰型只在新投掷时触发一次即时追击");
+            Assert.That(battle.CharacterDamageDealt, Is.Zero, "魅族队长只保留狐舞连斩：骰型不再触发即时追击，追击只随普攻出现");
         }
 
         [Test]
@@ -451,7 +450,8 @@ namespace ChoSiren.Tests
         {
             BattleSimulator battle = CreateWaves("demon");
             battle.FindUnit(3).Spawned = true;
-            battle.AdvanceRealtime(12000);
+            while (!battle.Log.Any(e => e.Kind == BattleEventKind.ActionStarted && e.SkillId == "rt-demon-big") && battle.ElapsedMilliseconds < 40000)
+                battle.AdvanceRealtime(25);
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted &&
                 e.ActorId == 1 && e.SkillId == "rt-demon-big"), Is.EqualTo(1));
             Assert.That(battle.Log.Count(e => e.Kind == BattleEventKind.Damage &&

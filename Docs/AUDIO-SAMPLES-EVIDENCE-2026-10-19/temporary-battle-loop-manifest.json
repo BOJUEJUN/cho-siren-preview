@@ -1,0 +1,60 @@
+{
+  "status": "Temporary battle track only, human approved provisional use; homepage playlist and CG routing untouched",
+  "model": "Mureka v9",
+  "task_id": "2112101917173112833",
+  "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/selected-b-completion-20261019-v1/original/battle-bgm-sample.mp3",
+  "source_sha256": "14eda78b95809d62320b05c9afcece118c7d78bdb9044d57b542bfafa4725452",
+  "source_seconds": 150.43,
+  "source_peak_dbfs": -0.7545353683881161,
+  "source_rms_dbfs": -16.823274575550425,
+  "loop_start_source_seconds": 7.75546485260771,
+  "loop_end_source_seconds": 144.84607709750566,
+  "source_kept_fraction": 0.9113249501090073,
+  "beat_indices": [
+    18,
+    346
+  ],
+  "beats_per_loop": 328,
+  "crossfade_seconds": 0.07501133786848073,
+  "crossfade": "75ms equal-power tail into the pre-start preroll; cycle duration retained, not overlap-shortened",
+  "normalization_gain": 0.9177550193720281,
+  "native": {
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/bgm-battle.wav",
+    "sha256": "baecc195728c65e4b5c37cfb6b8c91b6d9a98d621ee9c22638a0be0069b81947",
+    "subtype": "PCM_16",
+    "prefix_frames": 1024,
+    "smpl_start": 1024,
+    "smpl_end_inclusive": 6046719
+  },
+  "web": {
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/StreamingAssets/Music/battle-b0859b88305ca4f4.mp3",
+    "filename": "battle-b0859b88305ca4f4.mp3",
+    "sha256": "b0859b88305ca4f40dda33876e0e92a88ce03217d20521c112a34cf872b70bd1",
+    "bytes": 3291471,
+    "frames": 6045696,
+    "seconds": 137.09061224489795,
+    "peak_dbfs": -1.2175003092893806,
+    "rms_dbfs": -17.611172758592787,
+    "clipped_samples": 0,
+    "loop_join_jump": 0.007092632353305817,
+    "sample_rate": 44100
+  },
+  "pcm": {
+    "frames": 6045696,
+    "seconds": 137.09061224489795,
+    "peak_dbfs": -1.4999999999999996,
+    "rms_dbfs": -17.355206970079834,
+    "clipped_samples": 0,
+    "loop_join_jump": 0.007833823328903443
+  },
+  "original_local_derivative_99_9_percentile": 0.36535156674683056,
+  "recommend_battle_gain": 0.12,
+  "expected_output_rms_dbfs_at_gain": -35.77158204912734,
+  "home_reference": {
+    "path": "/Users/bojuejun/cho-siren-unity/Assets/Resources/Audio/bgm.wav",
+    "rms_dbfs": -19.362862154217034,
+    "gain": 0.18,
+    "output_rms_dbfs": -34.25741205215091
+  },
+  "qa_limits": "Signal metrics and detected beat boundaries support a click-safe loop; musical quality still depends on listening. Native importer/runtime playback needs root Unity checks."
+}

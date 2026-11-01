@@ -1,0 +1,196 @@
+{
+  "user_accepted": "B voice acting, current conversation",
+  "selected_active01": [
+    {
+      "member": "xingli",
+      "id": "xingli-active-01",
+      "text": "(chuckle)さあっ！　もっと、盛り上がろっ！",
+      "voice_id": "Japanese_DependableWoman",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/emotion-v2/xingli-v2-b.wav",
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/xingli-active-01.wav",
+      "sha256": "7f2bd373231ee6cd2e92828f5ac2603b54928897bb034bce4870d1c475cc7f50",
+      "user_selected": "B",
+      "no_audio_processing_after_selection": true
+    },
+    {
+      "member": "feiyin",
+      "id": "feiyin-active-01",
+      "text": "(exhale)燃えろっ！　最後まで、踊り抜く！",
+      "voice_id": "Japanese_DecisivePrincess",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/emotion-v2/feiyin-v2-b.wav",
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/feiyin-active-01.wav",
+      "sha256": "3ebf69f14765c5885a6849dc40858b8faf51b3bcf9798611ba932f5cc54e1535",
+      "user_selected": "B",
+      "no_audio_processing_after_selection": true
+    },
+    {
+      "member": "wubai",
+      "id": "wubai-active-01",
+      "text": "(breath)大丈夫！　ほら、顔を上げて。",
+      "voice_id": "Japanese_KindLady",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/emotion-v2/wubai-v2-b.wav",
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/wubai-active-01.wav",
+      "sha256": "10c3d25c1ccb243db3b74b03c71ac104868e71d13ca8c0ccec0304062caffa2e",
+      "user_selected": "B",
+      "no_audio_processing_after_selection": true
+    },
+    {
+      "member": "yeying",
+      "id": "yeying-active-01",
+      "text": "(exhale)聴けっ。　これが、私のビート！",
+      "voice_id": "Japanese_CalmLady",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/auditions/emotion-v2/yeying-v2-b.wav",
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/yeying-active-01.wav",
+      "sha256": "70421c688a61ac0f4ff26279271a0af4b9b71c31bae9afdf6b612d0fda3e4b8a",
+      "user_selected": "B",
+      "no_audio_processing_after_selection": true
+    }
+  ],
+  "pending_12": [
+    {
+      "member": "xingli",
+      "name": "星璃",
+      "voice_id": "Japanese_DependableWoman",
+      "emotion": "happy",
+      "speed": 1.16,
+      "pitch": 2,
+      "id": "xingli-active-02",
+      "kind": "active",
+      "variant": 2,
+      "text": "(inhale)歌で、決めるよっ！"
+    },
+    {
+      "member": "xingli",
+      "name": "星璃",
+      "voice_id": "Japanese_DependableWoman",
+      "emotion": "happy",
+      "speed": 1.16,
+      "pitch": 2,
+      "id": "xingli-ultimate-01",
+      "kind": "ultimate",
+      "variant": 1,
+      "text": "(inhale)このステージ、私のものっ！"
+    },
+    {
+      "member": "xingli",
+      "name": "星璃",
+      "voice_id": "Japanese_DependableWoman",
+      "emotion": "happy",
+      "speed": 1.16,
+      "pitch": 2,
+      "id": "xingli-ultimate-02",
+      "kind": "ultimate",
+      "variant": 2,
+      "text": "(chuckle)最高の歌、届けるよっ！"
+    },
+    {
+      "member": "feiyin",
+      "name": "绯音",
+      "voice_id": "Japanese_DecisivePrincess",
+      "emotion": "angry",
+      "speed": 1.16,
+      "pitch": -2,
+      "id": "feiyin-active-02",
+      "kind": "active",
+      "variant": 2,
+      "text": "(exhale)その隙、もらったっ！"
+    },
+    {
+      "member": "feiyin",
+      "name": "绯音",
+      "voice_id": "Japanese_DecisivePrincess",
+      "emotion": "angry",
+      "speed": 1.16,
+      "pitch": -2,
+      "id": "feiyin-ultimate-01",
+      "kind": "ultimate",
+      "variant": 1,
+      "text": "(inhale)限界ごと、燃やしてやるっ！"
+    },
+    {
+      "member": "feiyin",
+      "name": "绯音",
+      "voice_id": "Japanese_DecisivePrincess",
+      "emotion": "angry",
+      "speed": 1.16,
+      "pitch": -2,
+      "id": "feiyin-ultimate-02",
+      "kind": "ultimate",
+      "variant": 2,
+      "text": "(exhale)私のダンスで、終わりだっ！"
+    },
+    {
+      "member": "wubai",
+      "name": "雾白",
+      "voice_id": "Japanese_KindLady",
+      "emotion": "happy",
+      "speed": 1.1,
+      "pitch": 1,
+      "id": "wubai-active-02",
+      "kind": "active",
+      "variant": 2,
+      "text": "(inhale)私が、守るから！"
+    },
+    {
+      "member": "wubai",
+      "name": "雾白",
+      "voice_id": "Japanese_KindLady",
+      "emotion": "happy",
+      "speed": 1.1,
+      "pitch": 1,
+      "id": "wubai-ultimate-01",
+      "kind": "ultimate",
+      "variant": 1,
+      "text": "(inhale)この歌で、みんなを守るっ！"
+    },
+    {
+      "member": "wubai",
+      "name": "雾白",
+      "voice_id": "Japanese_KindLady",
+      "emotion": "happy",
+      "speed": 1.1,
+      "pitch": 1,
+      "id": "wubai-ultimate-02",
+      "kind": "ultimate",
+      "variant": 2,
+      "text": "(breath)もう誰も、傷つけさせないっ！"
+    },
+    {
+      "member": "yeying",
+      "name": "夜莺",
+      "voice_id": "Japanese_CalmLady",
+      "emotion": "angry",
+      "speed": 1.12,
+      "pitch": -2,
+      "id": "yeying-active-02",
+      "kind": "active",
+      "variant": 2,
+      "text": "(exhale)狙いは一つ。決めるっ！"
+    },
+    {
+      "member": "yeying",
+      "name": "夜莺",
+      "voice_id": "Japanese_CalmLady",
+      "emotion": "angry",
+      "speed": 1.12,
+      "pitch": -2,
+      "id": "yeying-ultimate-01",
+      "kind": "ultimate",
+      "variant": 1,
+      "text": "(inhale)このビートで、幕を下ろすっ！"
+    },
+    {
+      "member": "yeying",
+      "name": "夜莺",
+      "voice_id": "Japanese_CalmLady",
+      "emotion": "angry",
+      "speed": 1.12,
+      "pitch": -2,
+      "id": "yeying-ultimate-02",
+      "kind": "ultimate",
+      "variant": 2,
+      "text": "(exhale)最後まで、刻み込めっ！"
+    }
+  ],
+  "production_source_modified": false
+}

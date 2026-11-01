@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-9-end",
+  "Title": "1-9 终演前夜",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-9"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "……谢谢你说「没问题」。我真的信了。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "彩排结束。明天，正式开演。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "王座就在明天。你们已经准备好了。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

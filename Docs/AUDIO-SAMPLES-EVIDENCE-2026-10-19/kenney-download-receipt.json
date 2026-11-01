@@ -1,0 +1,66 @@
+{
+  "checked_date": "2026-10-19",
+  "method": "Official HTML page read + ZIP HEAD only. No ZIP body was read or downloaded.",
+  "downloaded": true,
+  "total_bytes": 8387329,
+  "total_mib": 7.999,
+  "approval_source": "User approval relayed by root on 2026-10-19 in current task.",
+  "packs": [
+    {
+      "name": "Impact Sounds",
+      "page": "https://kenney.nl/assets/impact-sounds",
+      "url": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+      "filename": "kenney_impact-sounds.zip",
+      "bytes": 800850,
+      "files": 130,
+      "license": "CC0",
+      "head_status": 200,
+      "usage": "普通命中、受击、格挡、倒地",
+      "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+      "downloaded_to": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/downloads/kenney_impact-sounds.zip",
+      "zip_crc_verified": true
+    },
+    {
+      "name": "Casino Audio",
+      "page": "https://kenney.nl/assets/casino-audio",
+      "url": "https://kenney.nl/media/pages/assets/casino-audio/2472606a04-1721639069/kenney_casino-audio.zip",
+      "filename": "kenney_casino-audio.zip",
+      "bytes": 876839,
+      "files": 50,
+      "license": "CC0",
+      "head_status": 200,
+      "usage": "骰子滚动",
+      "sha256": "f36250766ac5bc378c13708ddf12a23a8e54a3251f8d482c7536e51b5dbafa18",
+      "downloaded_to": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/downloads/kenney_casino-audio.zip",
+      "zip_crc_verified": true
+    },
+    {
+      "name": "Sci-fi Sounds",
+      "page": "https://kenney.nl/assets/sci-fi-sounds",
+      "url": "https://kenney.nl/media/pages/assets/sci-fi-sounds/6b296f9ecf-1677589334/kenney_sci-fi-sounds.zip",
+      "filename": "kenney_sci-fi-sounds.zip",
+      "bytes": 5875104,
+      "files": 70,
+      "license": "CC0",
+      "head_status": 200,
+      "usage": "能量弹、护盾、技能释放",
+      "sha256": "119340f351a5098ad814f78719438c0da355a9ce8a4c8a3af6a8d48aa3d49e04",
+      "downloaded_to": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/downloads/kenney_sci-fi-sounds.zip",
+      "zip_crc_verified": true
+    },
+    {
+      "name": "Interface Sounds",
+      "page": "https://kenney.nl/assets/interface-sounds",
+      "url": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+      "filename": "kenney_interface-sounds.zip",
+      "bytes": 834536,
+      "files": 100,
+      "license": "CC0",
+      "head_status": 200,
+      "usage": "转场、确认、恢复提示",
+      "sha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+      "downloaded_to": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/downloads/kenney_interface-sounds.zip",
+      "zip_crc_verified": true
+    }
+  ]
+}

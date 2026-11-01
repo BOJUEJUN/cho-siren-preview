@@ -1,0 +1,176 @@
+{
+  "scopeCount": 15,
+  "changedCount": 2,
+  "changedFromBaseline": 15,
+  "changedThisSync": 2,
+  "dryRun": false,
+  "sourceTouched": true,
+  "firstReport": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-cleanup-20261016/source-integration-first.json",
+  "files": [
+    {
+      "path": "Assets/Scripts/Panels/TacticsBattlePanel.cs",
+      "baseline": "75d2e7698deed3f2d5ccf725cb8ad81697a3d2345a5d51b0df9b45025e5b7e98",
+      "before": "65a1f3d3a5c605c1b2f61fec31d7e8e2d1df7a35d8c4b87b07b1ea88502bd0bf",
+      "previousOwnCandidate": "65a1f3d3a5c605c1b2f61fec31d7e8e2d1df7a35d8c4b87b07b1ea88502bd0bf",
+      "candidate": "0232d8877616a923f5c7336da2d04df905be0dec08cd60e305a3b8b067d55e19",
+      "changed": true,
+      "changedFromBaseline": true,
+      "changedThisSync": true,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Scripts/Panels/TacticsBattlePanel.Psd928.cs",
+      "baseline": "eadcf916c892fc6160ff24fad7dd0f9070abb73a8a69d997ba59cfe2f5891019",
+      "before": "63adeb5b1d321cf178bca782115837a57bf879689a06278770b1d73a188cab68",
+      "previousOwnCandidate": "63adeb5b1d321cf178bca782115837a57bf879689a06278770b1d73a188cab68",
+      "candidate": "63adeb5b1d321cf178bca782115837a57bf879689a06278770b1d73a188cab68",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Scripts/UI/DiceComboShow.cs",
+      "baseline": "780566275eea6c7ebed38a160a89597602405f367d76f71cb3598e86e02c3df0",
+      "before": "2d24e17fe5220cbac9305f02212056a7fb69d4fc677b9b715692a083fc3708cd",
+      "previousOwnCandidate": "2d24e17fe5220cbac9305f02212056a7fb69d4fc677b9b715692a083fc3708cd",
+      "candidate": "2d24e17fe5220cbac9305f02212056a7fb69d4fc677b9b715692a083fc3708cd",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Scripts/LevelMapPanel.cs",
+      "baseline": "7270a7013b7798124ba4b6c7c1d2cb69510f5ea5e09a6fe2c3df381135511c64",
+      "before": "7beb75dd02d9d8e6f73dc6a235179f61f3e1d38970e49fb45dbb4fc90f3272dd",
+      "previousOwnCandidate": "7beb75dd02d9d8e6f73dc6a235179f61f3e1d38970e49fb45dbb4fc90f3272dd",
+      "candidate": "7beb75dd02d9d8e6f73dc6a235179f61f3e1d38970e49fb45dbb4fc90f3272dd",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/PlayMode/BattleMobileReadabilityPlayModeTests.cs",
+      "baseline": "65e3267e79c0e2e04996e53df90b3fd710b595a02a5cbfd7379df0876def6005",
+      "before": "e027e27a6e93cd37ec387b16da017a042a47abb754c88658c7188fc3dfeefe85",
+      "previousOwnCandidate": "e027e27a6e93cd37ec387b16da017a042a47abb754c88658c7188fc3dfeefe85",
+      "candidate": "e027e27a6e93cd37ec387b16da017a042a47abb754c88658c7188fc3dfeefe85",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/PlayMode/BattleFeedbackAttributionPlayModeTests.cs",
+      "baseline": "762da6554f4b48c98aeb9dd3a97227e0453bdddc249f638bdfd3469d73188d10",
+      "before": "2c56969e0babfa7c66ce4165a8c169183edd38a69b219e14a52f1aec2d4ba228",
+      "previousOwnCandidate": "2c56969e0babfa7c66ce4165a8c169183edd38a69b219e14a52f1aec2d4ba228",
+      "candidate": "2c56969e0babfa7c66ce4165a8c169183edd38a69b219e14a52f1aec2d4ba228",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/PlayMode/BattleUnitFeedbackPlayModeTests.cs",
+      "baseline": "d32e4aaa846f1c848cb0719f03ebd1059af7000c31e0598c1cb14841303537c7",
+      "before": "42d8136600e1db38daa74633faf81047a8aa55eb77c93c4f6be1eb63faa5629a",
+      "previousOwnCandidate": "42d8136600e1db38daa74633faf81047a8aa55eb77c93c4f6be1eb63faa5629a",
+      "candidate": "0a74de3f9d81588fda56b8f5711420abfbb9d20dfe49e1e74af4728631e38cc3",
+      "changed": true,
+      "changedFromBaseline": true,
+      "changedThisSync": true,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/PlayMode/DiceComboCompactPlayModeTests.cs",
+      "baseline": null,
+      "before": "bc3c860ed5c404b66b1ea9416769ee40f47a007a075f54c42791447676728e64",
+      "previousOwnCandidate": "bc3c860ed5c404b66b1ea9416769ee40f47a007a075f54c42791447676728e64",
+      "candidate": "bc3c860ed5c404b66b1ea9416769ee40f47a007a075f54c42791447676728e64",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/PlayMode/DiceComboCompactPlayModeTests.cs.meta",
+      "baseline": null,
+      "before": "097178903685ddf5c8dceb9aae1d736b492ebdabbf453a3990f6938ddd2c1111",
+      "previousOwnCandidate": "097178903685ddf5c8dceb9aae1d736b492ebdabbf453a3990f6938ddd2c1111",
+      "candidate": "097178903685ddf5c8dceb9aae1d736b492ebdabbf453a3990f6938ddd2c1111",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/EditMode/BattlePaceAuditTests.cs",
+      "baseline": null,
+      "before": "0d500181b4263d453ca091c6b9888d68ff7d1bc7bba830fb675dfa7b0c4052e6",
+      "previousOwnCandidate": "0d500181b4263d453ca091c6b9888d68ff7d1bc7bba830fb675dfa7b0c4052e6",
+      "candidate": "0d500181b4263d453ca091c6b9888d68ff7d1bc7bba830fb675dfa7b0c4052e6",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Tests/EditMode/BattlePaceAuditTests.cs.meta",
+      "baseline": null,
+      "before": "d64318d93f98153d4d0e074c4a3da22689fc6dff201e9b957d0bd44a3903bbca",
+      "previousOwnCandidate": "d64318d93f98153d4d0e074c4a3da22689fc6dff201e9b957d0bd44a3903bbca",
+      "candidate": "d64318d93f98153d4d0e074c4a3da22689fc6dff201e9b957d0bd44a3903bbca",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/Editor/ChoSirenDiceDesignBuild.cs",
+      "baseline": "c4ded4b489391f901b4d0a97ac094b674b9c511881789a3f27f53b8f1c6b334d",
+      "before": "40b489f7922d94acbd8c7d8b60fd848b9542d705a06c8f025b3b3ed6b1af0541",
+      "previousOwnCandidate": "40b489f7922d94acbd8c7d8b60fd848b9542d705a06c8f025b3b3ed6b1af0541",
+      "candidate": "40b489f7922d94acbd8c7d8b60fd848b9542d705a06c8f025b3b3ed6b1af0541",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "ProjectSettings/ProjectSettings.asset",
+      "baseline": "16302606ec4720bd5bda6b901278de2e11577c59c1c6558823efad4d809675fe",
+      "before": "43d582a3a9616348309b8f0d061424b48af13b3ea5690b4e4d829f5164bc0130",
+      "previousOwnCandidate": "43d582a3a9616348309b8f0d061424b48af13b3ea5690b4e4d829f5164bc0130",
+      "candidate": "43d582a3a9616348309b8f0d061424b48af13b3ea5690b4e4d829f5164bc0130",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    },
+    {
+      "path": "Assets/WebGLTemplates/ChoSirenPortrait/index.html",
+      "baseline": "8fd083a7d7fa09ff906ffc4d9e90cd9dc17165f3efad407123158bb8f2262050",
+      "before": "c13c5c37cbbfae8f518e1c20e82b7fd41fbfb9c0c5aa2a405f6f6b92b86aa592",
+      "previousOwnCandidate": "c13c5c37cbbfae8f518e1c20e82b7fd41fbfb9c0c5aa2a405f6f6b92b86aa592",
+      "candidate": "c13c5c37cbbfae8f518e1c20e82b7fd41fbfb9c0c5aa2a405f6f6b92b86aa592",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": true
+    },
+    {
+      "path": "Assets/Tests/PlayMode/BattleEnergyUltimatePlayModeTests.cs",
+      "baseline": "8cfe73607a5e49fd230a0f51d87d74537ed1bb3fd5a5a1004440b3041a010630",
+      "before": "50e1b76b46c62062ce67a394f5a9f6ec14ff9dd32d02b55e04979b20bb9c1f0f",
+      "previousOwnCandidate": "50e1b76b46c62062ce67a394f5a9f6ec14ff9dd32d02b55e04979b20bb9c1f0f",
+      "candidate": "50e1b76b46c62062ce67a394f5a9f6ec14ff9dd32d02b55e04979b20bb9c1f0f",
+      "changed": false,
+      "changedFromBaseline": true,
+      "changedThisSync": false,
+      "templateLayoutOnly": false
+    }
+  ]
+}

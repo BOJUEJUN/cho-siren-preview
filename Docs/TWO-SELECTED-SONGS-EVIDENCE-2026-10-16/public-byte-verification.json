@@ -1,0 +1,147 @@
+{
+  "base": "https://bojuejun.github.io/cho-siren-preview/",
+  "release": "0.3.78",
+  "checkedAt": 1792246788.7561128,
+  "files": [
+    {
+      "path": "Build/607ba0ad335197f06c9fbb524e83ed86.data.unityweb",
+      "bytes": 99509353,
+      "sha256": "607ba0ad335197f06c9fbb524e83ed8634338c9be5aa9c3ba0b3db5d282c080e",
+      "match": true
+    },
+    {
+      "path": "Build/d5c4266ca15a749439827fc14b0235da.framework.js.unityweb",
+      "bytes": 82029,
+      "sha256": "d5c4266ca15a749439827fc14b0235da97eff3f389edb7e8e91e2c99be47e9c9",
+      "match": true
+    },
+    {
+      "path": "Build/d51567db04763ed2f1d79d323fcf6dd0.wasm.unityweb",
+      "bytes": 9397503,
+      "sha256": "d51567db04763ed2f1d79d323fcf6dd02c3dde3926a0813cefefe816fd67b67a",
+      "match": true
+    },
+    {
+      "path": "Build/7bbdff460e2b90d68dcb1db5f473ad6d.loader.js",
+      "bytes": 41128,
+      "sha256": "7bbdff460e2b90d68dcb1db5f473ad6d10d25b9960d382372dcd9ca7a2e176e4",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "bytes": 50975,
+      "sha256": "e266e2d237d6a0f842985853b2c747da3642511590d6c270ab9f1f4870140c87",
+      "match": true
+    },
+    {
+      "path": "release.json",
+      "bytes": 10533,
+      "sha256": "78b0ef3503631a965254ac4b114464957d0a4d167a0f55ebefcb49eefb82f9e3",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/manifest.json",
+      "bytes": 5606,
+      "sha256": "4b478194c2e4651a942e4bf369b9b1db598db004d31c08129ea5eb0dfe2e3a7e",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/d9c81a8ab038c483-home-layer-03.png",
+      "bytes": 196185,
+      "sha256": "d9c81a8ab038c4835c3c8693e334a3f0801fa3ee8d677ab42642b1fc8ad6ee1c",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/7d8136024651e7c8-home-layer-04.png",
+      "bytes": 4065747,
+      "sha256": "7d8136024651e7c8acdcf145075441793e7f015240184841f92650620902de36",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/8e97ce3c67dcebe8-home-layer-character2-outline.png",
+      "bytes": 169674,
+      "sha256": "8e97ce3c67dcebe8dbe81317a790f2252f1fad48794b72305f7a652cc79815d3",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/f276eefbdc8f4b2e-home-layer-character2-portrait.png",
+      "bytes": 4340199,
+      "sha256": "f276eefbdc8f4b2e7449609800219bfb5f3190ffbdab3e5b943192209ec0236b",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/d096905d0e02d68a-vfx-die-face-1.png",
+      "bytes": 32135,
+      "sha256": "d096905d0e02d68ab620e65f1eff9603f5eb0530d8f9681ae8235aafeff162cd",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/3fa255782757fd7c-vfx-die-face-2.png",
+      "bytes": 31011,
+      "sha256": "3fa255782757fd7c56b197f937158b96a4b8bb0fe5bf758413f7471525b49b1c",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/af7e3a5403ac79b6-vfx-die-face-3.png",
+      "bytes": 31948,
+      "sha256": "af7e3a5403ac79b69f4f1ada01eab11bb834c7e9134dc0b477f8b8c27e284f39",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/399c4b44d711bbe6-vfx-die-face-4.png",
+      "bytes": 33164,
+      "sha256": "399c4b44d711bbe6aa4c62d2e57b30b2332e08ba3eeb30dc0f7c78dcb0e397e4",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/ee4a0f5b4ab28725-vfx-die-face-5.png",
+      "bytes": 34101,
+      "sha256": "ee4a0f5b4ab287252edbf2e00661d90bb285b2ae0069d2be24d3d6ee471ac4a1",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Reference038/10e43037245da785-vfx-die-face-6.png",
+      "bytes": 35066,
+      "sha256": "10e43037245da7854bad74ee5850df2af90fcea7988c702b447ce71b7aadde71",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "bytes": 4137839,
+      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Music/home-chase-5d360e8e7acbc7c6.mp3",
+      "bytes": 3641241,
+      "sha256": "5d360e8e7acbc7c6f0f34a2fcf214750f9ce0d89f9d7d13b04468b0d74b2ffff",
+      "match": true
+    },
+    {
+      "path": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "bytes": 3477045,
+      "sha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c",
+      "match": true
+    },
+    {
+      "path": "Build/b01dcd77fd459d4216c706a2fd28ce96.framework.js.unityweb",
+      "available": true,
+      "bytesVerified": false
+    },
+    {
+      "path": "Build/38e6124ebf0b88bbb15d7a4e03b0891e.data.unityweb",
+      "available": true,
+      "bytesVerified": false
+    },
+    {
+      "path": "Build/5116dac86c5192be8a9997ea58d5eb80.loader.js",
+      "available": true,
+      "bytesVerified": false
+    },
+    {
+      "path": "Build/a093d2858858d4e10be895d09e45dd4d.wasm.unityweb",
+      "available": true,
+      "bytesVerified": false
+    }
+  ]
+}

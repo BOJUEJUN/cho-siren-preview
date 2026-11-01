@@ -1,0 +1,88 @@
+{
+ "purpose": "C ultimate grade announcer (English)",
+ "lines": [
+  {
+   "id": "announcer-good-English_radiant_girl",
+   "grade": "good",
+   "text": "Good!",
+   "voice_id": "English_radiant_girl",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-great-English_radiant_girl",
+   "grade": "great",
+   "text": "Great!",
+   "voice_id": "English_radiant_girl",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-perfect-English_radiant_girl",
+   "grade": "perfect",
+   "text": "Perfect!!",
+   "voice_id": "English_radiant_girl",
+   "emotion": "surprised",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-good-English_Upbeat_Woman",
+   "grade": "good",
+   "text": "Good!",
+   "voice_id": "English_Upbeat_Woman",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-great-English_Upbeat_Woman",
+   "grade": "great",
+   "text": "Great!",
+   "voice_id": "English_Upbeat_Woman",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-perfect-English_Upbeat_Woman",
+   "grade": "perfect",
+   "text": "Perfect!!",
+   "voice_id": "English_Upbeat_Woman",
+   "emotion": "surprised",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-good-English_PlayfulGirl",
+   "grade": "good",
+   "text": "Good!",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-great-English_PlayfulGirl",
+   "grade": "great",
+   "text": "Great!",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "announcer-perfect-English_PlayfulGirl",
+   "grade": "perfect",
+   "text": "Perfect!!",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "surprised",
+   "speed": 1.0,
+   "pitch": 1
+  }
+ ],
+ "chosen_voice": "English_Upbeat_Woman",
+ "chosen_reason": "highest median F0 and widest pitch range, escalating good<great<perfect (crude autocorrelation F0); all three voices ASR-clean"
+}

@@ -115,7 +115,7 @@ namespace ChoSiren
     /// working; when a save carries no roster the index lists are used to build one.
     /// </summary>
     [Serializable]
-    public sealed class GameSave
+    public sealed partial class GameSave
     {
         public int SchemaVersion = GameModel.SaveSchemaVersion;
         // New-save starting purse. Kept deliberately small so early training and signing decisions
@@ -128,6 +128,8 @@ namespace ChoSiren
         public int CheckInDay = 1;
         public string LastCheckInDate = string.Empty;
         public int StoryProgress = 79;
+        /// <summary>Battle playback speed 1–3, remembered between battles (2026-10-21).</summary>
+        public int BattleSpeed = 1;
         public List<int> UnlockedMembers = new List<int> { 0, 1, 2, 3 };
         public List<int> MemberLevels = new List<int> { 68, 64, 59, 57, 52, 49, 46, 43, 40 };
         /// <summary>Per-member 好感度 (0-100), indexed like <see cref="MemberLevels"/>.
@@ -138,6 +140,10 @@ namespace ChoSiren
         /// Added in v0.3.4 without a schema bump (field is optional).</summary>
         public List<string> MemberDeepTalkDate = new List<string>();
         public List<int> Team = new List<int> { 0, 1, 2, 3 };
+        public List<TeamPresetSave> TeamPresets = new List<TeamPresetSave>();
+        public int ActiveTeamPreset;
+        /// <summary>Visible team slots. 0 = legacy save that padded to the limit; normalized to 1..TeamPresetCount.</summary>
+        public int TeamPresetSlots;
         public int EquippedAccessory = -1;
         public List<int> OwnedAccessories = new List<int> { 0, 1, 2 };
         public List<int> AccessoryUpgradeLevels = new List<int>();
@@ -147,6 +153,10 @@ namespace ChoSiren
         public bool PersonalEquipmentMigrated;
         public bool MusicEnabled = true;
         public bool SfxEnabled = true;
+        /// <summary>0–100; 100 = full level (matches the device volume). 2026-10-20.</summary>
+        public int MusicVolume = 100;
+        public int SfxVolume = 100;
+        public int HomeCharacterIndex;
         public int QualityLevel = 1;
 
         // ---- v2 ----
@@ -167,6 +177,9 @@ namespace ChoSiren
         public BattleDifficulty SelectedDifficulty = BattleDifficulty.Normal;
         public List<int> ClaimedChapterOneStarRewards = new List<int>();
         public List<string> ClaimedChapterOneTasks = new List<string>();
+        /// <summary>Chapter two star rewards / tasks (2026-10-21).</summary>
+        public List<int> ClaimedChapterTwoStarRewards = new List<int>();
+        public List<string> ClaimedChapterTwoTasks = new List<string>();
 
         // Stable daily shortlists: signing removes a candidate, never replenishes the pool.
         public string InterviewCycle = string.Empty;
@@ -186,6 +199,12 @@ namespace ChoSiren
         public bool SalarySettlementPending = false;
         // 最近一次结算结果的提示（余额不足等），仅展示，不改变数值。
         public string SalarySettlementNotice = string.Empty;
+
+        // ---- 经纪人档案 (2026-10-28) ----
+        /// <summary>The name signed on the first-launch contract; empty = not signed yet (shows 「经纪人」).</summary>
+        public string PlayerName = string.Empty;
+        /// <summary>Index into <see cref="GameModel.PlayerAvatarResources"/>.</summary>
+        public int PlayerAvatar;
     }
 
     public sealed partial class GameModel : IGachaService, ITaskBoardService
@@ -203,11 +222,13 @@ namespace ChoSiren
         public const int MaxMemberLevel = 100;
         public const int DailyPerformanceGoal = 3;
         public const int PerformanceStaminaCost = 5;
-        public const int PerformanceGoldReward = 520;
-        public const int DailyPerformanceDiamondReward = 100;
+        // 2026-11-01 (赵金 "钱并不够你花"): 520 → 160. A performance costs 5 stamina and no fight, so 520 out-earned every
+        // stage several times over (≈104 星光币/体力 vs 19–35 from battles) and made training effectively free.
+        public const int PerformanceGoldReward = 160;
+        public const int DailyPerformanceDiamondReward = 20;
         public const int StoryStaminaCost = 8;
         public const int StoryGoldReward = 300;
-        public const int StoryDiamondReward = 20;
+        public const int StoryDiamondReward = 5;
         public const int StoryProgressPerRun = 2;
         public const int MaxStoryProgress = 100;
         public const int TeamCapacity = 4;
@@ -252,7 +273,7 @@ namespace ChoSiren
             new ChapterRewardDefinition
             {
                 RequiredStars = 10,
-                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 100) }
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 30) }
             },
             new ChapterRewardDefinition
             {
@@ -264,7 +285,7 @@ namespace ChoSiren
                 RequiredStars = 30,
                 Rewards = new[]
                 {
-                    new CurrencyAmount(CurrencyIds.Diamond, 300),
+                    new CurrencyAmount(CurrencyIds.Diamond, 80),
                     new CurrencyAmount(CurrencyIds.RecruitTicket, 1)
                 }
             },
@@ -277,7 +298,7 @@ namespace ChoSiren
                 Id = ChapterOneTaskClearStageThree,
                 Title = "首次通关 1-3",
                 Target = 1,
-                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 50) }
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 10) }
             },
             new ChapterTaskDefinition
             {
@@ -294,7 +315,7 @@ namespace ChoSiren
                 Rewards = new[]
                 {
                     new CurrencyAmount(CurrencyIds.RecruitTicket, 1),
-                    new CurrencyAmount(CurrencyIds.Diamond, 100)
+                    new CurrencyAmount(CurrencyIds.Diamond, 30)
                 }
             },
         };
@@ -338,7 +359,10 @@ namespace ChoSiren
             "紫晶麦挂饰", "蓝竖琴挂饰", "红玫镜挂饰", "翠沙漏挂饰", "金天钥挂饰", "珍珠贝铃挂饰", "黑鸦羽挂饰", "琥珀八音盒挂饰", "粉流星香水挂饰" };
         // Existing stage accessories are mutually exclusive shared party loadouts. The later
         // four-slot inventory will feed the same capped bonuses, not a second combat formula.
-        public static CombatStatBonuses AccessoryBonuses(int index)
+        public static CombatStatBonuses AccessoryBonuses(int index) => ScaleItemBonus1101(AuthoredAccessoryBonuses(index));
+
+        /// <summary>The authored stat mix before the 2026-11-01 per-item cap (see GameModelBalance1101).</summary>
+        public static CombatStatBonuses AuthoredAccessoryBonuses(int index)
         {
             switch (index)
             {
@@ -599,7 +623,7 @@ namespace ChoSiren
         {
             StageDefinition stage = tactics.FindStage(stageId);
             if (stage == null) return 0;
-            BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
+            BattleDifficultyProfile difficulty = BattleProfileFor1101(stage); // 2026-11-01b: includes the 1-1 newcomer guard
             return stage.Enemies.Sum(spawn => BattleSimulator.EnemyStats(tactics.FindUnit(spawn.UnitId), spawn,
                 difficulty.EnemyHpPermille, difficulty.EnemyAttackPermille).Power);
         }
@@ -1029,16 +1053,7 @@ namespace ChoSiren
 
         public void AutoTeam()
         {
-            Save.Team = Save.UnlockedMembers
-                .Where(index => tactics.FindUnit(Members[index].Id) != null)
-                .OrderByDescending(PowerOf)
-                .GroupBy(index => Members[index].Career)
-                .Select(group => group.First())
-                .Take(TeamCapacity)
-                .ToList();
-            foreach (int index in Save.UnlockedMembers.Where(i => tactics.FindUnit(Members[i].Id) != null).OrderByDescending(PowerOf))
-                if (Save.Team.Count < TeamCapacity && !Save.Team.Contains(index)) Save.Team.Add(index);
-            SaveState();
+            TryAutoTeam(out _);
         }
 
         /// <summary>
@@ -1109,10 +1124,11 @@ namespace ChoSiren
 
             // 队内摩擦按当前编队平均风险降低演出星光币，一次演出只应用一次。
             int goldReward = CareerEconomy.ApplyPenalty(PerformanceGoldReward, TeamFrictionPenaltyPercent());
-            Save.Gold += goldReward;
+            TagRewards1101(RewardGrant1101.SourcePerform);
+            GrantItemInternal(CurrencyIds.Gold, goldReward);
             if (RecordSuccessfulPerformance())
             {
-                Save.Diamonds += DailyPerformanceDiamondReward;
+                GrantItemInternal(CurrencyIds.Diamond, DailyPerformanceDiamondReward);
                 message = $"演出完成！星光币 +{goldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
             }
             else
@@ -1155,8 +1171,9 @@ namespace ChoSiren
                 return false;
             }
 
-            Save.Gold += StoryGoldReward;
-            Save.Diamonds += StoryDiamondReward;
+            TagRewards1101(RewardGrant1101.SourceStory);
+            GrantItemInternal(CurrencyIds.Gold, StoryGoldReward);
+            GrantItemInternal(CurrencyIds.Diamond, StoryDiamondReward);
             AdvanceStoryProgressInternal();
             Report(TaskTriggers.BattleWin);
             SaveState();
@@ -1186,10 +1203,13 @@ namespace ChoSiren
             }
 
             Save.LastCheckInDate = today;
-            Save.Diamonds += 100;
+            // Seven-day cycle by consecutive day (day 1 stays 100 星钻).
+            (string itemId, int amount) = SignInReward(Save.CheckInDay - 1);
+            TagRewards1101(RewardGrant1101.SourceCheckIn);
+            GrantItemInternal(itemId, amount);
             Report(TaskTriggers.CheckIn);
             SaveState();
-            message = $"签到成功：连续第 {Save.CheckInDay} 天，星钻 +100";
+            message = $"签到成功：连续第 {Save.CheckInDay} 天，" + FormatRewards(new List<(string, int)> { (itemId, amount) });
             return true;
         }
 
@@ -1217,6 +1237,7 @@ namespace ChoSiren
             Tick();
             IdleIncomeReport report = PreviewIdleIncome();
             var granted = new List<(string ItemId, int Amount)>();
+            TagRewards1101(RewardGrant1101.SourceIdle);
             foreach (CurrencyAmount reward in report.Rewards)
             {
                 GrantItemInternal(reward.Currency, reward.Amount);
@@ -1243,6 +1264,7 @@ namespace ChoSiren
             if (!TaskBoard.TryClaim(Save.Tasks, economy.Tasks, taskId, out CurrencyAmount reward, out message))
                 return false;
 
+            TagRewards1101(RewardGrant1101.SourceTask);
             GrantItemInternal(reward.Currency, reward.Amount);
             SaveState();
             message += $"，{CurrencyName(reward.Currency)} +{reward.Amount}";
@@ -1566,6 +1588,11 @@ namespace ChoSiren
         /// </summary>
         public bool IsStageUnlocked(string stageId)
         {
+            // Chapter two opens once chapter one is complete, then also unlocks in order.
+            if (TryGetChapterTwoStageNumber(stageId, out int chapterTwoStage))
+                return chapterTwoStage == 1
+                    ? IsChapterOneComplete || IsStageCleared(ChapterOneStageId(ChapterOneStageCount))
+                    : IsStageCleared($"stage-2-{chapterTwoStage - 1}");
             if (!TryGetChapterOneStageNumber(stageId, out int stageNumber)) return true;
             if (stageNumber == 1) return true;
             if (IsChapterOneComplete) return true;
@@ -1621,7 +1648,7 @@ namespace ChoSiren
             }
 
             BattleSimulator battle;
-            BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
+            BattleDifficultyProfile difficulty = BattleProfileFor1101(stage);
             try
             {
                 battle = new BattleSimulator(tactics, stage, party, new SeededRandom(seed),
@@ -1705,6 +1732,7 @@ namespace ChoSiren
             rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
 
             LastAwardedAccessory = -1;
+            TagRewards1101(RewardGrant1101.SourceBattle);
             var equipmentNotes = new List<string>();
             foreach ((string itemId, int amount) in rewards)
             {
@@ -1727,7 +1755,7 @@ namespace ChoSiren
             RecordStageClear(stage.Id, stars);
             if (firstClear && TryGetChapterOneStageNumber(stage.Id, out int chapterOneStage))
                 AdvanceChapterOneProgressAfterClear(chapterOneStage);
-            else if (!TryGetChapterOneStageNumber(stage.Id, out _))
+            else if (!TryGetChapterOneStageNumber(stage.Id, out _) && !TryGetChapterTwoStageNumber(stage.Id, out _))
                 AdvanceStoryProgressInternal();
             Report(TaskTriggers.BattleWin);
             // Sharing the stage with the deployed members is the main affection source.
@@ -1812,7 +1840,23 @@ namespace ChoSiren
             return EquipAccessoryForMember(Save.Team[0], index, out message);
         }
 
-        public void ToggleMusic()
+        public void SetHomeCharacter(int index)
+        {
+            int selected = Math.Max(0, Math.Min(3, index));
+            if (Save.HomeCharacterIndex == selected) return;
+            Save.HomeCharacterIndex = selected;
+            SaveState();
+        }
+
+        public void SetBattleSpeed(int value)
+        {
+            int clamped = Mathf.Clamp(value, 1, 3);
+            if (Save.BattleSpeed == clamped) return;
+            Save.BattleSpeed = clamped;
+            SaveState();
+        }
+
+                public void ToggleMusic()
         {
             Save.MusicEnabled = !Save.MusicEnabled;
             SaveState();
@@ -2063,6 +2107,7 @@ namespace ChoSiren
         private void GrantItemInternal(string itemId, int amount)
         {
             if (string.IsNullOrEmpty(itemId) || amount <= 0) return;
+            RecordRewardGrant1101(itemId, amount);
             int accessory = AccessoryIndexForItem(itemId);
             if (accessory >= 0) { GrantAccessory(accessory, amount); return; }
             if (itemId == EquipmentFragmentItemId)
@@ -2128,6 +2173,16 @@ namespace ChoSiren
         private static bool TryGetChapterOneStageNumber(string stageId, out int stageNumber)
         {
             const string prefix = "stage-1-";
+            stageNumber = 0;
+            if (string.IsNullOrEmpty(stageId) || !stageId.StartsWith(prefix, StringComparison.Ordinal)) return false;
+            if (!int.TryParse(stageId.Substring(prefix.Length), NumberStyles.None, CultureInfo.InvariantCulture,
+                    out stageNumber)) return false;
+            return stageNumber >= 1 && stageNumber <= ChapterOneStageCount;
+        }
+
+        private static bool TryGetChapterTwoStageNumber(string stageId, out int stageNumber)
+        {
+            const string prefix = "stage-2-";
             stageNumber = 0;
             if (string.IsNullOrEmpty(stageId) || !stageId.StartsWith(prefix, StringComparison.Ordinal)) return false;
             if (!int.TryParse(stageId.Substring(prefix.Length), NumberStyles.None, CultureInfo.InvariantCulture,
@@ -2345,6 +2400,12 @@ namespace ChoSiren
 
         private void Normalize()
         {
+            // 2026-10-20 volume sliders: saves from before the sliders read 0 — an enabled channel
+            // at 0 was never chosen by the player, so it starts at full volume.
+            if (Save.MusicVolume <= 0 && Save.MusicEnabled) Save.MusicVolume = 100;
+            if (Save.SfxVolume <= 0 && Save.SfxEnabled) Save.SfxVolume = 100;
+            Save.MusicVolume = Mathf.Clamp(Save.MusicVolume, 0, 100);
+            Save.SfxVolume = Mathf.Clamp(Save.SfxVolume, 0, 100);
             int loadedSchemaVersion = Save.SchemaVersion;
             Save.Diamonds = Mathf.Max(0, Save.Diamonds);
             Save.Gold = Mathf.Max(0, Save.Gold);
@@ -2416,6 +2477,7 @@ namespace ChoSiren
                 .Take(TeamCapacity)
                 .ToList();
             if (Save.Team.Count == 0) Save.Team.Add(Save.UnlockedMembers[0]);
+            NormalizeTeamPresets();
 
             if (Save.EquippedAccessory < -1 || Save.EquippedAccessory >= AccessoryNames.Length)
                 Save.EquippedAccessory = -1;
@@ -2572,6 +2634,7 @@ namespace ChoSiren
         {
             Normalize();
             Persist();
+            FlushRewardJournal1101();
             Changed?.Invoke();
         }
 
@@ -2616,6 +2679,10 @@ namespace ChoSiren
 
             Save.QualityLevel = Mathf.Clamp(Save.QualityLevel, 0, Mathf.Min(1, qualityCount - 1));
             QualitySettings.SetQualityLevel(Save.QualityLevel, true);
+            // 流畅 keeps full-resolution art (the user rejects blurry phones); it only caps
+            // the frame rate to save battery and heat.
+            QualitySettings.globalTextureMipmapLimit = 0;
+            Application.targetFrameRate = Save.QualityLevel == 1 ? 60 : 30;
         }
     }
 }

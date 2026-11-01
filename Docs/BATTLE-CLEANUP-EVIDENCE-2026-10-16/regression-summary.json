@@ -1,0 +1,239 @@
+{
+  "uniqueFocusedCases": 58,
+  "passed": 58,
+  "method": "Latest actual result per case across 57/58 full packet, subsequent 10/10 energy packet and latest 19/19 feedback packet; corrected legacy hidden-label test, no unresolved failures.",
+  "cases": {
+    "ChoSiren.Tests.AuthoredDiceDesignTests.RealBattleKeepsSixSelectableFacesAndOnlyRerollsTheSelectedDie": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.AuthoredDiceDesignTests.RollUsesOnlyAuthoredFacesAndRespectsPauseLatestResultAndReducedMotion": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.AuthoredDiceDesignTests.SixAuthoredFacesKeepTheirNativeDimensionsAndDistinctIdentities": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.AutoToggleOnlyChangesUltimateModeAndKeepsEveryCharge": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.CaptainBadgeAndSemanticStatusIconsComeFromTheModel": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.EnergyGlowAlphaStaysNormalizedAcrossReadyNormalReducedAndRepeatedRefresh": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.FullEnergyShowsWrittenReadyMarkerAndSoftGlow": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.PauseCardIsCompactAndRulesLiveInASecondaryOverlay": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.PlayerCardsShowBlueEnergyOnItsOwnRowSeparatedFromHp": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.ReduceMotionSkipsCutInAndDiceTumbleButKeepsTheResult": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.RerollFeedbackShowsTheGainAndTheCaptainBenefit": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.TickingDiceBuildsTheRerollCountAndSpendsOneBudget": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleEnergyUltimatePlayModeTests.UltimateCutInIsBoundedAndDrainsItsQueue": {
+      "result": "Passed",
+      "packet": "playmode-energy-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.CaptainCardIsGoldWhileSelectionStaysCyan": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.DiceConsoleNamesTheCaptainBenefitAndRerollCounts": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.DiceConsoleShowsCappedBonusInsteadOfFakeGrowth": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.EnemyDamagePopupDoesNotInventADiceMultiplier": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.PlayerDamagePopupShowsHpLossWhileLogKeepsTheDiceMultiplier": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.RapidRerollClicksSpendOnlyOneBattleBudget": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleFeedbackAttributionPlayModeTests.ShieldAbsorptionPopupSeparatesHpLossFromAbsorbedDamage": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleMobileReadabilityPlayModeTests.ActualPsdCardsUseCachedBustCropsAndLeaveSharedFullBodiesIntact": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleMobileReadabilityPlayModeTests.CompactCardsPutHealthEnergyAndAttackInOneShortReadableBlock": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleMobileReadabilityPlayModeTests.IdleReadyAndAttackKeepFullPortraitsInsideTheirAreaAndReadoutsBelow": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleMobileReadabilityPlayModeTests.PhoneReadoutsHaveRealLineBoxesAndDistinctSkillAndAttackRows": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleMobileReadabilityPlayModeTests.QuickGuideCanBeClosedAndReplayedWithoutChangingDiceOrLosingPauseState": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.BasicAttackAndHealingUseVisualIconsWhilePopupsKeepOnlyReadableValues": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.BossRemainsStageDominantWithoutBreakingFocusOrPauseControls": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DamagingBossAddAnimatesThatAddNotTheBoss": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatContinueRemainsAvailableWithoutForcingGrowthNavigation": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(\"training\")": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(\"accessory\")": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(\"team\")": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.DefeatRecoveryRoutesCloseBattleWithoutSettlingOrChargingAgain(\"farm\")": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.EnemyDefeatImmediatelyRemovesHpCardThenHidesFinishedFadeAnchor": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.EnemyHealthCardsAndArtShareTheCorrectUnitAnchorAndReserveRemainsHidden": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.EveryPerformerAnimatesItsOwnBasicAndBothSkillsWithoutChangingHp": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(False)": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HealthSummariesUseCurrentWaveOrBossAndKeepRemovedTeamFooterInactive(True)": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.HurtKeepsItsRealNumberAndMotionWithoutASecondHurtWord": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.InspectingAnotherPerformerDoesNotChangeBattleCommander": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.PerformerNamesAndDiceSummaryHaveRoomToRenderAboveTheirBars": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.RepeatedAoeActionEventDoesNotRestartCasterForEachTarget": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.SkillEffectsUseActualRecipientsAndReplaceCrossScreenTrails": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.BattleUnitFeedbackPlayModeTests.VictoryHidesRecoveryActionsAndContinueStillClosesOnce": {
+      "result": "Passed",
+      "packet": "playmode-feedback-last.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.AWeakNewHandRemovesThePreviousStrongCueWithoutLeavingAHeldBadge": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.PauseAndCancelNeverRepeatTheAttackBadgeRelease": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.ReducedMotionReleasesTheBadgeWithoutShowingAHandOverlay": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.StrongHandStaysOnItsReadoutAndKeepsTheWholeTitleClearOfThePortrait(\"\u4e09\u6761\",2,1.0f)": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.StrongHandStaysOnItsReadoutAndKeepsTheWholeTitleClearOfThePortrait(\"\u53cc\u4e09\u6761\",3,0.84f)": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.StrongHandStaysOnItsReadoutAndKeepsTheWholeTitleClearOfThePortrait(\"\u516d\u8fde\u987a\",4,0.84f)": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.WeakHandsReleaseTheRealAttackBadgeWithoutCreatingAStageOverlay(\"\u4e00\u5bf9\")": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.DiceComboCompactPlayModeTests.WeakHandsReleaseTheRealAttackBadgeWithoutCreatingAStageOverlay(\"\u4e24\u5bf9\")": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.FormationLaunchRegressionTests.ExplicitAutoFormationKeepsCaptainAndTrainingAndCanThenStartBattle": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.FormationLaunchRegressionTests.InvalidChallengeKeepsTheMapAndReasonUntilExplicitFormationAdjustment": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.FormationLaunchRegressionTests.LegalTwoBloodElvesStillEnterBattleAndCaptainSurvivesAutoFormation": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.FormationLaunchRegressionTests.LimitedCandidatesProduceAnExplainedLegalSmallerPartyWithoutRecruiting": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.FormationLaunchRegressionTests.LoadingAndRejectingLegacyThreeBloodElvesNeverRewritesTheSaveOrSpendsStamina": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    },
+    "ChoSiren.Tests.FormationLaunchRegressionTests.NoAvailableCandidatesLeaveTheCurrentFormationAndPersistedSaveUntouched": {
+      "result": "Passed",
+      "packet": "playmode-compact-final.xml"
+    }
+  }
+}

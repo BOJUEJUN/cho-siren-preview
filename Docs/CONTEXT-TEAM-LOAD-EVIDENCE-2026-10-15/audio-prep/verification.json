@@ -1,0 +1,141 @@
+{
+  "source": {
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/outputs/日语女团Demo-20261015/爵士说唱-1.mp3",
+    "sha256": "9fdedf1e184d33ea03be30acbc5d0e9869c22dde6a4e779a25b2bca3a8024ab9",
+    "bytes": 3993057,
+    "decodedFrames": 8272008,
+    "sampleRate": 48000,
+    "channels": 2,
+    "durationSeconds": 172.3335,
+    "peakDbfs": 0.9825048229523661,
+    "samplesAtOrAboveFullScale": 2,
+    "fullDecodePassed": true,
+    "nonfiniteSamples": 0
+  },
+  "output": {
+    "path": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/audio-prep/newbgm.wav",
+    "sha256": "e306ed4d9a1f3e1f9de2a72f84a59e6c1367a721c675c39cdafbb75f1446abaf",
+    "bytes": 45605704,
+    "sampleRate": 44100,
+    "channels": 2,
+    "format": "PCM_24",
+    "totalFrames": 7600932,
+    "clipDurationSeconds": 172.35673469387754,
+    "musicFrames": 7599908,
+    "musicDurationSeconds": 172.33351473922903,
+    "prefixGuardFrames": 1024,
+    "prefixGuardSeconds": 0.023219954648526078,
+    "loopStartFrame": 1024,
+    "loopEndFrameInclusive": 7600931,
+    "loopEndFrameExclusive": 7600932,
+    "loopStartSeconds": 0.023219954648526078,
+    "loopEndSecondsExclusive": 172.35673469387754,
+    "peakDbfs": -1.0583704395958617,
+    "rmsDbfs": -19.362862154217034,
+    "clippedSamples": 0,
+    "nonfiniteSamples": 0,
+    "loopBoundaryStepMax": 0.0,
+    "fullReadbackPassed": true,
+    "independentCoreAudioFullDecodePassed": true,
+    "coreaudioDecodedFrames": 7600932,
+    "coreaudioMaxError": 0.0,
+    "riffMetadata": {
+      "wav": {
+        "channels": 2,
+        "sampleRate": 44100,
+        "sampleWidthBytes": 3,
+        "frames": 7600932,
+        "compression": "NONE"
+      },
+      "chunks": [
+        {
+          "id": "fmt ",
+          "bytes": 16
+        },
+        {
+          "id": "data",
+          "bytes": 45605592
+        },
+        {
+          "id": "smpl",
+          "bytes": 60
+        }
+      ],
+      "loops": [
+        {
+          "cuePointId": 0,
+          "type": 0,
+          "startFrame": 1024,
+          "endFrameInclusive": 7600931,
+          "fraction": 0,
+          "playCount": 0
+        }
+      ]
+    }
+  },
+  "processing": {
+    "resampler": "scipy.signal.resample_poly 147/160, Kaiser beta 14, zero edge padding",
+    "fadeType": "raised cosine",
+    "fadeInFrames": 220,
+    "fadeOutFrames": 220,
+    "fadeDurationSecondsEach": 0.004988662131519274,
+    "gainDb": -2.032504822952366,
+    "gainLinear": 0.7913612102362051,
+    "sourceDecodedPeakAmplitude": 1.1197607517242432,
+    "resampledPreGainPeakAmplitude": 1.1186821978701906,
+    "targetPeakDbfs": -1.05,
+    "attenuationType": "one constant linear gain for the whole song",
+    "sourceValidFramesRemoved": 0,
+    "timeStretch": false,
+    "sectionEditing": false,
+    "crossfadeOrOverlap": false,
+    "maxEdgeEditAmplitudeAfterGain": 0.0016705461501961524
+  },
+  "oldAssetInspected": {
+    "path": "/Users/bojuejun/cho-siren-unity/Assets/Resources/Audio/bgm.wav",
+    "sha256": "ec785df024e0a4bf56d6f6aa807d14ee3519702a0868d3bd9de745fe7450bfb1",
+    "wav": {
+      "channels": 2,
+      "sampleRate": 44100,
+      "sampleWidthBytes": 3,
+      "frames": 5645738,
+      "compression": "NONE"
+    },
+    "chunks": [
+      {
+        "id": "fmt ",
+        "bytes": 16
+      },
+      {
+        "id": "data",
+        "bytes": 33874428
+      },
+      {
+        "id": "smpl",
+        "bytes": 60
+      }
+    ],
+    "loops": [
+      {
+        "cuePointId": 0,
+        "type": 0,
+        "startFrame": 1024,
+        "endFrameInclusive": 5645737,
+        "fraction": 0,
+        "playCount": 0
+      }
+    ],
+    "metaGuid": "5a3c1932a19b741fbbc1f9e747e2c15c",
+    "metaSha256": "4460caead2c1189506a7fe0a63befbc47e0ff154f7c906fa1eb4914b8a9a061a",
+    "oldWavUnchangedAfterPreparation": true
+  },
+  "notes": [
+    "Whole selected Japanese girl-group jazz-rap variant 1 retained. The resampler rounds total length up by less than one output sample.",
+    "A full vocal song is replayed from its ending to its original intro; this is not a beat-matched seamless instrumental loop.",
+    "Only first/last five milliseconds are ramped to zero to eliminate a boundary discontinuity.",
+    "Existing 1024-frame guard and RIFF smpl loop scheme are reproduced. Runtime importer and Web Audio verification remain with the integration task.",
+    "This is a PCM conversion of the original MP3; it does not create a new lossless source master or recover information lost in MP3 encoding.",
+    "Only a constant recorded attenuation is applied to retain floating-point decoder overs within PCM headroom. No dynamic compression, limiter, declipping, lyric removal, pitch shift or tempo change is applied.",
+    "No Unity or Web checkout was modified. Source MP3 and old WAV were read-only inputs."
+  ]
+}

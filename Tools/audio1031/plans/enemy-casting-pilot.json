@@ -1,0 +1,140 @@
+{
+ "purpose": "enemy voice casting pilot (one line per candidate voice)",
+ "lines": [
+  {
+   "id": "cast-neon-scout-English_Deep-VoicedGentlewoman",
+   "enemy": "neon-scout",
+   "text": "その首、もらう。",
+   "voice_id": "English_Deep-VoicedGentlewoman",
+   "emotion": "angry",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "cast-neon-scout-English_ConfidentWoman",
+   "enemy": "neon-scout",
+   "text": "その首、もらう。",
+   "voice_id": "English_ConfidentWoman",
+   "emotion": "angry",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "cast-neon-scout-English_MatureBoss",
+   "enemy": "neon-scout",
+   "text": "その首、もらう。",
+   "voice_id": "English_MatureBoss",
+   "emotion": "angry",
+   "speed": 1.0,
+   "pitch": -2
+  },
+  {
+   "id": "cast-noise-wraith-English_PlayfulGirl",
+   "enemy": "noise-wraith",
+   "text": "(laughs)ねえ、あそぼ？ キミの声、ちょうだい。",
+   "voice_id": "English_PlayfulGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2
+  },
+  {
+   "id": "cast-noise-wraith-English_WhimsicalGirl",
+   "enemy": "noise-wraith",
+   "text": "(laughs)ねえ、あそぼ？ キミの声、ちょうだい。",
+   "voice_id": "English_WhimsicalGirl",
+   "emotion": "happy",
+   "speed": 1.05,
+   "pitch": 2
+  },
+  {
+   "id": "cast-pulse-guard-English_Whispering_girl",
+   "enemy": "pulse-guard",
+   "text": "(breath)冷たい海へ…おいで…",
+   "voice_id": "English_Whispering_girl",
+   "emotion": "sad",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "cast-pulse-guard-English_SentimentalLady",
+   "enemy": "pulse-guard",
+   "text": "(breath)冷たい海へ…おいで…",
+   "voice_id": "English_SentimentalLady",
+   "emotion": "sad",
+   "speed": 0.92,
+   "pitch": -3
+  },
+  {
+   "id": "cast-velvet-hexer-English_captivating_female1",
+   "enemy": "velvet-hexer",
+   "text": "(chuckle)もがくほど、絡まるよ？",
+   "voice_id": "English_captivating_female1",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "cast-velvet-hexer-English_LovelyGirl",
+   "enemy": "velvet-hexer",
+   "text": "(chuckle)もがくほど、絡まるよ？",
+   "voice_id": "English_LovelyGirl",
+   "emotion": "happy",
+   "speed": 1.0,
+   "pitch": 1
+  },
+  {
+   "id": "cast-echo-drone-Japanese_GracefulMaiden",
+   "enemy": "echo-drone",
+   "text": "私の歌に、酔いなさい。",
+   "voice_id": "Japanese_GracefulMaiden",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "cast-echo-drone-English_compelling_lady1",
+   "enemy": "echo-drone",
+   "text": "私の歌に、酔いなさい。",
+   "voice_id": "English_compelling_lady1",
+   "emotion": "happy",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "cast-static-golem-English_AnimeCharacterFemale",
+   "enemy": "static-golem",
+   "text": "叫べ！ もっと叫べぇっ！",
+   "voice_id": "English_AnimeCharacterFemale",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "cast-static-golem-English_UpsetGirl",
+   "enemy": "static-golem",
+   "text": "叫べ！ もっと叫べぇっ！",
+   "voice_id": "English_UpsetGirl",
+   "emotion": "angry",
+   "speed": 1.12,
+   "pitch": 0
+  },
+  {
+   "id": "cast-siren-queen-Japanese_ColdQueen",
+   "enemy": "siren-queen",
+   "text": "(chuckle)ようこそ、私の王座へ。",
+   "voice_id": "Japanese_ColdQueen",
+   "emotion": "neutral",
+   "speed": 0.95,
+   "pitch": -1
+  },
+  {
+   "id": "cast-siren-queen-English_AssertiveQueen",
+   "enemy": "siren-queen",
+   "text": "(chuckle)ようこそ、私の王座へ。",
+   "voice_id": "English_AssertiveQueen",
+   "emotion": "neutral",
+   "speed": 0.95,
+   "pitch": -1
+  }
+ ]
+}

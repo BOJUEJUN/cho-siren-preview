@@ -1,0 +1,26 @@
+{
+  "international": {
+    "checked_at": "2026-10-19T09:19:22.726401+00:00",
+    "code": 0,
+    "account": {
+      "remainMoney": "2.7040",
+      "remainCoins": "1000",
+      "currentTaskCounts": "0",
+      "currency": "USD",
+      "apiType": "SHARED"
+    }
+  },
+  "domestic": {
+    "checked_at": "2026-10-19T09:19:22.050478+00:00",
+    "code": 0,
+    "account": {
+      "remainMoney": "36.8621",
+      "remainCoins": "0",
+      "currentTaskCounts": "0",
+      "currency": "CNY",
+      "apiType": "SHARED"
+    }
+  },
+  "generation_submitted": false,
+  "wallets_distinct": true
+}

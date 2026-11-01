@@ -1,0 +1,152 @@
+[
+  {
+    "path": "Assets/Scripts/GameAudio.cs",
+    "previousSha256": "e0d72216265ddcc21b6cdc8c7015ff95bbf5991188304a47665d64db9d9ccc07",
+    "sha256": "e1efd82219a6a92ede56fb1fa4bc547b1a04393529a9bc92d9fac56ccdd423b3",
+    "bytes": 11131
+  },
+  {
+    "path": "Assets/Scripts/ChoSirenApp.cs",
+    "previousSha256": "6a7a8423fe56cff5d9093bd06ebffed4e15e6125ed3fee89edb6b255d423f1bb",
+    "sha256": "70d96a685e6b5b9658f419c88f16b683ac2134d6caf8b7534e6da1e280310e15",
+    "bytes": 103604
+  },
+  {
+    "path": "Assets/Scripts/LobbyVideoLoopPlayer.cs",
+    "previousSha256": "8f44f15701d1401bf13544938828bbc767cb572f5eca2639a1e655c4850b2c7e",
+    "sha256": "eb38a062b8cbb78eb813852de4b722d1f8a223c45cfd2be51fdf49cbca6e65b5",
+    "bytes": 10491
+  },
+  {
+    "path": "Assets/Scripts/UI/NativeTitleScreen.cs",
+    "previousSha256": "4b093f9c82f22842753981e03527d84cc8489cc32650706a88a71567c27990aa",
+    "sha256": "fb1d9947a373661c6104c87d0b3ebb5c5f1ef9068c74459498b39155fc774b2a",
+    "bytes": 33992
+  },
+  {
+    "path": "Assets/Scripts/ChoSirenMusicBridge.cs",
+    "previousSha256": null,
+    "sha256": "36b069dbd70b03d2b1e9863cd3af88b4615e7222832f5d183b64e58de1a00341",
+    "bytes": 3004
+  },
+  {
+    "path": "Assets/Plugins/WebGL/ChoSirenMusicBridge.jslib",
+    "previousSha256": null,
+    "sha256": "eec69e32f3bd497d74f10546171722e0f5b15f46c2e45a8e97cd753f889b2a4b",
+    "bytes": 645
+  },
+  {
+    "path": "Assets/Tests/PlayMode/GlobalMusicTests.cs",
+    "previousSha256": null,
+    "sha256": "f8b2e0e021201e3d206536750dc44046deeca65e9594e88ebcc724988dee0da2",
+    "bytes": 10031
+  },
+  {
+    "path": "Assets/Editor/ChoSirenBgmBuild.cs",
+    "previousSha256": null,
+    "sha256": "86131e2025be187fb9790d0433fd8a7bec962030a3d1f69fd2073f78dc98fbc1",
+    "bytes": 4984
+  },
+  {
+    "path": "Assets/Resources/Audio/bgm.wav",
+    "previousSha256": null,
+    "sha256": "ec785df024e0a4bf56d6f6aa807d14ee3519702a0868d3bd9de745fe7450bfb1",
+    "bytes": 33874540
+  },
+  {
+    "path": "Assets/WebGLTemplates/ChoSirenPortrait/audio-skin.js",
+    "previousSha256": "c3d4b41b95c03cd9a29dd63aba0e623e8ae29c1eb18ffe3f1c475d3e9369f86f",
+    "sha256": "5f7d8f01c99b0589a61140feb4fcbc7eb71eb998d1c632194dd596c6632a9855",
+    "bytes": 5543
+  },
+  {
+    "path": "Assets/WebGLTemplates/ChoSirenPortrait/loading-cg.js",
+    "previousSha256": "8e99e6748cb8a398ababb4cf58a54aa0ab9dcbc1bf25aa4b04394525c9361e92",
+    "sha256": "89f84d0a5d463be411bd4033eb50ea0888c5988db83e0b90a77ee8599e0cdcfd",
+    "bytes": 1815
+  },
+  {
+    "path": "Assets/WebGLTemplates/ChoSirenPortrait/index.html",
+    "previousSha256": "c67cb5170444303c6fb47dcec4277016c25be7b3bac287bed75ba5a461e3dde6",
+    "sha256": "3a83b4123c94c942c0c3287092180dcbe505f05943498e3c5aa37389c300606c",
+    "bytes": 47952
+  },
+  {
+    "path": "ProjectSettings/ProjectSettings.asset",
+    "previousSha256": "77d2e84274081b3a631c22835e78b54859f7a9cab9513823a624a33517747195",
+    "sha256": "0c02eee347e74d2794440a3b76434688a084f9b3d090e20ce995137d4dc16eb7",
+    "bytes": 23831
+  },
+  {
+    "path": "Assets/Scripts/GameAudio.cs.meta",
+    "previousSha256": "e5c67696f5aebdbff71272533db437a388706fee00ac1eff78e5b3ed4896aa4b",
+    "sha256": "e5c67696f5aebdbff71272533db437a388706fee00ac1eff78e5b3ed4896aa4b",
+    "bytes": 60
+  },
+  {
+    "path": "Assets/Scripts/ChoSirenApp.cs.meta",
+    "previousSha256": "a2254b388d464a04563cb8001ed963cbeab9a620377ffb6cd6008067d58c10ae",
+    "sha256": "a2254b388d464a04563cb8001ed963cbeab9a620377ffb6cd6008067d58c10ae",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Scripts/LobbyVideoLoopPlayer.cs.meta",
+    "previousSha256": "e0b0a05ab74d90eef2e6f0da8e80d35709faf9327356c1b25393c2fa58852508",
+    "sha256": "e0b0a05ab74d90eef2e6f0da8e80d35709faf9327356c1b25393c2fa58852508",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Scripts/UI/NativeTitleScreen.cs.meta",
+    "previousSha256": "1ae42b7520703e7031a609b03451633ea0fce391370a7d1d254755981f43896c",
+    "sha256": "1ae42b7520703e7031a609b03451633ea0fce391370a7d1d254755981f43896c",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Scripts/ChoSirenMusicBridge.cs.meta",
+    "previousSha256": null,
+    "sha256": "4bd4005695b089e7e10c26807cfa597c4ea9836dec20e2bd1b9707ebc83e86f1",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Plugins/WebGL/ChoSirenMusicBridge.jslib.meta",
+    "previousSha256": null,
+    "sha256": "dc8b0fb7f4c79d58f225b32deb92d72a00dc2f98fb84d3bb0dfabb5184417aca",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Tests/PlayMode/GlobalMusicTests.cs.meta",
+    "previousSha256": null,
+    "sha256": "cb684947818a2dcd89d8639ab72c8b88157f956258943fc5e65f75fad3a256a5",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Editor/ChoSirenBgmBuild.cs.meta",
+    "previousSha256": null,
+    "sha256": "3c914f2382f8493a98dd285f17145302513eed3d9ec6930e08823220913697b9",
+    "bytes": 59
+  },
+  {
+    "path": "Assets/Resources/Audio/bgm.wav.meta",
+    "previousSha256": null,
+    "sha256": "4460caead2c1189506a7fe0a63befbc47e0ff154f7c906fa1eb4914b8a9a061a",
+    "bytes": 697
+  },
+  {
+    "path": "Assets/WebGLTemplates/ChoSirenPortrait/audio-skin.js.meta",
+    "previousSha256": "58d175cc802cab3d11557e8a58af4c07a6a2489712959e38ffe841e9d650a2eb",
+    "sha256": "58d175cc802cab3d11557e8a58af4c07a6a2489712959e38ffe841e9d650a2eb",
+    "bytes": 155
+  },
+  {
+    "path": "Assets/WebGLTemplates/ChoSirenPortrait/loading-cg.js.meta",
+    "previousSha256": "71088b5095617287c728e24b63bcdc9de928837226f8c0cc96a02b3c81fede54",
+    "sha256": "71088b5095617287c728e24b63bcdc9de928837226f8c0cc96a02b3c81fede54",
+    "bytes": 155
+  },
+  {
+    "path": "Assets/WebGLTemplates/ChoSirenPortrait/index.html.meta",
+    "previousSha256": "906a9d5e829443c8439d986fac92f2afe2bd6e5968306da2a51dc461e3ffd51a",
+    "sha256": "906a9d5e829443c8439d986fac92f2afe2bd6e5968306da2a51dc461e3ffd51a",
+    "bytes": 155
+  }
+]

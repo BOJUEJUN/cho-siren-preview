@@ -78,9 +78,11 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void SharedMusicGainIsKeptInAComfortableRange()
+        public void MaximumMusicSettingPreservesTheMasteredLevelWithBattleHeadroom()
         {
-            Assert.That(GameAudio.MusicOutputVolume, Is.InRange(0.1f, 0.3f));
+            Assert.That(GameAudio.MusicOutputVolume, Is.EqualTo(1f));
+            Assert.That(GameAudio.BattleMusicOutputVolume, Is.InRange(.79f, 1f));
+            Assert.That(GameAudio.BattleMusicOutputVolume, Is.LessThan(GameAudio.MusicOutputVolume));
         }
     }
 }

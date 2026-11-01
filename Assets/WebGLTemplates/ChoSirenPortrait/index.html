@@ -6,10 +6,18 @@
     <meta name="theme-color" content="#08061f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="幻域魅声">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>{{{ PRODUCT_NAME }}}</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+    <link rel="preload" href="./media/loading-cg.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="stylesheet" href="./home-stage.css?v=20260929-r17">
+    <link rel="stylesheet" href="./character-moments.css?v=20260928-r12a">
     <style>
       :root {
         color-scheme: dark;
@@ -32,13 +40,33 @@
           radial-gradient(circle at 50% 10%, rgba(113, 74, 184, 0.34), transparent 36%),
           linear-gradient(180deg, #17113d 0%, var(--page-bg) 72%);
         font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
       }
 
       body {
+        position: relative;
+        z-index: 0;
         display: grid;
         place-items: center;
         padding: env(safe-area-inset-top) env(safe-area-inset-right)
           env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+
+      /* Any space the portrait shell leaves (browser bars on phones, the Dynamic Island
+         and home-indicator insets in home-screen mode, wide desktop screens) shows the
+         stage art blurred and dimmed, the way mobile H5 games pad their letterbox,
+         instead of bare purple bars. The shell itself stays inside the safe area. */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -64px;
+        z-index: -1;
+        background: url("./media/loading-stage.webp") center / cover no-repeat;
+        filter: blur(28px) brightness(0.5) saturate(1.2);
+      }
+      @media (min-aspect-ratio: 4/5) {
+        body::before { filter: blur(34px) brightness(0.4) saturate(1.2); }
       }
 
       #game-shell {
@@ -60,58 +88,458 @@
         }
       }
 
+      /* Portrait phones (including WeChat's shorter in-app browser): the game fills the whole
+         viewport instead of keeping the 720x1536 box, so no side strips appear. The game
+         itself adapts its layout to the real screen shape. Desktop keeps the framed box. */
+      @media (max-aspect-ratio: 3/4) {
+        #game-shell {
+          width: 100%;
+          height: 100%;
+          max-width: none;
+          max-height: none;
+          aspect-ratio: auto;
+          box-shadow: none;
+        }
+      }
+
+      /* Phones: no long-press menu, text selection or page zoom on the game;
+         Unity handles every touch itself. */
+      #game-shell {
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
       #unity-canvas {
         display: block;
         width: 100%;
         height: 100%;
         outline: none;
         background: #090625;
+        cursor: url("./lipstick-cursor.svg") 19 3, auto;
       }
+
+      /* Mouse trail (2026-10-19): pink / cyan / white shards with an ink rim and a few
+         star glints, drawn on one canvas over the game. */
+      #siren-trail { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+
+      @media (hover: none), (pointer: coarse) {
+        #unity-canvas { cursor: auto; }
+        #siren-trail { display: none; }
+      }
+
+      /* The only loading screen players see: it covers the Unity splash and Unity's
+         own asset loading, and becomes a tap-to-start title screen once the lobby is
+         live. Like the CG loading screens of big mobile games, the full screen is the
+         looping CG (loading-cg.js); only the logo, two buttons and a slim loading
+         strip sit on top. Sizes are in cqw so it scales with the 720-wide shell. */
+      #game-shell { container-type: inline-size; }
 
       #loading {
+        --hot: #ff2e93;
+        --cyan: #3ff0ff;
         position: absolute;
         inset: 0;
-        display: grid;
-        place-content: center;
-        gap: 16px;
-        text-align: center;
-        background: linear-gradient(180deg, rgba(13, 9, 44, 0.96), rgba(7, 5, 29, 0.98));
-        transition: opacity 240ms ease;
+        z-index: 4;
+        overflow: hidden;
+        background: #12061f url("./media/loading-cg.webp") center / cover no-repeat;
+        text-align: left;
       }
 
-      #loading.is-hidden {
-        opacity: 0;
+      .ld-cg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         pointer-events: none;
       }
 
-      .brand {
+      /* Soft shades behind the logo and the loading strip, so text stays readable. */
+      .ld-shade-top, .ld-shade-bottom { position: absolute; left: 0; right: 0; pointer-events: none; }
+      .ld-shade-top { top: 0; height: 16%; background: linear-gradient(rgba(10, 4, 24, 0.55), rgba(10, 4, 24, 0)); }
+      .ld-shade-bottom {
+        bottom: 0;
+        height: 30%;
+        background: linear-gradient(rgba(10, 4, 24, 0), rgba(10, 4, 24, 0.62) 45%, rgba(10, 4, 24, 0.86));
+      }
+
+      /* One monochrome circular iris, shared with the game's rounded scene transitions. */
+      #loading::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 300%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        z-index: 9;
+        visibility: visible;
+        background: #893eff;
+        transform: translate(-50%, -50%) scale(0);
+        pointer-events: none;
+      }
+      #loading.is-hidden { pointer-events: none; animation: ld-gone 0s 0.45s forwards; }
+      #loading.is-hidden::after { animation: ld-wipe 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+      @keyframes ld-gone { to { visibility: hidden; } }
+      @keyframes ld-wipe {
+        0% { transform: translate(-50%, -50%) scale(0); }
+        45%, 55% { transform: translate(-50%, -50%) scale(1); }
+        100% { transform: translate(-50%, -50%) scale(0); }
+      }
+
+      /* Small ransom-note logo, top left. */
+      /* NIKKE-style title: logo low and centred, entries stacked down the left edge. */
+      .ld-title { position: absolute; left: 50%; bottom: 23%; z-index: 3; transform: translateX(-50%); }
+      .ld-ransom { display: flex; align-items: flex-end; gap: 0.4cqw; }
+      .ld-ransom span {
+        display: inline-grid;
+        place-items: center;
+        padding: 0.06em 0.1em 0.1em;
+        font-weight: 900;
+        line-height: 1;
+        box-shadow: 0.6cqw 0.6cqw 0 #000;
+      }
+      .ld-r1 { font-size: 7cqw; color: #000; background: #fff; transform: rotate(-8deg); font-family: "Songti SC", "STSong", "SimSun", serif; }
+      .ld-r2 { font-size: 5.6cqw; color: #fff; background: #000; border: 0.35cqw solid #fff; transform: rotate(5deg) translateY(-0.6cqw); }
+      .ld-r3 { font-size: 6.4cqw; color: #fff; background: var(--hot); transform: rotate(-4deg); }
+      .ld-r4 { font-size: 6cqw; color: #b8125f; background: #fff; transform: rotate(7deg) translateY(-1cqw); font-family: "Songti SC", "STSong", "SimSun", serif; }
+      .ld-tag {
+        display: inline-block;
+        margin: 2cqw 0 0 0.6cqw;
+        padding: 0.4cqw 1.6cqw;
+        border-left: 1cqw solid var(--cyan);
         color: #fff;
-        font-size: clamp(18px, 3.2vw, 28px);
-        font-weight: 750;
-        letter-spacing: 0.12em;
+        background: #000;
+        font-size: 2.2cqw;
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: 0.3em;
+        transform: skewX(-14deg) rotate(-3deg);
       }
 
-      .subtitle {
-        color: rgba(255, 255, 255, 0.62);
-        font-size: 12px;
-        letter-spacing: 0.18em;
+      /* 适龄提示 (CADPA-style): coloured age block over a white CADPA strip, tap for details. */
+      .age-badge {
+        position: static;
+        display: grid; justify-items: center; gap: 0.6cqw;
+        padding: 0; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
+      }
+      .age-badge .age-card {
+        display: grid; width: 10cqw; overflow: hidden; border-radius: 1.3cqw;
+        border: 0.45cqw solid #fff; box-shadow: 0 0.6cqw 1.6cqw rgba(0, 0, 0, 0.45);
+      }
+      .age-badge .age-num {
+        display: grid; place-items: center; height: 7.6cqw; background: #f5a300;
+        color: #fff; font-size: 4.9cqw; font-weight: 900; letter-spacing: -0.04em;
+        text-shadow: 0 0.3cqw 0 rgba(120, 60, 0, 0.45);
+      }
+      .age-badge .age-org {
+        display: grid; place-items: center; height: 2.7cqw; background: #fff;
+        color: #222; font-size: 1.75cqw; font-weight: 900; letter-spacing: 0.08em;
+      }
+      .age-badge .age-label {
+        padding: 0.2cqw 1.2cqw; background: rgba(0, 0, 0, 0.62);
+        font-size: 2cqw; font-weight: 900; letter-spacing: 0.12em;
       }
 
+      .loading-corner {
+        position: absolute; top: calc(env(safe-area-inset-top, 0px) * .6 + 1.2%); right: 2.6%; z-index: 4;
+        display: flex; flex-direction: column; align-items: center; gap: 2.8cqw;
+      }
+      .loading-corner button {
+        display: grid; justify-items: center; gap: 2cqw;
+        padding: 0; border: 0; background: none; color: #fff;
+        font: inherit; cursor: pointer;
+      }
+      /* Age rating stands alone in the top-left corner at a fixed, unobtrusive size. */
+      .age-corner {
+        position: absolute; top: calc(env(safe-area-inset-top, 0px) * .6 + 1.2%); left: 3.2%; z-index: 4;
+      }
+      .age-corner > .age-badge { gap: 0.6cqw; }
+      /* 2026-10-20: icons only — no plates, frames or captions; a soft shadow keeps them readable. */
+      .loading-corner .side-icon {
+        display: grid; place-items: center;
+        width: 10cqw; height: 10cqw;
+        filter: drop-shadow(0 0.3cqw 0.6cqw rgba(0, 0, 0, 0.75));
+        transition: transform 120ms ease;
+      }
+      .loading-corner button:active .side-icon { transform: scale(0.88); }
+      .loading-corner .side-icon svg { width: 7cqw; height: 7cqw; }
+      .loading-corner .side-label {
+        position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+      }
+      .loading-corner button.has-dot { position: relative; }
+      /* 2026-10-31: the torn-paper teal notice sticker shared with the game (was a red dot). */
+      .loading-corner button.has-dot::after {
+        content: ""; position: absolute; top: -0.4cqw; right: -0.6cqw;
+        width: 4.6cqw; height: 4.6cqw; pointer-events: none;
+        background: url("./icons/notice-sticker-1031.png") center / contain no-repeat;
+        animation: notice-sticker-1031 2.6s ease-in-out infinite;
+      }
+      @keyframes notice-sticker-1031 {
+        0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+        6% { transform: translateY(-0.45cqw) scale(1.06) rotate(-5deg); }
+        13% { transform: translateY(0) scale(1.06, 0.94) rotate(2deg); }
+        20% { transform: translateY(0) scale(1) rotate(0deg); }
+        55% { transform: scale(1.04); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .loading-corner button.has-dot::after { animation: none; }
+      }
+
+      /* Sound toggle for the CG's own music: off by default (phones block autoplaying sound). */
+      #sound-button .sound-on { display: none; }
+      #sound-button[aria-pressed="true"] .sound-on { display: inline; }
+      #sound-button[aria-pressed="true"] .sound-off { display: none; }
+      #sound-button[aria-pressed="false"] .side-icon { opacity: 0.82; }
+      #sound-button .sound-off { stroke: #ff5f8f; }
+
+      /* Slim loading strip along the bottom. */
+      .loading-progress { position: absolute; left: 6%; right: 6%; bottom: 8.6%; z-index: 3; transition: opacity 300ms ease; }
+      .ld-row { display: flex; align-items: baseline; justify-content: space-between; color: #fff; }
+      .ld-row b { font-size: 3cqw; font-weight: 800; letter-spacing: 0.08em; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+      .ld-row span { font-size: 4.4cqw; font-style: italic; font-weight: 900; color: var(--cyan); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
       .track {
-        width: min(52vw, 260px);
-        height: 5px;
-        overflow: hidden;
+        position: relative;
+        height: 1cqw;
+        min-height: 4px;
+        margin-top: 1.6cqw;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.2);
+      }
+      #progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #ff6db5, var(--hot));
+        box-shadow: 0 0 10px rgba(255, 46, 147, 0.85);
+        transition: width 260ms ease-out;
+      }
+      #progress::after {
+        content: "";
+        position: absolute;
+        right: -2cqw;
+        top: 50%;
+        width: 4cqw;
+        aspect-ratio: 1;
+        background: #fff;
+        transform: translateY(-50%);
+        clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      }
+      .loading-status {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      .loading-note {
+        min-height: 1.45em;
+        margin-top: 1.8cqw;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 11px;
+        font-size: 2.3cqw;
+        line-height: 1.45;
+        white-space: pre-line;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      }
+      .loading-tip {
+        margin-top: 1.4cqw;
+        color: #fff;
+        font-size: 12px;
+        font-size: 2.7cqw;
+        font-weight: 700;
+        line-height: 1.5;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      }
+      .loading-tip b {
+        display: inline-block;
+        margin-right: 1.6cqw;
+        padding: 0.1cqw 1.4cqw;
+        color: #fff;
+        background: var(--hot);
+        font-style: italic;
+        font-weight: 900;
+        text-shadow: none;
+        transform: skewX(-14deg);
+      }
+      #loading-tip { transition: opacity 300ms ease; }
+      .loading-tip b svg { width: 1.15em; height: 1.15em; vertical-align: -0.2em; transform: skewX(14deg); }
+      /* visual-a 1101c: the agreement's promises as pictures (免注册 / 无充值 / 本机存档 / 16+). */
+      .promise-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 2px 0 14px; white-space: normal; }
+      .promise-row span {
+        display: grid; justify-items: center; gap: 5px; padding: 11px 2px 9px;
+        color: #f8f5ff; font-size: 13px; font-weight: 900; line-height: 1.2;
+        background: #1c1133; clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+      }
+      .promise-row svg { width: 32px; height: 32px; color: #1ee8e8; filter: drop-shadow(2px 2px 0 #ff4fd8); }
+      .promise-row .age { height: 32px; color: #1ee8e8; font-size: 22px; font-style: italic; line-height: 32px; text-shadow: 2px 2px 0 #ff4fd8; }
+
+      /* Ready: the strip gives way to "tap to start". The tap also lets the browser
+         start the lobby music, which phones block until the page is touched. */
+      #loading.is-ready { cursor: pointer; }
+      #loading.is-ready .loading-progress { opacity: 0; }
+      .loading-start {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 10%;
+        z-index: 3;
+        display: grid;
+        gap: 1.6cqw;
+        justify-items: center;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 300ms ease;
+      }
+      .loading-start strong {
+        color: #fff;
+        font-size: 4.6cqw;
+        font-style: italic;
+        font-weight: 900;
+        letter-spacing: 0.14em;
+        text-shadow: 0.5cqw 0.5cqw 0 var(--hot), 0 0 12px rgba(0, 0, 0, 0.6);
+      }
+      .loading-start small {
+        color: #fff;
+        font-size: 2.8cqw;
+        font-weight: 900;
+        letter-spacing: 0.3em;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      }
+      #loading.is-ready .loading-start { opacity: 1; visibility: visible; animation: ld-pulse 1.6s ease-in-out infinite alternate; }
+      #loading.is-hidden .loading-start { animation: ld-gone 0s 0.45s forwards; }
+      @keyframes ld-pulse { from { opacity: 0.6; } to { opacity: 1; } }
+
+      .loading-health {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 1.2%;
+        z-index: 3;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 9px;
+        font-size: 1.9cqw;
+        line-height: 1.6;
+        text-align: center;
       }
 
-      #progress {
-        width: 0;
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #9c6cff, var(--accent));
-        box-shadow: 0 0 18px rgba(255, 105, 191, 0.75);
-        transition: width 120ms linear;
+      /* Live release number (release.json); scripts/verify-webgl.mjs keeps them equal. */
+      .loading-version {
+        position: absolute;
+        right: 3%;
+        bottom: 5%;
+        z-index: 3;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 10px;
+        font-size: 2.1cqw;
+        font-style: italic;
+        font-weight: 800;
+      }
+
+      #loading-dialog {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: none;
+        place-items: center;
+        background: rgba(6, 4, 22, 0.66);
+        cursor: default;
+      }
+      #loading-dialog.is-open { display: grid; }
+      .dialog-box {
+        width: min(84%, 420px);
+        padding: 18px 18px 14px;
+        border: 3px solid #fff;
+        color: #fff;
+        background: #000;
+        box-shadow: 8px 8px 0 var(--hot);
+        transform: rotate(-1.5deg);
+      }
+      .dialog-box h3 { margin: 0 0 10px; font-size: 17px; font-style: italic; font-weight: 900; }
+      .dialog-box p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-line;
+      }
+      .dialog-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+      .dialog-actions button {
+        padding: 8px 16px;
+        border: 2px solid #fff;
+        color: #fff;
+        background: transparent;
+        font: inherit;
+        font-weight: 900;
+        transform: skewX(-10deg);
+      }
+      .dialog-actions #dialog-ok { color: #fff; background: var(--hot); border-color: var(--hot); }
+
+      /* The same paper / ink / violet material as the authored lobby entry stickers. */
+      .dialog-box {
+        position: relative;
+        isolation: isolate;
+        padding: 26px 24px 20px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+        filter: drop-shadow(7px 8px 0 #7028cc);
+      }
+      .dialog-box::before, .dialog-box::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background: #f8f5ff;
+        pointer-events: none;
+        clip-path: polygon(3% 0, 28% 1%, 29% 0, 71% 1%, 73% 0, 97% 2%, 100% 8%, 99% 41%,
+          100% 43%, 99% 91%, 95% 100%, 67% 99%, 65% 100%, 24% 99%, 22% 100%, 0 97%, 1% 62%, 0 60%, 1% 7%);
+      }
+      .dialog-box::after { inset: 3px; z-index: -1; background: #0d0916; }
+      .dialog-box h3 { padding-bottom: 12px; border-bottom: 3px solid #893eff; font-size: 21px; font-style: normal; }
+      .dialog-box p { font-size: 16px; line-height: 1.65; max-height: 45dvh; overflow-y: auto; touch-action: pan-y; }
+      .dialog-actions { flex-wrap: wrap; }
+      .dialog-actions button {
+        min-height: 46px; min-width: 96px;
+        padding: 9px 18px;
+        border: 2px solid #f8f5ff;
+        background: #0d0916;
+        transform: none;
+        clip-path: polygon(6% 0,100% 0,94% 100%,0 100%);
+        transition: filter 120ms ease, translate 120ms ease;
+      }
+      /* 2026-10-20: no crystal plate — one clean slanted P5 block: hot pink, black offset. */
+      .dialog-actions #dialog-ok {
+        min-width: 140px; border-color: #ff2f8e; background: #ff2f8e;
+        box-shadow: none; text-shadow: none; letter-spacing: .08em;
+      }
+      .dialog-actions { filter: drop-shadow(3px 3px 0 #000); }
+      .dialog-actions button:hover, .dialog-actions button:focus-visible { filter: brightness(1.3); }
+      .dialog-actions button:active { translate: 0 2px; filter: brightness(.85); }
+      /* Plain words over the art (no plate): a thin pink slash underlines them. */
+      .loading-start small {
+        position: relative; display: inline-block; padding: 0 2cqw 1.6cqw;
+        background: none; font-size: 3.5cqw; letter-spacing: .3em;
+        text-shadow: 0 0.3cqw 0.8cqw rgba(0, 0, 0, 0.9);
+      }
+      .loading-start small::after {
+        content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: 0.7cqw;
+        background: linear-gradient(90deg, transparent, #ff2f8e 18%, #ff2f8e 82%, transparent);
+        transform: skewX(-30deg);
+      }
+      #retry { border-radius: 0; border: 2px solid #f8f5ff; background: #28133d; }
+
+      @media (prefers-reduced-motion: reduce) {
+        #loading *, #loading::after { animation: none !important; }
+        #loading.is-ready .loading-start { opacity: 1; }
       }
 
       #warning {
@@ -131,6 +559,10 @@
         overflow-wrap: anywhere;
         max-height: calc(100% - 24px);
         overflow-y: auto;
+        /* The game area blocks touch gestures and selection; messages stay scrollable and copyable. */
+        touch-action: pan-y;
+        -webkit-user-select: text;
+        user-select: text;
       }
 
       #retry {
@@ -158,39 +590,115 @@
   <body>
     <main id="game-shell">
       <canvas id="unity-canvas" width="{{{ WIDTH }}}" height="{{{ HEIGHT }}}" tabindex="-1"></canvas>
+      <div id="home-stage" aria-hidden="true">
+        <div class="stage-beam stage-beam-a"></div>
+        <div class="stage-beam stage-beam-b"></div>
+        <canvas id="stage-atmosphere"></canvas>
+        <canvas id="stage-sparks"></canvas>
+      </div>
+      <section id="character-moment" data-idle-clip="catalena-idle" data-clip-format="green" data-clip-version="r18a" data-idle-cuts="0-1.2,2.8-9" aria-label="首页角色演出" aria-hidden="true">
+        <video id="moment-video" playsinline webkit-playsinline preload="none"></video>
+      </section>
       <div id="warning" role="status">
         <span id="warning-text"></span>
         <button id="retry" type="button">重新加载</button>
       </div>
       <div id="loading">
-        <div class="brand">CHO-SIREN</div>
-        <div class="subtitle">幻域魅声 · 正在进入舞台</div>
-        <div class="track"><div id="progress"></div></div>
+        <video id="loading-cg" class="ld-cg" data-has-bgm="true" src="./media/loading-cg.mp4?v=r20e" poster="./media/loading-cg.webp"
+          muted autoplay loop playsinline webkit-playsinline preload="auto" aria-hidden="true"></video>
+        <div class="ld-shade-top"></div>
+        <div class="ld-shade-bottom"></div>
+        <div class="ld-title">
+          <div class="ld-ransom" aria-label="幻域魅声"><span class="ld-r1">幻</span><span class="ld-r2">域</span><span class="ld-r3">魅</span><span class="ld-r4">声</span></div>
+          <div class="ld-tag">CHO-SIREN</div>
+        </div>
+        <div class="loading-corner">
+          <button id="notice-button" type="button"><span class="side-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a1.6 1.6 0 0 1 1.6 1.6v.6A6.5 6.5 0 0 1 18.5 11v4l2 2.5v1H3.5v-1l2-2.5v-4a6.5 6.5 0 0 1 4.9-6.3v-.6A1.6 1.6 0 0 1 12 2.5zM9.6 20h4.8a2.4 2.4 0 0 1-4.8 0z" fill="currentColor"/></svg></span><span class="side-label">公告</span></button>
+          <button id="repair-button" type="button"><span class="side-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.7 6.3l-3.2 3.2-2.9-.7-.7-2.9 3.2-3.2a5.5 5.5 0 0 0-7 7L3.4 16.4a2 2 0 0 0 2.8 2.8l6.7-6.7a5.5 5.5 0 0 0 7.8-6.2z" fill="currentColor"/></svg></span><span class="side-label">修复</span></button>
+          <button id="sound-button" type="button" aria-label="开启声音" aria-pressed="false"><span class="side-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" fill="currentColor"/>
+              <path class="sound-on" d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path class="sound-off" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span class="side-label">声音</span>
+          </button>
+        </div>
+        <div class="age-corner">
+          <button id="age-button" class="age-badge" type="button" aria-label="适龄提示：16 岁以上">
+            <span class="age-card"><span class="age-num">16+</span><span class="age-org">CADPA</span></span>
+            <span class="age-label">适龄提示</span>
+          </button>
+        </div>
+        <div class="loading-progress">
+          <div class="ld-row" aria-hidden="true"><b>载入中</b><span id="loading-percent">0%</span></div>
+          <div class="track"><div id="progress"></div></div>
+          <div id="loading-status" class="loading-status">载入中 · 0%</div>
+          <div id="loading-note" class="loading-note"></div>
+          <div class="loading-tip"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1.5l2.4 8.1 8.1 2.4-8.1 2.4-2.4 8.1-2.4-8.1L1.5 12l8.1-2.4z" fill="currentColor"/></svg></b><span id="loading-tip">点角色，她会回应你</span></div>
+        </div>
+        <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击开始</small></div>
+        <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
+        <div id="loading-version" class="loading-version">v{{{ PRODUCT_VERSION }}}</div>
+        <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+          <div class="dialog-box">
+            <h3 id="dialog-title"></h3>
+            <p id="dialog-text"></p>
+            <div class="dialog-actions">
+              <button id="dialog-cancel" type="button">取消</button>
+              <button id="dialog-ok" type="button">确定</button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
+    <script src="./audio-skin.js?v=20261028-r142"></script>
+    <script src="./home-stage.js?v=20260928-r12a"></script>
+    <script src="./character-moments.js?v=20261006-r17j"></script>
+    <script src="./loading-cg.js?v=20261015-r64"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
-      // Retire the service worker used by the earlier HTML prototype.  Its root
-      // scope would otherwise be able to keep serving stale pre-Unity assets to
-      // returning players after this site is upgraded to the WebGL build.
-      if ("serviceWorker" in navigator) {
+      const retryToken = new URL(window.location.href).searchParams.get("retry");
+      const assetCacheName = "cho-siren-assets-1";
+      const workers = "serviceWorker" in navigator ? navigator.serviceWorker : null;
+      // service-worker.js keeps the content-addressed game files (the Unity build and
+      // hashed StreamingAssets art) so returning players start from local storage; it
+      // never caches this page or any manifest. A ?retry= load starts clean instead:
+      // it drops this game's worker and cache, never another project's.
+      let assetWorker = Promise.resolve(null);
+      let assetCacheCleanup = Promise.resolve();
+      if (retryToken && workers) {
         navigator.serviceWorker.getRegistrations()
           .then(registrations => Promise.all(registrations
             .filter(registration => registration.scope === pageUrl.href)
             .map(registration => registration.unregister())))
           .catch(() => {});
+      } else if (workers && workers.register) {
+        assetWorker = workers.register(new URL("service-worker.js", pageUrl).href,
+          { scope: pageUrl.href, updateViaCache: "none" }).catch(() => null);
       }
       if ("caches" in window) {
-        caches.keys()
-          .then(keys => Promise.all(keys.filter(key => key.startsWith("cho-siren-")).map(key => caches.delete(key))))
+        assetCacheCleanup = caches.keys()
+          .then(keys => Promise.all(keys
+            .filter(key => /^cho-siren-v\d+$/.test(key) || (retryToken && key === assetCacheName))
+            .map(key => caches.delete(key))))
           .catch(() => {});
       }
+      // On a first visit, give the new worker up to 1.5 s to take control so that
+      // this very load already fills the cache.
+      const assetWorkerControl = !workers || !workers.register || retryToken || workers.controller
+        ? Promise.resolve()
+        : new Promise(resolve => {
+          workers.addEventListener("controllerchange", resolve, { once: true });
+          assetWorker.then(registration => { if (!registration) resolve(); });
+          window.setTimeout(resolve, 1500);
+        });
 
       const shell = document.querySelector("#game-shell");
       const canvas = document.querySelector("#unity-canvas");
       const loading = document.querySelector("#loading");
       const progress = document.querySelector("#progress");
+      const loadingNote = document.querySelector("#loading-note");
+      const loadingStatus = document.querySelector("#loading-status");
+      const loadingPercent = document.querySelector("#loading-percent");
       const warning = document.querySelector("#warning");
       const warningText = document.querySelector("#warning-text");
       const retry = document.querySelector("#retry");
@@ -206,32 +714,69 @@
         const isLoadFailure = type === "error" && (
           detail.includes("fetching of the wasm failed") ||
           detail.includes("Failed to download file") ||
-          detail.includes("Failed to fetch")
+          detail.includes("Failed to fetch") || detail.includes("Unable to parse")
         );
         warningText.textContent = isLoadFailure
           ? "游戏资源加载中断。请确认网络稳定后重新加载；手机端建议关闭其他大型应用再试。"
           : detail;
-        retry.style.display = type === "error" ? "block" : "none";
+        const actionable = type === "error" || type === "update";
+        retry.style.display = actionable ? "block" : "none";
+        retry.textContent = type === "update" ? "立即更新" : "重新加载";
         warning.style.display = "block";
-        warning.style.borderColor = type === "error" ? "#ff5f7f" : "rgba(255,255,255,.18)";
-        if (type !== "error") {
+        warning.style.borderColor = type === "error" ? "#ff5f7f" : type === "update" ? "#ff69bf" : "rgba(255,255,255,.18)";
+        if (!actionable) {
           bannerTimer = window.setTimeout(() => {
             if (!fatalLoadError) warning.style.display = "none";
           }, 5000);
         }
       }
+      // Anything but an error can be dismissed by tapping the message.
+      warning.addEventListener("click", event => {
+        if (event.target !== retry && !fatalLoadError) warning.style.display = "none";
+      });
 
-      retry.addEventListener("click", () => {
+      // iOS can take the game's WebGL context away while the page sits in the
+      // background, and Unity cannot rebuild it: the screen goes black or freezes.
+      // A plain reload brings it back quickly from the cached game files, unlike the
+      // network-only retry used for failed downloads.
+      let reloadInPlace = false;
+      canvas.addEventListener("webglcontextlost", () => {
+        reloadInPlace = true;
+        showBanner("游戏画面被系统收回了（通常是在后台放得太久）。点下面的按钮重新载入即可。", "error");
+      });
+
+      // A clean start skips this game's cached files and worker (see ?retry= above).
+      function restartClean() {
         const refreshed = new URL(window.location.href);
         refreshed.searchParams.set("retry", Date.now().toString(36));
         window.location.replace(refreshed.href);
+      }
+      retry.addEventListener("click", () => {
+        if (reloadInPlace) {
+          window.location.reload();
+          return;
+        }
+        restartClean();
       });
 
       // All URLs stay relative to the document so GitHub Pages project paths work.
       const buildUrl = new URL("Build/", pageUrl);
-      const buildAssetUrl = filename => new URL(filename, buildUrl).href;
+      const buildAssetUrl = filename => {
+        const url = new URL(filename, buildUrl);
+        if (retryToken) url.searchParams.set("retry", retryToken);
+        return url.href;
+      };
+      // Render at the screen's own density (iPhones are 3x) so text and art stay sharp;
+      // a pixel budget keeps very large screens from taking too much GPU memory.
+      function renderPixelRatio() {
+        const density = Math.max(2, Math.min(window.devicePixelRatio || 1, 3));
+        const box = typeof canvas.getBoundingClientRect === "function" ? canvas.getBoundingClientRect() : null;
+        const area = box && box.width * box.height;
+        return area > 0 ? Math.max(1, Math.min(density, Math.sqrt(3.2e6 / area))) : density;
+      }
       const config = {
         arguments: [],
+        cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
 #if PROGRESSIVE_ASSET_LOADING
         primaryDataUrls: {{{ JSON.stringify(PRIMARY_DATA_FILES) }}},
         secondaryDataUrls: {{{ JSON.stringify(SECONDARY_DATA_FILES) }}},
@@ -250,18 +795,270 @@
         productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
         productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
         showBanner,
-        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
       };
 
+      // Title-screen extras, as in most mobile games: rotating tips, an announcement
+      // of the live release, and a repair button that re-downloads the game files.
+      // visual-a 1101c: one glance each (≤ 10 characters).
+      const tips = [
+        "点角色，她会回应你",
+        "双击画面，隐藏界面",
+        "骰子不满意？充能重投",
+        "大招就绪，点头像释放",
+        "敌人蓄力 → 开守护",
+        "打不过？去练习室",
+        "下载一次，下次更快",
+        "连签七天，大礼在后",
+        "离线也在演出，回来领",
+        "通关 1-10，开第二章",
+        "入口亮点 = 有奖励"
+      ];
+      const tipText = document.querySelector("#loading-tip");
+      let tipIndex = 0;
+      const tipTimer = window.setInterval?.(() => {
+        tipText.style.opacity = "0";
+        window.setTimeout(() => {
+          tipText.textContent = tips[++tipIndex % tips.length];
+          tipText.style.opacity = "1";
+        }, 300);
+      }, 4500);
+      const dialog = document.querySelector("#loading-dialog");
+      const dialogOk = document.querySelector("#dialog-ok");
+      const dialogCancel = document.querySelector("#dialog-cancel");
+      function openDialog(title, text, okLabel, onOk) {
+        document.querySelector("#dialog-title").textContent = title;
+        document.querySelector("#dialog-text").textContent = text;
+        dialogOk.textContent = okLabel;
+        dialogCancel.style.display = onOk ? "" : "none";
+        dialogCancel.textContent = "取消";
+        dialogOk.onclick = () => {
+          dialog.classList.remove("is-open");
+          if (onOk) onOk();
+        };
+        dialog.classList.add("is-open");
+      }
+      dialogCancel.addEventListener("click", () => dialog.classList.remove("is-open"));
+      document.querySelector("#notice-button").addEventListener("click", async () => {
+        markNoticeRead();
+        let text = `v${config.productVersion}`;
+        try {
+          const response = await fetch(new URL(`release.json?_=${Date.now()}`, pageUrl), { cache: "no-store" });
+          const live = response.ok ? await response.json() : null;
+          if (live && typeof live.version === "string") {
+            text = `v${live.version}  ${live.date || ""}\n${live.notice || live.name || ""}`;
+          }
+        } catch (_) {}
+        openDialog("公告", text, "知道了");
+      });
+      document.querySelector("#age-button").addEventListener("click", () => openDialog("适龄提示",
+        "1. 本游戏是一款偶像养成与骰子策略战斗游戏，适用于年满 16 周岁及以上的用户，建议未成年人在家长监护下使用。\n" +
+        "2. 游戏中有虚拟角色的舞台对战，没有血腥画面；部分角色服装较为时尚性感，没有现实暴力或不良引导内容。\n" +
+        "3. 本作为试玩版，不需要注册账号、没有充值入口。请合理安排游戏时间，避免沉迷。", "知道了"));
+      document.querySelector("#repair-button").addEventListener("click", () => openDialog("修复",
+        "清缓存 → 重新下载（约 150MB）\n存档保留",
+        "修复", restartClean));
+      // Once the lobby is live the screen waits for a tap, like a game's title screen.
+      // That first touch is also what lets phones start the lobby music.
+      // First visit: the user agreement must be accepted before the lobby opens.
+      const agreementKey = "cho-agreement-v1";
+      function agreed() {
+        try { return localStorage.getItem(agreementKey) === "1"; } catch (_) { return true; }
+      }
+      // visual-a 1101c: static markup only (no user data) — four picture promises, then the legal consent line.
+      const agreementHtml =
+        '<span class="promise-row">' +
+        '<span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9.5" cy="7.5" r="4" fill="currentColor"/><path d="M1.5 21c0-4.6 3.6-7.4 8-7.4s8 2.8 8 7.4z" fill="currentColor"/><circle cx="18" cy="17" r="4.4" fill="#1c1133" stroke="currentColor" stroke-width="2"/><path d="M15 14l6 6" stroke="currentColor" stroke-width="2"/></svg>免注册</span>' +
+        '<span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="5" width="17" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1.5 9h17" stroke="currentColor" stroke-width="2.6"/><circle cx="18" cy="17" r="4.4" fill="#1c1133" stroke="currentColor" stroke-width="2"/><path d="M15 14l6 6" stroke="currentColor" stroke-width="2"/></svg>无充值</span>' +
+        '<span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="1.5" width="12" height="21" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 15.5s-3.6-2.2-3.6-4.6a1.9 1.9 0 0 1 3.6-.9 1.9 1.9 0 0 1 3.6.9c0 2.4-3.6 4.6-3.6 4.6z" fill="currentColor"/></svg>本机存档</span>' +
+        '<span><b class="age">16+</b>适龄</span>' +
+        '</span>开始前请阅读并同意《用户协议》和《隐私政策》\n本作为试玩版，游戏进度只保存在你的设备上，不收集姓名、手机号等个人信息\n适合 16 周岁及以上用户，请合理安排游戏时间';
+      function showAgreement(then) {
+        openDialog("用户协议与隐私政策",
+          "开始前请阅读并同意《用户协议》和《隐私政策》\n本作为试玩版，游戏进度只保存在你的设备上，不收集姓名、手机号等个人信息\n适合 16 周岁及以上用户，请合理安排游戏时间",
+          "同意", () => {
+            try { localStorage.setItem(agreementKey, "1"); } catch (_) {}
+            if (then) then();
+          });
+        document.querySelector("#dialog-text").innerHTML = agreementHtml;
+        dialogCancel.textContent = "不同意";
+      }
+      if (!agreed()) showAgreement();
+
+      // Red dot on 公告 until this version's notice has been opened once.
+      const noticeSeenKey = "cho-notice-seen";
+      const noticeButton = document.querySelector("#notice-button");
+      const noticeVersion = String(config.productVersion || "");
+      function checkNoticeDot() {
+        // No extra request: the notice of the running version counts as unread until opened.
+        let seen = "";
+        try { seen = localStorage.getItem(noticeSeenKey) || ""; } catch (_) {}
+        if (noticeVersion && seen !== noticeVersion) noticeButton.classList?.add?.("has-dot");
+      }
+      function markNoticeRead() {
+        noticeButton.classList?.remove?.("has-dot");
+        try { if (noticeVersion) localStorage.setItem(noticeSeenKey, noticeVersion); } catch (_) {}
+      }
+
+      function readyToStart() {
+        if (fatalLoadError || !window.choSirenStartup?.ready) return;
+        loading.classList.add("is-ready");
+        checkNoticeDot();
+        loading.addEventListener("click", event => {
+          if (fatalLoadError || event?.target?.closest?.("button, #loading-dialog")) return;
+          const start = () => {
+            loading.classList.add("is-hidden");
+            window.clearInterval?.(tipTimer);
+          };
+          if (!agreed()) { showAgreement(start); return; }
+          start();
+        });
+      }
+
       const loader = document.createElement("script");
       loader.src = buildAssetUrl("{{{ LOADER_FILENAME }}}");
+      // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
+      // Only Unity's explicit completed-UI handshake can authorize entry.
+      let shownProgress = 0;
+      function showProgress(value) {
+        shownProgress = Math.max(shownProgress, Math.min(1, value));
+        const percent = Math.round(shownProgress * 100);
+        progress.style.width = `${percent}%`;
+        loadingStatus.textContent = `载入中 · ${percent}%`;
+        loadingPercent.textContent = `${percent}%`;
+      }
+      const initLog = window.choSirenInitLog = [];
+      let startupWaiter = null, startupTimer = null;
+      const startup = window.choSirenStartup = {
+        ready: false, engineDone: false, error: null, phase: "engine", progress: 0,
+        startedAt: 0, lastAdvancedAt: 0, engineProgress: 0,
+        report(type, value, message) {
+          if (startup.error) return;
+          if (type === "error" || type === "timeout") {
+            // A decoded-file failure may have been cached by the worker. Its first-screen
+            // retry uses the existing clean-start path; a mere UI stall keeps healthy files.
+            const preserveCache = type === "timeout" && startup.engineDone;
+            startup.error = String(message || "游戏界面启动失败，请重新载入");
+            startup.phase = "error";
+            loading.classList.remove("is-ready");
+            loadingNote.textContent = startup.error;
+            reloadInPlace = preserveCache;
+            recordStartup("error", startup.progress, startup.error);
+            showBanner(startup.error, "error");
+          } else if (type === "ready") {
+            if (!startup.ready) {
+              startup.ready = true;
+              startup.phase = "ui-ready";
+              startup.lastAdvancedAt = Date.now();
+              recordStartup("ui-ready", 1, String(message || ""));
+            }
+          } else if (type === "progress" && !startup.ready) {
+            const next = Math.max(0, Math.min(1, Number(value) || 0));
+            const phaseChanged = startup.phase !== "home-art";
+            if (phaseChanged || next > startup.progress + 0.0001) startup.lastAdvancedAt = Date.now();
+            startup.phase = "home-art";
+            if (phaseChanged || next > startup.progress + 0.001)
+              recordStartup("home-art", next, String(message || ""));
+            startup.progress = Math.max(startup.progress, next);
+            showProgress(0.7 + 0.28 * startup.progress);
+            loadingNote.textContent = String(message || "正在准备大厅素材");
+          }
+          settleStartup();
+        }
+      };
+      function recordStartup(phase, value, detail) {
+        initLog.push({ at: Date.now(), phase, progress: value, detail });
+        if (initLog.length > 64) initLog.shift();
+      }
+      function settleStartup() {
+        if (!startupWaiter) return;
+        if (!startup.error && !(startup.engineDone && startup.ready)) return;
+        window.clearTimeout(startupTimer);
+        const waiter = startupWaiter;
+        startupWaiter = null;
+        if (startup.error) waiter.reject(new Error(startup.error));
+        else {
+          startup.phase = "ready";
+          recordStartup("ready", 1, "engine-and-ui");
+          waiter.resolve();
+        }
+      }
+      function untilLobbyReady() {
+        startup.startedAt = startup.lastAdvancedAt = Date.now();
+        recordStartup("engine", 0, "start");
+        return new Promise((resolve, reject) => {
+          startupWaiter = { resolve, reject };
+          // Only time the page is on screen counts: iOS pauses a hidden page's downloads,
+          // so switching apps must not turn into a "load failed" on return.
+          let visibleSpent = 0, lastCheck = Date.now();
+          const check = () => {
+            if (!startupWaiter) return;
+            const now = Date.now();
+            if (document.hidden) {
+              startup.lastAdvancedAt += now - lastCheck;
+            } else visibleSpent += now - lastCheck;
+            lastCheck = now;
+            if (visibleSpent >= 180000 || now - startup.lastAdvancedAt >= 45000) {
+              startup.report("timeout", 0, "载入暂时没有完成，请检查网络后重新加载。");
+              return;
+            }
+            startupTimer = window.setTimeout(check, 1000);
+          };
+          settleStartup();
+          if (startupWaiter) startupTimer = window.setTimeout(check, 1000);
+        });
+      }
+      // Sharp rendering costs GPU time. When a phone cannot keep up (frames averaging
+      // over 22 ms for 3 s while the page is visible), the render density steps down to
+      // 2x, then 1.5x. It never steps back up within a session, so it cannot flicker.
+      function watchFrameRate(instance) {
+        const module = instance && instance.Module;
+        if (!module || typeof window.requestAnimationFrame !== "function") return;
+        const steps = [2].filter(step => step < config.devicePixelRatio - 0.01); // never below 2x: no blurry phones
+        let frames = 0, started = 0, last = 0;
+        const tick = now => {
+          if (!steps.length) return;
+          // Pauses (background tab, a long hitch) restart the measurement.
+          if (document.hidden || now - last > 250) { frames = 0; started = now; }
+          last = now;
+          frames++;
+          if (now - started >= 3000) {
+            if ((now - started) / frames > 22) module.devicePixelRatio = steps.shift();
+            frames = 0;
+            started = now;
+          }
+          window.requestAnimationFrame(tick);
+        };
+        // The lobby's first seconds still decode art and start the clips; measure after.
+        window.setTimeout(() => window.requestAnimationFrame(tick), 4000);
+      }
       loader.onload = async () => {
         try {
-          await createUnityInstance(canvas, config, value => {
-          progress.style.width = `${Math.round(value * 100)}%`;
-          });
-          loading.classList.add("is-hidden");
+          // Watch the engine promise too: a stalled initialization cannot strand the title forever.
+          const waiting = untilLobbyReady();
+          new Promise(resolve => resolve(createUnityInstance(canvas, config, value => {
+            if (startup.error) return;
+            const next = Math.max(0, Math.min(1, Number(value) || 0));
+            if (next > startup.engineProgress + 0.0001) startup.lastAdvancedAt = Date.now();
+            startup.engineProgress = Math.max(startup.engineProgress, next);
+            showProgress(next * 0.7);
+            if (next >= 0.9 && startup.phase === "engine")
+              loadingNote.textContent = "正在解压并启动游戏…";
+          }))).then(instance => {
+            window.choSirenUnityInstance = instance;
+            window.choSirenAudio?.attachUnity();
+            startup.engineDone = true;
+            if (!startup.ready && startup.phase === "engine")
+              loadingNote.textContent = "正在准备舞台与界面素材";
+            recordStartup("engine-ready", 1, "initialized");
+            settleStartup();
+          }).catch(error => startup.report("error", 0, String(error)));
+          await waiting;
+          if (fatalLoadError || startup.error) return;
+          showProgress(1);
+          readyToStart();
+          watchFrameRate(window.choSirenUnityInstance);
         } catch (error) { showBanner(String(error), "error"); }
       };
       loader.onerror = () => showBanner("游戏资源加载失败，请通过 HTTPS 网页链接访问并刷新重试。", "error");
@@ -286,17 +1083,233 @@
               !suffixes.every(suffix => files.filter(file => file.endsWith(suffix)).length === 1)) {
             throw new Error("Invalid version metadata");
           }
-          const asset = suffix => new URL(files.find(file => file.endsWith(suffix)), buildUrl).href;
+          const asset = suffix => buildAssetUrl(files.find(file => file.endsWith(suffix)));
           config.dataUrl = asset(".data.unityweb");
           config.frameworkUrl = asset(".framework.js.unityweb");
           config.codeUrl = asset(".wasm.unityweb");
           loader.src = asset(".loader.js");
+          // Cached files of any other Unity build can go.
+          const previous = Array.isArray(version.previous) ? version.previous.filter(file => safe.test(file)) : [];
+          workers?.controller?.postMessage({ type: "keep-builds", files: [...files, ...previous] });
         } catch (_) {
           // Offline, slow, or older host: the embedded complete bundle remains valid.
           // Publication retains the preceding bundle at these immutable URLs.
         } finally { window.clearTimeout(timeout); }
+        await showDownloadNote();
+        await assetWorkerControl;
+        try {
+          config.dataUrl = await resumableData(config.dataUrl);
+        } catch (error) {
+          showBanner("游戏资源下载中断，请确认网络后点重新加载。", "error");
+          return;
+        }
+        if (retryToken) await assetCacheCleanup;
         document.body.appendChild(loader);
       }
+      // The ~100 MB data file used to be one request that restarted from zero whenever iOS
+      // suspended the page. It now arrives in 4 MB byte ranges kept in Cache Storage:
+      // leaving the page and coming back resumes from the last finished piece, and the
+      // assembled file is stored whole for the next launch. Anything unsupported (no
+      // Cache Storage, a server without ranges) falls back to the plain single request.
+      const partCacheName = "cho-siren-parts-1";
+      const partSize = 4 * 1024 * 1024;
+      function whenVisible() {
+        if (!document.hidden || typeof document.addEventListener !== "function") return Promise.resolve();
+        return new Promise(resolve => {
+          const shown = () => {
+            if (document.hidden) return;
+            document.removeEventListener("visibilitychange", shown);
+            resolve();
+          };
+          document.addEventListener("visibilitychange", shown);
+        });
+      }
+      const pause = ms => new Promise(resolve => window.setTimeout(resolve, ms));
+      async function resumableData(url) {
+        if (retryToken || !("caches" in window) || typeof Blob !== "function" || typeof fetch !== "function" ||
+            typeof URL.createObjectURL !== "function" || !/\.data\.unityweb$/.test(new URL(url).pathname)) return url;
+        let assets, parts;
+        try {
+          assets = await caches.open(assetCacheName);
+          const whole = await assets.match(url);
+          if (whole) return URL.createObjectURL(await whole.blob());
+          parts = await caches.open(partCacheName);
+        } catch (_) { return url; }
+        // Learn the size from the first piece (or from a previous visit's record).
+        const metaKey = `${url}?parts=meta`;
+        let total = 0;
+        const meta = await parts.match(metaKey);
+        if (meta) total = Number((await meta.json()).total) || 0;
+        const fetchPart = async (start, end) => {
+          const response = await fetch(url, { headers: { Range: `bytes=${start}-${end}` },
+            cache: "no-store", credentials: "same-origin" });
+          if (response.status !== 206) return null;
+          return response;
+        };
+        if (!(total > 0)) {
+          const first = await fetchPart(0, partSize - 1).catch(() => null);
+          const range = first && first.headers.get("content-range");
+          total = range ? Number(range.split("/")[1]) : 0;
+          if (!(total > 0)) return url;
+          const blob = await first.blob();
+          if (blob.size !== Math.min(partSize, total)) return url;
+          await parts.put(`${url}?part=0`, new Response(blob));
+          await parts.put(metaKey, new Response(JSON.stringify({ total })));
+        }
+        const count = Math.ceil(total / partSize);
+        let received = 0;
+        const have = new Array(count).fill(false);
+        for (let i = 0; i < count; i++) {
+          if (await parts.match(`${url}?part=${i}`)) {
+            have[i] = true;
+            received += Math.min(partSize, total - i * partSize);
+          }
+        }
+        // Live download speed over the last few seconds (the player's own connection).
+        const speedSamples = [];
+        const speedText = () => {
+          const now = performance.now();
+          speedSamples.push([now, received]);
+          while (speedSamples.length > 2 && now - speedSamples[0][0] > 4000) speedSamples.shift();
+          const [t0, b0] = speedSamples[0];
+          if (now - t0 < 400) return "";
+          const bps = (received - b0) * 1000 / (now - t0);
+          return bps >= 1048576 ? ` · ${(bps / 1048576).toFixed(1)}MB/s` : ` · ${Math.max(0, Math.round(bps / 1024))}KB/s`;
+        };
+        const report = () => {
+          const mb = n => (n / 1048576).toFixed(0);
+          showProgress(0.6 * received / total);
+          loadingNote.textContent = `正在下载游戏资源 ${mb(received)}/${mb(total)}MB${speedText()}\n可以切出去，回来会接着下载`;
+        };
+        report();
+        const getPart = async i => {
+          const start = i * partSize, end = Math.min(total, start + partSize) - 1;
+          for (let attempt = 0; ; attempt++) {
+            // 2026-10-20: keep downloading while the page is in the background (desktop/Android
+            // continue; iOS freezes hidden pages itself and resumes here when the page returns).
+            try {
+              const response = await fetchPart(start, end);
+              if (!response) throw new Error("range unsupported");
+              const blob = await response.blob();
+              if (blob.size !== end - start + 1) throw new Error("short piece");
+              await parts.put(`${url}?part=${i}`, new Response(blob));
+              received += blob.size;
+              report();
+              return;
+            } catch (error) {
+              // Hidden pages and brief signal drops just wait; only repeated failures
+              // while the player is looking at the page become an error.
+              if (attempt >= 6 && !document.hidden) throw error;
+              await pause(Math.min(8000, 1000 * 2 ** Math.min(attempt, 3)));
+            }
+          }
+        };
+        const queue = [];
+        for (let i = 0; i < count; i++) if (!have[i]) queue.push(i);
+        await Promise.all([0, 1, 2].map(async () => {
+          while (queue.length) await getPart(queue.shift());
+        }));
+        const blobs = [];
+        for (let i = 0; i < count; i++) blobs.push(await (await parts.match(`${url}?part=${i}`)).blob());
+        const full = new Blob(blobs, { type: "application/octet-stream" });
+        if (full.size !== total) throw new Error("incomplete data");
+        try {
+          await assets.put(url, new Response(full, { headers: { "Content-Type": "application/vnd.unity" } }));
+          await caches.delete(partCacheName);
+        } catch (_) {}
+        loadingNote.textContent = "下载完成，正在启动游戏…";
+        return URL.createObjectURL(full);
+      }
+      async function showDownloadNote() {
+        let cached = false;
+        try {
+          if (!retryToken && "caches" in window) {
+            cached = Boolean(await caches.match(config.dataUrl, { cacheName: assetCacheName }));
+          }
+        } catch (_) {}
+        loadingNote.textContent = cached ? "正在从本机缓存载入…"
+          : "首次进入需下载约 110MB 资源，建议连接 Wi-Fi" + (workers ? "\n下次打开直接读取本机缓存" : "");
+      }
+      // Neon-shard mouse trail. Optional decoration: skipped wherever the page has no real
+      // canvas 2D support (old browsers, the test harness's minimal DOM).
+      const trailHost = document.querySelector("#game-shell");
+      const trailCanvas = typeof document.createElement === "function" ? document.createElement("canvas") : null;
+      const trailCtx = trailHost && typeof trailHost.appendChild === "function" &&
+        trailCanvas && typeof trailCanvas.getContext === "function" ? trailCanvas.getContext("2d") : null;
+      if (trailCtx) { trailCanvas.id = "siren-trail"; trailHost.appendChild(trailCanvas); }
+      const trailColors = ["#ff2e93", "#3ff0ff", "#ffffff", "#ff2e93", "#b58cff"];
+      let trailShards = [], trailLast = null, trailDist = 0, trailRunning = false;
+      function trailStar(c, s) {
+        c.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const r = i % 2 ? s * .3 : s, a = i * Math.PI / 4 - Math.PI / 2;
+          c[i ? "lineTo" : "moveTo"](Math.cos(a) * r, Math.sin(a) * r);
+        }
+        c.closePath();
+      }
+      function trailFrame() {
+        const w = trailHost.clientWidth, h = trailHost.clientHeight, d = Math.min(2, devicePixelRatio || 1);
+        if (trailCanvas.width !== Math.round(w * d) || trailCanvas.height !== Math.round(h * d)) {
+          trailCanvas.width = Math.round(w * d); trailCanvas.height = Math.round(h * d);
+        }
+        trailCtx.setTransform(d, 0, 0, d, 0, 0);
+        trailCtx.clearRect(0, 0, w, h);
+        trailShards = trailShards.filter(it => it.life > 0);
+        for (const it of trailShards) {
+          const c = trailCtx;
+          c.save(); c.translate(it.x, it.y); c.rotate(it.rot); c.globalAlpha = Math.min(1, it.life * 1.4);
+          c.shadowColor = it.col; c.shadowBlur = it.star ? 8 : 6; c.fillStyle = it.col;
+          if (it.star) { trailStar(c, it.s); c.fill(); }
+          else {
+            c.beginPath(); c.moveTo(-it.s * .9, -it.s * .45); c.lineTo(it.s * 1.25, -it.s * .05); c.lineTo(-it.s * .35, it.s * .6); c.closePath();
+            c.fill(); c.shadowBlur = 0; c.strokeStyle = "#1a0b33"; c.lineWidth = 1.6; c.stroke();
+          }
+          c.restore();
+          it.x += it.vx; it.y += it.vy; it.vx *= .93; it.vy *= .93; it.rot += it.vr; it.life -= .028;
+        }
+        if (trailShards.length) requestAnimationFrame(trailFrame); else { trailRunning = false; trailCtx.clearRect(0, 0, w, h); }
+      }
+      if (trailCtx) canvas.addEventListener("pointermove", event => {
+        if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const box = trailHost.getBoundingClientRect();
+        const x = event.clientX - box.left, y = event.clientY - box.top;
+        const dx = trailLast ? x - trailLast.x : 0, dy = trailLast ? y - trailLast.y : 0;
+        trailDist += Math.hypot(dx, dy); trailLast = { x, y };
+        if (trailDist < 11) return;
+        trailDist = 0;
+        const len = Math.hypot(dx, dy) || 1;
+        for (let k = 0; k < 2; k++) {
+          const side = k ? 1 : -1, star = Math.random() < .18;
+          trailShards.push({ x, y, life: 1, star, rot: Math.random() * 6.3, vr: (Math.random() - .5) * .28,
+            vx: (-dy / len) * side * (1 + Math.random() * 1.5) - dx * .04,
+            vy: (dx / len) * side * (1 + Math.random() * 1.5) - dy * .04 - .2,
+            s: star ? 4 + Math.random() * 3 : 5 + Math.random() * 6,
+            col: star ? "#ffe9a8" : trailColors[Math.floor(Math.random() * trailColors.length)] });
+        }
+        if (trailShards.length > 160) trailShards.splice(0, trailShards.length - 160);
+        if (!trailRunning) { trailRunning = true; requestAnimationFrame(trailFrame); }
+      }, { passive: true });
+      if (trailCtx) canvas.addEventListener("pointerleave", () => { trailLast = null; });
+      canvas.addEventListener("dblclick", () => {
+        if (window.choSirenStage?.active) {
+          window.choSirenUnityInstance?.SendMessage("PsdHome20260921", "ToggleUiFromBrowser");
+        }
+      });
+      // A home-screen app can stay open for days. Whenever the page comes back to the
+      // foreground, check whether a newer release is live and offer to load it.
+      let updateOffered = false;
+      async function checkForUpdate() {
+        if (updateOffered || document.hidden) return;
+        try {
+          const response = await fetch(new URL(`release.json?_=${Date.now()}`, pageUrl), { cache: "no-store" });
+          const live = response.ok ? await response.json() : null;
+          if (!live || typeof live.version !== "string" || live.version === config.productVersion) return;
+          updateOffered = true;
+          reloadInPlace = true;
+          showBanner(`新版本 v${live.version} 已上线，点下面的按钮更新（点这段文字可先关闭）。`, "update");
+        } catch (_) {}
+      }
+      document.addEventListener("visibilitychange", checkForUpdate);
       startGame();
     </script>
   </body>

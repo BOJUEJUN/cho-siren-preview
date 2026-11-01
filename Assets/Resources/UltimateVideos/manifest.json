@@ -1,0 +1,28 @@
+{
+  "entries": [
+    {
+      "characterId": "wubai",
+      "path": "wubai-ult.mp4",
+      "approvedOriginalArt": true,
+      "durationSeconds": 3.75
+    },
+    {
+      "characterId": "xingli",
+      "path": "xingli-ult.mp4",
+      "approvedOriginalArt": true,
+      "durationSeconds": 4.2
+    },
+    {
+      "characterId": "yeying",
+      "path": "yeying-ult.mp4",
+      "approvedOriginalArt": true,
+      "durationSeconds": 3.8
+    },
+    {
+      "characterId": "feiyin",
+      "path": "feiyin-ult.mp4",
+      "approvedOriginalArt": true,
+      "durationSeconds": 4.25
+    }
+  ]
+}

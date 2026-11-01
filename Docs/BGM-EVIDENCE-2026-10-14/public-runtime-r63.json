@@ -1,0 +1,12 @@
+{
+  "version": "0.3.68",
+  "initialMusicEnabled": false,
+  "musicDuringAudition": "{\"enabled\":true,\"ready\":true,\"hasSoundtrack\":true,\"ducked\":false}",
+  "musicRestored": "{\"enabled\":false,\"ready\":true,\"hasSoundtrack\":true,\"ducked\":false}",
+  "publicLobbyOpened": true,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "physicalPhoneTested": false
+}

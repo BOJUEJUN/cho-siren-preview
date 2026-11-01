@@ -164,9 +164,10 @@ namespace ChoSiren.Tests
             Click("TabWeekly");
             yield return null;
             RequireActiveObject("TaskBoardPanel");
+            // visual-a 1101c: the lit tab is the feedback; no 「已切换到…」 sentence pops up.
             Assert.That(Object.FindObjectsByType<Text>(FindObjectsInactive.Exclude)
-                    .Count(text => text.text == "已切换到每周任务"), Is.EqualTo(1),
-                "任务切换反馈只能出现一次，不能同时覆盖底部说明与全局提示。");
+                    .Count(text => text.text.StartsWith("已切换到", System.StringComparison.Ordinal)), Is.Zero,
+                "任务切换只靠高亮页签反馈，不再弹出文字提示。");
             Click("Back");
             yield return null;
             RequireActiveObject("LobbyCards");
@@ -221,8 +222,8 @@ namespace ChoSiren.Tests
 
             Click("EquipmentChooseMember");
             yield return null;
-            RequireActiveObject("EquipmentPolish038Selector");
-            Click("EquipmentPolish038Member-1");
+            RequireActiveObject("EquipmentMemberPicker");
+            Click("PickMember-1");
             yield return null;
             Assert.That(RequireActiveObject("EquipmentMemberName").GetComponent<Text>().text,
                 Does.StartWith(GameModel.Members[1].Name));
@@ -276,8 +277,13 @@ namespace ChoSiren.Tests
 
             Click("CurrencyPlus-gold");
             yield return null;
-            Assert.That(RequireActiveObject("CurrencyHelp").GetComponent<Text>().text,
-                Does.Contain("训练成员"));
+            // visual-a 1101c: the explanation lives behind the 「?」.
+            Click("CurrencyHelpButton");
+            yield return null;
+            GameObject helpBubble = RequireActiveObject("HelpBubble");
+            Assert.That(helpBubble.GetComponentsInChildren<Text>().Any(text => text.text.Contains("训练成员")), Is.True);
+            helpBubble.GetComponent<Button>().onClick.Invoke();
+            yield return null;
             Click("CurrencyExchange");
             yield return null;
             RequireActiveObject("CurrencyConfirmation");
@@ -404,8 +410,10 @@ namespace ChoSiren.Tests
             yield return null;
             Assert.That(RequireActiveObject("SignConfirmCard"), Is.Not.Null,
                 "签约必须先弹花费确认，不能直接扣款或跳档案。");
+            // 2026-11-01 visual-b: price = diamond icon + number (no 「签约费用 星钻」 words).
             Assert.That(RequireActiveObject("SignConfirmCost").GetComponent<Text>().text,
-                Does.Contain("星钻"));
+                Is.EqualTo(quotedCost.ToString("N0")));
+            RequireActiveObject("SignCostIcon");
             Assert.That(new GameModel().Save.Diamonds, Is.EqualTo(diamondsBefore),
                 "显示确认卡不能提前扣款。");
             Click("SignConfirm");
@@ -414,8 +422,8 @@ namespace ChoSiren.Tests
                 "确认签约必须只扣除当前候选人的报价一次。");
             Assert.That(RequireActiveObject("SignResultCard"), Is.Not.Null,
                 "确认后应展示签约成功卡而不是直接跳档案。");
-            Assert.That(RequireActiveObject("SignResultName").GetComponent<Text>().text,
-                Does.Contain("已加入团队"));
+            Assert.That(RequireActiveObject("SignResultName").GetComponent<Text>().text, Is.Not.Empty);
+            RequireActiveObject("SignResultStamp");
             Click("SignResultProfile");
             yield return null;
             RequireActiveObject("MemberModal");

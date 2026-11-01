@@ -8,7 +8,7 @@
       "Race": "魅族",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/member-xingli",
-      "ThumbnailResourcePath": "Art/Members/member-xingli",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-xingli",
       "BasePower": 9200,
       "StartingLevel": 68,
       "InitiallyUnlocked": true
@@ -20,7 +20,7 @@
       "Race": "魔族 · 恶魔",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/member-feiyin",
-      "ThumbnailResourcePath": "Art/Members/member-feiyin",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-feiyin",
       "BasePower": 8750,
       "StartingLevel": 64,
       "InitiallyUnlocked": true
@@ -32,7 +32,7 @@
       "Race": "海灵族 · 人鱼",
       "Rarity": "SSR",
       "PortraitResourcePath": "Art/Members/member-wubai",
-      "ThumbnailResourcePath": "Art/Members/member-wubai",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-wubai",
       "BasePower": 8340,
       "StartingLevel": 59,
       "InitiallyUnlocked": true
@@ -44,7 +44,7 @@
       "Race": "血精灵",
       "Rarity": "SR",
       "PortraitResourcePath": "Art/Members/member-yeying",
-      "ThumbnailResourcePath": "Art/Members/member-yeying",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-yeying",
       "BasePower": 7920,
       "StartingLevel": 57,
       "InitiallyUnlocked": true

@@ -133,24 +133,27 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void DiceBonusCapsAtTwoTimesAndReportsNoFurtherGain()
+        public void DiceBonusStopsWithTheThreeRerollBudget()
         {
             var picks = new int[40];
             for (int index = 0; index < picks.Length; index++) picks[index] = 4;
             DiceTurn dice = DiceTurn.ForBattle(new ScriptedRandom(new[] { 999 }, picks), 5, false);
             dice.Begin();
-            Assert.That(dice.AccumulatedBonusPermille, Is.EqualTo(250), "五条开局 +25%。");
+            Assert.That(dice.AccumulatedBonusPermille, Is.EqualTo(200), "六同开局 +20%（2026-10-31 下调）。");
 
-            for (int index = 0; index < 5; index++)
+            for (int index = 0; index < DiceTurn.MaxRerollsPerBattle; index++)
             {
                 dice.GainEnergy(DiceTurn.MaxEnergy);
                 Assert.That(dice.EnergyRerollAll(out string error), Is.True, error);
             }
 
-            Assert.That(dice.AccumulatedBonusPermille, Is.EqualTo(DiceTurn.MaxBattleBonusPermille));
-            Assert.That(dice.DamageMultiplierPermille, Is.EqualTo(2000));
-            Assert.That(dice.LastBonusGainPermille, Is.Zero, "封顶后必须显示 0 增益，不能假装继续增长。");
+            // 2026-10-31: three rerolls a battle can no longer reach the old ×2 cap.
+            Assert.That(dice.AccumulatedBonusPermille, Is.EqualTo(800));
+            Assert.That(dice.DamageMultiplierPermille, Is.EqualTo(1800));
+            Assert.That(dice.DamageMultiplierPermille, Is.LessThan(1000 + DiceTurn.MaxBattleBonusPermille));
             Assert.That(dice.RerollsRemaining, Is.Zero);
+            dice.GainEnergy(DiceTurn.MaxEnergy);
+            Assert.That(dice.EnergyRerollAll(out _), Is.False, "第 4 次重投被拒绝");
         }
 
         [Test]
@@ -170,14 +173,16 @@ namespace ChoSiren.Tests
             int boosted = straight.Log.First(e => e.Kind == BattleEventKind.Damage &&
                 e.ActorId == 1 && e.SkillId == "rt-basic").Amount;
 
-            Assert.That(boosted, Is.EqualTo((int)((long)neutral * multiplier / 1000)),
+            Assert.That(high.BattleDice.Hand.Pattern, Is.EqualTo(DicePattern.Pair));
+            Assert.That(neutral, Is.EqualTo(100 * high.BattleDice.DamageMultiplierPermille / 1000));
+            Assert.That(boosted, Is.EqualTo(100 * multiplier / 1000),
                 "伤害必须只乘一次骰子倍率；乘两次会让顺子收益被平方。");
         }
 
         [Test]
         public void CaptainBenefitReadoutMatchesTheCombatRules()
         {
-            var threeKind = new[] { 0, 0, 0, 1, 2 };
+            var threeKind = new[] { 0, 0, 0, 1, 2, 5 };
             BattleSimulator mermaid = RealtimeBattleTests.Create("mermaid",
                 rolls: new ScriptedRandom(new[] { 999 }, threeKind));
             BattleSimulator demon = RealtimeBattleTests.Create("demon",
@@ -187,10 +192,13 @@ namespace ChoSiren.Tests
             BattleSimulator elf = RealtimeBattleTests.Create("elf",
                 rolls: new ScriptedRandom(new[] { 999 }, threeKind));
 
-            Assert.That(mermaid.CaptainShieldPermille, Is.EqualTo(120), "三条人鱼护盾 12%。");
-            Assert.That(demon.CaptainPoisonLayers, Is.EqualTo(3), "三条魔族叠毒 3 层。");
-            Assert.That(charm.CaptainComboCount, Is.EqualTo(3), "三条魅族追击 3 次。");
-            Assert.That(elf.CaptainPiercePermille, Is.EqualTo(200), "三条血精灵穿甲 20%。");
+            // 2026-10-31 (赵金 "我方过强") toned-down captain tables; 2026-11-01b (骰子加成约 +10%, CaptainPassive1101):
+            // the mermaid wall now refreshes every round, so a hand gives less (9% → 4%), and 三条 gives one follow-up.
+            // 2026-11-01c 无限骰子: the wall is up all fight, 4% → 3%.
+            Assert.That(mermaid.CaptainShieldPermille, Is.EqualTo(30), "三条人鱼护盾 3%。");
+            Assert.That(demon.CaptainPoisonLayers, Is.EqualTo(2), "三条魔族叠毒 2 层。");
+            Assert.That(charm.CaptainComboCount, Is.EqualTo(1), "三条魅族追击 1 次。");
+            Assert.That(elf.CaptainPiercePermille, Is.EqualTo(150), "三条血精灵穿甲 15%。");
             BattleSimulator none = RealtimeBattleTests.Create("none");
             Assert.That(none.CaptainShieldPermille, Is.Zero);
             Assert.That(none.CaptainComboCount, Is.Zero);

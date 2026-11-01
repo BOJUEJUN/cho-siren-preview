@@ -1,0 +1,111 @@
+using System;
+using System.Collections.Generic;
+using ChoSiren.Panels;
+using ChoSiren.UI;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace ChoSiren
+{
+    /// <summary>
+    /// 2026-11-01 (赵金: "这个头像要支持点击头像换头像，而不是需要点击改名进去才能换头像"):
+    /// 顶栏头像和档案页头像都直接开这张「换头像」大图网格，点一下就换上并立即刷新；改名仍留在档案里。
+    /// 网格 = 预置证件照 + 已拥有成员的立绘（按 PortraitFace1101 的人脸锚点裁成头像）。
+    /// </summary>
+    public sealed partial class ChoSirenApp
+    {
+        /// <summary>当前生效的头像：优先「佩戴的成员脸」，否则预置证件照。</summary>
+        private Sprite PlayerAvatarSpriteNow()
+        {
+            if (model == null) return null;
+            string memberId = model.PlayerAvatarMemberId;
+            if (!string.IsNullOrEmpty(memberId))
+            {
+                int index = GameModel.MemberIndexFor1101(memberId);
+                if (index >= 0)
+                {
+                    Sprite art = Resources.Load<Sprite>(GameModel.Members[index].ResourcePath);
+                    Sprite face = PortraitFace1101.CropSprite(memberId, art, 1f, PortraitFace1101.Framing.Head);
+                    if (face != null) return face;
+                }
+            }
+            return PlayerAvatarSprite(model.PlayerAvatar);
+        }
+
+        /// <summary>点头像即开：选中就换，全屏关闭。</summary>
+        private void OpenAvatarPicker1101()
+        {
+            if (safeRoot == null || model == null) return;
+            gameAudio?.PlayClick();
+            ModalPolish038Frame frame = ModalPolish038Chrome.Begin(safeRoot, "AvatarPicker1101", "换头像",
+                "经纪人头像", null, 700f, closeName: "Close");
+            GameObject overlay = frame.Overlay;
+            float width = frame.Width * (ModalPolish038Chrome.BodyRight - ModalPolish038Chrome.BodyLeft);
+
+            var faces = new List<Sprite>();
+            var apply = new List<Action>();
+            int selected = -1;
+            for (int i = 0; i < GameModel.PlayerAvatarResources.Length; i++)
+            {
+                int choice = i;
+                Sprite sprite = PlayerAvatarSprite(i);
+                if (sprite == null) continue;
+                faces.Add(sprite);
+                apply.Add(() => model.SetPlayerAvatarPreset(choice));
+                if (model.PlayerAvatarMemberId == null && model.PlayerAvatar == i) selected = faces.Count - 1;
+            }
+            foreach (string memberId in model.AvatarMemberChoices())
+            {
+                string id = memberId;
+                int index = GameModel.MemberIndexFor1101(id);
+                if (index < 0) continue;
+                Sprite art = Resources.Load<Sprite>(GameModel.Members[index].ResourcePath);
+                Sprite face = PortraitFace1101.CropSprite(id, art, 1f, PortraitFace1101.Framing.Head);
+                if (face == null) continue;
+                faces.Add(face);
+                apply.Add(() => model.SetPlayerAvatarMember(id));
+                if (model.PlayerAvatarMemberId == id) selected = faces.Count - 1;
+            }
+
+            const int columns = 4;
+            const float gap = 16f;
+            float tile = (width - (columns - 1) * gap) / columns;
+            for (int i = 0; i < faces.Count; i++)
+            {
+                int slot = i;
+                bool on = i == selected;
+                GameObject ring = NewImage("Pick-" + i, frame.Body, DotSprite(),
+                    on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .14f));
+                PlaceTop(ring.GetComponent<RectTransform>(), i % columns * (tile + gap), i / columns * (tile + gap), tile, tile);
+                ring.GetComponent<Image>().raycastTarget = true;
+                GameObject mask = NewImage("Mask", ring.transform, DotSprite(), Color.white);
+                Stretch(mask.GetComponent<RectTransform>(), 5f, 5f, -5f, -5f);
+                mask.AddComponent<Mask>().showMaskGraphic = false;
+                Image picture = NewImage("Face", mask.transform, faces[i], Color.white).GetComponent<Image>();
+                Stretch(picture.rectTransform);
+                picture.preserveAspect = true;
+                if (on)
+                {
+                    GameObject check = NewImage("Check", ring.transform, DotSprite(), Brand1025.Teal);
+                    RectTransform checkRect = check.GetComponent<RectTransform>();
+                    checkRect.anchorMin = checkRect.anchorMax = checkRect.pivot = new Vector2(1f, 0f);
+                    checkRect.sizeDelta = new Vector2(tile * .28f, tile * .28f);
+                    checkRect.anchoredPosition = new Vector2(-tile * .04f, tile * .04f);
+                }
+                Button pick = ring.AddComponent<Button>();
+                pick.transition = Selectable.Transition.None;
+                pick.targetGraphic = ring.GetComponent<Image>();
+                pick.onClick.AddListener(() =>
+                {
+                    apply[slot]?.Invoke();
+                    RefreshPlayerIdentity1028();
+                    gameAudio?.PlaySuccess();
+                    Destroy(overlay);
+                    Toast("已换头像");
+                });
+            }
+            int rows = (faces.Count + columns - 1) / columns;
+            ModalPolish038Chrome.FitHeight(frame, rows * tile + (rows - 1) * gap + 8f);
+        }
+    }
+}

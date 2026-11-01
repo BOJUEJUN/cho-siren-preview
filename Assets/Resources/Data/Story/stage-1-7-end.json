@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-7-end",
+  "Title": "1-7 欲望剧院",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-7"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "grin",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "谢幕。观众醒了，掌声是给我们的。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "她们的眼睛有光了……真好。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "咒术师逃向了天台。追上去，别让她再操纵任何人。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

@@ -18,6 +18,9 @@ namespace ChoSiren.UI
         };
         private static Sprite fragmentIcon, ticketIcon;
 
+        /// <summary>The HUD currency badge ("diamond" / "gold" / "stamina"), from Art/Reward1101.</summary>
+        public static Sprite HudBadge(string currency) => Resources.Load<Sprite>("Art/Reward1101/hud-" + currency + "-1101");
+
         public static Sprite SpriteFor(string itemId)
         {
             int accessory = GameModel.AccessoryIndexForItem(itemId);
@@ -25,14 +28,17 @@ namespace ChoSiren.UI
             if (accessory >= 0) return Resources.Load<Sprite>(AccessoryPaths[accessory % AccessoryPaths.Length]);
             switch (itemId)
             {
-                case CurrencyIds.Gold: return Resources.Load<Sprite>("Art/UI/ResourceGold-C");
-                case CurrencyIds.Diamond: return Resources.Load<Sprite>("Art/UI/ResourceDiamond-C");
-                case CurrencyIds.Stamina: return Resources.Load<Sprite>("Art/UI/ResourceStamina-C");
+                // 2026-11-01 reward-ui: currencies use the top-HUD badges (cut from the HUD pill art itself), so
+                // sign-in, mail, popups, result cards and the HUD read as one icon set.
+                case CurrencyIds.Gold: return HudBadge("gold") ?? Resources.Load<Sprite>("Art/UI/ResourceGold-C");
+                case CurrencyIds.Diamond: return HudBadge("diamond") ?? Resources.Load<Sprite>("Art/UI/ResourceDiamond-C");
+                case CurrencyIds.Stamina: return HudBadge("stamina") ?? Resources.Load<Sprite>("Art/UI/ResourceStamina-C");
                 case GameModel.EquipmentFragmentItemId:
                     return fragmentIcon != null ? fragmentIcon : fragmentIcon = BuildSymbol(false);
                 case CurrencyIds.RecruitTicket:
+                    return Resources.Load<Sprite>("Art/Reward1101/ticket-recruit-1101") ?? (ticketIcon != null ? ticketIcon : ticketIcon = BuildSymbol(true));
                 case CurrencyIds.CostumeTicket:
-                    return ticketIcon != null ? ticketIcon : ticketIcon = BuildSymbol(true);
+                    return Resources.Load<Sprite>("Art/Reward1101/ticket-costume-1101") ?? (ticketIcon != null ? ticketIcon : ticketIcon = BuildSymbol(true));
                 default: return null;
             }
         }
@@ -59,6 +65,10 @@ namespace ChoSiren.UI
                 ? new Color32(255, 213, 123, 255) : new Color32(103, 222, 255, 255);
         }
 
+        /// <summary>True for the white code-drawn fallback glyphs, which are tinted with <see cref="AccentFor"/>.</summary>
+        public static bool IsCodeSymbol(Sprite sprite) => sprite != null && sprite.texture != null &&
+            (sprite.texture.name == "RecruitTicketSymbol" || sprite.texture.name == "EquipmentFragmentSymbol");
+
         public static Image CreateIcon(Transform parent, string itemId, string name, float x, float y, float size)
         {
             var obj = new GameObject(name, typeof(RectTransform), typeof(Image));
@@ -71,8 +81,7 @@ namespace ChoSiren.UI
             image.sprite = SpriteFor(itemId);
             image.preserveAspect = true;
             image.raycastTarget = false;
-            image.color = GameModel.AccessoryIndexForItem(itemId) >= 0 || itemId == CurrencyIds.Gold ||
-                itemId == CurrencyIds.Diamond || itemId == CurrencyIds.Stamina ? Color.white : AccentFor(itemId);
+            image.color = IsCodeSymbol(image.sprite) ? AccentFor(itemId) : Color.white;
             return image;
         }
 

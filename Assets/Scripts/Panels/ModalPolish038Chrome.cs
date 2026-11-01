@@ -62,14 +62,15 @@ namespace ChoSiren.Panels
 
         public static readonly Color TextWhite = new Color32(249, 247, 255, 255);
         public static readonly Color TextMuted = new Color32(196, 190, 220, 255);
-        public static readonly Color AccentPink = new Color32(255, 102, 190, 255);
+        /// <summary>The modal accent = brand teal (2026-10-26 unified design; was a hot pink).</summary>
+        public static readonly Color Accent = Brand1025.Teal;
         public static readonly Color AccentCyan = new Color32(91, 215, 255, 255);
         public static readonly Color AccentViolet = new Color32(178, 152, 255, 255);
         public static readonly Color AccentGold = new Color32(255, 205, 96, 255);
         public static readonly Color AccentDanger = new Color32(255, 122, 146, 255);
         public static readonly Color EyebrowPink = new Color32(255, 173, 226, 255);
         public static readonly Color InsetDark = new Color32(13, 10, 38, 246);
-        public static readonly Color RowDark = new Color32(19, 20, 54, 235);
+        public static readonly Color RowDark = new Color32(24, 13, 42, 236);
 
         private static Sprite backdrop;
         private static Font font;
@@ -123,57 +124,91 @@ namespace ChoSiren.Panels
             Image dim = overlay.AddComponent<Image>();
             dim.color = new Color32(2, 3, 14, 233);
             dim.raycastTarget = true;
+            PanelKit.AddEdgeShade(overlay.transform, new Color32(2, 3, 14, 233));
             frame.Overlay = overlay;
 
             RectTransform panel = Rect("Panel", overlay.transform);
             panel.anchorMin = panel.anchorMax = panel.pivot = Vector2.one * .5f;
             panel.anchoredPosition = Vector2.zero;
             panel.sizeDelta = new Vector2(frame.Width, frame.Height);
+            // v0.3.40 punk chrome: a plain black glass card with a pink top rule and a pink
+            // offset edge, matching the task board, instead of the illustrated crystal frame.
+            Image shadowImage = NewImage("PanelShadow", overlay.transform,
+                ChoSiren.UI.SirenStickerUi.PanelSprite, ChoSiren.UI.SirenStickerUi.Violet);
+            RectTransform shadowRect = shadowImage.rectTransform;
+            shadowRect.anchorMin = shadowRect.anchorMax = shadowRect.pivot = Vector2.one * .5f;
+            shadowRect.anchoredPosition = new Vector2(6f, -6f);
+            shadowRect.sizeDelta = new Vector2(frame.Width, frame.Height);
+            shadowRect.SetAsFirstSibling();
+            shadowImage.transform.SetSiblingIndex(0);
             Image panelImage = panel.gameObject.AddComponent<Image>();
-            panelImage.sprite = BackdropSprite();
-            panelImage.preserveAspect = true;
+            panelImage.color = new Color32(12, 6, 24, 255);
             panelImage.raycastTarget = true;
+            ChoSiren.UI.SirenStickerUi.SkinPanel(panel.gameObject);
+            Image topRule = NewImage("TopRule", panel, null, Brand1025.Teal);
+            RectTransform ruleRect = topRule.rectTransform;
+            ruleRect.anchorMin = new Vector2(0f, 1f);
+            ruleRect.anchorMax = new Vector2(1f, 1f);
+            ruleRect.pivot = new Vector2(.5f, 1f);
+            ruleRect.offsetMin = new Vector2(0f, -6f);
+            ruleRect.offsetMax = Vector2.zero;
+            topRule.enabled = false;
             frame.Panel = panel;
 
             if (titleVisible)
             {
-                float cx = frame.Width * .5f;
+                float left = frame.Width * BodyLeft;
                 if (!string.IsNullOrEmpty(eyebrow))
                 {
-                    Text brow = Text(panel, "Eyebrow", eyebrow, 13, EyebrowPink,
-                        FontStyle.Bold, TextAnchor.MiddleCenter);
-                    PlaceTop(brow.rectTransform, cx - frame.Width * .30f, frame.Height * .088f,
-                        frame.Width * .60f, 22f);
+                    Text brow = Text(panel, "Eyebrow", eyebrow, 15, Brand1025.Teal,
+                        FontStyle.BoldAndItalic, TextAnchor.MiddleLeft);
+                    PlaceTop(brow.rectTransform, left, frame.Height * .06f, frame.Width * .62f, 22f);
                     EnableBestFit(brow, 10);
                 }
 
-                Text head = Text(panel, "Title", title, 27, TextWhite,
-                    FontStyle.Bold, TextAnchor.MiddleCenter);
-                PlaceTop(head.rectTransform, cx - frame.Width * .32f, frame.Height * .114f,
-                    frame.Width * .64f, 44f);
+                Text head = Text(panel, "Title", title, 30, TextWhite,
+                    FontStyle.Bold, TextAnchor.MiddleLeft);
+                PlaceTop(head.rectTransform, left, frame.Height * .09f, frame.Width * .66f, 46f);
                 EnableBestFit(head, 18);
-                ReferencePunkFx.Beam(panel, "TitleBeam",
-                    new Vector2(cx - Mathf.Min(150f, frame.Width * .26f), frame.Height * .168f),
-                    new Vector2(cx + Mathf.Min(150f, frame.Width * .26f), frame.Height * .168f),
-                    1.4f, new Color32(165, 103, 240, 132));
+                ChoSiren.UI.SirenStickerUi.SkinTitle(head, true);
+                Image beam = NewImage("TitleBeam", panel, PunkUi.SlantFill, Brand1025.Teal);
+                PlaceTop(beam.rectTransform, left, frame.Height * .09f + 50f, 64f, 6f);
             }
 
             if (onClose != null)
             {
-                GameObject close = ActionButton(panel, closeName, "×", 24, onClose,
+                GameObject close = ActionButton(panel, closeName, "×", 26, onClose,
                     ModalPolish038ButtonStyle.Ghost);
                 PlaceTop(close.GetComponent<RectTransform>(),
-                    frame.Width * .845f, frame.Height * .105f, 52f, 50f);
+                    frame.Width * .895f - 56f, frame.Height * .045f, 56f, 46f);
                 frame.CloseButton = close;
             }
 
+            // Pixel insets (not fractions) so FitHeight can shorten the card without moving content.
             RectTransform body = Rect("Body", panel);
-            body.anchorMin = new Vector2(BodyLeft, 1f - BodyBottom);
-            body.anchorMax = new Vector2(BodyRight, 1f - (titleVisible ? BodyTop : BodyTopBare));
+            body.anchorMin = Vector2.zero;
+            body.anchorMax = Vector2.one;
             body.pivot = Vector2.one * .5f;
-            body.offsetMin = body.offsetMax = Vector2.zero;
+            body.offsetMin = new Vector2(frame.Width * BodyLeft, frame.Height * (1f - BodyBottom));
+            body.offsetMax = new Vector2(-frame.Width * (1f - BodyRight),
+                -frame.Height * (titleVisible ? BodyTop : BodyTopBare));
             frame.Body = body;
             return frame;
+        }
+
+        /// <summary>Shortens the card so the body is exactly <paramref name="contentHeight"/> tall.</summary>
+        public static void FitHeight(ModalPolish038Frame frame, float contentHeight)
+        {
+            if (frame == null || frame.Panel == null || frame.Body == null) return;
+            // A fitted card only needs a slim bottom margin, not the tall frame's 12%.
+            const float bottomMargin = 36f;
+            frame.Body.offsetMin = new Vector2(frame.Body.offsetMin.x, bottomMargin);
+            float chrome = -frame.Body.offsetMax.y + bottomMargin;
+            float height = Mathf.Min(frame.Height, chrome + contentHeight);
+            frame.Height = height;
+            frame.Panel.sizeDelta = new Vector2(frame.Width, height);
+            Transform shadow = frame.Overlay != null ? frame.Overlay.transform.Find("PanelShadow") : null;
+            if (shadow != null) ((RectTransform)shadow).sizeDelta = new Vector2(frame.Width, height);
         }
 
         /// <summary>
@@ -199,11 +234,11 @@ namespace ChoSiren.Panels
             body.gameObject.AddComponent<CanvasGroup>();
 
             StylePalette(style, out Color edgeColor, out Color insetColor, out Color labelColor);
-            Image edge = NewImage("Edge", body, ReferencePunkFx.SlashPanel(false), edgeColor);
-            edge.type = Image.Type.Sliced;
+            Image drop = NewImage("Shadow", body, PunkUi.SlantFill, ShadowColor(style));
+            Stretch(drop.rectTransform, 4f, -4f, 4f, -4f);
+            Image edge = NewImage("Edge", body, PunkUi.SlantFill, edgeColor);
             Stretch(edge.rectTransform);
-            Image inset = NewImage("Inset", edge.transform, ReferencePunkFx.SlashPanel(false), insetColor);
-            inset.type = Image.Type.Sliced;
+            Image inset = NewImage("Inset", edge.transform, PunkUi.SlantFill, insetColor);
             Stretch(inset.rectTransform, 2f, 2f, -2f, -2f);
 
             Text caption = Text(body, "Label", label, fontSize, labelColor,
@@ -214,8 +249,7 @@ namespace ChoSiren.Panels
             GameObject sheenObject = Rect("Sheen", body).gameObject;
             Stretch(sheenObject.GetComponent<RectTransform>());
             Image sheenImage = sheenObject.AddComponent<Image>();
-            sheenImage.sprite = ReferencePunkFx.SlashPanel(false);
-            sheenImage.type = Image.Type.Sliced;
+            sheenImage.sprite = PunkUi.SlantFill;
             sheenImage.color = new Color(1f, 1f, 1f, 1f);
             sheenImage.raycastTarget = false;
             CanvasGroup sheen = sheenObject.AddComponent<CanvasGroup>();
@@ -229,6 +263,10 @@ namespace ChoSiren.Panels
                 action?.Invoke();
             });
             outer.AddComponent<ModalPolish038PressFeedback>().Configure(body, sheen);
+            // Danger (清除存档 …) keeps the dark plate: green means "do this", never "destroy this".
+            ChoSiren.UI.SirenStickerUi.SkinButton(outer,
+                style == ModalPolish038ButtonStyle.Primary,
+                style == ModalPolish038ButtonStyle.Ghost || fontSize < 16);
             return outer;
         }
 
@@ -240,7 +278,7 @@ namespace ChoSiren.Panels
             if (button != null) button.interactable = enabled;
             Transform body = actionButton.transform.Find("Body");
             CanvasGroup group = body != null ? body.GetComponent<CanvasGroup>() : null;
-            if (group != null) group.alpha = enabled ? 1f : .42f;
+            if (group != null) group.alpha = enabled ? 1f : .72f;
             if (label != null && body != null)
             {
                 Transform caption = body.Find("Label");
@@ -258,9 +296,7 @@ namespace ChoSiren.Panels
         {
             GameObject block = Rect(name, parent).gameObject;
             Image bg = block.AddComponent<Image>();
-            bg.sprite = ReferencePunkFx.SlashPanel(true);
-            bg.type = Image.Type.Sliced;
-            bg.color = new Color32(11, 9, 34, 228);
+            bg.color = new Color32(20, 10, 36, 235);
             bg.raycastTarget = false;
 
             Color accent = StateAccent(kind);
@@ -319,19 +355,15 @@ namespace ChoSiren.Panels
             body = Rect("Body", outer.transform);
             Stretch(body);
             body.pivot = Vector2.one * .5f;
-            Image plate = NewImage("Plate", body, ReferencePunkFx.SlashPanel(mirror), RowDark);
-            plate.type = Image.Type.Sliced;
+            Image plate = NewImage("Plate", body, null, RowDark);
             Stretch(plate.rectTransform);
-            Outline edge = plate.gameObject.AddComponent<Outline>();
-            edge.effectColor = new Color32(122, 160, 224, 78);
-            edge.effectDistance = new Vector2(1f, -1f);
-            edge.useGraphicAlpha = true;
+            ChoSiren.UI.SirenStickerUi.SkinPanel(plate.gameObject, false);
+            AddStripe(plate.transform, PunkUi.Cyan);
 
             GameObject sheenObject = Rect("Sheen", body).gameObject;
             Stretch(sheenObject.GetComponent<RectTransform>());
             Image sheenImage = sheenObject.AddComponent<Image>();
-            sheenImage.sprite = ReferencePunkFx.SlashPanel(mirror);
-            sheenImage.type = Image.Type.Sliced;
+            sheenImage.sprite = null;
             sheenImage.color = new Color(1f, 1f, 1f, 1f);
             sheenImage.raycastTarget = false;
             CanvasGroup sheen = sheenObject.AddComponent<CanvasGroup>();
@@ -353,14 +385,9 @@ namespace ChoSiren.Panels
         {
             GameObject row = Rect(name, parent).gameObject;
             Image bg = row.AddComponent<Image>();
-            bg.sprite = ReferencePunkFx.SlashPanel(mirror);
-            bg.type = Image.Type.Sliced;
             bg.color = RowDark;
             bg.raycastTarget = false;
-            Outline edge = row.AddComponent<Outline>();
-            edge.effectColor = new Color32(122, 160, 224, 78);
-            edge.effectDistance = new Vector2(1f, -1f);
-            edge.useGraphicAlpha = true;
+            ChoSiren.UI.SirenStickerUi.SkinPanel(row, false);
             return row;
         }
 
@@ -434,25 +461,35 @@ namespace ChoSiren.Panels
             switch (style)
             {
                 case ModalPolish038ButtonStyle.Secondary:
-                    edge = new Color32(157, 144, 247, 235);
-                    inset = new Color32(23, 17, 56, 250);
+                    edge = new Color(1f, 1f, 1f, .78f);
+                    inset = new Color32(10, 5, 20, 255);
                     label = TextWhite;
                     return;
                 case ModalPolish038ButtonStyle.Danger:
-                    edge = new Color32(226, 96, 128, 240);
-                    inset = new Color32(54, 15, 36, 250);
+                    edge = new Color32(255, 92, 120, 255);
+                    inset = new Color32(60, 10, 28, 255);
                     label = TextWhite;
                     return;
                 case ModalPolish038ButtonStyle.Ghost:
-                    edge = new Color32(122, 160, 224, 150);
-                    inset = new Color32(15, 15, 42, 210);
+                    edge = new Color32(0, 0, 0, 255);
+                    inset = new Color32(0, 0, 0, 255);
                     label = TextWhite;
                     return;
                 default:
-                    edge = AccentPink;
-                    inset = new Color32(44, 17, 56, 250);
-                    label = TextWhite;
+                    edge = Brand1025.Teal;
+                    inset = Brand1025.Teal;
+                    label = Brand1025.Ink;
                     return;
+            }
+        }
+
+        private static Color ShadowColor(ModalPolish038ButtonStyle style)
+        {
+            switch (style)
+            {
+                case ModalPolish038ButtonStyle.Primary: return Color.black;
+                case ModalPolish038ButtonStyle.Ghost: return Color.clear;
+                default: return Color.clear;
             }
         }
 
@@ -478,6 +515,17 @@ namespace ChoSiren.Panels
                 case ModalPolish038StateKind.Info: return ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Gem);
                 default: return ReferencePunkFx.StatGlyph(ReferencePunkFx.StatGlyphKind.Wave);
             }
+        }
+
+        private static void AddStripe(Transform parent, Color color)
+        {
+            Image stripe = NewImage("Stripe", parent, null, color);
+            RectTransform rect = stripe.rectTransform;
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.pivot = new Vector2(0f, .5f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = new Vector2(5f, 0f);
         }
 
         private static Image NewImage(string name, Transform parent, Sprite sprite, Color color)

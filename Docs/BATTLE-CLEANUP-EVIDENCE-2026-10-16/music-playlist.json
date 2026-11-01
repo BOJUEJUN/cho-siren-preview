@@ -1,0 +1,46 @@
+{
+  "title": "CHO-SIREN 原创试听",
+  "date": "2026-10-16",
+  "tracks": [
+    {
+      "id": 1,
+      "title": "霓虹漫游",
+      "kind": "纯音乐",
+      "style": "暖色 city-pop / 爵士 funk，电钢琴与圆润贝斯",
+      "duration": "3:25",
+      "durationSeconds": 204.63,
+      "file": "track-1.mp3",
+      "sha256": "5e5366e8ba7f1fad20a02217c9cb951045344328bfbfa796b082238dd6bd3a90"
+    },
+    {
+      "id": 2,
+      "title": "星河入梦",
+      "kind": "纯音乐",
+      "style": "梦幻钢琴 / 轻电子，温柔夜景与清晰主旋律",
+      "duration": "3:30",
+      "durationSeconds": 210.19,
+      "file": "track-2.mp3",
+      "sha256": "5905300cb8d7cab120d274840d3a755f11850c8cf8fc0566d84bbdf59468486e"
+    },
+    {
+      "id": 3,
+      "title": "心动频率",
+      "kind": "女声歌曲",
+      "style": "轻盈中文 K-pop / city-pop，清晰女声与明亮副歌",
+      "duration": "3:31",
+      "durationSeconds": 210.87,
+      "file": "track-3.mp3",
+      "sha256": "e6ddf723e5936353b87a6a58c14f3f825cf44691b787b9e2db72f39626d8b6b0"
+    },
+    {
+      "id": 4,
+      "title": "月光信号",
+      "kind": "女声歌曲",
+      "style": "温柔中文 dream R&B / 夜景流行，低声女主唱与钢琴",
+      "duration": "3:12",
+      "durationSeconds": 192.19,
+      "file": "track-4.mp3",
+      "sha256": "0675a11d35eed54b9726da41963bc4b2d4e9bcbff05bba38fd8e7714a71d3536"
+    }
+  ]
+}

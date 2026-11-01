@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-8-end",
+  "Title": "2-8 浪潮天台",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "三个方向都守住了……海湾真的好漂亮。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "天要亮了。前奏，开始吧。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "黎明前奏。唱完它，就是正式公演。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

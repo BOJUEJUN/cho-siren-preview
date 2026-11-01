@@ -1,0 +1,28 @@
+{
+  "id": "seed-sfx-bundle",
+  "kind": "sfx",
+  "endpoint": "/openapi/v2/bytedance/doubao-seed-audio-1.0",
+  "payload_sha256": "250c5501f2480fc07cb6280812d41da35cc59770287a0c81b42109a3a5b7eee7",
+  "quoted_cny": 0.48,
+  "attempts": 1,
+  "status": "SUCCESS",
+  "task_id": "2112102950754459649",
+  "error_code": "",
+  "error_message": "",
+  "usage": {
+    "consumeMoney": null,
+    "consumeCoins": null,
+    "taskCostTime": "0",
+    "thirdPartyConsumeMoney": "0.024",
+    "billingSeconds": "5.9"
+  },
+  "downloaded": true,
+  "files": [
+    {
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/seed-sfx-bundle-20261019-v1/original/seed-sfx-bundle.wav",
+      "bytes": 1040804,
+      "sha256": "2edbe1b558e002eb25ac10bc28e9c15e797561e64a8aad7eea337b4d22caaeff",
+      "source_host": "rh-images-1252422369.cos.ap-beijing.myqcloud.com"
+    }
+  ]
+}

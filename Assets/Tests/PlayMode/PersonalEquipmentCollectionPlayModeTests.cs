@@ -114,15 +114,15 @@ namespace ChoSiren.Tests
             int next = model.Save.UnlockedMembers[(model.Save.UnlockedMembers.IndexOf(original)+1) % model.Save.UnlockedMembers.Count];
             Click("EquipmentChooseMember");
             yield return null;
-            Require("EquipmentPolish038Selector");
-            Click("EquipmentPolish038Member-" + next);
+            Require("EquipmentMemberPicker");
+            Click("PickMember-" + next);
             yield return null;
             Assert.That(VisibleIds(), Is.Empty);
             Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[next].Name));
             Assert.That(Require("EquipmentSelectedArt").GetComponent<Image>().sprite, Is.Not.Null);
             Click("EquipmentChooseMember");
             yield return null;
-            Click("EquipmentPolish038Member-" + original);
+            Click("PickMember-" + original);
             yield return null;
             Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[original].Name));
             Assert.That(model.Save.MemberAccessories, Is.Empty, "浏览筛选和切换角色不得自动装备或转移饰品");
@@ -171,14 +171,14 @@ namespace ChoSiren.Tests
             // 切到无装备成员：选中回退到第 0 件，网格必须跟到该卡所在页，
             // 否则详情条显示的饰品没有 QuickEquip/QuickUpgrade 任何操作入口。
             Click("EquipmentChooseMember"); yield return null;
-            Click("EquipmentPolish038Member-" + bare); yield return null;
+            Click("PickMember-" + bare); yield return null;
             Assert.That(Label("EquipmentMemberName"), Does.StartWith(GameModel.Members[bare].Name));
             Assert.That(VisibleIds(), Does.Contain(0), "换人后选中卡必须留在可见页，否则没有穿戴/卸下入口。");
             Assert.That(GameObject.Find("QuickEquip"), Is.Not.Null, "选中卡可见时必须提供快捷操作。");
 
             // 切到穿戴着第 6 页饰品的成员：网格必须跟到第 6 页并给出「卸下」。
             Click("EquipmentChooseMember"); yield return null;
-            Click("EquipmentPolish038Member-" + equipped); yield return null;
+            Click("PickMember-" + equipped); yield return null;
             Assert.That(VisibleIds(), Does.Contain(60));
             Assert.That(Label("EquipmentItemName"), Is.EqualTo(GameModel.AccessoryNames[60]));
             Assert.That(Require("QuickEquip").GetComponentInChildren<Text>().text, Is.EqualTo("卸下"));

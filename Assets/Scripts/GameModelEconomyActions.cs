@@ -71,7 +71,8 @@ namespace ChoSiren
 
             // One save and one change notification: observers never see a half-paid exchange.
             Save.Diamonds -= quote.DiamondCost;
-            Save.Gold += quote.ReceiveAmount;
+            TagRewards1101(RewardGrant1101.SourceExchange);
+            GrantItemInternal(CurrencyIds.Gold, quote.ReceiveAmount);
             SaveState();
             message = $"兑换成功：星光币 +{quote.ReceiveAmount:N0}，星钻 -{quote.DiamondCost:N0}";
             return true;
@@ -98,6 +99,8 @@ namespace ChoSiren
             Save.Diamonds -= quote.DiamondCost;
             Save.Stamina = recovered.Stamina + quote.ReceiveAmount;
             Save.StaminaRegenAnchorUnix = Save.Stamina >= StaminaCap ? now : recovered.LastRegenUnixSeconds;
+            TagRewards1101(RewardGrant1101.SourceExchange);
+            RecordRewardGrant1101(CurrencyIds.Stamina, quote.ReceiveAmount);
             SaveState();
             message = $"补充成功：体力 +{quote.ReceiveAmount}，星钻 -{quote.DiamondCost}（{Save.Stamina}/{StaminaCap}）";
             return true;

@@ -1,0 +1,56 @@
+{
+  "source": "/Users/bojuejun/cho-siren-audio-src/sonniss-gdc2026/part1/344 Audio - Anime Fight Voices Vol. 2/VOXFem_Anime, Warrior Elf Princess Aggressive Yell_344 Audio_Anime Fight Voices Vol 2_14.wav",
+  "source_sha256": "4ecd6122d54252b08be199622632d5585d41ee226330076e8fa199d7ba4b042d",
+  "license": "/Users/bojuejun/cho-siren-audio-src/sonniss-gdc2026/part1/License - GDC Game Audio.pdf",
+  "method": "Existing human nonverbal recording, local pitch-layering and reverb; no lyrics, no BGM copied, no paid generation.",
+  "clips": [
+    {
+      "resource": "Audio/Chorus/xingli-1",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "06a14f0c16d24cf629be18dd79996cf50d8923b4b1098021a1a1b6961eab0d99"
+    },
+    {
+      "resource": "Audio/Chorus/xingli-2",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "2255c693dd1d45cb590becc2a7f9a74d9d2c4cbf7ae4989c91191ad813fe29f2"
+    },
+    {
+      "resource": "Audio/Chorus/feiyin-1",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "b1731184112dfab157cceafd765c0b28ac0b80b40f26c601b7dcb52eafc9921d"
+    },
+    {
+      "resource": "Audio/Chorus/feiyin-2",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "e48ab19991794040f0b5dabf0d0f0ff079d191db3455cc31c20d4afa7aba0185"
+    },
+    {
+      "resource": "Audio/Chorus/wubai-1",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "40d172a75084a57ce4ae53f2c2b444bc26a91c42c60d1b8cf776480480dfd314"
+    },
+    {
+      "resource": "Audio/Chorus/wubai-2",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "f6ace5ed39302408fcac32015adfc085aa292bb089fce3eb0bb4d36e19294d49"
+    },
+    {
+      "resource": "Audio/Chorus/yeying-1",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "94243e2df28fb4cdb4ac7abb85731fcade43b727dccee39b8dcefeccc76b5785"
+    },
+    {
+      "resource": "Audio/Chorus/yeying-2",
+      "seconds": 1.6,
+      "peak_dbfs": -6.0,
+      "sha256": "263e3bdc798a62e5d4b618710ea59e0c9fec15b6e908bd8fdb352791f61cd2df"
+    }
+  ]
+}

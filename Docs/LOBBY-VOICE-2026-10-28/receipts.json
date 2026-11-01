@@ -1,0 +1,146 @@
+{
+  "date": "2026-10-28",
+  "endpoint": "runninghub.ai /openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+  "quote_usd_per_line": 0.00216,
+  "approved_by": "少爷: runninghub 可以直接用",
+  "lines": {
+    "catalena-1": {
+      "taskId": "2115279576623419393",
+      "text": "(inhale)ねえ、今日も一緒に歌ってくれる？",
+      "voice": {
+        "voice_id": "Japanese_DependableWoman",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 2
+      }
+    },
+    "catalena-2": {
+      "taskId": "2115279585402097665",
+      "text": "この光、きっと君にも届くよ。",
+      "voice": {
+        "voice_id": "Japanese_DependableWoman",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 2
+      }
+    },
+    "catalena-3": {
+      "taskId": "2115279592280756225",
+      "text": "さあ、私たちのステージを始めよう！",
+      "voice": {
+        "voice_id": "Japanese_DependableWoman",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 2
+      }
+    },
+    "lilith-1": {
+      "taskId": "2115279598648229889",
+      "text": "マネージャー、今日もいい子でリハーサルに付き合ってね？",
+      "voice": {
+        "voice_id": "Japanese_DecisivePrincess",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 1
+      }
+    },
+    "lilith-2": {
+      "taskId": "2115279605413122050",
+      "text": "また新しい子と契約したって……私、妬いちゃうんだから。",
+      "voice": {
+        "voice_id": "Japanese_DecisivePrincess",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 1
+      }
+    },
+    "lilith-3": {
+      "taskId": "2115279611035738114",
+      "text": "(chuckle)ステージの主役は、もちろん私だけよ！",
+      "voice": {
+        "voice_id": "Japanese_DecisivePrincess",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 1
+      }
+    },
+    "lilith-4": {
+      "taskId": "2115279618069585922",
+      "text": "これ以上見つめたら、チケット代もらっちゃうよ？",
+      "voice": {
+        "voice_id": "Japanese_DecisivePrincess",
+        "emotion": "happy",
+        "speed": 1.05,
+        "pitch": 1
+      }
+    }
+  },
+  "prologue": {
+    "prologue-l6": {
+      "taskId": "2115283751082221569",
+      "member": "xingli",
+      "emotion": "surprised",
+      "text": "(inhale)あっ、あなたが新しいマネージャーさん？私、CHO-SIRENのメインボーカルなの。よろしくね！"
+    },
+    "prologue-l8": {
+      "taskId": "2115283755951808513",
+      "member": "feiyin",
+      "emotion": "happy",
+      "text": "へえ、頼りになりそうじゃん。ダンスはこの私の担当。先に言っとくけど、リハに遅刻したらタピオカおごりだからね。"
+    },
+    "prologue-l10": {
+      "taskId": "2115283767293206529",
+      "member": "wubai",
+      "emotion": "happy",
+      "text": "みんなが傷ついたときは……私の歌で守ります。よろしくお願いしますね。"
+    },
+    "prologue-l11": {
+      "taskId": "2115283772217319426",
+      "member": "yeying",
+      "emotion": "neutral",
+      "text": "ラップ担当。——挨拶はいい。ノイズは待ってくれないから。"
+    },
+    "prologue-l13": {
+      "taskId": "2115283776902356993",
+      "member": "xingli",
+      "emotion": "happy",
+      "text": "そうだよ。私たちがステージに立って、思いっきり歌えば、光はきっと戻ってくる。"
+    },
+    "prologue-l14": {
+      "taskId": "2115283782589833217",
+      "member": "feiyin",
+      "emotion": "neutral",
+      "text": "問題は、ステージの上からじゃ全体が見えないこと。いつ仕掛けるか、教えてくれる人が要るの。"
+    },
+    "prologue-l15": {
+      "taskId": "2115283787167522817",
+      "member": "xingli",
+      "emotion": "happy",
+      "text": "だから……マネージャーさん。今日から、CHO-SIRENのステージはあなたに任せるね。"
+    },
+    "prologue-l17": {
+      "taskId": "2115283793224097794",
+      "member": "xingli",
+      "emotion": "happy",
+      "text": "(chuckle)うん！じゃあ約束だよ、マネージャーさん。"
+    },
+    "prologue-l19": {
+      "taskId": "2115283803620073474",
+      "member": "feiyin",
+      "emotion": "happy",
+      "text": "言うじゃん！そういうの、嫌いじゃないよ。"
+    },
+    "prologue-l25": {
+      "taskId": "2115283808510631938",
+      "member": "yeying",
+      "emotion": "angry",
+      "text": "来たな。すぐ下の裏路地だ。"
+    },
+    "prologue-l26": {
+      "taskId": "2115283816844713986",
+      "member": "xingli",
+      "emotion": "happy",
+      "text": "(inhale)最初のライブ、今から始めるよ。マネージャーさん——この街に、私たちの声を聞かせよう！"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-9",
+  "Title": "1-9 终演前夜",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-9"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "明天就是王座之战了。今晚……能再听你说一次「没问题」吗？",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "没问题。你们已经比任何时候都强。"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "那就先把门口这几个清掉，当作彩排。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

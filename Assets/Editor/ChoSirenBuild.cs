@@ -16,13 +16,40 @@ namespace ChoSiren.Editor
         public static void BuildWindows()
         {
             string output = ResolveOutput("Builds/Windows/CHO-SIREN.exe");
+            // Portrait window that fits a 1080p screen (resizable); not the desktop's native landscape size.
+            PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
+            PlayerSettings.defaultIsNativeResolution = false;
+            PlayerSettings.defaultScreenWidth = 470;
+            PlayerSettings.defaultScreenHeight = 1010;
+            PlayerSettings.resizableWindow = true;
+            ApplyDefaultIcon();
             Build(output, BuildTarget.StandaloneWindows64, BuildOptions.CleanBuildCache);
             WriteWindowsSupportFiles(output);
+        }
+
+        /// <summary>macOS app (2026-10-22): Apple silicon, same portrait window as Windows.</summary>
+        public static void BuildMacOS()
+        {
+            string output = ResolveOutput("Builds/macOS/CHO-SIREN.app");
+            PlayerSettings.fullScreenMode = FullScreenMode.Windowed;
+            PlayerSettings.defaultIsNativeResolution = false;
+            PlayerSettings.defaultScreenWidth = 470;
+            PlayerSettings.defaultScreenHeight = 1010;
+            PlayerSettings.resizableWindow = true;
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, "com.bojuejun.chosiren");
+            ApplyDefaultIcon();
+            // Apple silicon only: the universal build needs Burst's llvm-lipo, which is not allowed to run here.
+            UnityEditor.OSXStandalone.UserBuildSettings.architecture = UnityEditor.Build.OSArchitecture.ARM64;
+            Build(output, BuildTarget.StandaloneOSX, BuildOptions.CleanBuildCache);
         }
 
         public static void BuildWebGL()
         {
             string output = ResolveOutput("Builds/WebGL");
+            VerifyExternalMusicAsset("Assets/StreamingAssets/Music/home-f19d89ea8124a31b.mp3",
+                "f19d89ea8124a31b0bae5a7a8811166cd0efdb45363994f60e8c98122a527a95");
+            VerifyExternalMusicAsset("Assets/StreamingAssets/Music/battle-b0859b88305ca4f4.mp3",
+                "b0859b88305ca4f40dda33876e0e92a88ce03217d20521c112a34cf872b70bd1");
             ConfigurePortraitWebGL();
             // The old 238-frame PNG lobby loop was superseded by the small MP4 player
             // and is not referenced by the current scene. Resources would nevertheless
@@ -33,14 +60,34 @@ namespace ChoSiren.Editor
             const string excludedHeroFrames = "Assets/Editor/HeroFrames-WebGL-Excluded";
             bool movedHeroFrames = false;
             bool movedReferenceArt = false;
+            bool movedNativeLoading = false;
+            bool movedHomeMusic = false;
+            bool movedBattleMusic = false;
+            const string homeMusic = "Assets/Resources/Audio/bgm.wav";
+            const string battleMusic = "Assets/Resources/Audio/bgm-battle.wav";
+            const string excludedHomeMusic = "Assets/Editor/bgm-home-WebGL-Excluded.wav";
+            const string excludedBattleMusic = "Assets/Editor/bgm-battle-WebGL-Excluded.wav";
+            const string nativeLoading = "Assets/StreamingAssets/NativeLoading";
+            const string excludedNativeLoading = "Assets/Editor/NativeLoading-WebGL-Excluded";
             const string referenceArt = "Assets/Resources/Art/Reference038";
             const string excludedReferenceArt = "Assets/Editor/Reference038-WebGL-Excluded";
             using var streamedArt = new ReferenceArtWebBuild();
+            using var streamedStory = new StoryArtWebBuild1019();
             try
             {
                 streamedArt.Prepare();
+                streamedStory.Prepare();
                 movedHeroFrames = TemporarilyMoveAsset(heroFrames, excludedHeroFrames);
                 movedReferenceArt = TemporarilyMoveAsset(referenceArt, excludedReferenceArt);
+                // The installed app's title CG lives in StreamingAssets; the web page plays
+                // its own copy from media/, so keep it out of the WebGL output.
+                movedNativeLoading = TemporarilyMoveAsset(nativeLoading, excludedNativeLoading);
+                // Web downloads immutable MP3s only when their music context is entered.
+                // Exclude only the two long native clips; recorded voice and UI audio stay available.
+                movedHomeMusic = TemporarilyMoveAudioAsset(homeMusic, excludedHomeMusic);
+                movedBattleMusic = TemporarilyMoveAudioAsset(battleMusic, excludedBattleMusic);
+                AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+                Debug.Log("CHO_SIREN_WEBGL_MUSIC_EXTERNAL home=true battle=true");
                 // WebGL's Bee/IL2CPP graph is sensitive to assets changing while a build is
                 // running. A clean cache keeps reproducible release builds from inheriting
                 // a stale dependency graph after parallel art imports.
@@ -48,10 +95,21 @@ namespace ChoSiren.Editor
             }
             finally
             {
-                if (movedReferenceArt)
-                    RestoreMovedAsset(excludedReferenceArt, referenceArt);
-                if (movedHeroFrames)
-                    RestoreMovedAsset(excludedHeroFrames, heroFrames);
+                var restoreErrors = new List<Exception>();
+                void Restore(bool moved, string source, string destination)
+                {
+                    if (!moved) return;
+                    try { RestoreMovedAsset(source, destination); }
+                    catch (Exception exception) { restoreErrors.Add(exception); }
+                }
+                // Attempt every restoration even if an earlier asset has a restoration error.
+                Restore(movedBattleMusic, excludedBattleMusic, battleMusic);
+                Restore(movedHomeMusic, excludedHomeMusic, homeMusic);
+                Restore(movedReferenceArt, excludedReferenceArt, referenceArt);
+                Restore(movedNativeLoading, excludedNativeLoading, nativeLoading);
+                Restore(movedHeroFrames, excludedHeroFrames, heroFrames);
+                if (restoreErrors.Count > 0)
+                    throw new AggregateException("Temporary WebGL assets could not all be restored.", restoreErrors);
             }
             HashWebGLBuildAssets(output);
             WriteGitHubPagesMarker(output);
@@ -71,11 +129,33 @@ namespace ChoSiren.Editor
             return true;
         }
 
+        private static bool TemporarilyMoveAudioAsset(string source, string destination)
+        {
+            if (File.Exists(destination) || Directory.Exists(destination) || File.Exists(destination + ".meta"))
+                throw new BuildFailedException($"Temporary WebGL music exclusion path already exists: {destination}");
+            if (!File.Exists(source)) return false;
+            string error = AssetDatabase.MoveAsset(source, destination);
+            if (!string.IsNullOrEmpty(error))
+                throw new BuildFailedException($"Could not exclude native music from WebGL: {source}: {error}");
+            return true;
+        }
+
+        private static void VerifyExternalMusicAsset(string path, string expectedSha256)
+        {
+            if (!File.Exists(path)) throw new BuildFailedException($"External Web music is missing: {path}");
+            string actual;
+            using (var algorithm = SHA256.Create())
+            using (var stream = File.OpenRead(path))
+                actual = BitConverter.ToString(algorithm.ComputeHash(stream)).Replace("-", string.Empty).ToLowerInvariant();
+            if (!string.Equals(actual, expectedSha256, StringComparison.Ordinal))
+                throw new BuildFailedException($"External Web music does not match its immutable filename: {path}");
+        }
+
         private static void RestoreMovedAsset(string source, string destination)
         {
             string error = AssetDatabase.MoveAsset(source, destination);
             if (!string.IsNullOrEmpty(error))
-                throw new BuildFailedException($"Could not restore legacy hero frames: {error}");
+                throw new BuildFailedException($"Could not restore temporary WebGL asset: {source} -> {destination}: {error}");
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         }
 
@@ -87,6 +167,10 @@ namespace ChoSiren.Editor
             PlayerSettings.WebGL.template = "PROJECT:ChoSirenPortrait";
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             PlayerSettings.WebGL.decompressionFallback = true;
+            // Phones are the main audience: mobile browsers have no DXT, so Unity decompressed every
+            // texture to RGBA32 and the tab ran out of memory mid-battle and reloaded (2026-10-21).
+            // ETC2 is native on mobile WebGL2 and still crunch-compressed for download.
+            EditorUserBuildSettings.webGLBuildSubtarget = WebGLTextureSubtarget.ETC2;
             // The public preview is hosted on GitHub Pages and must use Unity's
             // JavaScript decompression fallback. Avoid making iOS Safari also copy the
             // large .data response into IndexedDB during startup; hashed HTTP assets
@@ -239,10 +323,98 @@ namespace ChoSiren.Editor
                 File.Copy(readmeSource, Path.Combine(playerDirectory, "预览说明.txt"), true);
         }
 
+        /// <summary>
+        /// Exports the Xcode project to Builds/iOS. Pass -iosSimulator for a simulator build;
+        /// otherwise it targets real devices with automatic signing (the Apple ID/team is
+        /// chosen in Xcode by the owner, never stored here).
+        /// </summary>
+        public static void BuildIOS()
+        {
+            string output = ResolveOutput("Builds/iOS");
+            bool simulator = Array.IndexOf(Environment.GetCommandLineArgs(), "-iosSimulator") >= 0;
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.bojuejun.chosiren");
+            PlayerSettings.iOS.sdkVersion = simulator ? iOSSdkVersion.SimulatorSDK : iOSSdkVersion.DeviceSDK;
+            // Apple-silicon Macs run arm64 simulators; new iOS simulators no longer accept x86_64.
+            if (simulator) PlayerSettings.iOS.simulatorSdkArchitecture = AppleMobileArchitectureSimulator.ARM64;
+            PlayerSettings.iOS.appleEnableAutomaticSigning = true;
+            PlayerSettings.iOS.targetOSVersionString = "15.0";
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            PlayerSettings.statusBarHidden = true;
+            ApplyIosBranding();
+            Build(output, BuildTarget.iOS, BuildOptions.None);
+        }
+
+        /// <summary>Game icon (雾白 portrait, C3) and the title art as the launch image.</summary>
+        private static void ApplyIosBranding()
+        {
+            Texture2D icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/AppIcon/app-icon.png");
+            if (icon != null)
+            {
+                int count = PlayerSettings.GetIconSizes(NamedBuildTarget.iOS, IconKind.Application).Length;
+                var icons = new Texture2D[count];
+                for (int i = 0; i < count; i++) icons[i] = icon;
+                PlayerSettings.SetIcons(NamedBuildTarget.iOS, icons, IconKind.Application);
+            }
+
+            Texture2D launch = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/AppIcon/launch-portrait.png");
+            if (launch != null)
+            {
+                PlayerSettings.iOS.SetiPhoneLaunchScreenType(iOSLaunchScreenType.ImageAndBackgroundRelative);
+                PlayerSettings.iOS.SetLaunchScreenImage(launch, iOSLaunchScreenImageType.iPhonePortraitImage);
+                PlayerSettings.SplashScreen.backgroundColor = new Color32(9, 6, 22, 255);
+            }
+        }
+
+        /// <summary>
+        /// Default app icon for Android / Windows / Mac (2026-10-22: 雾白 portrait, option C3), rounded corners
+        /// with a transparent outside (owner asked for a rounded logo). iOS keeps the square art: it masks itself.
+        /// </summary>
+        private static void ApplyDefaultIcon()
+        {
+            Texture2D icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/AppIcon/app-icon-rounded.png");
+            if (icon != null) PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+        }
+
+        [Serializable] private sealed class AndroidSigning { public string keystore, storePass, alias, keyPass; }
+
+        /// <summary>
+        /// Release signing (2026-10-22): every APK must carry the same key or Android refuses to update it.
+        /// The keystore and its passwords stay outside the project in ~/.cho-siren/android-signing.json
+        /// (backup in ~/cho-siren-backups/android-signing); a build without them fails instead of silently
+        /// falling back to the per-machine debug key.
+        /// </summary>
+        private static void UseReleaseKeystore()
+        {
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cho-siren", "android-signing.json");
+            if (!File.Exists(path)) throw new BuildFailedException("Android release keystore config missing: " + path);
+            AndroidSigning signing = JsonUtility.FromJson<AndroidSigning>(File.ReadAllText(path));
+            if (signing == null || !File.Exists(signing.keystore))
+                throw new BuildFailedException("Android release keystore missing (see " + path + ")");
+            PlayerSettings.Android.useCustomKeystore = true;
+            PlayerSettings.Android.keystoreName = signing.keystore;
+            PlayerSettings.Android.keystorePass = signing.storePass;
+            PlayerSettings.Android.keyaliasName = signing.alias;
+            PlayerSettings.Android.keyaliasPass = signing.keyPass;
+        }
+
         public static void BuildAndroid()
         {
             string output = ResolveOutput("Builds/Android/CHO-SIREN.apk");
             EditorUserBuildSettings.buildAppBundle = false;
+            ApplyDefaultIcon();
+            // Side-loaded test APK (2026-10-22): one 64-bit ARM binary, ASTC (ETC2 left odd-sized art uncompressed: 413 MB APK),
+            // portrait, version code from x.y.z so each release installs over the last one (saves kept).
+            EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.bojuejun.chosiren");
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            string[] parts = PlayerSettings.bundleVersion.Split('.');
+            int code = 0;
+            for (int i = 0; i < 3; i++) code = code * 100 + (i < parts.Length && int.TryParse(parts[i], out int n) ? n : 0);
+            PlayerSettings.Android.bundleVersionCode = Math.Max(1, code);
+            UseReleaseKeystore();
             Build(output, BuildTarget.Android, BuildOptions.CleanBuildCache);
         }
 

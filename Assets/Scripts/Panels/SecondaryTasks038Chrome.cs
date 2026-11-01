@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using ChoSiren.UI;
 
 namespace ChoSiren.Panels
 {
@@ -13,16 +14,16 @@ namespace ChoSiren.Panels
     /// </summary>
     internal static class SecondaryTasks038Chrome
     {
-        public static readonly Color EdgeSelected = new Color32(255, 138, 226, 235);
-        public static readonly Color InsetSelected = new Color32(66, 24, 82, 250);
-        public static readonly Color EdgeIdle = new Color32(122, 160, 224, 110);
-        public static readonly Color InsetIdle = new Color32(15, 15, 42, 210);
+        public static readonly Color EdgeSelected = new Color32(247, 245, 255, 255);
+        public static readonly Color InsetSelected = new Color32(11, 8, 18, 250);
+        public static readonly Color EdgeIdle = new Color32(183, 155, 255, 160);
+        public static readonly Color InsetIdle = new Color32(11, 8, 18, 235);
         public static readonly Color EdgeGold = new Color32(255, 205, 96, 225);
-        public static readonly Color InsetGold = new Color32(56, 34, 16, 240);
+        public static readonly Color InsetGold = new Color32(11, 8, 18, 250);
         public static readonly Color EdgeCyan = new Color32(91, 215, 255, 235);
-        public static readonly Color InsetCyan = new Color32(14, 38, 62, 245);
+        public static readonly Color InsetCyan = new Color32(11, 8, 18, 250);
         public static readonly Color EdgeViolet = new Color32(157, 144, 247, 235);
-        public static readonly Color InsetViolet = new Color32(23, 17, 56, 250);
+        public static readonly Color InsetViolet = new Color32(11, 8, 18, 250);
         public static readonly Color EdgeDisabled = new Color32(104, 98, 140, 120);
         public static readonly Color InsetDisabled = new Color32(24, 23, 46, 225);
         public static readonly Color LabelIdle = new Color32(196, 190, 220, 225);
@@ -35,29 +36,27 @@ namespace ChoSiren.Panels
         public static GameObject Header(PanelKit kit, Transform parent, string eyebrow,
             string title, string backName, UnityAction onBack)
         {
-            Image band = kit.NewImage("Header", parent, null, PanelKit.HeaderGlass);
+            // v0.3.41 punk header (matches the task board): black band, slanted dark back
+            // button with a pink offset, big white title, pink italic eyebrow and a pink rule.
+            Image band = kit.NewImage("Header", parent, null, new Color32(11, 8, 18, 240));
             PanelKit.PlaceTop(band.rectTransform, 0f, 0f, 720f, 112f);
             band.raycastTarget = true;
 
-            GameObject back = Button(band.transform, backName, "返回", 17, onBack,
+            GameObject back = Button(band.transform, backName, "‹ 返回", 17, onBack,
                 ModalPolish038ButtonStyle.Ghost);
-            PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 18f, 27f, 88f, 56f);
+            PanelKit.PlaceTop(back.GetComponent<RectTransform>(), 18f, 30f, 96f, 52f);
 
-            Text eyebrowText = kit.NewPlacedText(band.transform, eyebrow, 13,
-                new Color32(255, 173, 226, 255), 128f, 17f, 300f, 24f,
-                TextAnchor.MiddleLeft, FontStyle.Bold);
+            Text titleText = kit.NewPlacedText(band.transform, title, 34, PanelKit.White,
+                136f, 30f, 360f, 52f, TextAnchor.MiddleLeft, FontStyle.Bold);
+            PanelKit.EnableBestFit(titleText, 20);
+            SirenStickerUi.SkinTitle(titleText, true);
+            Text eyebrowText = kit.NewPlacedText(band.transform, eyebrow, 20, SirenStickerUi.Muted,
+                136f, 8f, 300f, 24f, TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
             PanelKit.EnableBestFit(eyebrowText, 10);
-            Text titleText = kit.NewPlacedText(band.transform, title, 27, PanelKit.White,
-                128f, 40f, 380f, 42f, TextAnchor.MiddleLeft, FontStyle.Bold);
-            PanelKit.EnableBestFit(titleText, 18);
 
-            ReferencePunkFx.Beam(band.transform, "Divider",
-                new Vector2(18f, 109f), new Vector2(702f, 109f), 1.6f,
-                new Color32(152, 105, 226, 110));
-            ReferencePunkFx.Slash(band.transform, "DividerSlashA", 566f, 105f, 26f, 3f, -38f,
-                new Color32(255, 138, 226, 170));
-            ReferencePunkFx.Slash(band.transform, "DividerSlashB", 596f, 113f, 18f, 2.4f, -38f,
-                new Color32(91, 215, 255, 160));
+            Image rule = kit.NewImage("Divider", band.transform, SirenStickerUi.TabSprite, SirenStickerUi.Paper);
+            PanelKit.PlaceTop(rule.rectTransform, 0f, 108f, 720f, 4f);
+            rule.raycastTarget = false;
             return band.gameObject;
         }
 
@@ -65,7 +64,9 @@ namespace ChoSiren.Panels
         public static GameObject Button(Transform parent, string name, string label, int fontSize,
             UnityAction action, ModalPolish038ButtonStyle style)
         {
-            return ModalPolish038Chrome.ActionButton(parent, name, label, fontSize, action, style);
+            GameObject button = ModalPolish038Chrome.ActionButton(parent, name, label, Mathf.Max(24, fontSize), action, style);
+            SirenStickerUi.SkinButton(button, style == ModalPolish038ButtonStyle.Primary);
+            return button;
         }
 
         /// <summary>
@@ -95,14 +96,16 @@ namespace ChoSiren.Panels
             Transform body = button.transform.Find("Body");
             if (body == null) return;
             CanvasGroup group = body.GetComponent<CanvasGroup>();
-            if (group != null) group.alpha = interactable ? 1f : disabledAlpha;
+            if (group != null) group.alpha = interactable ? 1f : Mathf.Max(.72f, disabledAlpha);
 
             Transform edgeNode = body.Find("Edge");
             Image edgeImage = edgeNode != null ? edgeNode.GetComponent<Image>() : null;
-            if (edgeImage != null) edgeImage.color = edge;
+            if (edgeImage != null) edgeImage.color = interactable ? SirenStickerUi.Paper : SirenStickerUi.Muted;
             Transform insetNode = edgeNode != null ? edgeNode.Find("Inset") : null;
             Image insetImage = insetNode != null ? insetNode.GetComponent<Image>() : null;
-            if (insetImage != null) insetImage.color = inset;
+            if (insetImage != null) insetImage.color = SirenStickerUi.Ink;
+
+            SirenStickerUi.SkinButton(button, interactable && button.name == "StartPractice");
 
             Text label = LabelOf(button);
             if (label == null) return;
@@ -110,18 +113,22 @@ namespace ChoSiren.Panels
             label.color = labelColor;
         }
 
-        /// <summary>Slashed crystal plate (sliced) plus a soft neon outline.</summary>
+        /// <summary>Flat glass plate with a 5 px status stripe in the edge colour (punk style).</summary>
         public static GameObject Plate(PanelKit kit, Transform parent, string name, Color color,
             Color edge, bool mirror = false)
         {
-            Image image = kit.NewImage(name, parent, ReferencePunkFx.SlashPanel(mirror), color);
-            image.type = Image.Type.Sliced;
+            Image image = kit.NewImage(name, parent, null, color);
+            SirenStickerUi.SkinPanel(image.gameObject, edge.a > 0f);
             if (edge.a > 0f)
             {
-                Outline outline = image.gameObject.AddComponent<Outline>();
-                outline.effectColor = edge;
-                outline.effectDistance = new Vector2(1f, -1f);
-                outline.useGraphicAlpha = true;
+                Image stripe = kit.NewImage("Stripe", image.transform, null, new Color(edge.r, edge.g, edge.b, 1f));
+                RectTransform rect = stripe.rectTransform;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = new Vector2(0f, 1f);
+                rect.pivot = new Vector2(0f, .5f);
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = new Vector2(5f, 0f);
+                stripe.raycastTarget = false;
             }
 
             return image.gameObject;

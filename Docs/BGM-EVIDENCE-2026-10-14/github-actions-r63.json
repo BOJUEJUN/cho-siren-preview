@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-10-14T12:04:03.081345+00:00",
+  "repository": "bojuejun/cho-siren-preview",
+  "targetSha": "c1f2f1b63fbd0fe5908f4a5fc5fd16491e86ca9b",
+  "requiredWorkflows": [
+    "Quality checks",
+    "pages build and deployment"
+  ],
+  "runs": [
+    {
+      "id": 38560812933,
+      "name": "Quality checks",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "c1f2f1b63fbd0fe5908f4a5fc5fd16491e86ca9b",
+      "head_branch": "main",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38560812933",
+      "updated_at": "2026-10-14T12:02:28Z",
+      "workflow_id": 347366646
+    },
+    {
+      "id": 38560811516,
+      "name": "pages build and deployment",
+      "status": "completed",
+      "conclusion": "success",
+      "event": "dynamic",
+      "head_sha": "c1f2f1b63fbd0fe5908f4a5fc5fd16491e86ca9b",
+      "head_branch": "main",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38560811516",
+      "updated_at": "2026-10-14T12:03:38Z",
+      "workflow_id": 346534593
+    }
+  ],
+  "bothSucceeded": true
+}

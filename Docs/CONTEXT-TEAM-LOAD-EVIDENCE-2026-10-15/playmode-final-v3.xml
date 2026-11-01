@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="16" result="Passed" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-10-15 09:43:41Z" end-time="2026-10-15 09:43:56Z" duration="14.6365691">
+  <test-suite type="TestSuite" id="1280" name="CHO-SIREN 幻域魅声" fullname="CHO-SIREN 幻域魅声" runstate="Runnable" testcasecount="233" result="Passed" start-time="2026-10-15 09:43:41Z" end-time="2026-10-15 09:43:56Z" duration="14.636569" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <test-suite type="Assembly" id="1274" name="ChoSiren.Tests.PlayMode.dll" fullname="/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/project/Library/ScriptAssemblies/ChoSiren.Tests.PlayMode.dll" runstate="Runnable" testcasecount="233" result="Passed" start-time="2026-10-15 09:43:41Z" end-time="2026-10-15 09:43:56Z" duration="14.625067" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="16895" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+      <test-suite type="TestSuite" id="1275" name="ChoSiren" fullname="ChoSiren" runstate="Runnable" testcasecount="233" result="Passed" start-time="2026-10-15 09:43:41Z" end-time="2026-10-15 09:43:56Z" duration="14.616905" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+        <test-suite type="TestSuite" id="1276" name="Tests" fullname="ChoSiren.Tests" runstate="Runnable" testcasecount="233" result="Passed" start-time="2026-10-15 09:43:41Z" end-time="2026-10-15 09:43:56Z" duration="14.600220" total="16" passed="16" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+          <test-suite type="TestFixture" id="1101" name="ContextMusicTests" fullname="ChoSiren.Tests.ContextMusicTests" classname="ChoSiren.Tests.ContextMusicTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-10-15 09:43:41Z" end-time="2026-10-15 09:43:51Z" duration="9.610807" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            <test-case id="1105" name="DisablingMusicDuringAFadeCannotLeakPlaybackOrChangeIndependentSfx" fullname="ChoSiren.Tests.ContextMusicTests.DisablingMusicDuringAFadeCannotLeakPlaybackOrChangeIndependentSfx" methodname="DisablingMusicDuringAFadeCannotLeakPlaybackOrChangeIndependentSfx" classname="ChoSiren.Tests.ContextMusicTests" runstate="Runnable" seed="310554810" result="Passed" start-time="2026-10-15 09:43:42Z" end-time="2026-10-15 09:43:43Z" duration="1.532904" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1102" name="HomeSilenceResumesTheBookmarkAndRepeatedHomeNeverRestartsOrAddsSources" fullname="ChoSiren.Tests.ContextMusicTests.HomeSilenceResumesTheBookmarkAndRepeatedHomeNeverRestartsOrAddsSources" methodname="HomeSilenceResumesTheBookmarkAndRepeatedHomeNeverRestartsOrAddsSources" classname="ChoSiren.Tests.ContextMusicTests" runstate="Runnable" seed="735683707" result="Passed" start-time="2026-10-15 09:43:43Z" end-time="2026-10-15 09:43:44Z" duration="1.247847" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1103" name="NewestRouteWinsAndReleasingOldStoryCannotInterruptBattleOrMap" fullname="ChoSiren.Tests.ContextMusicTests.NewestRouteWinsAndReleasingOldStoryCannotInterruptBattleOrMap" methodname="NewestRouteWinsAndReleasingOldStoryCannotInterruptBattleOrMap" classname="ChoSiren.Tests.ContextMusicTests" runstate="Runnable" seed="1301806333" result="Passed" start-time="2026-10-15 09:43:44Z" end-time="2026-10-15 09:43:47Z" duration="2.433168" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1104" name="OverlappingCutscenesPauseBattleAndReleaseBackToItsExactTransport" fullname="ChoSiren.Tests.ContextMusicTests.OverlappingCutscenesPauseBattleAndReleaseBackToItsExactTransport" methodname="OverlappingCutscenesPauseBattleAndReleaseBackToItsExactTransport" classname="ChoSiren.Tests.ContextMusicTests" runstate="Runnable" seed="1152334869" result="Passed" start-time="2026-10-15 09:43:47Z" end-time="2026-10-15 09:43:49Z" duration="1.916562" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1106" name="ScopeEarlyCloseDisableReenableAndDestroyLeaveNoRouteOwnersBehind" fullname="ChoSiren.Tests.ContextMusicTests.ScopeEarlyCloseDisableReenableAndDestroyLeaveNoRouteOwnersBehind" methodname="ScopeEarlyCloseDisableReenableAndDestroyLeaveNoRouteOwnersBehind" classname="ChoSiren.Tests.ContextMusicTests" runstate="Runnable" seed="748456125" result="Passed" start-time="2026-10-15 09:43:49Z" end-time="2026-10-15 09:43:51Z" duration="2.466534" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1113" name="GlobalMusicTests" fullname="ChoSiren.Tests.GlobalMusicTests" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2026-10-15 09:43:51Z" end-time="2026-10-15 09:43:53Z" duration="2.125764" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            <test-case id="1115" name="BrowserDuckChangesOnlyTheTrueSoundtrackGainAndBackgroundClearsIt" fullname="ChoSiren.Tests.GlobalMusicTests.BrowserDuckChangesOnlyTheTrueSoundtrackGainAndBackgroundClearsIt" methodname="BrowserDuckChangesOnlyTheTrueSoundtrackGainAndBackgroundClearsIt" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="828418866" result="Passed" start-time="2026-10-15 09:43:51Z" end-time="2026-10-15 09:43:52Z" duration="1.116474" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1120" name="DestroyingTransportLeavesSharedSoundtrackUsableByTheNextApp" fullname="ChoSiren.Tests.GlobalMusicTests.DestroyingTransportLeavesSharedSoundtrackUsableByTheNextApp" methodname="DestroyingTransportLeavesSharedSoundtrackUsableByTheNextApp" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="500909609" result="Passed" start-time="2026-10-15 09:43:52Z" end-time="2026-10-15 09:43:52Z" duration="0.099924" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1119" name="MediaReleasePreservesDisabledMusicAndNativeFailureReleasesImmediately" fullname="ChoSiren.Tests.GlobalMusicTests.MediaReleasePreservesDisabledMusicAndNativeFailureReleasesImmediately" methodname="MediaReleasePreservesDisabledMusicAndNativeFailureReleasesImmediately" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="513960041" result="Passed" start-time="2026-10-15 09:43:52Z" end-time="2026-10-15 09:43:52Z" duration="0.093185" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+Loading CG: fixture decode failure
+]]></output>
+            </test-case>
+            <test-case id="1117" name="NativeTitleUsesOwnMusicAndSavedSwitchThenResumesGlobalPlayhead" fullname="ChoSiren.Tests.GlobalMusicTests.NativeTitleUsesOwnMusicAndSavedSwitchThenResumesGlobalPlayhead" methodname="NativeTitleUsesOwnMusicAndSavedSwitchThenResumesGlobalPlayhead" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="1046868860" result="Passed" start-time="2026-10-15 09:43:52Z" end-time="2026-10-15 09:43:53Z" duration="0.149912" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1118" name="OverlappingMediaOwnersAndBrowserRebindingNeverResumeEarly" fullname="ChoSiren.Tests.GlobalMusicTests.OverlappingMediaOwnersAndBrowserRebindingNeverResumeEarly" methodname="OverlappingMediaOwnersAndBrowserRebindingNeverResumeEarly" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="472119058" result="Passed" start-time="2026-10-15 09:43:53Z" end-time="2026-10-15 09:43:53Z" duration="0.216378" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1114" name="RepeatedRoutingAndMusicSwitchKeepOneSourceAndResumeTheActualPlayhead" fullname="ChoSiren.Tests.GlobalMusicTests.RepeatedRoutingAndMusicSwitchKeepOneSourceAndResumeTheActualPlayhead" methodname="RepeatedRoutingAndMusicSwitchKeepOneSourceAndResumeTheActualPlayhead" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="1420980787" result="Passed" start-time="2026-10-15 09:43:53Z" end-time="2026-10-15 09:43:53Z" duration="0.349861" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+            <test-case id="1116" name="SfxSwitchMutesAnAlreadyPlayingVoiceWithoutMutingMusic" fullname="ChoSiren.Tests.GlobalMusicTests.SfxSwitchMutesAnAlreadyPlayingVoiceWithoutMutingMusic" methodname="SfxSwitchMutesAnAlreadyPlayingVoiceWithoutMutingMusic" classname="ChoSiren.Tests.GlobalMusicTests" runstate="Runnable" seed="407452431" result="Passed" start-time="2026-10-15 09:43:53Z" end-time="2026-10-15 09:43:53Z" duration="0.083228" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1244" name="TeamSwapPlayModeTests" fullname="ChoSiren.Tests.TeamSwapPlayModeTests" classname="ChoSiren.Tests.TeamSwapPlayModeTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-10-15 09:43:53Z" end-time="2026-10-15 09:43:56Z" duration="2.840237" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <output><![CDATA[There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            <test-case id="1248" name="AllFilterAllowsAnonymousLockedProfileWhileSearchNeverRevealsSignsOrReplacesTheMember" fullname="ChoSiren.Tests.TeamSwapPlayModeTests.AllFilterAllowsAnonymousLockedProfileWhileSearchNeverRevealsSignsOrReplacesTheMember" methodname="AllFilterAllowsAnonymousLockedProfileWhileSearchNeverRevealsSignsOrReplacesTheMember" classname="ChoSiren.Tests.TeamSwapPlayModeTests" runstate="Runnable" seed="210175543" result="Passed" start-time="2026-10-15 09:43:53Z" end-time="2026-10-15 09:43:54Z" duration="0.783923" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1246" name="DeployedCandidateSwapsBothSlotsAndPersistsTheNewCaptain" fullname="ChoSiren.Tests.TeamSwapPlayModeTests.DeployedCandidateSwapsBothSlotsAndPersistsTheNewCaptain" methodname="DeployedCandidateSwapsBothSlotsAndPersistsTheNewCaptain" classname="ChoSiren.Tests.TeamSwapPlayModeTests" runstate="Runnable" seed="512043857" result="Passed" start-time="2026-10-15 09:43:54Z" end-time="2026-10-15 09:43:55Z" duration="0.668334" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1247" name="StandbyCandidateReplacesTheSlotAndKeepsBothMembersAndTheirEquipment" fullname="ChoSiren.Tests.TeamSwapPlayModeTests.StandbyCandidateReplacesTheSlotAndKeepsBothMembersAndTheirEquipment" methodname="StandbyCandidateReplacesTheSlotAndKeepsBothMembersAndTheirEquipment" classname="ChoSiren.Tests.TeamSwapPlayModeTests" runstate="Runnable" seed="1111403677" result="Passed" start-time="2026-10-15 09:43:55Z" end-time="2026-10-15 09:43:55Z" duration="0.667191" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+]]></output>
+            </test-case>
+            <test-case id="1245" name="WholeInformationBandOpensPickerWhilePortraitKeepsDetailsAndCurrentMemberIsDisabled" fullname="ChoSiren.Tests.TeamSwapPlayModeTests.WholeInformationBandOpensPickerWhilePortraitKeepsDetailsAndCurrentMemberIsDisabled" methodname="WholeInformationBandOpensPickerWhilePortraitKeepsDetailsAndCurrentMemberIsDisabled" classname="ChoSiren.Tests.TeamSwapPlayModeTests" runstate="Runnable" seed="370000126" result="Passed" start-time="2026-10-15 09:43:55Z" end-time="2026-10-15 09:43:56Z" duration="0.703594" asserts="0">
+              <properties>
+                <property name="_JOINTYPE" value="UnityCombinatorial" />
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[[GameAudio] 使用自定义背景音乐：bgm（172.4s）
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+Saving results to: /Users/bojuejun/Library/Application Support/CHO-SIREN Context Music Review 20261015/CHO-SIREN 幻域魅声/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

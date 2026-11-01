@@ -1,0 +1,25 @@
+{
+  "version": "0.3.69",
+  "homepageCharacterCount": 2,
+  "homepagePolicy": "Original two authored homepage designs retained. Member PSD does not replace/add homepage characters.",
+  "nativePlayMode": {
+    "id": "2",
+    "testcasecount": "29",
+    "result": "Passed",
+    "total": "29",
+    "passed": "29",
+    "failed": "0",
+    "inconclusive": "0",
+    "skipped": "0",
+    "asserts": "0",
+    "engine-version": "3.5.0.0",
+    "clr-version": "4.0.30319.42000",
+    "start-time": "2026-10-15 08:09:11Z",
+    "end-time": "2026-10-15 08:09:43Z",
+    "duration": "32.5868445"
+  },
+  "webTestsPassed": 83,
+  "localRuntimeVerified": true,
+  "iOSSimulatorInteractionVerified": true,
+  "physicalPhoneTested": false
+}

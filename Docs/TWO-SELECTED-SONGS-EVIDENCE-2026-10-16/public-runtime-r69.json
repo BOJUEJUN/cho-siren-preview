@@ -1,0 +1,29 @@
+{
+  "version": "0.3.78",
+  "url": "https://bojuejun.github.io/cho-siren-preview/?v=0.3.78",
+  "commit": "10372efb1e97db15714d81c616301e9352b5b4bb",
+  "viewport": [
+    390,
+    844
+  ],
+  "loadingReached100": true,
+  "enteredLobby": true,
+  "observedSwitchCounter": [
+    1,
+    2,
+    1
+  ],
+  "totalSongs": 2,
+  "originalMusicMuteRetained": true,
+  "playedPublicBattle": false,
+  "rewardClaimed": false,
+  "errors": [],
+  "physicalPhoneTested": false,
+  "checkedAtUtc": "2026-10-17T14:18:29.687Z",
+  "screenshots": [
+    "public-loading-r69.jpg",
+    "public-first-r69.jpg",
+    "public-second-r69.jpg",
+    "public-wrap-r69.jpg"
+  ]
+}

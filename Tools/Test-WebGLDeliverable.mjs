@@ -52,16 +52,26 @@ const assets = assetNames.map((name) => {
   if (name.endsWith('.data.unityweb') && bytes > recommendedDataLimit)
     console.warn(`[警告] data 包超出 90 MiB 建议预算，但仍可发布: ${name} (${bytes} bytes)`);
   const sha256 = createHash('sha256').update(readFileSync(assetPath)).digest('hex');
+  if (!name.startsWith(sha256.slice(0, 32) + '.')) fail(`WebGL 资产内容哈希不符: ${name}`);
   return { file: name, bytes, sha256 };
 });
 
 const referenced = new Set(assetNames);
 const artManifestPath = join(buildPath, 'StreamingAssets', 'Reference038', 'manifest.json');
 let referenceArt = [];
+if (!existsSync(artManifestPath)) fail('缺少 Reference038 界面素材清单');
 if (existsSync(artManifestPath)) {
   const manifest = JSON.parse(readFileSync(artManifestPath, 'utf8'));
-  if (manifest.entries?.length !== 9 || new Set(manifest.entries.map(e => e.key)).size !== 9)
-    fail('Reference038 清单必须包含九张不同的界面素材');
+  const entries = manifest.entries;
+  if (!Array.isArray(entries) || entries.length === 0 ||
+      entries.some(e => !e || typeof e.key !== 'string' || typeof e.file !== 'string') ||
+      new Set(entries.map(e => e.key)).size !== entries.length)
+    fail('Reference038 清单必须包含不重复的有效素材键');
+  const required = ['lobby-board-038', 'team-board-038', 'members-board-038',
+    'profile-board-038', 'accessory-board-038', 'audition-board-038',
+    'map-board-038', 'battle-stage-038', 'unknown-member-038'];
+  const keys = new Set(entries.map(e => e.key));
+  if (required.some(key => !keys.has(key))) fail('Reference038 清单缺少必需的主界面素材');
   referenceArt = manifest.entries.map(entry => {
     if (!/^Reference038\/[0-9a-f]{16}-[a-z0-9-]+\.png$/.test(entry.file)) fail('不安全的界面素材路径');
     const bytes = readFileSync(join(buildPath, 'StreamingAssets', entry.file));
@@ -76,6 +86,32 @@ const unexpected = readdirSync(join(buildPath, 'Build'), { withFileTypes: true }
 if (unexpected.length > 0)
   fail(`Build/ 内存在 index.html 未引用的孤儿条目: ${unexpected.join(', ')}`);
 
+// Story1019 originals stay outside Unity's expanded texture archive. Validate exact
+// original bytes, immutable names, and all current routes instead of accepting missing art.
+const storyManifestPath = join(buildPath, 'StreamingAssets', 'Story1019', 'manifest.json');
+if (!existsSync(storyManifestPath)) fail('缺少 Story1019 按需原图清单');
+const storyManifest = JSON.parse(readFileSync(storyManifestPath, 'utf8'));
+if (!Array.isArray(storyManifest.entries) || storyManifest.entries.length !== 28 ||
+    new Set(storyManifest.entries.map(e => e.key)).size !== storyManifest.entries.length)
+  fail('Story1019 清单必须包含不重复的有效素材键');
+const storyKeys = new Set(storyManifest.entries.map(e => e.key));
+for (let chapter = 1; chapter <= 2; chapter++) for (let stage = 1; stage <= 10; stage++)
+  if (!storyKeys.has(`Art/Story/Scenes1019/stage-${chapter}-${stage}`)) fail('Story1019 缺少关卡场景');
+for (const id of ['xingli', 'feiyin', 'wubai', 'yeying'])
+  if (!storyKeys.has(`Art/Story/Portraits1019/${id}`)) fail('Story1019 缺少真实角色半身像: ' + id);
+if (!storyKeys.has('Art/Story/Transitions1019/xingli-hand-reach-cg')) fail('Story1019 缺少原转场CG');
+for (const name of ['chapter-01-rehearsal-solo', 'chapter-01-rehearsal-arrival', 'chapter-01-alley-outro'])
+  if (!storyKeys.has(`Art/Story/Scenes1019/${name}`)) fail('Story1019 缺少章一完整剧情CG: ' + name);
+const storyArt = storyManifest.entries.map(entry => {
+  if (!/^Story1019\/[0-9a-f]{16}-(?:scenes1019|portraits1019|transitions1019)-[a-z0-9-]+\.(?:png|jpe?g)$/.test(entry.file))
+    fail('不安全的 Story1019 素材路径');
+  const bytes = readFileSync(join(buildPath, 'StreamingAssets', entry.file));
+  const sha256 = createHash('sha256').update(bytes).digest('hex');
+  if (entry.sha256 !== sha256 || entry.bytes !== bytes.length || !entry.file.includes(sha256.slice(0, 16)))
+    fail('Story1019 原图内容哈希不符: ' + entry.key);
+  return { key: entry.key, file: entry.file, bytes: bytes.length, sha256 };
+});
+
 console.log(JSON.stringify({
   success: true,
   buildPath,
@@ -86,4 +122,5 @@ console.log(JSON.stringify({
   lobbyVideo: { file: 'StreamingAssets/Lobby/lobby-loop.mp4', bytes: statSync(lobbyVideoPath).size },
   assets,
   referenceArt,
+  storyArt,
 }, null, 2));

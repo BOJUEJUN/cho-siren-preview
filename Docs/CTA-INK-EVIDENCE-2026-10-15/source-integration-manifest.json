@@ -1,0 +1,12 @@
+[
+  {
+    "file": "Assets/Scripts/PsdHomeAlbumInkMotion.cs",
+    "before": "96acd930af878f9811c3849a90955d0fec85b92e0ca1fd6c473c084977696cb9",
+    "after": "458c747459803a25e63ed0a78ce90b44bb4e19ada2381d2c3776a322cd07b01b"
+  },
+  {
+    "file": "ProjectSettings/ProjectSettings.asset",
+    "before": "af5a865dbb4bfd620e89b150e92c11fb260da0410223686e6274c578b69561cd",
+    "after": "ec299756d8074ad0851bd77972a30a8564d39465fd946cdafce2082e95254e8a"
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "account": {
+    "code": 0,
+    "account": {
+      "remainMoney": "2.7840",
+      "currentTaskCounts": "0",
+      "currency": "USD",
+      "apiType": "SHARED"
+    }
+  },
+  "success_ownership_query": {
+    "taskId": "2111462608996909058",
+    "status": "SUCCESS",
+    "errorCode": "",
+    "errorMessage": "",
+    "usage": {
+      "consumeMoney": null,
+      "consumeCoins": null,
+      "taskCostTime": "0",
+      "thirdPartyConsumeMoney": "0.08"
+    },
+    "result_count": 7
+  },
+  "price": {
+    "estimatedPrice": 0.08,
+    "currency": "USD",
+    "errorCode": "",
+    "errorMessage": "",
+    "isFreeThisCall": false
+  },
+  "checked_at": "2026-10-19T09:15:05.433866+00:00",
+  "host": "https://www.runninghub.ai",
+  "credential_source": "Existing private Oct17 user-authorized music handoff; credential not copied into work",
+  "different_from_legacy_CN_config": true,
+  "generation_submitted": false
+}

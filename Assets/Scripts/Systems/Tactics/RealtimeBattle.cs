@@ -23,14 +23,17 @@ namespace ChoSiren.Systems.Tactics
             public int StunnedUntil, SlowUntil, ArmorBrokenUntil, ControlWardUntil, ControlRecoveryUntil;
             public int CastUntil, CastTargetId;
             public int TacticalGuardUntil;
+            /// <summary>Turn mode: 应急守护 shields left on this member (each blocks one enemy hit in full).</summary>
+            public int GuardBlocks;
             /// <summary>Per-character ultimate energy, 0-100, owned by the battle model.</summary>
             public int Energy;
+            public int EnergyRemainder;
+            public bool ReleasingUltimate;
         }
 
         private static readonly Dictionary<string, SkillDefinition> realtimeSkills = CreateRealtimeSkills();
         private readonly Dictionary<int, PerformerClock> performerClocks = new Dictionary<int, PerformerClock>();
         private int realtimeRemainder, diceRevision, leaderId, nextMeasure = MeasureMilliseconds;
-        private bool elfRescueUsed;
         private int encounterLeadId, nextEliteHarden = 8000;
         private CombatRace leaderRace;
 
@@ -90,8 +93,9 @@ namespace ChoSiren.Systems.Tactics
                 }
                 clock.NextBasic = BasicInterval(unit, clock);
                 clock.NextSmall = unit.Side == BattleSide.Player ? SmallCooldown(clock.Race) : 4000;
-                clock.NextBig = BigCooldown(clock.Race);
+                clock.NextBig = FirstUltimateDelay;
             }
+            HoldOpeningOverflow1031();
             BattleDice = DiceTurn.ForBattle(random, rerollLimit, true);
             BattleDice.Begin();
             nextUnitEnergyTick = UnitEnergyTickMilliseconds;
@@ -111,7 +115,7 @@ namespace ChoSiren.Systems.Tactics
             {
                 realtimeRemainder -= RealtimeStepMilliseconds;
                 ElapsedMilliseconds += RealtimeStepMilliseconds;
-                AccrueUltimateEnergy();
+                if (!IsTurnBased) AccrueUltimateEnergy();
                 ApplyNewHand();
                 if (autoDice && BattleDice.CanReroll &&
                     BattleDice.AccumulatedBonusPermille < DiceTurn.MaxBattleBonusPermille)
@@ -130,7 +134,8 @@ namespace ChoSiren.Systems.Tactics
                     }
                     nextEliteHarden += 8000;
                 }
-                foreach (BattleUnit actor in units)
+                // Turn mode: units only act on their turn (TurnBattle1020); the clock just ages effects.
+                if (!IsTurnBased) foreach (BattleUnit actor in units)
                 {
                     if (!actor.Alive || Outcome != BattleOutcome.Ongoing) continue;
                     PerformerClock clock = performerClocks[actor.Id];
@@ -166,7 +171,7 @@ namespace ChoSiren.Systems.Tactics
                 // Ultimates are gated by per-character energy, not only by a cooldown clock.
                 // Manual mode leaves them for the player; auto mode releases the highest-priority
                 // ready character through the exact same authoritative cast path.
-                if (Outcome == BattleOutcome.Ongoing) AutoReleaseUltimates();
+                if (Outcome == BattleOutcome.Ongoing && !IsTurnBased) AutoReleaseUltimates();
                 if (Outcome == BattleOutcome.Ongoing && ElapsedMilliseconds >= nextMeasure)
                 {
                     ResolvePoison();
@@ -174,19 +179,22 @@ namespace ChoSiren.Systems.Tactics
                     nextMeasure += MeasureMilliseconds;
                     ResetComboBudget();
                 }
-                if (Outcome == BattleOutcome.Ongoing && ElapsedMilliseconds >= TimeLimitMilliseconds)
+                if (Outcome == BattleOutcome.Ongoing && !IsTurnBased && ElapsedMilliseconds >= TimeLimitMilliseconds)
                     Finish(BattleOutcome.Defeat);
             }
         }
 
         private void ActivateEnemy(BattleUnit unit)
         {
+            if (QueueIfStageFull1031(unit)) return; // 2026-10-31: at most two minions on stage (EnemyStageLimit1031)
             unit.Spawned = true;
             var clock = performerClocks[unit.Id];
             clock.NextBasic = ElapsedMilliseconds + BasicInterval(unit, clock);
             clock.NextSmall = ElapsedMilliseconds + 4000;
+            int waveBefore = CurrentWave;
             CurrentWave = Math.Max(CurrentWave, unit.Wave + 1);
             Emit(BattleEventKind.Spawned, unit.Id, unit.Id, "reinforcement", CurrentWave, false);
+            if (CurrentWave > waveBefore && waveBefore > 0) OnDiceWave(CurrentWave);
         }
 
         private bool SpawnNextWave()
@@ -226,15 +234,15 @@ namespace ChoSiren.Systems.Tactics
         {
             switch (race)
             {
-                case CombatRace.Demon: return big ? "全体160%伤害，禁疗30%，持续3秒"
+                case CombatRace.Demon: return big ? "全体240%伤害，禁疗30%，持续3秒"
                     : "单体110%伤害，附加2层毒；迟缓3秒，普攻间隔+35%";
-                case CombatRace.Charm: return big ? "前排175%伤害，眩晕1.2秒并打断蓄力，封技2秒；首领控时减半"
+                case CombatRace.Charm: return big ? "前排260%伤害，眩晕并打断蓄力，封印技能2回合；首领控时减半"
                     : "两段共120%伤害，自身攻速叠加5%";
-                case CombatRace.Mermaid: return big ? "全队18%护盾、减伤15%持续4秒；免疫眩晕2秒"
+                case CombatRace.Mermaid: return big ? "全队28%护盾、减伤15%，持续2回合；免疫眩晕"
                     : "每人净化1个负面状态并恢复8%生命，不复活阵亡成员";
-                case CombatRace.BloodElf: return big ? "敌人生命低于35%时造成200%伤害，击杀增攻10%"
+                case CombatRace.BloodElf: return big ? "单体230%伤害；生命低于35%时提高到360%，击杀增攻10%"
                     : "单体115%伤害，无视15%防御；破甲30%持续4秒，供全队集火";
-                default: return big ? "单体160%伤害，自动释放" : "单体110%伤害，自动释放";
+                default: return big ? "单体240%伤害，满能量释放" : "单体110%伤害，自动释放";
             }
         }
 
@@ -286,10 +294,13 @@ namespace ChoSiren.Systems.Tactics
         public int CaptainPiercePermille => CurrentLeaderRace == CombatRace.BloodElf && BattleDice?.Hand != null
             ? Pierce(BattleDice.Hand.Pattern) : 0;
 
+        private const int FirstUltimateDelay = 20000;
+        private const int CaptainGuardPermille = 800;
+
         private static int SmallCooldown(CombatRace race) => race == CombatRace.Charm ? 2500
             : race == CombatRace.BloodElf ? 2800 : 3000;
-        private static int BigCooldown(CombatRace race) => race == CombatRace.Demon ? 12000
-            : race == CombatRace.Charm ? 11000 : race == CombatRace.Mermaid ? 13000 : 10000;
+        private static int BigCooldown(CombatRace race) => race == CombatRace.Demon ? 30000
+            : race == CombatRace.Charm ? 28000 : race == CombatRace.Mermaid ? 32000 : 30000;
 
         private int BasicInterval(BattleUnit actor, PerformerClock clock) =>
             (int)Math.Max(250, 100000000L / ((long)Math.Max(1, actor.Speed) * (1000 + clock.HasteStacks * 50)))
@@ -302,6 +313,8 @@ namespace ChoSiren.Systems.Tactics
                 BattleUnit focus = FindUnit(FocusTargetId);
                 if (focus != null && focus.Alive && focus.Side == BattleSide.Enemy) return focus;
             }
+            BattleUnit roleTarget = TurnEnemyTarget(actor);
+            if (roleTarget != null) return roleTarget;
             BattleUnit best = null;
             foreach (BattleUnit candidate in units)
             {
@@ -326,7 +339,7 @@ namespace ChoSiren.Systems.Tactics
             {
                 clock.ExtraAttacks--;
                 target = SelectEnemy(actor);
-                if (target != null) Deal(actor, target, "rt-charm-follow", 1000);
+                if (target != null) Deal(actor, target, "rt-charm-follow", IsTurnBased ? CharmFollowPowerTurn1101 : 850);
             }
         }
 
@@ -337,7 +350,8 @@ namespace ChoSiren.Systems.Tactics
             BattleUnit target = SelectEnemy(actor);
             Emit(BattleEventKind.ActionStarted, actor.Id,
                 clock.Race == CombatRace.Mermaid || target == null ? actor.Id : target.Id, skill, 0, false);
-            int utilityMultiplier = BattleDice.Hand.Pattern == DicePattern.FiveKind ? 1500 : 1000;
+            int utilityMultiplier = actor.Id == leaderId &&
+                (BattleDice.Hand.Pattern == DicePattern.FiveKind || BattleDice.Hand.Pattern == DicePattern.SixKind) ? 1500 : 1000;
             switch (clock.Race)
             {
                 case CombatRace.Demon:
@@ -351,7 +365,7 @@ namespace ChoSiren.Systems.Tactics
                     else foreach (BattleUnit enemy in LivingOpponents(actor))
                     {
                         if (!enemy.Alive || enemy.Side == actor.Side) continue;
-                        Deal(actor, enemy, skill, 1600);
+                        Deal(actor, enemy, skill, 2400);
                         performerClocks[enemy.Id].AntiHealUntil = ElapsedMilliseconds + 3000;
                     }
                     break;
@@ -371,8 +385,17 @@ namespace ChoSiren.Systems.Tactics
                         foreach (BattleUnit enemy in LivingOpponents(actor))
                         {
                             if (!enemy.Alive || enemy.Side == actor.Side || enemy.Row != frontRow) continue;
-                            Deal(actor, enemy, skill, 1750);
-                            performerClocks[enemy.Id].SilencedUntil = ElapsedMilliseconds + 2000;
+                            Deal(actor, enemy, skill, 2600);
+                            // 2026-10-26 (赵金: "封印两秒三秒…让对面不能放技能"): in turn mode the seal lasts whole rounds
+                            // (two slices used to expire before the enemy's next turn) and breaks a charging special.
+                            PerformerClock sealedClock = performerClocks[enemy.Id];
+                            sealedClock.SilencedUntil = ElapsedMilliseconds + (IsTurnBased ? RoundsToMilliseconds(CharmSealRounds) : 2000);
+                            if (IsTurnBased && sealedClock.CastUntil > 0 && enemy.Alive)
+                            {
+                                sealedClock.CastUntil = 0;
+                                Emit(BattleEventKind.Buff, actor.Id, enemy.Id, "rt-interrupt", 0, false);
+                            }
+                            if (enemy.Alive) Emit(BattleEventKind.Buff, actor.Id, enemy.Id, "rt-seal", CharmSealRounds, false);
                             ApplyCondition(actor, enemy, CombatCondition.Stun, 1200);
                         }
                     }
@@ -388,8 +411,9 @@ namespace ChoSiren.Systems.Tactics
                         }
                         else
                         {
-                            AddShield(actor, ally, skill, 180 * utilityMultiplier / 1000, true);
-                            performerClocks[ally.Id].ReductionUntil = ElapsedMilliseconds + 4000;
+                            AddShield(actor, ally, skill, 280 * utilityMultiplier / 1000, true);
+                            performerClocks[ally.Id].ReductionUntil = ElapsedMilliseconds +
+                                (IsTurnBased ? RoundsToMilliseconds(MermaidWardRounds) : 6000);
                             ApplyCondition(actor, ally, CombatCondition.ControlWard, 2000);
                         }
                     }
@@ -403,13 +427,13 @@ namespace ChoSiren.Systems.Tactics
                                 target = enemy;
                     }
                     if (target == null) return;
-                    int power = big ? ((long)target.Hp * 100 < (long)target.MaxHp * 35 ? 2000 : 1150) : 1150;
+                    int power = big ? ((long)target.Hp * 100 < (long)target.MaxHp * 35 ? 3600 : 2300) : 1150;
                     Deal(actor, target, skill, power, big ? 0 : 150);
                     if (!big) ApplyCondition(actor, target, CombatCondition.ArmorBreak, 4000);
                     if (big && !target.Alive) clock.AttackBuffUntil = ElapsedMilliseconds + 3000;
                     break;
                 default:
-                    if (target != null) Deal(actor, target, skill, big ? 1600 : 1100);
+                    if (target != null) Deal(actor, target, skill, big ? 2400 : 1100);
                     break;
             }
         }
@@ -462,21 +486,45 @@ namespace ChoSiren.Systems.Tactics
             }
         }
 
+        /// <summary>
+        /// How much of the dice buff this performer's hits carry, in permille. The album/dice buff
+        /// belongs to the current captain; teammates share it — two thirds under a mermaid (no
+        /// damage of her own), half under demon or blood elf. Charm keeps it to herself because
+        /// her team follow-ups already spread her bonus. Enemies: 1000.
+        /// </summary>
+        public int DiceMultiplierFor(BattleUnit actor)
+        {
+            if (actor == null || actor.Side != BattleSide.Player || BattleDice == null) return 1000;
+            if (actor.Id == leaderId) return BattleDice.DamageMultiplierPermille;
+            int bonus = BattleDice.DamageMultiplierPermille - 1000;
+            return 1000 + (leaderRace == CombatRace.Mermaid ? bonus * 2 / 3
+                : leaderRace == CombatRace.Demon || leaderRace == CombatRace.BloodElf ? bonus / 2
+                : 0);
+        }
+
         private void Deal(BattleUnit actor, BattleUnit target, string skill, int power, int ignoreDefense = 0)
         {
             if (!actor.Alive || !target.Alive || Outcome != BattleOutcome.Ongoing) return;
             long raw = (long)actor.Attack * power / 1000;
+            // Turn mode: one action stands in for ~8 realtime seconds of hits (fights ≈ 8–10 rounds).
+            // 2026-11-01: enemy hits use the unrounded attack (BattleUnit.AttackMilli) so tuning is not stuck in whole-point steps.
+            if (IsTurnBased) raw = actor.Side == BattleSide.Player ? raw * TurnDamagePermille / 1000
+                : actor.AttackMilli * power / 1000 * TurnEnemyDamagePermille / 1000 / 1000;
+            // Rarer ultimates hit harder in turn mode.
+            if (IsTurnBased && actor.Side == BattleSide.Player && performerClocks[actor.Id].ReleasingUltimate) raw = raw * 2400 / 1000; // rarer ultimates hit harder (2026-10-20)
+            raw = AdjustManualUltimateAmount(actor, skill, raw, SkillEffect.Damage);
+            raw = raw * TurnEnemyRolePermille(actor, target) / 1000;
+            raw = raw * EnemyDamageRollPermille1101(actor) / 1000; // 2026-11-01: ±15% enemy hit spread (BossMechanics1101)
             bool player = actor.Side == BattleSide.Player;
             int diceMultiplier = 1000;
             if (player)
             {
-                diceMultiplier = BattleDice.DamageMultiplierPermille;
+                diceMultiplier = DiceMultiplierFor(actor);
                 raw = raw * diceMultiplier / 1000;
                 if (performerClocks[actor.Id].AttackBuffUntil > ElapsedMilliseconds) raw = raw * 1100 / 1000;
-                if (leaderRace == CombatRace.BloodElf)
+                if (actor.Id == leaderId && leaderRace == CombatRace.BloodElf)
                 {
                     ignoreDefense = Math.Max(ignoreDefense, Pierce(BattleDice.Hand.Pattern));
-                    if ((long)target.Hp * 100 < (long)target.MaxHp * 30) raw = raw * 1250 / 1000;
                 }
                 // All dice damage growth is accounted for in the displayed accumulated multiplier.
             }
@@ -485,9 +533,11 @@ namespace ChoSiren.Systems.Tactics
             bool critical = random.NextPermille() < actor.Definition.CritPermille;
             if (critical) raw = raw * CritMultiplierPermille / 1000;
             if (performerClocks[target.Id].ReductionUntil > ElapsedMilliseconds) raw = raw * 850 / 1000;
+            // The captain leads from the front row; the team covers her (-20% damage taken).
+            if (target.Side == BattleSide.Player && target.Id == leaderId) raw = raw * CaptainGuardPermille / 1000;
             if (performerClocks[target.Id].HardenedUntil > ElapsedMilliseconds) raw = raw * 500 / 1000;
             if (target.Side == BattleSide.Player && leaderRace == CombatRace.Mermaid &&
-                BattleDice.Hand.Pattern == DicePattern.FiveKind) raw = raw * 750 / 1000;
+                (BattleDice.Hand.Pattern == DicePattern.FiveKind || BattleDice.Hand.Pattern == DicePattern.SixKind)) raw = raw * 750 / 1000;
             ApplyActualDamage(actor, target, skill, (int)Math.Max(1, Math.Min(int.MaxValue, raw)), critical,
                 diceMultiplier);
         }
@@ -496,6 +546,16 @@ namespace ChoSiren.Systems.Tactics
             int diceMultiplierPermille = 1000)
         {
             if (!target.Alive || Outcome != BattleOutcome.Ongoing) return;
+            // Turn mode (赵金 2026-10-24): the 应急守护 shield stays up until it takes a hit, blocks that whole hit,
+            // then shatters; members who were not attacked keep theirs.
+            PerformerClock guarded = performerClocks[target.Id];
+            if (IsTurnBased && guarded.GuardBlocks > 0 && actor.Side == BattleSide.Enemy && target.Side == BattleSide.Player)
+            {
+                guarded.GuardBlocks--;
+                Emit(BattleEventKind.Damage, actor.Id, target.Id, skill, damage, critical, diceMultiplierPermille, damage, 0);
+                Emit(BattleEventKind.Buff, actor.Id, target.Id, GuardBreakSkillId, damage, false);
+                return;
+            }
             if (GuardRemaining(target) > 0) damage = Math.Max(1, damage / 2);
             int absorbed = Math.Min(target.Shield, damage);
             target.Shield -= absorbed;
@@ -515,7 +575,9 @@ namespace ChoSiren.Systems.Tactics
                 if (WorldEncounter) gain = gain * 750 / 1000;
                 BattleDice.RecordDamage(applied, !target.Alive, gain);
                 // Ultimate energy follows real hits only; overkill on a dead target is not applied.
-                GainUltimateEnergy(actor, UnitEnergyPerHit + (!target.Alive ? UnitEnergyPerKill : 0));
+                // Turn mode charges per own action (TurnBattle1020); only kills add a bonus here.
+                GainUltimateEnergy(actor, IsTurnBased ? TurnHitEnergy(target, applied) + (!target.Alive ? UnitEnergyPerKill : 0)
+                    : UnitEnergyPerHit + (!target.Alive ? UnitEnergyPerKill : 0));
             }
             if (!target.Alive)
             {
@@ -525,6 +587,36 @@ namespace ChoSiren.Systems.Tactics
             }
             UpdateEnemyPhase();
             EvaluateOutcome();
+        }
+
+        public const int CaptainSwapCooldownMilliseconds = 15000;
+        private int nextCaptainSwap;
+        public int CaptainSwapCooldownRemaining => Math.Max(0, nextCaptainSwap - ElapsedMilliseconds);
+
+        /// <summary>
+        /// Manual command change: hands the captaincy (dice buff and race passive) to another
+        /// living member, so the player can answer the enemy's type. 15 s cooldown; nothing else
+        /// (energy, cooldowns, dice) is refreshed, matching the automatic transfer on defeat.
+        /// </summary>
+        public bool TrySwapCaptain(int unitId, out string message)
+        {
+            BattleUnit next = FindUnit(unitId);
+            if (!IsRealtime || Outcome != BattleOutcome.Ongoing) { message = "战斗外无法更换队长"; return false; }
+            if (next == null || next.Side != BattleSide.Player || !next.Alive) { message = "只能指定场上存活的成员"; return false; }
+            if (next.Id == leaderId) { message = $"{next.Definition.Name} 已经是队长"; return false; }
+            if (CaptainSwapCooldownRemaining > 0)
+            {
+                message = $"换队长冷却中 {CaptainSwapCooldownRemaining / 1000f:0.0}秒";
+                return false;
+            }
+            int previous = leaderId;
+            leaderId = next.Id;
+            leaderRace = performerClocks[next.Id].Race;
+            nextCaptainSwap = ElapsedMilliseconds + CaptainSwapCooldownMilliseconds;
+            BattleDice.SetBattleSelectiveReroll(true);
+            Emit(BattleEventKind.LeaderChanged, previous, leaderId, "command-swap", (int)leaderRace, false);
+            message = $"队长换为 {next.Definition.Name}";
+            return true;
         }
 
         private void TransferBattleCommand()
@@ -553,8 +645,11 @@ namespace ChoSiren.Systems.Tactics
 
         private void HealAmount(BattleUnit actor, BattleUnit target, string skill, int amount)
         {
+            if (IsTurnBased) amount = (int)Math.Min(int.MaxValue, (long)amount * TurnSupportPermille / 1000);
             if (!target.Alive) return;
+            amount = (int)Math.Min(int.MaxValue, AdjustManualUltimateAmount(actor, skill, amount, SkillEffect.Heal));
             if (performerClocks[target.Id].AntiHealUntil > ElapsedMilliseconds) amount = amount * 700 / 1000;
+            amount = amount * TurnHealCounterPermille(actor, target) / 1000;
             int applied = Math.Min(target.MaxHp - target.Hp, amount);
             if (applied <= 0) return;
             target.Hp += applied;
@@ -566,10 +661,12 @@ namespace ChoSiren.Systems.Tactics
             PerformerClock clock = performerClocks[target.Id];
             // Recasting the active shield refreshes its own layer, not the permanent dice layer.
             if (timed) { target.Shield = Math.Max(0, target.Shield - clock.TimedShield); clock.TimedShield = 0; }
-            int amount = (int)Math.Min((long)target.MaxHp - target.Shield, (long)target.MaxHp * permille / 1000);
+            long rawShield = AdjustManualUltimateAmount(actor, skill, (long)target.MaxHp * permille / 1000, SkillEffect.Shield);
+            int amount = (int)Math.Min((long)target.MaxHp - target.Shield, rawShield);
             if (amount <= 0) return;
             target.Shield += amount;
-            if (timed) { clock.TimedShield = amount; clock.TimedShieldUntil = ElapsedMilliseconds + 4000; }
+            // Turn mode: the 深海佑域 shield holds for whole rounds (4 slices was less than half a round).
+            if (timed) { clock.TimedShield = amount; clock.TimedShieldUntil = ElapsedMilliseconds + (IsTurnBased ? RoundsToMilliseconds(MermaidWardRounds) : 4000); }
             Emit(BattleEventKind.Shield, actor.Id, target.Id, skill, amount, false);
         }
 
@@ -605,7 +702,8 @@ namespace ChoSiren.Systems.Tactics
                 BattleUnit source = FindUnit(clock.PoisonSource);
                 if (target.Alive && source != null && clock.PoisonStacks > 0 && Outcome == BattleOutcome.Ongoing)
                 {
-                    int damage = (int)Math.Min(int.MaxValue, (long)source.Attack * clock.PoisonStacks * 120 / 1000);
+                    int damage = (int)Math.Min(int.MaxValue, (long)source.Attack * clock.PoisonStacks * 120 / 1000
+                        * (IsTurnBased ? TurnSupportPermille : 1000) / 1000);
                     ApplyActualDamage(source, target, "rt-poison", Math.Max(1, damage), false);
                     clock.PoisonStacks /= 2;
                 }
@@ -619,27 +717,21 @@ namespace ChoSiren.Systems.Tactics
         {
             if (diceRevision == BattleDice.Revision) return;
             diceRevision = BattleDice.Revision;
-            ResetComboBudget();
+            // 2026-11-01c 无限骰子: in a turn battle a new hand no longer refreshes the combo budget or the mermaid wall
+            // (both come back every round / measure), and the 顺子 heal fires at most once a round (CaptainPassive1101) —
+            // otherwise endless rerolls would turn each pip into another heal / shield / follow-up.
+            if (!IsTurnBased) ResetComboBudget();
+            CheckDiceTarget();
             BattleUnit leader = FindUnit(leaderId);
             if (leader == null || !leader.Alive) return;
             DicePattern pattern = BattleDice.Hand.Pattern;
-            if (leaderRace == CombatRace.BloodElf && pattern == DicePattern.HighPoint && !elfRescueUsed)
-            {
-                elfRescueUsed = true;
-                BattleDice.GrantFreeReroll();
-            }
+            bool straightHeal = (pattern == DicePattern.Straight || pattern == DicePattern.SixStraight) && TakeStraightHeal1101();
             foreach (BattleUnit ally in units)
             {
                 if (!ally.Alive || ally.Side != BattleSide.Player) continue;
-                if (pattern == DicePattern.Straight) HealPercent(leader, ally, "rt-tide-hand", 100);
-                if (leaderRace == CombatRace.Mermaid)
+                if (straightHeal) HealPercent(leader, ally, "rt-tide-hand", IsTurnBased ? StraightHealTurnPermille1101 : 100);
+                if (leaderRace == CombatRace.Mermaid && !IsTurnBased)
                     AddShield(leader, ally, "rt-tide-hand", ShieldPercent(pattern), false);
-                if (leaderRace == CombatRace.Charm && (pattern == DicePattern.FiveKind ||
-                    ally.Id == leader.Id && Combo(pattern) >= 3))
-                {
-                    BattleUnit target = SelectEnemy(ally);
-                    if (target != null) Deal(ally, target, "rt-charm-follow", 1000);
-                }
             }
         }
 
@@ -653,31 +745,18 @@ namespace ChoSiren.Systems.Tactics
             // Auto-planning keeps the legacy damage-charge cadence so existing pacing fixtures
             // stay comparable; the player-facing panel never uses this path.
             if (BattleDice.FreeRerolls <= 0) BattleDice.SpendEnergyCharge();
-            if (BattleDice.SelectiveReroll)
-            {
-                bool[] planned = DiceHoldPlanner.Choose(BattleDice.Values);
-                int held = 0;
-                for (int i = 0; i < planned.Length; i++) if (planned[i]) held++;
-                if (held == 3 || held == 4)
-                {
-                    for (int i = 0; i < planned.Length; i++)
-                        if (BattleDice.Held[i] != planned[i]) BattleDice.ToggleHold(i);
-                    BattleDice.RerollUnheld(out _);
-                    return;
-                }
-            }
-            BattleDice.RerollAll(out _);
+            // At most two loose dice (2026-10-31); the dice of the current pattern are kept.
+            BattleDice.RerollSuggested(out _);
         }
 
         // 骰型收益表改为公开：面板的队长收益读数在回合制模式下也按同一张表换算（0.3.8）。
-        public static int PoisonLayers(DicePattern p) => p == DicePattern.FiveKind ? 8
-            : p == DicePattern.FourKind ? 5 : p == DicePattern.FullHouse ? 4 : p == DicePattern.ThreeKind ? 3
-            : p == DicePattern.TwoPair ? 2 : p == DicePattern.Pair ? 1 : 0;
-        public static int Combo(DicePattern p) => p == DicePattern.FiveKind ? 3 : PoisonLayers(p);
-        public static int Pierce(DicePattern p) => p == DicePattern.FiveKind ? 500 : p == DicePattern.FourKind ? 300
-            : p == DicePattern.FullHouse ? 250 : p == DicePattern.ThreeKind ? 200 : 0;
-        public static int ShieldPercent(DicePattern p) => p == DicePattern.FiveKind ? 300 : p == DicePattern.FourKind ? 200
-            : p == DicePattern.FullHouse ? 150 : p == DicePattern.ThreeKind ? 120 : p == DicePattern.Straight ? 80 : 0;
+        // 2026-10-31 (赵金 "我方过强"): big hands give less — 毒 8/5/4/3/2/1 → 6/4/3/2/2/1, 连击 6/5/4/3/2/1 → 4/3/3/2/1/1,
+        // 破甲 50/30/25/20% → 40/25/20/15%, 护盾 30/20/15/12/8% → 22/15/12/9/6%.
+        // 2026-11-01b: the tables live in CaptainPassive1101 (一对/两对/三对 give nothing; passives start at 三条).
+        public static int PoisonLayers(DicePattern p) => ByHand1101(PoisonLayersByHand1101, p);
+        public static int Combo(DicePattern p) => ByHand1101(ComboByHand1101, p);
+        public static int Pierce(DicePattern p) => ByHand1101(PierceByHand1101, p);
+        public static int ShieldPercent(DicePattern p) => ByHand1101(ShieldByHand1101, p);
         private static string SkillId(CombatRace race, bool big) => "rt-" + race.ToString().ToLowerInvariant() + (big ? "-big" : "-small");
         private static SkillDefinition RealtimeSkill(string id) => id != null && realtimeSkills.TryGetValue(id, out var skill) ? skill : null;
 
@@ -702,15 +781,18 @@ namespace ChoSiren.Systems.Tactics
             Add("rt-none-small", "音浪冲击"); Add("rt-none-big", "舞台共鸣");
             Add("rt-charm-follow", "魅影追击"); Add("rt-poison", "终末毒爆");
             Add("rt-tide-hand", "深海壁垒", SkillEffect.Shield);
-            Add("rt-enemy-heavy", "重音蓄击"); Add("rt-enemy-finale", "终演震荡");
+            Add(EchoMarkSkillId, "回响标记"); Add("rt-enemy-heavy", "重音蓄击"); Add("rt-enemy-finale", "终演震荡");
             Add("rt-elite-harden", "静电硬化", SkillEffect.Shield);
             Add("rt-boss-barrier", "首领屏障", SkillEffect.Shield);
             Add("rt-stun", "眩晕"); Add("rt-slow", "迟缓"); Add("rt-armor-break", "破甲");
             Add("rt-control-ward", "控场免疫", SkillEffect.Shield);
             Add("rt-cleanse", "净化", SkillEffect.Heal); Add("rt-interrupt", "打断");
             Add("rt-resist", "抵抗"); Add("rt-cast", "蓄力预警");
+            Add("rt-seal", "封印");
             Add("rt-tactical-strike", "破招突袭");
             Add("rt-tactical-guard", "应急守护", SkillEffect.Shield);
+            RegisterChapterTwoRealtimeSkills(result);
+            RegisterBossSkills1101(result);
             return result;
         }
     }

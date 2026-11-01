@@ -1,0 +1,27 @@
+--- R65/PsdHomeAlbumInkMotion.cs
++++ R66/PsdHomeAlbumInkMotion.cs
+@@ -47,7 +47,7 @@
+         }
+ 
+         /// <summary>
+-        /// The tall CTA keeps a close diamond around its original outline, with a small edge reveal.
++        /// The CTA restores its approved broad diamond edge; the three left cards stay restrained.
+         /// </summary>
+         public void InitializeBehindCallToAction(RectTransform root, Color tint)
+         {
+@@ -55,10 +55,12 @@
+             Vector2 card = hit.rect.size;
+             Build(null, root, Vector2.zero, card, false, tint);
+             Vector2 P(float x, float y) => new Vector2(x * card.x, -y * card.y);
+-            // Reserve the texture's natural transparent margins (v .135..865), so its
+-            // visible brush peeks past the white outline. No extra outward multiplier.
++            // Restore the original CTA footprint around its centre, keeping the brush's
++            // natural RGBA edge and the same album-green tint as the other entries.
+             Vector2 B = P(.46f, 1.21f), R = P(1.18f, .46f), T = P(.82f, -.18f), L = P(-.26f, .54f);
+-            ink.SetQuad(new[] { B, R, T, L }, new Rect(0f, 0f, 1f, 1f));
++            Vector2 mid = (B + R + T + L) * .25f;
++            Vector2 Out(Vector2 corner) => mid + (corner - mid) * 1.3f;
++            ink.SetQuad(new[] { Out(B), Out(R), Out(T), Out(L) }, new Rect(0f, 0f, 1f, 1f));
+         }
+ 
+         private void Build(Image source, RectTransform root, Vector2 offset, Vector2 size, bool mirror, Color tint)

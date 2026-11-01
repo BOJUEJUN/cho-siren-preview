@@ -135,7 +135,8 @@ namespace ChoSiren.Tests
                 Assert.That(portrait.sprite, Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[member].ResourcePath)));
                 Assert.That(portrait.preserveAspect, Is.True);
                 Assert.That(portrait.raycastTarget, Is.False);
-                Assert.That(row.GetComponent<Button>().IsInteractable(), Is.True);
+                // The member already in this slot is shown but disabled (TeamSwapPlayModeTests).
+                Assert.That(row.GetComponent<Button>().IsInteractable(), Is.EqualTo(member != model.Save.Team[0]));
                 Assert.That(Require("PickerName-" + member).GetComponent<Text>().text, Is.EqualTo(GameModel.Members[member].Name));
                 AssertTextRectsContainedAndSeparated(row);
             }

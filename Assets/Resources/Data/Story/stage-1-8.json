@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-8",
+  "Title": "1-8 心拍天台",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "天台的风好大……心跳和鼓点混在一起了。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "敌人会从两边包上来，前排要顶住。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "队长受到大家保护，别让她倒下。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-4",
+  "Title": "1-4 静电之心",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-4"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "脉冲守卫在给整片街区供电……难怪杂音越来越响。",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "那就把「心脏」停下来。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "它们会护住彼此，先集火一个。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

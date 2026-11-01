@@ -1,0 +1,80 @@
+{
+  "processing": "No voice morphing: mono resample, near-silent border trim with80ms pad,55Hz highpass,2/8ms boundary fades,gain to RMS -20dBFS capped peak -6.5dBFS. Original MP3 retained.",
+  "order": [
+    "星璃",
+    "绯音",
+    "雾白",
+    "夜莺"
+  ],
+  "clips": [
+    {
+      "id": "xingli-active-01",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/samples-minimax-20261019-v1/original/xingli-active-01.mp3",
+      "source_sha256": "23f8526366701ab1f2d972f7ba6a81bb25904861c0dcfacb11a68803709f3b15",
+      "output": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/xingli-active-01.wav",
+      "sha256": "46fdcbaf933ae729d1885a3228657d872950a4b7e5eec9a88dd0bf234a594e7b",
+      "original_seconds": 2.17109375,
+      "seconds": 1.87,
+      "sample_rate": 44100,
+      "channels": 1,
+      "rms_dbfs": -21.12915535328474,
+      "peak_dbfs": -6.4995632877274545,
+      "full_scale_samples": 0,
+      "linear_gain": 0.5642987646673274,
+      "trim_start_seconds": 0.14,
+      "trim_end_seconds": 2.01
+    },
+    {
+      "id": "feiyin-active-01",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/samples-minimax-20261019-v1/original/feiyin-active-01.mp3",
+      "source_sha256": "c18ae53ddceaadc10db77d2eb8e5d3ba1aee813c9489d32b417e351b3f7d6fc8",
+      "output": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/feiyin-active-01.wav",
+      "sha256": "1a33b51c325b13031c376b860ebc0d43f22a30119a9d66611772f05cc192ea2d",
+      "original_seconds": 1.7,
+      "seconds": 1.21,
+      "sample_rate": 44100,
+      "channels": 1,
+      "rms_dbfs": -19.999997562235546,
+      "peak_dbfs": -6.803402330346673,
+      "full_scale_samples": 0,
+      "linear_gain": 0.6798205706375554,
+      "trim_start_seconds": 0.27,
+      "trim_end_seconds": 1.48
+    },
+    {
+      "id": "wubai-active-01",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/samples-minimax-20261019-v1/original/wubai-active-01.mp3",
+      "source_sha256": "52efea9923de7dc38d4574db439a561b4ed4749d062f9f61ab205eccbc243c8e",
+      "output": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/wubai-active-01.wav",
+      "sha256": "a369759628abb9143e7e62a25ddfd1215a2316bafbefdacb3e4293e2b4263929",
+      "original_seconds": 2.06659375,
+      "seconds": 1.87,
+      "sample_rate": 44100,
+      "channels": 1,
+      "rms_dbfs": -20.00000198757336,
+      "peak_dbfs": -8.989939092916966,
+      "full_scale_samples": 0,
+      "linear_gain": 0.3417902722811973,
+      "trim_start_seconds": 0.06,
+      "trim_end_seconds": 1.93
+    },
+    {
+      "id": "yeying-active-01",
+      "source": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/samples-minimax-20261019-v1/original/yeying-active-01.mp3",
+      "source_sha256": "4c1954439f76c2a6980e75672e9fea8be62165aaadce6583dc6702ce33240cc1",
+      "output": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/Assets/Resources/Audio/Voice/Battle/yeying-active-01.wav",
+      "sha256": "46fe855dfb5d377a980627785c9c520e65b3cedb665c3fde53914ae656b265cb",
+      "original_seconds": 2.12546875,
+      "seconds": 2.02,
+      "sample_rate": 44100,
+      "channels": 1,
+      "rms_dbfs": -20.000001305115127,
+      "peak_dbfs": -7.512046406268137,
+      "full_scale_samples": 0,
+      "linear_gain": 0.6595331225321874,
+      "trim_start_seconds": 0.02,
+      "trim_end_seconds": 2.04
+    }
+  ],
+  "listening_accepted": false
+}

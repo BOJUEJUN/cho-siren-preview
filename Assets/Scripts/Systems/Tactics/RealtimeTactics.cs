@@ -9,6 +9,7 @@ namespace ChoSiren.Systems.Tactics
     {
         private int nextTacticalInterrupt;
         private int nextTacticalGuard;
+        public bool TacticalGuardUsed { get; private set; }
         public int InterruptCooldownRemaining => Math.Max(0, nextTacticalInterrupt - ElapsedMilliseconds);
         public int GuardCooldownRemaining => Math.Max(0, nextTacticalGuard - ElapsedMilliseconds);
         public bool LastTacticalStrikeBrokeCast { get; private set; }
@@ -41,10 +42,24 @@ namespace ChoSiren.Systems.Tactics
         }
 
         public int GuardRemaining(BattleUnit unit) => IsRealtime && unit != null && unit.Alive
-            ? Math.Max(0, performerClocks[unit.Id].TacticalGuardUntil - ElapsedMilliseconds) : 0;
+            ? IsTurnBased ? (performerClocks[unit.Id].GuardBlocks > 0 ? 1 : 0)
+            : Math.Max(0, performerClocks[unit.Id].TacticalGuardUntil - ElapsedMilliseconds) : 0;
+
+        public const string GuardBreakSkillId = "rt-guard-break";
+
+        /// <summary>Turn mode: members still holding an 应急守护 shield.</summary>
+        public int GuardedCount
+        {
+            get
+            {
+                int n = 0;
+                foreach (var unit in units) if (unit.Side == BattleSide.Player && GuardRemaining(unit) > 0) n++;
+                return n;
+            }
+        }
 
         public BattleUnit CastTarget(BattleUnit unit) => CastRemaining(unit) > 0
-            ? FindUnit(performerClocks[unit.Id].CastTargetId) : null;
+            ? PreviewEnemyCastTarget(unit) : null;
 
         // Attack now or save it for a dangerous cast: timing changes the reward, not availability.
         public bool TryTacticalStrike()
@@ -64,13 +79,15 @@ namespace ChoSiren.Systems.Tactics
         public bool TryTacticalGuard()
         {
             var actor = TacticalActor;
-            if (actor == null || GuardCooldownRemaining > 0) return false;
-            nextTacticalGuard = ElapsedMilliseconds + 18000;
+            if (actor == null || TacticalGuardUsed) return false;
+            TacticalGuardUsed = true;
+            nextTacticalGuard = IsTurnBased ? ElapsedMilliseconds : ElapsedMilliseconds + 3000;
             foreach (var ally in units)
                 if (ally.Side == BattleSide.Player && ally.Alive)
                 {
-                    performerClocks[ally.Id].TacticalGuardUntil = ElapsedMilliseconds + 3000;
-                    Emit(BattleEventKind.Buff, actor.Id, ally.Id, "rt-tactical-guard", 3000, false);
+                    if (IsTurnBased) performerClocks[ally.Id].GuardBlocks = 1;
+                    else performerClocks[ally.Id].TacticalGuardUntil = ElapsedMilliseconds + 3000;
+                    Emit(BattleEventKind.Buff, actor.Id, ally.Id, "rt-tactical-guard", IsTurnBased ? 0 : 3000, false);
                 }
             return true;
         }
@@ -171,25 +188,14 @@ namespace ChoSiren.Systems.Tactics
             return string.Join(" · ", labels.GetRange(0, Math.Min(2, labels.Count)));
         }
 
-        public string EnemyThreatName(BattleUnit unit)
-        {
-            switch (unit?.Definition.Id)
-            {
-                case "echo-drone": return "电磁干扰·迟缓";
-                case "noise-wraith": return "侵蚀·破甲";
-                case "pulse-guard": return "震击·眩晕";
-                case "velvet-hexer": return "回响治愈";
-                case "static-golem": return "重锤·眩晕";
-                case "siren-queen": return EnemyPhase >= 3 ? "终演·全体震荡" : "魅惑·封技";
-                default: return "突袭·重击";
-            }
-        }
+        public string EnemyThreatName(BattleUnit unit) => EnemyCapabilityThreatName(unit);
 
         private void BeginTelegraphedSpecial(BattleUnit actor)
         {
-            var target = SelectEnemy(actor);
+            var target = SelectEnemyCastTarget(actor);
             if (target == null) return;
             var c = performerClocks[actor.Id];
+            RecordPlannedSpecial1101(actor);
             c.CastUntil = ElapsedMilliseconds + 2000;
             c.CastTargetId = target.Id;
             Emit(BattleEventKind.Buff, actor.Id, actor.Id, "rt-cast", 2000, false);
@@ -199,6 +205,8 @@ namespace ChoSiren.Systems.Tactics
         {
             var c = performerClocks[actor.Id];
             if (!actor.Alive || c.SilencedUntil > ElapsedMilliseconds) return;
+            if (TryResolveSpecial1101(actor)) return;
+            if (TryResolveChapterTwoSpecial(actor)) return;
             BattleUnit target = FindUnit(c.CastTargetId);
             if (target == null || !target.Alive) target = SelectEnemy(actor);
             if (target == null) return;
@@ -216,7 +224,7 @@ namespace ChoSiren.Systems.Tactics
             Deal(actor, target, "rt-enemy-heavy", 1600);
             switch (actor.Definition.Id)
             {
-                case "echo-drone": ApplyCondition(actor, target, CombatCondition.Slow, 3000); break;
+                case "echo-drone": ApplyCondition(actor, target, CombatCondition.Slow, 3000); MarkEcho(actor, target); break;
                 case "noise-wraith": ApplyCondition(actor, target, CombatCondition.ArmorBreak, 4000); break;
                 case "pulse-guard": case "static-golem": ApplyCondition(actor, target, CombatCondition.Stun, 1200); break;
                 case "siren-queen":

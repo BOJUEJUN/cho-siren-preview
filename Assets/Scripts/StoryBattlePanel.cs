@@ -182,6 +182,7 @@ namespace ChoSiren
             panel.stage = Mathf.Clamp(selectedStage, 3, 6);
             panel.onBack = back;
             panel.onMessage = message;
+            MusicContextScope.Attach(panelObject, GameAudio.MusicContext.Battle);
             panel.Build();
             panel.StartBattle();
             return panel;

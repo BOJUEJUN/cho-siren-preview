@@ -150,6 +150,44 @@ namespace ChoSiren.Tests
             Assert.That(Find<Text>(panel.transform, "PracticeQuoteGold").text, Does.Contain("最高等级").Or.Contain("满级"));
         }
 
+        [Test]
+        public void TappingAStageFigureSwitchesTheTraineeAndOnlyThatMemberTrains()
+        {
+            var model = new GameModel();
+            MemberPracticePanel panel = MemberPracticePanel.Open(host.transform, model, 0);
+            ChoSiren.UI.SirenPracticeScene stage = panel.Stage;
+            Assert.That(stage, Is.Not.Null);
+            Assert.That(stage.Count, Is.EqualTo(model.Save.UnlockedMembers.Count), "舞台上的小人＝实际拥有的成员");
+            Assert.That(stage.SelectedMember, Is.EqualTo(0));
+
+            const int target = 1;
+            MemberDefinition member = GameModel.Members[target];
+            int targetLevel = model.LevelOf(target), firstLevel = model.LevelOf(0);
+            Find<Button>(panel.transform, "PracticeActor-" + member.Id).onClick.Invoke();
+
+            Assert.That(panel.MemberIndex, Is.EqualTo(target));
+            Assert.That(stage.SelectedMember, Is.EqualTo(target));
+            Assert.That(stage.SelectionAmount(target), Is.EqualTo(1f));
+            Assert.That(stage.SelectionAmount(0), Is.EqualTo(0f));
+            Transform chosenBody = stage.ActorRect(target).Find("Body");
+            Transform otherBody = stage.ActorRect(0).Find("Body");
+            Assert.That(chosenBody.localScale.y, Is.GreaterThan(otherBody.localScale.y * 1.15f), "选中的小人要放大上前");
+            Assert.That(chosenBody.Find("SelectGlow"), Is.Not.Null, "选中的小人要有发光描边");
+            Assert.That(Find<Image>(panel.transform, "PracticePortrait").sprite,
+                Is.EqualTo(Resources.Load<Sprite>(member.ResourcePath)));
+            Assert.That(Find<Text>(panel.transform, "PracticeMemberName").text, Is.EqualTo(member.Name));
+            Assert.That(Find<Text>(panel.transform, "PracticeQuoteGold").text,
+                Does.Contain(BattleSimulator.TrainingCostAtLevel(targetLevel).ToString("N0")));
+            Assert.That(Find<Text>(panel.transform, "PracticeAction").text,
+                Is.EqualTo(MemberTrainingPractice.ActionNameFor(member.Career)));
+
+            Assert.That(panel.CommitTraining(), Is.True);
+            Assert.That(model.LevelOf(target), Is.EqualTo(targetLevel + 1));
+            Assert.That(model.LevelOf(0), Is.EqualTo(firstLevel), "切换后不得再给原成员升级");
+            Assert.That(Find<Text>(panel.transform, "PracticeDelta-等级").text,
+                Does.Contain(targetLevel.ToString()).And.Contain("→"));
+        }
+
         private static T Find<T>(Transform root, string name) where T : Component
         {
             Transform[] all = root.GetComponentsInChildren<Transform>(true);

@@ -41,6 +41,8 @@ namespace ChoSiren.Panels
         private Func<int> speedProbe;
 
         private Vector2 basePosition;
+        public void SetLayoutOrigin(Vector2 position)
+        { basePosition = position; if (motionRoot != null) motionRoot.anchoredPosition = position; }
         private Vector2 actionOffset;
         private float actionScale = 1f;
         private float actionRotation;
@@ -90,6 +92,13 @@ namespace ChoSiren.Panels
             speedProbe = currentSpeed;
 
             if (motionRoot == null || portrait == null) return;
+            // The hit flash pushes the whole figure to white (same shader as the minions).
+            if (flashMaterial == null && Application.isPlaying && portrait.material == portrait.defaultMaterial)
+            {
+                Shader flash = Resources.Load<Shader>("Shaders/UIFlash");
+                if (flash != null && flash.isSupported) flashMaterial = new Material(flash) { name = "UIFlash-Boss" };
+            }
+            if (flashMaterial != null) { portrait.material = flashMaterial; SetFlash(0f); }
             basePosition = motionRoot.anchoredPosition;
             ResetTransientVisuals();
             configured = true;
@@ -107,10 +116,25 @@ namespace ChoSiren.Panels
                     new Color32(255, 86, 173, 255), LowHealth ? 1f : 0f);
         }
 
+        /// <summary>
+        /// False when the battle draws its own hit effects on the boss (Fx1023, 2026-10-23): the boss then only
+        /// recoils and flashes, without the old painted slash/heart art, rings and slash trails on every hit.
+        /// </summary>
+        public bool DecoratedHits { get; set; } = true;
+
         public void PlayHit(int amount, bool critical, int diceMultiplierPermille = 1000)
+            => PlayHitFrom(amount, critical, diceMultiplierPermille, Vector2.zero, critical ? 1 : 0);
+
+        /// <summary>
+        /// 2026-10-31 (赵金: "受击做上动画看起来才过瘾"): <paramref name="direction"/> is the blow's travel direction on
+        /// screen (attacker → boss), <paramref name="power"/> 0 basic, 1 skill / crit, 2 ultimate.
+        /// </summary>
+        public void PlayHitFrom(int amount, bool critical, int diceMultiplierPermille, Vector2 direction, int power)
         {
             if (!configured || outcomeLocked) return;
             HitReactionCount++;
+            hitDirection = direction.sqrMagnitude > .0001f ? direction.normalized : Vector2.up;
+            hitPower = Mathf.Clamp(Mathf.Max(power, critical ? 1 : 0), 0, 2);
             if (reactionPriority >= 2)
             {
                 if (minorHitRoutine != null) StopCoroutine(minorHitRoutine);
@@ -118,6 +142,20 @@ namespace ChoSiren.Panels
             }
             else StartReaction(HitRoutine(critical), 1);
             SpawnDamageNumber(amount, critical, diceMultiplierPermille);
+        }
+
+        private Vector2 hitDirection = Vector2.up;
+        private int hitPower;
+        private Vector2 actionSquash = Vector2.one;
+        private Material flashMaterial;
+        private static readonly int FlashId = Shader.PropertyToID("_Flash");
+        private static readonly int FlashColorId = Shader.PropertyToID("_FlashColor");
+
+        private void SetFlash(float amount)
+        {
+            if (flashMaterial == null) return;
+            flashMaterial.SetColor(FlashColorId, Color.white);
+            flashMaterial.SetFloat(FlashId, Mathf.Clamp01(amount));
         }
 
         public void PlayCharge(string skillName)
@@ -164,7 +202,7 @@ namespace ChoSiren.Panels
             float idleRotation = drift * 0.42f * idleWeight;
 
             motionRoot.anchoredPosition = basePosition + new Vector2(idleX, idleY) + actionOffset;
-            motionRoot.localScale = Vector3.one * (idleScale * actionScale);
+            motionRoot.localScale = new Vector3(idleScale * actionScale * actionSquash.x, idleScale * actionScale * actionSquash.y, 1f);
             motionRoot.localEulerAngles = new Vector3(0f, 0f, idleRotation + actionRotation);
 
             float pulse = 0.5f + Mathf.Sin(animationClock * (2.2f + lowWeight * 1.2f)) * 0.5f;
@@ -256,6 +294,7 @@ namespace ChoSiren.Panels
             {
                 elapsed += AnimationDelta();
                 float fade = 1f - Mathf.Clamp01(elapsed / duration);
+                SetFlash(fade * fade * (critical ? .72f : .55f));
                 if (echo != null)
                 {
                     echo.rectTransform.localPosition = new Vector3(-6f * fade, 2f * fade, 0f);
@@ -271,6 +310,7 @@ namespace ChoSiren.Panels
                 echo.rectTransform.localPosition = Vector3.zero;
                 echo.rectTransform.localScale = Vector3.one;
             }
+            SetFlash(0f);
             minorHitRoutine = null;
         }
 
@@ -279,37 +319,68 @@ namespace ChoSiren.Panels
             State = BossVisualState.Hit;
             SetStateLabel(critical ? "暴击 · 失衡" : "命中", critical ? CombatFeedbackPalette.Critical : CombatFeedbackPalette.Attack, 1f);
             float strength = critical ? 1.35f : 1f;
-            ShowSlashTrails(strength);
-            ShowRings(new Color32(255, 73, 205, 220), 0.55f);
-            ShowAiHitArt(critical);
-
-            float elapsed = 0f;
-            const float duration = 0.54f;
-            while (elapsed < duration)
+            if (DecoratedHits)
             {
-                elapsed += AnimationDelta();
-                float t = Mathf.Clamp01(elapsed / duration);
-                float recoil = Mathf.Sin(Mathf.Clamp01(t / 0.25f) * Mathf.PI * 0.5f);
-                float settle = Mathf.Clamp01((1f - t) / 0.75f);
-                float shake = Mathf.Sin(t * Mathf.PI * 9f) * settle;
-                actionOffset = new Vector2((20f * recoil + 10f * shake) * strength,
-                    (8f * recoil + 3f * Mathf.Sin(t * Mathf.PI * 6f)) * strength);
-                actionRotation = (4.6f * recoil + 2.2f * shake) * strength;
-                actionScale = 1f - 0.026f * recoil + 0.012f * Mathf.Sin(t * Mathf.PI);
+                ShowSlashTrails(strength);
+                ShowRings(new Color32(255, 73, 205, 220), 0.55f);
+                ShowAiHitArt(critical);
+            }
 
-                float flash = 1f - Mathf.Clamp01(t / 0.34f);
-                portrait.color = Color.Lerp(Color.white, new Color32(255, 142, 220, 255), flash * 0.48f);
+            // 2026-10-31: a heavy body takes the blow — white flash, a short shove along the blow that leans back on
+            // the throne, a squash that springs back through one soft overshoot. All times are animation time
+            // (AnimationDelta runs at Pace, so 0.025 here is ~50 ms on screen at 1x).
+            int power = hitPower;
+            Vector2 dir = hitDirection;
+            float push = power == 2 ? 24f : power == 1 ? 16f : 10f;
+            float lean = power == 2 ? 4f : power == 1 ? 2.6f : 1.5f;
+            float squeeze = power == 2 ? .06f : power == 1 ? .045f : .03f;
+            float settle = power == 2 ? .3f : power == 1 ? .25f : .2f;
+            float flashSpan = power == 2 ? .15f : power == 1 ? .12f : .085f;
+            float duration = Mathf.Max(.025f + settle, .02f + flashSpan, .27f);
+            bool calm = BattlePresentationOptions.ReduceMotion;
+            float elapsed = 0f;
+            while (elapsed <= duration)
+            {
+                float t = elapsed;
+                float k = EnemyUnitPresentation.Recoil(t, .025f, settle);
+                float height = Mathf.Max(1f, motionRoot.rect.height);
+                if (calm) { actionOffset = Vector2.zero; actionRotation = 0f; actionSquash = Vector2.one; actionScale = 1f; }
+                else
+                {
+                    float tilt = Mathf.Clamp(-dir.x * 1.6f, -1f, 1f) * lean * k;
+                    actionRotation = tilt;
+                    actionSquash = new Vector2(1f + squeeze * k, 1f - squeeze * k);
+                    actionScale = 1f - .012f * k; // pushed back, a touch further away
+                    float tremor = Mathf.Clamp01(1f - t / .08f);
+                    Vector2 across = new Vector2(-dir.y, dir.x);
+                    actionOffset = dir * (push * k)
+                        + new Vector2(-Mathf.Sin(tilt * Mathf.Deg2Rad) * height * .5f, -(1f - actionSquash.y) * height * .5f)
+                        + across * (Mathf.Sin(t * Mathf.PI * 2f * 26f) * tremor * tremor * (power == 2 ? 4f : power == 1 ? 3f : 1.6f));
+                }
+                float flash = t < .02f ? 1f : Mathf.Clamp01(1f - (t - .02f) / flashSpan);
+                flash *= flash;
+                if (calm) flash *= .7f;
+                if (flashMaterial != null)
+                {
+                    SetFlash(flash * (power == 2 ? .9f : power == 1 ? .8f : .66f)); // a big figure reads white long before 1.0
+                    portrait.color = Color.white;
+                }
+                else portrait.color = Color.Lerp(Color.white, new Color32(255, 142, 220, 255), flash * 0.48f);
                 if (echo != null)
                 {
-                    echo.rectTransform.localPosition = new Vector3(-actionOffset.x * 0.7f, 3f, 0f);
-                    echo.rectTransform.localScale = Vector3.one * (1.01f + flash * 0.055f);
-                    echo.color = new Color32(255, 38, 184, (byte)Mathf.RoundToInt(130f * flash));
+                    float trail = Mathf.Clamp01(1f - t / .18f);
+                    echo.rectTransform.localPosition = new Vector3(-actionOffset.x * 0.7f, -actionOffset.y * .4f, 0f);
+                    echo.rectTransform.localScale = Vector3.one * (1.01f + trail * 0.05f * strength);
+                    echo.color = new Color32(255, 38, 184, (byte)Mathf.RoundToInt(110f * trail * (calm ? .5f : 1f)));
                 }
 
-                AnimateTransientEffects(t, strength);
-                AnimateAiHitArt(t, strength);
+                float tn = Mathf.Clamp01(t / duration);
+                AnimateTransientEffects(tn, strength);
+                AnimateAiHitArt(tn, strength);
                 yield return null;
+                elapsed += AnimationDelta();
             }
+            SetFlash(0f);
         }
 
         private IEnumerator ChargeRoutine(string skillName)
@@ -368,8 +439,11 @@ namespace ChoSiren.Panels
         {
             State = BossVisualState.Defeated;
             SetStateLabel("演出终止", new Color32(186, 205, 255, 255), 1f);
-            ShowRings(new Color32(112, 191, 255, 190), 0.42f);
-            ShowAiHitArt(true);
+            if (DecoratedHits)
+            {
+                ShowRings(new Color32(112, 191, 255, 190), 0.42f);
+                ShowAiHitArt(true);
+            }
             float elapsed = 0f;
             const float duration = 0.88f;
             while (elapsed < duration)
@@ -555,8 +629,12 @@ namespace ChoSiren.Panels
             }
         }
 
+        /// <summary>False while the battle shows the hit with its own big numbers (BigDamageNumbers1101, 2026-11-01).</summary>
+        public bool FloatingNumbers { get; set; } = true;
+
         private void SpawnDamageNumber(int amount, bool critical, int diceMultiplierPermille)
         {
+            if (!FloatingNumbers) return;
             int capacity = Math.Min(damageTexts.Length, damageRoutines.Length);
             if (capacity == 0) return;
             int slot = damageCursor++ % capacity;
@@ -576,17 +654,16 @@ namespace ChoSiren.Panels
             // Row spacing exceeds text height plus its entire rise, even when births differ.
             Vector2 origin = new Vector2(slot % 2 == 0 ? 245f : 475f, -230f - slot / 2 * 110f);
             rect.anchoredPosition = origin;
-            rect.sizeDelta = new Vector2(190f, 52f);
+            // 2026-10-23 review: the boss numbers were squeezed by best-fit down to ~18 — now full size.
+            rect.sizeDelta = new Vector2(300f, 70f);
             rect.localScale = Vector3.one;
             text.text = critical ? $"暴击  -{amount:N0}" : $"-{amount:N0}";
             if (diceMultiplierPermille > 1000)
                 text.text += $"  ×{diceMultiplierPermille / 1000f:0.##}";
-            text.fontSize = critical ? 30 : 26;
-            text.resizeTextForBestFit = true;
-            text.resizeTextMinSize = 18;
-            text.resizeTextMaxSize = text.fontSize;
-            text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.fontSize = critical ? 40 : 34;
+            text.resizeTextForBestFit = false;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
             text.color = critical ? CombatFeedbackPalette.Critical : CombatFeedbackPalette.Attack;
             text.gameObject.SetActive(true);
             text.transform.SetAsLastSibling();
@@ -610,6 +687,8 @@ namespace ChoSiren.Panels
             actionOffset = Vector2.zero;
             actionScale = 1f;
             actionRotation = 0f;
+            actionSquash = Vector2.one;
+            SetFlash(0f);
             if (portrait != null) portrait.color = Color.white;
             if (echo != null)
             {
@@ -655,7 +734,13 @@ namespace ChoSiren.Panels
         {
             if (IsPaused()) return 0f;
             int multiplier = speedProbe != null ? Mathf.Clamp(speedProbe(), 1, 2) : 1;
-            return Time.unscaledDeltaTime * multiplier;
+            // A hit-stop holds the boss on its impact frame too (2026-10-31).
+            return ChoSiren.BattleHitStop.Delta(Time.unscaledDeltaTime) * multiplier * ChoSiren.BattlePresentationOptions.Pace;
+        }
+
+        private void OnDestroy()
+        {
+            if (flashMaterial != null) Destroy(flashMaterial);
         }
 
         private void OnDisable()
@@ -665,6 +750,7 @@ namespace ChoSiren.Panels
             reactionRoutine = null;
             minorHitRoutine = null;
             reactionPriority = 0;
+            SetFlash(0f);
         }
     }
 }

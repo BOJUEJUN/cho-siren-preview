@@ -1,0 +1,5699 @@
+{
+ "batch": "zj-1031 audio",
+ "budget_cny": 60.0,
+ "usd_to_cny_for_cap": 7.3,
+ "note": "Credentials are never stored here. cost = actual settled amount when known, else quote.",
+ "calls": [
+  {
+   "label": "pilot-hit-a",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "single punchy anime fighting game hit impact, tight body thump with crisp snap transient, dry, no music, 0.4 second",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:20:52.674485+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116384902751920130",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/pilot-hit-a-1.wav",
+     "sha256": "15d4f175f2e776b030978826fe9ab8ab00135ab6d56f8f0a73812e47510b9254",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/pilot-hit-a-2.wav",
+     "sha256": "fe4e5dc68eb75b86758bdb74b3c33e0fbe4ee57fc51e87cf346f00bd7cfc3673",
+     "bytes": 455884
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/pilot-hit-a-3.jpg",
+     "sha256": "aa62cf814ec4e6c127c90d4350877e5f8fcd7ca5cb53f08e9bfc2bb222687b9f",
+     "bytes": 129267
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/pilot-hit-a-4.jpg",
+     "sha256": "b94cc2bc7bdad5bb08e1c4de50b8ea113e3ce49ed7aec3af76d796556333d923",
+     "bytes": 131269
+    }
+   ],
+   "finished_at": "2026-10-31T04:21:25.218619+00:00"
+  },
+  {
+   "label": "voice-cast-neon-scout-English_MatureBoss",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "その首、もらう。",
+    "voice_id": "English_MatureBoss",
+    "emotion": "angry",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:07.855628+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386223580127233",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-neon-scout-English_MatureBoss-1.mp3",
+     "sha256": "4a31fcc4ae47d1d1696583cf8668952a72c7ad1ff91bc7c63f871b715a60b7da",
+     "bytes": 38004
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:15.330083+00:00"
+  },
+  {
+   "label": "voice-cast-neon-scout-English_ConfidentWoman",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "その首、もらう。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "angry",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:07.984279+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386222544150529",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-neon-scout-English_ConfidentWoman-1.mp3",
+     "sha256": "1f9c1c32639b6fa1f28d355f9d2efb830b6ca1348b7de0c6104f9a227b6764b7",
+     "bytes": 29940
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:14.989374+00:00"
+  },
+  {
+   "label": "voice-cast-noise-wraith-English_PlayfulGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)ねえ、あそぼ？ キミの声、ちょうだい。",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01674,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:09.267263+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386232841162754",
+   "error": null,
+   "actual": 0.0167,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-noise-wraith-English_PlayfulGirl-1.mp3",
+     "sha256": "aa75844d1fe6a9793b0e16e0c7b515256f3256dcec785f6cb53d6134b1bcf5e2",
+     "bytes": 66804
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:17.856567+00:00"
+  },
+  {
+   "label": "voice-cast-neon-scout-English_Deep-VoicedGentlewoman",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "その首、もらう。",
+    "voice_id": "English_Deep-VoicedGentlewoman",
+    "emotion": "angry",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:09.382381+00:00",
+   "status": "FAILED",
+   "task_id": "2116386227694735362",
+   "error": "Invalid parameters: voice id does not exist. Please check your input. | 请求参数校验失败，voice id 不存在，请检查输入",
+   "outputs": [],
+   "finished_at": "2026-10-31T04:26:16.221352+00:00"
+  },
+  {
+   "label": "voice-cast-pulse-guard-English_Whispering_girl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)冷たい海へ…おいで…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01116,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:18.474012+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386270497615873",
+   "error": null,
+   "actual": 0.0112,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-pulse-guard-English_Whispering_girl-1.mp3",
+     "sha256": "277f5d30e17153e672cbbd0cf19422a453ae590ac5c6ede4272aed479c715770",
+     "bytes": 61044
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:25.736029+00:00"
+  },
+  {
+   "label": "voice-cast-noise-wraith-English_WhimsicalGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)ねえ、あそぼ？ キミの声、ちょうだい。",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01674,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:18.667101+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386270375993345",
+   "error": null,
+   "actual": 0.0167,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-noise-wraith-English_WhimsicalGirl-1.mp3",
+     "sha256": "3318c4b8a0a3530afe5b25794db40b78a76590d39774243608869d1a5e82bd93",
+     "bytes": 77172
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:25.767438+00:00"
+  },
+  {
+   "label": "voice-cast-pulse-guard-English_SentimentalLady",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)冷たい海へ…おいで…",
+    "voice_id": "English_SentimentalLady",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01116,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:19.378790+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386270132723714",
+   "error": null,
+   "actual": 0.0112,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-pulse-guard-English_SentimentalLady-1.mp3",
+     "sha256": "c7106719a47d14e8307849c168f91008af11025dea3704f2495519cdfcc861b6",
+     "bytes": 50100
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:25.582564+00:00"
+  },
+  {
+   "label": "voice-cast-velvet-hexer-English_captivating_female1",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)もがくほど、絡まるよ？",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:20.889923+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386276692660225",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-velvet-hexer-English_captivating_female1-1.mp3",
+     "sha256": "8e3606d6b2f36bc261545daf2c05734db66a2b188c542223e5d59c48bb7c822d",
+     "bytes": 46068
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:27.003998+00:00"
+  },
+  {
+   "label": "voice-cast-echo-drone-English_compelling_lady1",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "私の歌に、酔いなさい。",
+    "voice_id": "English_compelling_lady1",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:29.643138+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386318677594114",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-echo-drone-English_compelling_lady1-1.mp3",
+     "sha256": "9754bc6f06b8fcc73f3f728b92870784553425a77cc8925fe37fff0df344efc1",
+     "bytes": 45492
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:37.653622+00:00"
+  },
+  {
+   "label": "voice-cast-echo-drone-Japanese_GracefulMaiden",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "私の歌に、酔いなさい。",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:30.136637+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386317700308993",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-echo-drone-Japanese_GracefulMaiden-1.mp3",
+     "sha256": "2c03037becd9bf03b11a3418f5bb4e1945e7b41ceff81c439119a8a8aba9615e",
+     "bytes": 39156
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:37.359215+00:00"
+  },
+  {
+   "label": "voice-cast-static-golem-English_AnimeCharacterFemale",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "叫べ！ もっと叫べぇっ！",
+    "voice_id": "English_AnimeCharacterFemale",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:31.417806+00:00",
+   "status": "FAILED",
+   "task_id": "2116386328550985730",
+   "error": "Invalid parameters: voice id does not exist. Please check your input. | 请求参数校验失败，voice id 不存在，请检查输入",
+   "outputs": [],
+   "finished_at": "2026-10-31T04:26:40.346789+00:00"
+  },
+  {
+   "label": "voice-cast-velvet-hexer-English_LovelyGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)もがくほど、絡まるよ？",
+    "voice_id": "English_LovelyGirl",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:33.222485+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386332720128001",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-velvet-hexer-English_LovelyGirl-1.mp3",
+     "sha256": "a00ad11d308f7340e06636b00f7d02b4f3147148f380b1a72025b9513f3c8d89",
+     "bytes": 56436
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:40.754926+00:00"
+  },
+  {
+   "label": "voice-cast-static-golem-English_UpsetGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "叫べ！ もっと叫べぇっ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:41.038877+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386369265082370",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-static-golem-English_UpsetGirl-1.mp3",
+     "sha256": "604eecfd7298ce1565091022cfdfe742ac75700652cf055e0aeb7d0a5308c38c",
+     "bytes": 32820
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:49.530474+00:00"
+  },
+  {
+   "label": "voice-cast-siren-queen-Japanese_ColdQueen",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)ようこそ、私の王座へ。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:41.355168+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386365733474306",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-siren-queen-Japanese_ColdQueen-1.mp3",
+     "sha256": "115bbeec6fa4615dd555c381939b1b9242896016c6428ebb4a5f1676c3d9ba05",
+     "bytes": 58740
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:49.099701+00:00"
+  },
+  {
+   "label": "voice-cast-siren-queen-English_AssertiveQueen",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)ようこそ、私の王座へ。",
+    "voice_id": "English_AssertiveQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:26:43.782741+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386375376183297",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-cast/voice-cast-siren-queen-English_AssertiveQueen-1.mp3",
+     "sha256": "7b0ccb4ff1c82f09762573ab688e2fceded4b6c4f8e72d35082b52b9c9d34b23",
+     "bytes": 57012
+    }
+   ],
+   "finished_at": "2026-10-31T04:26:52.556556+00:00"
+  },
+  {
+   "label": "voice-xingli-defeat-01b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)ごめん…歌、届かなかった…",
+    "voice_id": "Japanese_DependableWoman",
+    "emotion": "fearful",
+    "speed": 1.1,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01302,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:18.702072+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386772648075265",
+   "error": null,
+   "actual": 0.013,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-xingli-defeat-01b-1.mp3",
+     "sha256": "b4c15d1eee6a905e25d8f7bf35a9a7343cf51b0ad75c7bd7afb26d07b2804764",
+     "bytes": 70836
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:25.675577+00:00"
+  },
+  {
+   "label": "voice-xingli-defeat-02a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)みんな…あとは、お願い…",
+    "voice_id": "Japanese_DependableWoman",
+    "emotion": "sad",
+    "speed": 1.1,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:18.858700+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386771549167618",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-xingli-defeat-02a-1.mp3",
+     "sha256": "819d365cbb00f50890fcf0a0f1c716fd9793309930ba89a000cffce2dbb9227b",
+     "bytes": 53556
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:25.699549+00:00"
+  },
+  {
+   "label": "voice-xingli-defeat-02b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)みんな…あとは、お願い…",
+    "voice_id": "Japanese_DependableWoman",
+    "emotion": "fearful",
+    "speed": 1.1,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:19.342380+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386776032894977",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-xingli-defeat-02b-1.mp3",
+     "sha256": "fcb3da94121b88bafd1e66f65b4d89dc05915692dfdc5c8168e8d4b8cd4a0c49",
+     "bytes": 40308
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:26.693920+00:00"
+  },
+  {
+   "label": "voice-xingli-defeat-01a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)ごめん…歌、届かなかった…",
+    "voice_id": "Japanese_DependableWoman",
+    "emotion": "sad",
+    "speed": 1.1,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01302,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:19.373336+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386776846635010",
+   "error": null,
+   "actual": 0.013,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-xingli-defeat-01a-1.mp3",
+     "sha256": "a5830f454264601a384c0e79b0c1279e4f927240d2561828d937f6a5ced34669",
+     "bytes": 55860
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:28.534463+00:00"
+  },
+  {
+   "label": "voice-feiyin-defeat-01b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)くっ…まだ、踊れるのに…",
+    "voice_id": "Japanese_DecisivePrincess",
+    "emotion": "angry",
+    "speed": 1.1,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:29.052222+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386815476129794",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-feiyin-defeat-01b-1.mp3",
+     "sha256": "99c4c5ee95f19338fa6ebda29f7bfcbbff7f669e38db9ea1d1431f826ad245e9",
+     "bytes": 55860
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:37.715750+00:00"
+  },
+  {
+   "label": "voice-feiyin-defeat-01a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)くっ…まだ、踊れるのに…",
+    "voice_id": "Japanese_DecisivePrincess",
+    "emotion": "sad",
+    "speed": 1.1,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:29.327725+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386818374377474",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-feiyin-defeat-01a-1.mp3",
+     "sha256": "e3bd2c7b1f522881dbab170961b3bda365246b12a4ca6d8961ecd87e3408ae77",
+     "bytes": 67380
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:36.958074+00:00"
+  },
+  {
+   "label": "voice-feiyin-defeat-02a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(exhale)ちっ…ここまで、か…",
+    "voice_id": "Japanese_DecisivePrincess",
+    "emotion": "sad",
+    "speed": 1.1,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01116,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:29.398413+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386822421942273",
+   "error": null,
+   "actual": 0.0112,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-feiyin-defeat-02a-1.mp3",
+     "sha256": "118cc720086b3b1751bd5a029bb611acb0969fa0fff4cd3401b0a0e492551aeb",
+     "bytes": 59892
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:37.612032+00:00"
+  },
+  {
+   "label": "voice-feiyin-defeat-02b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(exhale)ちっ…ここまで、か…",
+    "voice_id": "Japanese_DecisivePrincess",
+    "emotion": "angry",
+    "speed": 1.1,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01116,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:32.510865+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386828402962433",
+   "error": null,
+   "actual": 0.0112,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-feiyin-defeat-02b-1.mp3",
+     "sha256": "73e27f88c6d05990539c76f13dc619f94f42e7a876e1f69df646ddee03651f8f",
+     "bytes": 61620
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:39.843832+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-01a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)ごめんね…守れなくて…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "sad",
+    "speed": 1.05,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:39.989279+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386866122330113",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-01a-1.mp3",
+     "sha256": "64df4751a03a11e09affadacf4902f22e3cef45897c57d02c32ef37d04bd04ee",
+     "bytes": 57588
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:49.054982+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-02a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(sighs)泣かないで…私は、平気…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "sad",
+    "speed": 1.05,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:41.487071+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386866290110466",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-02a-1.mp3",
+     "sha256": "96125068a06f963413ce2770bee4bd520ebde97d469ab59c6f4beef6fdec04b6",
+     "bytes": 77172
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:48.436226+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-01b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)ごめんね…守れなくて…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "fearful",
+    "speed": 1.05,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:43.281036+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386873957298177",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-01b-1.mp3",
+     "sha256": "44a0754a624b4e458571b1fc8c6479b836706021df2c3f3308298b5907b3ebf7",
+     "bytes": 59316
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:49.977348+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-02b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(sighs)泣かないで…私は、平気…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "fearful",
+    "speed": 1.05,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:43.655337+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386877182717953",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-02b-1.mp3",
+     "sha256": "49a29fbff10c1c0df2f03748057fc5eb66cfcd07c42838d02f3c7520948d7aed",
+     "bytes": 77172
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:50.382369+00:00"
+  },
+  {
+   "label": "voice-yeying-defeat-01a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(exhale)ビート…途切れた…",
+    "voice_id": "Japanese_CalmLady",
+    "emotion": "sad",
+    "speed": 1.08,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01054,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:51.546774+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386911039139842",
+   "error": null,
+   "actual": 0.0105,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-yeying-defeat-01a-1.mp3",
+     "sha256": "fb30e0cdc934f15d58f1161c9de5555208825e979f6e20c1f9b96d4840e36cbf",
+     "bytes": 63924
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:59.136444+00:00"
+  },
+  {
+   "label": "voice-yeying-defeat-01b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(exhale)ビート…途切れた…",
+    "voice_id": "Japanese_CalmLady",
+    "emotion": "angry",
+    "speed": 1.08,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01054,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:52.108884+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386911555096577",
+   "error": null,
+   "actual": 0.0105,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-yeying-defeat-01b-1.mp3",
+     "sha256": "6c328bb553c9d4f408f569258daaad0f0c1446c31c91aa89d2e0f04a2e5b01ee",
+     "bytes": 48372
+    }
+   ],
+   "finished_at": "2026-10-31T04:28:58.978317+00:00"
+  },
+  {
+   "label": "voice-yeying-defeat-02b",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)くそっ…次は、外さない…",
+    "voice_id": "Japanese_CalmLady",
+    "emotion": "angry",
+    "speed": 1.08,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:53.433634+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386917993295873",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-yeying-defeat-02b-1.mp3",
+     "sha256": "17c372dca703ceacb6de8d43076d444b0a5b8bb784a26ba3b36ca650c8d0f3bd",
+     "bytes": 52980
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:00.306067+00:00"
+  },
+  {
+   "label": "voice-yeying-defeat-02a",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)くそっ…次は、外さない…",
+    "voice_id": "Japanese_CalmLady",
+    "emotion": "sad",
+    "speed": 1.08,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:28:54.309607+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386926444830721",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-yeying-defeat-02a-1.mp3",
+     "sha256": "c417e629c5c758743278a056c8347f2dd1d246061be6331083d43b882965b13b",
+     "bytes": 79476
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:02.327410+00:00"
+  },
+  {
+   "label": "voice-announcer-good-English_Upbeat_Woman",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Good!",
+    "voice_id": "English_Upbeat_Woman",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0031,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:05.677014+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386968140402690",
+   "error": null,
+   "actual": 0.0031,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-good-English_Upbeat_Woman-1.mp3",
+     "sha256": "7c56a0255263966b709540aadc247a9b5b064462152db31d99818649f7aa8f73",
+     "bytes": 15540
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:12.534527+00:00"
+  },
+  {
+   "label": "voice-announcer-good-English_radiant_girl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Good!",
+    "voice_id": "English_radiant_girl",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0031,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:06.005263+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386971915268098",
+   "error": null,
+   "actual": 0.0031,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-good-English_radiant_girl-1.mp3",
+     "sha256": "8e2a942da9fedaf50e6866b8796de06f4e5644a3c4c8aada91fa7e4d03767984",
+     "bytes": 13812
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:12.947608+00:00"
+  },
+  {
+   "label": "voice-announcer-perfect-English_radiant_girl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Perfect!!",
+    "voice_id": "English_radiant_girl",
+    "emotion": "surprised",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:06.611439+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386972947079169",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-perfect-English_radiant_girl-1.mp3",
+     "sha256": "8fa729156704c87bb1e66d7370fcea8c3ee406e781a53a9c89e9dc0694bc41f1",
+     "bytes": 18420
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:15.428033+00:00"
+  },
+  {
+   "label": "voice-announcer-great-English_radiant_girl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Great!",
+    "voice_id": "English_radiant_girl",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00372,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:07.169688+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116386973425213442",
+   "error": null,
+   "actual": 0.0037,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-great-English_radiant_girl-1.mp3",
+     "sha256": "7a0c1f0f1353c71a5dd77cbea6944e9ece88eca17e44f2944e73b37639278903",
+     "bytes": 16116
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:14.004683+00:00"
+  },
+  {
+   "label": "voice-announcer-good-English_PlayfulGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Good!",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0031,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:17.103819+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387021252861954",
+   "error": null,
+   "actual": 0.0031,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-good-English_PlayfulGirl-1.mp3",
+     "sha256": "a3621e1a73865c00ae7e5dc2accb44ec4d4303cb7360bdd6cabbb305f2d3e342",
+     "bytes": 13812
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:24.850608+00:00"
+  },
+  {
+   "label": "voice-announcer-perfect-English_Upbeat_Woman",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Perfect!!",
+    "voice_id": "English_Upbeat_Woman",
+    "emotion": "surprised",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:17.758884+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387027942780929",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-perfect-English_Upbeat_Woman-1.mp3",
+     "sha256": "1fd7bde3b9c44fa68fe8836e5c20d992e76faaf83dc978ba20da2f8958be30d3",
+     "bytes": 17268
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:26.414787+00:00"
+  },
+  {
+   "label": "voice-announcer-great-English_PlayfulGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Great!",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00372,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:18.441256+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387025501753345",
+   "error": null,
+   "actual": 0.0037,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-great-English_PlayfulGirl-1.mp3",
+     "sha256": "dd5ec5ea170c3918330bd8e0eb931efb3517815f53564ec357c8cde70180b1c7",
+     "bytes": 17268
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:26.213460+00:00"
+  },
+  {
+   "label": "voice-announcer-great-English_Upbeat_Woman",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Great!",
+    "voice_id": "English_Upbeat_Woman",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00372,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:18.472442+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387021080907777",
+   "error": null,
+   "actual": 0.0037,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-great-English_Upbeat_Woman-1.mp3",
+     "sha256": "bb05deb289a8d7b8e6fdef2e1b20e05825f3405edf0618f4202c6619ab63f65e",
+     "bytes": 17268
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:25.301878+00:00"
+  },
+  {
+   "label": "voice-announcer-perfect-English_PlayfulGirl",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "Perfect!!",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "surprised",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:30.031152+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387074956746753",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-announcer/voice-announcer-perfect-English_PlayfulGirl-1.mp3",
+     "sha256": "f2eeabd0aece328f96a1102f2aa5fdf984a144bb9674fd1f49d41034221de4fe",
+     "bytes": 17268
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:39.246435+00:00"
+  },
+  {
+   "label": "voice-neon-scout-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "影から、狩る。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "neutral",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00434,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:42.541703+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387126093684737",
+   "error": null,
+   "actual": 0.0043,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-enter-02-1.mp3",
+     "sha256": "0eab6804704f1d77fd978a4e3c73412b8815cf609ffee905112bff1e29a85927",
+     "bytes": 81204
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:49.944542+00:00"
+  },
+  {
+   "label": "voice-neon-scout-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "遅い。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "neutral",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00186,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:42.789578+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387124868964354",
+   "error": null,
+   "actual": 0.0019,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-taunt-01-1.mp3",
+     "sha256": "9fb16417f62bc3bd2f2aa5d592102acc666088a7b7a02adf335b8839807b2594",
+     "bytes": 20724
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:49.711862+00:00"
+  },
+  {
+   "label": "voice-neon-scout-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "その首、もらう。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "angry",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:42.829040+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387123547738114",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-taunt-02-1.mp3",
+     "sha256": "17fe33d4c5e054a95101f50283d9871d4b965d7df8517d4959e9af7a07ed4515",
+     "bytes": 35124
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:52.679751+00:00"
+  },
+  {
+   "label": "voice-neon-scout-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(pant)…血が、足りない…",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "fearful",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:43.250581+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387126953521154",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-lowhp-01-1.mp3",
+     "sha256": "980b05edccbec655f458da2b59eed05e2c68012f8c77ec333e7b10005be87dd6",
+     "bytes": 67380
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:52.590626+00:00"
+  },
+  {
+   "label": "voice-neon-scout-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(exhale)標的、確認。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "neutral",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:44.527185+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387135354769409",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-enter-01-1.mp3",
+     "sha256": "dc2a6af674fc0b3294d32f177fef131df23293a346f9368334b123ca6695f9b0",
+     "bytes": 36276
+    }
+   ],
+   "finished_at": "2026-10-31T04:29:52.794991+00:00"
+  },
+  {
+   "label": "voice-neon-scout-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)脆いな。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:53.112980+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387168649089025",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-kill-02-1.mp3",
+     "sha256": "9470207ac2c1611803cf0395bf40b75de1af49373a985d05b68d4b9765e604c3",
+     "bytes": 32244
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:01.305349+00:00"
+  },
+  {
+   "label": "voice-neon-scout-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "一人、片付けた。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "neutral",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:54.760593+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387173313155074",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-kill-01-1.mp3",
+     "sha256": "1bb375280c985de35ef312ea00f5612e8fd08df082c000dcf78ee456b76c53f6",
+     "bytes": 37428
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:01.549280+00:00"
+  },
+  {
+   "label": "voice-neon-scout-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)任務…失敗…",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "sad",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:56.515850+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387182456758273",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-death-01-1.mp3",
+     "sha256": "c16041a94296d29628cfd33b15daed35c4810339630fbb46220b69d6052a7bf6",
+     "bytes": 50676
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:03.307840+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)ねえ、あそぼ？",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:56.547804+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387190857932802",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-enter-01-1.mp3",
+     "sha256": "91e3a0ede2df3b4e9147eaf976e78fe89e4a1b07fdc91bf9139a7e78945ece68",
+     "bytes": 51252
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:05.617736+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "キミの声、ちょうだい。",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:29:57.646075+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387185493417985",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-enter-02-1.mp3",
+     "sha256": "9d997f988e7d864cac5558db5579529ae138f464f448e57f170e1571823c8428",
+     "bytes": 820788
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:11.230500+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ほらほら、こっちだよ～",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:04.674168+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387215415582721",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-taunt-01-1.mp3",
+     "sha256": "442869f44a821c91c2813a46def4390fb2b6f878ce479c62360016e504f40553",
+     "bytes": 34548
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:11.230398+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ノイズで、溶かしてあげる。",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:04.895439+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387215545618434",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-taunt-02-1.mp3",
+     "sha256": "498e4d5e8f7bd539c034d69003554b573efdf75bd607b9447054b79689c22de5",
+     "bytes": 35124
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:12.127541+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "やだ…消えたくない…",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "fearful",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:07.748717+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387228090773506",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-lowhp-01-1.mp3",
+     "sha256": "4d67f8d0451c2eb728fc27a6ff20a3b34e386e3cac77c8460149d379ae111529",
+     "bytes": 45492
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:15.745075+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)声、もーらった！",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:09.762906+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387237066579970",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-kill-01-1.mp3",
+     "sha256": "0597448766afeb2dd06b568c8176867ecc3af8406276e3e2650bd21cb370f27a",
+     "bytes": 40884
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:16.277788+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "あはっ、静かになった。",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:14.036845+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387267202658305",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-kill-02-1.mp3",
+     "sha256": "0a4b9a833ea64bd4e8def931dc6884ff29435d809066c425f6f6cec5ea0a8e7a",
+     "bytes": 39156
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:23.856277+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(sighs)つまんな…い…",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "sad",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:15.739306+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387263218069505",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-death-01-1.mp3",
+     "sha256": "faac3a7f15276c839c517f6042f8a3703746478f7d78101d6ec4ba95cf908d80",
+     "bytes": 52980
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:23.386645+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(breath)沈んで…一緒に…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:16.447870+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387263830429697",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-enter-01-1.mp3",
+     "sha256": "4b7da6d50494d8f41f6fc7a1b8c812a23e56d3c1f31f654a8166063af364c9c5",
+     "bytes": 84660
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:22.552235+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "冷たい海へ…おいで…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:20.002096+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387280632832002",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-enter-02-1.mp3",
+     "sha256": "6f5abe877465a4b96ee5709db65417f11ed5161afaccc1e3f7f41691480baaba",
+     "bytes": 61620
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:30.132262+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "息、苦しいでしょう？",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "neutral",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:20.050046+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387279194185729",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-taunt-01-1.mp3",
+     "sha256": "6755a12e38a55a16a067776fce2461c4804d40e6917f8fcc5c1f41ba7b1f0477",
+     "bytes": 39732
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:26.142926+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "波に、呑まれて。",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "neutral",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:26.101732+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387305198915586",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-taunt-02-1.mp3",
+     "sha256": "70cdd456a3a974347803c79d2a75a57ad1c85885dfcecd033bc412df853d8cf1",
+     "bytes": 50676
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:33.012290+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ひとり、沈んだ…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:27.045337+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387311913951233",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-kill-01-1.mp3",
+     "sha256": "ad6a9755259aead31886cf5bd94f82393634bd98c6d7d61066de25d75ea67241",
+     "bytes": 43764
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:34.827570+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)水が…足りない…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "fearful",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:27.180616+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387312731820033",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-lowhp-01-1.mp3",
+     "sha256": "a47d7d533e423b076add08c67745c5fbee179c98f8ded4ebd551c69d4db5c9df",
+     "bytes": 70260
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:34.506662+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "海の底で、眠って…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:29.793200+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387322605232129",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-kill-02-1.mp3",
+     "sha256": "f6b8f8e25e6645c96aefa794bfa7e3189797c208828f1eb14ea888b0eea2dc8b",
+     "bytes": 58164
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:37.954535+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(sighs)やっと…浮かべる…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 0.92,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:34.638103+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387340581998594",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-death-01-1.mp3",
+     "sha256": "edf4897184d6a79fe16c665a513aa03df446482a1149008d1226b57ce9ac28f3",
+     "bytes": 68532
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:41.857878+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)糸に、かかったね。",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01116,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:36.353090+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387351059390465",
+   "error": null,
+   "actual": 0.0112,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-enter-01-1.mp3",
+     "sha256": "bb21d7c3248818f88da8cd1222b40f38606bdac611c8049217abe9983cf2998b",
+     "bytes": 33396
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:44.755106+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "甘い毒、味わって？",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:38.519483+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387399776227330",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-enter-02-1.mp3",
+     "sha256": "722f57d56dd397c991224bf05c424592d3e93ff4b0370eb8d462a95784bf6a44",
+     "bytes": 29364
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:58.243766+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "もがくほど、絡まるよ？",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:39.800232+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387363675856898",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-taunt-01-1.mp3",
+     "sha256": "bed3ba4174c862cf3eb2156a9dc821f7a3496157f3ae55ae7a9f0db85753b5b9",
+     "bytes": 30516
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:46.108169+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "じわじわ、溶かしてあげる。",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:41.177731+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387372223832066",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-taunt-02-1.mp3",
+     "sha256": "10d8b019344a8c6bb8fbb963dd1bcdab8132e8a18d9fa8187fdbc4a218ae8bb7",
+     "bytes": 39156
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:48.898135+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)うそ…糸が、切れちゃう…",
+    "voice_id": "English_captivating_female1",
+    "emotion": "surprised",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:46.361853+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387389181419521",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-lowhp-01-1.mp3",
+     "sha256": "83877f1b2afec37c8cee23aa9e357056f60bf957a61036f687c867da2da0646f",
+     "bytes": 42612
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:52.747614+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)いただきまーす！",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:47.874417+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387396085227522",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-kill-01-1.mp3",
+     "sha256": "3f37bff212c778669fc6ba6866e861f316d79a4c42ff46f53ee014ea2a1839e7",
+     "bytes": 46644
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:54.563058+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "毒、よく効いたでしょ？",
+    "voice_id": "English_captivating_female1",
+    "emotion": "happy",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:49.031790+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387403022622721",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-kill-02-1.mp3",
+     "sha256": "a13f68adbf6c8942fe90f69634de28ccbbde3d19a37e933b92c2978895e1a6c6",
+     "bytes": 33396
+    }
+   ],
+   "finished_at": "2026-10-31T04:30:55.980518+00:00"
+  },
+  {
+   "label": "voice-velvet-hexer-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "そんな…私の、巣が…",
+    "voice_id": "English_captivating_female1",
+    "emotion": "sad",
+    "speed": 1.0,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:53.847730+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387427488043010",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-velvet-hexer-death-01-1.mp3",
+     "sha256": "11db1f3a905ecc543e1b1af8f4069e8b12b64cfb9b21b58ac606f8dd76c7158b",
+     "bytes": 53556
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:01.599811+00:00"
+  },
+  {
+   "label": "voice-echo-drone-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(humming)私の歌に、酔いなさい。",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:56.616693+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387440100257794",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-enter-01-1.mp3",
+     "sha256": "1a378f9a5c64d6bf6f226567c78617a32e92fa9354ba3dc477f9a43c6147dcf6",
+     "bytes": 64500
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:05.898700+00:00"
+  },
+  {
+   "label": "voice-echo-drone-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ステージは、私のものよ。",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:58.251046+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387441358544898",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-enter-02-1.mp3",
+     "sha256": "0fdb58d93b2015f92a48461a1cfb9a0f7e6d0ec6eb19faba6b9fc51b9abc3802",
+     "bytes": 45492
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:05.788077+00:00"
+  },
+  {
+   "label": "voice-echo-drone-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "聴き惚れて、動けないでしょう？",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:30:59.902723+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387451592650753",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-taunt-01-1.mp3",
+     "sha256": "5f0e15877514e9137cb2dcde0f001073f0f438db159d9a2ee15ca98a2434ffb8",
+     "bytes": 44916
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:09.614184+00:00"
+  },
+  {
+   "label": "voice-echo-drone-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "もっと、近くで聴いて？",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:01.838485+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387458836221953",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-taunt-02-1.mp3",
+     "sha256": "af8cad4a7bb9d753fc20fe7f4259d1f95b0a311c411edb331c3dd9cddc647996",
+     "bytes": 41460
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:09.863205+00:00"
+  },
+  {
+   "label": "voice-echo-drone-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)声が…かすれる…",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "fearful",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:04.836653+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387469707849730",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-lowhp-01-1.mp3",
+     "sha256": "17bd3796e50071a0ca2cc91c97b85ee8a0221736dc5d437747dfd424282aba75",
+     "bytes": 40884
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:11.947319+00:00"
+  },
+  {
+   "label": "voice-echo-drone-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "素敵な悲鳴ね。",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00434,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:09.829852+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387487814651906",
+   "error": null,
+   "actual": 0.0043,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-kill-02-1.mp3",
+     "sha256": "58576b9b2e89830e8cf478c33fe9cf93572a7f1608aabeb390e997c05ad8e2ab",
+     "bytes": 31092
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:15.913820+00:00"
+  },
+  {
+   "label": "voice-echo-drone-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)アンコールは、なしよ。",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:10.275989+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387493107884033",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-kill-01-1.mp3",
+     "sha256": "703d9fd47aa01d7db44a21c3ff5d5b9ce25dca22f607ddf23f02c510c5f4df4b",
+     "bytes": 51252
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:19.070124+00:00"
+  },
+  {
+   "label": "voice-echo-drone-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "私の…歌が…",
+    "voice_id": "Japanese_GracefulMaiden",
+    "emotion": "sad",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00372,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:13.109504+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387504684163074",
+   "error": null,
+   "actual": 0.0037,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-echo-drone-death-01-1.mp3",
+     "sha256": "00af4a100c71e2b346879205f07853dfb41345061008e95dfc2404d03ef07d0b",
+     "bytes": 37428
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:21.119340+00:00"
+  },
+  {
+   "label": "voice-static-golem-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)壊れるまで、歌おうか！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01178,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:13.211597+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387502092079105",
+   "error": null,
+   "actual": 0.0118,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-enter-01-1.mp3",
+     "sha256": "5a8a577780a9eacbf9e23170ec400a94bb9c88d54c100ecdaa293b2262b3e070",
+     "bytes": 48948
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:19.666499+00:00"
+  },
+  {
+   "label": "voice-static-golem-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "音量、最大だぁっ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:15.032169+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387516361101313",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-enter-02-1.mp3",
+     "sha256": "ccbcef5af0b72a2d1d56e8cf04c755f0808acc5f6c33a3f385d2e207a8bdfa5e",
+     "bytes": 29364
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:25.509523+00:00"
+  },
+  {
+   "label": "voice-static-golem-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "叫べ！ もっと叫べぇっ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:20.106559+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387531989127169",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-taunt-01-1.mp3",
+     "sha256": "409f58dba8ab94c845a83fcf03de205b2337d68a38a4fee267964de76783fcbc",
+     "bytes": 31668
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:26.544902+00:00"
+  },
+  {
+   "label": "voice-static-golem-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "鼓膜ごと、ぶっ壊す！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:22.841926+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387543368216577",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-taunt-02-1.mp3",
+     "sha256": "9971d8c8e1947ae0ba04275f51aaa27001300296d07f044507e8d1926d7495b3",
+     "bytes": 31668
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:29.634141+00:00"
+  },
+  {
+   "label": "voice-static-golem-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "まだだ…まだ鳴り止まないっ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:22.891046+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387548753711105",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-lowhp-01-1.mp3",
+     "sha256": "26fedf17df486552f2e10b2af510ebb878ca68e58a31303972d3da9784da324a",
+     "bytes": 39156
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:31.755510+00:00"
+  },
+  {
+   "label": "voice-static-golem-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)最高の悲鳴だぁ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "happy",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:24.974266+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387554856407041",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-kill-01-1.mp3",
+     "sha256": "1eb394e41433f863d727f52409c1ab625e0cd47f66b55fcdfe9d1de974c2a977",
+     "bytes": 42036
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:32.131253+00:00"
+  },
+  {
+   "label": "voice-static-golem-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)音が…消え…る…",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "sad",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:29.339918+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387573407813633",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-death-01-1.mp3",
+     "sha256": "e637bf6ca6c60b3425e6820344bc8a59086b11e11f7864a679e35839d0922c95",
+     "bytes": 63348
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:37.390641+00:00"
+  },
+  {
+   "label": "voice-static-golem-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "次ぃ！ 次の音をよこせ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:29.641021+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387571465850881",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-kill-02-1.mp3",
+     "sha256": "2278ee0d586f9060f162b7eec4d0c05167fe7073b782ef38b5eb8702fdee2c11",
+     "bytes": 35700
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:35.924263+00:00"
+  },
+  {
+   "label": "voice-siren-queen-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(chuckle)ようこそ、私の王座へ。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:32.678883+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387588490539009",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-enter-01-1.mp3",
+     "sha256": "6dabdef23076d958f6c4f79fc804a9e655705e73275510923943c7d74c8e88b5",
+     "bytes": 63348
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:41.066660+00:00"
+  },
+  {
+   "label": "voice-siren-queen-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "魅声の女王に、ひれ伏しなさい。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:35.727462+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387602856087553",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-enter-02-1.mp3",
+     "sha256": "a772b8e1b513b33df1b2c203e8a0ca362f6a2998566070277301317402f3c908",
+     "bytes": 51252
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:44.682370+00:00"
+  },
+  {
+   "label": "voice-siren-queen-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "その程度の歌で、私に届くと？",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "disgusted",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:36.792151+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387603690704898",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-taunt-01-1.mp3",
+     "sha256": "52778dd813ad6fec541fb2be0acb5323d05747aefd0562cdf9873a4997c4f7f5",
+     "bytes": 59892
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:44.354307+00:00"
+  },
+  {
+   "label": "voice-siren-queen-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "跪きなさい。美しく、ね。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:39.137906+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387612360318978",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-taunt-02-1.mp3",
+     "sha256": "b665e058ce4817c8cd12298107c6aa0b8380db3386a322eb8f42950ac729375b",
+     "bytes": 61620
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:45.896137+00:00"
+  },
+  {
+   "label": "voice-siren-queen-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)この私が…押されている…？",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "surprised",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:40.496117+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387617779421185",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-lowhp-01-1.mp3",
+     "sha256": "8f3c922e5d45ba42ed703bc562f4ff6513d9c7e910b853a9b127fb7cd3fd23cd",
+     "bytes": 64500
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:46.971447+00:00"
+  },
+  {
+   "label": "voice-siren-queen-lowhp-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "許さない…絶対に、許さないっ！",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "angry",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:43.964091+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387632123883521",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-lowhp-02-1.mp3",
+     "sha256": "0094b251ca37d4c8d41e16d7a3aed272699f066dd5567d253bf49479799177ad",
+     "bytes": 54132
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:51.397020+00:00"
+  },
+  {
+   "label": "voice-siren-queen-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)まずは、ひとり。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "happy",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:49.171512+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387656140464129",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-kill-01-1.mp3",
+     "sha256": "12207bc8f50625a481c5d835de8bdd5f8d90690d77a53aaa00a6ebe088c4108a",
+     "bytes": 61620
+    }
+   ],
+   "finished_at": "2026-10-31T04:32:00.671504+00:00"
+  },
+  {
+   "label": "voice-siren-queen-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(gasps)ありえない…私の、魅声が…",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "sad",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0124,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:49.549428+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387656991969282",
+   "error": null,
+   "actual": 0.0124,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-death-01-1.mp3",
+     "sha256": "2b79a59c7b91716b6eeb8c4c2c2c842b00c636264ae4abb201278a92f1b6e6dd",
+     "bytes": 97332
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:56.698056+00:00"
+  },
+  {
+   "label": "voice-siren-queen-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "美しく、散りなさい。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:49.755663+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387656492781570",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-kill-02-1.mp3",
+     "sha256": "54c9ae2af104046cb2760be2487bf60e25c829e84acc0c1c6f40e946e05290cb",
+     "bytes": 42036
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:56.450450+00:00"
+  },
+  {
+   "label": "voice-siren-queen-death-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "覚えて…おきなさい…",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "sad",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:31:50.932833+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116387660435447810",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-death-02-1.mp3",
+     "sha256": "aded7acc12e786cd054b61420325feb91240911d5688e57a564ba7aad9b9f7f7",
+     "bytes": 50676
+    }
+   ],
+   "finished_at": "2026-10-31T04:31:58.148090+00:00"
+  },
+  {
+   "label": "voice-feiyin-defeat-01d",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "くっ…まだ、踊れるのに…",
+    "voice_id": "Japanese_DecisivePrincess",
+    "emotion": "sad",
+    "speed": 1.18,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:33:21.331664+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116388042716884993",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-feiyin-defeat-01d-1.mp3",
+     "sha256": "195943158597ea9bb502d5de6ced12f9a9a2cf33eb7fcaf5f55d13acd6a4fbc1",
+     "bytes": 61044
+    }
+   ],
+   "finished_at": "2026-10-31T04:33:28.564654+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-02c",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "泣かないで…私は、平気…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "sad",
+    "speed": 1.12,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:33:21.407731+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116388042272301058",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-02c-1.mp3",
+     "sha256": "958d3d7c4afd36dd6f2ef372f3012e04bafeb7e508969942014479be9b6c1e44",
+     "bytes": 63924
+    }
+   ],
+   "finished_at": "2026-10-31T04:33:31.148664+00:00"
+  },
+  {
+   "label": "voice-yeying-defeat-02c",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "くそっ…次は、外さない…",
+    "voice_id": "Japanese_CalmLady",
+    "emotion": "angry",
+    "speed": 1.15,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:33:21.439981+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116388041626361858",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-yeying-defeat-02c-1.mp3",
+     "sha256": "8b6c4cf3f2f619c2dd87162d774d881723e56460a44bbd486652dcab527bb549",
+     "bytes": 39732
+    }
+   ],
+   "finished_at": "2026-10-31T04:33:28.863433+00:00"
+  },
+  {
+   "label": "voice-yeying-defeat-02d",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "くそっ…次は、外さない…",
+    "voice_id": "Japanese_CalmLady",
+    "emotion": "sad",
+    "speed": 1.15,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:33:21.467118+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116388041634762754",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-yeying-defeat-02d-1.mp3",
+     "sha256": "8e16f4b90dbc851924e4c84df70ecc1a76f0c182b9083a319dbe05d7f84fd6fc",
+     "bytes": 49524
+    }
+   ],
+   "finished_at": "2026-10-31T04:33:28.088197+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-02d",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "泣かないで…私は、平気…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "fearful",
+    "speed": 1.12,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:33:21.588365+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116388041668308993",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-02d-1.mp3",
+     "sha256": "ccea11a0ad713adc55edec534ad09817767a7f451d5d8e612b6aa51d44313726",
+     "bytes": 55860
+    }
+   ],
+   "finished_at": "2026-10-31T04:33:28.453671+00:00"
+  },
+  {
+   "label": "voice-feiyin-defeat-01c",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "くっ…まだ、踊れるのに…",
+    "voice_id": "Japanese_DecisivePrincess",
+    "emotion": "angry",
+    "speed": 1.18,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:33:23.074305+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116388054263812098",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-feiyin-defeat-01c-1.mp3",
+     "sha256": "a7561a5de4b9d43c2b7ba9653bee451ef3a81604db59f6c90c3cc99937d59986",
+     "bytes": 36852
+    }
+   ],
+   "finished_at": "2026-10-31T04:33:31.848481+00:00"
+  },
+  {
+   "label": "voice-neon-scout-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "影の中から、狩らせてもらう。",
+    "voice_id": "English_ConfidentWoman",
+    "emotion": "neutral",
+    "speed": 1.0,
+    "pitch": -2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:17.512726+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389032354533378",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-neon-scout-enter-02-1.mp3",
+     "sha256": "fe2d4d57eea887fe929cb26e650801124972419c78b6a76a12a7e26422fc5b05",
+     "bytes": 40884
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:24.242403+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "水が…足りない…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "fearful",
+    "speed": 1.0,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:17.965605+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389038042009602",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-lowhp-01-1.mp3",
+     "sha256": "a99303c7620798851c4c83b433803752b786d0d5a66224662f522b5218aa50c1",
+     "bytes": 38580
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:27.890810+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "やっと…浮かべる…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 1.0,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:18.050519+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389032388079618",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-death-01-1.mp3",
+     "sha256": "55b2acd8aa67786df51b443488df55fd21dd636e114bace545eb25ab8fa57736",
+     "bytes": 42036
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:26.893629+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "キミの声、ちょうだい？",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:18.192583+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389034296483842",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-enter-02-1.mp3",
+     "sha256": "471a308dfa07a6caca20d817a1050e586c7250bffc5d43f21848c8fd8d1d41f1",
+     "bytes": 35700
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:25.350281+00:00"
+  },
+  {
+   "label": "voice-pulse-guard-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "沈んで…一緒に…",
+    "voice_id": "English_Whispering_girl",
+    "emotion": "sad",
+    "speed": 1.0,
+    "pitch": -3,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00496,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:18.274637+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389048234156034",
+   "error": null,
+   "actual": 0.005,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-pulse-guard-enter-01-1.mp3",
+     "sha256": "025b24210419d2b91cf4e93a68831d736e8e58111693b7f28e8e183aed2031bb",
+     "bytes": 46068
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:28.836713+00:00"
+  },
+  {
+   "label": "voice-static-golem-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ボリューム、最大だぁっ！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00744,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:27.940579+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389073710370817",
+   "error": null,
+   "actual": 0.0074,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-enter-02-1.mp3",
+     "sha256": "34cfe141f1b7247c97caf51a93b64b7f33d0405c263fa59be633e188bb537d07",
+     "bytes": 37428
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:36.687597+00:00"
+  },
+  {
+   "label": "voice-static-golem-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "こまくごと、ぶっ壊す！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:28.495816+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389080475770881",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-taunt-02-1.mp3",
+     "sha256": "91479147b676f61a38abef63d4dd0813415e3338f145846df73119c8ea0f4173",
+     "bytes": 32244
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:35.881079+00:00"
+  },
+  {
+   "label": "voice-siren-queen-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "みせいの女王に、ひれ伏しなさい。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:31.221196+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389089850044418",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-enter-02-1.mp3",
+     "sha256": "552cb0d20d0342ac7ca19c3c0f58c74365816ca41b913b8911e2ec472cca253e",
+     "bytes": 55860
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:39.958960+00:00"
+  },
+  {
+   "label": "voice-static-golem-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)おとが…きえ…る…",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "sad",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01054,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:37:31.532249+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389090856685570",
+   "error": null,
+   "actual": 0.0105,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-death-01-1.mp3",
+     "sha256": "a4cd189469b45a96f05748bbbe2e5c8f53a63e6a1d632b635eeb12180997ce45",
+     "bytes": 45492
+    }
+   ],
+   "finished_at": "2026-10-31T04:37:38.532518+00:00"
+  },
+  {
+   "label": "voice-static-golem-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(groans)音が…消えて…いく…",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "sad",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.01116,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:01.372004+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389471305207809",
+   "error": null,
+   "actual": 0.0112,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-death-01-1.mp3",
+     "sha256": "b2cb90447a85a7d0ad67a175286e170bcbce0bc531bd9a83716cc86e78fc89ba",
+     "bytes": 69108
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:11.061147+00:00"
+  },
+  {
+   "label": "voice-static-golem-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "耳ごと、ぶっ壊す！",
+    "voice_id": "English_UpsetGirl",
+    "emotion": "angry",
+    "speed": 1.12,
+    "pitch": 0,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00558,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:01.804909+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389467916214274",
+   "error": null,
+   "actual": 0.0056,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-static-golem-taunt-02-1.mp3",
+     "sha256": "9f02be4c16a34e8e18df2e4f33f42c7191043dda141fd445d8bff5ed97c550ba",
+     "bytes": 32244
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:09.058170+00:00"
+  },
+  {
+   "label": "voice-siren-queen-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "この私に、ひれ伏しなさい。",
+    "voice_id": "Japanese_ColdQueen",
+    "emotion": "neutral",
+    "speed": 0.95,
+    "pitch": -1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:01.872619+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389475981864961",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-siren-queen-enter-02-1.mp3",
+     "sha256": "f519e3477984576dff24dadcf0497b356c7f34e36cc9a336349388855fc2289b",
+     "bytes": 52980
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:09.831449+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ねえ…声、ちょうだい？",
+    "voice_id": "English_WhimsicalGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:02.174726+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389476866871297",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-enter-02-1.mp3",
+     "sha256": "29b31566a8bc4109c9338632ea943ee844a023892a33a79264ba3a0bedff580e",
+     "bytes": 30516
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:10.258974+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-taunt-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ほらほら、こっちだよ～",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:50.932610+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389674666102786",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-taunt-01-1.mp3",
+     "sha256": "2b91fb6f7d46291f6754ce858890b3df0534777cca9dadd39910dcf1d4c0112f",
+     "bytes": 30516
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:59.166332+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-enter-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ねえ、キミの声…ちょうだい？",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:51.595196+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389679061676033",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-enter-02-1.mp3",
+     "sha256": "5854460a6bec812e91200cf2c5d324d80f460081f5333a8e619341759c069801",
+     "bytes": 42036
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:59.722253+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-enter-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)ねえ、あそぼ？",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0093,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:51.634581+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389676910055425",
+   "error": null,
+   "actual": 0.0093,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-enter-01-1.mp3",
+     "sha256": "bbb127ca6915f6c62a03c131a039fd8483033d063f0b538d6d50d481fd339e1e",
+     "bytes": 47220
+    }
+   ],
+   "finished_at": "2026-10-31T04:39:59.152310+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-taunt-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "ノイズで、溶かしてあげる。",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:39:53.228232+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389686917607425",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-taunt-02-1.mp3",
+     "sha256": "e5e47aaa1b771fcd33dffe467663d6660ac43e576cc143bb45acedd3d380921a",
+     "bytes": 36276
+    }
+   ],
+   "finished_at": "2026-10-31T04:40:01.006211+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-lowhp-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "やだ…消えたくない…",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "fearful",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.0062,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:40:02.896477+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389723932397570",
+   "error": null,
+   "actual": 0.0062,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-lowhp-01-1.mp3",
+     "sha256": "6b5714366dfd69a1ef244e60f4c0e68e107bf1721d2ad8dcd83412119aa2e41f",
+     "bytes": 43764
+    }
+   ],
+   "finished_at": "2026-10-31T04:40:10.774239+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-kill-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(laughs)声、もーらった！",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00992,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:40:03.205712+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389728449605633",
+   "error": null,
+   "actual": 0.0099,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-kill-01-1.mp3",
+     "sha256": "74c4eac83a85400da0a2739f0058af106143796397261fa3382aaf09b330c08e",
+     "bytes": 43188
+    }
+   ],
+   "finished_at": "2026-10-31T04:40:11.926423+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-kill-02",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "あはっ、静かになった。",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "happy",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00682,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:40:04.350650+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389736838209538",
+   "error": null,
+   "actual": 0.0068,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-kill-02-1.mp3",
+     "sha256": "5000f6a171ae4fbb8066f34dda4ead4bb495c14ec4d4930cd49671a80288ea2f",
+     "bytes": 31092
+    }
+   ],
+   "finished_at": "2026-10-31T04:40:13.794690+00:00"
+  },
+  {
+   "label": "voice-noise-wraith-death-01",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "(sighs)つまんな…い…",
+    "voice_id": "English_PlayfulGirl",
+    "emotion": "sad",
+    "speed": 1.05,
+    "pitch": 2,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00868,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:40:05.523006+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389741108006913",
+   "error": null,
+   "actual": 0.0087,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-enemy/voice-noise-wraith-death-01-1.mp3",
+     "sha256": "b9e90a90e1d988ccec7827bb1f0c9561e770b960718f1e539b52b7607cc77c91",
+     "bytes": 55284
+    }
+   ],
+   "finished_at": "2026-10-31T04:40:14.114270+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-02f",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "泣かないで…平気、だから…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "fearful",
+    "speed": 1.15,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:41:04.137803+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389986399293442",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-02f-1.mp3",
+     "sha256": "1763860a09c590652b1d89a2b493e2acdeda7c350b3202fb7a2a7fbb550713e9",
+     "bytes": 57588
+    }
+   ],
+   "finished_at": "2026-10-31T04:41:13.246642+00:00"
+  },
+  {
+   "label": "voice-wubai-defeat-02e",
+   "wallet": "cn",
+   "endpoint": "/openapi/v2/rhart-audio/text-to-audio/speech-2.8-hd",
+   "model": "rhart-audio/text-to-audio/speech-2.8-hd",
+   "payload": {
+    "text": "泣かないで…平気、だから…",
+    "voice_id": "Japanese_KindLady",
+    "emotion": "sad",
+    "speed": 1.15,
+    "pitch": 1,
+    "volume": 1,
+    "enable_base64_output": false,
+    "english_normalization": false
+   },
+   "quote": 0.00806,
+   "currency": "CNY",
+   "submitted_at": "2026-10-31T04:41:05.645457+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116389988639051777",
+   "error": null,
+   "actual": 0.0081,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/voice-defeat/voice-wubai-defeat-02e-1.mp3",
+     "sha256": "cdc77e62c284984811c1175745642a2ea9bce9949f6b7f606684828f74a9fcf0",
+     "bytes": 52980
+    }
+   ],
+   "finished_at": "2026-10-31T04:41:14.328045+00:00"
+  },
+  {
+   "label": "hit-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "anime fighting game punch impact, tight punchy body thump with crisp snap transient, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:24.341526+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390318005231617",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r2-1.wav",
+     "sha256": "9533e5d1bb5f6d7fc2348786e7fb02828e89e2cc8587a075bbfd4fcbcb78678f",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r2-2.wav",
+     "sha256": "d92e190b5174ff4098b398332bd5cfeea591bf197482c57f55ba94504e0f5593",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r2-3.jpg",
+     "sha256": "8b10c98b01af3609b5916605cfec92be2e68366bfc40d62bc8df7a5c6f2d3ed8",
+     "bytes": 126619
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r2-4.jpg",
+     "sha256": "6f8c4b7f21b6d530425d6174777b5bb33de8f35317fd6bfd05266f52dc8c1bae",
+     "bytes": 121745
+    }
+   ],
+   "finished_at": "2026-10-31T04:42:55.172616+00:00"
+  },
+  {
+   "label": "hit-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "anime fighting game punch impact, tight punchy body thump with crisp snap transient, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:24.453768+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390334183219202",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r1-1.wav",
+     "sha256": "cdb676e3db8fc12afb5d868ffcdb89d6119a31ed14dad5e25c72e10c00ce25b8",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r1-2.wav",
+     "sha256": "360355b3c22dd90119b7c6fc89c69bedc5b727448dc5cd12042ec2eecd3f11e8",
+     "bytes": 532684
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r1-3.jpg",
+     "sha256": "8c11cc80701752bead9969075b01f42ba7f19e3ab6ce90e4f20d09a010195549",
+     "bytes": 73272
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r1-4.jpg",
+     "sha256": "1bd543e2f76e36784089e42f935fd78b3db45847fb84b6c60c8d16e50673cec3",
+     "bytes": 72991
+    }
+   ],
+   "finished_at": "2026-10-31T04:45:06.809064+00:00"
+  },
+  {
+   "label": "crit-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "critical hit impact, heavy punch with bright glass shatter crack and sparkle burst, anime action game, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:24.484873+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390317313171458",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r2-1.wav",
+     "sha256": "03366fe0dde81a16335a461699e6aad59483c7a9dc68cc4be4cd839544ed9b3f",
+     "bytes": 663244
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r2-2.wav",
+     "sha256": "f04c04821584b0f3953e8b2abbf4d6c61092ec709dd6f36148ba6a0489532d19",
+     "bytes": 770764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r2-3.jpg",
+     "sha256": "51dcd87554d8be5484fef65599ab1b1bbe3cdaf0ccc52af7da13d15a3290e36b",
+     "bytes": 159156
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r2-4.jpg",
+     "sha256": "0d0887d2687307a676fe7792554ba60ea963f8812d7d3d2bbde0474995230d3d",
+     "bytes": 164297
+    }
+   ],
+   "finished_at": "2026-10-31T04:42:54.032571+00:00"
+  },
+  {
+   "label": "crit-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "critical hit impact, heavy punch with bright glass shatter crack and sparkle burst, anime action game, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:24.886515+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390320303710210",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r1-1.wav",
+     "sha256": "7ac39c501a711348504250ce057e112a3894ea6b087cfec5568dea8fd4fb32a8",
+     "bytes": 924364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r1-2.wav",
+     "sha256": "072731cfc79807e02e5686c0271398bcc30580b26835a44ad57224ae69d34b09",
+     "bytes": 693964
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r1-3.jpg",
+     "sha256": "f7db201dd59ea31a484c99abbc72aa7406f3351fd626206cc52dab39fce62201",
+     "bytes": 50212
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/crit-r1-4.jpg",
+     "sha256": "8f910230488843f24715e1f04982c3318739a50e2df7b4a6044d2ad5836f3ed7",
+     "bytes": 45811
+    }
+   ],
+   "finished_at": "2026-10-31T04:42:55.543349+00:00"
+  },
+  {
+   "label": "hurt-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "muffled heavy body blow impact, dark dull thud with a short crunch, taking damage, game, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:56.957675+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390455864172545",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r1-1.wav",
+     "sha256": "c361ae88be381afa1d341fd2aa3d7d21e775d8f2c10da138e426c394795fd699",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r1-2.wav",
+     "sha256": "31e5a5c892cefe2f6af3c3118710dfdff3a0c529a071df04b9ed29d2b485f0d6",
+     "bytes": 617164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r1-3.jpg",
+     "sha256": "b878dc820f15bc947004e481176b885a74e3185fec1999ca8fe7347bd9e6fdb5",
+     "bytes": 175923
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r1-4.jpg",
+     "sha256": "231d083615c5d82fd239c1c47d3f8de3fe68a00f54d2502dc6b638c49c05d148",
+     "bytes": 159091
+    }
+   ],
+   "finished_at": "2026-10-31T04:43:27.893026+00:00"
+  },
+  {
+   "label": "hurt-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "muffled heavy body blow impact, dark dull thud with a short crunch, taking damage, game, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:58.166069+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390462323400706",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r2-1.wav",
+     "sha256": "bf0ece69e7c02cbb6b10c38a8c67809dc488b7591669291b777aed8983552c85",
+     "bytes": 463564
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r2-2.wav",
+     "sha256": "39e640cba6af4075c3bd50090a5bc392f8c82e329780cc5b49d3ad2ddf92d4a3",
+     "bytes": 532684
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r2-3.jpg",
+     "sha256": "4b548dea8c34a16b0a9a5c565f8186aa7e58bb4317220dbd57bd9494040a7864",
+     "bytes": 137894
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hurt-r2-4.jpg",
+     "sha256": "9199f2c0b96b817e2902e4e7d65cd2105fee83444e5e54f816813812d7c7beaa",
+     "bytes": 149266
+    }
+   ],
+   "finished_at": "2026-10-31T04:43:33.235726+00:00"
+  },
+  {
+   "label": "block-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "magic shield block, metallic clang deflect with ringing energy barrier ping, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:42:59.725786+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390464820731905",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r1-1.wav",
+     "sha256": "e55eed0babf3af497e7946a888bf4ee971e989eea31158df4474eacb00b7c893",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r1-2.wav",
+     "sha256": "4ce2ad3968487134478cd5a673482bfb124a2790b4b4e49e7b6e76025d426e9d",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r1-3.jpg",
+     "sha256": "3f8c665d77b011ca5a08c6755e0b69a96dd5bb5b813515d6dd3b86c221c41771",
+     "bytes": 102524
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r1-4.jpg",
+     "sha256": "6a6bacdce6fd2e7ed4151d53827361a5225c7eff80d566ef689e22af9ea8695a",
+     "bytes": 72118
+    }
+   ],
+   "finished_at": "2026-10-31T04:43:42.467818+00:00"
+  },
+  {
+   "label": "block-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "magic shield block, metallic clang deflect with ringing energy barrier ping, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:43:30.891518+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390599241703425",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r2-1.wav",
+     "sha256": "0919064de15ae2eacb4d4e244b0f5aeb37c37935064709ec5ac7c102f80618b3",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r2-2.wav",
+     "sha256": "7730bf5c2a56e8299dcf4d44ad96f4b113fdef1476e3b09209195b1ea41ee8d3",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r2-3.jpg",
+     "sha256": "9c112d42d7b699b141aca66b5c0e087a2a5a469e59efc53ab7ad19e7dd674e56",
+     "bytes": 177370
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/block-r2-4.jpg",
+     "sha256": "96d98293e8049cd0f7ce1de1c235c43167884fbe4963dc1a83595ee1965fd8a3",
+     "bytes": 193338
+    }
+   ],
+   "finished_at": "2026-10-31T04:44:05.614858+00:00"
+  },
+  {
+   "label": "shield-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "magic barrier activation, crystalline energy shield forming, shimmering glassy swell, bright, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:43:37.513618+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390626836586497",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r1-1.wav",
+     "sha256": "6c5ff835a09e4b153c799304c6c17d4db50c02731fc2fb70b492faa1b9bae82e",
+     "bytes": 617164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r1-2.wav",
+     "sha256": "0de933964b75e24eb2a2b0dc4cfcf87b62e202e6b4cd9c4bda16bad0b70d2ae9",
+     "bytes": 909004
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r1-3.jpg",
+     "sha256": "1ac980d30270f0e8a9e7027795c99e7e8afe60596d451aef3c10bb9d9a1a6506",
+     "bytes": 259505
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r1-4.jpg",
+     "sha256": "4f1647cf40277075beb0b8d2ca3510aff3e77120ebddc6dfa04f53023294fbac",
+     "bytes": 252697
+    }
+   ],
+   "finished_at": "2026-10-31T04:43:59.019918+00:00"
+  },
+  {
+   "label": "shield-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "magic barrier activation, crystalline energy shield forming, shimmering glassy swell, bright, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:43:47.526488+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390665373294594",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r2-1.wav",
+     "sha256": "7f6153944d27be9f820fa52cebd12b6e5a0cf8cdaa1e40e59914f4d68e80e186",
+     "bytes": 617164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r2-2.wav",
+     "sha256": "acc73f80fbe8525a923f62182295d7f8f00202d49c8788728bc92ee5bcb371ab",
+     "bytes": 609484
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r2-3.jpg",
+     "sha256": "77edfb6c9fcac189d507039d8c3a43f1ac1df1c955a2c7864cc054a9a1d2ee57",
+     "bytes": 172342
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/shield-r2-4.jpg",
+     "sha256": "50899ad55cf6c2b6dd0a57b7766c5f18783ee4412c4f52a6651f4b661b259703",
+     "bytes": 131284
+    }
+   ],
+   "finished_at": "2026-10-31T04:46:33.262205+00:00"
+  },
+  {
+   "label": "heal-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "healing spell, soft rising sparkle bells with warm magical shimmer, gentle, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:44:02.586725+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390729642377217",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r1-1.wav",
+     "sha256": "0e7d89031254610d5faba4b0899da750f9c9dd64e22c28d000449f45b20dd17a",
+     "bytes": 686284
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r1-2.wav",
+     "sha256": "63213ee2d12b31ce5c3c4c22c03e40f988ac50de079b0e323389828825e4db3c",
+     "bytes": 962764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r1-3.jpg",
+     "sha256": "bc3de71208b5d3ac05282a544e044e9bb81e22ab8718421e829c084ec2cd38a9",
+     "bytes": 142237
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r1-4.jpg",
+     "sha256": "7612796b29a00d188b5e1295b2e9ca0bd9a3fe4b5877228018b45da5f8d32e58",
+     "bytes": 123911
+    }
+   ],
+   "finished_at": "2026-10-31T04:46:52.668169+00:00"
+  },
+  {
+   "label": "heal-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "healing spell, soft rising sparkle bells with warm magical shimmer, gentle, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:44:09.326663+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390760655298562",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r2-1.wav",
+     "sha256": "af7ea206ed99183ae3445d90c350e77b8a3084387ab42a70d8f37ccfae6219de",
+     "bytes": 1147084
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r2-2.wav",
+     "sha256": "8e7b3ed66a41d92200914c283614e55560b74b0cded88166b88bfde25c524523",
+     "bytes": 770764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r2-3.jpg",
+     "sha256": "f6c246668513c8a30179f5b6c43035b05e3f3767cccb7d216bc51fdf108322aa",
+     "bytes": 143104
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r2-4.jpg",
+     "sha256": "aa8f93736d5fea330ed9821408c2bfbd2ca10c7d210accb0c33f690e38d72db6",
+     "bytes": 136136
+    }
+   ],
+   "finished_at": "2026-10-31T04:44:51.430529+00:00"
+  },
+  {
+   "label": "ko-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "enemy defeated, crystal monster shattering into glass shards over a deep boom, anime game, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:44:54.885269+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116390952713035778",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r1-1.wav",
+     "sha256": "5b2e881d6ba76acb78270ceac4b4865893f3d7013c6262da3d3fb7fc0a4b6c9c",
+     "bytes": 2107084
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r1-2.wav",
+     "sha256": "e003b9670d84bc8b49a05d82bf63efafc55e73d3fed91f537616e6f9a6ce8f21",
+     "bytes": 2291404
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r1-3.jpg",
+     "sha256": "ceebad52759c4d797ab289fc8a2209593483690c5455e130340c6ca242fb4618",
+     "bytes": 145856
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r1-4.jpg",
+     "sha256": "aeeb9575d7a413a7bc42f47d07424436e977315b2c5f95b477a905c6ca4aa769",
+     "bytes": 170942
+    }
+   ],
+   "finished_at": "2026-10-31T04:45:40.996280+00:00"
+  },
+  {
+   "label": "ko-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "enemy defeated, crystal monster shattering into glass shards over a deep boom, anime game, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:45:15.359342+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391033666502657",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r2-1.wav",
+     "sha256": "76ab07db3f9675368d592805ea59a70335138b4cd314c1b677c9ad25792dd454",
+     "bytes": 2537164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r2-2.wav",
+     "sha256": "1fb9eb05e5ae4fb8f381e29f1fc9b765226de8f13bd0e43c79e96fc621b56ea5",
+     "bytes": 1415884
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r2-3.jpg",
+     "sha256": "1ae958bd5dc49d4d1cec221fc55f0adc900bb0738c312456c485b68393d8b640",
+     "bytes": 202209
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r2-4.jpg",
+     "sha256": "3188ccc78b27309aa74553241815bf9f78b2b3375d7a9ccf80ebda93715cceb8",
+     "bytes": 182266
+    }
+   ],
+   "finished_at": "2026-10-31T04:45:49.665549+00:00"
+  },
+  {
+   "label": "strike-charm-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "pink heart magic burst hit, bright candy sparkle pop with airy flame whoosh, cute anime spell, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:45:44.010216+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391163916419073",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r1-1.wav",
+     "sha256": "7bddf1f8b6ef239bfcc343052c1801e7c52f2eb8dc6c3068ff6cbe709274d479",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r1-2.wav",
+     "sha256": "f4d881f03ff4630afdc24eabb43a85987ea628d25f646604617443798bd7163e",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r1-3.jpg",
+     "sha256": "75ff4b376b1c18274c83e00376f1c83ed99fa7eb1c7a7ea1a3e193a6dc27eb9b",
+     "bytes": 114628
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r1-4.jpg",
+     "sha256": "7ecefea246d24a03f6eca3db4920f1c84e5d93793256582f3d7ba0b92c5379d0",
+     "bytes": 100936
+    }
+   ],
+   "finished_at": "2026-10-31T04:46:20.010286+00:00"
+  },
+  {
+   "label": "strike-charm-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "pink heart magic burst hit, bright candy sparkle pop with airy flame whoosh, cute anime spell, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:45:52.321407+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391189036343298",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r2-1.wav",
+     "sha256": "5d6d521c6b954583b9e0e68997f0b8aa2f9c46b4087b1d48dd428d3d69c849b4",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r2-2.wav",
+     "sha256": "b0268a1498d84ca9d5d8e1cf5ff329b719302b00fd4b079872c020017ff3a725",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r2-3.jpg",
+     "sha256": "32b7a9960ffe9431f43f304958ea2135e8e987d505dc2dfa9c4cb926f8d84d22",
+     "bytes": 101987
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r2-4.jpg",
+     "sha256": "8923239a1357d5cf9d3c03f6d6ba63eb35b43596b8ea12a9bf550b5eb445764b",
+     "bytes": 102163
+    }
+   ],
+   "finished_at": "2026-10-31T04:46:26.135281+00:00"
+  },
+  {
+   "label": "strike-demon-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "dark demon claw slash hit, vicious tearing swipe with purple void thump, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:46:23.559895+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391320498970626",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r1-1.wav",
+     "sha256": "0a618507dbce03b020bbf7e82da7772551cf8f03ea3d657774a9f22a236f0755",
+     "bytes": 2460364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r1-2.wav",
+     "sha256": "c329350a850c75986b8c4b34d2a03dd3cd2cdf6dc989f8438cd9d73da3639645",
+     "bytes": 1461964
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r1-3.jpg",
+     "sha256": "e1ff2a4808130d20e85a1eae1dc8af1c3f30b644fd7638ace2ae51c52d16914b",
+     "bytes": 230905
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r1-4.jpg",
+     "sha256": "732c448301f62c34cd42ede772da6a6384fa37e6035b4069e4f6a88d5aae614c",
+     "bytes": 183774
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:06.513127+00:00"
+  },
+  {
+   "label": "strike-demon-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "dark demon claw slash hit, vicious tearing swipe with purple void thump, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:46:29.279367+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391343533293569",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r2-1.wav",
+     "sha256": "c853499b5400cc99ad5d096d282be4681766931ce36fc92ef54f9ccdb4fc122f",
+     "bytes": 2706124
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r2-2.wav",
+     "sha256": "dc757cf2c5e3611c9b2331b05d5de57d5f944bb79a0de4a94b1d371971fc1e02",
+     "bytes": 1922764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r2-3.jpg",
+     "sha256": "b986464b0be1e1868cac85a0a3e72c46a38f501dc830c0ca3aa0783551662f1e",
+     "bytes": 103460
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-demon-r2-4.jpg",
+     "sha256": "682f0f3ac144df6716acffea29198448e44ef4efbaee5b8e572c2f38452f50f4",
+     "bytes": 99968
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:13.015148+00:00"
+  },
+  {
+   "label": "strike-mermaid-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "water magic splash hit, cyan wave crash with bubbly pop, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:46:35.983090+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391372415508482",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r1-1.wav",
+     "sha256": "d5bdc521d023593f7c9bb88f90adb15429ae074ac0a1d1d59f7029b9c88b7d60",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r1-2.wav",
+     "sha256": "6f6a96c9fb4dac861e3b7b92a09b7fdb223852bf9d39218be45a2d0dd3249d7c",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r1-3.jpg",
+     "sha256": "6fcec906cd1b72d70de5183d2a311f376dedac306125be65d85a4f70a2b02111",
+     "bytes": 124725
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r1-4.jpg",
+     "sha256": "f24f954cf06a797e7f50567e9e0a26ff7e864e6c41c353c1cb9671294cae312f",
+     "bytes": 131032
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:10.020567+00:00"
+  },
+  {
+   "label": "strike-mermaid-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "water magic splash hit, cyan wave crash with bubbly pop, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:46:57.429560+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391463557734402",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r2-1.wav",
+     "sha256": "1c1febe81672996dd6a7498e5129d7f0ca18dd7d3bbbccbcaba4dbb9f578dbad",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r2-2.wav",
+     "sha256": "1c7327e6563f916151abb743ba529b4c4ccd360665e760a572e051c6b38c5e53",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r2-3.jpg",
+     "sha256": "93c1df7cde1dfa9320f4b68ee4346e3a7b39dbf36e1ad0e2cdfcc2ee55a61efd",
+     "bytes": 204395
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-mermaid-r2-4.jpg",
+     "sha256": "6b694f45b916e636e42f8f4609747d11c68911d50a7a72da008cded5dc527f1c",
+     "bytes": 236135
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:19.571902+00:00"
+  },
+  {
+   "label": "strike-bloodelf-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "crimson blade slash hit, sharp metallic sword swing with dark blood magic shimmer, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:09.550896+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391519161384962",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r1-1.wav",
+     "sha256": "aa6978c06e48f6508204bef2a87e630062779c7900733cc030186f58d571b72f",
+     "bytes": 609484
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r1-2.wav",
+     "sha256": "52d947849d677ee311c936db0d0bd0329bde37539cd8e17b9b971e30efbcbef0",
+     "bytes": 2306764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r1-3.jpg",
+     "sha256": "8538ab768bc5a0af13c18020b448d5b4b9a8e0d5f9b9aa8f48b05670c6f6877e",
+     "bytes": 48885
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r1-4.jpg",
+     "sha256": "6e9dc13c9201233842994df800300ee4eea8ade37d9491de37657f6a56ed68ad",
+     "bytes": 50658
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:53.956337+00:00"
+  },
+  {
+   "label": "strike-bloodelf-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "crimson blade slash hit, sharp metallic sword swing with dark blood magic shimmer, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:13.622511+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391529691602945",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r2-1.wav",
+     "sha256": "e1017e951892bb320d444502f1af7663cc8b33ed4c1255c284460e6d671cf7d3",
+     "bytes": 693964
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r2-2.wav",
+     "sha256": "fa5355bb9a2d45964d7ae9095558e96c9054def283407ca1c22f0957453439de",
+     "bytes": 1070284
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r2-3.jpg",
+     "sha256": "4088124b51380e07f3dbea30ea0052bc11adb6ed2a69ae6972a3bb3aa3bf6599",
+     "bytes": 119550
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-bloodelf-r2-4.jpg",
+     "sha256": "7c248001dee384a88ee664809949b21447977129fc1452fdae51929608c18d0d",
+     "bytes": 101028
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:47.928446+00:00"
+  },
+  {
+   "label": "ultimate-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "massive anime ultimate finisher impact, deep sub boom, sharp crack and glittering magic tail, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:15.686438+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391546701979650",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r1-1.wav",
+     "sha256": "d855e4c2e89361f00649b9e838cfacee75333e8e58942c8a8f276f7bbccf9582",
+     "bytes": 924364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r1-2.wav",
+     "sha256": "7e2b00f07e059dc19b4c781c1ca2d62f7253d1c8e33aa64322a70dc18a390ab5",
+     "bytes": 1001164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r1-3.jpg",
+     "sha256": "c29e235339cd6021937951eafd05be94858fa1383fde144b43822c557fd9f868",
+     "bytes": 191223
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r1-4.jpg",
+     "sha256": "8283a05793ebf7691131d65dfccaa5d2cfdc8ff4d7e4e79ca219e6bd7ec80443",
+     "bytes": 227036
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:48.695229+00:00"
+  },
+  {
+   "label": "ultimate-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "massive anime ultimate finisher impact, deep sub boom, sharp crack and glittering magic tail, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:22.445451+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391570780921857",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r2-1.wav",
+     "sha256": "f08b61def5369eb9c3049b23d0777c334cc3d012bc00f84a4b0d2cef8c0d35cb",
+     "bytes": 1147084
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r2-2.wav",
+     "sha256": "cb0a101184207148f4f0e6207ac42d5119d478639653dad8a2cf6acb9905d536",
+     "bytes": 1308364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r2-3.jpg",
+     "sha256": "4634c98bd4ce66b03f0baf5fe80083cdfd5345b05ea458230b9a8c045c5bdbbd",
+     "bytes": 224703
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r2-4.jpg",
+     "sha256": "272a4189345a734081263127847df1fb6d5d191551bfa1ae83424889a9fce0df",
+     "bytes": 251459
+    }
+   ],
+   "finished_at": "2026-10-31T04:47:56.544891+00:00"
+  },
+  {
+   "label": "boss-hit-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "heavy hit on a giant armored boss, deep thick impact with armor crunch and sub boom, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:51.016324+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391686969614338",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r1-1.wav",
+     "sha256": "5aa355810fdb89e21dc70dca3d3f60b8ae070cf28a212378aed36d8eadbe8db9",
+     "bytes": 2460364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r1-2.wav",
+     "sha256": "744dc62f1dba07d2c6c25b97b16fb2da3ea16bd01b19e8dd63acaf8f9d8a1f72",
+     "bytes": 1607884
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r1-3.jpg",
+     "sha256": "efa8ad956263a64fc641fd1f26b5ca47adde722e5cca90e833e9d7e8994ad292",
+     "bytes": 317338
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r1-4.jpg",
+     "sha256": "25e80dec7a9dad6c5e571a5c7a0240879ea25b6a43966bacc6612d0ba8ed7668",
+     "bytes": 265659
+    }
+   ],
+   "finished_at": "2026-10-31T04:48:33.824184+00:00"
+  },
+  {
+   "label": "boss-hit-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "heavy hit on a giant armored boss, deep thick impact with armor crunch and sub boom, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:51.656884+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391693116186625",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r2-1.wav",
+     "sha256": "32cf4ded7274c80bfa70fc8ef78a61bc0fcc472d808147ae70b341c6ada63277",
+     "bytes": 2306764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r2-2.wav",
+     "sha256": "54567997dab43a9772c67f97824408cd58c96772d6d802910016f50daf0a5c4e",
+     "bytes": 2183884
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r2-3.jpg",
+     "sha256": "29ac86be098ec769dc956e39b154772041666e1e90fd9c2f77f4d0ab4db48941",
+     "bytes": 187806
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/boss-hit-r2-4.jpg",
+     "sha256": "2d9b6753c7908f8d7122ce74a1eed2daa1f7c25c167668ef1a8d8004eacae1ef",
+     "bytes": 180476
+    }
+   ],
+   "finished_at": "2026-10-31T04:48:33.874211+00:00"
+  },
+  {
+   "label": "down-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "character collapses, soft heavy fall thud with fading magical shimmer, sad, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:58.670405+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391720742150146",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r1-1.wav",
+     "sha256": "77e3cd4260c91a49e5e6ec746b24b23d4912751a15f88dd188cfeee8e85164e8",
+     "bytes": 2537164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r1-2.wav",
+     "sha256": "b96d6f8facb2a1d999d6d2026b9856169b36af0841a5c157e8de66014e8546f4",
+     "bytes": 2468044
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r1-3.jpg",
+     "sha256": "9c7e1bc0d08bf38851c4cfb4142c4fedfbb8082ce5f82353ffc2a1a8d1e2bf7e",
+     "bytes": 78692
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r1-4.jpg",
+     "sha256": "ef67aca1f28e59f6cd7891434e875ff7660b5d78b674efcd00e3ef097390fd0d",
+     "bytes": 67141
+    }
+   ],
+   "finished_at": "2026-10-31T04:48:42.639142+00:00"
+  },
+  {
+   "label": "down-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "character collapses, soft heavy fall thud with fading magical shimmer, sad, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:47:59.571097+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391724980314114",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r2-1.wav",
+     "sha256": "d78612745f0e4356c30b7d7b48f8586cbea1090196fe971fe2335203a99a689d",
+     "bytes": 1922764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r2-2.wav",
+     "sha256": "a54400bbe29ab3fea4774db33b2d7b377ff1610d6495a22362090ab1e60a00f7",
+     "bytes": 1915084
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r2-3.jpg",
+     "sha256": "4d48f57a13794713a06ac7bca524a6e37af59421fc3647678f6e6214b680cf95",
+     "bytes": 122573
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/down-r2-4.jpg",
+     "sha256": "cc0fd613d431992e803f2d242a29d9ac7a742bc58ebf8326e0967e8ccaa0f726",
+     "bytes": 127673
+    }
+   ],
+   "finished_at": "2026-10-31T04:48:43.565906+00:00"
+  },
+  {
+   "label": "grade-perfect-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game PERFECT judgement sound, sparkling synth riser into bright cymbal crash and glittering chimes, triumphant, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:48:36.528750+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391883403132929",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r1-1.wav",
+     "sha256": "9ed6a85533deed89a6a846006033acbacd26a232b7b81179ee03ccc82eb116e2",
+     "bytes": 1600204
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r1-2.wav",
+     "sha256": "e20457a4c1290d3a5ab4ba7fe05128a7c5f2fba662837c1bdbdafdfe94afc21f",
+     "bytes": 985804
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r1-3.jpg",
+     "sha256": "78560577677413d393c3c5e4f40aff6c28757befb1cfc297eb518ff0f7b6cd1f",
+     "bytes": 152628
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r1-4.jpg",
+     "sha256": "b6e348e6b1f937c531ef75ab61a377d4fce01be9ebdc2860e32df6dff5f34851",
+     "bytes": 152940
+    }
+   ],
+   "finished_at": "2026-10-31T04:48:58.611115+00:00"
+  },
+  {
+   "label": "grade-perfect-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game PERFECT judgement sound, sparkling synth riser into bright cymbal crash and glittering chimes, triumphant, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:48:36.967165+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391880532549634",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r2-1.wav",
+     "sha256": "7927863ce216df28f43cdc9f7319d74de064d49cb97779a2fea863c5d3752c82",
+     "bytes": 970444
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r2-2.wav",
+     "sha256": "393898bb71f960d230566cefa37f7064a5c582e974c122178b82dd3b3ecf69d2",
+     "bytes": 1147084
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r2-3.jpg",
+     "sha256": "84caa368832b801642f5eefdd2d7bc5d7ce131ee6c99d080845a543d4eba0fa4",
+     "bytes": 53272
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-perfect-r2-4.jpg",
+     "sha256": "7d1106e7ec2d86abe604259f511fd6c748ce9e681922949aeb77833eb1bf8796",
+     "bytes": 74152
+    }
+   ],
+   "finished_at": "2026-10-31T04:49:08.911452+00:00"
+  },
+  {
+   "label": "grade-great-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game GREAT judgement sound, bright synth chime stab with sparkle, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:48:46.782245+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391927314096130",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r1-1.wav",
+     "sha256": "80fab61ed0a1c0131bdb993b2ee8b3fc782b061cdb7d64894c875ee89aba62a8",
+     "bytes": 693964
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r1-2.wav",
+     "sha256": "cf0c0183a05472096ec4dd54c5eed08795bb1cc9752fab77a19b5412793ce8a9",
+     "bytes": 540364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r1-3.jpg",
+     "sha256": "5790969ce0624b52343ce090a52f65baafd20994261a108842643f4e8fc41e38",
+     "bytes": 85600
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r1-4.jpg",
+     "sha256": "6e490293375c61a630c476aa1e0362ee49a845b1511de3195a3b9340b4c540cf",
+     "bytes": 105252
+    }
+   ],
+   "finished_at": "2026-10-31T04:49:07.806670+00:00"
+  },
+  {
+   "label": "grade-great-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game GREAT judgement sound, bright synth chime stab with sparkle, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:48:47.857642+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391925491294210",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r2-1.wav",
+     "sha256": "dfd9f9136da8e92e239c73e12e5c22380c2ef85224d468250020233fa25706e5",
+     "bytes": 1385164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r2-2.wav",
+     "sha256": "55af795b1fc4b7a7196a818460e05a3c775e030ae52b218cfcf78fa2614d6811",
+     "bytes": 1001164
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r2-3.jpg",
+     "sha256": "5bf6da9f3cfc4dee716578bf45be10f97e74fdedebb5e29b3d88bb8bfd7b29bf",
+     "bytes": 64354
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r2-4.jpg",
+     "sha256": "d90b74f77890af12f69b2eb2ec80288bee27a678bb159ed4c54fa0f8bd0d3fe8",
+     "bytes": 68690
+    }
+   ],
+   "finished_at": "2026-10-31T04:49:29.625947+00:00"
+  },
+  {
+   "label": "grade-good-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game GOOD judgement sound, clean bell ding, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:49:01.330371+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116391983345246210",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r1-1.wav",
+     "sha256": "a98159f71ab374cd491650bb364f33acbbbeb3bc5cf46d378eb03b1d034714de",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r1-2.wav",
+     "sha256": "10226a526b90125af5bd11463d560568e01413469a396d74718f8d033c0a7619",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r1-3.jpg",
+     "sha256": "257921da4b50dea44293975c4fb3bda6fb873dee29d3f9a89208e4c64ff43c5d",
+     "bytes": 174081
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r1-4.jpg",
+     "sha256": "45447970ffca80da37990b73415dacb2ece224bc416ae2fb0fb4e4d1c6eba8d3",
+     "bytes": 156948
+    }
+   ],
+   "finished_at": "2026-10-31T04:49:36.179733+00:00"
+  },
+  {
+   "label": "grade-good-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game GOOD judgement sound, clean bell ding, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:49:11.825171+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116392027028922370",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r2-1.wav",
+     "sha256": "22fee8dbba8d9d899f7798a4e3e6c5c3cb12dbe9d9b7d239390383b1839a85fc",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r2-2.wav",
+     "sha256": "3f2723643b05854e6dd55851fb37730587123d3912e734813d92080c7e2b8646",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r2-3.jpg",
+     "sha256": "49772c43b3818229c4a7b370799df70f707558fcedd1eb97567150f61f11adf2",
+     "bytes": 77631
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-good-r2-4.jpg",
+     "sha256": "f021b84061d9b7c8adef8eec51d7887cb1de43c5aed05833a50f83bd9fb4a07a",
+     "bytes": 78452
+    }
+   ],
+   "finished_at": "2026-10-31T04:49:43.355922+00:00"
+  },
+  {
+   "label": "grade-miss-r1",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game MISS sound, soft muted dull thud falling downward, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:49:12.481561+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116392029164380162",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r1-1.wav",
+     "sha256": "c363544c2b34c967f9682e159761eb35423ac0c5b5f8137ce82f6cdf50f4993e",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r1-2.wav",
+     "sha256": "2c817757579da6c85ac42619b2d518b78a39b74ce64cd7a792d465dad4e8dfa2",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r1-3.jpg",
+     "sha256": "186b2e57ae925b3e7cfdb43386de38bd9e7d51f40d792ce63c66acde423e14ba",
+     "bytes": 144189
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r1-4.jpg",
+     "sha256": "faefe40c96d91d12d87cf57845d2f76ff16fca9f965ad86a31c8d582ddcf429e",
+     "bytes": 120318
+    }
+   ],
+   "finished_at": "2026-10-31T04:49:53.528986+00:00"
+  },
+  {
+   "label": "grade-miss-r2",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "rhythm game MISS sound, soft muted dull thud falling downward, short, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:49:35.355704+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116392124699762689",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r2-1.wav",
+     "sha256": "efb254c8e82e70d424251e21947f7cd151fe82c963cc7a9b3725e31addafd701",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r2-2.wav",
+     "sha256": "e34bfb9edd9b4dc3d234db1265c3992d209c82bd741b896e2283d0ca12b61b6a",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r2-3.jpg",
+     "sha256": "42a0b6d36f37499ec8b0e19ae67abd9a4e30662532b59b6faf2b64e38b31d988",
+     "bytes": 105645
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-miss-r2-4.jpg",
+     "sha256": "53ebd4b4772e9a257016a6333ec7c74344b1aeaa73ff7bc6d440faa9ee22b037",
+     "bytes": 121873
+    }
+   ],
+   "finished_at": "2026-10-31T04:52:56.610007+00:00"
+  },
+  {
+   "label": "ultimate-r3",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "one huge cinematic impact: short reverse cymbal swell then a single massive boom with sharp crack, long shimmering magic tail, anime ultimate attack, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:55:48.291304+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116393690992967681",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r3-1.wav",
+     "sha256": "ce9f4033d84c305b27ad10de77e700665bd10723c45c60eb44a8bbe206e06a78",
+     "bytes": 540364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r3-2.wav",
+     "sha256": "2d84b6edc329b019635c4d848d8a930b69167904ce88074e66dfc3cc033bf98a",
+     "bytes": 540364
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r3-3.jpg",
+     "sha256": "b145774ac3fb6144ab7b7520cb37dc54ae1a10f4556a17ba7bc95bd3ec386e04",
+     "bytes": 211147
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ultimate-r3-4.jpg",
+     "sha256": "2d4d9ca6c9b54393a9caaef5bc037f2cd7f4b339fae15367339a132dfab6a865",
+     "bytes": 259770
+    }
+   ],
+   "finished_at": "2026-10-31T04:56:23.339892+00:00"
+  },
+  {
+   "label": "hit-r3",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "one single short punch impact, meaty thump and sharp slap transient, close mic, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:55:48.325956+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116393689466478594",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r3-1.wav",
+     "sha256": "3b9cc5782c9f58372c6befd6ddd03f864b2957fd42dc039f27a2301eeb17b44b",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r3-2.wav",
+     "sha256": "9ed64a0193147da43ba66466360e62fb2f67151ba3ca4f04e3cc2928c18cb010",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r3-3.jpg",
+     "sha256": "c8c856de96088f051236ab54bbc10fee6fe015c00255bfa54de22e4246f1f9bf",
+     "bytes": 148622
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/hit-r3-4.jpg",
+     "sha256": "7d74d525e7d6d15adae86b12b2a3f93ce891254df39cbd591e50e8775e69bfd7",
+     "bytes": 155595
+    }
+   ],
+   "finished_at": "2026-10-31T04:56:31.960185+00:00"
+  },
+  {
+   "label": "ko-r3",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "one enemy shatter: glass and crystal burst into shards with low thump, quick decay, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:55:49.599605+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116393697343143938",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r3-1.wav",
+     "sha256": "0b3e5ad269337e2cf159b01e913cee8133a83b83ecfed6f162d1df489aafe4b9",
+     "bytes": 463564
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r3-2.wav",
+     "sha256": "de99e8cb08346f84f70f1e789563f157815163b62309df421c105cefe49ea535",
+     "bytes": 463564
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r3-3.jpg",
+     "sha256": "f20d336c708cce667eb1af0140e93c7a5c0e1172bb7c104b929e708a1fbeb5f0",
+     "bytes": 89393
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/ko-r3-4.jpg",
+     "sha256": "81657a94d105e50087e627014a0d8eaf03a9e82c8579c197658d7d153786b938",
+     "bytes": 121898
+    }
+   ],
+   "finished_at": "2026-10-31T04:56:35.740542+00:00"
+  },
+  {
+   "label": "heal-r3",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "one short healing chime: soft harp glissando up with warm sparkles, gentle, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:55:49.780036+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116393694684192769",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r3-1.wav",
+     "sha256": "dd5fe1c866586ba3bf1299dd15ca805cde784ad464346a8bd13480034f792415",
+     "bytes": 463564
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r3-2.wav",
+     "sha256": "b8fce6a913b9c792215cebeb277f5eddec2f74d2f49a88bc4044da8c1d5640a1",
+     "bytes": 463564
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r3-3.jpg",
+     "sha256": "063b590fa5d485e66d6ab92a7fab0e611c6877c34f8967400cd1810b26de253b",
+     "bytes": 121718
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/heal-r3-4.jpg",
+     "sha256": "6922ac196dae3ecfc9131498b48585647be0ce9d8b2e6ad2f23aecd1e85d6b6a",
+     "bytes": 128724
+    }
+   ],
+   "finished_at": "2026-10-31T04:56:34.200139+00:00"
+  },
+  {
+   "label": "grade-great-r3",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "one short bright success stinger: rising synth arpeggio ending in sparkle chime, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:55:49.921668+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116393710630936578",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r3-1.wav",
+     "sha256": "20d047b22d13ca0ca6b0a610f5f110d02fed456e771c22af14eaba6e73bfc98f",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r3-2.wav",
+     "sha256": "3e23377561c40486cb6f19b65ee972fb034ed00a9c5eb77594ca9e6fbd1d0ace",
+     "bytes": 509644
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r3-3.jpg",
+     "sha256": "39f9b72e1015577dff95e04ca3a3b3743612b75a7c0fcae77142aebd189ee83a",
+     "bytes": 257283
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/grade-great-r3-4.jpg",
+     "sha256": "17570fb007ede23af56c46476e192ff4927f4f45e759de1d940ad5efc8ef4192",
+     "bytes": 257549
+    }
+   ],
+   "finished_at": "2026-10-31T04:56:32.233471+00:00"
+  },
+  {
+   "label": "strike-charm-r3",
+   "wallet": "intl",
+   "endpoint": "/openapi/v2/rhart-audio/suno-v6/sounds",
+   "model": "rhart-audio/suno-v6/sounds",
+   "payload": {
+    "prompt": "one short magical hit: bright sparkle burst with a soft pink fire whoosh and glassy chime, anime, single one-shot sound effect, dry, no music, no voice",
+    "soundType": "one-shot",
+    "audioFormat": "wav"
+   },
+   "quote": 0.02,
+   "currency": "USD",
+   "submitted_at": "2026-10-31T04:55:50.181506+00:00",
+   "status": "SUCCESS",
+   "task_id": "2116393699301883906",
+   "error": null,
+   "actual": 0.02,
+   "outputs": [
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r3-1.wav",
+     "sha256": "e9aa95df17f7dd645e51085ca686a1f2ad6c0f2f95f9f5e311e615dd03d1de94",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r3-2.wav",
+     "sha256": "43e1baa916f96218498829bf4db9fd96247b07a08c189fabc21af01cf5bd3811",
+     "bytes": 386764
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r3-3.jpg",
+     "sha256": "172c2078787ebdc32da5f2e89b1cddf323b8227039d689a2438e3b9ff2840fd7",
+     "bytes": 136908
+    },
+    {
+     "path": "Builds/qa-logs/zj-1031/audio/raw/suno/strike-charm-r3-4.jpg",
+     "sha256": "c347dbee6b2e78dad6e23125847dd8a84b8ae3ab55bf9e285709a01ea44e0839",
+     "bytes": 130826
+    }
+   ],
+   "finished_at": "2026-10-31T04:56:35.007623+00:00"
+  }
+ ],
+ "totals": {
+  "cny": 1.0615,
+  "usd": 0.86,
+  "combined_cny_for_cap": 7.3395
+ }
+}

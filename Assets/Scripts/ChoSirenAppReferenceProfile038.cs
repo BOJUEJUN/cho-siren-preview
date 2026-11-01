@@ -76,13 +76,13 @@ namespace ChoSiren
             chipShape.Slant = 9f; chipShape.color = new Color32(10, 6, 30, 235); chipShape.raycastTarget = false;
             BoardText038(page, "MemberCareerTagText", $"{member.Career} · 等级 {level}", 23, White, 82, 720, 210, 38);
 
-            BoardText038(page, "MemberOwnershipStatus", "已签约成员", 20, Pink, 480, 102, 250, 35);
+            BoardText038(page, "MemberOwnershipStatus", "已签约成员", 20, Accent, 480, 102, 250, 35);
             BoardText038(page, "MemberName", member.Name, 66, White, 481, 142, 297, 94);
             BoardText038(page, "MemberRaceCareer", $"{MemberRace(member, memberIndex)} · {member.Career}",
                 23, White, 487, 239, 295, 43);
             BoardText038(page, "MemberPowerNumber", $"战力 {model.PowerOf(memberIndex):N0}", 43, White, 483, 308, 337, 65);
             BoardText038(page, "MemberPower", $"等级 {level} / {GameModel.MaxMemberLevel}", 26, White, 489, 416, 318, 47);
-            ProfileBar038(page, "MemberLevelTrack", 496, 463, 286, 7, level / (float)GameModel.MaxMemberLevel, Pink);
+            ProfileBar038(page, "MemberLevelTrack", 496, 463, 286, 7, level / (float)GameModel.MaxMemberLevel, Accent);
             string[] infoNames = { "定位", "种族", "编队", "风险", "薪资", "羁绊" };
             string[] infoValues = { member.Career, MemberRaceFamily(member, memberIndex), captain ? "当前队长" : inTeam ? "出战中" : "待命",
                 model.RiskOf(memberIndex).ToString(), $"{model.EstimatedMonthlySalary(memberIndex):N0}/期",
@@ -96,10 +96,10 @@ namespace ChoSiren
                 BoardText038(page, "MemberInfoValue-" + i, infoValues[i], 20, White, 588, infoRowTops[i], 205, 37);
             }
             BoardText038(page, "MemberStageTrait", $"「 {MemberStageQualities.DominantTrait(vocal, rhythm, dance, fame)} 」",
-                23, Pink, 60, 803, 382, 67, TextAnchor.MiddleCenter);
+                23, Accent, 60, 803, 382, 67, TextAnchor.MiddleCenter);
 
             GameObject skills = ProfileGroup038(page, "MemberSkillPanel", new Rect(47, 953, 416, 294));
-            ProfileSkill038(skills.transform, "MemberSkillPrimary", firstName, firstEffect, 0, Pink);
+            ProfileSkill038(skills.transform, "MemberSkillPrimary", firstName, firstEffect, 0, Accent);
             ProfileSkill038(skills.transform, "MemberSkillSecondary", secondName, secondEffect, 153, Cyan);
             GameObject stats = ProfileGroup038(page, "MemberStatPanel", new Rect(505, 873, 292, 265));
             string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
@@ -153,7 +153,7 @@ namespace ChoSiren
             heartRim.transform.SetParent(page, false);
             PlaceTop(heartRim.GetComponent<RectTransform>(), 494, 1214, 142, 134);
             ProfileEmblemFrame038 rimShape = heartRim.GetComponent<ProfileEmblemFrame038>();
-            rimShape.HeartRing = true; rimShape.color = Pink; rimShape.raycastTarget = false;
+            rimShape.HeartRing = true; rimShape.color = Heart; rimShape.raycastTarget = false;
             GameObject heartCore = new GameObject("MemberAffectionHeartCore", typeof(RectTransform),
                 typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
             heartCore.transform.SetParent(page, false);
@@ -165,12 +165,12 @@ namespace ChoSiren
             PanelKit.EnableBestFit(affectionNumber, 30);
             BoardText038(page, "MemberAffectionTier", $"· {model.AffectionTierOf(memberIndex)}", 27, White, 650, 1256, 148, 42);
             BoardText038(page, "MemberAffectionProgress", $"{affection} / {GameModel.MaxAffection}", 18, Muted, 676, 1218, 136, 30, TextAnchor.MiddleRight);
-            ProfileBar038(page, "MemberAffectionBar", 496, 1354, 304, 8, affection / (float)GameModel.MaxAffection, Pink);
+            ProfileBar038(page, "MemberAffectionBar", 496, 1354, 304, 8, affection / (float)GameModel.MaxAffection, Heart);
 
             BoardText038(page, "MemberTrainingPreview", atCap ? $"等级 {level} · 已达到等级上限" : $"等级 {level} → {level + 1} · 仅提升当前成员",
                 20, White, 57, 1492, 353, 47);
             BoardText038(page, "MemberTrainingCost", atCap ? "已满级 · 无需继续训练" : $"星光币 {trainingCost:N0} · 持有 {model.Save.Gold:N0}",
-                18, canTrain || atCap ? Cyan : Pink, 57, 1541, 353, 40);
+                18, canTrain || atCap ? Cyan : Warn, 57, 1541, 353, 40);
             // The reference has three material apertures. The game charges only gold;
             // show actual currency, normal attack and current level rather than invented costs.
             GameObject currency = NewImage("MemberTrainingCurrency", page, PanelKit.CurrencyIcon("gold"), White);
@@ -312,7 +312,7 @@ namespace ChoSiren
             chipShape.Slant = 4f;
             chipShape.color = new Color32(48, 20, 96, 230);
             chipShape.raycastTarget = false;
-            BoardText038(parent, "StateLabel", label, 15, blocked ? Pink : Cyan,
+            BoardText038(parent, "StateLabel", label, 15, blocked ? Warn : Cyan,
                 32, 72, width - 70, 26, TextAnchor.MiddleCenter);
         }
 

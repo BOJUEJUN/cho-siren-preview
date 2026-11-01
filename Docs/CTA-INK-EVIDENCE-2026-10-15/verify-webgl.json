@@ -1,0 +1,64 @@
+{
+  "success": true,
+  "canvas": "720x1536",
+  "githubFileLimit": 104857600,
+  "lobbyVideo": {
+    "file": "StreamingAssets/Lobby/lobby-loop.mp4",
+    "bytes": 4880863,
+    "sha256": "aaa9231a0cf5c681d4fe1d142d22ade2e7f9c1b935f5e99914d7165791d0065a"
+  },
+  "current": [
+    "d981d07160bbcd5d2bb6cb784859ce97.data.unityweb",
+    "5426e449948404481f637e5ff3e35e52.framework.js.unityweb",
+    "8557c0baed26e62ad7a00752c72fc2ba.wasm.unityweb",
+    "3fa1adbb740a1d4dbeb6618621a40262.loader.js"
+  ],
+  "previous": [
+    "1f966b3f038cad2aef9efbdba2032207.data.unityweb",
+    "cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb",
+    "d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb",
+    "e4c0a1ebe9a86f38521968a453663a94.loader.js"
+  ],
+  "assets": [
+    {
+      "file": "d981d07160bbcd5d2bb6cb784859ce97.data.unityweb",
+      "bytes": 99506644,
+      "sha256": "d981d07160bbcd5d2bb6cb784859ce97e94f74051d79b339d713a19e076cfefe"
+    },
+    {
+      "file": "5426e449948404481f637e5ff3e35e52.framework.js.unityweb",
+      "bytes": 82029,
+      "sha256": "5426e449948404481f637e5ff3e35e52041de3ba599f1381957871a526be4d87"
+    },
+    {
+      "file": "8557c0baed26e62ad7a00752c72fc2ba.wasm.unityweb",
+      "bytes": 9393359,
+      "sha256": "8557c0baed26e62ad7a00752c72fc2ba84c04752a173a0d44a24d27ab4dd457b"
+    },
+    {
+      "file": "3fa1adbb740a1d4dbeb6618621a40262.loader.js",
+      "bytes": 41128,
+      "sha256": "3fa1adbb740a1d4dbeb6618621a402626cf7efa936ed2680da970124e9d461ea"
+    },
+    {
+      "file": "1f966b3f038cad2aef9efbdba2032207.data.unityweb",
+      "bytes": 99508519,
+      "sha256": "1f966b3f038cad2aef9efbdba2032207011cfea36a71bdfb6d1a7bacc3d6a98a"
+    },
+    {
+      "file": "cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb",
+      "bytes": 82029,
+      "sha256": "cec6028803ef98d0bbf52e649f5a2d82475c6e392d3ed621f3488aded3fccda5"
+    },
+    {
+      "file": "d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb",
+      "bytes": 9393539,
+      "sha256": "d9fc45d186ab89c83b10bb3346a00b8923fa5c3777e937dbf554c05609b4d8f5"
+    },
+    {
+      "file": "e4c0a1ebe9a86f38521968a453663a94.loader.js",
+      "bytes": 41128,
+      "sha256": "e4c0a1ebe9a86f38521968a453663a948dc3de0467577f08db0be7e6cb51cd8c"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "checkedAt": "2026-10-15T10:32:39.482453+00:00",
+  "method": "Read-only unauthenticated GitHub REST API and local git; gh unavailable",
+  "expectedHead": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+  "version": "0.3.70",
+  "repositories": [
+    {
+      "path": "/Users/bojuejun/cho-siren-web",
+      "head": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+      "clean": true,
+      "status": ""
+    },
+    {
+      "path": "/Users/bojuejun/Documents/Codex/2026-10-15/new-chat/work/context-music-20261015/pages",
+      "head": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+      "clean": true,
+      "status": ""
+    }
+  ],
+  "remoteRefs": {
+    "main": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+    "backup/v0.3.70": "e322cb4e51826bdd53a2ca10df27a6f4387f1587"
+  },
+  "runs": [
+    {
+      "id": 38719971964,
+      "name": "Quality checks",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+      "head_branch": "main",
+      "run_number": 316,
+      "created_at": "2026-10-15T10:23:52Z",
+      "updated_at": "2026-10-15T10:24:22Z",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38719971964",
+      "jobs": [
+        {
+          "name": "verify",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38719971964/job/116371830107"
+        }
+      ],
+      "jobCount": 1,
+      "allJobsSuccessful": true
+    },
+    {
+      "id": 38720000235,
+      "name": "Quality checks",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+      "head_branch": "backup/v0.3.70",
+      "run_number": 317,
+      "created_at": "2026-10-15T10:24:06Z",
+      "updated_at": "2026-10-15T10:24:39Z",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38720000235",
+      "jobs": [
+        {
+          "name": "verify",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38720000235/job/116371927978"
+        }
+      ],
+      "jobCount": 1,
+      "allJobsSuccessful": true
+    },
+    {
+      "id": 38719970213,
+      "name": "pages build and deployment",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+      "head_branch": "main",
+      "run_number": 186,
+      "created_at": "2026-10-15T10:23:51Z",
+      "updated_at": "2026-10-15T10:25:11Z",
+      "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38719970213",
+      "jobs": [
+        {
+          "name": "build",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38719970213/job/116371829587"
+        },
+        {
+          "name": "deploy",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38719970213/job/116372108939"
+        },
+        {
+          "name": "report-build-status",
+          "status": "completed",
+          "conclusion": "success",
+          "html_url": "https://github.com/BOJUEJUN/cho-siren-preview/actions/runs/38719970213/job/116372108942"
+        }
+      ],
+      "jobCount": 3,
+      "allJobsSuccessful": true
+    }
+  ],
+  "passed": true,
+  "scope": "Repository state and GitHub Actions only; public UI, remote bytes and physical devices are verified separately by root."
+}

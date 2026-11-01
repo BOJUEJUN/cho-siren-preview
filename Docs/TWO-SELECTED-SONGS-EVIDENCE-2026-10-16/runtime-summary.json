@@ -1,0 +1,18 @@
+{
+  "version": "0.3.78",
+  "localViewport": [
+    390,
+    844
+  ],
+  "playedDurationsSeconds": [
+    172.3335,
+    158.7335,
+    172.3335
+  ],
+  "activeLongSources": 1,
+  "gain": 0.18,
+  "wrapRestoredBookmarkSeconds": 73.04,
+  "noNeonRequest": true,
+  "browserErrors": [],
+  "physicalPhoneTested": false
+}

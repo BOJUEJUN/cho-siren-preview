@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-19",
+  "currency": "CNY",
+  "voice_sfx_approved_cap_cny": 1,
+  "voice_sfx_actual_cny": 0.3109,
+  "separate_approved_mureka_music_cap_cny": 0.34,
+  "separate_mureka_actual_cny": 0.34,
+  "new_two_music_auditions_approved_cap_cny": 0.88,
+  "new_two_music_auditions_submitted": true,
+  "account_initial_balance": "37.8530",
+  "account_current": {
+    "remainMoney": "36.8621",
+    "remainCoins": "0",
+    "currentTaskCounts": "0",
+    "currency": "CNY",
+    "apiType": "SHARED"
+  },
+  "observed_total_balance_charge_cny": 0.9909,
+  "voice_sfx_reconciled_in_budget": true,
+  "groups": [
+    {
+      "id": "Qwen-first-4",
+      "status": "FAILED1012 x4",
+      "observed_charge_cny": 0
+    },
+    {
+      "id": "Suno-first-SFX",
+      "status": "rejected40310 no taskID",
+      "observed_charge_cny": 0
+    },
+    {
+      "id": "MiniMax-first-4",
+      "status": "SUCCESS; user rejected",
+      "actual_cny": 0.0242
+    },
+    {
+      "id": "MiniMax-emotion-A-B-8",
+      "status": "SUCCESS; user chose B",
+      "actual_cny": 0.1159
+    },
+    {
+      "id": "MiniMax-selected-B-remaining-12",
+      "status": "SUCCESS",
+      "actual_cny": 0.1468
+    },
+    {
+      "id": "Seed-SFX-bundle",
+      "task_id": "2112102950754459649",
+      "status": "SUCCESS technical; three separated SFX criterion failed; not production",
+      "actual_cny": 0.024
+    },
+    {
+      "id": "Mureka-temporary-battle",
+      "task_id": "2112101917173112833",
+      "status": "SUCCESS; user temporarily approved use",
+      "actual_cny": 0.34,
+      "budget_group": "separate_music"
+    },
+    {
+      "id": "Mureka-dark-Kpop-comparison",
+      "task_id": "2112107721917882370",
+      "status": "SUCCESS; audition only",
+      "actual_cny": 0.34,
+      "budget_group": "replacement_music_comparison"
+    }
+  ],
+  "known_task_only_queries": true,
+  "secrets_saved": false,
+  "notes": "Domestic balance delta .9909 CNY = voice/SFX .3109 + temporary battle .34 + dark Kpop audition .34. International delta .08 USD = one Suno6 bright composition request, returning A/B alternatives. Correct international credential came from existing Oct17 successful private handoff. Legacy CN-key Suno attempt rejected40310, no task created and no generation retried. No new generation remains pending. Technical success is not listening acceptance.",
+  "prior_new_music_cap_68_replaced": true,
+  "current_comparison": {
+    "cap_cny": 0.88,
+    "replaces_prior_68_proposal": true,
+    "domestic_mureka_actual_cny": 0.34,
+    "international_suno_actual_usd": 0.08,
+    "international_task_id": "2112110601486041089",
+    "international_task_status": "SUCCESS",
+    "international_candidates": 2,
+    "global_account_before": {
+      "remainMoney": "2.7840",
+      "currency": "USD",
+      "currentTaskCounts": "0"
+    },
+    "global_account_after": {
+      "remainMoney": "2.7040",
+      "remainCoins": "1000",
+      "currentTaskCounts": "0",
+      "currency": "USD",
+      "apiType": "SHARED"
+    },
+    "platform_quote_equivalent_suno_cny": 0.54,
+    "two_creative_directions_three_candidates": true,
+    "production_integrated": false
+  },
+  "two_wallet_snapshot": {
+    "international": {
+      "checked_at": "2026-10-19T09:19:22.726401+00:00",
+      "code": 0,
+      "account": {
+        "remainMoney": "2.7040",
+        "remainCoins": "1000",
+        "currentTaskCounts": "0",
+        "currency": "USD",
+        "apiType": "SHARED"
+      }
+    },
+    "domestic": {
+      "checked_at": "2026-10-19T09:19:22.050478+00:00",
+      "code": 0,
+      "account": {
+        "remainMoney": "36.8621",
+        "remainCoins": "0",
+        "currentTaskCounts": "0",
+        "currency": "CNY",
+        "apiType": "SHARED"
+      }
+    },
+    "generation_submitted": false,
+    "wallets_distinct": true
+  }
+}

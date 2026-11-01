@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "path": "Assets/Scripts/HomeMusicPlaylist.cs",
+      "before": "c232937bc56bf01f9840cf7201ba22bd85112719ae83d1a7e85a10227eb235fb",
+      "after": "64bf3307d3aa9ec53c7e33b073b936dd75476b5e640671b6280ed26b08d46e90"
+    },
+    {
+      "path": "Assets/Tests/PlayMode/HomeMusicPlaylistTests.cs",
+      "before": "5312e255bf929d98e7fe1ee3efb2303f83866e73de9538dfec2b75240bde88c4",
+      "after": "25277a760dae7d0d07875e9ad179d848007fd45b9926f1193e928c885d024b52"
+    },
+    {
+      "path": "Assets/Editor/ChoSirenDiceDesignBuild.cs",
+      "before": "40b489f7922d94acbd8c7d8b60fd848b9542d705a06c8f025b3b3ed6b1af0541",
+      "after": "41094b4fb0a2496f5d92d023562e0e6e6e9b29a8c068c97a55f43a64ca3a4e31"
+    },
+    {
+      "path": "ProjectSettings/ProjectSettings.asset",
+      "before": "43d582a3a9616348309b8f0d061424b48af13b3ea5690b4e4d829f5164bc0130",
+      "after": "af474d8fc15ff147eb52d0508c87c4265a3f86909809bb6b78ff2350b2715949"
+    }
+  ],
+  "outsideExistingChecked": 1659,
+  "outsideChanged": []
+}

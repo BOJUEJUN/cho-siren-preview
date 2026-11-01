@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-2-end",
+  "Title": "2-2 潮汐舞池",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-2"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "跟着浪跳……真的一次都没摔！",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "对吧对吧，海会教你怎么站稳的。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "摩天轮上的傀儡在等你们。约会地点，换我们来定。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

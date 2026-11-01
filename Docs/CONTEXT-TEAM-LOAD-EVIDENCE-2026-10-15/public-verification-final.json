@@ -1,0 +1,86 @@
+{
+  "version": "0.3.70",
+  "commit": "e322cb4e51826bdd53a2ca10df27a6f4387f1587",
+  "verified": [
+    {
+      "path": "Build/1f966b3f038cad2aef9efbdba2032207.data.unityweb",
+      "bytes": 99508519,
+      "sha256": "1f966b3f038cad2aef9efbdba2032207011cfea36a71bdfb6d1a7bacc3d6a98a"
+    },
+    {
+      "path": "Build/cec6028803ef98d0bbf52e649f5a2d82.framework.js.unityweb",
+      "bytes": 82029,
+      "sha256": "cec6028803ef98d0bbf52e649f5a2d82475c6e392d3ed621f3488aded3fccda5"
+    },
+    {
+      "path": "Build/d9fc45d186ab89c83b10bb3346a00b89.wasm.unityweb",
+      "bytes": 9393539,
+      "sha256": "d9fc45d186ab89c83b10bb3346a00b8923fa5c3777e937dbf554c05609b4d8f5"
+    },
+    {
+      "path": "Build/e4c0a1ebe9a86f38521968a453663a94.loader.js",
+      "bytes": 41128,
+      "sha256": "e4c0a1ebe9a86f38521968a453663a948dc3de0467577f08db0be7e6cb51cd8c"
+    },
+    {
+      "path": "index.html",
+      "bytes": 50909,
+      "sha256": "713ee609c844479366ff63500b57712b324b9325975b1e933a171bc7c68ea5e8"
+    },
+    {
+      "path": "release.json",
+      "bytes": 4329,
+      "sha256": "3a129921f0376f8b4cf6e1295db30aa2268350020750891af6f6781fe89d8aff"
+    },
+    {
+      "path": "build-versions.json",
+      "bytes": 504,
+      "sha256": "e0f11b63f71a3d67ff40977b1197f6753ed59527830d6699a33eda8a53793709"
+    },
+    {
+      "path": "service-worker.js",
+      "bytes": 7649,
+      "sha256": "34a1cc84728ea142acb03e9383281d021af2d98e389f546be7301a917630a39e"
+    },
+    {
+      "path": "music/index.html",
+      "bytes": 1748,
+      "sha256": "8450c8007ec29f3813e30c1987e6d334323ac4d8aad66cadb82976fd5b81ce76"
+    },
+    {
+      "path": "media/my-light-my-rules-preview.mp3",
+      "bytes": 3993057,
+      "sha256": "9fdedf1e184d33ea03be30acbc5d0e9869c22dde6a4e779a25b2bca3a8024ab9"
+    },
+    {
+      "path": "StreamingAssets/Music/home-1c7f72fed9af8b53.mp3",
+      "bytes": 4137839,
+      "sha256": "1c7f72fed9af8b53d93b4f572006a9c780545c52cd5e32e96b8d64468124a267"
+    },
+    {
+      "path": "StreamingAssets/Music/battle-11700e9a4a918ffe.mp3",
+      "bytes": 3477045,
+      "sha256": "11700e9a4a918ffe484f533dea9e1f20f79c53d3809e24e21d34541c49e6ad4c"
+    },
+    {
+      "path": "Build/d491199586e3e8ea805a054827c39cc9.data.unityweb",
+      "retainedPrevious": true,
+      "status": 200
+    },
+    {
+      "path": "Build/9d303568f595fd69bdab3aaad7a23241.framework.js.unityweb",
+      "retainedPrevious": true,
+      "status": 200
+    },
+    {
+      "path": "Build/a82436d0b88d3e754aa41a45a9e038a4.wasm.unityweb",
+      "retainedPrevious": true,
+      "status": 200
+    },
+    {
+      "path": "Build/7198c895e1aed6da0ce4c524f69ac30b.loader.js",
+      "retainedPrevious": true,
+      "status": 200
+    }
+  ]
+}

@@ -1,0 +1,1924 @@
+{
+ "version": 1,
+ "entries": [
+  {
+   "path": "Art/Members/member-chengxia",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.5,
+    0.634,
+    0.131,
+    0.16
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/member-chuxue",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.454,
+    0.701,
+    0.173,
+    0.152
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/member-feiyin",
+   "w": 881,
+   "h": 2048,
+   "face": [
+    0.3778,
+    0.825,
+    0.2546,
+    0.1095
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-hupo",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4797,
+    0.7723,
+    0.1695,
+    0.1233
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-wubai",
+   "w": 860,
+   "h": 2048,
+   "face": [
+    0.4584,
+    0.8475,
+    0.2417,
+    0.1015
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-xianyue",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.5424,
+    0.7756,
+    0.1223,
+    0.0889
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-xingli",
+   "w": 995,
+   "h": 2048,
+   "face": [
+    0.3818,
+    0.823,
+    0.2192,
+    0.1065
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-yaoguang",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4828,
+    0.7599,
+    0.1574,
+    0.1145
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-yeying",
+   "w": 1164,
+   "h": 2048,
+   "face": [
+    0.4677,
+    0.9033,
+    0.1349,
+    0.0767
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-feiyin",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.2934,
+    0.5789,
+    0.3949,
+    0.2633
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-wubai",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.29,
+    0.5811,
+    0.4301,
+    0.2867
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-xingli",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.3084,
+    0.5456,
+    0.4084,
+    0.2723
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-yeying",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.385,
+    0.7044,
+    0.3683,
+    0.2456
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/hero-0002/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.6172,
+    0.6378,
+    0.1359,
+    0.0989
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0002/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.6156,
+    0.6378,
+    0.1406,
+    0.1023
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0003/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.408,
+    0.6078,
+    0.1359,
+    0.0989
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0003/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4094,
+    0.608,
+    0.1313,
+    0.0955
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0005/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.5088,
+    0.5357,
+    0.1252,
+    0.0911
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0005/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.5086,
+    0.5366,
+    0.127,
+    0.0923
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0007/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4689,
+    0.7733,
+    0.1467,
+    0.1067
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0007/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4676,
+    0.771,
+    0.1437,
+    0.1045
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0008/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4568,
+    0.75,
+    0.116,
+    0.0844
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0008/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4566,
+    0.7489,
+    0.116,
+    0.0844
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0010/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4996,
+    0.62,
+    0.1191,
+    0.0866
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0010/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.5012,
+    0.621,
+    0.1176,
+    0.0855
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0011/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4889,
+    0.6822,
+    0.1375,
+    0.1
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0011/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4859,
+    0.6787,
+    0.1437,
+    0.1045
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0012/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4568,
+    0.6811,
+    0.1543,
+    0.1122
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0012/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4566,
+    0.6824,
+    0.1527,
+    0.1111
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0024/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4248,
+    0.7655,
+    0.1895,
+    0.1378
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0024/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4246,
+    0.7668,
+    0.1848,
+    0.1344
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0031/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.44,
+    0.7935,
+    0.142,
+    0.1033
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0031/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4371,
+    0.7946,
+    0.1465,
+    0.1065
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0032/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.5256,
+    0.6866,
+    0.165,
+    0.12
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0032/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.5348,
+    0.6909,
+    0.1453,
+    0.1057
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0033/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.385,
+    0.7878,
+    0.1543,
+    0.1122
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0033/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3879,
+    0.7878,
+    0.1465,
+    0.1065
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0034/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4613,
+    0.7401,
+    0.1512,
+    0.1099
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0034/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4613,
+    0.7409,
+    0.1453,
+    0.1057
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0035/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4904,
+    0.5979,
+    0.116,
+    0.0844
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0035/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4859,
+    0.5966,
+    0.1191,
+    0.0866
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0037/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4033,
+    0.8111,
+    0.1375,
+    0.1
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0037/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3973,
+    0.8057,
+    0.1527,
+    0.1111
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0038/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.443,
+    0.801,
+    0.1498,
+    0.1089
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0038/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4414,
+    0.7989,
+    0.1527,
+    0.1111
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0200/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3881,
+    0.7456,
+    0.1955,
+    0.1422
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0200/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3895,
+    0.7443,
+    0.1957,
+    0.1423
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0201/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.5027,
+    0.6622,
+    0.1543,
+    0.1122
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0201/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.5059,
+    0.6622,
+    0.1453,
+    0.1057
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0202/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4094,
+    0.7489,
+    0.1635,
+    0.1189
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0202/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4094,
+    0.7523,
+    0.1633,
+    0.1187
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0203/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4156,
+    0.6112,
+    0.1604,
+    0.1166
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0203/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4172,
+    0.6134,
+    0.1559,
+    0.1134
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0205/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3422,
+    0.8078,
+    0.1559,
+    0.1134
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0205/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3391,
+    0.8054,
+    0.1574,
+    0.1145
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0207/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4049,
+    0.7456,
+    0.165,
+    0.12
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0207/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4062,
+    0.7457,
+    0.1648,
+    0.1199
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0208/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4369,
+    0.7956,
+    0.142,
+    0.1033
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0208/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4383,
+    0.7943,
+    0.1391,
+    0.1011
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0209/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4293,
+    0.7378,
+    0.1146,
+    0.0834
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0209/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4277,
+    0.7378,
+    0.1191,
+    0.0866
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0604/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4721,
+    0.701,
+    0.1406,
+    0.1023
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0604/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.475,
+    0.7034,
+    0.1328,
+    0.0966
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0605/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4521,
+    0.7822,
+    0.1559,
+    0.1134
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0605/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4555,
+    0.7847,
+    0.148,
+    0.1077
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0607/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3834,
+    0.7445,
+    0.1619,
+    0.1178
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0607/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3879,
+    0.7457,
+    0.1512,
+    0.1099
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0608/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4508,
+    0.7966,
+    0.1482,
+    0.1078
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0608/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4539,
+    0.7977,
+    0.1437,
+    0.1045
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0610/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.307,
+    0.7733,
+    0.1818,
+    0.1322
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0610/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3191,
+    0.7776,
+    0.1605,
+    0.1168
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0611/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4613,
+    0.6756,
+    0.1268,
+    0.0922
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0611/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4613,
+    0.6744,
+    0.1238,
+    0.0901
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0613/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4996,
+    0.6544,
+    0.1314,
+    0.0956
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0613/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.5043,
+    0.6565,
+    0.1254,
+    0.0912
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0614/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4354,
+    0.6977,
+    0.1131,
+    0.0822
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0614/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4371,
+    0.698,
+    0.1129,
+    0.0821
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0630/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4689,
+    0.7778,
+    0.1527,
+    0.1111
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0630/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4707,
+    0.779,
+    0.1496,
+    0.1088
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0633/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4828,
+    0.7878,
+    0.1391,
+    0.1011
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0633/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4781,
+    0.7886,
+    0.1453,
+    0.1057
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0634/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4645,
+    0.7411,
+    0.1574,
+    0.1145
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0634/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4676,
+    0.7423,
+    0.1527,
+    0.1111
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0651/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3453,
+    0.63,
+    0.1406,
+    0.1023
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0651/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3469,
+    0.6301,
+    0.1391,
+    0.1011
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0664/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4461,
+    0.6668,
+    0.1344,
+    0.0977
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0664/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4461,
+    0.6668,
+    0.1313,
+    0.0955
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0668/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4613,
+    0.649,
+    0.1604,
+    0.1166
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0668/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4613,
+    0.6523,
+    0.159,
+    0.1156
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0670/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4049,
+    0.7822,
+    0.1574,
+    0.1145
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0670/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4035,
+    0.7801,
+    0.1559,
+    0.1134
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0671/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.6279,
+    0.4778,
+    0.0824,
+    0.0599
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0671/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.6293,
+    0.4813,
+    0.0777,
+    0.0565
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0672/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4828,
+    0.6989,
+    0.1619,
+    0.1178
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0672/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4844,
+    0.6989,
+    0.159,
+    0.1156
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0673/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4246,
+    0.7305,
+    0.156,
+    0.113
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/hero-0673/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4246,
+    0.7301,
+    0.1559,
+    0.1134
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0674/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3926,
+    0.7911,
+    0.165,
+    0.12
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0674/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3941,
+    0.7901,
+    0.1633,
+    0.1187
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0675/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.466,
+    0.6033,
+    0.1131,
+    0.0822
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0675/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4539,
+    0.598,
+    0.1297,
+    0.0943
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0676/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4844,
+    0.8011,
+    0.1359,
+    0.0989
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-0676/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4859,
+    0.8034,
+    0.1297,
+    0.0943
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1006/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4613,
+    0.7733,
+    0.1619,
+    0.1178
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1006/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4645,
+    0.7733,
+    0.1543,
+    0.1122
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1008/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4141,
+    0.7378,
+    0.1955,
+    0.1422
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1008/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4324,
+    0.7412,
+    0.1711,
+    0.1244
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1011/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4521,
+    0.6899,
+    0.1758,
+    0.1278
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1011/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4566,
+    0.6912,
+    0.1711,
+    0.1244
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1013/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4094,
+    0.7933,
+    0.1635,
+    0.1189
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1013/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4094,
+    0.7932,
+    0.1621,
+    0.1179
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1014/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4293,
+    0.7901,
+    0.1467,
+    0.1067
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1014/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4293,
+    0.7901,
+    0.1465,
+    0.1065
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1016/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4553,
+    0.7844,
+    0.159,
+    0.1156
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1016/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4645,
+    0.7878,
+    0.1465,
+    0.1065
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1034/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3133,
+    0.7744,
+    0.1803,
+    0.1311
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1034/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3148,
+    0.7733,
+    0.1789,
+    0.1301
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1035/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.3881,
+    0.7834,
+    0.1451,
+    0.1055
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1035/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.3867,
+    0.7832,
+    0.1437,
+    0.1045
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1036/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4461,
+    0.7966,
+    0.159,
+    0.1156
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1036/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4477,
+    0.7955,
+    0.1543,
+    0.1122
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1037/portrait",
+   "w": 512,
+   "h": 704,
+   "face": [
+    0.4186,
+    0.7844,
+    0.1498,
+    0.1089
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Members/hero-1037/thumb",
+   "w": 256,
+   "h": 352,
+   "face": [
+    0.4188,
+    0.7858,
+    0.1465,
+    0.1065
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-devil",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.38,
+    0.3,
+    0.38,
+    0.37
+   ],
+   "src": "manual",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-fox",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.232,
+    0.202,
+    0.5813,
+    0.5813
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-glasses-f",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.2223,
+    0.3645,
+    0.5477,
+    0.5477
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-manager-f",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.2023,
+    0.2332,
+    0.5934,
+    0.5934
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-manager-m",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.33,
+    0.37,
+    0.34,
+    0.34
+   ],
+   "src": "manual",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-mascot",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.22,
+    0.33,
+    0.58,
+    0.4
+   ],
+   "src": "manual",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-mermaid",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.1844,
+    0.2441,
+    0.6602,
+    0.6602
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/PlayerAvatars/avatar-rocker-m",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.1945,
+    0.2457,
+    0.6699,
+    0.6699
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/ProfileAvatar",
+   "w": 256,
+   "h": 256,
+   "face": [
+    0.2879,
+    0.2199,
+    0.4012,
+    0.4012
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/ProfileAvatarUser",
+   "w": 1024,
+   "h": 1024,
+   "face": [
+    0.3232,
+    0.3643,
+    0.3877,
+    0.3877
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "Art/HeroFallback",
+   "w": 420,
+   "h": 420,
+   "face": [
+    0.44,
+    0.779,
+    0.1188,
+    0.1188
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Story/Portraits1019/feiyin",
+   "w": 1156,
+   "h": 1360,
+   "face": [
+    0.3841,
+    0.5103,
+    0.3901,
+    0.3316
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Story/Portraits1019/wubai",
+   "w": 1156,
+   "h": 1360,
+   "face": [
+    0.3581,
+    0.5272,
+    0.3685,
+    0.3132
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Story/Portraits1019/xingli",
+   "w": 1156,
+   "h": 1360,
+   "face": [
+    0.3659,
+    0.4294,
+    0.4187,
+    0.3559
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Story/Portraits1019/yeying",
+   "w": 1086,
+   "h": 1448,
+   "face": [
+    0.4211,
+    0.695,
+    0.3,
+    0.225
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Enemies/echo-drone-ai-v1",
+   "w": 623,
+   "h": 1280,
+   "face": [
+    0.4347,
+    0.8055,
+    0.2525,
+    0.1145
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Enemies/neon-scout-ai-v1",
+   "w": 1115,
+   "h": 1280,
+   "face": [
+    0.4361,
+    0.8023,
+    0.1298,
+    0.0885
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Enemies/noise-wraith-ai-v1",
+   "w": 490,
+   "h": 1280,
+   "face": [
+    0.4837,
+    0.7984,
+    0.3041,
+    0.1164
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Enemies/pulse-guard-ai-v1",
+   "w": 451,
+   "h": 1280,
+   "face": [
+    0.3326,
+    0.7914,
+    0.3215,
+    0.1133
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Enemies/static-golem-ai-v1",
+   "w": 611,
+   "h": 1280,
+   "face": [
+    0.362,
+    0.8128,
+    0.236,
+    0.1062
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Enemies/velvet-hexer-ai-v1",
+   "w": 499,
+   "h": 1280,
+   "face": [
+    0.39,
+    0.816,
+    0.195,
+    0.07
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/BattleUser/boss-throne-20260928",
+   "w": 1088,
+   "h": 1452,
+   "face": [
+    0.4154,
+    0.7975,
+    0.1801,
+    0.135
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/BattleUser/boss-throne-user-v1",
+   "w": 1568,
+   "h": 1568,
+   "face": [
+    0.43,
+    0.7642,
+    0.145,
+    0.145
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Reference038/home-layer-character2-portrait",
+   "w": 1846,
+   "h": 2682,
+   "face": [
+    0.3959,
+    0.681,
+    0.2782,
+    0.1915
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Reference038/home-layer-character3-portrait",
+   "w": 2110,
+   "h": 3075,
+   "face": [
+    0.43,
+    0.842,
+    0.175,
+    0.123
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Reference038/home-layer-character4-portrait",
+   "w": 1958,
+   "h": 3007,
+   "face": [
+    0.2358,
+    0.717,
+    0.2511,
+    0.1635
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Reference038/idol-lilith-full",
+   "w": 1652,
+   "h": 2400,
+   "face": [
+    0.401,
+    0.682,
+    0.2702,
+    0.186
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "Art/Reference038/unknown-member-038",
+   "w": 1024,
+   "h": 1536,
+   "face": [
+    0.34,
+    0.75,
+    0.32,
+    0.2
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "UI/Producer/producer-avatar",
+   "w": 400,
+   "h": 400,
+   "face": [
+    0.309,
+    0.4223,
+    0.5022,
+    0.5022
+   ],
+   "src": "auto",
+   "cover": true
+  },
+  {
+   "path": "BattlePsd928/enemy-0",
+   "w": 540,
+   "h": 1008,
+   "face": [
+    0.4546,
+    0.8308,
+    0.1858,
+    0.0995
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "BattlePsd928/enemy-1",
+   "w": 438,
+   "h": 1017,
+   "face": [
+    0.4332,
+    0.846,
+    0.2126,
+    0.0915
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "BattlePsd928/cutin-demon",
+   "w": 1456,
+   "h": 1230,
+   "face": [
+    0.4691,
+    0.5341,
+    0.2198,
+    0.2602
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "BattlePsd928/cutin-charm",
+   "w": 1156,
+   "h": 1002,
+   "face": [
+    0.2405,
+    0.5828,
+    0.2275,
+    0.2625
+   ],
+   "src": "auto"
+  },
+  {
+   "path": "BattlePsd928/cutin-mermaid",
+   "w": 901,
+   "h": 758,
+   "face": [
+    0.2489,
+    0.5324,
+    0.2244,
+    0.2668
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "BattlePsd928/cutin-bloodelf",
+   "w": 922,
+   "h": 911,
+   "face": [
+    0.5081,
+    0.681,
+    0.2249,
+    0.2276
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "BattlePsd928/basic-portrait-feiyin",
+   "w": 1093,
+   "h": 1864,
+   "face": [
+    0.2232,
+    0.8235,
+    0.1848,
+    0.1084
+   ],
+   "src": "auto"
+  }
+ ]
+}

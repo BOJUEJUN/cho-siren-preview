@@ -1,6 +1,7 @@
 using ChoSiren.Panels;
 using ChoSiren.Systems.Presentation;
 using ChoSiren.Systems.Tactics;
+using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -159,12 +160,16 @@ namespace ChoSiren
         /// <summary>Locked profile body: progress + acquisition route, and nothing unrevealed.</summary>
         private void BuildLockedMemberProfileBody(GameObject panel, int memberIndex)
         {
+            SirenStickerUi.SkinPanel(panel);
+            Transform close = panel.transform.Find("CloseTop");
+            if (close != null) SirenStickerUi.SkinButton(close.gameObject, false, true);
             int owned = model.Save.UnlockedMembers.Count;
             int total = GameModel.Members.Length;
 
             GameObject guidePanel = ModalPolish038Chrome.RowPlate(panel.transform,
                 "MemberAcquireGuide");
             PlaceTop(guidePanel.GetComponent<RectTransform>(), 28, 458, 564, 300);
+            SirenStickerUi.SkinPanel(guidePanel, false);
             NewPlacedText(guidePanel.transform, "获取方式", 15, new Color32(255, 188, 231, 255),
                 18, 12, 520, 26, TextAnchor.MiddleLeft, FontStyle.Bold);
             Text progress = NewPlacedText(guidePanel.transform,
@@ -185,6 +190,7 @@ namespace ChoSiren
             GameObject captainPanel = ModalPolish038Chrome.RowPlate(panel.transform,
                 "MemberCaptainPanel");
             PlaceTop(captainPanel.GetComponent<RectTransform>(), 28, 790, 564, 130);
+            SirenStickerUi.SkinPanel(captainPanel, false);
             FlowText(captainPanel.transform, "CaptainEffectTitle", MemberProfileSections.PassiveCaptainTitle,
                 16, 16, 10, 532, 26, Cyan);
             FlowText(captainPanel.transform, "CaptainEffectDescription", "签约后解锁该成员的队长特性。",
@@ -201,6 +207,7 @@ namespace ChoSiren
                     ShowScreen("audition");
                 }, ModalPolish038ButtonStyle.Primary);
             PlaceTop(acquire.GetComponent<RectTransform>(), 154, 950, 312, 60);
+            SirenStickerUi.SkinButton(acquire, true);
 
         }
 

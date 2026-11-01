@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-1",
+  "Title": "2-1 霓虹码头",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-1"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "是海的味道……我小时候就在这样的码头唱歌。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "可现在码头上全是守卫。巡演第一站，热热身。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "雾白，这一站你来当主场。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

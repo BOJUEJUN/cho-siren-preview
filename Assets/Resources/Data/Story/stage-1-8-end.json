@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-8-end",
+  "Title": "1-8 心拍天台",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "风停了。鼓点只剩下我们的。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "队长一次都没倒下。这就是阵型的意义。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "王座之战前夜到了。今晚，说点心里话吧。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

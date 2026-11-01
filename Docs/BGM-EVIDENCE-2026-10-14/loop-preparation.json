@@ -1,0 +1,104 @@
+{
+  "originalSeconds": 181,
+  "estimatedFittedTempoBpm": 120.00184478014062,
+  "loopBars": 64,
+  "loopFrames": 6143906,
+  "loopSeconds": 127.99804166666667,
+  "crossfadeSeconds": 0.5,
+  "sourceSelection": {
+    "beat": 56,
+    "sourceStart": 28.03365686839159,
+    "chromaCosine": 0.9825913906097412,
+    "levelLogRatio": 0.006692988221665446,
+    "score": 0.9813866527298414
+  },
+  "candidateChoices": [
+    {
+      "beat": 40,
+      "sourceStart": 20.033779851843654,
+      "chromaCosine": 0.9821317195892334,
+      "levelLogRatio": 0.4088796398402812,
+      "score": 0.9085333844179828
+    },
+    {
+      "beat": 44,
+      "sourceStart": 22.033749105980636,
+      "chromaCosine": 0.99309241771698,
+      "levelLogRatio": 0.2363036578417052,
+      "score": 0.950557759305473
+    },
+    {
+      "beat": 48,
+      "sourceStart": 24.03371836011762,
+      "chromaCosine": 0.9862717390060425,
+      "levelLogRatio": 0.10742746808502224,
+      "score": 0.9669347947507385
+    },
+    {
+      "beat": 52,
+      "sourceStart": 26.033687614254607,
+      "chromaCosine": 0.9368467926979065,
+      "levelLogRatio": 0.11514169613249418,
+      "score": 0.9161212873940575
+    },
+    {
+      "beat": 56,
+      "sourceStart": 28.03365686839159,
+      "chromaCosine": 0.9825913906097412,
+      "levelLogRatio": 0.006692988221665446,
+      "score": 0.9813866527298414
+    },
+    {
+      "beat": 60,
+      "sourceStart": 30.033626122528574,
+      "chromaCosine": 0.9223994016647339,
+      "levelLogRatio": 0.0012361798612721604,
+      "score": 0.9221768892897049
+    },
+    {
+      "beat": 64,
+      "sourceStart": 32.03359537666556,
+      "chromaCosine": 0.9714075922966003,
+      "levelLogRatio": 0.07515107291576296,
+      "score": 0.957880399171763
+    },
+    {
+      "beat": 68,
+      "sourceStart": 34.033564630802545,
+      "chromaCosine": 0.934540331363678,
+      "levelLogRatio": 0.00866986052373121,
+      "score": 0.9329797564694063
+    },
+    {
+      "beat": 72,
+      "sourceStart": 36.03353388493953,
+      "chromaCosine": 0.9612085223197937,
+      "levelLogRatio": 0.007018959182453217,
+      "score": 0.9599451096669521
+    },
+    {
+      "beat": 76,
+      "sourceStart": 38.033503139076515,
+      "chromaCosine": 0.9387563467025757,
+      "levelLogRatio": 0.04283002641128675,
+      "score": 0.9310469419485441
+    },
+    {
+      "beat": 80,
+      "sourceStart": 40.0334723932135,
+      "chromaCosine": 0.9907772541046143,
+      "levelLogRatio": 0.10167560666833853,
+      "score": 0.9724756449043134
+    }
+  ],
+  "sampleRate": 48000,
+  "channels": 2,
+  "masterFormat": "24-bit lossless WAV / FLAC",
+  "gainDb": -5.060654191248473,
+  "peakDbfs": -1.5000007152557373,
+  "clippedSamples": 0,
+  "wrapStep": 0.005396544933319092,
+  "adjacentStepP99": 0.09927676618099213,
+  "masterSha256": "70f549c124007c776bce71c0291064f163a876768f3f008402de52c021ec02ea",
+  "note": "Numerically aligned original loop; no reference recording included. Human listening approval is separate from signal checks."
+}
