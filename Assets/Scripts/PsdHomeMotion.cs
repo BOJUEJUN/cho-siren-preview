@@ -28,8 +28,13 @@ namespace ChoSiren
         /// <summary>Fills {player} with the manager's signed name (set by the app).</summary>
         public Func<string, string> Personalize;
 
-        private static readonly string[] SpeakerNames = { "卡塔莉娜  /  CATALENA", "莉莉丝  /  LILITH",
-            "紫晶精灵  /  AMETHYST", "粉珀人鱼  /  CORALIE" };
+        private static readonly string[] SpeakerIds = { "xingli", "feiyin", "yeying", "wubai" };
+        public static string SpeakerName(int character)
+        {
+            string id = SpeakerIds[Mathf.Clamp(character, 0, SpeakerIds.Length - 1)];
+            int index = GameModel.IndexOfMember(id);
+            return index >= 0 ? GameModel.Members[index].Name : string.Empty;
+        }
         // Text-only lines for the two PSD v3 idols (no recorded voice yet).
         private static readonly string[][] GuestLines =
         {
@@ -177,7 +182,7 @@ namespace ChoSiren
             dialogue = PsdHomeDialogue1031.Build(stage, font);
             bubble = dialogue.Group;
             speakerText = dialogue.Speaker;
-            speakerText.text = SpeakerNames[0];
+            speakerText.text = SpeakerName(0);
             PsdHomeDialogue1031.FitTag(dialogue);
             bubbleText = dialogue.Line;
             // 2026-11-01: a tap on the shown box closes it early.
@@ -246,7 +251,7 @@ namespace ChoSiren
         public void SetSpeaker(int character)
         {
             if (speakerText == null) return;
-            speakerText.text = SpeakerNames[Mathf.Clamp(character, 0, SpeakerNames.Length - 1)];
+            speakerText.text = SpeakerName(character);
             PsdHomeDialogue1031.FitTag(dialogue);
             // 2026-11-01: each idol's box sits clear of her own face.
             PsdHomeDialogue1031.PlaceFor(dialogue, character);

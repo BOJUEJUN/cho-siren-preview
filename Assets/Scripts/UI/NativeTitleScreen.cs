@@ -499,7 +499,8 @@ namespace ChoSiren.UI
                 ReleaseInfo info = JsonUtility.FromJson<ReleaseInfo>(request.downloadHandler.text);
                 if (info == null || string.IsNullOrEmpty(info.version)) yield break;
                 latestVersion = info.version;
-                if (noticeDot != null) noticeDot.SetActive(PlayerPrefs.GetString(NoticeSeenKey, string.Empty) != latestVersion);
+                if (noticeDot != null) noticeDot.SetActive(!AppUpdate1022.IsNewer(Application.version, latestVersion)
+                    && PlayerPrefs.GetString(NoticeSeenKey, string.Empty) != latestVersion);
             }
         }
 
@@ -671,8 +672,17 @@ namespace ChoSiren.UI
                 }
                 ReleaseInfo info = JsonUtility.FromJson<ReleaseInfo>(request.downloadHandler.text);
                 body.text = info == null ? $"v{Application.version}"
-                    : $"{(info.version == Application.version ? "" : $"v{Application.version} → ")}v{info.version}{(string.IsNullOrEmpty(info.date) ? "" : "  " + info.date)}\n\n{(!string.IsNullOrEmpty(info.notice) ? info.notice : !string.IsNullOrEmpty(info.notes) ? info.notes : info.name)}";
+                    : $"{NoticeVersionHeading(Application.version, info.version, info.date)}\n\n{(!string.IsNullOrEmpty(info.notice) ? info.notice : !string.IsNullOrEmpty(info.notes) ? info.notes : info.name)}";
             }
+        }
+
+        private static string NoticeVersionHeading(string current, string published, string date)
+        {
+            string suffix = string.IsNullOrEmpty(date) ? string.Empty : "  " + date;
+            if (string.IsNullOrEmpty(published)) return $"当前版本 v{current}";
+            if (AppUpdate1022.IsNewer(published, current)) return $"v{current} → v{published}{suffix}";
+            if (AppUpdate1022.IsNewer(current, published)) return $"当前版本 v{current}\n历史公告 v{published}{suffix}";
+            return $"v{current}{suffix}";
         }
 
         [System.Serializable]

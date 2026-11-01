@@ -305,15 +305,17 @@ namespace ChoSiren
             page.localScale = Vector3.one * scale;
             Image art = NewImage("MapReferenceBoard", page, board, Color.white);
             Stretch(art.rectTransform); art.preserveAspect = true; art.raycastTarget = false;
-            PageAmbient.Set(gameObject, board, featherEdges: art.rectTransform);
+            // Keep the authored board at its native aspect. A dim ambient surround fills the
+            // system insets; repeating its border pixels caused long streaks on tall iPhones.
+            PageAmbient.Set(gameObject, board, brightness: .45f);
             GameObject back = MapBoardHit("Back", page, 12, 15, 96, 100, Close);
             BakedRegionMotion038.Attach(back, art, new Rect(3f, 3f, 102f, 112f));
             NewPlacedText(page, chapter == 2 ? "第02章" : "第01章", 23, Accent, 145, 25, 300, 35, TextAnchor.MiddleLeft, FontStyle.Bold);
             NewPlacedText(page, chapter == 2 ? "浪潮巡演" : "踏梦迷踪", 38, White, 135, 62, 355, 64, TextAnchor.MiddleLeft, FontStyle.Bold);
-            // Chapter switch, in the header between the title and stamina.
-            GameObject switcher = MapBoardHit("ChapterSwitch", page, 420, 34, 180, 62,
+            // Separate row below stamina, clear of the chapter title and the 1-10 node.
+            GameObject switcher = MapBoardHit("ChapterSwitch", page, 590, 112, 214, 60,
                 () => SwitchChapter(chapter == 1 ? 2 : 1));
-            chapterSwitchLabel = NewPlacedText(switcher.transform, string.Empty, 21, White, 0, 0, 180, 62,
+            chapterSwitchLabel = NewPlacedText(switcher.transform, string.Empty, 21, White, 0, 0, 214, 60,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             chapterSwitchLabel.name = "ChapterSwitchLabel";
             SirenStickerUi.SkinButton(switcher, false, true);
@@ -1018,7 +1020,7 @@ namespace ChoSiren
         {
             sweepRow = NewObject("SweepRow", page);
             RectTransform row = sweepRow.AddComponent<RectTransform>();
-            PlaceTop(row, 330, 1184, 330, 52); // right of the bottom stage node (1-1 / 2-1), which it used to cover
+            PlaceTop(row, 360, 1154, 330, 52); // Clear of both the 1-1 node and the team row below.
             sweepOneLabel = SweepButton(row, "SweepOnce", 0, 150, () => Sweep(1));
             sweepThreeLabel = SweepButton(row, "SweepThree", 166, 164, () => Sweep(3));
             sweepRow.SetActive(false);

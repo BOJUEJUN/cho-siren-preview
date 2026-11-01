@@ -21,15 +21,11 @@ namespace ChoSiren.Panels
         private void RefreshDiceEndless1101(Text rerollCount)
         {
             if (diceTurn == null || !diceTurn.IsBattleSession) return;
-            BuildDiceEndless1101(rerollCount);
             bool ongoing = battle != null && battle.Outcome == BattleOutcome.Ongoing && !closing;
             bool inputAllowed = awaitingInput && !paused && !awaitingDiceLanding;
-            // The bar stays on stage while the next pip charges, so the ring can be read (dimmed, not pressable).
-            if (psdRerollSlide != null) psdRerollSlide.SetEndless1101(ongoing, ongoing && diceTurn.CanReroll, inputAllowed);
-            if (diceEndlessHud1101 != null)
-                diceEndlessHud1101.SetState(diceTurn.AvailableRerolls, diceTurn.NextRerollProgress,
-                    ongoing && diceTurn.CanReroll && inputAllowed);
-            if (rerollCount != null) rerollCount.text = string.Empty;
+            if (psdRerollSlide != null) psdRerollSlide.SetEndless1101(ongoing, diceTurn.AvailableRerolls > 0,
+                diceTurn.CanReroll && inputAllowed);
+            if (rerollCount != null) rerollCount.text = $"重投×{diceTurn.AvailableRerolls}";
             // 骰子加成 meter: the share of the cap reached (the PSD's own reroll-fill art); full = capped + "MAX".
             if (diceEnergyFill != null)
             {

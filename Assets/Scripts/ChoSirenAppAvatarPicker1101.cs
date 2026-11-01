@@ -32,14 +32,16 @@ namespace ChoSiren
             return PlayerAvatarSprite(model.PlayerAvatar);
         }
 
-        /// <summary>点头像即开：选中就换，全屏关闭。</summary>
+        /// <summary>点头像即开：选中就换，右上角可取消。</summary>
         private void OpenAvatarPicker1101()
         {
             if (safeRoot == null || model == null) return;
             gameAudio?.PlayClick();
+            GameObject overlay = null;
             ModalPolish038Frame frame = ModalPolish038Chrome.Begin(safeRoot, "AvatarPicker1101", "换头像",
-                "经纪人头像", null, 700f, closeName: "Close");
-            GameObject overlay = frame.Overlay;
+                "经纪人头像", () => { if (overlay != null) Destroy(overlay); }, 700f, closeName: "Close");
+            overlay = frame.Overlay;
+            PlaceTop(frame.CloseButton.GetComponent<RectTransform>(), frame.Width * .895f - 88f, 30f, 88f, 80f);
             float width = frame.Width * (ModalPolish038Chrome.BodyRight - ModalPolish038Chrome.BodyLeft);
 
             var faces = new List<Sprite>();

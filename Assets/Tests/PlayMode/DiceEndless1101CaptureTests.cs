@@ -1,5 +1,6 @@
 using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Dice;
@@ -46,6 +47,7 @@ namespace ChoSiren.Tests
                 var scaler = host.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
                 scaler.referenceResolution = new Vector2(720, 1536); scaler.matchWidthOrHeight = 0;
                 TacticsBattlePanel panel = TacticsBattlePanel.Open(host.transform, model, battle, null);
+                panel.StopAllCoroutines(); // Keep battle actions from changing the explicit HUD states below.
                 DiceTurn dice = battle.BattleDice;
                 Assert.That(dice.RhythmMode, Is.True, "回合制 = 骰子豆");
                 yield return Wait(1.0f);
@@ -62,8 +64,9 @@ namespace ChoSiren.Tests
                 Refresh(panel);
                 yield return Wait(.6f);
                 AssertHud(panel, dice);
-                Assert.That(panel.DiceEndlessHud.ShownPips, Is.Zero);
-                Assert.That(panel.GetComponentInChildren<BattleRerollSlide929>().Reveal, Is.GreaterThan(.9f), "充能中重投条留在场上，圆环看得见");
+                Assert.That(dice.AvailableRerolls, Is.Zero);
+                Assert.That(panel.GetComponentInChildren<BattleRerollSlide929>().Reveal, Is.LessThan(.01f), "No rerolls: retract the whole bar.");
+                Assert.That(panel.GetComponentInChildren<BattleRerollSlide929>().GetComponentInChildren<CanvasGroup>().alpha, Is.Zero);
                 Assert.That(panel.GetComponentInChildren<BattleRerollSlide929>().GetComponent<Button>().interactable, Is.False, "没豆子按不动");
                 Save(camera, rt, $"dice-endless-{tag}-2-charging.png");
 
@@ -92,9 +95,12 @@ namespace ChoSiren.Tests
 
         static void AssertHud(TacticsBattlePanel panel, DiceTurn dice)
         {
-            Assert.That(panel.DiceEndlessHud, Is.Not.Null, "骰子豆 HUD 已搭好");
-            Assert.That(panel.DiceEndlessHud.ShownPips, Is.EqualTo(dice.AvailableRerolls));
-            Assert.That(panel.DiceEndlessHud.RingFill, Is.EqualTo(dice.NextRerollProgress).Within(.06f));
+            var reroll = panel.GetComponentInChildren<BattleRerollSlide929>();
+            Assert.That(reroll.GetComponentsInChildren<Text>(true).Any(t => t.text == $"重投×{dice.AvailableRerolls}"), Is.True);
+            Assert.That(reroll.GetComponentsInChildren<ChoSiren.UI.DiceEndlessHud1101>(true), Is.Empty);
+            Assert.That(reroll.GetComponentsInChildren<PsdHomeAlbumInkMotion>(true), Is.Empty, "No rectangular ink frame.");
+            if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null)
+                Assert.That(reroll.GetComponentInChildren<ChoSiren.UI.InkFlameEdge1031>(true), Is.Not.Null, "Use the lobby's silhouette edge.");
             foreach (Text text in panel.GetComponentsInChildren<Text>())
             {
                 if (!text.gameObject.activeInHierarchy || string.IsNullOrEmpty(text.text)) continue;

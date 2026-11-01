@@ -7,6 +7,7 @@ using System.Reflection;
 using ChoSiren.UI;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -26,6 +27,7 @@ namespace ChoSiren.Tests
         {
             ("mac-1080x2160", 1080, 2160),
             ("phone-1080x2288", 1080, 2288),
+            ("iphone-16-pro-1206x2622", 1206, 2622),
         };
 
         public static IEnumerable<string> DeviceNames => Devices.Select(d => d.Name);
@@ -63,7 +65,8 @@ namespace ChoSiren.Tests
             var device = Devices.First(d => d.Name == deviceName);
             Directory.CreateDirectory(Out);
 
-            var saveData = new GameSave { SchemaVersion = GameModel.SaveSchemaVersion, PlayerName = "经纪人" };
+            var saveData = new GameSave { SchemaVersion = GameModel.SaveSchemaVersion, PlayerName = "经纪人", StoryProgress = 8 };
+            saveData.CompletedStories.Add(GameModel.PrologueStoryId);
             saveData.UnlockedMembers.Add(4); // 瑶光: an owned member with no preset portrait, offered as her own face.
             PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(saveData));
             PlayerPrefs.SetInt("cho-agreement-v1", 1);
@@ -79,7 +82,10 @@ namespace ChoSiren.Tests
                 camera.orthographic = true; camera.targetTexture = rt;
                 Canvas canvas = app.GetComponentInChildren<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 10;
-                SafeAreaFitter.Layout(new Rect(0, 0, device.Width, device.Height), new Vector2(device.Width, device.Height),
+                Rect safePixels = device.Name.StartsWith("iphone-")
+                    ? new Rect(0, 102, device.Width, device.Height - 186 - 102)
+                    : new Rect(0, 0, device.Width, device.Height);
+                SafeAreaFitter.Layout(safePixels, new Vector2(device.Width, device.Height),
                     out Vector2 min, out Vector2 max, out bool wide);
                 foreach (var fitter in canvas.GetComponentsInChildren<SafeAreaFitter>(true))
                 {
@@ -140,12 +146,61 @@ namespace ChoSiren.Tests
                 Assert.That(safeRoot.Find("AvatarPicker1101"), Is.Not.Null, "The profile portrait opens the picker too.");
                 Assert.That(safeRoot.Find("PlayerContract1028"), Is.Null, "Changing the face no longer opens 改名.");
                 CameraCapture(camera, rt, Path.Combine(Out, device.Name + "-avatar-picker-from-profile.png"));
+
+                // Cancel by its real pointer hit, not just invoking an invisible callback.
+                sheet = safeRoot.Find("AvatarPicker1101").gameObject;
+                Button close = sheet.GetComponentsInChildren<Button>().Single(b => b.name == "Close");
+                if (EventSystem.current == null)
+                    new GameObject("AvatarPickerEvents", typeof(EventSystem)).transform.SetParent(app.transform, false);
+                Canvas.ForceUpdateCanvases();
+                var closeRect = close.GetComponent<RectTransform>();
+                var click = new PointerEventData(EventSystem.current) { position = RectTransformUtility.WorldToScreenPoint(
+                    camera, closeRect.TransformPoint(closeRect.rect.center)), button = PointerEventData.InputButton.Left };
+                var hits = new List<RaycastResult>();
+                canvas.GetComponent<GraphicRaycaster>().Raycast(click, hits);
+                Assert.That(hits, Is.Not.Empty);
+                Assert.That(hits[0].gameObject.GetComponentInParent<Button>(), Is.EqualTo(close), "Close must be reachable.");
+                ExecuteEvents.ExecuteHierarchy(hits[0].gameObject, click, ExecuteEvents.pointerClickHandler);
+                yield return null;
+                Assert.That(safeRoot.Find("AvatarPicker1101"), Is.Null);
+                Assert.That(model.Save.PlayerAvatarMember, Is.EqualTo(worn), "Cancel preserves the chosen avatar.");
+
+                Invoke(app, "CloseModal");
+                typeof(LevelMapPanel).GetField("lastChapter", BindingFlags.Static | BindingFlags.NonPublic).SetValue(null, 1);
+                Invoke(app, "OpenLevelMap");
+                yield return null;
+                var map = app.GetComponentInChildren<LevelMapPanel>();
+                Assert.That(map, Is.Not.Null);
+                var page = (RectTransform)map.transform.Find("AuthoredMapPage");
+                Assert.That(page, Is.Not.Null);
+                Assert.That(map.GetComponentsInChildren<ScreenEdgeExtend>(true), Is.Empty, "No stretched border strips.");
+                AssertSeparate(page.Find("ChapterSwitch"), page.Find("StaminaIcon"));
+                AssertSeparate(page.Find("ChapterSwitch"), page.Find("Level-1-10"));
+                AssertSeparate(page.Find("SweepRow"), page.Find("StageTeamPreset"));
+                AssertSeparate(page.Find("SweepRow"), page.Find("Level-1-1"));
+                AssertSeparate(page.Find("SelectedLevel"), page.Find("StartChallenge"));
+                var board = page.Find("MapReferenceBoard").GetComponent<Image>();
+                Assert.That(page.localScale.x, Is.EqualTo(page.localScale.y).Within(.0001f));
+                Assert.That(page.rect.width / page.rect.height, Is.EqualTo(board.sprite.rect.width / board.sprite.rect.height).Within(.0001f));
+                float settle = Time.realtimeSinceStartup + .5f;
+                while (Time.realtimeSinceStartup < settle) yield return null;
+                Canvas.ForceUpdateCanvases();
+                CameraCapture(camera, rt, Path.Combine(Out, device.Name + "-levelmap.png"));
             }
             finally
             {
                 camera.targetTexture = null;
                 rt.Release(); Object.DestroyImmediate(rt);
             }
+        }
+
+        private static void AssertSeparate(Transform first, Transform second)
+        {
+            Assert.That(first, Is.Not.Null); Assert.That(second, Is.Not.Null);
+            var a = (RectTransform)first; var b = (RectTransform)second;
+            Rect ra = new Rect(a.anchoredPosition.x, -a.anchoredPosition.y, a.rect.width, a.rect.height);
+            Rect rb = new Rect(b.anchoredPosition.x, -b.anchoredPosition.y, b.rect.width, b.rect.height);
+            Assert.That(ra.Overlaps(rb), Is.False, first.name + " overlaps " + second.name);
         }
 
         private static void Invoke(object target, string method, params object[] args)

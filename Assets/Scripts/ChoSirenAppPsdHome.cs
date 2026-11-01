@@ -572,7 +572,7 @@ namespace ChoSiren
             Sprite art = index >= 1 && index <= 3
                 ? ReferenceArt038.Load($"Art/Reference038/home-layer-character{index + 1}-portrait") : null;
             if (art == null) art = ReferenceArt038.Load("Art/Reference038/home-layer-04");
-            string name = index == 1 ? "LILITH" : index == 2 ? "AMETHYST" : index == 3 ? "CORALIE" : "CATALENA";
+            string name = PsdHomeMotion.SpeakerName(index);
             string tag = index == 1 ? "DEMON CLAN  ·  STAGE IDOL" : index == 2 ? "BLOOD ELF  ·  MOON VOCAL"
                 : index == 3 ? "SEA SPIRIT  ·  TIDE VOCAL" : "CHARM CLAN  ·  LEAD VOCAL";
             return UI.VinylStageTransition.Play(safeRoot, switchScene, art, name, tag);

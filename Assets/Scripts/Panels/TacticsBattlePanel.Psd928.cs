@@ -20,19 +20,14 @@ namespace ChoSiren.Panels
         private GameObject psdReroll;
         private Image psdRerollArt;
         private BattleRerollSlide929 psdRerollSlide;
-        private PsdHomeAlbumInkMotion psdRerollInk;
-        private Image psdRerollGlow;
+        private ChoSiren.UI.InkFlameEdge1031 psdRerollEdge;
         private bool psdRerollGlowOn;
-        private float psdRerollGlowLevel;
 
         /// <summary>Per frame: the glow fades in/out and breathes while a reroll is usable.</summary>
         private void AdvanceRerollGlow()
         {
-            if (psdRerollGlow == null || paused) return;
-            psdRerollGlowLevel = Mathf.MoveTowards(psdRerollGlowLevel, psdRerollGlowOn ? 1f : 0f, Time.unscaledDeltaTime * 3f);
-            float breathe = BattlePresentationOptions.ReduceMotion ? 1f : .72f + .28f * Mathf.Sin(Time.unscaledTime * 3f);
-            psdRerollGlow.color = new Color(.25f, .9f, 1f, .45f * breathe * psdRerollGlowLevel);
-            if (psdRerollInk != null && psdRerollInk.Selected != psdRerollGlowOn) psdRerollInk.SetSelected(psdRerollGlowOn);
+            if (psdRerollEdge == null || paused) return;
+            psdRerollEdge.Selected = psdRerollGlowOn;
         }
         private BattleAlbumUltimate929 psdUltimate;
         private Image psdPauseGlyph;
@@ -321,26 +316,12 @@ namespace ChoSiren.Panels
             // 2026-10-20: a soft cyan glow that hugs the bar's outline (feathered edge, gentle
             // drift), replacing the smoke and the hard-masked ink.
             heartVisual.Find("PsdReroll-reroll-smoke")?.gameObject.SetActive(false);
-            var halo = BattlePsdArt928.Find("reroll-halo");
-            if (halo != null)
-            {
-                psdRerollGlow = kit.NewImage("RerollGlow", heartVisual, BattlePsdArt928.Sprite("reroll-halo"), new Color(.25f, .9f, 1f, 0f));
-                psdRerollGlow.raycastTarget = false;
-                PsdPlace(psdRerollGlow.rectTransform, halo.x - RerollX, halo.y - RerollY, halo.width, halo.height);
-                psdRerollGlow.transform.SetAsFirstSibling();
-                var flow = psdRerollGlow.gameObject.AddComponent<BattleAuthoredFlow1019>();
-                flow.Configure(false, () => paused || closing);
-                flow.SetShowing(true);
-            }
-            // 2026-10-20 (owner): the reroll bar's glow flows like the lobby ink (same R02 sheets),
-            // tinted cyan, hugging the bar art; the static halo stays as a soft base.
+            // Use the lobby navigation's alpha-derived edge, not a rectangular ink frame.
+            // The bar sprite already includes the heart, so this follows the complete silhouette.
             if (psdRerollArt != null)
             {
-                // On the sliding bar art (not the fixed hit box), so it leaves with the bar when
-                // rerolls run out; hover is ignored because a touch never sends pointer-exit.
-                psdRerollInk = heartVisual.gameObject.AddComponent<PsdHomeAlbumInkMotion>();
-                psdRerollInk.IgnoreHover = true;
-                psdRerollInk.InitializeAroundArt(psdRerollArt.rectTransform, psdRoot, new Color(.3f, .9f, 1f));
+                psdRerollEdge = ChoSiren.UI.InkFlameEdge1031.Attach(psdRerollArt, .075f);
+                if (psdRerollEdge != null) psdRerollEdge.color = new Color(.3f, .9f, 1f);
             }
             var rerollCount = PanelKit.LabelOf(psdReroll);
             rerollCount.transform.SetAsLastSibling();
@@ -860,7 +841,7 @@ namespace ChoSiren.Panels
             if (psdChargeLabel != null && !diceTurn.RhythmMode)
                 psdChargeLabel.text = chargeDone ? available > 0 ? "次数已发满" : "本场重投用完"
                     : $"重投充能 {diceTurn.Energy}% · 本场剩{diceTurn.BattleRerollLimit - diceTurn.RerollsUsedInBattle}次";
-            PanelKit.LabelOf(psdReroll).text = available > 0 ? $"重投 ×{available}" : "重投 ×0";
+            PanelKit.LabelOf(psdReroll).text = $"重投×{available}";
             string benefit = CaptainBenefitLabel();
             // 2026-10-21 骰子节奏: bonus follows the current hand, heat rises with each non-worse reroll,
             // and each wave shows its hand target (达成 = 队长演出).

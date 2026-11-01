@@ -101,7 +101,7 @@ namespace ChoSiren.Tests
             var bubble=Home.transform.Find("PsdCharacterDialogue");
             string shown=bubble.transform.Find("DialogueLine").GetComponent<Text>().text;
             Assert.That(bubble.GetComponent<CanvasGroup>().alpha,Is.GreaterThan(.8f));
-            Assert.That(bubble.transform.Find("Speaker").GetComponent<Text>().text,Does.Contain("LILITH"));
+            Assert.That(bubble.transform.Find("Speaker").GetComponent<Text>().text,Is.EqualTo("绯音"));
             // 2026-10-25: the second idol answers with her own lines, never Catalena's.
             string[] catalena=(string[])typeof(PsdHomeMotion).GetField("Lines",Statics).GetValue(null);
             string[] lilith=(string[])typeof(PsdHomeMotion).GetField("LilithLines",Statics).GetValue(null);
@@ -122,9 +122,14 @@ namespace ChoSiren.Tests
         [UnityTest] public IEnumerator V3IdolsJoinTheCarouselWrapAroundAndSpeakTheirOwnLines()
         {
             var portrait = Home.transform.Find("layer-04VisualV2").GetComponent<Image>();
+            string[] expectedNames = { "星璃", "绯音", "夜莺", "雾白" };
+            Assert.That(Home.transform.Find("PsdCharacterDialogue/Speaker").GetComponent<Text>().text,
+                Is.EqualTo(expectedNames[0]));
             for (int step = 0; step < 3; step++)
             {
                 Carousel.Switch(1); yield return new WaitForSecondsRealtime(.45f);
+                Assert.That(Home.transform.Find("PsdCharacterDialogue/Speaker").GetComponent<Text>().text,
+                    Is.EqualTo(expectedNames[step + 1]));
             }
             Assert.That(Carousel.Index, Is.EqualTo(3));
             Assert.That(portrait.sprite.name, Does.Contain("character4-portrait"));
@@ -139,7 +144,7 @@ namespace ChoSiren.Tests
             var bubble = Home.transform.Find("PsdCharacterDialogue");
             string shown = bubble.transform.Find("DialogueLine").GetComponent<Text>().text;
             Assert.That(bubble.GetComponent<CanvasGroup>().alpha, Is.GreaterThan(.8f));
-            Assert.That(bubble.transform.Find("Speaker").GetComponent<Text>().text, Does.Contain("CORALIE"));
+            Assert.That(bubble.transform.Find("Speaker").GetComponent<Text>().text, Is.EqualTo("雾白"));
             var guests = (string[][])typeof(PsdHomeMotion).GetField("GuestLines", Statics).GetValue(null);
             Assert.That(guests[1].Any(line => Model.Personalize(line) == shown), Is.True, shown);
         }

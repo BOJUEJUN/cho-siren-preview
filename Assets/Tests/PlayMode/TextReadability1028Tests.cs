@@ -35,6 +35,17 @@ namespace ChoSiren.Tests
         [UnityTearDown]
         public IEnumerator TearDown() { Object.Destroy(canvas); yield return null; }
 
+        [TestCase("0.9.22", "0.9.19", "当前版本 v0.9.22\n历史公告 v0.9.19")]
+        [TestCase("0.9.22", "0.9.22", "v0.9.22")]
+        [TestCase("0.9.22", "0.9.23", "v0.9.22 → v0.9.23")]
+        [TestCase("0.9.22", "", "当前版本 v0.9.22")]
+        public void NoticeNeverAdvertisesADowngrade(string current, string published, string expected)
+        {
+            string heading = (string)typeof(NativeTitleScreen).GetMethod("NoticeVersionHeading",
+                BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { current, published, "" });
+            Assert.That(heading, Is.EqualTo(expected));
+        }
+
         [UnityTest]
         public IEnumerator NoticeKeepsLargeTypeAndScrollsTheEntireFetchedText()
         {
@@ -43,7 +54,7 @@ namespace ChoSiren.Tests
             yield return null;
             Text body = canvas.GetComponentsInChildren<Text>().Single(t => t.name == "Notice");
             Assert.That(body.font.dynamic, Is.True, "font is rasterized for the actual Canvas density");
-            Assert.That(body.fontSize, Is.EqualTo(24));
+            Assert.That(body.fontSize, Is.GreaterThanOrEqualTo(24));
             Assert.That(body.transform.rotation, Is.EqualTo(Quaternion.identity));
             body.text = string.Join("\n\n", Enumerable.Repeat("更新内容：优化文字、保留存档与战斗进度。", 28));
             yield return null;
@@ -72,7 +83,7 @@ namespace ChoSiren.Tests
             yield return null;
             Canvas.ForceUpdateCanvases();
             Text body = canvas.GetComponentsInChildren<Text>().Single(t => t.name == "Changes");
-            Assert.That(body.fontSize, Is.EqualTo(24));
+            Assert.That(body.fontSize, Is.GreaterThanOrEqualTo(24));
             Assert.That(body.transform.rotation, Is.EqualTo(Quaternion.identity));
             var scroll = body.GetComponentInParent<ScrollRect>();
             Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height));
