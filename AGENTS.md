@@ -25,3 +25,10 @@ Keep this file short. Load only the document that matches the work:
 ## Definition of done
 
 A change is complete when its behavior is implemented, affected regression tests pass, and the result is inspected in its real runtime. A publishing task also requires a clean WebGL build, deployed browser verification, and a working public URL. Continue through fixes and rechecks until all applicable conditions pass.
+
+## Release delivery flow (2026-11-02)
+
+- 用户要求发布时一并更新现有网页、PC/macOS/Android 下载和增量更新清单。
+- 同步替换本机 `/Applications/幻域魅声.app`，保留现有 Dock 入口并验证其指向最新版本。
+- 安装到用户指定 iPhone，保留存档，查询已装版本；不要自动打开手机游戏。当前五条悟暂缓，仅伯爵君。
+- 分别报告线上、桌面、手机完成情况；未完成的渠道不能宣称已上线。
