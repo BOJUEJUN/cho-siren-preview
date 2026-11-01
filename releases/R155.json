@@ -1,0 +1,27 @@
+{
+  "version": "0.9.21",
+  "releaseId": "PSD-20261101-ZJ-BATCH2-R155",
+  "date": "2026-11-01",
+  "name": "音乐收藏与数值调整",
+  "notice": "首页新增唱片收藏音乐播放器；首页立绘更清晰、对话框不再挡脸；战斗贴脸图放大并修正层级，伤害数字更大；怪物整体变强，BOSS 全体攻击与群体禁魔，成长节奏重做。",
+  "backupBranch": "backup/v0.9.21",
+  "previousReleaseId": "PSD-20261031-REROLL-ALL-R154",
+  "previousWebCommit": "302ecfe",
+  "previousReleaseRecord": "releases/R154.json",
+  "previousBackupBranch": "backup/v0.9.19",
+  "unityBuild": "Unity 6000.6.0f1 WebGL R155: music collection page (A), lobby clarity + dialogue, battle cut-in layering/size + big damage numbers, balance 1101 (boss mechanics, growth, enemy roster).",
+  "validation": {
+    "status": "verified-locally",
+    "unityCompile": "WebGL build 0.9.21 succeeded with 0 errors.",
+    "unityEditMode": "684/684.",
+    "unityPlayMode": "259/408 passed; 146 failed vs 148 in the 0.9.19 baseline — zero new failures, two fixed.",
+    "webBuild": "WebGL build succeeded (productVersion 0.9.21).",
+    "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
+    "publicWebGL": "Pending Pages deployment.",
+    "nativeVisual": "Web preview only; native installers held until user review."
+  },
+  "knownLimits": [
+    "新两位偶像暂无配音，只显示台词文字。",
+    "人鱼动态视频与PSD立绘构图略有差异，切换到视频时位置可能轻微跳动。"
+  ]
+}
