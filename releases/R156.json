@@ -17,7 +17,7 @@
     "unityPlayMode": "This batch's 62/62 new PlayMode tests plus the avatar picker's 2/2; no new failures.",
     "webBuild": "WebGL build succeeded (productVersion 0.9.22).",
     "webReleaseChecks": "113/113 Node tests and the asset/hash verification passed.",
-    "publicWebGL": "Pending Pages deployment.",
+    "publicWebGL": "Deployed to GitHub Pages (commit 0cb9fb0); index.html v0.9.22 and the four hashed assets return HTTP 200.",
     "nativeVisual": "Web preview only; native installers held until user review."
   },
   "knownLimits": [
