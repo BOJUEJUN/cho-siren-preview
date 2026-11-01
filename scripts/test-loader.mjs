@@ -180,7 +180,7 @@ test('one loading screen stays up until Unity explicitly reports the first scree
   for (const timer of [...run.timers.values()]) { run.timers.clear(); timer(); }
   await started;
   assert.equal(bar.width, '100%');
-  assert.equal(run.elements.get('#loading-status').textContent, '正在载入舞台资源 · 100%');
+  assert.equal(run.elements.get('#loading-status').textContent, '载入中 · 100%');
   assert.ok(loading.classes.includes('is-ready'));
   assert.ok(!loading.classes.includes('is-hidden'));
   loading.listeners.click({ target: {} });
@@ -214,7 +214,7 @@ test('repair asks first, then restarts clean without cached game files', async (
   run.elements.get('#repair-button').listeners.click();
   const dialog = run.elements.get('#loading-dialog');
   assert.ok(dialog.classes.includes('is-open'));
-  assert.match(run.elements.get('#dialog-text').textContent, /存档和进度不受影响/);
+  assert.match(run.elements.get('#dialog-text').textContent, /存档保留/);
   assert.equal(run.calls.filter(call => call.redirect).length, 0);
   run.elements.get('#dialog-ok').onclick();
   assert.ok(!dialog.classes.includes('is-open'));
