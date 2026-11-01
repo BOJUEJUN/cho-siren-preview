@@ -1,0 +1,21 @@
+{
+  "version": "0.9.23",
+  "releaseId": "UI-20261102-IPHONE-R157",
+  "date": "2026-11-02",
+  "name": "手机界面修复与角色名统一",
+  "notice": "修复公告版本显示、头像关闭入口与关卡页面拉伸重叠；重投次数恢复×N，用完收回，噪波沿真实轮廓流动；大厅和转场统一使用成员名字。",
+  "previousReleaseId": "PSD-20261102-ZJ-BATCH2B2C-R156",
+  "previousWebCommit": "75787b196860944b4e9eff6fac6d812cd614b71f",
+  "previousReleaseRecord": "releases/R156.json",
+  "backupBranch": "backup/v0.9.23",
+  "validation": {
+    "status": "verified-locally",
+    "unityPlayMode": "13/13 focused checks: notice 6, avatar and map 3, reroll 2, character names 2.",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.23",
+    "nativeInstall": "伯爵君 iPhone queried installed version 0.9.23; not launched.",
+    "publicWebGL": "Publishing pending."
+  },
+  "knownLimits": [
+    "本次未在 Windows 或 Android 实体设备运行；五条悟手机按用户要求暂缓安装。"
+  ]
+}

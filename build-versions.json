@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "37f1fc824a5b380a6ed26b68dd9946e3.data.unityweb",
+    "0c8f14d0af7c454cd19f801137b88781.framework.js.unityweb",
+    "8e043b7f3e8f673254c9c0aa1f71b434.wasm.unityweb",
+    "97c30e631b67fa159bafa74ce43eca1e.loader.js"
+  ],
+  "previous": [
     "4556bc0b47eae4b642a8f92bb940bd0a.data.unityweb",
     "e0dcb5d85d4c8e8e48ce78d97af57097.framework.js.unityweb",
     "dd58cfea2ffd951ea435defb41744dee.wasm.unityweb",
     "01e32921ac3609b491e74f07d96fa968.loader.js"
   ],
-  "previous": [
-    "f30b382e3f1127d82798d0f5f3202e6f.data.unityweb",
-    "fc3ae97de7d19d59745ad6e55b56433b.framework.js.unityweb",
-    "62c352e596dcc3c49c707937394f1046.wasm.unityweb",
-    "7894091a3c694943d711449c14a9e561.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.22",
+      "releaseId": "PSD-20261102-ZJ-BATCH2B2C-R156",
+      "files": [
+        "4556bc0b47eae4b642a8f92bb940bd0a.data.unityweb",
+        "e0dcb5d85d4c8e8e48ce78d97af57097.framework.js.unityweb",
+        "dd58cfea2ffd951ea435defb41744dee.wasm.unityweb",
+        "01e32921ac3609b491e74f07d96fa968.loader.js"
+      ]
+    },
     {
       "version": "0.9.21",
       "releaseId": "ZJ-20261101-BATCH-2B2C",
