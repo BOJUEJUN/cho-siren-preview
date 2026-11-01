@@ -9,11 +9,13 @@
   "previousReleaseRecord": "releases/R156.json",
   "backupBranch": "backup/v0.9.23",
   "validation": {
-    "status": "verified-locally",
+    "status": "published",
     "unityPlayMode": "13/13 focused checks: notice 6, avatar and map 3, reroll 2, character names 2.",
     "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.23",
     "nativeInstall": "伯爵君 iPhone queried installed version 0.9.23; not launched.",
-    "publicWebGL": "Publishing pending."
+    "publicWebGL": "Pages deployed 7ec076f; live HTML and build manifest match 0.9.23; browser onboarding, avatar close and lobby name checked without page errors.",
+    "nativeRelease": "Android/Windows/macOS installers and incremental-update manifests published as 0.9.23; public download bytes and lengths checked.",
+    "localDesktop": "Installed /Applications/幻域魅声.app 0.9.23; existing Dock target verified; not launched."
   },
   "knownLimits": [
     "本次未在 Windows 或 Android 实体设备运行；五条悟手机按用户要求暂缓安装。"
