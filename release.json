@@ -13,10 +13,8 @@
     "webPortal": "113/113 focused portal checks passed; final hashed bundle verified",
     "webRuntime": "Local final WebGL 0.9.29: map click 1-10 to 1-9 and wheel drag 1-9 to 1-7 loaded matching scene images; battle HUD visually inspected; no JavaScript page or console errors",
     "assetRetention": "All 341 previously published hashed assets preserved; 345 total after this release; 86 retained build groups",
-    "nativeArtifacts": "Windows setup, macOS DMG and both update ZIPs 0.9.29 publicly verified by total length and matching first 64 KiB; Windows/macOS incremental manifests each contain 504 files at version 0.9.29",
-    "nativeUpdateManifest": "Authoritative COS app-version.json remains 0.9.28 until the Android public upload is verified"
+    "nativeArtifacts": "Android APK, Windows setup, macOS DMG and both desktop update ZIPs 0.9.29 publicly verified by total length and matching first 64 KiB; Windows/macOS incremental manifests each contain 504 files at version 0.9.29",
+    "nativeUpdateManifest": "Authoritative COS app-version.json publicly confirmed at 0.9.29; latest download aliases promoted after all public download checks passed"
   },
-  "knownLimits": [
-    "Android 0.9.29 GitHub 公开包仍在上传；全局 app-version.json 和 latest 下载别名尚未提升，当前自动更新版本仍为 0.9.28。"
-  ]
+  "knownLimits": []
 }
