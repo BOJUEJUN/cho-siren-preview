@@ -1,20 +1,21 @@
 {
-  "version": "0.9.29",
-  "releaseId": "UI-20261102-FINAL-R161",
+  "version": "0.9.30",
+  "releaseId": "UI-20261102-AVATAR-MAP-R162",
   "date": "2026-11-02",
-  "name": "关卡与界面优化",
-  "notice": "关卡光碟可拨动选关，缩窄队伍头像栏并优化章节列表、破边关卡节点；完善录音音效、首页与剧情配音、票券签约、头像裁脸、右侧继续按钮和统一大招判定提示。",
-  "previousReleaseId": "WEB-20261102-REVIEW-R159",
-  "previousWebCommit": "cae6c29487dbf4260977337030db0c4c45e1e267",
-  "previousReleaseRecord": "releases/R159.json",
+  "name": "头像同步与关卡浏览优化",
+  "notice": "剧情经纪人头像与首页、档案和合约同步，成员或预设头像切换即时生效；优化关卡浏览与章节分组，并修正角色裁切。",
+  "previousReleaseId": "UI-20261102-FINAL-R161",
+  "previousWebCommit": "4287faa67e5532de4839c6394a487fe39af34681",
+  "previousReleaseRecord": "releases/R161.json",
   "validation": {
     "status": "web-build-verified",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.29",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.30",
     "webPortal": "113/113 focused portal checks passed; final hashed bundle verified",
-    "webRuntime": "Local final WebGL 0.9.29: map click 1-10 to 1-9 and wheel drag 1-9 to 1-7 loaded matching scene images; battle HUD visually inspected; no JavaScript page or console errors",
-    "assetRetention": "All 341 previously published hashed assets preserved; 345 total after this release; 86 retained build groups",
-    "nativeArtifacts": "Android APK, Windows setup, macOS DMG and both desktop update ZIPs 0.9.29 publicly verified by total length and matching first 64 KiB; Windows/macOS incremental manifests each contain 504 files at version 0.9.29",
-    "nativeUpdateManifest": "Authoritative COS app-version.json publicly confirmed at 0.9.29; latest download aliases promoted after all public download checks passed"
+    "webRuntime": "Local final WebGL 0.9.30: locked 1-3 click and 1-5 wheel preview loaded matching scenes; disabled challenge ignored with identical stamina counter and no battle load; locked chapter icon and unlock hint, team swap inside strip, current yaoguang avatar shared by lobby and producer dialogue visually verified; no JavaScript page or console errors",
+    "playMode": "14 focused PlayMode checks passed: 12 map/crop checks plus 2 avatar integration checks",
+    "assetRetention": "All 345 previously published hashed assets preserved; 349 total after this release; 87 retained build groups",
+    "nativeArtifacts": "Android APK, Windows setup, macOS DMG and both desktop update ZIPs 0.9.30 publicly verified by total length and matching first 64 KiB; Windows/macOS incremental manifests each contain 504 files at version 0.9.30",
+    "nativeUpdateManifest": "Authoritative COS app-version.json publicly confirmed at 0.9.30; latest download aliases promoted after public download checks passed"
   },
   "knownLimits": []
 }
