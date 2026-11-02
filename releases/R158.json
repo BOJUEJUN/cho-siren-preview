@@ -1,0 +1,19 @@
+{
+  "version": "0.9.24",
+  "releaseId": "DICE-20261102-CHARGE-R158",
+  "date": "2026-11-02",
+  "name": "重投充能修复",
+  "notice": "开局自动投骰一次，手动重投从零充能；换波不白送次数；重投按钮边缘噪波加大20%。",
+  "previousReleaseId": "UI-20261102-IPHONE-R157",
+  "previousWebCommit": "8f86d3a7cfa45281a899399f9fc98bf327673a3b",
+  "previousReleaseRecord": "releases/R157.json",
+  "validation": {
+    "status": "verified-build",
+    "editMode": "26/26 focused dice checks passed",
+    "playMode": "3/3: opening animation and reroll HUD at two aspect ratios",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.24"
+  },
+  "knownLimits": [
+    "关卡页三份新设计与团练建议为待选方案，本版未改变对应页面和养成玩法。"
+  ]
+}

@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "b170515c2f68d669c56d12c1601bc79a.wasm.unityweb",
+    "b4fc7f598dea360203572cb269be37ae.data.unityweb",
+    "becf5da1faf78583973aa3658c147324.framework.js.unityweb",
+    "ce728add4aacb1d58db976951284a013.loader.js"
+  ],
+  "previous": [
     "37f1fc824a5b380a6ed26b68dd9946e3.data.unityweb",
     "0c8f14d0af7c454cd19f801137b88781.framework.js.unityweb",
     "8e043b7f3e8f673254c9c0aa1f71b434.wasm.unityweb",
     "97c30e631b67fa159bafa74ce43eca1e.loader.js"
   ],
-  "previous": [
-    "4556bc0b47eae4b642a8f92bb940bd0a.data.unityweb",
-    "e0dcb5d85d4c8e8e48ce78d97af57097.framework.js.unityweb",
-    "dd58cfea2ffd951ea435defb41744dee.wasm.unityweb",
-    "01e32921ac3609b491e74f07d96fa968.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.23",
+      "releaseId": "UI-20261102-IPHONE-R157",
+      "files": [
+        "37f1fc824a5b380a6ed26b68dd9946e3.data.unityweb",
+        "0c8f14d0af7c454cd19f801137b88781.framework.js.unityweb",
+        "8e043b7f3e8f673254c9c0aa1f71b434.wasm.unityweb",
+        "97c30e631b67fa159bafa74ce43eca1e.loader.js"
+      ]
+    },
     {
       "version": "0.9.22",
       "releaseId": "PSD-20261102-ZJ-BATCH2B2C-R156",
