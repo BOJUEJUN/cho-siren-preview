@@ -52,10 +52,15 @@ namespace ChoSiren.Tests
                 Assert.That(dice.RhythmMode, Is.True, "回合制 = 骰子豆");
                 yield return Wait(1.0f);
 
-                // 1) Opening: two pips lit, the ring empty.
+                // 1) Opening dice are dealt once, no spendable rerolls, the control stays retracted.
                 Refresh(panel);
                 yield return Wait(.6f);
                 AssertHud(panel, dice);
+                Assert.That(dice.AvailableRerolls, Is.Zero);
+                Assert.That(dice.Energy, Is.Zero);
+                Assert.That(dice.Revision, Is.EqualTo(1));
+                Assert.That(dice.Values, Has.All.InRange(1, 6));
+                Assert.That(panel.GetComponentInChildren<BattleRerollSlide929>().Reveal, Is.LessThan(.01f));
                 Save(camera, rt, $"dice-endless-{tag}-1-open.png");
 
                 // 2) All pips spent, the ring two thirds of the way to the next one.

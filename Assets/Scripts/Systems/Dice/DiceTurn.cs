@@ -90,12 +90,12 @@ namespace ChoSiren.Systems.Dice
         }
 
         /// <summary>
-        /// A new wave pays out the next reroll of this battle's budget at once (it never adds one beyond it).
+        /// Legacy battles pay the next budgeted reroll on a wave change. Turn battles earn rerolls only by charging.
         /// 2026-10-31: the hand itself is never re-dealt — 赵金: dice change only when somebody rerolls them.
         /// </summary>
         public void GrantRhythmReroll()
         {
-            if (RhythmMode) { GrantStoredReroll1101(); return; }
+            if (RhythmMode) return;
             if (EarnedRerolls >= BattleRerollLimit) return;
             EarnedRerolls++;
             AddEnergyMicros(0);

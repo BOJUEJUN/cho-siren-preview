@@ -141,6 +141,8 @@ namespace ChoSiren.Tests
                 dice.EnableRhythm();
                 bool helps = DiceAutoPlanner1031.Count(DiceAutoPlanner1031.ChooseRerollMask(dice.Values, 2, false)) > 0;
                 bool low = dice.Hand.MultiplierPermille < DiceRules.MultiplierOf(DicePattern.ThreeKind);
+                Assert.That(DiceAutoPlanner1031.ShouldAutoReroll(dice), Is.False, "开局尚未充能");
+                dice.GainEnergy(200);
                 Assert.That(DiceAutoPlanner1031.ShouldAutoReroll(dice), Is.EqualTo(low && helps), "seed " + seed + " (2 颗豆)");
                 dice.GainEnergy(100);
                 Assert.That(dice.StoredRerolls, Is.EqualTo(DiceTurn.MaxStoredRerolls));

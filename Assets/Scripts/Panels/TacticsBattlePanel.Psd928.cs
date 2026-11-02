@@ -320,7 +320,7 @@ namespace ChoSiren.Panels
             // The bar sprite already includes the heart, so this follows the complete silhouette.
             if (psdRerollArt != null)
             {
-                psdRerollEdge = ChoSiren.UI.InkFlameEdge1031.Attach(psdRerollArt, .075f);
+                psdRerollEdge = ChoSiren.UI.InkFlameEdge1031.Attach(psdRerollArt, .09f);
                 if (psdRerollEdge != null) psdRerollEdge.color = new Color(.3f, .9f, 1f);
             }
             var rerollCount = PanelKit.LabelOf(psdReroll);

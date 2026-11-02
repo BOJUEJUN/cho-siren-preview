@@ -6,7 +6,7 @@ namespace ChoSiren.Systems.Dice
     /// 2026-11-01c 无限骰子 (用户: "我还是想一直能投，但是数值你控制下…做数值上限"). Turn battles (rhythm mode) only.
     /// <list type="bullet">
     /// <item>骰子豆 (reroll pips): a battle starts with <see cref="StartingStoredRerolls"/>, each own member action fills
-    /// <see cref="EndlessChargePerAction"/>% of the next one, a new wave adds one at once, and at most
+    /// <see cref="EndlessChargePerAction"/>% of the next one, wave changes preserve the charge, and at most
     /// <see cref="MaxStoredRerolls"/> wait — no per-battle total any more. A reroll spends one pip; the old rules stay:
     /// at most two picked dice, none picked = all six.</item>
     /// <item>收益上限: the dice attack bonus (hand + heat) is capped at <see cref="EndlessBonusCapPermille"/>; the captain
@@ -18,7 +18,8 @@ namespace ChoSiren.Systems.Dice
     public sealed partial class DiceTurn
     {
         public const int MaxStoredRerolls = 3;
-        public const int StartingStoredRerolls = 2;
+        // Opening dice are rolled by Begin(); that roll must not grant spendable rerolls.
+        public const int StartingStoredRerolls = 0;
         /// <summary>Charge per own member action, in percent of one pip (34 ≈ one pip every three actions).</summary>
         public const int EndlessChargePerAction = 34;
         /// <summary>骰子加成上限: hand + heat never add more than +5% attack (三条 +3.3%, 顺子 already +5%).</summary>
@@ -57,13 +58,6 @@ namespace ChoSiren.Systems.Dice
             StoredRerolls = neutralized1101 ? 0 : Math.Min(MaxStoredRerolls1101, StartingStoredRerolls1101);
             energyMicros = 0;
             Energy = 0;
-        }
-
-        private void GrantStoredReroll1101()
-        {
-            if (neutralized1101) return;
-            if (StoredRerolls < MaxStoredRerolls1101) { StoredRerolls++; EarnedRerolls++; }
-            SyncEnergy1101();
         }
 
         private void AddEndlessCharge1101(long amount)

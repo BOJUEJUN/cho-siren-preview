@@ -16,13 +16,22 @@ namespace ChoSiren.Tests.Systems
         }
 
         [Test]
-        public void BattleStartsWithTwoPipsAndRefillsOnePerThreeActions()
+        public void OpeningRollIsFreeButManualRerollsRequireThreeActions()
         {
             DiceTurn dice = Endless();
-            Assert.That(dice.StoredRerolls, Is.EqualTo(DiceTurn.StartingStoredRerolls));
+            Assert.That(dice.AvailableRerolls, Is.Zero);
+            Assert.That(dice.Energy, Is.Zero);
+            Assert.That(dice.EarnedRerolls, Is.Zero);
+            Assert.That(dice.RerollsUsedInBattle, Is.Zero);
+            Assert.That(dice.Revision, Is.EqualTo(1), "开局自动投一次");
+            Assert.That(dice.Values, Has.All.InRange(1, 6));
+            Assert.That(dice.Rolled, Has.All.True);
             Assert.That(dice.StoredRerollCapacity, Is.EqualTo(DiceTurn.MaxStoredRerolls));
-            Assert.That(dice.RerollAll(out string error), Is.True, error);
-            Assert.That(dice.RerollAll(out error), Is.True, error);
+            Assert.That(dice.RerollAll(out string error), Is.False);
+            Assert.That(error, Does.Contain("充能中"));
+            dice.Begin(); // Re-entering the same hand must not roll or refill it.
+            dice.EnableRhythm();
+            Assert.That(dice.Revision, Is.EqualTo(1));
             Assert.That(dice.StoredRerolls, Is.Zero);
             Assert.That(dice.CanReroll, Is.False);
             dice.ChargeForAction1101(6);
@@ -32,6 +41,10 @@ namespace ChoSiren.Tests.Systems
             dice.ChargeForAction1101(6);
             Assert.That(dice.StoredRerolls, Is.EqualTo(1), "三次出手回一颗骰子豆");
             Assert.That(dice.CanReroll, Is.True);
+            Assert.That(dice.RerollAll(out error), Is.True, error);
+            Assert.That(dice.AvailableRerolls, Is.Zero);
+            Assert.That(dice.RerollsUsedInBattle, Is.EqualTo(1));
+            Assert.That(dice.Revision, Is.EqualTo(2));
         }
 
         [Test]
@@ -68,6 +81,7 @@ namespace ChoSiren.Tests.Systems
         public void PickedDiceStillCapAtTwoAndNoneMeansAllSix()
         {
             DiceTurn dice = Endless(3);
+            dice.GainEnergy(200);
             Assert.That(dice.ToggleHold(0), Is.False);
             Assert.That(dice.ToggleHold(1), Is.False);
             Assert.That(dice.CanToggleHold(2), Is.False, "每次最多选 2 颗");

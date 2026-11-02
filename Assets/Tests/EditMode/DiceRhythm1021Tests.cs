@@ -96,17 +96,19 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void ANewWavePaysTheNextRerollEarlyButNeverPastTheBudget()
+        public void ANewWavePreservesChargeWithoutGrantingFreeRerolls()
         {
-            // 2026-11-01c: a wave adds one 骰子豆 at once, never past the store.
             var dice = Rhythm(0, 1, 2, 3, 4, 4);
-            Assert.That(dice.RerollsRemaining, Is.EqualTo(DiceTurn.StartingStoredRerolls));
-            dice.GrantRhythmReroll();
-            Assert.That(dice.RerollsRemaining, Is.EqualTo(DiceTurn.StartingStoredRerolls + 1));
+            dice.GainEnergy(68);
             dice.GrantRhythmReroll();
             dice.GrantRhythmReroll();
-            Assert.That(dice.RerollsRemaining, Is.EqualTo(DiceTurn.MaxStoredRerolls));
+            Assert.That(dice.AvailableRerolls, Is.Zero);
+            Assert.That(dice.EarnedRerolls, Is.Zero);
+            Assert.That(dice.Energy, Is.EqualTo(68));
+            Assert.That(dice.Revision, Is.EqualTo(1));
             Assert.That(dice.FreeRerolls, Is.Zero);
+            dice.GainEnergy(32);
+            Assert.That(dice.AvailableRerolls, Is.EqualTo(1));
         }
 
         [Test]
@@ -133,7 +135,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void TurnBattleGivesWaveTargetsAndAGiftRerollPerWave()
+        public void TurnBattleAdvancesWaveTargetsWhilePreservingChargedRerolls()
         {
             var model = new GameModel(() => Now);
             var stage = model.Tactics.Stages.First(s => s.Id == "stage-1-1");
@@ -148,19 +150,16 @@ namespace ChoSiren.Tests
             Assert.That(battle.BattleDice.RhythmMode, Is.True);
             Assert.That(battle.HasDiceTarget, Is.True);
             Assert.That(battle.DiceTargetScore, Is.GreaterThanOrEqualTo(1250));
-            int giftsSeen = 0, storeFullAtWave = 0, wave = battle.CurrentWave, encores = 0;
+            int wavesSeen = 0, wave = battle.CurrentWave, encores = 0;
             for (int guard = 0; guard < 2000 && battle.Outcome == BattleOutcome.Ongoing; guard++)
             {
                 BattleUnit actor = battle.NextTurnActor();
                 if (actor == null) break;
-                int stored = battle.BattleDice.StoredRerolls;
                 battle.AutoTurn();
                 if (battle.CurrentWave > wave)
                 {
                     wave = battle.CurrentWave;
-                    // 2026-11-01c: a wave adds a 骰子豆 at once unless the store (3) is already full.
-                    if (battle.BattleDice.StoredRerolls > stored) giftsSeen++;
-                    else if (stored >= battle.BattleDice.StoredRerollCapacity) storeFullAtWave++;
+                    wavesSeen++;
                     Assert.That(battle.DiceTargetWave, Is.EqualTo(wave));
                 }
                 Assert.That(battle.BattleDice.StoredRerolls, Is.LessThanOrEqualTo(battle.BattleDice.StoredRerollCapacity));
@@ -168,7 +167,7 @@ namespace ChoSiren.Tests
             foreach (BattleEvent entry in battle.Log)
                 if (entry.SkillId == BattleSimulator.DiceEncoreSkillId) encores++;
             Assert.That(battle.Outcome, Is.EqualTo(BattleOutcome.Victory));
-            Assert.That(giftsSeen + storeFullAtWave, Is.GreaterThan(0), "新一波立即补一颗骰子豆（存满时不再加）");
+            Assert.That(wavesSeen, Is.GreaterThan(0), "新一波正常切换骰子目标");
             TestContext.WriteLine($"waves={wave} encores={encores} target={battle.DiceTargetLabel}");
         }
     }

@@ -58,8 +58,7 @@ namespace ChoSiren.Panels
         private IEnumerator OnboardingBeat1101()
         {
             if (!OnboardingAllowed1101 || closing || battle.Outcome != BattleOutcome.Ongoing) yield break;
-            // 2026-11-01c 无限骰子: a fight opens with 2 骰子豆, so "the first ready reroll" is the first pip the team charges
-            // (EarnedRerolls) — the opening itself stays free of cards.
+            // The opening roll grants no rerolls. Guide the first pip the team actually charges.
             if (OnboardingPending1101(DiceGuideFlag1101) && diceTurn != null && diceTurn.CanReroll &&
                 (!diceTurn.RhythmMode || diceTurn.EarnedRerolls > 0))
             {

@@ -5,8 +5,8 @@ namespace ChoSiren.Systems.Tactics
 {
     /// <summary>
     /// 骰子节奏 (owner 2026-10-21: "骰子前面一小半就完了"). Turn battles keep the dice alive all fight:
-    /// rerolls from the charge bar (at most three a battle since 2026-10-31, see <see cref="DiceTurn.EnableRhythm"/>),
-    /// a new wave pays out the next one at once, and a per-wave hand target — reaching it triggers a
+    /// rerolls from the charge bar (at most three stored, see <see cref="DiceTurn.EnableRhythm"/>),
+    /// charge carries across waves without free grants, and a per-wave hand target — reaching it triggers a
     /// 队长演出: the captain strikes once more and gains ultimate energy.
     /// </summary>
     public sealed partial class BattleSimulator
