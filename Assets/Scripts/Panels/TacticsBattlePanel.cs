@@ -3248,7 +3248,9 @@ namespace ChoSiren.Panels
                 Sprite portrait = cell.Side == BattleSide.Player
                     ? BattlePortrait(unit.Definition.Id)
                     : EnemySprite(unit.Definition.Id);
-                cell.Portrait.sprite = psdRoot != null && cell.Side == BattleSide.Player ? PsdMemberPortrait(unit, cell) : portrait;
+                if (psdRoot != null && cell.Side == BattleSide.Player && psdAlbums.TryGetValue(cell, out var album))
+                    album.SetPortrait(PsdMemberPortrait(unit, cell));
+                else cell.Portrait.sprite = portrait;
                 cell.Portrait.enabled = portrait != null && cell.Side == BattleSide.Player;
                 if (cell.Motion != null && cell.MotionBoundId != unit.Id)
                 {
@@ -3877,14 +3879,13 @@ namespace ChoSiren.Panels
                     diceAuras.Add(ChoSiren.UI.DiceScoreAura.Attach(die.GetComponent<RectTransform>(), diceHandText.font,
                         () => paused || closing || EntryPresentationCovered));
             }
-            int order = 0;
             for (int i = 0; i < diceAuras.Count; i++)
             {
                 bool scoring = tier > 0 && diceTurn != null && i < diceTurn.Hand.Participating.Count && diceTurn.Hand.Participating[i];
                 var fx = scoring ? ChoSiren.UI.DiceFxStyle.For(diceTurn.Hand.Pattern, diceTurn.Hand.Values, i)
                     : default;
                 diceAuras[i].Show(scoring, tier > 0, diceTurn != null ? diceTurn.Values[i] : 0,
-                    scoring ? .25f + order++ * .08f : 0f, fx);
+                    scoring ? .2f : 0f, fx);
                 if (i < dicePedestals.Count && dicePedestals[i] != null)
                     dicePedestals[i].color = scoring ? Color.Lerp(Color.white, fx.Color, .5f) : PedestalIdle;
             }

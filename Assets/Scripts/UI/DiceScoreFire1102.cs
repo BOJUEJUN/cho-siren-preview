@@ -2,13 +2,13 @@ using UnityEngine;
 using UnityEngine.UI;
 namespace ChoSiren.UI
 {
-    /// <summary>The same cel flame as an ultimate-ready record, above the scoring dice and outside their pips.</summary>
+    /// <summary>Small broken streams follow the square die's rim, leaving the face and pips clear.</summary>
     public sealed class DiceScoreFire1102 : MonoBehaviour
     {
-        Material flameMaterial, rimMaterial;
-        RawImage flame, rim;
+        Material rimMaterial;
+        RawImage rim;
+        RectTransform restingRig;
         float seed;
-        static readonly string[] Palette = { "_Deep", "_Main", "_Hot", "_Light", "_Acc", "_Ink" };
         public bool Visible => rim != null && rim.enabled;
         public static DiceScoreFire1102 Create(RectTransform host, Vector2 dieSize)
         {
@@ -17,21 +17,22 @@ namespace ChoSiren.UI
         }
         void Build(RectTransform host, Vector2 size)
         {
-            Shader shader = Resources.Load<Shader>("Shaders/Fx1023Spire");
+            Shader shader = Resources.Load<Shader>("Shaders/DiceEdgeFlow1102");
             if (shader == null) return;
-            seed = Random.value * 20f;
-            flameMaterial = new Material(shader) { hideFlags = HideFlags.DontSave };
+            seed = Random.value * 13f;
             rimMaterial = new Material(shader) { hideFlags = HideFlags.DontSave };
-            flameMaterial.SetFloat("_SrcBlend", 1); flameMaterial.SetFloat("_DstBlend", 10);
-            rimMaterial.SetFloat("_SrcBlend", 1); rimMaterial.SetFloat("_DstBlend", 1);
-            flame = Image(host, "ScoringSpire", flameMaterial);
-            // Show only the spire above the bowl. It begins at the die's upper edge, leaving every pip clear.
-            flame.uvRect = new Rect(0, .48f, 1, .52f);
-            flame.rectTransform.pivot = new Vector2(.5f, 0f);
-            flame.rectTransform.anchoredPosition = new Vector2(0, size.y * .39f);
-            flame.rectTransform.sizeDelta = new Vector2(size.x * 1.12f, size.x * .88f);
-            rim = Image(host, "ScoringRim", rimMaterial);
-            rim.rectTransform.sizeDelta = size * 1.3f;
+            rim = Image(host, "ScoringEdgeFlow", rimMaterial);
+            // The PSD hit target is taller than its square face. Use the face's fitted square,
+            // not that rectangular target; the spare margin only holds a few escaping embers.
+            float side = Mathf.Min(size.x, size.y);
+            rim.rectTransform.sizeDelta = Vector2.one * side * 1.16f;
+            if (host.parent != null)
+                foreach (UnityEngine.UI.Image face in host.parent.GetComponentsInChildren<UnityEngine.UI.Image>(true))
+                    if (face.name.StartsWith("DiceFace-"))
+                    {
+                        restingRig = face.transform.parent as RectTransform;
+                        break;
+                    }
         }
         static RawImage Image(Transform parent, string name, Material material)
         {
@@ -43,26 +44,29 @@ namespace ChoSiren.UI
         }
         public void Pose(float amount, DiceFxStyle style, float clock)
         {
-            if (flame == null) return;
-            flame.enabled = rim.enabled = amount > .001f;
+            if (rim == null) return;
+            rim.enabled = amount > .001f;
             if (!rim.enabled) return;
-            Color c = style.Color;
-            Color[] palette = { c * .26f, c * .65f, c, Color.Lerp(c, Color.white, .35f), Color.Lerp(c, Color.white, .8f), new Color(.04f,.02f,.08f) };
-            for (int layer = 0; layer < 2; layer++)
-            {
-                RawImage image = layer == 0 ? flame : rim;
-                Material original = layer == 0 ? flameMaterial : rimMaterial;
-                foreach (Material m in new[] { original, image.materialForRendering })
-                {
-                    if (m == null) continue;
-                    for (int i = 0; i < Palette.Length; i++) m.SetVector(Palette[i], palette[i]);
-                    m.SetFloat("_T", .3f); m.SetFloat("_FxTime", clock + seed); m.SetFloat("_Seed", seed);
-                    m.SetFloat("_Alpha", amount * (layer == 0 ? .55f : .9f) * style.Scale);
-                    m.SetFloat("_Aspect", layer == 0 ? 1.5f : 1f); m.SetFloat("_DiscY", .5f);
-                    m.SetFloat("_DiscR", .39f); m.SetFloat("_Front", layer);
-                }
-            }
+            SetPose(rimMaterial, amount, style, clock);
+            Material rendered = rim.materialForRendering;
+            if (rendered != rimMaterial) SetPose(rendered, amount, style, clock);
         }
-        void OnDestroy() { if (flameMaterial != null) Destroy(flameMaterial); if (rimMaterial != null) Destroy(rimMaterial); }
+        void SetPose(Material material, float amount, DiceFxStyle style, float clock)
+        {
+            if (material == null) return;
+            material.SetColor("_EdgeColor", Color.Lerp(style.Color, Color.white, .12f));
+            material.SetFloat("_FxTime", clock);
+            material.SetFloat("_Seed", seed);
+            material.SetFloat("_Alpha", amount * Mathf.Clamp(.72f * style.Scale, .55f, .9f));
+        }
+        void LateUpdate()
+        {
+            if (!Visible || restingRig == null) return;
+            // Keep the narrow edge attached to the tiny idle bob/tilt of the authored die.
+            rim.rectTransform.anchoredPosition = restingRig.anchoredPosition;
+            rim.rectTransform.localRotation = restingRig.localRotation;
+            rim.rectTransform.localScale = restingRig.localScale;
+        }
+        void OnDestroy() { if (rimMaterial != null) Destroy(rimMaterial); }
     }
 }

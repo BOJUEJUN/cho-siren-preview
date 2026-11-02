@@ -15,6 +15,7 @@ namespace ChoSiren
         Func<bool> ready, paused;
         float amount, phase, spin, passiveTime = -1;
         float portraitRatio = .63f;
+        Sprite portraitSource, framedPortrait;
         Rect? portraitArea;
         public float Expansion => amount;
         public bool PassiveVisible => passiveTime >= 0;
@@ -53,8 +54,42 @@ namespace ChoSiren
         }
         public void SetPortrait(Sprite sprite)
         {
-            if(sprite!=null)portraitRatio=sprite.rect.width/sprite.rect.height;
+            if (sprite != null)
+            {
+                if (portraitSource != sprite)
+                {
+                    if (framedPortrait != null) Destroy(framedPortrait);
+                    portraitSource = sprite;
+                    framedPortrait = FrameCardBust(sprite);
+                }
+                Sprite shown = framedPortrait != null ? framedPortrait : sprite;
+                portrait.sprite = shown;
+                portraitRatio = shown.rect.width / shown.rect.height;
+            }
             Pose();
+        }
+        // The battle crop includes wide microphones/arms. Fitting that whole width used to
+        // shrink Nightingale's face more than the others. Trim only the side margins around
+        // the existing face anchor; keep the complete native top edge and original alpha.
+        static Sprite FrameCardBust(Sprite sprite)
+        {
+            const string suffix = "-BattleCloseup";
+            if (!sprite.name.EndsWith(suffix, StringComparison.Ordinal)) return null;
+            string memberId = sprite.name.Substring(0, sprite.name.Length - suffix.Length);
+            if (!UI.PortraitFace1101.TryMemberFace(memberId, out Rect face, out _)) return null;
+            Sprite source = PanelKit.MemberSpriteOrNull(memberId, false);
+            if (source == null || source.texture != sprite.texture) return null;
+            Rect crop = sprite.rect, original = source.rect;
+            float faceWidth = face.width * original.width;
+            float width = Mathf.Min(crop.width, Mathf.Max(crop.height * .82f, faceWidth * 2.75f));
+            if (width >= crop.width - .5f) return null;
+            float centre = original.x + face.center.x * original.width;
+            crop.x = Mathf.Clamp(centre - width * .5f, crop.xMin, crop.xMax - width);
+            crop.width = width;
+            Sprite framed = Sprite.Create(sprite.texture, crop, Vector2.one * .5f,
+                sprite.pixelsPerUnit, 0, SpriteMeshType.FullRect);
+            framed.name = sprite.name + "-CardFramed";
+            return framed;
         }
         public void PlayPassive(Sprite sprite)
         {
@@ -99,7 +134,7 @@ namespace ChoSiren
                 Rect area = portraitArea.Value;
                 float height = area.height * Mathf.Lerp(1.06f, 1.12f, t);
                 float width = height * portraitRatio;
-                float limit = area.width * 1.09f;
+                float limit = area.width * 1.14f;
                 if (width > limit) { height *= limit / width; width = limit; }
                 PanelKit.PlaceTop(portrait.rectTransform, area.x + (area.width - width) * .5f,
                     area.yMax - height, width, height);
@@ -132,5 +167,6 @@ namespace ChoSiren
             }
         }
         void OnDisable(){passiveTime=-1;if(passiveGroup!=null)passiveGroup.alpha=0;holding=false;launch=-1f;launchedAt=-1f;drag=0f;}
+        void OnDestroy() { if (framedPortrait != null) Destroy(framedPortrait); }
     }
 }

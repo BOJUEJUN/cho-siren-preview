@@ -471,7 +471,11 @@ namespace ChoSiren
             teamTitle.raycastTarget = false;
             PanelKit.EnableBestFit(teamTitle, 24);
             SirenStickerUi.SkinTitle(teamTitle, true);
-            GameObject renameTeam = BoardButton038("RenameTeam", root, new Rect(268, 226, 84, 44),
+            RectTransform titlePlate = root.Find("SirenTitlePlate-" + teamTitle.name) as RectTransform;
+            float renameX = titlePlate != null
+                ? titlePlate.anchoredPosition.x + titlePlate.rect.width * (1f - titlePlate.pivot.x) + 8f
+                : 240f;
+            GameObject renameTeam = BoardButton038("RenameTeam", root, new Rect(renameX, 226, 44, 44),
                 () => OpenTeamNameDialog1028(model.Save.ActiveTeamPreset));
             // Match the profile's pencil affordance; only editable content gets a button.
             UnityEngine.UI.Image renameHit = renameTeam.GetComponent<UnityEngine.UI.Image>();
@@ -493,12 +497,13 @@ namespace ChoSiren
                 44, 0, 320, 26, TextAnchor.MiddleRight).raycastTarget = false;
             RectTransform powerIcon = VisualA1101.NeonIcon(powerReadout,
                 "PowerIcon", "bolt", VisualA1101.Gold, 40f);
-            VisualA1101.Place(powerIcon, 14, 34, 40, 40);
             UnityEngine.UI.Text powerValue = BoardText038(powerReadout, "TeamPowerValue",
                 model.TeamPower.ToString("N0"), 48, VisualA1101.Gold,
                 60, 26, 304, 64, TextAnchor.MiddleRight);
             powerValue.fontStyle = FontStyle.BoldAndItalic;
             powerValue.raycastTarget = false;
+            float powerWidth = Mathf.Min(powerValue.rectTransform.rect.width, powerValue.preferredWidth);
+            VisualA1101.Place(powerIcon, 364f - powerWidth - 48f, 38, 40, 40);
             foreach (UnityEngine.UI.Graphic graphic in powerReadout.GetComponentsInChildren<UnityEngine.UI.Graphic>())
                 graphic.raycastTarget = false;
             BoardText038(root, "TeamResonanceValue", $"职业种类 {roles}/4", 18, Cyan, 470, 314, 180, 28);

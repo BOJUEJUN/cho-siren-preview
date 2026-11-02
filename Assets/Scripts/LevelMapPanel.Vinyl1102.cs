@@ -1,3 +1,5 @@
+using System.Collections;
+using ChoSiren.Panels;
 using ChoSiren.Systems.Economy;
 using ChoSiren.Systems.Tactics;
 using ChoSiren.UI;
@@ -11,6 +13,12 @@ namespace ChoSiren
         private bool vinylMap1102;
         private StageSceneArt1102 stageScene1102;
         private Text sceneTitle1102, sceneNumber1102;
+        private readonly Image[] teamFaces1102 = new Image[GameModel.TeamCapacity];
+        private readonly Text[] teamNames1102 = new Text[GameModel.TeamCapacity];
+        private readonly int[] teamMembers1102 = { -2, -2, -2, -2 };
+        private RectTransform teamSwapGlyph1102;
+        private Image teamSwapGlow1102;
+        private bool teamSwapAnimating1102;
 
         // The approved B composition: a circular record clipped by the right screen edge.
         // It is a real circle. Only its location changes; its width and height always match.
@@ -84,7 +92,7 @@ namespace ChoSiren
             sceneTitle1102.horizontalOverflow = HorizontalWrapMode.Wrap;
             Readable(sceneTitle1102);
 
-            GameObject team = MapBoardHit("StageTeamPreset", page, 40, 1352, 778, 52, OpenStageTeamPresets1028);
+            GameObject team = MapBoardHit("StageTeamPreset", page, 40, 1332, 778, 80, OpenVinylTeamPresets1102);
             SirenStickerUi.SkinPanel(team, false);
             activeTeamText1028 = NewPlacedText(team.transform, "", 23, White, 66, 4, 600, 46, TextAnchor.MiddleLeft);
             activeTeamText1028.name = "ActiveTeamName";
@@ -119,6 +127,7 @@ namespace ChoSiren
             rewardBadgeText = NewNotificationBadge(rewards.transform, "RewardBadge", 326, 5);
             taskBadgeText = NewNotificationBadge(tasks.transform, "TaskBadge", 334, 5);
             BuildStageInfo1101(selected.transform, team.transform, rewards.transform, tasks.transform);
+            BuildVinylTeamStrip1102(team.transform);
             PlaceTop(rewardStars1101.transform.parent as RectTransform, 188, 18, 150, 32);
             PlaceTop(taskCount1101.transform.parent as RectTransform, 174, 18, 190, 30);
             BuildSweepRow(page);
@@ -129,6 +138,7 @@ namespace ChoSiren
         private void RefreshVinylMap1102(StageDefinition stage)
         {
             if (!vinylMap1102) return;
+            RefreshVinylTeamStrip1102();
             string title = stage?.Name ?? "演出";
             int gap = title.IndexOf(' '); if (gap >= 0) title = title.Substring(gap + 1);
             stageTitleText.text = sceneTitle1102.text = title;
@@ -147,6 +157,94 @@ namespace ChoSiren
                 v.StatusLabel.color = v.State == LevelState.Cleared ? StarGold : selected ? Accent : Muted;
                 v.Outline.effectColor = selected ? Accent : new Color32(137, 115, 177, 200);
             }
+        }
+
+        private void BuildVinylTeamStrip1102(Transform team)
+        {
+            activeTeamText1028.enabled = false;
+            team.Find("TeamIcon")?.gameObject.SetActive(false);
+            team.Find("SwapIcon")?.gameObject.SetActive(false);
+            for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+            {
+                RectTransform member = VisualB1101.Rect("StageTeamMember-" + slot, team);
+                PlaceTop(member, 16 + slot * 170, 12, 160, 56);
+                Image rim = NewImage("AvatarRim", member, RoundedSprite(30),
+                    slot == 0 ? Accent : new Color32(156, 104, 255, 180));
+                rim.type = Image.Type.Simple;
+                PlaceTop(rim.rectTransform, 0, 0, 56, 56);
+                Image window = NewImage("AvatarWindow", member, RoundedSprite(30), Color.white);
+                window.type = Image.Type.Simple;
+                PlaceTop(window.rectTransform, 2, 2, 52, 52);
+                window.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+                teamFaces1102[slot] = NewImage("Avatar", window.transform, null, White);
+                teamNames1102[slot] = NewPlacedText(member, "", 23, White,
+                    66, 5, 94, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+                teamNames1102[slot].name = "MemberName";
+                teamNames1102[slot].verticalOverflow = VerticalWrapMode.Overflow;
+                PanelKit.EnableBestFit(teamNames1102[slot], 18);
+                teamMembers1102[slot] = -2;
+            }
+            GameObject swap = MapBoardHit("StageTeamSwap", team, 704, 8, 64, 64, OpenVinylTeamPresets1102);
+            teamSwapGlow1102 = NewImage("SwapGlow", swap.transform, VisualB1101.Glow(),
+                new Color(Accent.r, Accent.g, Accent.b, .12f));
+            PlaceTop(teamSwapGlow1102.rectTransform, -8, -8, 80, 80);
+            teamSwapGlyph1102 = VisualB1101.NeonIcon(swap.transform, "SwapGlyph", "exchange", White, 11, 11, 42, false).rectTransform;
+            CenterPivot(teamSwapGlyph1102);
+        }
+
+        private void RefreshVinylTeamStrip1102()
+        {
+            for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
+            {
+                Image portrait = teamFaces1102[slot];
+                if (portrait == null) continue;
+                int index = slot < model.Save.Team.Count ? model.Save.Team[slot] : -1;
+                if (index < 0 || index >= GameModel.Members.Length) index = -1;
+                if (teamMembers1102[slot] == index) continue;
+                teamMembers1102[slot] = index;
+                bool valid = index >= 0;
+                portrait.gameObject.SetActive(valid);
+                teamNames1102[slot].text = valid ? GameModel.Members[index].Name : "空位";
+                teamNames1102[slot].color = valid ? White : Muted;
+                if (valid)
+                {
+                    var member = GameModel.Members[index];
+                    portrait.sprite = PanelKit.MemberSpriteOrNull(member.Id, true);
+                    PanelKit.FrameBustPortrait(portrait, (RectTransform)portrait.transform.parent, member.Id);
+                }
+                VisualB1101.Pop((RectTransform)portrait.transform.parent.parent, .025f * slot, .94f);
+            }
+        }
+
+        private void OpenVinylTeamPresets1102()
+        {
+            if (teamSwapAnimating1102) return;
+            StartCoroutine(AnimateVinylTeamSwap1102());
+        }
+
+        private IEnumerator AnimateVinylTeamSwap1102()
+        {
+            teamSwapAnimating1102 = true;
+            float elapsed = 0f;
+            while (elapsed < .32f && teamSwapGlyph1102 != null)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / .32f);
+                float eased = 1f - Mathf.Pow(1f - t, 3f);
+                teamSwapGlyph1102.localEulerAngles = new Vector3(0, 0, -360f * eased);
+                teamSwapGlyph1102.localScale = Vector3.one * (1f + .14f * Mathf.Sin(t * Mathf.PI));
+                teamSwapGlow1102.color = new Color(Accent.r, Accent.g, Accent.b,
+                    .12f + .54f * Mathf.Sin(t * Mathf.PI));
+                yield return null;
+            }
+            if (teamSwapGlyph1102 != null)
+            {
+                teamSwapGlyph1102.localEulerAngles = Vector3.zero;
+                teamSwapGlyph1102.localScale = Vector3.one;
+                teamSwapGlow1102.color = new Color(Accent.r, Accent.g, Accent.b, .12f);
+            }
+            teamSwapAnimating1102 = false;
+            OpenStageTeamPresets1028();
         }
     }
 }
