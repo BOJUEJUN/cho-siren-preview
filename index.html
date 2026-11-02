@@ -636,7 +636,7 @@
         </div>
         <div class="loading-start" aria-hidden="true"><strong>TAP TO START</strong><small>点击开始</small></div>
         <div class="loading-health">抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。<br>适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。</div>
-        <div id="loading-version" class="loading-version">v0.9.25</div>
+        <div id="loading-version" class="loading-version">v0.9.29</div>
         <div id="loading-dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
           <div class="dialog-box">
             <h3 id="dialog-title"></h3>
@@ -777,13 +777,13 @@
       const config = {
         arguments: [],
         cacheControl: url => retryToken || String(url).startsWith("blob:") ? "no-store" : "must-revalidate",
-        dataUrl: buildAssetUrl("143e1573766038fcd52ff724960be7c9.data.unityweb"),
-        frameworkUrl: buildAssetUrl("24eff06d3373436f2bee3dc39fa27a80.framework.js.unityweb"),
-        codeUrl: buildAssetUrl("f68cdf0c4a4cf3e5a207894b83bc5243.wasm.unityweb"),
+        dataUrl: buildAssetUrl("a1f80bc9ecd28dbb09d97d5b6c63ceb8.data.unityweb"),
+        frameworkUrl: buildAssetUrl("ed1e313960ddc614aca36003bccfa277.framework.js.unityweb"),
+        codeUrl: buildAssetUrl("1378a15ebba4551b3567ac2031a1267c.wasm.unityweb"),
         streamingAssetsUrl: new URL("StreamingAssets/", pageUrl).href,
         companyName: "CHO-SIREN Studio",
         productName: "CHO-SIREN 幻域魅声",
-        productVersion: "0.9.25",
+        productVersion: "0.9.29",
         showBanner,
         devicePixelRatio: renderPixelRatio(),
         matchWebGLToCanvasSize: true
@@ -907,7 +907,7 @@
       }
 
       const loader = document.createElement("script");
-      loader.src = buildAssetUrl("930a42c6022f618e8fa0b4b0eec10d81.loader.js");
+      loader.src = buildAssetUrl("705e4045dbe4debffb392b2c87dbc8fb.loader.js");
       // Engine bytes map to 0–70%; real completed/active Home assets map to 70–98%.
       // Only Unity's explicit completed-UI handshake can authorize entry.
       let shownProgress = 0;

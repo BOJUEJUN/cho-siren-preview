@@ -1,0 +1,22 @@
+{
+  "version": "0.9.29",
+  "releaseId": "UI-20261102-FINAL-R161",
+  "date": "2026-11-02",
+  "name": "关卡与界面优化",
+  "notice": "关卡光碟可拨动选关，缩窄队伍头像栏并优化章节列表、破边关卡节点；完善录音音效、首页与剧情配音、票券签约、头像裁脸、右侧继续按钮和统一大招判定提示。",
+  "previousReleaseId": "WEB-20261102-REVIEW-R159",
+  "previousWebCommit": "cae6c29487dbf4260977337030db0c4c45e1e267",
+  "previousReleaseRecord": "releases/R159.json",
+  "validation": {
+    "status": "web-build-verified",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.29",
+    "webPortal": "113/113 focused portal checks passed; final hashed bundle verified",
+    "webRuntime": "Local final WebGL 0.9.29: map click 1-10 to 1-9 and wheel drag 1-9 to 1-7 loaded matching scene images; battle HUD visually inspected; no JavaScript page or console errors",
+    "assetRetention": "All 341 previously published hashed assets preserved; 345 total after this release; 86 retained build groups",
+    "nativeArtifacts": "Windows setup, macOS DMG and both update ZIPs 0.9.29 publicly verified by total length and matching first 64 KiB; Windows/macOS incremental manifests each contain 504 files at version 0.9.29",
+    "nativeUpdateManifest": "Authoritative COS app-version.json remains 0.9.28 until the Android public upload is verified"
+  },
+  "knownLimits": [
+    "Android 0.9.29 GitHub 公开包仍在上传；全局 app-version.json 和 latest 下载别名尚未提升，当前自动更新版本仍为 0.9.28。"
+  ]
+}

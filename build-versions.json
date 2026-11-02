@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "a1f80bc9ecd28dbb09d97d5b6c63ceb8.data.unityweb",
+    "ed1e313960ddc614aca36003bccfa277.framework.js.unityweb",
+    "1378a15ebba4551b3567ac2031a1267c.wasm.unityweb",
+    "705e4045dbe4debffb392b2c87dbc8fb.loader.js"
+  ],
+  "previous": [
     "143e1573766038fcd52ff724960be7c9.data.unityweb",
     "24eff06d3373436f2bee3dc39fa27a80.framework.js.unityweb",
     "f68cdf0c4a4cf3e5a207894b83bc5243.wasm.unityweb",
     "930a42c6022f618e8fa0b4b0eec10d81.loader.js"
   ],
-  "previous": [
-    "b170515c2f68d669c56d12c1601bc79a.wasm.unityweb",
-    "b4fc7f598dea360203572cb269be37ae.data.unityweb",
-    "becf5da1faf78583973aa3658c147324.framework.js.unityweb",
-    "ce728add4aacb1d58db976951284a013.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.25",
+      "releaseId": "WEB-20261102-REVIEW-R159",
+      "files": [
+        "143e1573766038fcd52ff724960be7c9.data.unityweb",
+        "24eff06d3373436f2bee3dc39fa27a80.framework.js.unityweb",
+        "f68cdf0c4a4cf3e5a207894b83bc5243.wasm.unityweb",
+        "930a42c6022f618e8fa0b4b0eec10d81.loader.js"
+      ]
+    },
     {
       "version": "0.9.24",
       "releaseId": "DICE-20261102-CHARGE-R158",
