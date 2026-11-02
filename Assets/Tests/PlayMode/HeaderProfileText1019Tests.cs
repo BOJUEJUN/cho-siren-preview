@@ -17,8 +17,11 @@ namespace ChoSiren.Tests
             Rect power = (Rect)kind.GetField("Power").GetValue(layout);
             Assert.That(name.yMax, Is.LessThanOrEqualTo(level.yMin));
             Assert.That(level.yMax, Is.LessThanOrEqualTo(power.yMin));
-            Assert.That(name.xMax, Is.LessThan(153), "Keep the name clear of the plaque's right-hand triangle decoration.");
-            Check("经纪人", 17, name); Check("LV.100", 12, level); Check("战力 1,234,567", 15, power);
+            Rect profile = (Rect)kind.GetField("Profile").GetValue(layout);
+            Rect avatar = (Rect)kind.GetField("Avatar").GetValue(layout);
+            Assert.That(name.xMax, Is.LessThan(profile.width - 12f), "Keep the enlarged name inside its plaque.");
+            Assert.That(avatar.width, Is.GreaterThanOrEqualTo(48f), "The profile picture must remain recognisable on a phone.");
+            Check("经纪人", 22, name); Check("LV.100", 16, level); Check("战力 1,234,567", 18, power);
         }
         static void Check(string copy, int pointSize, Rect bounds)
         {

@@ -76,15 +76,15 @@ namespace ChoSiren
                 // gear stacked at the right edge so nothing is squeezed.
                 // Mail + gear live only on the lobby (stacked at its right edge), so the three
                 // pills spread across the full width after the profile plaque.
-                const float pillW = 156f, pillH = 52f, pillY = 14f;
-                float[] pillX = { 226f, 390f, 554f };
+                const float pillW = 136f, pillH = 52f, pillY = 26f;
+                float[] pillX = { 288f, 432f, 576f };
                 return new HeaderPolish038Layout
                 {
-                    Profile = new Rect(4, 8, 214, 78),
-                    Avatar = new Rect(33, 24, 36, 36),
-                    Name = new Rect(80, 11, 110, 25),
-                    Level = new Rect(84, 34, 100, 18),
-                    Power = new Rect(84, 49, 120, 22),
+                    Profile = new Rect(4, 5, 282, 104),
+                    Avatar = new Rect(43, 29, 50, 50),
+                    Name = new Rect(106, 8, 148, 34),
+                    Level = new Rect(110, 44, 150, 25),
+                    Power = new Rect(110, 69, 162, 30),
                     Pills = pillX.Select(x => new Rect(x, pillY, pillW, pillH)).ToArray(),
                     Icons = Enumerable.Repeat(new Rect(6, 13, 26, 26), 3).ToArray(),
                     Values = Enumerable.Repeat(new Rect(pillW * .26f, 8, pillW * .5f, 36), 3).ToArray(),
@@ -185,7 +185,7 @@ namespace ChoSiren
             PlaceTop(level.rectTransform, layout.Level.x, layout.Level.y,
                 layout.Level.width, layout.Level.height);
             level.alignment = TextAnchor.MiddleLeft;
-            level.fontSize = 12;
+            level.fontSize = 16;
             level.color = new Color32(225, 215, 242, 255);
             level.horizontalOverflow = HorizontalWrapMode.Overflow;
             level.verticalOverflow = VerticalWrapMode.Overflow;
@@ -193,16 +193,15 @@ namespace ChoSiren
                 layout.Power.width, layout.Power.height);
             teamLevelText.alignment = TextAnchor.MiddleLeft;
             teamLevelText.resizeTextForBestFit = false;
-            teamLevelText.fontSize = 15;
+            teamLevelText.fontSize = 18;
             teamLevelText.color = White;
             teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
             teamLevelText.verticalOverflow = VerticalWrapMode.Overflow;
             // Achievement red dot on the plaque (the lobby's painted header used to carry it).
-            if (profile.Find("AchievementBadge") == null)
-            {
-                GameObject badge = UI.NoticeSticker1031.Create("AchievementBadge", profile);
-                PlaceTop(badge.GetComponent<RectTransform>(), 58, 6, 18, 18);
-            }
+            Transform achievementBadge = profile.Find("AchievementBadge");
+            if (achievementBadge == null)
+                achievementBadge = UI.NoticeSticker1031.Create("AchievementBadge", profile).transform;
+            PlaceTop((RectTransform)achievementBadge, 77, 8, 22, 22);
 
             string[] currencies = { CurrencyIds.Diamond, CurrencyIds.Gold, CurrencyIds.Stamina };
             string[] iconNames = { "DiamondIcon", "GoldIcon", "StaminaIcon" };

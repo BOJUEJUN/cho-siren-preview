@@ -40,7 +40,7 @@ namespace ChoSiren
         private static void FitPlayerName1028(Text name)
         {
             int characters = Mathf.Max(1, name.text.Length);
-            name.fontSize = Mathf.Clamp(Mathf.FloorToInt(name.rectTransform.sizeDelta.x / characters), 11, 17);
+            name.fontSize = Mathf.Clamp(Mathf.FloorToInt(name.rectTransform.sizeDelta.x / characters), 14, 22);
         }
 
         /// <param name="firstSigning">The first-launch contract: no close button, 签约 seals it.</param>
@@ -360,19 +360,23 @@ namespace ChoSiren
         /// <summary>The avatar sheet over the contract: every preset as a large face, tap one to clip it on.</summary>
         private void OpenAvatarSheet1028(Transform host, int current, Action<int> picked)
         {
+            GameObject overlay = null;
             ModalPolish038Frame frame = ModalPolish038Chrome.Begin(host, "AvatarSheet1028", "选择证件照", "经纪人头像",
-                null, 640f, closeName: "Close");
-            GameObject overlay = frame.Overlay;
+                () => { if (overlay != null) Destroy(overlay); }, 640f, closeName: "Close");
+            overlay = frame.Overlay;
             float width = frame.Width * (ModalPolish038Chrome.BodyRight - ModalPolish038Chrome.BodyLeft);
             int count = GameModel.PlayerAvatarResources.Length;
             const int columns = 4;
             const float rowGap = 16f;
             float face = (width - (columns - 1) * 16f) / columns;
+            int rows = Mathf.Max(1, (count + columns - 1) / columns);
+            RectTransform content = AvatarScrollContent1102(frame, width,
+                rows * face + (rows - 1) * rowGap + 8f, out Func<bool> canPick);
             for (int i = 0; i < count; i++)
             {
                 int choice = i;
                 bool on = i == current;
-                GameObject ring = NewImage("Avatar-" + i, frame.Body, DotSprite(), on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .16f));
+                GameObject ring = NewImage("Avatar-" + i, content, DotSprite(), on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .16f));
                 PlaceTop(ring.GetComponent<RectTransform>(), i % columns * (face + 16f), i / columns * (face + rowGap), face, face);
                 ring.GetComponent<Image>().raycastTarget = true;
                 GameObject mask = NewImage("Mask", ring.transform, DotSprite(), Color.white);
@@ -389,13 +393,12 @@ namespace ChoSiren
                 pick.transition = Selectable.Transition.None;
                 pick.onClick.AddListener(() =>
                 {
+                    if (!canPick()) return;
                     gameAudio?.PlayClick();
                     picked?.Invoke(choice);
                     Destroy(overlay);
                 });
             }
-            int rows = (count + columns - 1) / columns;
-            ModalPolish038Chrome.FitHeight(frame, rows * face + (rows - 1) * rowGap + 8f);
         }
 
         private static IEnumerator NextFrame1028(Action then)

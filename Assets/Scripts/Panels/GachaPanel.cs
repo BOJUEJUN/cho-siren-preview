@@ -268,6 +268,7 @@ namespace ChoSiren.Panels
                 606f, compact ? 160f : 246f, 1, candidates.Count > 1);
             BuildInterviewFigure(interviewContent.transform, memberIndex, compact);
             BuildInterviewCandidateCard(interviewContent.transform, memberIndex, candidates.Count, compact);
+            AttachCandidateSwipe1102(contentRect, new Rect(45f, compact ? 116f : 156f, 630f, compact ? 620f : 684f));
             BuildInterviewActions(interviewContent.transform, memberIndex, compact);
         }
 
@@ -329,6 +330,7 @@ namespace ChoSiren.Panels
             portrait.raycastTarget = false;
 
             BuildAuthoredCandidateCard(page, member, memberIndex, career);
+            AttachCandidateSwipe1102(page, new Rect(45f, 370f, 800f, 860f));
             BuildAuthoredCandidateNavigation(page, candidates.Count, art);
             BuildAuthoredContract(page, member, memberIndex, career, art);
         }

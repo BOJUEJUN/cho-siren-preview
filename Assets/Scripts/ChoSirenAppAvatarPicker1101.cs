@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ChoSiren.Panels;
 using ChoSiren.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ChoSiren
@@ -72,11 +73,14 @@ namespace ChoSiren
             const int columns = 4;
             const float gap = 16f;
             float tile = (width - (columns - 1) * gap) / columns;
+            int rows = Mathf.Max(1, (faces.Count + columns - 1) / columns);
+            float contentHeight = rows * tile + (rows - 1) * gap + 8f;
+            RectTransform content = AvatarScrollContent1102(frame, width, contentHeight, out Func<bool> canPick);
             for (int i = 0; i < faces.Count; i++)
             {
                 int slot = i;
                 bool on = i == selected;
-                GameObject ring = NewImage("Pick-" + i, frame.Body, DotSprite(),
+                GameObject ring = NewImage("Pick-" + i, content, DotSprite(),
                     on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .14f));
                 PlaceTop(ring.GetComponent<RectTransform>(), i % columns * (tile + gap), i / columns * (tile + gap), tile, tile);
                 ring.GetComponent<Image>().raycastTarget = true;
@@ -99,6 +103,7 @@ namespace ChoSiren
                 pick.targetGraphic = ring.GetComponent<Image>();
                 pick.onClick.AddListener(() =>
                 {
+                    if (!canPick()) return;
                     apply[slot]?.Invoke();
                     RefreshPlayerIdentity1028();
                     gameAudio?.PlaySuccess();
@@ -106,8 +111,49 @@ namespace ChoSiren
                     Toast("已换头像");
                 });
             }
-            int rows = (faces.Count + columns - 1) / columns;
-            ModalPolish038Chrome.FitHeight(frame, rows * tile + (rows - 1) * gap + 8f);
+        }
+
+        // Keep the existing four-column faces inside the modal; the header and close button
+        // stay outside the scrolling body. Both avatar entry points use the same clipping.
+        private RectTransform AvatarScrollContent1102(ModalPolish038Frame frame, float width,
+            float contentHeight, out Func<bool> canPick)
+        {
+            ModalPolish038Chrome.FitHeight(frame, contentHeight);
+            GameObject view = NewImage("AvatarScroll", frame.Body, null, Color.clear);
+            Stretch(view.GetComponent<RectTransform>());
+            view.GetComponent<Image>().raycastTarget = false;
+            GameObject viewport = NewImage("Viewport", view.transform, null, new Color(1f, 1f, 1f, .004f));
+            RectTransform viewportRect = viewport.GetComponent<RectTransform>();
+            Stretch(viewportRect);
+            viewport.GetComponent<Image>().raycastTarget = true;
+            viewport.AddComponent<RectMask2D>();
+            var contentObject = new GameObject("Content", typeof(RectTransform));
+            contentObject.transform.SetParent(viewport.transform, false);
+            RectTransform content = contentObject.GetComponent<RectTransform>();
+            PlaceTop(content, 0f, 0f, width, contentHeight);
+            ScrollRect scroll = view.AddComponent<ScrollRect>();
+            scroll.viewport = viewportRect;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.inertia = true;
+            scroll.decelerationRate = .135f;
+            scroll.scrollSensitivity = 36f;
+
+            // ScrollRect cancels normal pointer clicks during a drag; also protect the release
+            // frame, where a touch release must never select the face now under the finger.
+            bool dragging = false;
+            float releasedAt = float.NegativeInfinity;
+            EventTrigger gesture = view.AddComponent<EventTrigger>();
+            var begin = new EventTrigger.Entry { eventID = EventTriggerType.BeginDrag };
+            begin.callback.AddListener(_ => dragging = true);
+            gesture.triggers.Add(begin);
+            var end = new EventTrigger.Entry { eventID = EventTriggerType.EndDrag };
+            end.callback.AddListener(_ => { dragging = false; releasedAt = Time.unscaledTime; });
+            gesture.triggers.Add(end);
+            canPick = () => !dragging && Time.unscaledTime - releasedAt > .12f;
+            return content;
         }
     }
 }

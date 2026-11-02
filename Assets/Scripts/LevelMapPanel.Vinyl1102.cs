@@ -19,6 +19,7 @@ namespace ChoSiren
         private RectTransform teamSwapGlyph1102;
         private Image teamSwapGlow1102;
         private bool teamSwapAnimating1102;
+        private VinylStageWheel1102 vinylWheel1102;
 
         // The approved B composition: a circular record clipped by the right screen edge.
         // It is a real circle. Only its location changes; its width and height always match.
@@ -38,7 +39,9 @@ namespace ChoSiren
             float scale = Mathf.Min(w / 858f, h / 1834f);
             PlaceTop(page, (w - 858f * scale) * .5f, (h - 1834f * scale) * .5f, 858, 1834);
             page.localScale = Vector3.one * scale;
-            page.gameObject.AddComponent<RectMask2D>();
+            // Clip at the actual viewport, not the centred design page on wider phones/PC.
+            if (host.GetComponent<RectMask2D>() == null) host.gameObject.AddComponent<RectMask2D>();
+            float edgeExtra = (w / scale - 858f) * .5f;
 
             GameObject back = MapBoardHit("Back", page, 32, 28, 84, 80, Close);
             SirenStickerUi.SkinButton(back, false, true);
@@ -62,37 +65,51 @@ namespace ChoSiren
             storyChapterLabel = NewPlacedText(story.transform, "", 21, White, 0, 0, 240, 52, TextAnchor.MiddleLeft);
             Readable(storyChapterLabel);
 
-            Image disc = NewImage("HalfVinyl1102", page, Resources.Load<Sprite>("Art/LevelMap1102/vinyl"), Color.white);
-            PlaceTop(disc.rectTransform, 296, 255, 1124, 1124);
+            Image wheelSurface = NewImage("VinylWheelInput1102", page, null, Color.clear);
+            PlaceTop(wheelSurface.rectTransform, 296 + edgeExtra, 255, 1124, 1124);
+            wheelSurface.raycastTarget = true;
+            vinylWheel1102 = wheelSurface.gameObject.AddComponent<VinylStageWheel1102>();
+            Image disc = NewImage("HalfVinyl1102", wheelSurface.transform,
+                Resources.Load<Sprite>("Art/LevelMap1102/vinyl"), Color.white);
+            PlaceTop(disc.rectTransform, 0, 0, 1124, 1124);
+            CenterPivot(disc.rectTransform);
             disc.preserveAspect = true;
+            var wheelNodes = new RectTransform[ChapterStageCount];
+            var wheelButtons = new Button[ChapterStageCount];
             for (int i = 0; i < ChapterStageCount; i++)
             {
                 int stage = i + 1;
-                float angle = (-105f - i * 150f / (ChapterStageCount - 1)) * Mathf.Deg2Rad;
-                float x = 858 + Mathf.Cos(angle) * 480, y = 817 + Mathf.Sin(angle) * 480;
-                GameObject node = NewPanelButton($"Level-{chapter}-{stage}", page, new Color32(16, 10, 31, 245), 48, () => SelectStage(stage));
-                node.GetComponent<Image>().type = Image.Type.Simple;
-                PlaceTop(node.GetComponent<RectTransform>(), x - 45, y - 45, 90, 90);
-                Outline rim = node.AddComponent<Outline>(); rim.effectColor = new Color32(137, 115, 177, 230); rim.effectDistance = new Vector2(1.5f, -1.5f);
+                // No EventTrigger on these buttons: drag events must reach the shared record.
+                GameObject node = MapBoardHit($"Level-{chapter}-{stage}", wheelSurface.transform,
+                    0, 0, 122, 122, () => SelectVinylStage1102(stage));
+                Image hit = node.GetComponent<Image>();
+                hit.sprite = RoundedSprite(48); hit.type = Image.Type.Simple;
+                hit.color = new Color32(16, 10, 31, 245);
+                Outline rim = node.AddComponent<Outline>();
+                rim.effectColor = new Color32(137, 115, 177, 230); rim.effectDistance = new Vector2(1.5f, -1.5f);
                 Image glow = NewImage("SelectedRim", node.transform, RoundedSprite(48), Accent);
                 glow.type = Image.Type.Simple;
-                PlaceTop(glow.rectTransform, -5, -5, 100, 100); glow.transform.SetAsFirstSibling();
+                PlaceTop(glow.rectTransform, -6, -6, 134, 134); glow.transform.SetAsFirstSibling();
                 Image core = NewImage("Core", node.transform, RoundedSprite(48), new Color32(14, 13, 29, 255));
-                core.type = Image.Type.Simple;
-                Stretch(core.rectTransform);
-                Text label = NewPlacedText(node.transform, $"{chapter}-{stage}", 31, White, 0, 8, 90, 44, TextAnchor.MiddleCenter, FontStyle.Bold);
+                core.type = Image.Type.Simple; Stretch(core.rectTransform);
+                Text label = NewPlacedText(node.transform, $"{chapter}-{stage}", 39, White,
+                    0, 15, 122, 57, TextAnchor.MiddleCenter, FontStyle.Bold);
                 label.verticalOverflow = VerticalWrapMode.Overflow;
-                Text status = NewPlacedText(node.transform, "", 18, StarGold, 0, 51, 90, 34, TextAnchor.MiddleCenter);
+                label.horizontalOverflow = HorizontalWrapMode.Overflow;
+                Text status = NewPlacedText(node.transform, "", 22, StarGold, 0, 78, 122, 36, TextAnchor.MiddleCenter);
                 status.verticalOverflow = VerticalWrapMode.Overflow;
-                nodeViews[stage] = new NodeView { Stage = stage, Button = node.GetComponent<Button>(), Background = core,
+                wheelNodes[i] = node.GetComponent<RectTransform>(); wheelButtons[i] = node.GetComponent<Button>();
+                nodeViews[stage] = new NodeView { Stage = stage, Button = wheelButtons[i], Background = core,
                     Glow = glow, Outline = rim, StageLabel = label, StatusLabel = status };
             }
+            vinylWheel1102.Configure(disc.rectTransform, wheelNodes, wheelButtons, selectedStage,
+                SelectVinylStage1102, stage => StateFor(stage) != LevelState.Locked);
             sceneNumber1102 = NewPlacedText(page, "", 20, Accent, 42, 701, 255, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
             sceneTitle1102 = NewPlacedText(page, "", 48, White, 39, 750, 255, 166, TextAnchor.UpperLeft, FontStyle.Bold);
             sceneTitle1102.horizontalOverflow = HorizontalWrapMode.Wrap;
             Readable(sceneTitle1102);
 
-            GameObject team = MapBoardHit("StageTeamPreset", page, 40, 1332, 778, 80, OpenVinylTeamPresets1102);
+            GameObject team = MapBoardHit("StageTeamPreset", page, 40, 1268, 778, 140, OpenVinylTeamPresets1102);
             SirenStickerUi.SkinPanel(team, false);
             activeTeamText1028 = NewPlacedText(team.transform, "", 23, White, 66, 4, 600, 46, TextAnchor.MiddleLeft);
             activeTeamText1028.name = "ActiveTeamName";
@@ -139,6 +156,7 @@ namespace ChoSiren
         {
             if (!vinylMap1102) return;
             RefreshVinylTeamStrip1102();
+            vinylWheel1102?.ShowStage(selectedStage);
             string title = stage?.Name ?? "演出";
             int gap = title.IndexOf(' '); if (gap >= 0) title = title.Substring(gap + 1);
             stageTitleText.text = sceneTitle1102.text = title;
@@ -159,6 +177,20 @@ namespace ChoSiren
             }
         }
 
+        private void SelectVinylStage1102(int stage)
+        {
+            SelectStage(stage);
+            vinylWheel1102?.ShowStage(selectedStage);
+        }
+
+        private void ExchangeStroke1102(Transform parent, float x, float y, float w, float h, float angle)
+        {
+            Image stroke = NewImage("ExchangeStroke", parent, null, Accent);
+            PlaceTop(stroke.rectTransform, x, y, w, h);
+            CenterPivot(stroke.rectTransform);
+            stroke.rectTransform.localEulerAngles = new Vector3(0, 0, angle);
+        }
+
         private void BuildVinylTeamStrip1102(Transform team)
         {
             activeTeamText1028.enabled = false;
@@ -167,29 +199,38 @@ namespace ChoSiren
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
             {
                 RectTransform member = VisualB1101.Rect("StageTeamMember-" + slot, team);
-                PlaceTop(member, 16 + slot * 170, 12, 160, 56);
+                PlaceTop(member, 28 + slot * 146, 4, 136, 132);
                 Image rim = NewImage("AvatarRim", member, RoundedSprite(30),
                     slot == 0 ? Accent : new Color32(156, 104, 255, 180));
                 rim.type = Image.Type.Simple;
-                PlaceTop(rim.rectTransform, 0, 0, 56, 56);
+                PlaceTop(rim.rectTransform, 22, 2, 92, 92);
                 Image window = NewImage("AvatarWindow", member, RoundedSprite(30), Color.white);
                 window.type = Image.Type.Simple;
-                PlaceTop(window.rectTransform, 2, 2, 52, 52);
+                PlaceTop(window.rectTransform, 24, 4, 88, 88);
                 window.gameObject.AddComponent<Mask>().showMaskGraphic = false;
                 teamFaces1102[slot] = NewImage("Avatar", window.transform, null, White);
-                teamNames1102[slot] = NewPlacedText(member, "", 23, White,
-                    66, 5, 94, 46, TextAnchor.MiddleLeft, FontStyle.Bold);
+                teamNames1102[slot] = NewPlacedText(member, "", 24, White,
+                    0, 96, 136, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
                 teamNames1102[slot].name = "MemberName";
                 teamNames1102[slot].verticalOverflow = VerticalWrapMode.Overflow;
                 PanelKit.EnableBestFit(teamNames1102[slot], 18);
                 teamMembers1102[slot] = -2;
             }
-            GameObject swap = MapBoardHit("StageTeamSwap", team, 704, 8, 64, 64, OpenVinylTeamPresets1102);
+            GameObject swap = MapBoardHit("StageTeamSwap", team, 672, 26, 88, 88, OpenVinylTeamPresets1102);
             teamSwapGlow1102 = NewImage("SwapGlow", swap.transform, VisualB1101.Glow(),
                 new Color(Accent.r, Accent.g, Accent.b, .12f));
-            PlaceTop(teamSwapGlow1102.rectTransform, -8, -8, 80, 80);
-            teamSwapGlyph1102 = VisualB1101.NeonIcon(swap.transform, "SwapGlyph", "exchange", White, 11, 11, 42, false).rectTransform;
+            PlaceTop(teamSwapGlow1102.rectTransform, -8, -8, 104, 104);
+            RectTransform holder = VisualB1101.Rect("SwapGlyph", swap.transform);
+            PlaceTop(holder, 14, 18, 60, 52);
+            teamSwapGlyph1102 = VisualB1101.Rect("Glyph", holder);
+            PlaceTop(teamSwapGlyph1102, 0, 0, 60, 52);
             CenterPivot(teamSwapGlyph1102);
+            ExchangeStroke1102(teamSwapGlyph1102, 8, 14, 44, 4, 0);
+            ExchangeStroke1102(teamSwapGlyph1102, 44, 9, 16, 4, -40);
+            ExchangeStroke1102(teamSwapGlyph1102, 44, 19, 16, 4, 40);
+            ExchangeStroke1102(teamSwapGlyph1102, 8, 34, 44, 4, 0);
+            ExchangeStroke1102(teamSwapGlyph1102, 4, 29, 16, 4, 40);
+            ExchangeStroke1102(teamSwapGlyph1102, 4, 39, 16, 4, -40);
         }
 
         private void RefreshVinylTeamStrip1102()

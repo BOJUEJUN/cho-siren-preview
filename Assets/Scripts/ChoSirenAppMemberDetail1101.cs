@@ -91,37 +91,24 @@ namespace ChoSiren
 
         private void DetailEdgeTab1101(RectTransform page, string name, int direction, float midY, UnityEngine.Events.UnityAction action)
         {
-            const float hitW = 76f, hitH = 160f, tabW = 46f, tabH = 136f;
+            const float hitW = 64f, hitH = 96f;
             bool left = direction < 0;
             GameObject hit = BoardButton038(name, page,
                 new Rect(left ? 0f : DetailWidth - hitW, midY - hitH * .5f, hitW, hitH), action);
-            RectTransform hitRect = hit.GetComponent<RectTransform>();
-
-            // Tab hugging the screen edge: full height on the outside, cut in on the inside.
-            Vector2[] shape = { new Vector2(0f, 0f), new Vector2(.78f, .1f), new Vector2(1f, .5f), new Vector2(.78f, .9f), new Vector2(0f, 1f) };
-            if (!left) shape = shape.Select(p => new Vector2(1f - p.x, p.y)).ToArray();
-            float tabX = left ? 0f : hitW - tabW, tabY = (hitH - tabH) * .5f;
-
-            ConvexPoly1101 shadow = Poly1101(hit.transform, "TabShadow", shape, new Color32(255, 46, 147, 235));
-            PlaceTop(shadow.rectTransform, tabX + (left ? 5f : -5f), tabY + 6f, tabW, tabH);
-            ConvexPoly1101 rim = Poly1101(hit.transform, "TabRim", shape, Brand1025.Teal);
-            PlaceTop(rim.rectTransform, tabX, tabY, tabW, tabH);
-            ConvexPoly1101 plate = Poly1101(hit.transform, "TabPlate", shape, new Color32(12, 8, 22, 255));
-            PlaceTop(plate.rectTransform, tabX + (left ? 0f : 3f), tabY + 3f, tabW - 3f, tabH - 6f);
-
-            GameObject chevronObject = new GameObject("Chevron", typeof(RectTransform), typeof(CanvasRenderer), typeof(Chevron1101));
-            chevronObject.transform.SetParent(hit.transform, false);
-            Chevron1101 chevron = chevronObject.GetComponent<Chevron1101>();
-            chevron.PointsRight = !left;
-            chevron.color = Brand1025.Teal;
-            chevron.raycastTarget = false;
-            const float chevW = 20f, chevH = 40f;
-            PlaceTop(chevron.rectTransform, tabX + (tabW - chevW) * .5f + (left ? -3f : 3f), tabY + (tabH - chevH) * .5f, chevW, chevH);
-            Shadow glow = chevronObject.AddComponent<Shadow>();
-            glow.effectColor = new Color32(255, 46, 147, 200);
-            glow.effectDistance = new Vector2(left ? 2f : -2f, -2f);
-            chevronObject.AddComponent<DetailArrowNudge1101>().Bind(direction);
-            hitRect.SetAsLastSibling();
+            foreach (var feedback in hit.GetComponents<LobbyHotspotFeedback>()) feedback.enabled = false;
+            var visual = new GameObject("ArrowVisual", typeof(RectTransform));
+            visual.transform.SetParent(hit.transform, false);
+            PlaceTop(visual.GetComponent<RectTransform>(), 19, 26, 26, 44);
+            var glyph = new GameObject("Chevron", typeof(RectTransform), typeof(CanvasRenderer), typeof(PsdHomeChevron));
+            glyph.transform.SetParent(visual.transform, false);
+            PlaceTop(glyph.GetComponent<RectTransform>(), 0, 0, 26, 44);
+            var chevron = glyph.GetComponent<PsdHomeChevron>();
+            chevron.Initialize(direction);
+            var button = hit.GetComponent<Button>();
+            button.targetGraphic = chevron;
+            button.transition = Selectable.Transition.None;
+            hit.AddComponent<PsdHomeChevronFeedback>().Configure(chevron, visual.GetComponent<RectTransform>());
+            hit.transform.SetAsLastSibling();
         }
 
         private void DetailPager1101(RectTransform page, int count, int index, float pageH)
