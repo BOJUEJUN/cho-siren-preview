@@ -163,6 +163,10 @@ namespace ChoSiren.UI
             if (string.IsNullOrEmpty(name)) return false;
             string key = null;
             if (!string.IsNullOrEmpty(memberId) && byKey.ContainsKey(memberId + "/" + name)) key = memberId + "/" + name;
+            // Reimported single sprites can retain a name such as portrait_0. The catalog
+            // and member-card crop use the texture's portrait path, not that stale slice name.
+            else if (!string.IsNullOrEmpty(memberId) && art.texture != null &&
+                byKey.ContainsKey(memberId + "/" + art.texture.name)) key = memberId + "/" + art.texture.name;
             else if (byKey.ContainsKey(name)) key = name;
             else if (art.texture != null && byKey.ContainsKey(art.texture.name)) key = art.texture.name;
             if (key == null) return false;
@@ -312,7 +316,13 @@ namespace ChoSiren.UI
                 cropCache[art] = perArt = new Dictionary<string, Sprite>(StringComparer.Ordinal);
             if (perArt.TryGetValue(key, out Sprite cached) && cached != null) return cached;
             Rect tr = art.textureRect;
-            var px = new Rect(tr.x + uv.x * tr.width, tr.y + uv.y * tr.height, uv.width * tr.width, uv.height * tr.height);
+            // Face annotations are relative to the original sprite rectangle. Tight import
+            // trims transparent margins from textureRect; using that smaller rectangle moves
+            // a seated character's head crop down onto her torso.
+            Vector2 origin = tr.position - art.textureRectOffset;
+            Rect source = art.rect;
+            var px = new Rect(origin.x + uv.x * source.width, origin.y + uv.y * source.height,
+                uv.width * source.width, uv.height * source.height);
             px.x = Mathf.Round(px.x); px.y = Mathf.Round(px.y);
             px.width = Mathf.Clamp(Mathf.Round(px.width), 1f, art.texture.width - px.x);
             px.height = Mathf.Clamp(Mathf.Round(px.height), 1f, art.texture.height - px.y);
@@ -353,9 +363,11 @@ namespace ChoSiren.UI
             Rect uv = UvFor(memberId, art, aspect, framing);
             Texture tex = art.texture;
             Rect tr = art.textureRect;
+            Vector2 origin = tr.position - art.textureRectOffset;
+            Rect source = art.rect;
             raw.texture = tex;
-            raw.uvRect = new Rect((tr.x + uv.x * tr.width) / tex.width, (tr.y + uv.y * tr.height) / tex.height,
-                uv.width * tr.width / tex.width, uv.height * tr.height / tex.height);
+            raw.uvRect = new Rect((origin.x + uv.x * source.width) / tex.width, (origin.y + uv.y * source.height) / tex.height,
+                uv.width * source.width / tex.width, uv.height * source.height / tex.height);
         }
 
         public static void Apply(RawImage raw, string memberId, Texture texture, Framing framing = Framing.Head)

@@ -1,0 +1,64 @@
+{
+  "provider": "Kenney",
+  "pack": "Interface Sounds 1.0",
+  "license": "CC0",
+  "localSource": "/Users/bojuejun/Documents/Codex/2026-10-09/kan/work/battle-psd-align-20261019/agent-audio/downloads/kenney_interface-sounds",
+  "notes": "Only trimming, gain, filtering and crossfading published samples; no oscillator/generated tone.",
+  "clips": [
+    {
+      "name": "ui-click",
+      "source": "click_001.ogg",
+      "sourceSha256": "ccfb7fa0cccdd9faec0eb16033c732b1e308d139d80f799161495d58f7adcdb9",
+      "sha256": "68753d1ab9adb7aed3d67016335dec4120a7427bb26e325bc06ab67d5b1955e5",
+      "processing": "volume=0.95,alimiter=limit=0.78:level=false"
+    },
+    {
+      "name": "ui-confirm",
+      "source": "confirmation_003.ogg",
+      "sourceSha256": "3091bf0be0497f825769ee0733ca7bdc3bcd59bd6c6e8f2ba8f93d580ff38022",
+      "sha256": "8cadd76d798d598a5dc58f91bb99802c8f3607e0c5360d6530d1055619abf049",
+      "processing": "volume=0.68,alimiter=limit=0.78:level=false"
+    },
+    {
+      "name": "ui-cancel",
+      "source": "back_001.ogg",
+      "sourceSha256": "07db973f79f6ae0f2edc34561e7592e24d0577455919fb602cb8ecc0da991dcf",
+      "sha256": "f7ecf709954f8f3f6f5351a55177ac408ce1efa895fe7341f30b7eed635865b7",
+      "processing": "volume=0.85,alimiter=limit=0.78:level=false"
+    },
+    {
+      "name": "ui-switch",
+      "source": "switch_006.ogg",
+      "sourceSha256": "2676ddc4e341ee557b4d1dc8767ef8655540d66fb3ded6a1614080dbc4dc6f18",
+      "sha256": "a717040dae39d25acbb7ffbbf27ad694fa2e36e9212d4a133033240b417ba712",
+      "processing": "volume=0.8,alimiter=limit=0.78:level=false,afade=t=in:d=0.001,afade=t=out:st=0.54:d=0.04"
+    },
+    {
+      "name": "ui-error",
+      "source": "error_006.ogg",
+      "sourceSha256": "a97513d7fd2b12b1210c423be943b4c1ab0e899b11db95855e9b74836e646ae0",
+      "sha256": "176c692c98a9418f395323c153f554a5debe2190e3db2ada2d1f4e18b7b1b984",
+      "processing": "volume=0.65,alimiter=limit=0.78:level=false"
+    },
+    {
+      "name": "vinyl-tick",
+      "source": "tick_001.ogg",
+      "sourceSha256": "9d057b918024c787bbe6c00beed13a7ef72a3fa0c259add3cef36582792f4230",
+      "sha256": "53ba31094c2841518dcbb0019ece78e6b0fde5b4521eeb9c53b29c6a4dbfed14",
+      "processing": "volume=0.82,alimiter=limit=0.78:level=false"
+    },
+    {
+      "name": "vinyl-scrub",
+      "source": [
+        "scratch_004.ogg",
+        "scratch_005.ogg"
+      ],
+      "sourceSha256": [
+        "26009c67ef90ee7a5a2bc458ef9e7f5a9da83da9397a830cff9e4a1813914687",
+        "65742c15dca9853611e1c9e83bd04ac0d693f79896715cafa90bad39745d7a62"
+      ],
+      "sha256": "c5f4c2f7602094f1527080b3f3d511239138c134c4c7e84ae61a2bb914e7ab92",
+      "processing": "[0:a]volume=0.82[a];[1:a]volume=0.58[b];[a][b]acrossfade=d=0.025:c1=tri:c2=tri,highpass=f=120,lowpass=f=10500,alimiter=limit=0.78:level=false,afade=t=in:d=0.004,afade=t=out:st=0.615:d=0.01"
+    }
+  ]
+}

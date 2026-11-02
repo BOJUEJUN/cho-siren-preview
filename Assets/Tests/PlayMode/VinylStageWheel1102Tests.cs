@@ -121,6 +121,9 @@ namespace ChoSiren.Tests
                 Assert.That(map.GetComponent<RectMask2D>(), Is.Not.Null);
                 Rect selected = Bounds(f.Find<RectTransform>("SelectedLevel"), map);
                 Transform strip = f.Find<RectTransform>("StageTeamPreset");
+                Assert.That(((RectTransform)strip).rect.width, Is.EqualTo(490f).Within(.01f));
+                Assert.That(Bounds((RectTransform)strip, map).width, Is.EqualTo(selected.width).Within(1f),
+                    "头像框宽度与关卡详情卡一致；换队独立在右侧空白。 ");
                 for (int i = 0; i < GameModel.TeamCapacity; i++)
                 {
                     Transform member = strip.Find("StageTeamMember-" + i);
@@ -146,6 +149,18 @@ namespace ChoSiren.Tests
                 f.Click("ChapterTasks"); yield return null;
                 Assert.That(f.Map.GetComponentsInChildren<Transform>().Any(t => t.name == "ChapterTasksModal"), Is.True);
                 Capture(f, "wheel-tasks-" + size.x + ".png");
+                f.Click("CloseChapterModal"); yield return null;
+                f.Click("ChapterSwitch"); yield return null;
+                Assert.That(f.Find<RectTransform>("ChapterPicker1102"), Is.Not.Null);
+                Button current = f.Find<Button>("ChooseChapter-1"), locked = f.Find<Button>("ChooseChapter-2");
+                Assert.That(current.GetComponentsInChildren<Text>().Any(t => t.text.Contains("当前")), Is.True);
+                Assert.That(locked.interactable, Is.False);
+                int stageBefore = f.Map.SelectedStage;
+                ExecuteEvents.Execute(locked.gameObject, new PointerEventData(f.Events.GetComponent<EventSystem>())
+                    { button = PointerEventData.InputButton.Left }, ExecuteEvents.pointerClickHandler);
+                Assert.That(f.Map.SelectedStage, Is.EqualTo(stageBefore));
+                Assert.That(f.Find<RectTransform>("ChapterPicker1102").gameObject.activeInHierarchy, Is.True,
+                    "锁定章节点击不能关闭列表或穿透到关卡。 ");
             }
         }
 

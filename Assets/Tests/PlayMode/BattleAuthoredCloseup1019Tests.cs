@@ -154,6 +154,30 @@ namespace ChoSiren.Tests
             finally { Object.DestroyImmediate(root); Object.DestroyImmediate(art); Object.DestroyImmediate(texture); }
         }
 
+        [Test]
+        public void FittedPsdClipsAtTheViewportInsteadOfTheAuthoredBoard()
+        {
+            var root = Stage();
+            try
+            {
+                var viewport = (RectTransform)root.transform;
+                viewport.sizeDelta = new Vector2(810f, 1502f);
+                var child = new GameObject("FittedBattle", typeof(RectTransform), typeof(RectMask2D));
+                child.transform.SetParent(root.transform, false);
+                var rect = (RectTransform)child.transform;
+                var fit = child.AddComponent<BattlePsdViewportFit1019>();
+                fit.Configure(rect, viewport, new Vector2(720f, 1502f));
+                Rect visible = fit.VisualViewport;
+                Vector4 padding = child.GetComponent<RectMask2D>().padding;
+                Assert.That(rect.rect.width, Is.EqualTo(720f));
+                Assert.That(rect.localScale.x, Is.EqualTo(rect.localScale.y));
+                Assert.That(visible.width, Is.GreaterThan(800f));
+                Assert.That(rect.rect.xMin + padding.x, Is.LessThanOrEqualTo(visible.xMin));
+                Assert.That(rect.rect.xMax - padding.z, Is.GreaterThanOrEqualTo(visible.xMax));
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
         [TestCase(0f, 720f)] [TestCase(-45f, 765f)]
         public void CutEdgesStayOutsideViewportDuringEntranceHoldAndExit(float left, float right)
         {

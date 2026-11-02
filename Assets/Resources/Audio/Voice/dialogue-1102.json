@@ -1,0 +1,1339 @@
+{
+  "entries": [
+    {
+      "script": "chapter-01",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "……排练室的灯还亮着。{player}，你也没回去吗？",
+      "clip": "Story/chapter-01-l3",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 4,
+      "subject": "producer",
+      "zh": "想再听一遍你今天的高音。最后那个转音，和上周不一样。",
+      "clip": "Story/v1102-chapter-01-l4",
+      "reused": false,
+      "ja": "今日の高音をもう一度聴きたくて。最後の歌い回し、先週と変えていたね。"
+    },
+    {
+      "script": "chapter-01",
+      "line": 5,
+      "subject": "xingli",
+      "zh": "你听出来了？我以为……没有人会注意那种细节。",
+      "clip": "Story/chapter-01-l5",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 7,
+      "subject": "xingli",
+      "zh": "……嗯。那就别告诉别人，这是我们两个人的秘密。",
+      "clip": "Story/chapter-01-l7",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 10,
+      "subject": "xingli",
+      "zh": "是吗。那也好，我还没准备好让别人听见。",
+      "clip": "Story/chapter-01-l10",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 15,
+      "subject": "feiyin",
+      "zh": "两位，深夜密谈？楼下的信号又断了，整条街的霓虹灯都在闪。",
+      "clip": "Story/chapter-01-l15",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 16,
+      "subject": "producer",
+      "zh": "又是那种杂音？",
+      "clip": "Story/v1102-chapter-01-l16",
+      "reused": false,
+      "ja": "また、あのノイズか。"
+    },
+    {
+      "script": "chapter-01",
+      "line": 17,
+      "subject": "feiyin",
+      "zh": "比上次更近。星璃，你的耳返里应该也听到了吧——那不是电路故障。",
+      "clip": "Story/chapter-01-l17",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 19,
+      "subject": "xingli",
+      "zh": "……我们去看看。{player}，带上编队名单。",
+      "clip": "Story/chapter-01-l19",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 21,
+      "subject": "xingli",
+      "zh": "……我们去看看。{player}，这次站在我能看见你的地方。",
+      "clip": "Story/chapter-01-l21",
+      "reused": true
+    },
+    {
+      "script": "chapter-01",
+      "line": 25,
+      "subject": "producer",
+      "zh": "霓虹后巷。杂音就是从这里传出来的。",
+      "clip": "Story/v1102-chapter-01-l25",
+      "reused": false,
+      "ja": "ネオンの裏路地だ。ノイズはそこから流れてきている。"
+    },
+    {
+      "script": "chapter-02",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "王座那一战之后，杂音没有消失——它往海边去了。",
+      "clip": "Story/chapter-02-l3",
+      "reused": true
+    },
+    {
+      "script": "chapter-02",
+      "line": 4,
+      "subject": "producer",
+      "zh": "海湾巨蛋？下个月的公演就在那里。",
+      "clip": "Story/v1102-chapter-02-l4",
+      "reused": false,
+      "ja": "海湾ドームか。来月の公演は、あそこだったな。"
+    },
+    {
+      "script": "chapter-02",
+      "line": 5,
+      "subject": "feiyin",
+      "zh": "所以说，有人想抢在我们前面，把整座巨蛋变成「幻蚀」的猎场。",
+      "clip": "Story/chapter-02-l5",
+      "reused": true
+    },
+    {
+      "script": "chapter-02",
+      "line": 7,
+      "subject": "xingli",
+      "zh": "那些被侵蚀的歌声里……有我认识的声音。她们原本也是想登上舞台的人。",
+      "clip": "Story/chapter-02-l7",
+      "reused": true
+    },
+    {
+      "script": "chapter-02",
+      "line": 9,
+      "subject": "xingli",
+      "zh": "……嗯。这次，我想唱给她们听。",
+      "clip": "Story/chapter-02-l9",
+      "reused": true
+    },
+    {
+      "script": "chapter-02",
+      "line": 11,
+      "subject": "feiyin",
+      "zh": "命令收到。不过真到了台上，谁也拦不住星璃。",
+      "clip": "Story/chapter-02-l11",
+      "reused": true
+    },
+    {
+      "script": "chapter-02",
+      "line": 13,
+      "subject": "producer",
+      "zh": "从码头开始。沿着栈桥，一站一站打到巨蛋。",
+      "clip": "Story/v1102-chapter-02-l13",
+      "reused": false,
+      "ja": "港から始めよう。桟橋を越えて、一つずつドームへ進む。"
+    },
+    {
+      "script": "chapter-02",
+      "line": 14,
+      "subject": "feiyin",
+      "zh": "全员，巡演开始。",
+      "clip": "Story/chapter-02-l14",
+      "reused": true
+    },
+    {
+      "script": "prologue",
+      "line": 1,
+      "subject": "narrator",
+      "zh": "幻域靠歌声点亮。如今，「杂音」正吞噬城市的光。",
+      "clip": "Story/v1102-prologue-l1",
+      "reused": false,
+      "ja": "歌声に照らされる幻域。その街の光が今、ノイズに吞まれようとしていた。"
+    },
+    {
+      "script": "prologue",
+      "line": 4,
+      "subject": "xingli",
+      "zh": "{player}，欢迎！我是星璃。CHO-SIREN 的舞台，就交给你指挥啦。",
+      "clip": "Story/v1102-prologue-l4",
+      "reused": false,
+      "ja": "プロデューサー、ようこそ。私はシンリ。CHO-SIRENのステージ、あなたに任せるね。"
+    },
+    {
+      "script": "prologue",
+      "line": 6,
+      "subject": "feiyin",
+      "zh": "我是绯音，旁边是雾白和夜莺。经纪人，来场实战热身？",
+      "clip": "Story/v1102-prologue-l6",
+      "reused": false,
+      "ja": "私はヒイン。こちらがムバイとヨエイ。プロデューサー、実戦で肩慣らししようか。"
+    },
+    {
+      "script": "prologue",
+      "line": 13,
+      "subject": "narrator",
+      "zh": "霓虹骤暗，耳返里炸出一阵杂音。",
+      "clip": "Story/v1102-prologue-l13",
+      "reused": false,
+      "ja": "ネオンがふっと消え、イヤーモニターに鋭いノイズが走った。"
+    },
+    {
+      "script": "prologue",
+      "line": 14,
+      "subject": "yeying",
+      "zh": "后巷有动静。准备迎战。",
+      "clip": "Story/v1102-prologue-l14",
+      "reused": false,
+      "ja": "裏路地で動きがある。戦闘準備。"
+    },
+    {
+      "script": "prologue",
+      "line": 15,
+      "subject": "xingli",
+      "zh": "第一场演出，现在开始。{player}，跟上我们的节拍！",
+      "clip": "Story/v1102-prologue-l15",
+      "reused": false,
+      "ja": "最初のステージ、始めるよ。プロデューサー、私たちのビートについてきて。"
+    },
+    {
+      "script": "stage-1-1-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "杂音散了……后巷的霓虹又亮回来了。",
+      "clip": "Story/v1102-stage-1-1-end-l2",
+      "reused": false,
+      "ja": "ノイズが消えた。裏路地のネオンも、また灯ったね。"
+    },
+    {
+      "script": "stage-1-1-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "看吧，我说过唱两句就够。",
+      "clip": "Story/v1102-stage-1-1-end-l3",
+      "reused": false,
+      "ja": "ほらね。少し歌えば十分だって、言ったでしょ。"
+    },
+    {
+      "script": "stage-1-1-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "第一场，满分。下一站是地下电台。",
+      "clip": "Story/v1102-stage-1-1-end-l4",
+      "reused": false,
+      "ja": "最初のステージは満点だ。次は地下ラジオ局へ。"
+    },
+    {
+      "script": "stage-1-1",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "后巷的霓虹在闪……那不是灯坏了，是杂音在吃掉光。",
+      "clip": "Story/stage-1-1-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-1",
+      "line": 3,
+      "subject": "producer",
+      "zh": "第一场演出就在这里。别紧张，按排练来。",
+      "clip": "Story/v1102-stage-1-1-l3",
+      "reused": false,
+      "ja": "最初のステージはここだ。落ち着いて、リハーサルどおりに。"
+    },
+    {
+      "script": "stage-1-1",
+      "line": 4,
+      "subject": "feiyin",
+      "zh": "放心，{player}。区区斥候，唱两句就散了。",
+      "clip": "Story/stage-1-1-l4",
+      "reused": true
+    },
+    {
+      "script": "stage-1-10-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "声音……回来了。整座城都在唱。",
+      "clip": "Story/v1102-stage-1-10-end-l2",
+      "reused": false,
+      "ja": "声が、戻ってきた。街じゅうが歌ってる。"
+    },
+    {
+      "script": "stage-1-10-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "女王，你的王冠我们收下了——还给大家。",
+      "clip": "Story/v1102-stage-1-10-end-l3",
+      "reused": false,
+      "ja": "女王、その王冠は預かったよ。みんなに返すためにね。"
+    },
+    {
+      "script": "stage-1-10-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "第一章，终演成功。海湾那边，有新的舞台在等你们。",
+      "clip": "Story/v1102-stage-1-10-end-l4",
+      "reused": false,
+      "ja": "第一章、終演成功。海湾では、新しいステージが待っている。"
+    },
+    {
+      "script": "stage-1-10",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "王座就在前面。女王把整座城的声音都收进了她的王冠。",
+      "clip": "Story/stage-1-10-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-10",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "我们来，是要把那些声音还给大家。",
+      "clip": "Story/stage-1-10-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-10",
+      "line": 4,
+      "subject": "yeying",
+      "zh": "三个阶段，三次机会。一次都别浪费。",
+      "clip": "Story/stage-1-10-l4",
+      "reused": true
+    },
+    {
+      "script": "stage-1-10",
+      "line": 5,
+      "subject": "producer",
+      "zh": "全员——开演！",
+      "clip": "Story/v1102-stage-1-10-l5",
+      "reused": false,
+      "ja": "全員、開演だ！"
+    },
+    {
+      "script": "stage-1-2-end",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "噪声停了。电台现在放的，是我们的歌。",
+      "clip": "Story/v1102-stage-1-2-end-l2",
+      "reused": false,
+      "ja": "ノイズは止まった。今ラジオで流れているのは、私たちの歌。"
+    },
+    {
+      "script": "stage-1-2-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "嘿嘿，第一次上电台，有点害羞呢。",
+      "clip": "Story/v1102-stage-1-2-end-l3",
+      "reused": false,
+      "ja": "ふふ、初めてのラジオ出演って、少し照れるね。"
+    },
+    {
+      "script": "stage-1-2-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "城里有人听见了。往天桥走，那边还有回响。",
+      "clip": "Story/v1102-stage-1-2-end-l4",
+      "reused": false,
+      "ja": "街に届き始めた。次は歩道橋だ。まだ反響が残っている。"
+    },
+    {
+      "script": "stage-1-2",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "电台在反复播同一段噪声——有人在用它召集幻影。",
+      "clip": "Story/stage-1-2-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-2",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "切断它之前，先让我们的歌盖过去吧。",
+      "clip": "Story/stage-1-2-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-2",
+      "line": 4,
+      "subject": "producer",
+      "zh": "频率交给夜莺，舞台交给你们。",
+      "clip": "Story/v1102-stage-1-2-l4",
+      "reused": false,
+      "ja": "周波数はヨエイに任せる。ステージは、みんなに任せた。"
+    },
+    {
+      "script": "stage-1-3-end",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "傀儡碎了。皮再硬，也挡不住和声。",
+      "clip": "Story/v1102-stage-1-3-end-l2",
+      "reused": false,
+      "ja": "人形も粉々。どんなに頑丈でも、ハーモニーには勝てないね。"
+    },
+    {
+      "script": "stage-1-3-end",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "它掉下的碎片里有电流……像是谁在远处供电。",
+      "clip": "Story/v1102-stage-1-3-end-l3",
+      "reused": false,
+      "ja": "破片に電流が残ってる。誰かが遠くから、電力を送っていたみたい。"
+    },
+    {
+      "script": "stage-1-3-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "顺着电流找过去，静电之心就在前面。",
+      "clip": "Story/v1102-stage-1-3-end-l4",
+      "reused": false,
+      "ja": "この電流をたどろう。静電の心臓は、すぐ先だ。"
+    },
+    {
+      "script": "stage-1-3",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "那个大家伙……是静电凝成的傀儡，皮很硬。",
+      "clip": "Story/stage-1-3-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-3",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "硬的才好。找到缝，一口气撕开。",
+      "clip": "Story/stage-1-3-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-3",
+      "line": 4,
+      "subject": "producer",
+      "zh": "精英关，记得用应急守护，别硬吃它的重击。",
+      "clip": "Story/v1102-stage-1-3-l4",
+      "reused": false,
+      "ja": "手強い相手だ。緊急ガードを忘れずに。重い一撃は、無理に受けるな。"
+    },
+    {
+      "script": "stage-1-4-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "「心脏」停下了。整片街区安静得能听到心跳。",
+      "clip": "Story/v1102-stage-1-4-end-l2",
+      "reused": false,
+      "ja": "心臓が止まった。この静けさなら、胸の鼓動まで聞こえるね。"
+    },
+    {
+      "script": "stage-1-4-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "是我们的心跳哦，扑通扑通的。",
+      "clip": "Story/v1102-stage-1-4-end-l3",
+      "reused": false,
+      "ja": "私たちの鼓動だよ。ほら、どきどきしてる。"
+    },
+    {
+      "script": "stage-1-4-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "别松劲。商圈的大屏还在亮着——她在等你们。",
+      "clip": "Story/v1102-stage-1-4-end-l4",
+      "reused": false,
+      "ja": "まだ気を抜くな。商店街の大型スクリーンが光っている。彼女が待っているぞ。"
+    },
+    {
+      "script": "stage-1-4",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "脉冲守卫在给整片街区供电……难怪杂音越来越响。",
+      "clip": "Story/stage-1-4-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-4",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "那就把「心脏」停下来。",
+      "clip": "Story/stage-1-4-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-4",
+      "line": 4,
+      "subject": "producer",
+      "zh": "它们会护住彼此，先集火一个。",
+      "clip": "Story/v1102-stage-1-4-l4",
+      "reused": false,
+      "ja": "互いをかばっている。まず一体に攻撃を集中しよう。"
+    },
+    {
+      "script": "stage-1-5-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "我们……赢了魅声女王？",
+      "clip": "Story/v1102-stage-1-5-end-l2",
+      "reused": false,
+      "ja": "私たち、魅声の女王に勝ったの？"
+    },
+    {
+      "script": "stage-1-5-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "只是赢了她的分身。真正的她在王座上看着呢。",
+      "clip": "Story/v1102-stage-1-5-end-l3",
+      "reused": false,
+      "ja": "倒したのは分身だけ。本物は王座から、こっちを見てるよ。"
+    },
+    {
+      "script": "stage-1-5-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "今晚好好休息。明天，镜面廊桥。",
+      "clip": "Story/v1102-stage-1-5-end-l4",
+      "reused": false,
+      "ja": "今夜はよく休もう。明日は鏡の回廊だ。"
+    },
+    {
+      "script": "stage-1-5",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "那个声音……是「魅声女王」？她在商圈的大屏上唱歌。",
+      "clip": "Story/stage-1-5-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-5",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "整条街的人都在跟着她的节拍走。这是第一个大关。",
+      "clip": "Story/stage-1-5-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-5",
+      "line": 4,
+      "subject": "producer",
+      "zh": "她会分阶段变强。重投骰子，把最好的骰型留到她狂暴的时候。",
+      "clip": "Story/v1102-stage-1-5-l4",
+      "reused": false,
+      "ja": "段階ごとに強くなる。ダイスを振り直して、最善の出目で暴走を迎え撃とう。"
+    },
+    {
+      "script": "stage-1-5",
+      "line": 5,
+      "subject": "xingli",
+      "zh": "这一次，换我们来唱！",
+      "clip": "Story/stage-1-5-l5",
+      "reused": true
+    },
+    {
+      "script": "stage-1-6-end",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "镜子不再反射杂音了，只照出我们自己。",
+      "clip": "Story/v1102-stage-1-6-end-l2",
+      "reused": false,
+      "ja": "鏡はもうノイズを返さない。映っているのは、私たちだけ。"
+    },
+    {
+      "script": "stage-1-6-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "镜子里的大家，看起来都很帅气呢！",
+      "clip": "Story/v1102-stage-1-6-end-l3",
+      "reused": false,
+      "ja": "鏡の中のみんな、すごく格好よく見える！"
+    },
+    {
+      "script": "stage-1-6-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "剧院的灯已经亮了。下一场，是飞音的主场。",
+      "clip": "Story/v1102-stage-1-6-end-l4",
+      "reused": false,
+      "ja": "劇場の灯りが点いた。次はヒインの得意なステージだ。"
+    },
+    {
+      "script": "stage-1-6",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "廊桥的镜子会把杂音反射回来，听起来像有两倍的敌人。",
+      "clip": "Story/stage-1-6-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-6",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "别怕，我的护盾也会反射哦。",
+      "clip": "Story/stage-1-6-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-6",
+      "line": 4,
+      "subject": "producer",
+      "zh": "精英关，稳住阵型，慢慢磨。",
+      "clip": "Story/v1102-stage-1-6-l4",
+      "reused": false,
+      "ja": "手強い相手だ。陣形を崩さず、じっくり攻めよう。"
+    },
+    {
+      "script": "stage-1-7-end",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "谢幕。观众醒了，掌声是给我们的。",
+      "clip": "Story/v1102-stage-1-7-end-l2",
+      "reused": false,
+      "ja": "これで終幕。観客も目を覚ました。この拍手は、私たちに。"
+    },
+    {
+      "script": "stage-1-7-end",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "她们的眼睛有光了……真好。",
+      "clip": "Story/v1102-stage-1-7-end-l3",
+      "reused": false,
+      "ja": "みんなの瞳に、光が戻った。本当によかった。"
+    },
+    {
+      "script": "stage-1-7-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "咒术师逃向了天台。追上去，别让她再操纵任何人。",
+      "clip": "Story/v1102-stage-1-7-end-l4",
+      "reused": false,
+      "ja": "呪術師は屋上へ逃げた。追おう。もう誰も操らせない。"
+    },
+    {
+      "script": "stage-1-7",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "剧院？这可是我的主场。",
+      "clip": "Story/stage-1-7-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-7",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "台下坐满了被魅惑的观众……她们的眼睛都是空的。",
+      "clip": "Story/stage-1-7-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-7",
+      "line": 4,
+      "subject": "producer",
+      "zh": "天鹅绒咒术师在操纵她们。打倒她，观众就会醒。",
+      "clip": "Story/v1102-stage-1-7-l4",
+      "reused": false,
+      "ja": "ベルベットの呪術師が操っている。彼女を倒せば、観客も目を覚ます。"
+    },
+    {
+      "script": "stage-1-8-end",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "风停了。鼓点只剩下我们的。",
+      "clip": "Story/v1102-stage-1-8-end-l2",
+      "reused": false,
+      "ja": "風が止んだ。聞こえる鼓動は、私たちのものだけ。"
+    },
+    {
+      "script": "stage-1-8-end",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "队长一次都没倒下。这就是阵型的意义。",
+      "clip": "Story/v1102-stage-1-8-end-l3",
+      "reused": false,
+      "ja": "リーダーは一度も倒れなかった。これが、陣形の力。"
+    },
+    {
+      "script": "stage-1-8-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "王座之战前夜到了。今晚，说点心里话吧。",
+      "clip": "Story/v1102-stage-1-8-end-l4",
+      "reused": false,
+      "ja": "王座との決戦は明日だ。今夜は、本音で話そうか。"
+    },
+    {
+      "script": "stage-1-8",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "天台的风好大……心跳和鼓点混在一起了。",
+      "clip": "Story/stage-1-8-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-8",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "敌人会从两边包上来，前排要顶住。",
+      "clip": "Story/stage-1-8-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-1-8",
+      "line": 4,
+      "subject": "producer",
+      "zh": "队长受到大家保护，别让她倒下。",
+      "clip": "Story/v1102-stage-1-8-l4",
+      "reused": false,
+      "ja": "リーダーは、みんなが守っている。倒れさせるな。"
+    },
+    {
+      "script": "stage-1-9-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "……谢谢你说「没问题」。我真的信了。",
+      "clip": "Story/v1102-stage-1-9-end-l2",
+      "reused": false,
+      "ja": "大丈夫って言ってくれて、ありがとう。私、本当に信じられた。"
+    },
+    {
+      "script": "stage-1-9-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "彩排结束。明天，正式开演。",
+      "clip": "Story/v1102-stage-1-9-end-l3",
+      "reused": false,
+      "ja": "リハーサル終了。明日は、本番だね。"
+    },
+    {
+      "script": "stage-1-9-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "王座就在明天。你们已经准备好了。",
+      "clip": "Story/v1102-stage-1-9-end-l4",
+      "reused": false,
+      "ja": "決戦は明日だ。みんな、もう準備はできている。"
+    },
+    {
+      "script": "stage-1-9",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "明天就是王座之战了。今晚……能再听你说一次「没问题」吗？",
+      "clip": "Story/stage-1-9-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-1-9",
+      "line": 3,
+      "subject": "producer",
+      "zh": "没问题。你们已经比任何时候都强。",
+      "clip": "Story/v1102-stage-1-9-l3",
+      "reused": false,
+      "ja": "大丈夫。みんなは今、これまでで一番強い。"
+    },
+    {
+      "script": "stage-1-9",
+      "line": 4,
+      "subject": "feiyin",
+      "zh": "那就先把门口这几个清掉，当作彩排。",
+      "clip": "Story/stage-1-9-l4",
+      "reused": true
+    },
+    {
+      "script": "stage-2-1-end",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "码头安静下来了……能听见浪声了。",
+      "clip": "Story/v1102-stage-2-1-end-l2",
+      "reused": false,
+      "ja": "港が静かになった。波の音が、聞こえるね。"
+    },
+    {
+      "script": "stage-2-1-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "巡演第一站，热身完毕。雾白，你的主场表现不错嘛。",
+      "clip": "Story/v1102-stage-2-1-end-l3",
+      "reused": false,
+      "ja": "巡演最初のステージ、肩慣らし完了。ムバイ、地元では頼もしいね。"
+    },
+    {
+      "script": "stage-2-1-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "下一站，潮汐舞池。跟着浪的节奏走。",
+      "clip": "Story/v1102-stage-2-1-end-l4",
+      "reused": false,
+      "ja": "次は潮のダンスフロアだ。波のリズムに乗っていこう。"
+    },
+    {
+      "script": "stage-2-1",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "是海的味道……我小时候就在这样的码头唱歌。",
+      "clip": "Story/stage-2-1-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-1",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "可现在码头上全是守卫。巡演第一站，热热身。",
+      "clip": "Story/stage-2-1-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-1",
+      "line": 4,
+      "subject": "producer",
+      "zh": "雾白，这一站你来当主场。",
+      "clip": "Story/v1102-stage-2-1-l4",
+      "reused": false,
+      "ja": "ムバイ、このステージは君が主役だ。"
+    },
+    {
+      "script": "stage-2-10-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "全场都在唱……和我们一起。",
+      "clip": "Story/v1102-stage-2-10-end-l2",
+      "reused": false,
+      "ja": "会場じゅうが、私たちと一緒に歌ってる。"
+    },
+    {
+      "script": "stage-2-10-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "海那边的大家，一定也听见了吧。",
+      "clip": "Story/v1102-stage-2-10-end-l3",
+      "reused": false,
+      "ja": "海の向こうのみんなにも、きっと届いたね。"
+    },
+    {
+      "script": "stage-2-10-end",
+      "line": 4,
+      "subject": "feiyin",
+      "zh": "女王，谢幕了。这座海湾的歌，还给它的主人。",
+      "clip": "Story/v1102-stage-2-10-end-l4",
+      "reused": false,
+      "ja": "女王、これで終幕。この海湾の歌は、その持ち主に返すよ。"
+    },
+    {
+      "script": "stage-2-10-end",
+      "line": 5,
+      "subject": "producer",
+      "zh": "第二章，终演成功。你们是最好的女团。",
+      "clip": "Story/v1102-stage-2-10-end-l5",
+      "reused": false,
+      "ja": "第二章、終演成功。君たちは、最高のアイドルグループだ。"
+    },
+    {
+      "script": "stage-2-10",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "巨蛋里坐满了人……她们都在等一首真正的歌。",
+      "clip": "Story/stage-2-10-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-10",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "这一次，我想唱给海那边的大家听。",
+      "clip": "Story/stage-2-10-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-10",
+      "line": 4,
+      "subject": "feiyin",
+      "zh": "女王，准备好下台了吗？",
+      "clip": "Story/stage-2-10-l4",
+      "reused": true
+    },
+    {
+      "script": "stage-2-10",
+      "line": 5,
+      "subject": "producer",
+      "zh": "第二章终演——开演！",
+      "clip": "Story/v1102-stage-2-10-l5",
+      "reused": false,
+      "ja": "第二章、最後のステージ。開演だ！"
+    },
+    {
+      "script": "stage-2-2-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "跟着浪跳……真的一次都没摔！",
+      "clip": "Story/v1102-stage-2-2-end-l2",
+      "reused": false,
+      "ja": "波に合わせて踊ったら、本当に一度も転ばなかった！"
+    },
+    {
+      "script": "stage-2-2-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "对吧对吧，海会教你怎么站稳的。",
+      "clip": "Story/v1102-stage-2-2-end-l3",
+      "reused": false,
+      "ja": "でしょ？ 海は、ちゃんと立ち方を教えてくれるんだよ。"
+    },
+    {
+      "script": "stage-2-2-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "摩天轮上的傀儡在等你们。约会地点，换我们来定。",
+      "clip": "Story/v1102-stage-2-2-end-l4",
+      "reused": false,
+      "ja": "観覧車の人形が待っている。デートの場所は、こちらで決めよう。"
+    },
+    {
+      "script": "stage-2-2",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "舞池随着潮水一起起伏……站都站不稳！",
+      "clip": "Story/stage-2-2-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-2",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "跟着浪的节奏跳，就不会摔倒啦。",
+      "clip": "Story/stage-2-2-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-2",
+      "line": 4,
+      "subject": "producer",
+      "zh": "节奏对了，伤害自然就上去了。",
+      "clip": "Story/v1102-stage-2-2-l4",
+      "reused": false,
+      "ja": "リズムが合えば、攻撃にも力が乗る。"
+    },
+    {
+      "script": "stage-2-3-end",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "拆台成功。摩天轮还是挺浪漫的。",
+      "clip": "Story/v1102-stage-2-3-end-l2",
+      "reused": false,
+      "ja": "解体成功。観覧車って、やっぱり少しロマンチックだね。"
+    },
+    {
+      "script": "stage-2-3-end",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "傀儡里藏着电台的频率……她们被困在那边。",
+      "clip": "Story/v1102-stage-2-3-end-l3",
+      "reused": false,
+      "ja": "人形の中に、ラジオの周波数が。彼女たちは、あっちに閉じ込められてる。"
+    },
+    {
+      "script": "stage-2-3-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "海风电台。去把真正的歌放出去。",
+      "clip": "Story/v1102-stage-2-3-end-l4",
+      "reused": false,
+      "ja": "海風ラジオ局だ。本物の歌を、放送しに行こう。"
+    },
+    {
+      "script": "stage-2-3",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "摩天轮上挂着一个静电傀儡，比王座那只还大。",
+      "clip": "Story/stage-2-3-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-3",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "约会地点选得真不错。可惜我们是来拆台的。",
+      "clip": "Story/stage-2-3-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-3",
+      "line": 4,
+      "subject": "producer",
+      "zh": "精英关。它硬，我们就比它更有耐心。",
+      "clip": "Story/v1102-stage-2-3-l4",
+      "reused": false,
+      "ja": "手強い相手だ。頑丈なら、こちらは粘り強くいこう。"
+    },
+    {
+      "script": "stage-2-4-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "电台在放她们的声音了……是真正的声音。",
+      "clip": "Story/v1102-stage-2-4-end-l2",
+      "reused": false,
+      "ja": "ラジオで彼女たちの声が流れてる。本当の、彼女たちの声。"
+    },
+    {
+      "script": "stage-2-4-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "她们一定听到了，我们来接她们了。",
+      "clip": "Story/v1102-stage-2-4-end-l3",
+      "reused": false,
+      "ja": "きっと届いたよ。私たちが迎えに来たって。"
+    },
+    {
+      "script": "stage-2-4-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "海底还有歌声。下一站，深海。",
+      "clip": "Story/v1102-stage-2-4-end-l4",
+      "reused": false,
+      "ja": "海の底にも歌声がある。次は深海だ。"
+    },
+    {
+      "script": "stage-2-4",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "电台在播被侵蚀的歌……是她们的声音。",
+      "clip": "Story/stage-2-4-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-4",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "听到了吗？她们还在唱。我们一定能把她们带回来。",
+      "clip": "Story/stage-2-4-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-4",
+      "line": 4,
+      "subject": "producer",
+      "zh": "先拿下电台，把真正的歌放出去。",
+      "clip": "Story/v1102-stage-2-4-l4",
+      "reused": false,
+      "ja": "まず電波塔を取り戻して、本物の歌を届けよう。"
+    },
+    {
+      "script": "stage-2-5-end",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "深海的女王……谢谢你的歌。现在换我们唱。",
+      "clip": "Story/v1102-stage-2-5-end-l2",
+      "reused": false,
+      "ja": "深海の女王、歌をありがとう。今度は、私たちの番だよ。"
+    },
+    {
+      "script": "stage-2-5-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "护盾顶住了全体攻击。雾白，干得漂亮。",
+      "clip": "Story/v1102-stage-2-5-end-l3",
+      "reused": false,
+      "ja": "全体攻撃も、シールドで守りきったね。ムバイ、お見事。"
+    },
+    {
+      "script": "stage-2-5-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "灯塔在召集剩下的杂音。照着光走。",
+      "clip": "Story/v1102-stage-2-5-end-l4",
+      "reused": false,
+      "ja": "灯台が残りのノイズを呼び集めている。あの光を追おう。"
+    },
+    {
+      "script": "stage-2-5",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "海底有歌声……是另一位「女王」。",
+      "clip": "Story/stage-2-5-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-5",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "深海里的她，比王座那位更难缠。",
+      "clip": "Story/stage-2-5-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-5",
+      "line": 4,
+      "subject": "producer",
+      "zh": "她狂暴时会全体攻击。人鱼的护盾是关键。",
+      "clip": "Story/v1102-stage-2-5-l4",
+      "reused": false,
+      "ja": "暴走すると全員を狙ってくる。人魚のシールドが鍵だ。"
+    },
+    {
+      "script": "stage-2-5",
+      "line": 5,
+      "subject": "wubai",
+      "zh": "交给我。这片海，我熟。",
+      "clip": "Story/stage-2-5-l5",
+      "reused": true
+    },
+    {
+      "script": "stage-2-6-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "光转了一圈又一圈，我们的歌也跟着转。",
+      "clip": "Story/v1102-stage-2-6-end-l2",
+      "reused": false,
+      "ja": "光が回るたびに、私たちの歌も巡っていくね。"
+    },
+    {
+      "script": "stage-2-6-end",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "灯塔的节奏被我们抢回来了。",
+      "clip": "Story/v1102-stage-2-6-end-l3",
+      "reused": false,
+      "ja": "灯台のリズムは、私たちが取り戻した。"
+    },
+    {
+      "script": "stage-2-6-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "栈桥尽头就是巨蛋。还有三站。",
+      "clip": "Story/v1102-stage-2-6-end-l4",
+      "reused": false,
+      "ja": "桟橋の先がドームだ。あと三つ、進もう。"
+    },
+    {
+      "script": "stage-2-6",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "灯塔的光每转一圈，杂音就强一次。",
+      "clip": "Story/stage-2-6-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-6",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "那我们的歌就跟着光一起转吧。",
+      "clip": "Story/stage-2-6-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-6",
+      "line": 4,
+      "subject": "producer",
+      "zh": "精英关，注意节奏，别在它强的时候硬拼。",
+      "clip": "Story/v1102-stage-2-6-l4",
+      "reused": false,
+      "ja": "手強い相手だ。リズムを見て、力の強まる瞬間は無理に攻めるな。"
+    },
+    {
+      "script": "stage-2-7-end",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "咒术师又输了。这回她跑不掉了。",
+      "clip": "Story/v1102-stage-2-7-end-l2",
+      "reused": false,
+      "ja": "呪術師はまた負けた。今度こそ、逃がさないよ。"
+    },
+    {
+      "script": "stage-2-7-end",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "巨蛋的光……越来越近了。",
+      "clip": "Story/v1102-stage-2-7-end-l3",
+      "reused": false,
+      "ja": "ドームの光が、どんどん近づいてくる。"
+    },
+    {
+      "script": "stage-2-7-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "天台能看到整片海湾。守住队长，拼到最后。",
+      "clip": "Story/v1102-stage-2-7-end-l4",
+      "reused": false,
+      "ja": "屋上からは海湾の全景が見える。リーダーを守って、最後まで行こう。"
+    },
+    {
+      "script": "stage-2-7",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "栈桥尽头就是巨蛋了。看得到吗？那片光。",
+      "clip": "Story/stage-2-7-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-7",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "咒术师守在桥中间……又是她们。",
+      "clip": "Story/stage-2-7-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-7",
+      "line": 4,
+      "subject": "producer",
+      "zh": "一站一站来。离巨蛋只剩三站了。",
+      "clip": "Story/v1102-stage-2-7-l4",
+      "reused": false,
+      "ja": "一つずつ行こう。ドームまでは、あと三つだ。"
+    },
+    {
+      "script": "stage-2-8-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "三个方向都守住了……海湾真的好漂亮。",
+      "clip": "Story/v1102-stage-2-8-end-l2",
+      "reused": false,
+      "ja": "三方向、全部守りきった。海湾って、本当に綺麗だね。"
+    },
+    {
+      "script": "stage-2-8-end",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "天要亮了。前奏，开始吧。",
+      "clip": "Story/v1102-stage-2-8-end-l3",
+      "reused": false,
+      "ja": "夜が明ける。前奏を、始めよう。"
+    },
+    {
+      "script": "stage-2-8-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "黎明前奏。唱完它，就是正式公演。",
+      "clip": "Story/v1102-stage-2-8-end-l4",
+      "reused": false,
+      "ja": "夜明けの前奏だ。歌い終えたら、いよいよ本番。"
+    },
+    {
+      "script": "stage-2-8",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "从天台能看到整片海湾……好漂亮。",
+      "clip": "Story/stage-2-8-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-8",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "也能看到敌人从三个方向涌上来。",
+      "clip": "Story/stage-2-8-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-8",
+      "line": 4,
+      "subject": "producer",
+      "zh": "守住队长，这一关拼的是持久。",
+      "clip": "Story/v1102-stage-2-8-l4",
+      "reused": false,
+      "ja": "リーダーを守ろう。ここは持久戦だ。"
+    },
+    {
+      "script": "stage-2-9-end",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "前奏完美。巨蛋的大门在开了。",
+      "clip": "Story/v1102-stage-2-9-end-l2",
+      "reused": false,
+      "ja": "前奏は完璧。ドームの扉も、開き始めているよ。"
+    },
+    {
+      "script": "stage-2-9-end",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "这一次，我们要唱给所有人听。",
+      "clip": "Story/v1102-stage-2-9-end-l3",
+      "reused": false,
+      "ja": "今度は、すべての人に歌を届けよう。"
+    },
+    {
+      "script": "stage-2-9-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "海湾巨蛋，终演。去吧，我的女团。",
+      "clip": "Story/v1102-stage-2-9-end-l4",
+      "reused": false,
+      "ja": "海湾ドーム、最後の公演だ。行っておいで、私のアイドルたち。"
+    },
+    {
+      "script": "stage-2-9",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "天快亮了。巨蛋的大门会在黎明打开。",
+      "clip": "Story/stage-2-9-l2",
+      "reused": true
+    },
+    {
+      "script": "stage-2-9",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "这是最后的前奏。唱完它，就是正式公演。",
+      "clip": "Story/stage-2-9-l3",
+      "reused": true
+    },
+    {
+      "script": "stage-2-9",
+      "line": 4,
+      "subject": "producer",
+      "zh": "你们是我见过最好的女团。去吧。",
+      "clip": "Story/v1102-stage-2-9-l4",
+      "reused": false,
+      "ja": "君たちは、私の知る最高のグループだ。行っておいで。"
+    }
+  ],
+  "version": 1,
+  "language": "ja-JP",
+  "subtitles": "zh-CN",
+  "voice_family": "accepted B Japanese voices",
+  "newRecordings": 98,
+  "home": [
+    {
+      "character": "yeying",
+      "zh": "月光下的旋律，只唱给你听。",
+      "ja": "月明かりの下、このメロディーは、あなただけに。",
+      "clip": "Home/yeying-1"
+    },
+    {
+      "character": "yeying",
+      "zh": "精灵的耳朵可是很灵的，别偷偷叹气哦。",
+      "ja": "エルフの耳は、よく聞こえるの。ため息、隠してもわかるよ。",
+      "clip": "Home/yeying-2"
+    },
+    {
+      "character": "yeying",
+      "zh": "{player}，今晚的舞台，我会让它发光。",
+      "ja": "プロデューサー、今夜のステージは、私が輝かせる。",
+      "clip": "Home/yeying-3"
+    },
+    {
+      "character": "wubai",
+      "zh": "要和我一起去海里唱歌吗？",
+      "ja": "私と一緒に、海で歌ってみない？",
+      "clip": "Home/wubai-1"
+    },
+    {
+      "character": "wubai",
+      "zh": "尾巴上的鳞片，今天也闪闪发亮～",
+      "ja": "しっぽの鱗、今日もきらきらしてるでしょ。",
+      "clip": "Home/wubai-2"
+    },
+    {
+      "character": "wubai",
+      "zh": "{player}！伸出手，接住我的歌声！",
+      "ja": "プロデューサー、手を伸ばして。私の歌、受け取ってね。",
+      "clip": "Home/wubai-3"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ChoSiren.Systems.Tactics;
 using ChoSiren.Systems.Data;
+using ChoSiren.Panels;
 using ChoSiren.UI;
 using NUnit.Framework;
 using UnityEngine;
@@ -67,6 +68,37 @@ namespace ChoSiren.Tests
             input.text = "夜场小队";
             app.GetComponentsInChildren<Button>().First(b => b.name == "Confirm").onClick.Invoke();
             Assert.That(model.ActiveTeamName, Is.EqualTo("夜场小队"));
+        }
+
+        [UnityTest] public IEnumerator SigningPaymentCanSwitchAndContinueStaysOnTheRight()
+        {
+            var host = new GameObject("SigningReview", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var camera = NewCamera(out RenderTexture target);
+            try
+            {
+                ConfigureCanvas(host.GetComponent<Canvas>(), camera);
+                var model = new GameModel(() => new DateTime(2026, 11, 2, 12, 0, 0), new InMemorySaveStore());
+                model.Save.RecruitTickets = 1; model.Save.Diamonds = 1000;
+                GachaPanel panel = GachaPanel.OpenEmbedded(host.transform, model, model);
+                int member = model.InterviewCandidates(0)[0];
+                typeof(GachaPanel).GetMethod("ShowSignConfirm1101", Private).Invoke(panel,
+                    new object[] { member, model.InterviewQuote(0, member), null });
+                yield return null; Canvas.ForceUpdateCanvases();
+                Text cost = panel.GetComponentsInChildren<Text>().First(t => t.name == "SignConfirmCost");
+                Assert.That(cost.text, Is.EqualTo("1"), "an available signing ticket is visible and selected");
+                panel.GetComponentsInChildren<Button>().First(b => b.name == "SignPaymentChoice").onClick.Invoke();
+                yield return null;
+                cost = panel.GetComponentsInChildren<Text>().First(t => t.name == "SignConfirmCost");
+                Assert.That(cost.text, Is.EqualTo(model.InterviewQuote(0, member).ToString("N0")));
+                Assert.That(model.Save.RecruitTickets, Is.EqualTo(1), "payment selection never spends a ticket");
+                typeof(GachaPanel).GetMethod("ShowSignedCard1101", Private).Invoke(panel, new object[] { 0 });
+                yield return null; yield return new WaitForSecondsRealtime(.35f); Canvas.ForceUpdateCanvases();
+                var stay = panel.GetComponentsInChildren<Button>().First(b => b.name == "SignResultStay").GetComponent<RectTransform>();
+                var profile = panel.GetComponentsInChildren<Button>().First(b => b.name == "SignResultProfile").GetComponent<RectTransform>();
+                Assert.That(stay.position.x, Is.GreaterThan(profile.position.x), "continue right, profile left");
+                Capture(camera, target, "signed-card-buttons.png");
+            }
+            finally { Object.DestroyImmediate(host); Object.DestroyImmediate(camera.gameObject); target.Release(); Object.DestroyImmediate(target); }
         }
 
         [UnityTest] public IEnumerator TeamPencilAndPowerStayCloseToTheirContent()
@@ -140,8 +172,9 @@ namespace ChoSiren.Tests
                     Assert.That(member.Find("AvatarWindow/Avatar").GetComponent<Image>().sprite, Is.Not.Null);
                 }
                 Capture(camera, target, "map-members.png");
-                RectTransform glyph = strip.Find("StageTeamSwap/SwapGlyph/Glyph") as RectTransform;
-                strip.Find("StageTeamSwap").GetComponent<Button>().onClick.Invoke();
+                Transform swap = map.GetComponentsInChildren<Transform>().First(t => t.name == "StageTeamSwap");
+                RectTransform glyph = swap.Find("SwapGlyph/Glyph") as RectTransform;
+                swap.GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.1f);
                 Assert.That(Mathf.Abs(Mathf.DeltaAngle(0, glyph.localEulerAngles.z)), Is.GreaterThan(10f));
                 Capture(camera, target, "map-switch-motion.png");

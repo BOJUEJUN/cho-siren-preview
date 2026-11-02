@@ -38,8 +38,9 @@ namespace ChoSiren.Tests
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             var burst = UltimateGradeBurst1031.Play(layer, font, UltimateGradeTier1031.Perfect, () => false, show);
             Assert.That(burst, Is.Not.Null);
-            Assert.That(burst.transform.Find("Centre/Bang"), Is.Not.Null, "PERFECT!! carries its two marks");
+            Assert.That(burst.transform.Find("Centre/Bang"), Is.Null, "PERFECT has no trailing punctuation");
             Assert.That(burst.transform.Find("Centre/Rays").childCount, Is.GreaterThan(8));
+            Assert.That(burst.transform.Find("Centre/Art/Letters").childCount, Is.EqualTo(7));
             yield return new WaitForSecondsRealtime(.08f);
             Assert.That(burst.transform.Find("Flash").GetComponent<Image>().color.a, Is.GreaterThan(.1f));
             Assert.That(show.anchoredPosition, Is.Not.EqualTo(Vector2.zero), "PERFECT shakes the show");

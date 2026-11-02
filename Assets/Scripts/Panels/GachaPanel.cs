@@ -869,10 +869,10 @@ namespace ChoSiren.Panels
         /// </summary>
         private void ShowSignConfirm(int memberIndex, int cost) => ShowSignConfirm1101(memberIndex, cost);
 
-        private void ConfirmSign(int memberIndex, int cost)
+        private void ConfirmSign(int memberIndex, int cost, bool useTicket = false)
         {
             bool signed = model.SignInterviewCandidate(interviewPoolIndex, memberIndex,
-                displayedInterviewCycle, cost, out string message);
+                displayedInterviewCycle, cost, useTicket, out string message);
             if (!signed)
             {
                 Notify(message);

@@ -35,7 +35,7 @@ namespace ChoSiren
             int index = GameModel.IndexOfMember(id);
             return index >= 0 ? GameModel.Members[index].Name : string.Empty;
         }
-        // Text-only lines for the two PSD v3 idols (no recorded voice yet).
+        // Japanese recordings are paired by the returned index; subtitles stay personalized Chinese.
         private static readonly string[][] GuestLines =
         {
             new[] { "月光下的旋律，只唱给你听。", "精灵的耳朵可是很灵的，别偷偷叹气哦。", "{player}，今晚的舞台，我会让它发光。" },
@@ -272,9 +272,9 @@ namespace ChoSiren
         }
 
         /// <summary>A line for the elf (2) or mermaid (3) idol, never the same one twice in a row.</summary>
-        public void DisplayGuestLine(int character)
+        public int DisplayGuestLine(int character)
         {
-            if (bubble == null || UiHidden) return;
+            if (bubble == null || UiHidden) return -1;
             string[] lines = GuestLines[Mathf.Clamp(character - 2, 0, GuestLines.Length - 1)];
             int next = UnityEngine.Random.Range(0, lines.Length);
             if (next == guestLast) next = (next + 1) % lines.Length;
@@ -282,6 +282,7 @@ namespace ChoSiren
             bubbleText.text = Personalize?.Invoke(lines[next]) ?? lines[next];
             dialogue?.Reveal?.Restart();
             HoldBubble();
+            return next;
         }
 
         public void CancelCharacterInteraction()

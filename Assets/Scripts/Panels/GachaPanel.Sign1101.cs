@@ -22,9 +22,10 @@ namespace ChoSiren.Panels
             "签约后成员进入「成员」页，可编队、练习",
             "每 7 天一期，按预估月薪扣星光币",
             "线上：报价低、风险高；线下：报价高、更稳",
+            "签约券 ×1 可签约一位候选成员，可切换星钻付款",
         };
 
-        private void ShowSignConfirm1101(int memberIndex, int cost)
+        private void ShowSignConfirm1101(int memberIndex, int cost, bool? payWithTicket = null)
         {
             CloseSignModal();
             MemberDefinition member = GameModel.Members[memberIndex];
@@ -35,16 +36,19 @@ namespace ChoSiren.Panels
             RectTransform card = SignCardFrame1101(frame);
 
             SignHero1101(card, member, memberIndex, out float columnBottom);
-            int balance = model.Save.Diamonds;
-            bool affordable = balance >= cost;
+            bool useTicket = payWithTicket ?? model.Save.RecruitTickets > 0;
+            string currency = useTicket ? "recruit-ticket" : "diamond";
+            int charge = useTicket ? 1 : cost;
+            int balance = useTicket ? model.Save.RecruitTickets : model.Save.Diamonds;
+            bool affordable = balance >= charge;
 
             // Price: big diamond + number, the one thing this card is about.
             RectTransform price = VisualB1101.Rect("SignPrice", card);
             PanelKit.PlaceTop(price, 40f, columnBottom, 220f, 70f);
-            Image gem = VisualB1101.Img("SignCostIcon", price, PanelKit.CurrencyIcon("diamond"), Color.white);
+            Image gem = VisualB1101.Img("SignCostIcon", price, PanelKit.CurrencyIcon(currency), Color.white);
             gem.preserveAspect = true;
             PanelKit.PlaceTop(gem.rectTransform, 0f, 6f, 58f, 58f);
-            Text costText = VisualB1101.Label(price, "SignConfirmCost", cost.ToString("N0"), 54,
+            Text costText = VisualB1101.Label(price, "SignConfirmCost", charge.ToString("N0"), 54,
                 affordable ? VisualB1101.Teal : VisualB1101.Danger, 66f, 0f, 160f, 70f, TextAnchor.MiddleLeft, 2f);
             VisualB1101.Pop(price, .14f, .7f);
 
@@ -54,18 +58,18 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(band.rectTransform, 30f, bandY - 8f, SignCardW - 60f, 60f);
             RectTransform wallet;
             if (affordable)
-                wallet = VisualB1101.Delta(card, "SignConfirmBalance", PanelKit.CurrencyIcon("diamond"), balance,
-                    balance - cost, 48f, bandY, 44f, VisualB1101.Teal, 26);
+                wallet = VisualB1101.Delta(card, "SignConfirmBalance", PanelKit.CurrencyIcon(currency), balance,
+                    balance - charge, 48f, bandY, 44f, VisualB1101.Teal, 26);
             else
             {
                 wallet = VisualB1101.Rect("SignConfirmBalance", card);
                 PanelKit.PlaceTop(wallet, 48f, bandY, 300f, 44f);
-                Image have = VisualB1101.Img("Currency", wallet, PanelKit.CurrencyIcon("diamond"), new Color(1f, 1f, 1f, .7f));
+                Image have = VisualB1101.Img("Currency", wallet, PanelKit.CurrencyIcon(currency), new Color(1f, 1f, 1f, .7f));
                 have.preserveAspect = true;
                 PanelKit.PlaceTop(have.rectTransform, 0f, 4f, 36f, 36f);
                 Text own = VisualB1101.Label(wallet, "From", balance.ToString("N0"), 26, VisualB1101.Danger, 42f, 0f, 120f, 44f);
                 own.rectTransform.sizeDelta = new Vector2(own.preferredWidth + 2f, 44f);
-                VisualB1101.Chip(wallet, "SignShortfall", "lock", "差 " + (cost - balance).ToString("N0"),
+                VisualB1101.Chip(wallet, "SignShortfall", "lock", "差 " + (charge - balance).ToString("N0"),
                     VisualB1101.Danger, 52f + own.preferredWidth, 4f, 36f, out _);
             }
             VisualB1101.Pop(wallet, .22f, .9f);
@@ -74,13 +78,21 @@ namespace ChoSiren.Panels
                 0f, bandY + 4f, 36f, out _);
             salary.anchoredPosition = new Vector2(SignCardW - 48f - salary.sizeDelta.x, salary.anchoredPosition.y);
 
+            if (model.Save.RecruitTickets > 0 || useTicket)
+            {
+                GameObject payment = kit.NewModal038Button(card, "SignPaymentChoice",
+                    (useTicket ? "✓ " : "○ ") + "签约券 ×1 · 余 " + model.Save.RecruitTickets, 19,
+                    () => ShowSignConfirm1101(memberIndex, cost, !useTicket), ModalPolish038ButtonStyle.Secondary);
+                PanelKit.PlaceTop(payment.GetComponent<RectTransform>(), 40f, 696f, 330f, 34f);
+            }
+
             // Actions: icon + one short word each.
             const float buttonY = 740f;
             GameObject cancel = kit.NewModal038Button(card, "SignCancel", "再想想", 22,
                 CloseSignModal, ModalPolish038ButtonStyle.Secondary);
             PanelKit.PlaceTop(cancel.GetComponent<RectTransform>(), 40f, buttonY, 220f, 76f);
-            GameObject confirm = kit.NewModal038Button(card, "SignConfirm", affordable ? "签约" : "星钻不足", 26,
-                () => ConfirmSign(memberIndex, cost), ModalPolish038ButtonStyle.Primary);
+            GameObject confirm = kit.NewModal038Button(card, "SignConfirm", affordable ? "签约" : useTicket ? "签约券不足" : "星钻不足", 26,
+                () => ConfirmSign(memberIndex, cost, useTicket), ModalPolish038ButtonStyle.Primary);
             PanelKit.PlaceTop(confirm.GetComponent<RectTransform>(), 280f, buttonY, SignCardW - 320f, 76f);
             ModalPolish038Chrome.SetActionEnabled(confirm, affordable);
             SirenStickerUi.SkinButton(cancel);
@@ -130,17 +142,17 @@ namespace ChoSiren.Panels
             salary.anchoredPosition = new Vector2(SignCardW - 48f - salary.sizeDelta.x, salary.anchoredPosition.y);
 
             const float buttonY = 740f;
-            GameObject stay = kit.NewModal038Button(card, "SignResultStay", "继续", 22,
-                CloseSignModal, ModalPolish038ButtonStyle.Secondary);
-            PanelKit.PlaceTop(stay.GetComponent<RectTransform>(), 40f, buttonY, 220f, 76f);
-            GameObject view = kit.NewModal038Button(card, "SignResultProfile", "档案", 26, () =>
+            GameObject stay = kit.NewModal038Button(card, "SignResultStay", "继续", 26,
+                CloseSignModal, ModalPolish038ButtonStyle.Primary);
+            PanelKit.PlaceTop(stay.GetComponent<RectTransform>(), 280f, buttonY, SignCardW - 320f, 76f);
+            GameObject view = kit.NewModal038Button(card, "SignResultProfile", "档案", 22, () =>
             {
                 CloseSignModal();
                 onSigned?.Invoke(memberIndex);
-            }, ModalPolish038ButtonStyle.Primary);
-            PanelKit.PlaceTop(view.GetComponent<RectTransform>(), 280f, buttonY, SignCardW - 320f, 76f);
-            SirenStickerUi.SkinButton(stay);
-            SirenStickerUi.SkinButton(view, true);
+            }, ModalPolish038ButtonStyle.Secondary);
+            PanelKit.PlaceTop(view.GetComponent<RectTransform>(), 40f, buttonY, 220f, 76f);
+            SirenStickerUi.SkinButton(stay, true);
+            SirenStickerUi.SkinButton(view);
             VisualB1101.AddButtonIcon(stay, "mic");
             VisualB1101.AddButtonIcon(view, "doc");
             VisualB1101.HelpButton(card, "SignHelp", SignCardW - 152f, 44f, 40f, "签约说明", SignHelpLines);

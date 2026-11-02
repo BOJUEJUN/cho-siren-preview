@@ -148,8 +148,8 @@ namespace ChoSiren
             battleMusicClip = nativeBattleMusicClip = Resources.Load<AudioClip>("Audio/bgm-battle");
             musicClip = NativeHomeClip(HomeMusicTrackIndex);
 #endif
-            clickClip = CreateTone("CHO-SIREN Click", 740f, 0.075f, 0.16f, 0.010f);
-            successClip = CreateSuccessTone();
+            clickClip = Resources.Load<AudioClip>(UiAudio1102 + "ui-click");
+            successClip = Resources.Load<AudioClip>(UiAudio1102 + "ui-confirm");
             musicSource.clip = musicClip;
             loadedHomeMusicTrackIndex = HomeMusicTrackIndex;
             ChoSirenMusicBridge.Attach(this);
@@ -183,6 +183,7 @@ namespace ChoSiren
             if (battleSfxSource != null) battleSfxSource.mute = !model.Save.SfxEnabled;
             battleSfxMixer?.SetMuted(!model.Save.SfxEnabled);
             if (voiceSource != null) voiceSource.mute = !model.Save.SfxEnabled;
+            ApplyRecordedUiSettings1102();
             PrepareWebMusic();
             AudioClip wantedClip = DesiredMusicClip();
             if (!CanPlayMusic(wantedClip))
@@ -681,6 +682,7 @@ namespace ChoSiren
             applicationPaused = paused;
             if (paused)
             {
+                StopVinylScrub();
                 voiceSource?.Stop();
                 chorusSource?.Stop();
                 ResetMusicDucking();
@@ -690,6 +692,7 @@ namespace ChoSiren
 
         private void OnApplicationFocus(bool focused)
         {
+            if (!focused) StopVinylScrub();
             if (!focused) ResetMusicDucking();
 #if UNITY_WEBGL && !UNITY_EDITOR
             webApplicationFocused = focused;
@@ -701,6 +704,7 @@ namespace ChoSiren
 
         private void OnDisable()
         {
+            StopVinylScrub();
             CancelWebMusicRequest();
             voiceSource?.Stop();
             InterruptBattleChorus();
@@ -725,10 +729,7 @@ namespace ChoSiren
 
         public void PlayClick()
         {
-            if (model == null || sfxSource == null) return;
-            ResumeAfterUserGesture();
-            if (!model.Save.SfxEnabled) return;
-            sfxSource.PlayOneShot(clickClip);
+            PlayRecordedUi1102(clickClip);
         }
 
         private readonly Dictionary<string, AudioClip> sfxClips = new Dictionary<string, AudioClip>();
@@ -807,10 +808,7 @@ namespace ChoSiren
 
         public void PlaySuccess()
         {
-            if (model == null || sfxSource == null) return;
-            ResumeAfterUserGesture();
-            if (!model.Save.SfxEnabled) return;
-            sfxSource.PlayOneShot(successClip, 0.9f);
+            PlayRecordedUi1102(successClip, .9f, true);
         }
 
         /// <summary>
@@ -941,8 +939,7 @@ namespace ChoSiren
             ReleaseWebMusicClip();
             if (model != null) model.Changed -= ApplySettings;
             if (ownsMusicClip && nativeHomeMusicClip != null) Destroy(nativeHomeMusicClip);
-            if (clickClip != null) Destroy(clickClip);
-            if (successClip != null) Destroy(successClip);
+            // UI clips are imported shared CC0 assets, not runtime-generated tones.
         }
 
         private static AudioClip CreateMusicLoop()

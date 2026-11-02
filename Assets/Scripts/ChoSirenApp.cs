@@ -1812,6 +1812,7 @@ namespace ChoSiren
         {
             if (toastObject == null) return;
             if (ChoSiren.UI.RewardGain1101.Absorb(message)) return; // the 获得奖励 popup carries it (reward-ui 1101)
+            gameAudio?.PlayUiMessage(message);
             toastText.text = message;
             toastObject.transform.SetAsLastSibling();
             toastObject.SetActive(true);
@@ -1882,6 +1883,7 @@ namespace ChoSiren
             button.colors = colors;
             button.onClick.AddListener(() =>
             {
+                gameAudio?.PlayUiAction(name);
                 action?.Invoke();
                 ResumeMediaAfterUserGesture();
             });

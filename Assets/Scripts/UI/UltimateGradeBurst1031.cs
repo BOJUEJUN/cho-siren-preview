@@ -11,8 +11,8 @@ namespace ChoSiren.UI
     /// <summary>
     /// Centre-screen judgement burst for the manual ultimate (2026-10-31, 赵金: "大招交互的 good、perfect 等等音效跟反馈").
     /// Torn-paper pop band (brand teal; gold + pink for PERFECT) sweeps across, the authored grade word art
-    /// (Resources/UI/GradeStamps) slams in with an ink drop shadow and glow; GREAT uses the P5 ransom letters.
-    /// PERFECT is the loudest: biggest overshoot pop, white flash, light rays, sparkles, "!!" and a short
+    /// uses one shared cut-paper letter style for every judgement tier.
+    /// PERFECT is the loudest: biggest overshoot pop, white flash, light rays, sparkles and a short
     /// shake of the ultimate show. MISS is a small grey drop. ReduceMotion keeps a plain fade (no flash,
     /// shake, rays or pop). Freezes while paused. Sound / announcer are played by the caller.
     /// </summary>
@@ -26,7 +26,7 @@ namespace ChoSiren.UI
         private static readonly Color32 MissGrey = new Color32(120, 112, 140, 255);
 
         private UltimateGradeTier1031 tier;
-        private RectTransform root, band, art, rays, sparkles, bang, shakeTarget;
+        private RectTransform root, band, art, rays, sparkles, shakeTarget;
         private Image flash, glow;
         private CanvasGroup group;
         private Func<bool> paused;
@@ -120,57 +120,20 @@ namespace ChoSiren.UI
             P5Letters1023.Plate(band, "Edge", new Vector2(0, bh * .5f - 4f), new Vector2(1900, 8f), Paper, -16f);
             P5Letters1023.Plate(band, "InkEdge", new Vector2(0, -bh * .5f + 3f), new Vector2(1900, 6f), Brand1025.Ink, -16f);
 
-            // word art
+            // A consistent cut-paper alphabet across GOOD / GREAT / PERFECT / MISS.
+            // The tier changes colour and motion, never the underlying type treatment.
             art = NewRect("Art", centre);
-            float width = perfect ? 640f : miss ? 380f : 540f;
-            if (great)
-            {
-                // No authored GREAT plate: ransom letters with a gold "!" on a teal/ink plate rhythm.
-                var letters = NewRect("Letters", art);
-                foreach (RectTransform l in P5Letters1023.Build(letters, font, "GREAT!", 104f, 1031))
-                    foreach (Graphic gph in l.GetComponentsInChildren<Graphic>())
-                    {
-                        Color32 c = gph.color;
-                        if (gph.name == "Plate" && c.r == Brand1025.Teal.r && c.g == Brand1025.Teal.g)
-                            gph.color = Gold; // teal plates would vanish on the teal band
-                    }
-                glow = null;
-            }
-            else
-            {
-                UltimateTimingGrade g = perfect ? UltimateTimingGrade.Perfect : miss ? UltimateTimingGrade.Miss : UltimateTimingGrade.Good;
-                Sprite sprite = BattleUltimateShow1020.GradeArt(g);
-                float aspect = sprite != null ? sprite.rect.height / Mathf.Max(1f, sprite.rect.width) : .32f;
-                Vector2 size = new Vector2(width, width * aspect);
-                var shadow = NewImage("ArtShadow", art, sprite, new Color(0, 0, 0, .75f));
-                shadow.preserveAspect = true; shadow.rectTransform.sizeDelta = size;
-                shadow.rectTransform.anchoredPosition = new Vector2(12, -12);
-                if (!miss)
+            var letters = NewRect("Letters", art);
+            string word = perfect ? "PERFECT" : great ? "GREAT" : miss ? "MISS" : "GOOD";
+            float letterSize = perfect ? 88f : 92f;
+            foreach (RectTransform letter in P5Letters1023.Build(letters, font, word, letterSize, 1031))
+                foreach (Graphic graphic in letter.GetComponentsInChildren<Graphic>())
                 {
-                    glow = NewImage("Glow", art, sprite, perfect ? new Color(1f, .85f, .3f, .0f) : new Color(.1f, .95f, .93f, 0f));
-                    glow.preserveAspect = true; glow.rectTransform.sizeDelta = size * 1.08f;
+                    Color32 color = graphic.color;
+                    if (graphic.name == "Plate" && color.r == Brand1025.Teal.r && color.g == Brand1025.Teal.g)
+                        graphic.color = perfect ? (Color)Pink : miss ? (Color)MissGrey : (Color)Gold;
                 }
-                var word = NewImage("Word", art, sprite, miss ? new Color(.82f, .8f, .9f, 1f) : Color.white);
-                word.preserveAspect = true; word.rectTransform.sizeDelta = size;
-                if (sprite == null)
-                {
-                    // fallback if the authored art is missing: ransom letters, never a bare label
-                    var letters = NewRect("Letters", art);
-                    P5Letters1023.Build(letters, font, perfect ? "PERFECT" : miss ? "MISS" : "GOOD", perfect ? 96f : 84f, 1031);
-                }
-            }
-            if (perfect)
-            {
-                // "PERFECT!!": two ink plates with gold marks stamped under the word's tail (inside a 720 px screen,
-                // clear of the letters, contrasting with the gold band)
-                bang = NewRect("Bang", centre);
-                bang.anchoredPosition = new Vector2(width * .5f - 92f, -112f);
-                bang.localEulerAngles = new Vector3(0, 0, 12f);
-                var marks = P5Letters1023.Build(bang, font, "!!", 96f, 7);
-                foreach (RectTransform m in marks)
-                    foreach (Graphic gph in m.GetComponentsInChildren<Graphic>())
-                        gph.color = gph.name == "Plate" ? (Color)Brand1025.Ink : gph.name == "Shadow" ? (Color)Pink : (Color)Gold;
-            }
+            glow = null;
 
             // sparkles (Star4) around the word
             sparkles = NewRect("Sparkles", centre);
@@ -227,7 +190,6 @@ namespace ChoSiren.UI
             {
                 band.anchoredPosition = Vector2.zero; band.localScale = Vector3.one;
                 art.localScale = Vector3.one; art.anchoredPosition = Vector2.zero;
-                if (bang != null) bang.localScale = Vector3.one;
                 flash.color = new Color(1, 1, 1, 0);
                 if (glow != null) glow.color = new Color(glow.color.r, glow.color.g, glow.color.b, .35f);
                 return;
@@ -252,12 +214,6 @@ namespace ChoSiren.UI
                 glow.color = c;
                 glow.rectTransform.localScale = Vector3.one * (1f + .05f * Mathf.Sin(t * 22f));
             }
-            if (bang != null)
-            {
-                float bk = (t - .2f) / .1f;
-                bang.localScale = Vector3.one * (bk <= 0f ? 0f : Mathf.LerpUnclamped(2.2f, 1f, OutBack(bk)));
-            }
-
             // flash: PERFECT strong, GREAT mild, GOOD faint, MISS none
             float peak = perfect ? .62f : tier == UltimateGradeTier1031.Great ? .3f : tier == UltimateGradeTier1031.Good ? .14f : 0f;
             flash.color = new Color(1f, perfect ? .97f : 1f, perfect ? .85f : 1f, peak * (1f - Mathf.Clamp01(t / .2f)));

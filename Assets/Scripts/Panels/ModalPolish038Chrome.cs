@@ -259,7 +259,7 @@ namespace ChoSiren.Panels
 
             button.onClick.AddListener(() =>
             {
-                PlayClick();
+                PlayAction(name);
                 action?.Invoke();
             });
             outer.AddComponent<ModalPolish038PressFeedback>().Configure(body, sheen);
@@ -445,6 +445,12 @@ namespace ChoSiren.Panels
         {
             if (audio == null) audio = UnityEngine.Object.FindAnyObjectByType<GameAudio>();
             if (audio != null) audio.PlayClick();
+        }
+
+        public static void PlayAction(string action)
+        {
+            if (audio == null) audio = UnityEngine.Object.FindAnyObjectByType<GameAudio>();
+            if (audio != null) audio.PlayUiAction(action);
         }
 
         public static void PlaySuccess()

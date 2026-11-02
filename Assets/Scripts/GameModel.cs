@@ -841,7 +841,12 @@ namespace ChoSiren
         public string InterviewRiskLabelOf(int poolIndex, int memberIndex) =>
             InterviewRiskLabel(InterviewRisk(poolIndex, memberIndex));
 
-        public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,            int displayedQuote, out string message)
+        public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,
+            int displayedQuote, out string message) =>
+            SignInterviewCandidate(poolIndex, memberIndex, displayedCycle, displayedQuote, false, out message);
+
+        public bool SignInterviewCandidate(int poolIndex, int memberIndex, string displayedCycle,
+            int displayedQuote, bool useTicket, out string message)
         {
             if (displayedCycle != CurrentInterviewCycle)
             {
@@ -858,7 +863,7 @@ namespace ChoSiren
                 message = "签约报价已更新，请重新查看";
                 return false;
             }
-            return SignCandidate(memberIndex, displayedQuote, poolIndex, out message);
+            return SignCandidate(memberIndex, displayedQuote, poolIndex, useTicket, out message);
         }
 
         private void EnsureInterviewShortlists()
@@ -926,7 +931,10 @@ namespace ChoSiren
             SignCandidate(memberIndex, diamondCost, -1, out message);
 
         /// <summary>签约并把渠道起点写入存档（0 = 线上低起点、1 = 线下高起点、其他 = 无偏移）。</summary>
-        public bool SignCandidate(int memberIndex, int diamondCost, int signingChannel, out string message)
+        public bool SignCandidate(int memberIndex, int diamondCost, int signingChannel, out string message) =>
+            SignCandidate(memberIndex, diamondCost, signingChannel, false, out message);
+
+        public bool SignCandidate(int memberIndex, int diamondCost, int signingChannel, bool useTicket, out string message)
         {
             if (!IsValidMemberIndex(memberIndex))
             {
@@ -946,13 +954,19 @@ namespace ChoSiren
                 return false;
             }
 
-            if (Save.Diamonds < diamondCost)
+            if (useTicket && Save.RecruitTickets < 1)
+            {
+                message = "签约券不足，请重新选择付款方式";
+                return false;
+            }
+            if (!useTicket && Save.Diamonds < diamondCost)
             {
                 message = "星钻不足，完成演出与关卡首通可继续获得";
                 return false;
             }
 
-            Save.Diamonds -= diamondCost;
+            if (useTicket) Save.RecruitTickets--;
+            else Save.Diamonds -= diamondCost;
             UnlockMemberInternal(memberIndex);
             ApplySigningChannel(memberIndex, signingChannel);
             GainAffection(memberIndex, StartingAffection);

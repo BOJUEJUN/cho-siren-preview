@@ -277,7 +277,7 @@ namespace ChoSiren.Panels
             button.colors = colors;
             button.onClick.AddListener(() =>
             {
-                PlayClick();
+                if (Audio != null) Audio.PlayUiAction(name);
                 action?.Invoke();
             });
 

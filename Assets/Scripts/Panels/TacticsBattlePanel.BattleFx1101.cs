@@ -147,10 +147,13 @@ namespace ChoSiren.Panels
             CopyRect1101(psdRoot, foreground1101);
             if (psdCloseup1019 != null)
             {
-                var viewport = (RectTransform)transform;
-                Vector3 left = psdRoot.InverseTransformPoint(viewport.TransformPoint(new Vector3(viewport.rect.xMin, 0)));
-                Vector3 right = psdRoot.InverseTransformPoint(viewport.TransformPoint(new Vector3(viewport.rect.xMax, 0)));
-                psdCloseup1019.SetViewportEdges(left.x - psdRoot.rect.xMin, right.x - psdRoot.rect.xMin);
+                var fit = psdRoot.GetComponent<BattlePsdViewportFit1019>();
+                if (fit != null)
+                {
+                    fit.RefreshFit();
+                    Rect visual = fit.VisualViewport;
+                    psdCloseup1019.SetViewportEdges(visual.xMin - psdRoot.rect.xMin, visual.xMax - psdRoot.rect.xMin);
+                }
             }
             float presence = psdCloseup1019 != null ? psdCloseup1019.Presence : 0f;
             float target = 1f - presence;

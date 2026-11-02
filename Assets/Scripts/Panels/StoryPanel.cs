@@ -574,7 +574,7 @@ namespace ChoSiren.Panels
             }
 
             ApplySceneCg(line, narrator ? null : line.Subject);
-            PlayLineVoice(line, narrator || line.Subject == "producer");
+            PlayLineVoice(line);
             FocusSpeaker(narrator ? null : line.Subject);
             PresentSpeaker(narrator ? null : line.Subject, line.Expression);
             // 2026-10-28: the manager's signed name stands in for {player}.
@@ -776,6 +776,9 @@ namespace ChoSiren.Panels
         private IEnumerator AutoAdvance(int length)
         {
             yield return new WaitForSecondsRealtime(AutoBaseDelay + length * AutoPerCharDelay);
+            while (autoMode && !ended && voiceAudio != null &&
+                (voiceAudio.IsVoicePlayingFor(StoryVoiceOwner) || voiceAudio.IsVoiceLoading(storyVoiceClip1102)))
+                yield return null;
             autoRoutine = null;
             if (autoMode && !typing && !ended && !historyOverlay.activeSelf) AdvanceLine();
         }
@@ -1268,21 +1271,28 @@ namespace ChoSiren.Panels
             if (!string.IsNullOrEmpty(message)) notify?.Invoke(message);
         }
 
-        // 2026-10-20: every member line is voiced (Japanese, the same four voices as battle).
-        // Clips live at StreamingAssets/Voice/Story/<script>-l<index>.mp3 (downloaded per line); producer lines stay silent.
+        // Every spoken line has an exact Japanese recording, including producer, narration and outros.
         private const string StoryVoiceOwner = "story-panel";
         private GameAudio voiceAudio;
-        private void PlayLineVoice(StoryLine line, bool silent)
+        private string storyVoiceClip1102;
+        private void PlayLineVoice(StoryLine line)
         {
             if (voiceAudio == null) voiceAudio = FindFirstObjectByType<GameAudio>();
             if (voiceAudio == null) return;
             voiceAudio.StopVoice(StoryVoiceOwner);
             string scriptId = runner?.Script?.Id;
             int index = runner?.Script?.Lines != null ? runner.Script.Lines.IndexOf(line) : -1;
-            // Post-battle scenes have no recordings yet.
-            if (silent || string.IsNullOrEmpty(scriptId) || index < 0 || scriptId.EndsWith("-end", StringComparison.Ordinal)) return;
-            voiceAudio.PlayVoice("Story/" + scriptId + "-l" + index, StoryVoiceOwner);
-            voiceAudio.PrefetchVoice("Story/" + scriptId + "-l" + (index + 1));
+            storyVoiceClip1102 = DialogueVoice1102.StoryClip(scriptId, index, line.Subject, line.Text);
+            if (string.IsNullOrEmpty(storyVoiceClip1102)) return;
+            voiceAudio.PlayVoice(storyVoiceClip1102, StoryVoiceOwner);
+            for (int next = index + 1; next < runner.Script.Lines.Count; next++)
+            {
+                StoryLine upcoming = runner.Script.Lines[next];
+                if (upcoming.Command != StoryCommand.Say) continue;
+                string clip = DialogueVoice1102.StoryClip(scriptId, next, upcoming.Subject, upcoming.Text);
+                if (!string.IsNullOrEmpty(clip)) voiceAudio.PrefetchVoice(clip);
+                break;
+            }
         }
 
         private void OnDestroy()

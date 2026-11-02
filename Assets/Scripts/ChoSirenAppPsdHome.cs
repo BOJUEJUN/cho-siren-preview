@@ -592,18 +592,17 @@ namespace ChoSiren
                 bool swapped = psdIdols != null && psdIdols.Swap();
                 if (swapped)
                 {
-                    bool voiced = model != null && model.Save.SfxEnabled;
                     if (psdCharacters.HasPerformance)
                     {
                         psdMotion.DisplayDialogue(index);
-                        if (voiced && (gameAudio == null || !gameAudio.PlayVoice($"catalena-{index % 3 + 1}")))
-                            PsdHomeVoice.Speak(index);
+                        PlayPsdHomeLine1102(0, index);
                     }
-                    else if (psdCharacters.Index >= 2) psdMotion.DisplayGuestLine(psdCharacters.Index);
+                    else if (psdCharacters.Index >= 2)
+                        PlayPsdHomeLine1102(psdCharacters.Index, psdMotion.DisplayGuestLine(psdCharacters.Index));
                     else
                     {
                         int said = psdMotion.DisplayLilithLine();
-                        if (said >= 0 && gameAudio != null) gameAudio.PlayVoice($"lilith-{said + 1}");
+                        PlayPsdHomeLine1102(1, said);
                     }
                     gameAudio?.PlayClick();
                     return;
@@ -613,25 +612,26 @@ namespace ChoSiren
                     psdCharacters.Respond();
                     if (psdCharacters.Index >= 2)
                     {
-                        psdMotion.DisplayGuestLine(psdCharacters.Index);
+                        PlayPsdHomeLine1102(psdCharacters.Index, psdMotion.DisplayGuestLine(psdCharacters.Index));
                         gameAudio?.PlayClick();
                         return;
                     }
                     int line = psdMotion.DisplayLilithLine();
-                    if (line < 0 || gameAudio == null || !gameAudio.PlayVoice($"lilith-{line + 1}"))
-                        gameAudio?.PlayClick();
+                    PlayPsdHomeLine1102(1, line);
                     return;
                 }
             }
-            bool sound = model != null && model.Save.SfxEnabled;
-            // The line shows with the performance too; its voice comes from the page.
             psdMotion.DisplayDialogue(index);
-            // Web: the performance clip carries its own voice. Elsewhere (or without a clip) a
-            // recorded line from Resources/Audio/Voice wins over the browser's speech fallback.
-            if (!PsdHomeCharacterBridge.Play(index, sound) && sound &&
-                (gameAudio == null || !gameAudio.PlayVoice($"catalena-{index % 3 + 1}")))
-                PsdHomeVoice.Speak(index);
+            PsdHomeCharacterBridge.Play(index, false);
+            PlayPsdHomeLine1102(0, index);
             gameAudio?.PlayClick();
+        }
+
+        private void PlayPsdHomeLine1102(int character, int line)
+        {
+            if (model == null || !model.Save.SfxEnabled || gameAudio == null) return;
+            string clip = UI.DialogueVoice1102.HomeClip(character, line);
+            if (!string.IsNullOrEmpty(clip)) gameAudio.PlayVoice(clip, "home-dialogue");
         }
     }
 

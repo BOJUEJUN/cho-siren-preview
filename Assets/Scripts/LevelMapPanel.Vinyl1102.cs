@@ -47,7 +47,7 @@ namespace ChoSiren
             SirenStickerUi.SkinButton(back, false, true);
             NewPlacedText(back.transform, "‹", 62, White, 0, -6, 84, 80, TextAnchor.MiddleCenter, FontStyle.Bold).verticalOverflow = VerticalWrapMode.Overflow;
             GameObject switcher = MapBoardHit("ChapterSwitch", page, 142, 32, 306, 74,
-                () => SwitchChapter(chapter == 1 ? 2 : 1));
+                OpenVinylChapterPicker1102);
             SirenStickerUi.SkinButton(switcher, false, true);
             chapterSwitchLabel = NewPlacedText(switcher.transform, "", 26, White, 12, 0, 282, 74, TextAnchor.MiddleCenter, FontStyle.Bold);
             chapterSwitchLabel.name = "ChapterSwitchLabel";
@@ -83,15 +83,19 @@ namespace ChoSiren
                 GameObject node = MapBoardHit($"Level-{chapter}-{stage}", wheelSurface.transform,
                     0, 0, 122, 122, () => SelectVinylStage1102(stage));
                 Image hit = node.GetComponent<Image>();
-                hit.sprite = RoundedSprite(48); hit.type = Image.Type.Simple;
-                hit.color = new Color32(16, 10, 31, 245);
+                hit.sprite = VisualA1101.TornSprite; hit.type = Image.Type.Simple;
+                hit.color = new Color32(190, 165, 222, 255);
                 Outline rim = node.AddComponent<Outline>();
                 rim.effectColor = new Color32(137, 115, 177, 230); rim.effectDistance = new Vector2(1.5f, -1.5f);
-                Image glow = NewImage("SelectedRim", node.transform, RoundedSprite(48), Accent);
+                Image glow = NewImage("SelectedRim", node.transform, VisualA1101.TornSprite, Accent);
                 glow.type = Image.Type.Simple;
                 PlaceTop(glow.rectTransform, -6, -6, 134, 134); glow.transform.SetAsFirstSibling();
                 Image core = NewImage("Core", node.transform, RoundedSprite(48), new Color32(14, 13, 29, 255));
-                core.type = Image.Type.Simple; Stretch(core.rectTransform);
+                core.type = Image.Type.Simple;
+                PlaceTop(core.rectTransform, 9, 9, 104, 104);
+                Image nick = NewImage("PaperNick", node.transform, PunkUi.SlantFill, new Color32(238, 224, 255, 240));
+                PlaceTop(nick.rectTransform, 86, 9, 29, 6); CenterPivot(nick.rectTransform);
+                nick.rectTransform.localEulerAngles = new Vector3(0, 0, -28f);
                 Text label = NewPlacedText(node.transform, $"{chapter}-{stage}", 39, White,
                     0, 15, 122, 57, TextAnchor.MiddleCenter, FontStyle.Bold);
                 label.verticalOverflow = VerticalWrapMode.Overflow;
@@ -109,7 +113,7 @@ namespace ChoSiren
             sceneTitle1102.horizontalOverflow = HorizontalWrapMode.Wrap;
             Readable(sceneTitle1102);
 
-            GameObject team = MapBoardHit("StageTeamPreset", page, 40, 1268, 778, 140, OpenVinylTeamPresets1102);
+            GameObject team = MapBoardHit("StageTeamPreset", page, 40, 1268, 490, 140, OpenVinylTeamPresets1102);
             SirenStickerUi.SkinPanel(team, false);
             activeTeamText1028 = NewPlacedText(team.transform, "", 23, White, 66, 4, 600, 46, TextAnchor.MiddleLeft);
             activeTeamText1028.name = "ActiveTeamName";
@@ -177,6 +181,33 @@ namespace ChoSiren
             }
         }
 
+        private void OpenVinylChapterPicker1102()
+        {
+            float height = 178f + ChapterCount * 94f;
+            RectTransform host = (RectTransform)transform;
+            float hostHeight = host.rect.height > 1f ? host.rect.height : 1536f;
+            GameObject card = OpenModalShell("ChapterPicker1102", Mathf.Max(80f, (hostHeight - height) * .5f), height);
+            SirenStickerUi.SkinTitle(NewPlacedText(card.transform, "章节", 30, White,
+                32, 24, 400, 60, TextAnchor.MiddleLeft, FontStyle.Bold));
+            for (int number = 1; number <= ChapterCount; number++)
+            {
+                int captured = number;
+                bool current = number == chapter;
+                bool unlocked = ChapterUnlocked(number);
+                string name = number == 1 ? "欲望都市" : number == 2 ? "魅声海湾" : "全新舞台";
+                string state = current ? " · 当前" : unlocked ? "" : " · 锁定";
+                GameObject option = NewButton("ChooseChapter-" + number, card.transform,
+                    $"第{number:00}章  {name}{state}", 24, new Color32(35, 19, 59, 255),
+                    current ? Accent : White, () =>
+                    {
+                        CloseChapterModal();
+                        SwitchChapter(captured);
+                    }, 12);
+                PlaceTop(option.GetComponent<RectTransform>(), 32, 104 + (number - 1) * 94, 576, 76);
+                option.GetComponent<Button>().interactable = unlocked;
+            }
+        }
+
         private void SelectVinylStage1102(int stage)
         {
             SelectStage(stage);
@@ -199,24 +230,24 @@ namespace ChoSiren
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
             {
                 RectTransform member = VisualB1101.Rect("StageTeamMember-" + slot, team);
-                PlaceTop(member, 28 + slot * 146, 4, 136, 132);
+                PlaceTop(member, 20 + slot * 110, 4, 108, 132);
                 Image rim = NewImage("AvatarRim", member, RoundedSprite(30),
                     slot == 0 ? Accent : new Color32(156, 104, 255, 180));
                 rim.type = Image.Type.Simple;
-                PlaceTop(rim.rectTransform, 22, 2, 92, 92);
+                PlaceTop(rim.rectTransform, 8, 2, 92, 92);
                 Image window = NewImage("AvatarWindow", member, RoundedSprite(30), Color.white);
                 window.type = Image.Type.Simple;
-                PlaceTop(window.rectTransform, 24, 4, 88, 88);
+                PlaceTop(window.rectTransform, 10, 4, 88, 88);
                 window.gameObject.AddComponent<Mask>().showMaskGraphic = false;
                 teamFaces1102[slot] = NewImage("Avatar", window.transform, null, White);
                 teamNames1102[slot] = NewPlacedText(member, "", 24, White,
-                    0, 96, 136, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
+                    0, 96, 108, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
                 teamNames1102[slot].name = "MemberName";
                 teamNames1102[slot].verticalOverflow = VerticalWrapMode.Overflow;
                 PanelKit.EnableBestFit(teamNames1102[slot], 18);
                 teamMembers1102[slot] = -2;
             }
-            GameObject swap = MapBoardHit("StageTeamSwap", team, 672, 26, 88, 88, OpenVinylTeamPresets1102);
+            GameObject swap = MapBoardHit("StageTeamSwap", team, 600, 26, 88, 88, OpenVinylTeamPresets1102);
             teamSwapGlow1102 = NewImage("SwapGlow", swap.transform, VisualB1101.Glow(),
                 new Color(Accent.r, Accent.g, Accent.b, .12f));
             PlaceTop(teamSwapGlow1102.rectTransform, -8, -8, 104, 104);

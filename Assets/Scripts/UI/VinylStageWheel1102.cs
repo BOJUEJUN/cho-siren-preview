@@ -18,7 +18,9 @@ namespace ChoSiren.UI
         int referenceStage;
         float angle, fromAngle, targetAngle, animationTime;
         float lastPointerAngle, lastPointerTime, velocity;
-        bool animating;
+        bool animating, tickWhenSettled;
+        bool applicationPaused, hasFocus = true;
+        GameAudio audio;
 
         public int SelectedStage { get; private set; }
         public float Angle => angle;
@@ -28,6 +30,7 @@ namespace ChoSiren.UI
             int initial, Action<int> onSelect, Func<int, bool> selectable)
         {
             disc = record; nodes = stageNodes; select = onSelect; canSelect = selectable;
+            audio = UnityNull.Real(UnityEngine.Object.FindAnyObjectByType<GameAudio>());
             referenceStage = SelectedStage = Mathf.Clamp(initial, 1, nodes.Length);
             angle = targetAngle = 0;
             visibility = new CanvasGroup[nodes.Length];
@@ -51,15 +54,22 @@ namespace ChoSiren.UI
             if (animating && Mathf.Abs(targetAngle - next) < .01f) return;
             if (Mathf.Abs(angle - next) < .01f) { Pose(); return; }
             fromAngle = angle; targetAngle = next; animationTime = 0; animating = true;
+            tickWhenSettled = Mathf.Abs(angle - next) > .5f;
         }
 
         void Update()
         {
-            if (!animating) return;
+            UpdateScrubSound();
+            if (!animating || applicationPaused || !hasFocus) return;
             animationTime += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(animationTime / Duration);
             angle = Mathf.LerpUnclamped(fromAngle, targetAngle, 1f - Mathf.Pow(1f - t, 3f));
-            if (t >= 1f) { angle = targetAngle; animating = false; }
+            if (t >= 1f)
+            {
+                angle = targetAngle; animating = false;
+                if (tickWhenSettled && audio != null) audio.PlayVinylTick();
+                tickWhenSettled = false;
+            }
             Pose();
         }
 
@@ -68,6 +78,7 @@ namespace ChoSiren.UI
             animating = false; velocity = 0;
             lastPointerAngle = PointerAngle(e.position, e.pressEventCamera);
             lastPointerTime = Time.unscaledTime;
+            if (audio != null) audio.ResumeAfterUserGesture();
         }
 
         public void OnPointerUp(PointerEventData e)
@@ -78,6 +89,7 @@ namespace ChoSiren.UI
         public void OnBeginDrag(PointerEventData e)
         {
             IsDragging = true; animating = false; velocity = 0;
+            if (audio != null) audio.ResumeAfterUserGesture();
             lastPointerAngle = PointerAngle(e.pressPosition, e.pressEventCamera);
             lastPointerTime = Time.unscaledTime;
             e.eligibleForClick = false;
@@ -102,6 +114,7 @@ namespace ChoSiren.UI
         {
             if (!IsDragging || nodes == null) return;
             IsDragging = false; e.eligibleForClick = false;
+            if (audio != null) audio.StopVinylScrub();
             if (Time.unscaledTime - lastPointerTime > .12f) velocity = 0;
             float projection = angle + Mathf.Clamp(velocity * .11f, -Step * 1.3f, Step * 1.3f);
             int target = Mathf.Clamp(Mathf.RoundToInt(projection / Step + referenceStage), 1, nodes.Length);
@@ -147,6 +160,31 @@ namespace ChoSiren.UI
             }
         }
 
-        void OnDisable() { IsDragging = false; animating = false; }
+        void UpdateScrubSound()
+        {
+            if (audio == null) return;
+            bool moving = IsDragging && !applicationPaused && hasFocus && !AudioListener.pause &&
+                Time.timeScale > 0 && Time.unscaledTime - lastPointerTime < .075f && Mathf.Abs(velocity) > 2f;
+            if (moving) audio.SetVinylScrub(Mathf.Clamp01(Mathf.Abs(velocity) / 300f));
+            else audio.StopVinylScrub();
+        }
+
+        void OnApplicationPause(bool paused)
+        {
+            applicationPaused = paused;
+            if (paused) { IsDragging = false; if (audio != null) audio.StopVinylScrub(); ShowStage(SelectedStage); }
+        }
+
+        void OnApplicationFocus(bool focused)
+        {
+            hasFocus = focused;
+            if (!focused) { IsDragging = false; if (audio != null) audio.StopVinylScrub(); ShowStage(SelectedStage); }
+        }
+
+        void OnDisable()
+        {
+            IsDragging = false; animating = false; tickWhenSettled = false;
+            if (audio != null) audio.StopVinylScrub();
+        }
     }
 }
