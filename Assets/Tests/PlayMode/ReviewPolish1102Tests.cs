@@ -44,6 +44,31 @@ namespace ChoSiren.Tests
             PlayerPrefs.Save(); LogAssert.ignoreFailingMessages = previousIgnore;
         }
 
+        [UnityTest] public IEnumerator TeamNameBoxAcceptsClicksAfterLosingFocus()
+        {
+            app = new GameObject("ReviewTeamNameInput").AddComponent<ChoSirenApp>();
+            yield return null;
+            var model = new GameModel(() => DateTime.Now, new InMemorySaveStore());
+            typeof(ChoSirenApp).GetField("model", Private).SetValue(app, model);
+            typeof(ChoSirenApp).GetMethod("OpenTeamNameDialog1028", Private).Invoke(app, new object[] { 0 });
+            yield return null;
+            var input = app.GetComponentsInChildren<InputField>().First(f => f.name == "TeamNameInput");
+            input.DeactivateInputField(); EventSystem.current.SetSelectedGameObject(null);
+            yield return null;
+            Assert.That(input.GetComponent<Image>().raycastTarget, Is.True);
+            var rect = (RectTransform)input.transform;
+            var point = RectTransformUtility.WorldToScreenPoint(null,
+                rect.TransformPoint(new Vector2(rect.rect.xMax - 24, rect.rect.center.y)));
+            var pointer = new PointerEventData(EventSystem.current) { position = point, button = PointerEventData.InputButton.Left };
+            ExecuteEvents.Execute(input.gameObject, pointer, ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.Execute(input.gameObject, pointer, ExecuteEvents.pointerClickHandler);
+            yield return null;
+            Assert.That(input.isFocused, Is.True);
+            input.text = "夜场小队";
+            app.GetComponentsInChildren<Button>().First(b => b.name == "Confirm").onClick.Invoke();
+            Assert.That(model.ActiveTeamName, Is.EqualTo("夜场小队"));
+        }
+
         [UnityTest] public IEnumerator TeamPencilAndPowerStayCloseToTheirContent()
         {
             app = new GameObject("ReviewPolishTeam").AddComponent<ChoSirenApp>();

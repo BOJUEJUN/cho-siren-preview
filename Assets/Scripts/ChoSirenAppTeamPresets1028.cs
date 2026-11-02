@@ -75,6 +75,7 @@ namespace ChoSiren
             float width = frame.Width * (ModalPolish038Chrome.BodyRight - ModalPolish038Chrome.BodyLeft);
             GameObject box = ModalPolish038Chrome.RowPlate(frame.Body, "TeamNameInput");
             PlaceTop(box.GetComponent<RectTransform>(), 0, 10, width, 76);
+            box.GetComponent<Image>().raycastTarget = true;
             Text text = ModalPolish038Chrome.Text(box.transform, "Value", "", 28, White, FontStyle.Normal, TextAnchor.MiddleLeft);
             text.supportRichText = false;
             Stretch(text.rectTransform, 16, 0, -16, 0);
