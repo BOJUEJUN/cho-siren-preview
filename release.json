@@ -1,25 +1,24 @@
 {
-  "version": "0.9.24",
-  "releaseId": "DICE-20261102-CHARGE-R158",
+  "version": "0.9.25",
+  "releaseId": "WEB-20261102-REVIEW-R159",
   "date": "2026-11-02",
-  "name": "重投充能修复",
-  "notice": "开局自动投骰一次，手动重投从零充能；换波不白送次数；重投按钮边缘噪波加大20%。",
-  "previousReleaseId": "UI-20261102-IPHONE-R157",
-  "previousWebCommit": "8f86d3a7cfa45281a899399f9fc98bf327673a3b",
-  "previousReleaseRecord": "releases/R157.json",
+  "name": "关卡与战斗表现 Web 验收版",
+  "notice": "关卡改为侧边半光碟，每关独立场景；Boss 入场、角色卡放大、技能贴边和骰子光效优化；大招按站位充能，换队长不换位，支持拖动换位。",
+  "previousReleaseId": "DICE-20261102-CHARGE-R158",
+  "previousWebCommit": "70a987ad001b4f9fded2e3c5c6db1e5556e328bb",
+  "previousReleaseRecord": "releases/R158.json",
   "validation": {
-    "status": "published-install-verified",
-    "editMode": "26/26 focused dice checks passed",
-    "playMode": "3/3: opening animation and reroll HUD at two aspect ratios",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.24",
-    "webPortal": "113/113 checks passed",
-    "webRuntime": "public 0.9.24 started; lobby/map captured; no page errors",
-    "nativeArtifacts": "five public packages checked by length and byte samples; two delta manifests verified",
-    "iphone": "Bojuejun installed 0.9.24; version queried; not launched per user",
-    "macLocal": "0.9.24 installed and signature checked; Dock points to application; not launched"
+    "status": "web-build-verified",
+    "editMode": "10/10 focused charge and formation checks passed",
+    "playMode": "7/7 focused map, cutin and dice checks passed; hero-card visual capture passed",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.25",
+    "webPortal": "113/113 checks passed; final hashed bundle verified",
+    "webRuntime": "Local WebGL 0.9.25: native map, transparent team stats, scoring dice and character cards inspected; Nightingale full video reached ended at 5.184s; no JavaScript page errors",
+    "nativeArtifacts": "Not rebuilt or published by this Web-only review release"
   },
   "knownLimits": [
-    "关卡和练习室新方案均为独立待选预览，未合入游戏。",
-    "五条悟按用户要求暂缓；Windows/Android 尚未实体机运行验收；伯爵君本次只安装不启动。"
+    "本轮仅发布 Web 验收版；PC、Android、iOS 和安装更新清单保持 0.9.24。",
+    "光碟先采用用户选定的 G 版；H/I/J 新方案待选。",
+    "练习室保持当前版本。"
   ]
 }
