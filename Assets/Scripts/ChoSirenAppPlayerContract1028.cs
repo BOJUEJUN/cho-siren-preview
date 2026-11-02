@@ -15,12 +15,7 @@ namespace ChoSiren
     public sealed partial class ChoSirenApp
     {
         /// <summary>The top-bar / profile portrait for avatar <paramref name="index"/> (0 = the manager).</summary>
-        private Sprite PlayerAvatarSprite(int index)
-        {
-            if (index <= 0) return AiUiSprite("Art/ProfileAvatarUser") ?? Resources.Load<Sprite>("Art/ProfileAvatar");
-            return Resources.Load<Sprite>(GameModel.PlayerAvatarResources[Mathf.Min(index, GameModel.PlayerAvatarResources.Length - 1)])
-                ?? PlayerAvatarSprite(0);
-        }
+        private Sprite PlayerAvatarSprite(int index) => UI.PlayerAvatar1102.Preset(index);
 
         /// <summary>A name the shared UI font can draw (the WebGL font is a 3,755-hanzi subset).</summary>
         private static bool CanDrawNameCharacter(char c) =>
@@ -34,6 +29,11 @@ namespace ChoSiren
             Image avatar = safeRoot.Find("TopBar/Profile/AvatarMask/Avatar")?.GetComponent<Image>();
             Sprite sprite = PlayerAvatarSpriteNow();
             if (avatar != null && sprite != null && avatar.sprite != sprite) avatar.sprite = sprite;
+            Transform profile = safeRoot.Find("ProfileModal");
+            if (profile != null && sprite != null)
+                foreach (Image picture in profile.GetComponentsInChildren<Image>(true))
+                    if (picture.name == "Avatar" && picture.transform.parent.name == "AvatarMask")
+                        picture.sprite = sprite;
         }
 
         /// <summary>The header name overflows its band (it must never truncate away), so long names step the size down.</summary>
@@ -124,7 +124,7 @@ namespace ChoSiren
             GameObject photoMask = NewImage("Clip", photo, null, Color.white);
             PlaceTop(photoMask.GetComponent<RectTransform>(), 9f, 9f, 124f, 124f);
             photoMask.AddComponent<RectMask2D>();
-            Image photoFace = NewImage("Face", photoMask.transform, PlayerAvatarSprite(avatarChoice), Color.white).GetComponent<Image>();
+            Image photoFace = NewImage("Face", photoMask.transform, PlayerAvatarSpriteNow(), Color.white).GetComponent<Image>();
             Stretch(photoFace.rectTransform);
             photoFace.preserveAspect = true;
             Text photoNote = NewText("Note", photo, "证件照 · 点我换", 12, faint, FontStyle.Italic, TextAnchor.MiddleCenter);
@@ -198,7 +198,9 @@ namespace ChoSiren
                 OpenAvatarSheet1028(page.transform, avatarChoice, choice =>
                 {
                     avatarChoice = choice;
-                    photoFace.sprite = PlayerAvatarSprite(choice);
+                    model.SetPlayerAvatarPreset(choice);
+                    photoFace.sprite = PlayerAvatarSpriteNow();
+                    RefreshPlayerIdentity1028();
                 });
             });
 

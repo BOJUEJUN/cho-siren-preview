@@ -143,6 +143,18 @@ namespace ChoSiren.Tests
             Assert.That(app.GetComponentsInChildren<Transform>().Any(t => t.name == "AvatarPicker1101"), Is.False);
             Assert.That((Sprite)Invoke("PlayerAvatarSpriteNow"), Is.SameAs(selected));
 
+            Invoke("OpenProfile"); yield return null;
+            Transform profile = app.GetComponentsInChildren<Transform>().Single(t => t.name == "ProfileModal");
+            Image profileFace = profile.GetComponentsInChildren<Image>().Single(i => i.name == "Avatar");
+            Assert.That(profileFace.sprite, Is.SameAs(selected));
+            Invoke("OpenAvatarPicker1101"); yield return null;
+            sheet = app.GetComponentsInChildren<Transform>().Single(t => t.name == "AvatarPicker1101");
+            sheet.GetComponentsInChildren<Button>().Single(b => b.name == "Pick-1").onClick.Invoke();
+            Assert.That(profileFace.sprite, Is.SameAs((Sprite)Invoke("PlayerAvatarSpriteNow")),
+                "the open profile updates in the same click as the lobby header");
+            yield return null;
+            Invoke("CloseModal"); yield return null;
+
             Transform safeRoot = (Transform)typeof(ChoSirenApp).GetField("safeRoot", Private).GetValue(app);
             int picked = -1;
             Invoke("OpenAvatarSheet1028", safeRoot, 0, (Action<int>)(choice => picked = choice));

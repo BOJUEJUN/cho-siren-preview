@@ -67,12 +67,15 @@ namespace ChoSiren.Tests
                         Assert.That(placed.y + placed.height * contentTop, Is.GreaterThanOrEqualTo(BattleActiveCloseup1019.RegionTop - .01f), "stays under the top HUD");
                         bool rightEdge = native.x + native.width >= 2946f - 24f;
                         if (rightEdge) Assert.That(placed.x + placed.width * ((2946f - native.x) / native.width), Is.EqualTo(721f).Within(.01f), "bleeds past its right-edge cut");
-                        else Assert.That(placed.x + placed.width * (-native.x / native.width), Is.EqualTo(-1f).Within(.01f), "bleeds past its left-edge cut");
+                        else Assert.That(placed.x + placed.width * (-native.x / native.width),
+                            Is.EqualTo(native.key == "cutin-mermaid" ? -65f : -1f).Within(.01f),
+                            "雾白 crops another 64 stage units of left paper; other cut-ins keep their original edge");
                         Assert.That(window.sizeDelta.x, Is.EqualTo(placed.width).Within(.001f));
                         Assert.That(window.sizeDelta.y, Is.EqualTo(placed.height).Within(.001f));
                         // The shown part is cropped only at the stage edges / card line, with UVs that match it 1:1 (no stretch).
                         Rect vis = cue.VisibleRect;
                         Assert.That(vis.xMin, Is.GreaterThanOrEqualTo(-1.01f)); Assert.That(vis.xMax, Is.LessThanOrEqualTo(721.01f));
+                        if (native.key == "cutin-mermaid") Assert.That(vis.xMin, Is.EqualTo(-1f).Within(.01f), "remaining paper still meets the viewport edge");
                         Assert.That(vis.yMax, Is.LessThanOrEqualTo(BattleActiveCloseup1019.RegionBottom + 2.01f));
                         Assert.That(image.uvRect.width * art.texture.width / vis.width,
                             Is.EqualTo(image.uvRect.height * art.texture.height / vis.height).Within(.01f), "texels per unit equal on both axes");

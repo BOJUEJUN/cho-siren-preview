@@ -1143,15 +1143,15 @@ namespace ChoSiren
 
         private void SelectStage(int stage)
         {
+            if (stage < 1 || stage > ChapterStageCount) return;
             LevelState state = StateFor(stage);
+            selectedStage = stage;
+            Refresh();
             if (state == LevelState.Locked)
             {
                 Notify($"{chapter}-{stage} 尚未解锁，请先完成当前关卡");
                 return;
             }
-
-            selectedStage = stage;
-            Refresh();
             if (vinylMap1102) return; // Selection already updates the scene, title and reward card.
             Notify(state == LevelState.Cleared
                 ? $"已选择 {chapter}-{stage}，可再次挑战；首通奖励不会重复发放"

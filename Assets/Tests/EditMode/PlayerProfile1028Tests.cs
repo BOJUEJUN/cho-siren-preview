@@ -33,6 +33,25 @@ namespace ChoSiren.Tests
             Assert.That(reloaded.PlayerAvatar, Is.EqualTo(3));
         }
 
+        [Test]
+        public void SharedAvatarResolverUsesTheOwnedMemberThenFallsBackToTheSavedPreset()
+        {
+            var model = new GameModel(() => Now, new InMemorySaveStore());
+            Assert.That(model.TrySetPlayerProfile("林夏", 3, null, out _), Is.True);
+            model.Save.UnlockedMembers.Add(4);
+            string member = GameModel.Members[4].Id;
+            Assert.That(model.SetPlayerAvatarMember(member), Is.True);
+            Sprite face = ChoSiren.UI.PlayerAvatar1102.Resolve(model);
+            Assert.That(face, Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Member(member)));
+            Assert.That(face.name, Does.Contain("@Head"));
+            model.SetPlayerAvatarPreset(7);
+            Assert.That(model.PlayerAvatarMemberId, Is.Null);
+            Assert.That(ChoSiren.UI.PlayerAvatar1102.Resolve(model), Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Preset(7)));
+            model.Save.PlayerAvatarMember = "missing-member";
+            Assert.That(ChoSiren.UI.PlayerAvatar1102.Resolve(model), Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Preset(7)));
+            Assert.That(model.PlayerName, Is.EqualTo("林夏"), "changing the worn face keeps the signed name");
+        }
+
         [TestCase("", "先写下你的名字")]
         [TestCase("   ", "先写下你的名字")]
         [TestCase("一二三四五六七八九", "名字最多 8 个字")]

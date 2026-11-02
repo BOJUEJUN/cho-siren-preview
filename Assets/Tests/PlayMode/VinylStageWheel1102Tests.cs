@@ -97,11 +97,50 @@ namespace ChoSiren.Tests
                 ExecuteEvents.Execute(wheel.gameObject, pointer, ExecuteEvents.endDragHandler);
                 yield return new WaitForSecondsRealtime(.65f);
                 Assert.That(wheel.IsDragging, Is.False);
-                Assert.That(wheel.SelectedStage, Is.Not.EqualTo(7), "松手吸附应选中另一已解锁关卡。");
-                Assert.That(wheel.SelectedStage, Is.InRange(1, 8));
+                Assert.That(wheel.SelectedStage, Is.Not.EqualTo(7), "松手吸附应选中另一关卡。");
+                Assert.That(wheel.SelectedStage, Is.InRange(1, 10));
                 Assert.That(Selected(f.Map), Is.EqualTo(wheel.SelectedStage));
                 Assert.That(f.Find<Text>("ChapterSwitchLabel").text, Does.Contain("01"));
                 AssertVisibleNodes(f); Capture(f, "wheel-snapped.png");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator LockedStagesCanBePreviewedByClickAndDiscDragButCannotSpendStamina()
+        {
+            using (var f = new Fixture(858, 1834))
+            {
+                yield return new WaitForSecondsRealtime(.4f);
+                var wheel = f.Find<VinylStageWheel1102>("VinylWheelInput1102");
+                f.Click("Level-1-9");
+                yield return new WaitForSecondsRealtime(.5f);
+                Assert.That(f.Map.SelectedStage, Is.EqualTo(9));
+                Assert.That(wheel.SelectedStage, Is.EqualTo(9));
+                Assert.That(f.Find<Button>("StartChallenge").interactable, Is.False);
+                Assert.That(f.Find<RectTransform>("LevelToast").GetComponentInChildren<Text>().text, Does.Contain("尚未解锁"));
+                int stamina = f.Model.Save.Stamina;
+                typeof(LevelMapPanel).GetMethod("StartChallenge", Private).Invoke(f.Map, null);
+                Assert.That(f.Model.Save.Stamina, Is.EqualTo(stamina));
+                RectTransform disc = f.Find<Image>("HalfVinyl1102").rectTransform;
+                Vector2 centre = RectTransformUtility.WorldToScreenPoint(f.Camera, disc.TransformPoint(disc.rect.center));
+                Vector2 from = centre + Vector2.left * 180f;
+                var pointer = new PointerEventData(f.Events.GetComponent<EventSystem>())
+                {
+                    pressPosition = from, position = from, button = PointerEventData.InputButton.Left,
+                    pointerPressRaycast = new RaycastResult { module = f.Host.GetComponent<GraphicRaycaster>() }
+                };
+                ExecuteEvents.Execute(wheel.gameObject, pointer, ExecuteEvents.pointerDownHandler);
+                pointer.position = from + Vector2.up * 16f;
+                ExecuteEvents.Execute(wheel.gameObject, pointer, ExecuteEvents.beginDragHandler);
+                pointer.position = from + Vector2.up * 200f;
+                ExecuteEvents.Execute(wheel.gameObject, pointer, ExecuteEvents.dragHandler);
+                ExecuteEvents.Execute(wheel.gameObject, pointer, ExecuteEvents.endDragHandler);
+                yield return new WaitForSecondsRealtime(.65f);
+                Assert.That(wheel.SelectedStage, Is.EqualTo(10), "the record can settle on a locked future stage");
+                Assert.That(f.Map.SelectedStage, Is.EqualTo(10));
+                Assert.That(f.Find<Button>("StartChallenge").interactable, Is.False);
+                Assert.That(f.Model.Save.Stamina, Is.EqualTo(stamina));
+                Capture(f, "wheel-locked-preview.png");
             }
         }
 
@@ -123,7 +162,11 @@ namespace ChoSiren.Tests
                 Transform strip = f.Find<RectTransform>("StageTeamPreset");
                 Assert.That(((RectTransform)strip).rect.width, Is.EqualTo(490f).Within(.01f));
                 Assert.That(Bounds((RectTransform)strip, map).width, Is.EqualTo(selected.width).Within(1f),
-                    "头像框宽度与关卡详情卡一致；换队独立在右侧空白。 ");
+                    "头像框宽度与关卡详情卡一致，换队在同一框内。 ");
+                Rect swapBounds = Bounds(f.Find<RectTransform>("StageTeamSwap"), strip);
+                Rect stripBounds = ((RectTransform)strip).rect;
+                Assert.That(swapBounds.xMin, Is.GreaterThanOrEqualTo(stripBounds.xMin));
+                Assert.That(swapBounds.xMax, Is.LessThanOrEqualTo(stripBounds.xMax));
                 for (int i = 0; i < GameModel.TeamCapacity; i++)
                 {
                     Transform member = strip.Find("StageTeamMember-" + i);
@@ -154,11 +197,15 @@ namespace ChoSiren.Tests
                 Assert.That(f.Find<RectTransform>("ChapterPicker1102"), Is.Not.Null);
                 Button current = f.Find<Button>("ChooseChapter-1"), locked = f.Find<Button>("ChooseChapter-2");
                 Assert.That(current.GetComponentsInChildren<Text>().Any(t => t.text.Contains("当前")), Is.True);
-                Assert.That(locked.interactable, Is.False);
+                Assert.That(locked.interactable, Is.True, "a locked chapter remains tappable for its unlock hint");
+                Assert.That(locked.transform.Find("ChapterLock").GetComponent<Image>().sprite, Is.Not.Null);
+                Assert.That(locked.GetComponentsInChildren<Text>().Any(t => t.text.Contains("锁定")), Is.False);
                 int stageBefore = f.Map.SelectedStage;
                 ExecuteEvents.Execute(locked.gameObject, new PointerEventData(f.Events.GetComponent<EventSystem>())
                     { button = PointerEventData.InputButton.Left }, ExecuteEvents.pointerClickHandler);
                 Assert.That(f.Map.SelectedStage, Is.EqualTo(stageBefore));
+                Assert.That(f.Find<RectTransform>("LevelToast").gameObject.activeInHierarchy, Is.True);
+                Assert.That(f.Find<RectTransform>("LevelToast").GetComponentInChildren<Text>().text, Does.Contain("尚未解锁"));
                 Assert.That(f.Find<RectTransform>("ChapterPicker1102").gameObject.activeInHierarchy, Is.True,
                     "锁定章节点击不能关闭列表或穿透到关卡。 ");
             }

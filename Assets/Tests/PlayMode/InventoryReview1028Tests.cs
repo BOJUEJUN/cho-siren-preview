@@ -166,11 +166,21 @@ namespace ChoSiren.Tests
         public IEnumerator SignedContractHidesEmptyGuideWhileKeepingInk()
         {
             Assert.That(model.TrySetPlayerProfile("林夏", 0, null, out _), Is.True);
+            model.Save.UnlockedMembers.Add(4);
+            Assert.That(model.SetPlayerAvatarMember(GameModel.Members[4].Id), Is.True);
             Invoke("OpenPlayerContract1028", false, null); yield return null;
             var page = Require("PlayerContract1028");
             var guide = page.GetComponentsInChildren<Transform>(true).Single(t => t.name == "SignLine");
             Assert.That(guide.gameObject.activeSelf, Is.False);
             Assert.That(page.GetComponentInChildren<ChoSiren.UI.SignatureInk1028>(), Is.Not.Null);
+            Image photo = page.transform.Find("Paper/IdPhoto/Clip/Face").GetComponent<Image>();
+            Assert.That(photo.sprite, Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Resolve(model)));
+            page.transform.Find("Paper/IdPhoto").GetComponent<Button>().onClick.Invoke(); yield return null;
+            Require("AvatarSheet1028").GetComponentsInChildren<Button>().Single(b => b.name == "Avatar-3").onClick.Invoke();
+            Assert.That(model.PlayerAvatar, Is.EqualTo(3));
+            Assert.That(model.PlayerAvatarMemberId, Is.Null, "picking a preset clears the previously worn member");
+            Assert.That(photo.sprite, Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Preset(3)));
+            Assert.That(model.PlayerName, Is.EqualTo("林夏"));
         }
 
         [UnityTest]

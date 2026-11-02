@@ -149,6 +149,8 @@ namespace ChoSiren
             float x = rightEdge
                 ? 720f - w * ((stage - psdX) / psdWidth)            // the same share stays past the right edge
                 : -w * (Mathf.Max(0f, -psdX) / psdWidth);            // the left cut stays on the left edge
+            // 雾白: discard another ~10% screen width of the left paper through the existing UV crop.
+            if (key == "cutin-mermaid") x -= 64f;
             float y = RegionBottom - h * bottom;
             return new Rect(x, y, w, h);
         }

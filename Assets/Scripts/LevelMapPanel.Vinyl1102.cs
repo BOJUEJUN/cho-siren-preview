@@ -102,12 +102,15 @@ namespace ChoSiren
                 label.horizontalOverflow = HorizontalWrapMode.Overflow;
                 Text status = NewPlacedText(node.transform, "", 22, StarGold, 0, 78, 122, 36, TextAnchor.MiddleCenter);
                 status.verticalOverflow = VerticalWrapMode.Overflow;
+                Image locked = NewImage("StageLock", node.transform, VisualB1101.Icon("lock"), Muted);
+                locked.preserveAspect = true;
+                PlaceTop(locked.rectTransform, 46, 78, 30, 30);
                 wheelNodes[i] = node.GetComponent<RectTransform>(); wheelButtons[i] = node.GetComponent<Button>();
                 nodeViews[stage] = new NodeView { Stage = stage, Button = wheelButtons[i], Background = core,
-                    Glow = glow, Outline = rim, StageLabel = label, StatusLabel = status };
+                    Glow = glow, Outline = rim, StageLabel = label, StatusLabel = status, LockIcon = locked };
             }
             vinylWheel1102.Configure(disc.rectTransform, wheelNodes, wheelButtons, selectedStage,
-                SelectVinylStage1102, stage => StateFor(stage) != LevelState.Locked);
+                SelectVinylStage1102, stage => stage >= 1 && stage <= ChapterStageCount);
             sceneNumber1102 = NewPlacedText(page, "", 20, Accent, 42, 701, 255, 40, TextAnchor.MiddleLeft, FontStyle.Bold);
             sceneTitle1102 = NewPlacedText(page, "", 48, White, 39, 750, 255, 166, TextAnchor.UpperLeft, FontStyle.Bold);
             sceneTitle1102.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -166,7 +169,10 @@ namespace ChoSiren
             stageTitleText.text = sceneTitle1102.text = title;
             sceneNumber1102.text = $"TRACK / {chapter}-{selectedStage}";
             chapterSwitchLabel.text = $"第 {chapter:00} 章   ▾";
-            startLabel.text = StateFor(selectedStage) == LevelState.Cleared ? "再次挑战" : "开始挑战";
+            bool lockedSelection = StateFor(selectedStage) == LevelState.Locked;
+            startLabel.text = lockedSelection ? "未解锁" : StateFor(selectedStage) == LevelState.Cleared ? "再次挑战" : "开始挑战";
+            startButton.interactable = !challengeOpen && !lockedSelection;
+            if (lockedSelection) startBackground.color = new Color32(130, 117, 152, 190);
             stageScene1102.Show(StageId(selectedStage));
             foreach (var pair in nodeViews)
             {
@@ -174,8 +180,9 @@ namespace ChoSiren
                 v.Glow.enabled = selected;
                 v.Background.color = selected ? new Color32(8, 48, 56, 255) : new Color32(15, 11, 28, 250);
                 v.StageLabel.color = v.State == LevelState.Locked ? Muted : White;
-                v.StatusLabel.text = v.State == LevelState.Locked ? "锁" : v.State == LevelState.Cleared
+                v.StatusLabel.text = v.State == LevelState.Locked ? "" : v.State == LevelState.Cleared
                     ? new string('★', Mathf.Clamp(model.StarsOf(StageId(v.Stage)), 1, 3)) : "NEXT";
+                if (v.LockIcon != null) v.LockIcon.enabled = v.State == LevelState.Locked;
                 v.StatusLabel.color = v.State == LevelState.Cleared ? StarGold : selected ? Accent : Muted;
                 v.Outline.effectColor = selected ? Accent : new Color32(137, 115, 177, 200);
             }
@@ -195,16 +202,26 @@ namespace ChoSiren
                 bool current = number == chapter;
                 bool unlocked = ChapterUnlocked(number);
                 string name = number == 1 ? "欲望都市" : number == 2 ? "魅声海湾" : "全新舞台";
-                string state = current ? " · 当前" : unlocked ? "" : " · 锁定";
+                string state = current ? " · 当前" : "";
                 GameObject option = NewButton("ChooseChapter-" + number, card.transform,
                     $"第{number:00}章  {name}{state}", 24, new Color32(35, 19, 59, 255),
                     current ? Accent : White, () =>
                     {
+                        if (!ChapterUnlocked(captured))
+                        {
+                            Notify(captured == 2 ? "尚未解锁：通关 1-10「魅声王座」后开放" : "尚未解锁，请先通关前一章");
+                            return;
+                        }
                         CloseChapterModal();
                         SwitchChapter(captured);
                     }, 12);
                 PlaceTop(option.GetComponent<RectTransform>(), 32, 104 + (number - 1) * 94, 576, 76);
-                option.GetComponent<Button>().interactable = unlocked;
+                if (!unlocked)
+                {
+                    Image locked = NewImage("ChapterLock", option.transform, VisualB1101.Icon("lock"), Muted);
+                    locked.preserveAspect = true;
+                    PlaceTop(locked.rectTransform, 512, 18, 40, 40);
+                }
             }
         }
 
@@ -230,7 +247,7 @@ namespace ChoSiren
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++)
             {
                 RectTransform member = VisualB1101.Rect("StageTeamMember-" + slot, team);
-                PlaceTop(member, 20 + slot * 110, 4, 108, 132);
+                PlaceTop(member, 8 + slot * 100, 4, 108, 132);
                 Image rim = NewImage("AvatarRim", member, RoundedSprite(30),
                     slot == 0 ? Accent : new Color32(156, 104, 255, 180));
                 rim.type = Image.Type.Simple;
@@ -247,12 +264,17 @@ namespace ChoSiren
                 PanelKit.EnableBestFit(teamNames1102[slot], 18);
                 teamMembers1102[slot] = -2;
             }
-            GameObject swap = MapBoardHit("StageTeamSwap", team, 600, 26, 88, 88, OpenVinylTeamPresets1102);
+            Image divider = NewImage("SwapDivider", team, null, new Color(Accent.r, Accent.g, Accent.b, .24f));
+            PlaceTop(divider.rectTransform, 414, 24, 2, 92);
+            GameObject swap = MapBoardHit("StageTeamSwap", team, 422, 26, 60, 88, OpenVinylTeamPresets1102);
+            Image tab = NewImage("SwapTab", swap.transform, PunkUi.SlantFill,
+                new Color(Accent.r, Accent.g, Accent.b, .10f));
+            PanelKit.Stretch(tab.rectTransform);
             teamSwapGlow1102 = NewImage("SwapGlow", swap.transform, VisualB1101.Glow(),
                 new Color(Accent.r, Accent.g, Accent.b, .12f));
-            PlaceTop(teamSwapGlow1102.rectTransform, -8, -8, 104, 104);
+            PlaceTop(teamSwapGlow1102.rectTransform, -6, -8, 72, 104);
             RectTransform holder = VisualB1101.Rect("SwapGlyph", swap.transform);
-            PlaceTop(holder, 14, 18, 60, 52);
+            PlaceTop(holder, 0, 18, 60, 52);
             teamSwapGlyph1102 = VisualB1101.Rect("Glyph", holder);
             PlaceTop(teamSwapGlyph1102, 0, 0, 60, 52);
             CenterPivot(teamSwapGlyph1102);

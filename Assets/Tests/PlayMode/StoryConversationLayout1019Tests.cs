@@ -106,6 +106,30 @@ namespace ChoSiren.Tests
             Assert.That(Find(panel, "SpeakerName").GetComponent<Text>().text, Is.EqualTo("江野"));
         }
 
+        [Test]
+        public void ProducerMemberFaceUpdatesImmediatelyWithoutChangingOtherSpeakers()
+        {
+            Assert.That(model.TrySetPlayerProfile("林夏", 3, null, out _), Is.True);
+            model.Save.UnlockedMembers.Add(4);
+            string member = GameModel.Members[4].Id;
+            Assert.That(model.SetPlayerAvatarMember(member), Is.True);
+            var script = new StoryScript { Id = "producer-member-avatar", Title = "头像同步" };
+            script.Lines.Add(new StoryLine { Subject = "producer", Text = "第一句。" });
+            script.Lines.Add(new StoryLine { Subject = "xingli", Text = "第二句。" });
+            StoryPanel panel = Open(script);
+            Transform frame = Find(panel, "ProducerAvatarFrame");
+            Image portrait = frame.Find("Mask/Avatar").GetComponent<Image>();
+            Assert.That(portrait.sprite, Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Resolve(model)));
+            Assert.That(portrait.sprite.name, Does.Contain("@Head"));
+            model.SetPlayerAvatarPreset(7);
+            Call(panel, "Update");
+            Assert.That(portrait.sprite, Is.SameAs(ChoSiren.UI.PlayerAvatar1102.Preset(7)),
+                "the current producer line repaints without advancing the story");
+            Assert.That(model.PlayerName, Is.EqualTo("林夏"));
+            Next(panel);
+            Assert.That(frame.gameObject.activeSelf, Is.False, "ordinary character lines keep their own presentation");
+        }
+
         [UnityTest]
         public IEnumerator PrologueAlarmUsesAnIntegratedSceneWithoutFloatingPortraits()
         {

@@ -110,6 +110,8 @@ namespace ChoSiren.Panels
         private GameObject nameTag;
         private GameObject producerAvatar;
         private Image producerAvatarArt;
+        private int producerAvatarPreset = -1;
+        private string producerAvatarMember;
         private Text nameText;
         private Text bodyText;
         private Text continueHint;
@@ -557,11 +559,7 @@ namespace ChoSiren.Panels
             nameTag.SetActive(!narrator);
             if (producerAvatar != null) producerAvatar.SetActive(line.Subject == "producer");
             if (line.Subject == "producer" && producerAvatarArt != null)
-            {
-                producerAvatarArt.sprite = LoadFirstBackground(model.PlayerAvatarResource,
-                    "Art/ProfileAvatarUser", "Art/ProfileAvatar");
-                producerMarker.text = model.PlayerName;
-            }
+                RefreshProducerAvatar();
             string speaker = narrator ? string.Empty : ResolveName(line.Subject);
             nameText.text = speaker;
 
@@ -838,8 +836,23 @@ namespace ChoSiren.Panels
             if (autoMode) ScheduleAuto();
         }
 
+        private void RefreshProducerAvatar()
+        {
+            if (producerAvatarArt == null || producerAvatar == null || !producerAvatar.activeSelf) return;
+            string member = model.PlayerAvatarMemberId;
+            int preset = model.PlayerAvatar;
+            if (producerAvatarArt.sprite == null || member != producerAvatarMember || preset != producerAvatarPreset)
+            {
+                producerAvatarArt.sprite = PlayerAvatar1102.Resolve(model);
+                producerAvatarMember = member;
+                producerAvatarPreset = preset;
+            }
+            if (producerMarker.text != model.PlayerName) producerMarker.text = model.PlayerName;
+        }
+
         private void Update()
         {
+            RefreshProducerAvatar();
             if (continueHint == null || !continueHint.gameObject.activeSelf) return;
             Color color = continueHint.color;
             color.a = 0.75f + Mathf.Sin(Time.unscaledTime * 4f) * 0.25f;

@@ -16,22 +16,7 @@ namespace ChoSiren
     public sealed partial class ChoSirenApp
     {
         /// <summary>当前生效的头像：优先「佩戴的成员脸」，否则预置证件照。</summary>
-        private Sprite PlayerAvatarSpriteNow()
-        {
-            if (model == null) return null;
-            string memberId = model.PlayerAvatarMemberId;
-            if (!string.IsNullOrEmpty(memberId))
-            {
-                int index = GameModel.MemberIndexFor1101(memberId);
-                if (index >= 0)
-                {
-                    Sprite art = Resources.Load<Sprite>(GameModel.Members[index].ResourcePath);
-                    Sprite face = PortraitFace1101.CropSprite(memberId, art, 1f, PortraitFace1101.Framing.Head);
-                    if (face != null) return face;
-                }
-            }
-            return PlayerAvatarSprite(model.PlayerAvatar);
-        }
+        private Sprite PlayerAvatarSpriteNow() => PlayerAvatar1102.Resolve(model);
 
         /// <summary>点头像即开：选中就换，右上角可取消。</summary>
         private void OpenAvatarPicker1101()
@@ -62,8 +47,7 @@ namespace ChoSiren
                 string id = memberId;
                 int index = GameModel.MemberIndexFor1101(id);
                 if (index < 0) continue;
-                Sprite art = Resources.Load<Sprite>(GameModel.Members[index].ResourcePath);
-                Sprite face = PortraitFace1101.CropSprite(id, art, 1f, PortraitFace1101.Framing.Head);
+                Sprite face = PlayerAvatar1102.Member(id);
                 if (face == null) continue;
                 faces.Add(face);
                 apply.Add(() => model.SetPlayerAvatarMember(id));
