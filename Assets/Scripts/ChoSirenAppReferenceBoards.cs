@@ -81,10 +81,10 @@ namespace ChoSiren
                 return new HeaderPolish038Layout
                 {
                     Profile = new Rect(4, 8, 214, 78),
-                    Avatar = new Rect(16, 12, 56, 56),
-                    Name = new Rect(84, 9, 64, 25),
+                    Avatar = new Rect(33, 24, 36, 36),
+                    Name = new Rect(80, 11, 110, 25),
                     Level = new Rect(84, 34, 100, 18),
-                    Power = new Rect(84, 53, 128, 22),
+                    Power = new Rect(84, 49, 120, 22),
                     Pills = pillX.Select(x => new Rect(x, pillY, pillW, pillH)).ToArray(),
                     Icons = Enumerable.Repeat(new Rect(6, 13, 26, 26), 3).ToArray(),
                     Values = Enumerable.Repeat(new Rect(pillW * .26f, 8, pillW * .5f, 36), 3).ToArray(),
@@ -153,23 +153,18 @@ namespace ChoSiren
                 avatarMask.gameObject.SetActive(true);
                 PlaceTop((RectTransform)avatarMask, layout.Avatar.x, layout.Avatar.y,
                     layout.Avatar.width, layout.Avatar.height);
+                Image avatarShape = avatarMask.GetComponent<Image>();
+                if (avatarShape != null)
+                {
+                    avatarShape.sprite = RoundedSprite(32);
+                    avatarShape.type = Image.Type.Simple;
+                }
             }
             Text name = profile.Find("PlayerName")?.GetComponent<Text>();
             if (name != null)
             {
-                // A small ink patch sits only behind the live name, clearing the frame's
-                // diagonal paper marks without replacing the authored profile chrome.
                 Transform quiet = profile.Find("ProfileNameQuietPlate1019");
-                if (quiet == null)
-                {
-                    GameObject plate = NewImage("ProfileNameQuietPlate1019", profile,
-                        PunkUi.SlantFill, new Color32(5, 3, 14, 255));
-                    plate.GetComponent<Image>().raycastTarget = false;
-                    quiet = plate.transform;
-                }
-                PlaceTop((RectTransform)quiet, layout.Name.x - 4, layout.Name.y,
-                    layout.Name.width + 8, layout.Name.height + 1);
-                quiet.SetSiblingIndex(name.transform.GetSiblingIndex());
+                if (quiet != null) quiet.gameObject.SetActive(false);
                 name.transform.SetAsLastSibling();
                 PlaceTop(name.rectTransform, layout.Name.x, layout.Name.y,
                     layout.Name.width, layout.Name.height);
@@ -478,18 +473,34 @@ namespace ChoSiren
             SirenStickerUi.SkinTitle(teamTitle, true);
             GameObject renameTeam = BoardButton038("RenameTeam", root, new Rect(268, 226, 84, 44),
                 () => OpenTeamNameDialog1028(model.Save.ActiveTeamPreset));
-            BoardText038(renameTeam.transform, "Label", "改名", 21, Cyan, 0, 0, 84, 44, TextAnchor.MiddleCenter);
+            // Match the profile's pencil affordance; only editable content gets a button.
+            UnityEngine.UI.Image renameHit = renameTeam.GetComponent<UnityEngine.UI.Image>();
+            renameHit.sprite = VisualA1101.Glow;
+            renameHit.color = VisualA1101.Teal * new Color(1f, 1f, 1f, .22f);
+            renameHit.preserveAspect = true;
+            RectTransform renamePencil = VisualA1101.NeonIcon(renameTeam.transform,
+                "Pencil", "pencil", VisualA1101.Teal, 38f);
+            VisualA1101.Center(renamePencil, 38f);
             bool ready = model.IsTeamReady(out string formationProblem);
             if (ready)
                 BoardText038(root, "TeamSubtitle", "点头像看详情 · 点下方换人", 18, Muted, 48, 282, 380, 28);
             else
                 BoardText038(root, "TeamFormationIssue", formationProblem.Split('\n').Last(), 26, Warn, 48, 282, 380, 82);
-            GameObject powerPill = NewImage("TeamPowerPill", root, Panels.PunkUi.SlantFill, new Color32(6, 3, 12, 255));
-            PlaceTop(powerPill.GetComponent<RectTransform>(), 452, 214, 372, 92);
-            powerPill.GetComponent<Image>().raycastTarget = false;
-            SirenStickerUi.SkinPanel(powerPill);
-            BoardText038(powerPill.transform, "Label", "队伍战力", 17, Accent, 30, 8, 150, 26);
-            BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 46, White, 482, 236, 320, 64, TextAnchor.MiddleRight);
+            // Read-only statistic: no editable-name frame, hit area or hover treatment.
+            RectTransform powerReadout = VisualA1101.Rect("TeamPowerReadout", root);
+            PlaceTop(powerReadout, 452, 210, 372, 96);
+            BoardText038(powerReadout, "Label", "队伍战力", 17, Muted,
+                44, 0, 320, 26, TextAnchor.MiddleRight).raycastTarget = false;
+            RectTransform powerIcon = VisualA1101.NeonIcon(powerReadout,
+                "PowerIcon", "bolt", VisualA1101.Gold, 40f);
+            VisualA1101.Place(powerIcon, 14, 34, 40, 40);
+            UnityEngine.UI.Text powerValue = BoardText038(powerReadout, "TeamPowerValue",
+                model.TeamPower.ToString("N0"), 48, VisualA1101.Gold,
+                60, 26, 304, 64, TextAnchor.MiddleRight);
+            powerValue.fontStyle = FontStyle.BoldAndItalic;
+            powerValue.raycastTarget = false;
+            foreach (UnityEngine.UI.Graphic graphic in powerReadout.GetComponentsInChildren<UnityEngine.UI.Graphic>())
+                graphic.raycastTarget = false;
             BoardText038(root, "TeamResonanceValue", $"职业种类 {roles}/4", 18, Cyan, 470, 314, 180, 28);
             BoardText038(root, "TeamMemberCount", $"成员 {count}/{GameModel.TeamCapacity}", 18, Muted, 660, 314, 160, 28, TextAnchor.MiddleRight);
 

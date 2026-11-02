@@ -270,6 +270,14 @@ namespace ChoSiren
             rewardChestSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-reward-chest-ai-v1");
             actionFrameSprite = Resources.Load<Sprite>("Art/LevelMapAI/chapter-action-frame-ai-v1");
 
+            // Switch to the new layout only after the reviewed disc has been installed.
+            if (Resources.Load<Sprite>("Art/LevelMap1102/vinyl") != null)
+            {
+                BuildVinylMap1102();
+                BuildToast();
+                return;
+            }
+            vinylMap1102 = false;
             Sprite board = chapter == 2
                 ? ReferenceArt038.Load("Art/Reference038/map-board-038-ch2") ?? ReferenceArt038.Load("Art/Reference038/map-board-038")
                 : ReferenceArt038.Load("Art/Reference038/map-board-038");
@@ -280,7 +288,6 @@ namespace ChoSiren
                 BuildToast();
                 return;
             }
-
             BuildBackdrop();
             BuildHeader();
             BuildMap();
@@ -1145,6 +1152,7 @@ namespace ChoSiren
 
             selectedStage = stage;
             Refresh();
+            if (vinylMap1102) return; // Selection already updates the scene, title and reward card.
             Notify(state == LevelState.Cleared
                 ? $"已选择 {chapter}-{stage}，可再次挑战；首通奖励不会重复发放"
                 : $"已选择当前关卡 {chapter}-{stage}");
@@ -1532,6 +1540,8 @@ namespace ChoSiren
                     ? White
                     : new Color32(205, 216, 255, 226);
             }
+
+            RefreshVinylMap1102(selectedDefinition);
 
             for (int index = 0; index < routeViews.Count; index++)
             {

@@ -81,6 +81,7 @@ namespace ChoSiren.Systems.Tactics
             PerformerClock clock = performerClocks[unit.Id];
             clock.Energy = 0;
             clock.EnergyRemainder = 0;
+            formationChargeRemainder1102.Remove(unit.Id);
             clock.NextBig = ElapsedMilliseconds + BigCooldown(clock.Race);
             nextAutoUltimateAt = ElapsedMilliseconds + AutoUltimateSpacingMilliseconds;
             // The release itself must not immediately recharge its caster from AOE hits.
@@ -101,6 +102,12 @@ namespace ChoSiren.Systems.Tactics
         /// <summary>Priority order: current captain, then the original formation order.</summary>
         public BattleUnit NextAutoUltimate()
         {
+            if (IsTurnBased)
+            {
+                foreach (int id in FormationOrder1102)
+                { var member = FindUnit(id); if (IsUltimateReady(member)) return member; }
+                return null;
+            }
             BattleUnit captain = FindUnit(CurrentLeaderId);
             if (IsUltimateReady(captain)) return captain;
             foreach (BattleUnit unit in units)
@@ -122,6 +129,7 @@ namespace ChoSiren.Systems.Tactics
 
         private void GainUltimateEnergy(BattleUnit unit, int amount)
         {
+            if (IsTurnBased) return; // The formation clock owns turn-mode energy.
             if (amount <= 0 || Outcome != BattleOutcome.Ongoing || unit == null || !unit.Alive ||
                 unit.Side != BattleSide.Player) return;
             if (!performerClocks.TryGetValue(unit.Id, out PerformerClock clock)) return;

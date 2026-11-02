@@ -18,17 +18,17 @@ namespace ChoSiren
 
         // Per tier (battle seconds at 1x): swell, shortest hold, spring back; then peak scale, rise (px), lean (deg), jolt.
         static readonly float[] RiseTime = { .12f, .14f, .16f };
-        static readonly float[] HoldTime = { .12f, .14f, .16f };
+        static readonly float[] HoldTime = { .2f, .26f, .32f };
         static readonly float[] ReturnTime = { .2f, .23f, .27f };
-        static readonly float[] PeakScale = { 1.12f, 1.18f, 1.25f };
-        static readonly float[] Lift = { 5f, 8f, 12f };
+        static readonly float[] PeakScale = { 1.24f, 1.38f, 1.5f };
+        static readonly float[] Lift = { 12f, 20f, 28f };
         static readonly float[] Lean = { 1.2f, 2f, 3f };
         static readonly float[] Jolt = { .035f, .05f, .07f };
         /// <summary>Length of the contact jolt (battle seconds).</summary>
         public const float JoltSeconds = .14f;
         /// <summary>How long the held pose waits for the strike to land before jolting on its own.</summary>
         public const float ImpactWait = .16f;
-        const float CoverLimit = 2.5f, RetriggerGuard = .15f;
+        const float CoverLimit = 12f, RetriggerGuard = .15f;
 
         enum Phase { Rest, Waiting, Rise, Hold, Return }
 
@@ -189,7 +189,7 @@ namespace ChoSiren
                 shake = Mathf.Sin(jolt * 95f) * (1.2f + i * .6f) * decay;
             }
             rig.localScale = new Vector3(sx, sy, 1f);
-            rig.anchoredPosition = new Vector2(shake, Lift[i] * amount);
+            rig.anchoredPosition = new Vector2(shake + LeanSign * 8f * amount, Lift[i] * amount);
             rig.localRotation = Quaternion.Euler(0f, 0f, -Lean[i] * amount * LeanSign);
         }
 

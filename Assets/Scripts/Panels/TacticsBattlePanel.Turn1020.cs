@@ -37,12 +37,13 @@ namespace ChoSiren.Panels
             yield return WaitBattleDelay(.6f);
             BeginOnboarding1101(); // 2026-11-01: no text cards up front; one-line coach steps when each thing first matters
             // Boss stages open with a 首领登场 card (2026-10-21).
-            if (battle.Stage.HasBossPhases && psdWave1019 != null)
+            if (battle.Stage.HasBossPhases && !bossEntranceShown1102 && psdWave1019 != null)
             {
                 BattleUnit boss = battle.FindUnit(bossUnitId);
                 if (psdWave1019.PlayBoss(boss != null ? boss.Definition.Name : null)) Sfx("cut", .8f);
                 while (!closing && psdWave1019.IsShowing) yield return null;
             }
+            chargeClockStarted1102 = true;
             while (!closing && battle.Outcome == BattleOutcome.Ongoing)
             {
                 while (!closing && (paused || awaitingDiceLanding)) yield return null;
@@ -105,6 +106,7 @@ namespace ChoSiren.Panels
         private IEnumerator CastTappedUltimate()
         {
             int id = tappedUltimateId;
+            if (id < 0 && autoMode) id = battle.NextAutoUltimate()?.Id ?? -1;
             tappedUltimateId = -1;
             if (id < 0 || closing || battle.Outcome != BattleOutcome.Ongoing) yield break;
             BattleUnit unit = battle.FindUnit(id);

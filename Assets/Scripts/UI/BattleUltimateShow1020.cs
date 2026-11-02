@@ -17,7 +17,6 @@ namespace ChoSiren
     {
         private const float RingStart = .5f;          // seconds after the cut-in
         private const float Tail = .7f;               // grade stamp time after the last beat
-        private const float MaxClipLength = 4.4f;
         private static float BeatsEnd => RingStart + UltimateBeatChallenge1025.DurationSeconds;
         private static float PortraitLength => BeatsEnd + Tail;
         private static readonly Color Green = Brand1025.Teal;
@@ -54,7 +53,8 @@ namespace ChoSiren
         private UltimateBeatChallenge1025 challenge;
         private float clock, length, stampClock = -1, stampDelay = -1, comboClock = -1;
         private int comboShown;
-        private bool active, waitingForClip;
+        private bool active, waitingForClip, clipEnded;
+        private float prepareWait;
 
         public bool IsActive => active;
         public RectTransform Root => root;
@@ -334,8 +334,12 @@ namespace ChoSiren
             };
             vp.errorReceived += (source, __) =>
             {
-                if (source != player) return;
+                if (source != player || !active) return;
                 waitingForClip = false; video.enabled = false; ShowPortraitFallback();
+            };
+            vp.loopPointReached += source =>
+            {
+                if (source == player && active) clipEnded = true;
             };
             vp.url = url;
             players[url] = vp;
@@ -344,6 +348,7 @@ namespace ChoSiren
 
         private void ShowClip(VideoPlayer source)
         {
+            clock = 0f; prepareWait = 0f; clipEnded = false;
             video.texture = source.targetTexture;
             var fit = video.GetComponent<AspectRatioFitter>();
             if (source.height > 0) fit.aspectRatio = source.width / (float)source.height;
@@ -374,7 +379,8 @@ namespace ChoSiren
             bool reduced = BattlePresentationOptions.ReduceMotion;
             bool clip = !string.IsNullOrEmpty(clipPath) && !reduced;
             video.enabled = clip; portrait.enabled = !clip && portraitSprite != null;
-            length = clip ? Mathf.Clamp(clipLength, BeatsEnd + .6f, MaxClipLength) : PortraitLength;
+            clipEnded = false; prepareWait = 0f;
+            length = clip ? Mathf.Max(clipLength, BeatsEnd + .6f) : PortraitLength;
             if (clip)
             {
                 player = PlayerFor(clipPath);
@@ -464,7 +470,7 @@ namespace ChoSiren
             if (!active) return;
             bool stopped = paused?.Invoke() ?? false;
             if (stopped) { if (player != null && player.isPlaying) player.Pause(); return; }
-            if (cutClock < 0f && player != null && video.enabled && !waitingForClip && !player.isPlaying && player.isPrepared && clock < length) player.Play();
+            if (cutClock < 0f && player != null && video.enabled && !waitingForClip && !clipEnded && !player.isPlaying && player.isPrepared && clock < length + 8f) player.Play();
             float dt = Mathf.Min(Time.unscaledDeltaTime, .1f);
             // The cut-in plays first; the clip and the beats wait for it.
             if (cutClock >= 0f)
@@ -476,8 +482,8 @@ namespace ChoSiren
             // A slow clip decode holds the show (up to a second) instead of running the beats early.
             if (waitingForClip)
             {
-                clock += dt;
-                if (clock > 2.5f) { waitingForClip = false; video.enabled = false; ShowPortraitFallback(); clock = 0; }
+                prepareWait += dt;
+                if (prepareWait > 2.5f) { waitingForClip = false; video.enabled = false; if (player != null) player.Stop(); ShowPortraitFallback(); clock = 0; }
                 else return;
             }
             clock += dt;
@@ -515,10 +521,18 @@ namespace ChoSiren
                 float s = Mathf.Clamp01(stampClock / .18f);
                 stamp.localScale = Vector3.one * Mathf.Lerp(1.8f, 1f, s);
             }
-            float fade = Mathf.Clamp01((length - clock) / .25f);
+            bool showingClip = video.enabled && player != null;
+            // The supplied animation owns its ending. Do not fade or truncate its last frames
+            // just because the QTE has finished or a manifest duration was rounded down.
+            float fade = showingClip ? 1f : Mathf.Clamp01((length - clock) / .25f);
             shade.color = new Color(0.03f, 0.01f, 0.08f, .92f * fade);
             video.color = new Color(1, 1, 1, fade);
-            if (clock >= length) Finish();
+            if (showingClip)
+            {
+                if (clipEnded && clock >= PortraitLength) Finish();
+                else if (clock >= Mathf.Max(length, (float)player.length) + 8f) Finish(); // decoder stall recovery
+            }
+            else if (clock >= length) Finish();
         }
 
         private void PoseNotes()

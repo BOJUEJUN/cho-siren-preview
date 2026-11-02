@@ -1,35 +1,74 @@
+using System;
+using System.Collections.Generic;
+using ChoSiren.Systems.Dice;
 namespace ChoSiren.Systems.Tactics
 {
-    /// <summary>
-    /// 2026-11-01 (赵金: "PPT 里面我们角色的充能顺序"). 企划书「大招充能机制：顺位充能 · 队长优先 · 节奏可控」:
-    /// 站位顺位决定充能速度 — 第1位（队长）100%、第2位 80%、第3位 60%、第4位 40%（满能 12 / 15 / 20 / 30 秒），
-    /// 大招槽独立不共享；换队长 = 改变大招释放顺序。Turn battles apply it to every bar gain (actions, hits, kills,
-    /// 队长演出). The order is the formation order with the current captain first, so a captain change re-ranks.
-    /// </summary>
     public sealed partial class BattleSimulator
     {
-        /// <summary>Charge speed by rank (captain first), in permille.</summary>
         public static readonly int[] ChargeOrderSpeedPermille = { 1000, 800, 600, 400 };
-
-        /// <summary>0 = captain, then formation order (dead members keep their place).</summary>
+        readonly List<int> formationOrder1102 = new List<int>();
+        readonly Dictionary<int, long> formationChargeRemainder1102 = new Dictionary<int, long>();
+        const long ChargeDenominator1102 = 120000000L;
+        public IReadOnlyList<int> FormationOrder1102
+        {
+            get
+            {
+                if (formationOrder1102.Count == 0)
+                    foreach (BattleUnit unit in units)
+                        if (unit.Side == BattleSide.Player) formationOrder1102.Add(unit.Id);
+                return formationOrder1102.AsReadOnly();
+            }
+        }
+        // Position determines speed; changing captain never reorders the formation.
         public int ChargeRank(BattleUnit unit)
         {
             if (unit == null || unit.Side != BattleSide.Player) return -1;
-            if (unit.Id == CurrentLeaderId) return 0;
-            int rank = 1;
-            foreach (BattleUnit other in units)
-            {
-                if (other == unit) return rank;
-                if (other.Side == BattleSide.Player && other.Id != CurrentLeaderId) rank++;
-            }
-            return rank;
+            _ = FormationOrder1102;
+            return formationOrder1102.IndexOf(unit.Id);
         }
-
         public int ChargeOrderPermille(BattleUnit unit)
         {
             int rank = ChargeRank(unit);
-            if (rank < 0) return 1000;
-            return ChargeOrderSpeedPermille[System.Math.Min(rank, ChargeOrderSpeedPermille.Length - 1)];
+            return rank < 0 ? 1000 : ChargeOrderSpeedPermille[Math.Min(rank, 3)];
+        }
+        public bool SwapFormationPositions1102(int firstId, int secondId)
+        {
+            if (!IsTurnBased || Outcome != BattleOutcome.Ongoing || firstId == secondId) return false;
+            _ = FormationOrder1102;
+            int a = formationOrder1102.IndexOf(firstId), b = formationOrder1102.IndexOf(secondId);
+            if (a < 0 || b < 0) return false;
+            formationOrder1102[a] = secondId; formationOrder1102[b] = firstId;
+            return true;
+        }
+        public static int CaptainHandChargePermille1102(DicePattern pattern)
+        {
+            switch (pattern)
+            {
+                case DicePattern.ThreeKind: case DicePattern.FullHouse: case DicePattern.DoubleThreeKind:
+                case DicePattern.Straight: case DicePattern.SixStraight: return 1040;
+                case DicePattern.FourKind: case DicePattern.FiveKind: case DicePattern.SixKind: return 1050;
+                default: return 1000;
+            }
+        }
+        public int FormationChargeBonus1102(BattleUnit unit) => unit != null && unit.Id == CurrentLeaderId
+            ? CaptainHandChargePermille1102(BattleDice?.Hand?.Pattern ?? DicePattern.HighPoint) : 1000;
+        public double ChargeSeconds1102(BattleUnit unit) =>
+            12000000d / (ChargeOrderPermille(unit) * FormationChargeBonus1102(unit));
+        /// <summary>Only effective combat time; the view excludes pause, intros and ultimate movies.</summary>
+        public void AdvanceFormationCharge1102(int milliseconds)
+        {
+            if (milliseconds < 0) throw new ArgumentOutOfRangeException(nameof(milliseconds));
+            if (!IsTurnBased || Outcome != BattleOutcome.Ongoing || milliseconds == 0) return;
+            foreach (BattleUnit unit in units)
+            {
+                if (unit.Side != BattleSide.Player || !unit.Alive || UltimatesUsed(unit) >= MaxUltimatesPerMember ||
+                    !performerClocks.TryGetValue(unit.Id, out PerformerClock clock) || clock.ReleasingUltimate ||
+                    clock.Energy >= MaxUnitEnergy) continue;
+                formationChargeRemainder1102.TryGetValue(unit.Id, out long fraction);
+                long value = fraction + (long)milliseconds * ChargeOrderPermille(unit) * FormationChargeBonus1102(unit);
+                clock.Energy = (int)Math.Min(MaxUnitEnergy, clock.Energy + value / ChargeDenominator1102);
+                formationChargeRemainder1102[unit.Id] = clock.Energy >= MaxUnitEnergy ? 0 : value % ChargeDenominator1102;
+            }
         }
     }
 }

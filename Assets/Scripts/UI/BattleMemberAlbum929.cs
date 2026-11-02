@@ -97,9 +97,10 @@ namespace ChoSiren
             if (portraitArea.HasValue)
             {
                 Rect area = portraitArea.Value;
-                float height = area.height * Mathf.Lerp(.9f, 1f, t);
+                float height = area.height * Mathf.Lerp(1.06f, 1.12f, t);
                 float width = height * portraitRatio;
-                if (width > area.width) { height *= area.width / width; width = area.width; }
+                float limit = area.width * 1.09f;
+                if (width > limit) { height *= limit / width; width = limit; }
                 PanelKit.PlaceTop(portrait.rectTransform, area.x + (area.width - width) * .5f,
                     area.yMax - height, width, height);
             }

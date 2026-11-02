@@ -45,8 +45,7 @@ namespace ChoSiren.Systems.Tactics
         public bool IsTurnBased { get; private set; }
         /// <summary>Turn mode: the whole team may release at most one ultimate per round.</summary>
         public int LastTeamUltimateRound { get; private set; }
-        public bool TeamUltimateUsedThisRound => IsTurnBased && LastTeamUltimateRound > 0 &&
-            TurnRound - LastTeamUltimateRound < TeamUltimateRoundGap;
+        public bool TeamUltimateUsedThisRound => false; // Independent bars; the UI serializes presentations.
         /// <summary>A member the player tapped during auto battle: casts on her next turn.</summary>
         public int QueuedUltimateId { get; set; } = -1;
         /// <summary>Each member may release at most this many ultimates per battle.</summary>
@@ -185,18 +184,14 @@ namespace ChoSiren.Systems.Tactics
             return true;
         }
 
-        /// <summary>One cast per bar: the caster's count goes up and every teammate's bar is emptied.</summary>
+        /// <summary>One cast per full bar: only the caster spends energy; other members keep charging.</summary>
         private void RecordTeamUltimate(BattleUnit caster)
         {
             LastTeamUltimateRound = TurnRound;
             ultimatesUsed[caster.Id] = UltimatesUsed(caster) + 1;
             spotlightSince[caster.Id] = log.Count;
             if (QueuedUltimateId == caster.Id) QueuedUltimateId = -1;
-            foreach (BattleUnit other in units)
-            {
-                if (other == caster || other.Side != BattleSide.Player || !performerClocks.TryGetValue(other.Id, out PerformerClock clock)) continue;
-                clock.Energy = 0; clock.EnergyRemainder = 0;
-            }
+            // Teammates keep their independent bars and fractional charge.
         }
 
         /// <summary>
@@ -244,7 +239,7 @@ namespace ChoSiren.Systems.Tactics
         public bool HoldsUltimateSpotlight(BattleUnit unit)
         {
             if (!IsUltimateReady(unit)) return false;
-            if (QueuedUltimateId == unit.Id) return true;
+            if (IsTurnBased || QueuedUltimateId == unit.Id) return true;
             int mine = Spotlight(unit), used = UltimatesUsed(unit);
             foreach (BattleUnit other in units)
             {

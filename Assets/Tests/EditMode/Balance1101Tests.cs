@@ -203,14 +203,14 @@ namespace ChoSiren.Tests
         // ------------------------------------------------------------------ 充能顺序 (企划书 顺位充能)
 
         [Test]
-        public void UltimateChargeFollowsFormationOrderCaptainFirst()
+        public void UltimateChargeFollowsPositionWithoutMovingTheNewCaptain()
         {
             BattleSimulator battle = Start("stage-1-1", 1, -1, 5);
             BattleUnit[] team = battle.Units.Where(u => u.Side == BattleSide.Player).ToArray();
             CollectionAssert.AreEqual(new[] { 1000, 800, 600, 400 }, team.Select(battle.ChargeOrderPermille).ToArray());
             Assert.That(battle.CurrentLeaderId, Is.EqualTo(team[0].Id));
             Assert.That(battle.TrySwapCaptain(team[2].Id, out string message), Is.True, message);
-            CollectionAssert.AreEqual(new[] { 800, 600, 1000, 400 }, team.Select(battle.ChargeOrderPermille).ToArray(), "换队长 = 改变充能顺序");
+            CollectionAssert.AreEqual(new[] { 1000, 800, 600, 400 }, team.Select(battle.ChargeOrderPermille).ToArray(), "Changing captain preserves positions");
         }
 
         // ------------------------------------------------------------------ 怪物分配

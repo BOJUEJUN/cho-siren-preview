@@ -1749,6 +1749,8 @@ namespace ChoSiren.Panels
 
         private IEnumerator MainLoop()
         {
+            yield return PlayBossEntrance1102();
+            if (closing) yield break;
             if (battle.IsTurnBased)
             {
                 yield return TurnLoop();
@@ -3409,7 +3411,7 @@ namespace ChoSiren.Panels
         }
 
         private bool coveredByStory;
-        private bool EntryPresentationCovered => coveredByStory || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame;
+        private bool EntryPresentationCovered => coveredByStory || bossEntrancePlaying1102 || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame;
 
         private void Update()
         {
@@ -3423,6 +3425,7 @@ namespace ChoSiren.Panels
             StoryPanel story = FindAnyObjectByType<StoryPanel>();
             coveredByStory = story != null && !story.Ended;
             if (paused || closing || EntryPresentationCovered) return;
+            TickFormationCharge1102();
             presentationClock += BattleAnimationDelta();
             RefreshPsdSkillCues1019();
             foreach (CellView view in cells)

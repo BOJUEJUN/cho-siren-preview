@@ -79,6 +79,8 @@ namespace ChoSiren.UI
         private const int FlameFrameCount = 8;
         private int frameOffset;
         private Image outer, inner, spark;
+        private DiceScoreFire1102 scoreFire;
+        private int shownPips;
         private Text points;
         private CanvasGroup group;
         private RectTransform visualLayer;
@@ -115,6 +117,7 @@ namespace ChoSiren.UI
             inner = Flame("DiceFlameInner", visualLayer, new Color(1f, 1f, 1f, 0f), .46f);
             outer.rectTransform.anchoredPosition = new Vector2(-die.rect.width * .36f, -die.rect.height * .18f);
             inner.rectTransform.anchoredPosition = new Vector2(die.rect.width * .36f, -die.rect.height * .18f);
+            scoreFire = DiceScoreFire1102.Create(visualLayer, die.rect.size);
             frameOffset = Random.Range(0, FlameFrameCount);
             // 2026-10-20: the flame wisps read as a glitch. A scoring die now gets a clean neon
             // frame in the hand's colour; the inner layer is retired.
@@ -179,11 +182,13 @@ namespace ChoSiren.UI
         public void Show(bool isScoring, bool dimWhenIdle, int pips, float delay, DiceFxStyle fx)
         {
             if (visualLayer != null) visualLayer.SetAsLastSibling();
+            bool changed = scoring != isScoring || shownPips != pips || style.Color != fx.Color;
+            shownPips = pips;
             style = fx;
             if (outer != null) outer.rectTransform.sizeDelta = outerSize;
             scoring = isScoring;
             dimmed = !isScoring && dimWhenIdle;
-            popAt = clock + delay;
+            if (changed) popAt = clock + delay;
             if (points != null) points.text = isScoring ? "+" + pips : string.Empty;
         }
 
@@ -196,9 +201,11 @@ namespace ChoSiren.UI
         private void Update()
         {
             if (paused != null && paused()) return;
-            clock += Time.unscaledDeltaTime;
+            if (!BattlePresentationOptions.ReduceMotion) clock += Time.unscaledDeltaTime;
+            else clock = Mathf.Max(clock, popAt + 1f);
             float since = clock - popAt;
             float on = scoring && since > 0f ? Mathf.Clamp01(since / .18f) : 0f;
+            scoreFire?.Pose(on, style, clock);
             if (outer != null)
             {
                 Color tint = style.Rainbow ? Color.HSVToRGB(Mathf.Repeat(clock * .35f + transform.GetSiblingIndex() * .12f, 1f), .55f, 1f)

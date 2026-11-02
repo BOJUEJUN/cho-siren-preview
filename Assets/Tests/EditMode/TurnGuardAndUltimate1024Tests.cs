@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ChoSiren.Tests
 {
-    /// <summary>2026-10-24 (赵金): 应急守护 blocks one whole hit per member; a tapped ultimate empties the other bars.</summary>
+    /// <summary>Guard blocks one whole hit; the 11-02 charge rules preserve other members' energy.</summary>
     public sealed class TurnGuardAndUltimate1024Tests
     {
         private static readonly DateTime Now = new DateTime(2026, 10, 24, 12, 0, 0, DateTimeKind.Utc);
@@ -61,22 +61,16 @@ namespace ChoSiren.Tests
         }
 
         [Test]
-        public void TappedUltimateEmptiesTheOtherBars()
+        public void TappedUltimatePreservesTheOtherBars()
         {
             BattleSimulator battle = TurnBattle("stage-1-1");
-            BattleUnit caster = null;
-            for (int guard = 0; guard < 400 && battle.Outcome == BattleOutcome.Ongoing; guard++)
-            {
-                caster = battle.Units.FirstOrDefault(u => u.Side == BattleSide.Player && battle.IsUltimateReady(u));
-                if (caster != null) break;
-                BattleUnit actor = battle.NextTurnActor();
-                if (actor == null) break;
-                battle.AutoTurn(false);
-            }
-            Assume.That(caster, Is.Not.Null, "someone reaches a full bar");
+            battle.AdvanceFormationCharge1102(12000);
+            BattleUnit caster = battle.FindUnit(battle.FormationOrder1102[0]);
+            var before = battle.Units.Where(u => u.Side == BattleSide.Player && u != caster).ToDictionary(u => u.Id, battle.EnergyOf);
             Assert.That(battle.TryCastUltimateNow(caster, UltimateTimingGrade.Miss), Is.True);
             foreach (BattleUnit other in battle.Units.Where(u => u.Side == BattleSide.Player && u != caster))
-                Assert.That(battle.EnergyOf(other), Is.Zero, other.Definition.Name + " recharges from zero");
+                Assert.That(battle.EnergyOf(other), Is.EqualTo(before[other.Id]), "Only the caster spends energy");
+            Assert.That(battle.EnergyOf(caster), Is.Zero);
         }
     }
 }

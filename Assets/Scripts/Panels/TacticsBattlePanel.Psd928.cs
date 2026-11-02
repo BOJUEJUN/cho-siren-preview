@@ -558,6 +558,7 @@ namespace ChoSiren.Panels
                 album.SetPortraitArea(new Rect(40 * PsdScale, 70 * PsdScale, 628 * PsdScale, 930 * PsdScale));
                 psdAlbums[cell] = album;
                 AttachDiscSwipe1025(cell, album);
+                AttachFormationDrag1102(cell);
             }
             else
             {

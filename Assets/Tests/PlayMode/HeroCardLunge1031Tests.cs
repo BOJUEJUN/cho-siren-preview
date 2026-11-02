@@ -94,7 +94,9 @@ namespace ChoSiren.Tests
         {
             using (var f = new Fixture())
             {
-                yield return Settle(1.2f);
+                yield return Settle(3.2f);
+                typeof(TacticsBattlePanel).GetMethod("RefreshDiceUi", Private).Invoke(f.Panel, null);
+                yield return Settle(.5f);
                 BattleHitStop.Clear();
                 var members = f.Battle.Units.Where(u => u.Side == BattleSide.Player).ToList();
                 Save(f, "hero-card-rest");

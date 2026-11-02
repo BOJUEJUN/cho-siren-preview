@@ -34,7 +34,9 @@ namespace ChoSiren
         Func<bool> paused;
         Func<int> speed;
         float elapsed, gap;
+        float viewportLeft, viewportRight = 720f;
         int enterSide = 1;   // +1 enters from the right, -1 from the left
+        readonly Vector3[] edgeCorners1102 = new Vector3[4];
         public bool IsShowing { get; private set; }
         public float VisualClock { get; private set; }
         public bool UsesAuthoredCutin { get; private set; }
@@ -167,12 +169,13 @@ namespace ChoSiren
                 // The finished PSD groups are different compositions: each keeps its own proportions and the screen
                 // edge it was drawn against, only larger. No invented title board beside the supplied art.
                 Rect r = AuthoredLayout(native.key, native.x, native.y, native.width, native.height);
+                bool fromRight = native.x + native.width >= 2946f - 24f;
+                r.x += fromRight ? viewportRight - 720f + 1f : viewportLeft - 1f;
                 ArtRect = r;
                 // Shown on the stage only, never below the member cards' top edge.
-                ShowCropped(art, r, Rect.MinMaxRect(0f, ClipTop, 720f, RegionBottom + 2f));
-                bool fromRight = r.center.x > 360f;
+                ShowCropped(art, r, Rect.MinMaxRect(viewportLeft - 1f, ClipTop, viewportRight + 1f, RegionBottom + 2f));
                 enterSide = fromRight ? 1 : -1;
-                motion.pivot = new Vector2(fromRight ? 1f : 0f, 0f);
+                motion.pivot = new Vector2(fromRight ? viewportRight / 720f : viewportLeft / 720f, 0f);
                 return;
             }
             LayoutPaperCard(art, memberId);
@@ -286,9 +289,19 @@ namespace ChoSiren
             exit = exit * exit;
             group.alpha = Mathf.Clamp01(t * 2.4f) * (1f - exit);
             float push = Mathf.Clamp01(elapsed / Duration) * .025f;
-            motion.anchoredPosition = new Vector2(enterSide * (120f * (1f - enter) - 40f * exit), -10f * (1f - enter));
+            motion.anchoredPosition = new Vector2(enterSide * (120f * (1f - enter) + 40f * exit), -10f * (1f - enter));
             float scale = 1.06f - .06f * enter + overshoot + push + exit * .03f;
             motion.localScale = new Vector3(scale, scale, 1f);
+            // Source crops are not always exactly on the PSD edge. Keep the rendered crop,
+            // including its animation transform, outside the actual viewport on every frame.
+            if (UsesAuthoredCutin && actor.enabled)
+            {
+                portrait.GetWorldCorners(edgeCorners1102);
+                float edge = clip.InverseTransformPoint(edgeCorners1102[enterSide > 0 ? 2 : 0]).x;
+                float target = enterSide > 0 ? viewportRight + 1f : viewportLeft - 1f;
+                float correction = enterSide > 0 ? Mathf.Max(0f, target - edge) : Mathf.Min(0f, target - edge);
+                motion.anchoredPosition += Vector2.right * correction;
+            }
             veilImage.canvasRenderer.SetAlpha(Mathf.Clamp01(elapsed / .1f) * (1f - exit));   // no mesh rebuild per frame
             if (plateRoot.gameObject.activeSelf)
             {
@@ -297,6 +310,14 @@ namespace ChoSiren
                 plateRoot.anchoredPosition = new Vector2(-160f * (1f - be) - 30f * exit, 0f);
                 plateGroup.alpha = b;
             }
+        }
+
+        public void SetViewportEdges(float left, float right)
+        {
+            if (right <= left || (Mathf.Abs(viewportLeft - left) < .01f && Mathf.Abs(viewportRight - right) < .01f)) return;
+            viewportLeft = left; viewportRight = right;
+            PanelKit.PlaceTop(veil, left, RegionTop - 24f, right - left, RegionBottom - (RegionTop - 24f));
+            if (IsShowing && UsesAuthoredCutin && Art != null) { LayoutArt(Art, true, null); Pose(); }
         }
 
         public void Cancel() { IsShowing = false; elapsed = gap = 0; if (banner != null) banner.gameObject.SetActive(false); }

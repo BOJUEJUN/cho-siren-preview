@@ -10,7 +10,7 @@ namespace ChoSiren.Panels
         // 2026-10-31 (赵金): the acting member's bust swells out of her card instead of the whole card stepping up 1.06x.
         private readonly Dictionary<CellView, HeroCardLunge1031> heroLunges1031 = new Dictionary<CellView, HeroCardLunge1031>();
         /// <summary>How far above the sleeve's top edge the swelling bust may break out (canvas px).</summary>
-        private const float HeroLungeHeadroom1031 = 70f;
+        private const float HeroLungeHeadroom1031 = 140f;
         /// <summary>Side inset (fraction of the sleeve width) so the swelling bust stays inside the sleeve's rim art.</summary>
         private const float HeroLungeRim1031 = .045f;
 
@@ -86,7 +86,7 @@ namespace ChoSiren.Panels
                 frame.rectTransform.GetWorldCorners(corners);
                 Vector2 low = area.InverseTransformPoint(corners[0]), high = area.InverseTransformPoint(corners[2]);
                 Rect r = area.rect;
-                float rim = (high.x - low.x) * HeroLungeRim1031;
+                float rim = -(high.x - low.x) * .24f;
                 min = new Vector2(low.x + rim - r.xMin, 0f);
                 max = new Vector2(high.x - rim - r.xMax, high.y + HeroLungeHeadroom1031 - r.yMax);
             }

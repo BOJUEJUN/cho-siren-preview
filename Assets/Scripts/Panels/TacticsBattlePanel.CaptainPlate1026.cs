@@ -8,8 +8,7 @@ namespace ChoSiren.Panels
     public sealed partial class TacticsBattlePanel
     {
         // 2026-10-26 (赵金/少爷: "队长的图标要设计成原先在PSD里面给你的那个"): the captain wears the PSD's own 「队长」
-        // plate (captain-plate: under the first card, left of 队长演出). The leader always holds the first slot — when the
-        // captain changes she trades places with whoever stood there — so the plate never has to cover the dice strip.
+        // plate follows the captain without moving any member; horizontal drags independently rearrange the formation.
         private Image captainPlate1026;
         private Text captainPlateLabel1026, captainPlateSwap1026;
         private readonly List<int> playerOrder1026 = new List<int>();
@@ -43,7 +42,7 @@ namespace ChoSiren.Panels
             captainPlateSwap1026.verticalOverflow = VerticalWrapMode.Overflow;
         }
 
-        /// <summary>Called by RefreshAllCells: captain first, everyone else keeps their place where possible.</summary>
+        /// <summary>Called by RefreshAllCells: use the independently arranged formation.</summary>
         private List<CellView> CaptainFirstOrder1026(List<CellView> players)
         {
             if (playerOrder1026.Count == 0 || players.Exists(c => !playerOrder1026.Contains(c.Unit.Id)))
@@ -51,9 +50,11 @@ namespace ChoSiren.Panels
                 playerOrder1026.Clear();
                 foreach (CellView cell in players) playerOrder1026.Add(cell.Unit.Id);
             }
-            int leader = battle != null && battle.IsTurnBased ? battle.CurrentLeaderId : -1;
-            int at = playerOrder1026.IndexOf(leader);
-            if (at > 0) { playerOrder1026[at] = playerOrder1026[0]; playerOrder1026[0] = leader; }
+            if (battle != null && battle.IsTurnBased)
+            {
+                playerOrder1026.Clear();
+                foreach (int id in battle.FormationOrder1102) playerOrder1026.Add(id);
+            }
             var ordered = new List<CellView>(players);
             ordered.Sort((a, b) => playerOrder1026.IndexOf(a.Unit.Id).CompareTo(playerOrder1026.IndexOf(b.Unit.Id)));
             return ordered;
@@ -66,6 +67,9 @@ namespace ChoSiren.Panels
             bool show = leader != null && leader.Alive;
             captainPlate1026.gameObject.SetActive(show);
             if (!show) return;
+            var native = BattlePsdArt928.Find("captain-plate");
+            int slot = Mathf.Clamp(battle.ChargeRank(leader), 0, 3);
+            PsdPlace(captainPlate1026.rectTransform, native.x + PsdMemberX[slot] - PsdMemberX[0], native.y, native.width, native.height);
             captainPlate1026.transform.SetAsLastSibling();
             captainPlateLabel1026.text = pickingCaptain1024 ? "取消" : "队长";
             captainPlateLabel1026.color = pickingCaptain1024 ? (Color)Brand1025.Teal : Color.white;

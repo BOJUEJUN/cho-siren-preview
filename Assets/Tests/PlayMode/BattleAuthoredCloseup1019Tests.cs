@@ -55,7 +55,9 @@ namespace ChoSiren.Tests
                         Assert.That(native, Is.Not.Null);
                         // 2026-11-01 (赵金 "这个贴脸图大一点"): the same PSD group, uniformly enlarged — never stretched.
                         Rect placed = cue.ArtRect;
-                        Assert.That(placed, Is.EqualTo(BattleActiveCloseup1019.AuthoredLayout(native.key, native.x, native.y, native.width, native.height)));
+                        Rect expected = BattleActiveCloseup1019.AuthoredLayout(native.key, native.x, native.y, native.width, native.height);
+                        expected.x += native.x + native.width >= 2946f - 24f ? 1f : -1f;
+                        Assert.That(placed, Is.EqualTo(expected));
                         Assert.That(placed.width / placed.height, Is.EqualTo(native.width / native.height).Within(.001f), member + " keeps its PSD proportions");
                         Assert.That(placed.width, Is.GreaterThan(native.width * scale * 1.2f), member + " is clearly larger than its PSD size");
                         float onScreen = Mathf.Min(720f, placed.xMax) - Mathf.Max(0f, placed.xMin);
@@ -64,13 +66,13 @@ namespace ChoSiren.Tests
                         Assert.That(placed.y + placed.height * contentBottom, Is.LessThanOrEqualTo(BattleActiveCloseup1019.RegionBottom + .01f), "stands on the member cards, never over them");
                         Assert.That(placed.y + placed.height * contentTop, Is.GreaterThanOrEqualTo(BattleActiveCloseup1019.RegionTop - .01f), "stays under the top HUD");
                         bool rightEdge = native.x + native.width >= 2946f - 24f;
-                        if (rightEdge) Assert.That(placed.x + placed.width * ((2946f - native.x) / native.width), Is.EqualTo(720f).Within(.01f), "keeps its right-edge cut");
-                        else Assert.That(placed.x + placed.width * (-native.x / native.width), Is.EqualTo(0f).Within(.01f), "keeps its left-edge cut");
+                        if (rightEdge) Assert.That(placed.x + placed.width * ((2946f - native.x) / native.width), Is.EqualTo(721f).Within(.01f), "bleeds past its right-edge cut");
+                        else Assert.That(placed.x + placed.width * (-native.x / native.width), Is.EqualTo(-1f).Within(.01f), "bleeds past its left-edge cut");
                         Assert.That(window.sizeDelta.x, Is.EqualTo(placed.width).Within(.001f));
                         Assert.That(window.sizeDelta.y, Is.EqualTo(placed.height).Within(.001f));
                         // The shown part is cropped only at the stage edges / card line, with UVs that match it 1:1 (no stretch).
                         Rect vis = cue.VisibleRect;
-                        Assert.That(vis.xMin, Is.GreaterThanOrEqualTo(-.01f)); Assert.That(vis.xMax, Is.LessThanOrEqualTo(720.01f));
+                        Assert.That(vis.xMin, Is.GreaterThanOrEqualTo(-1.01f)); Assert.That(vis.xMax, Is.LessThanOrEqualTo(721.01f));
                         Assert.That(vis.yMax, Is.LessThanOrEqualTo(BattleActiveCloseup1019.RegionBottom + 2.01f));
                         Assert.That(image.uvRect.width * art.texture.width / vis.width,
                             Is.EqualTo(image.uvRect.height * art.texture.height / vis.height).Within(.01f), "texels per unit equal on both axes");
@@ -150,6 +152,41 @@ namespace ChoSiren.Tests
                 Assert.That(cue.Art, Is.SameAs(ownPortrait));
             }
             finally { Object.DestroyImmediate(root); Object.DestroyImmediate(art); Object.DestroyImmediate(texture); }
+        }
+
+        [TestCase(0f, 720f)] [TestCase(-45f, 765f)]
+        public void CutEdgesStayOutsideViewportDuringEntranceHoldAndExit(float left, float right)
+        {
+            var root = Stage();
+            try
+            {
+                var cue = root.AddComponent<BattleActiveCloseup1019>();
+                cue.Configure((RectTransform)root.transform, () => false, () => 1);
+                cue.SetViewportEdges(left, right);
+                foreach (string key in new[] { "cutin-charm", "cutin-demon", "cutin-mermaid", "cutin-bloodelf" })
+                {
+                    var art = LoadActual(key, out Texture2D texture);
+                    try
+                    {
+                        Assert.That(cue.Play(art, "member", "skill", Color.cyan, true), Is.True);
+                        var native = BattlePsdArt928.Find(key);
+                        bool onRight = native.x + native.width >= 2946f - 24f;
+                        var image = root.GetComponentsInChildren<RawImage>(true).First(t => t.name == "OriginalCharacterCloseup");
+                        for (int i = 0; i < 16; i++)
+                        {
+                            cue.AdvancePresentation(.05f / BattlePresentationOptions.Pace);
+                            if (!cue.IsShowing) break;
+                            var corners = new Vector3[4]; image.rectTransform.GetWorldCorners(corners);
+                            float edge = root.transform.InverseTransformPoint(corners[onRight ? 2 : 0]).x;
+                            if (onRight) Assert.That(edge, Is.GreaterThanOrEqualTo(right - .1f), key);
+                            else Assert.That(edge, Is.LessThanOrEqualTo(left + .1f), key);
+                        }
+                        cue.Cancel();
+                    }
+                    finally { Object.DestroyImmediate(art); Object.DestroyImmediate(texture); }
+                }
+            }
+            finally { Object.DestroyImmediate(root); }
         }
 
         private static Sprite LoadActual(string key, out Texture2D texture)
