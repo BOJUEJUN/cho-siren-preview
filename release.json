@@ -8,12 +8,18 @@
   "previousWebCommit": "8f86d3a7cfa45281a899399f9fc98bf327673a3b",
   "previousReleaseRecord": "releases/R157.json",
   "validation": {
-    "status": "verified-build",
+    "status": "published-install-verified",
     "editMode": "26/26 focused dice checks passed",
     "playMode": "3/3: opening animation and reroll HUD at two aspect ratios",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.24"
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.24",
+    "webPortal": "113/113 checks passed",
+    "webRuntime": "public 0.9.24 started; lobby/map captured; no page errors",
+    "nativeArtifacts": "five public packages checked by length and byte samples; two delta manifests verified",
+    "iphone": "Bojuejun installed 0.9.24; version queried; not launched per user",
+    "macLocal": "0.9.24 installed and signature checked; Dock points to application; not launched"
   },
   "knownLimits": [
-    "关卡页三份新设计与团练建议为待选方案，本版未改变对应页面和养成玩法。"
+    "关卡和练习室新方案均为独立待选预览，未合入游戏。",
+    "五条悟按用户要求暂缓；Windows/Android 尚未实体机运行验收；伯爵君本次只安装不启动。"
   ]
 }
