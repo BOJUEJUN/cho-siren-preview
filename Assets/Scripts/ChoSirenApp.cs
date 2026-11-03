@@ -1035,8 +1035,8 @@ namespace ChoSiren
             if (model.Tactics.FindUnit(member.Id)?.GrowthModel == "idol-v1")
             {
                 CombatRace race = BattleSimulator.ParseCombatRace(member.Race);
-                firstName = BattleSimulator.ActiveSkillName(race, false);
-                secondName = BattleSimulator.ActiveSkillName(race, true);
+                firstName = MemberSkillNames1103.Name(member.Id, race, false);
+                secondName = MemberSkillNames1103.Name(member.Id, race, true);
                 firstEffect = BattleSimulator.ActiveSkillDescription(race, false);
                 secondEffect = BattleSimulator.ActiveSkillDescription(race, true);
                 return;
@@ -1667,6 +1667,7 @@ namespace ChoSiren
             staminaText.text = $"{model.Save.Stamina}/{cap}";
             Text average = safeRoot.Find("TopBar/Profile/TeamAverageLevel")?.GetComponent<Text>();
             if (average != null) average.text = "LV." + TeamAverageLevel;
+            FormatProfile1103();
         }
 
         private void BuildToast()

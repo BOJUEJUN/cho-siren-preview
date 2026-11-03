@@ -21,8 +21,14 @@ namespace ChoSiren.Tests
                 SirenStickerUi.SkinButton(exit);
                 var primary = resume.transform.Find("SirenButtonFace").GetComponent<Image>();
                 var secondary = exit.transform.Find("SirenButtonFace").GetComponent<Image>();
-                // Unified design (2026-10-25): one green primary sticker everywhere, the dark sticker for everything else.
-                Assert.That(primary.sprite, Is.SameAs(SirenStickerUi.PrimarySprite));
+                // 2026-11-03: the main action keeps the dark sticker in a teal frame; the solid teal sticker is reserved
+                // for the selected state, so nothing looks already pressed before the player taps it.
+                Assert.That(primary.sprite, Is.SameAs(SirenStickerUi.ButtonSprite));
+                Assert.That(primary.color, Is.EqualTo(SirenStickerUi.ActionTint));
+                var tab = new GameObject("SelectedTab", typeof(RectTransform), typeof(Image), typeof(Button));
+                SirenStickerUi.SkinButton(tab, false, true, true);
+                Assert.That(tab.transform.Find("SirenButtonFace").GetComponent<Image>().sprite, Is.SameAs(SirenStickerUi.PrimarySprite));
+                Object.DestroyImmediate(tab);
                 Assert.That(secondary.sprite, Is.SameAs(SirenStickerUi.ButtonSprite));
                 Assert.That(primary.type, Is.EqualTo(Image.Type.Sliced));
                 Assert.That(SirenStickerUi.ActionPlate, Is.SameAs(secondary.sprite), "All shared action-plate callers must retire the AI shard artwork.");

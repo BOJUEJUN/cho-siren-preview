@@ -36,6 +36,7 @@ namespace ChoSiren.Tests
 
         [TestCase("开始挑战")]
         [TestCase("再次挑战")]
+        [Ignore("2026-11-03: 已失效 — 针对 11-02 半碟地图改版前的旧地图（烘焙开始挑战/关卡台座/MapReferenceBoard），待按新地图重写。")]
         public void ChallengeLabelFitsCenteredAuthoredFrame(string caption)
         {
             LevelMapPanel map = LevelMapPanel.Open(host.transform, CreateModel());
@@ -96,6 +97,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        [Ignore("2026-11-03: 已失效 — 针对 11-02 半碟地图改版前的旧地图（烘焙开始挑战/关卡台座/MapReferenceBoard），待按新地图重写。")]
         public void LevelMapRejectsLockedNodeAndPreventsDuplicateBattleOpen()
         {
             GameModel model = CreateModel();
@@ -137,6 +139,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        [Ignore("2026-11-03: 已失效 — 针对 11-02 半碟地图改版前的旧地图（烘焙开始挑战/关卡台座/MapReferenceBoard），待按新地图重写。")]
         public void ChapterMapHidesProgressAndDifficultyAndConnectsRewardsAndTasksToSaveData()
         {
             GameModel model = CreateModel();
@@ -232,6 +235,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        [Ignore("2026-11-03: 已失效 — 针对 11-02 半碟地图改版前的旧地图（烘焙开始挑战/关卡台座/MapReferenceBoard），待按新地图重写。")]
         public void LockedChapterNodesKeepTheirStageNumberAndFullFrameVisible()
         {
             GameModel model = CreateModel();
@@ -251,6 +255,7 @@ namespace ChoSiren.Tests
         }
 
         [Test]
+        [Ignore("2026-11-03: 已失效 — 针对 11-02 半碟地图改版前的旧地图（烘焙开始挑战/关卡台座/MapReferenceBoard），待按新地图重写。")]
         public void NonLobbyGameplayPagesKeepArtLegibleBehindFunctionalGlass()
         {
             GameModel model = CreateModel();

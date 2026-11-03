@@ -1234,8 +1234,8 @@ namespace ChoSiren.Panels
             CombatRace race = battle.RaceOf(actor);
             string passive = race == CombatRace.Charm ? "魅族指挥" : race == CombatRace.Demon ? "魔族指挥"
                 : race == CombatRace.Mermaid ? "人鱼指挥" : race == CombatRace.BloodElf ? "血精灵指挥" : "全队增益";
-            string[] names = { BattleSimulator.BasicAttackName, BattleSimulator.ActiveSkillName(race, false),
-                BattleSimulator.ActiveSkillName(race, true), passive };
+            string[] names = { BattleSimulator.BasicAttackName, MemberSkillNames1103.Name(actor.Definition.Id, race, false),
+                MemberSkillNames1103.Name(actor.Definition.Id, race, true), passive };
             string[] descriptions = { "自动普攻 · 单体伤害", BattleSimulator.ActiveSkillDescription(race, false),
                 BattleSimulator.ActiveSkillDescription(race, true),
                 "成为队长时生效。" + ChoSiren.Systems.Presentation.MemberCaptainTraits.Describe(passive) };
@@ -2129,6 +2129,18 @@ namespace ChoSiren.Panels
             return false;
         }
 
+        /// <summary>2026-11-03: a member's two active skills show her own names; everything else its skill name.</summary>
+        private string MemberSkillTitle1103(BattleUnit actor, string skillId)
+        {
+            if (string.IsNullOrEmpty(skillId)) return null;
+            if (actor != null && actor.Side == BattleSide.Player)
+            {
+                if (skillId == battle.ActiveSkillId(actor, true)) return MemberSkillNames1103.Name(actor.Definition.Id, battle.RaceOf(actor), true);
+                if (skillId == battle.ActiveSkillId(actor, false)) return MemberSkillNames1103.Name(actor.Definition.Id, battle.RaceOf(actor), false);
+            }
+            return battle.LookupSkill(skillId)?.Name;
+        }
+
         /// <summary>Applies one log entry to the view and returns how long to pause after it.</summary>
         private float PresentEvent(BattleEvent battleEvent, int previousActor)
         {
@@ -2137,7 +2149,7 @@ namespace ChoSiren.Panels
             SkillDefinition skill = string.IsNullOrEmpty(battleEvent.SkillId) ? null : battle.LookupSkill(battleEvent.SkillId);
             string actorName = actor != null ? actor.Definition.Name : "——";
             string targetName = target != null ? target.Definition.Name : "——";
-            string skillName = skill != null ? skill.Name : "技能";
+            string skillName = MemberSkillTitle1103(actor, battleEvent.SkillId) ?? "技能";
             bool sameAction = previousActor == battleEvent.ActorId && battleEvent.Kind != BattleEventKind.RoundStart;
 
             ObservePsdSkillCue1019(battleEvent, actor);
@@ -2438,7 +2450,7 @@ namespace ChoSiren.Panels
             lastPresentedActions[actor.Id] = stamp;
             QueueBattleVoice(actor, entry);
             bool heavy = entry.SkillId != "rt-basic";
-            string title = battle.LookupSkill(entry.SkillId)?.Name ?? (heavy ? "施放技能" : "普攻");
+            string title = MemberSkillTitle1103(actor, entry.SkillId) ?? (heavy ? "施放技能" : "普攻");
             CellView caster = FindCell(actor);
             bool ultimate = actor.Side == BattleSide.Player && entry.SkillId == battle.ActiveSkillId(actor, true);
             if (actor.Side == BattleSide.Player && caster != null)
@@ -4491,6 +4503,13 @@ namespace ChoSiren.Panels
             resultB1025 = ChoSiren.UI.BattleResultB1025.Show(resultCardRect, kit.Font, battle, victory, stars, loot,
                 unit => PanelKit.MemberSpriteOrNull(unit.Definition.Id, false) ?? BattlePortrait(unit.Definition.Id),
                 gearTapped, name => Sfx(name, .8f));
+            // 2026-11-03: once the loot cards have popped in, their currencies fly to the header too.
+            for (int i = 0; i < loot.Count; i++)
+            {
+                var card = resultB1025.transform.Find("Loot-" + loot[i].ItemId) ??
+                           resultB1025.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(r => r.name == "Loot-" + loot[i].ItemId);
+                if (card != null) ChoSiren.UI.RewardGain1101.FlyFrom(model, loot[i].ItemId, card.position, 1.7f + i * .07f);
+            }
 
             float W = resultCardRect.rect.width > 1f ? resultCardRect.rect.width : 720f;
             var cont = resultCardRect.Find("ResultContinue") as RectTransform;

@@ -56,7 +56,7 @@ namespace ChoSiren.Panels
                 (cell?.Portrait != null ? cell.Portrait.sprite : BattlePortrait(unit.Definition.Id));
             int actorId = unit.Id;
             ultimateShow.ConfigureCutIn(kit.Font, name => Sfx(name, .9f));
-            ultimateShow.SetCutIn(unit.Definition.Name, battle.LookupSkill(battle.ActiveSkillId(unit, true))?.Name ?? "大招");
+            ultimateShow.SetCutIn(unit.Definition.Name, MemberSkillTitle1103(unit, battle.ActiveSkillId(unit, true)) ?? "大招");
             // 2026-10-25 (少爷): the cut-in uses her small-skill art (the authored torn-paper PSD group),
             // then the half-body avatar, then the full portrait.
             string cutinKey = BattleAuthoredCutin1019.KeyForMember(unit.Definition.Id);

@@ -318,7 +318,9 @@ namespace ChoSiren
         private void DetailDiamond(Transform page, string name, float x, float y, string label, string glyph, bool highlight, UnityEngine.Events.UnityAction action)
         {
             GameObject hit = BoardButton038(name, page, new Rect(x, y, 92, 116), action);
-            GameObject diamond = NewImage("Diamond", hit.transform, null, highlight ? (Color)Brand1025.Teal : new Color32(26, 22, 34, 245));
+            // 2026-11-03: a solid teal fill reads as "selected/pressed" (tabs use it that way), so an
+            // available action keeps the dark face and shows itself with a teal rim and glyph instead.
+            GameObject diamond = NewImage("Diamond", hit.transform, null, new Color32(26, 22, 34, 245));
             RectTransform d = diamond.GetComponent<RectTransform>();
             PlaceTop(d, 18, 6, 56, 56);
             d.pivot = new Vector2(.5f, .5f);
@@ -326,9 +328,9 @@ namespace ChoSiren
             d.localRotation = Quaternion.Euler(0, 0, 45);
             diamond.GetComponent<Image>().raycastTarget = false;
             Outline rim = diamond.AddComponent<Outline>();
-            rim.effectColor = new Color(1, 1, 1, .8f);
+            rim.effectColor = highlight ? (Color)Brand1025.Teal : new Color(1, 1, 1, .8f);
             rim.effectDistance = new Vector2(2, -2);
-            BoardText038(hit.transform, "Glyph", glyph, 24, highlight ? (Color)Brand1025.Ink : White, 0, 18, 92, 44, TextAnchor.MiddleCenter);
+            BoardText038(hit.transform, "Glyph", glyph, 24, highlight ? (Color)Brand1025.Teal : White, 0, 18, 92, 44, TextAnchor.MiddleCenter);
             BoardText038(hit.transform, "Label", label, 17, White, -10, 78, 112, 30, TextAnchor.MiddleCenter);
         }
 

@@ -13,7 +13,7 @@ namespace ChoSiren.UI
             // into a baked art board keep the board's own plate (a teal face gets cut into its slanted silhouette);
             // there the selection is a teal underline.
             bool baked = root.GetComponent<BakedRegionMotion038>() != null;
-            SirenStickerUi.SkinButton(root, selected && !baked, true);
+            SirenStickerUi.SkinButton(root, false, true, selected && !baked);
             Transform existing = root.transform.Find("SirenPageSelection");
             UnityEngine.UI.Image marker;
             if (existing == null)

@@ -12,6 +12,8 @@ namespace ChoSiren.UI
         public static readonly Color Violet = new Color32(137, 62, 255, 255);
         public static readonly Color Cyan = new Color32(63, 240, 255, 255);
         public static readonly Color Muted = new Color32(194, 182, 212, 255);
+        /// <summary>Frame tint of a main action: the paper button frame drawn in brand teal.</summary>
+        public static readonly Color ActionTint = new Color32(120, 250, 245, 255);
         private static Sprite panel, button, tab, quiet, primary;
         public static Sprite PanelSprite => panel != null ? panel : panel = MakeFrame("SirenPaperPanel", false, false);
         public static Sprite ButtonSprite => button != null ? button : button = MakeFrame("SirenPaperButton", true, false);
@@ -50,7 +52,12 @@ namespace ChoSiren.UI
             // Preserve the caller's raycast policy: many panels are modal hit blockers.
         }
 
-        public static void SkinButton(GameObject root, bool primary = false, bool compact = false)
+        /// <summary>
+        /// 2026-11-03 (用户: 亮起来会让玩家误以为已经点过): the solid teal sticker now means "selected" only (tabs,
+        /// chosen options; <paramref name="selected"/>). The screen's main action (<paramref name="primary"/>) keeps the
+        /// dark face with a teal frame and teal label, so it stands out without looking already pressed.
+        /// </summary>
+        public static void SkinButton(GameObject root, bool primary = false, bool compact = false, bool selected = false)
         {
             if (root == null) return;
             var control = root.GetComponent<UnityEngine.UI.Button>();
@@ -83,13 +90,14 @@ namespace ChoSiren.UI
             else face = found.GetComponent<UnityEngine.UI.Image>();
             // Unified design (2026-10-25, 少爷: "不要一个地方一个设计"): primary = brand sticker with an ink label everywhere.
             // Buttons painted into a baked art board keep that art; a brand face would be cut into its silhouette.
-            if (root.GetComponent<BakedRegionMotion038>() != null) primary = false;
-            bool brand = primary && control.IsInteractable();
-            face.sprite = brand ? PrimarySprite : compact && !primary ? TabSprite : ButtonSprite;
+            if (root.GetComponent<BakedRegionMotion038>() != null) primary = selected = false;
+            bool brand = selected && control.IsInteractable();
+            bool action = primary && !selected && control.IsInteractable();
+            face.sprite = brand ? PrimarySprite : compact && !primary && !selected ? TabSprite : ButtonSprite;
             face.type = UnityEngine.UI.Image.Type.Sliced;
             face.preserveAspect = false;
             face.pixelsPerUnitMultiplier = 1f;
-            face.color = control.IsInteractable() ? Color.white : new Color(.70f, .66f, .76f, .94f);
+            face.color = !control.IsInteractable() ? new Color(.70f, .66f, .76f, .94f) : action ? ActionTint : Color.white;
             face.raycastTarget = false;
             var labels = root.GetComponentsInChildren<UnityEngine.UI.Text>(true);
             foreach (var label in labels)
@@ -97,7 +105,7 @@ namespace ChoSiren.UI
                 if (label.transform.name == "Label" || labels.Length == 1)
                 {
                     label.fontStyle = FontStyle.Bold;
-                    label.color = brand ? (Color)Brand1025.Ink : control.IsInteractable() ? Paper : Muted;
+                    label.color = brand ? (Color)Brand1025.Ink : action ? (Color)Brand1025.Teal : control.IsInteractable() ? Paper : Muted;
                     label.raycastTarget = false;
                     OutlineText(label, 1.1f);
                     label.GetComponent<UnityEngine.UI.Outline>().enabled = !brand;
@@ -106,7 +114,7 @@ namespace ChoSiren.UI
             // A single motion owner; this component also observes enabled/disabled state.
             var feedback = root.GetComponent<SirenStickerButtonFeedback>();
             if (feedback == null) feedback = root.AddComponent<SirenStickerButtonFeedback>();
-            feedback.Configure(control, face, labels, primary, compact);
+            feedback.Configure(control, face, labels, primary, compact, selected);
         }
 
         public static void SkinTitle(UnityEngine.UI.Text title, bool large = false)
@@ -228,12 +236,12 @@ namespace ChoSiren.UI
         private float amount;
         private bool animateVisual = true;
         private bool wasInteractable = true;
-        private bool primary, compact;
+        private bool primary, compact, selected;
         private UnityEngine.UI.Text[] labels;
         public void Configure(UnityEngine.UI.Button control, UnityEngine.UI.Image image, UnityEngine.UI.Text[] captions,
-            bool isPrimary = false, bool isCompact = false)
+            bool isPrimary = false, bool isCompact = false, bool isSelected = false)
         {
-            button = control; face = image; labels = captions; primary = isPrimary; compact = isCompact;
+            button = control; face = image; labels = captions; primary = isPrimary; compact = isCompact; selected = isSelected;
             ResolveMotionOwner();
             wasInteractable = !button.IsInteractable();
         }
@@ -257,12 +265,13 @@ namespace ChoSiren.UI
             if (active != wasInteractable)
             {
                 wasInteractable = active;
-                bool brand = primary && active;
-                face.sprite = brand ? SirenStickerUi.PrimarySprite : compact && !primary ? SirenStickerUi.TabSprite : SirenStickerUi.ButtonSprite;
+                bool brand = selected && active;
+                bool action = primary && !selected && active;
+                face.sprite = brand ? SirenStickerUi.PrimarySprite : compact && !primary && !selected ? SirenStickerUi.TabSprite : SirenStickerUi.ButtonSprite;
                 if (labels != null) foreach (var label in labels)
                     if (label != null && (label.name == "Label" || labels.Length == 1))
                     {
-                        label.color = brand ? (Color)Brand1025.Ink : active ? SirenStickerUi.Paper : SirenStickerUi.Muted;
+                        label.color = brand ? (Color)Brand1025.Ink : action ? (Color)Brand1025.Teal : active ? SirenStickerUi.Paper : SirenStickerUi.Muted;
                         var outline = label.GetComponent<UnityEngine.UI.Outline>();
                         if (outline != null) outline.enabled = !brand;
                     }
@@ -274,7 +283,8 @@ namespace ChoSiren.UI
                 face.rectTransform.localScale = Vector3.one * (1f + amount * .025f);
                 face.rectTransform.anchoredPosition = new Vector2(0f, amount < 0 ? -2f : 0f);
             }
-            face.color = active ? Color.Lerp(Color.white, primary ? new Color(.82f, 1f, .88f) : new Color(.79f, .61f, 1f), Mathf.Max(0, amount) * .3f)
+            Color rest = primary && !selected ? SirenStickerUi.ActionTint : Color.white;
+            face.color = active ? Color.Lerp(rest, primary || selected ? new Color(.82f, 1f, .88f) : new Color(.79f, .61f, 1f), Mathf.Max(0, amount) * .3f)
                 : new Color(.70f, .66f, .76f, .94f);
         }
     }

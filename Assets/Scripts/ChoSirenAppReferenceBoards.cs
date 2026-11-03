@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Panels;
 using ChoSiren.Systems.Economy;
@@ -65,6 +66,12 @@ namespace ChoSiren
             public bool NativeChrome;
             public bool LiveIcons;
 
+            // 2026-11-03: the 1152x256 pill art is far wider than its slot (4.5:1), so drawn at its own aspect it was
+            // only ~30px tall. It is now 9-sliced: the icon cap (left 300px) and plus cap (right 272px) keep their
+            // proportions at PillArtH1103 and only the dark number band between them is shortened.
+            public const float PillArtH1103 = 38f, PillCapLeft1103 = 300f, PillCapRight1103 = 272f;
+            public static float PillArtScale1103 => PillArtH1103 / 256f;
+
             public static HeaderPolish038Layout For(string screen)
             {
                 // One shared members-target geometry on every common-HUD screen.
@@ -76,8 +83,9 @@ namespace ChoSiren
                 // gear stacked at the right edge so nothing is squeezed.
                 // Mail + gear live only on the lobby (stacked at its right edge), so the three
                 // pills spread across the full width after the profile plaque.
-                const float pillW = 136f, pillH = 52f, pillY = 26f;
-                float[] pillX = { 288f, 432f, 576f };
+                // Centred on the profile plaque (y≈57) and spread across 290–716 with 6px gaps.
+                const float pillW = 138f, pillH = 52f, pillY = 31f;
+                float[] pillX = { 290f, 434f, 578f };
                 return new HeaderPolish038Layout
                 {
                     Profile = new Rect(4, 5, 282, 104),
@@ -87,17 +95,37 @@ namespace ChoSiren
                     Power = new Rect(110, 69, 162, 30),
                     Pills = pillX.Select(x => new Rect(x, pillY, pillW, pillH)).ToArray(),
                     Icons = Enumerable.Repeat(new Rect(6, 13, 26, 26), 3).ToArray(),
-                    Values = Enumerable.Repeat(new Rect(pillW * .26f, 8, pillW * .5f, 36), 3).ToArray(),
-                    Tiles = pillX.Select(x => new Rect(x + pillW * .76f, pillY + 8, 34, 36)).ToArray(),
+                    // Between the two sliced caps, so digits never touch the icon or plus.
+                    Values = Enumerable.Repeat(new Rect(PillCapLeft1103 * PillArtScale1103, 8,
+                        pillW - (PillCapLeft1103 + PillCapRight1103) * PillArtScale1103, 36), 3).ToArray(),
+                    // Centred on the art's baked plus (155px in from the art's right edge).
+                    Tiles = pillX.Select(x => new Rect(x + pillW - 155.5f * PillArtScale1103 - 17f, pillY + 8, 34, 36)).ToArray(),
                     Settings = new Rect(678, 48, 38, 38),
                     Gear = new Rect(3, 3, 32, 32),
                     Mail = new Rect(678, 8, 38, 36),
                     MailIcon = new Rect(0, 3, 38, 30),
                     NativeChrome = true,
                     LiveIcons = false,
-                    ValueMax = new[] { 21, 21, 19 },
+                    // 2026-11-03: sized to the art's dark interior band (~half the pill art height).
+                    ValueMax = new[] { 14, 14, 13 },
                 };
             }
+        }
+
+        private readonly Dictionary<Sprite, Sprite> slicedPills1103 = new Dictionary<Sprite, Sprite>();
+
+        /// <summary>The pill art with its icon and plus caps as slice borders (same texture, no copy).</summary>
+        private Sprite SlicedPill1103(Sprite source)
+        {
+            if (slicedPills1103.ContainsValue(source)) return source;
+            if (slicedPills1103.TryGetValue(source, out Sprite sliced) && sliced != null) return sliced;
+            sliced = Sprite.Create(source.texture, source.rect, new Vector2(.5f, .5f), source.pixelsPerUnit, 0,
+                SpriteMeshType.FullRect, new Vector4(HeaderPolish038Layout.PillCapLeft1103, 0f,
+                    HeaderPolish038Layout.PillCapRight1103, 0f));
+            sliced.name = source.name + "-sliced1103";
+            sliced.hideFlags = HideFlags.DontSave;
+            slicedPills1103[source] = sliced;
+            return sliced;
         }
 
         private void ConfigureReferenceHeader038(bool active)
@@ -147,6 +175,7 @@ namespace ChoSiren
                 profileVisual.gameObject.SetActive(layout.NativeChrome);
                 if (layout.NativeChrome) Stretch((RectTransform)profileVisual);
             }
+            bool profileStyled = layout.NativeChrome && LayoutProfile1103(profile, profileVisual);
             Transform avatarMask = profile.Find("AvatarMask");
             if (avatarMask != null)
             {
@@ -198,6 +227,7 @@ namespace ChoSiren
             teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
             teamLevelText.verticalOverflow = VerticalWrapMode.Overflow;
             // Achievement red dot on the plaque (the lobby's painted header used to carry it).
+            if (profileStyled) LayoutProfile1103(profile, profileVisual);
             Transform achievementBadge = profile.Find("AchievementBadge");
             if (achievementBadge == null)
                 achievementBadge = UI.NoticeSticker1031.Create("AchievementBadge", profile).transform;
@@ -218,7 +248,21 @@ namespace ChoSiren
                 if (visual != null)
                 {
                     visual.gameObject.SetActive(layout.NativeChrome);
-                    if (layout.NativeChrome) Stretch((RectTransform)visual);
+                    if (layout.NativeChrome)
+                    {
+                        // 2026-11-03: stretching the 1152x256 art into the 52px-tall hit rect squashed it 1.7x
+                        // vertically; it is 9-sliced instead (see PillArtH1103), caps at their own aspect.
+                        Image art = visual.GetComponent<Image>();
+                        if (art != null && art.sprite != null)
+                        {
+                            art.sprite = SlicedPill1103(art.sprite);
+                            art.type = Image.Type.Sliced;
+                            art.fillCenter = true;
+                            art.pixelsPerUnitMultiplier = 1f / HeaderPolish038Layout.PillArtScale1103;
+                        }
+                        float h = HeaderPolish038Layout.PillArtH1103;
+                        PlaceTop((RectTransform)visual, 0f, (pillRect.height - h) * .5f, pillRect.width, h);
+                    }
                 }
 
                 Rect iconRect = layout.Icons[i];
@@ -258,11 +302,21 @@ namespace ChoSiren
                 // overflowed into the opaque icon/plus tile on members ("20/12").
                 // Capping maxSize makes the worst case impossible on every page.
                 value.resizeTextMaxSize = layout.ValueMax[i];
+                // 2026-11-03: with both overflows on, Unity skips best fit and renders fontSize (17 from
+                // ConfigureHudNumber), so the cap above never applied; set the size itself.
+                value.resizeTextForBestFit = false;
+                value.fontSize = layout.ValueMax[i];
 
                 Rect tileRect = layout.Tiles[i];
                 Transform plus = bar.Find("CurrencyPlus-" + currencies[i]);
                 if (plus != null)
+                {
                     PlaceTop((RectTransform)plus, tileRect.x, tileRect.y, tileRect.width, tileRect.height);
+                    // 2026-11-03: the pill art already bakes a plus in the currency's colour; the extra white
+                    // tile covered it and read as a second, larger box. The hit rect stays.
+                    Image tileImage = plus.Find("Icon")?.GetComponent<Image>();
+                    if (tileImage != null) tileImage.enabled = !layout.NativeChrome;
+                }
             }
 
             Transform settings = bar.Find("Settings");

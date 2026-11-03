@@ -13,6 +13,9 @@ namespace ChoSiren.Tests
     /// Geometry and live glyph checks use the game's imported font and reference canvas;
     /// screenshot acceptance remains a separate check of the authored artwork.
     /// </summary>
+    // 2026-11-03: the whole fixture targets the pre-PSD lobby ("LobbyCards" no longer exists) and has failed in
+    // SetUp since 10-31; the current lobby is covered by PsdHomeIntegrationTests. Kept for history, not run.
+    [Ignore("已失效：旧版大厅（LobbyCards）已被 PSD 首页替代，覆盖改由 PsdHomeIntegrationTests 负责。")]
     public sealed class LobbyLayoutRegressionTests
     {
         private const string SaveKey = "ChoSiren.Save.v1";

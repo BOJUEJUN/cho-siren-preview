@@ -68,11 +68,12 @@ namespace ChoSiren.Tests
             // The tabs must be visible, sized for a thumb and drawn above the info column.
             GameObject next = Require("DetailNext");
             RectTransform hit = (RectTransform)next.transform;
+            // 2026-11-03: since 0.9.28 the edge tabs are the approved light chevrons (no heavy plate covering stats);
+            // the thumb-sized hit stays.
             Assert.That(hit.rect.width, Is.GreaterThanOrEqualTo(64f));
-            Assert.That(hit.rect.height, Is.GreaterThanOrEqualTo(140f));
-            Graphic plate = next.transform.Find("TabPlate").GetComponent<Graphic>();
-            Assert.That(plate.color.a, Is.GreaterThan(.9f), "切换箭头底板必须清楚可见。");
-            Assert.That(next.transform.Find("Chevron").GetComponent<Graphic>().color.a, Is.EqualTo(1f));
+            Assert.That(hit.rect.height, Is.GreaterThanOrEqualTo(96f));
+            Assert.That(next.transform.Find("TabPlate"), Is.Null, "不要厚重底板遮住属性。");
+            Assert.That(next.transform.Find("ArrowVisual/Chevron"), Is.Not.Null);
             Assert.That(next.transform.GetSiblingIndex(), Is.GreaterThan(Require("MemberStatPanel").transform.GetSiblingIndex()),
                 "右侧箭头不能被属性面板盖住。");
 

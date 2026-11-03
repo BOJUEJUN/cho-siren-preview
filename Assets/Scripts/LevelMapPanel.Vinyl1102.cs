@@ -264,17 +264,21 @@ namespace ChoSiren
                 PanelKit.EnableBestFit(teamNames1102[slot], 18);
                 teamMembers1102[slot] = -2;
             }
-            Image divider = NewImage("SwapDivider", team, null, new Color(Accent.r, Accent.g, Accent.b, .24f));
-            PlaceTop(divider.rectTransform, 414, 24, 2, 92);
-            GameObject swap = MapBoardHit("StageTeamSwap", team, 422, 26, 60, 88, OpenVinylTeamPresets1102);
-            Image tab = NewImage("SwapTab", swap.transform, PunkUi.SlantFill,
-                new Color(Accent.r, Accent.g, Accent.b, .10f));
-            PanelKit.Stretch(tab.rectTransform);
+            Image divider = NewImage("SwapDivider", team, null, new Color(Accent.r, Accent.g, Accent.b, .16f));
+            PlaceTop(divider.rectTransform, 414, 30, 2, 80);
+            // 2026-11-03 (user pick D): no tab, ring or fill behind the swap; a bare double-arrow on the
+            // avatar row plus a label on the name row, so it reads as the strip's fifth column.
+            GameObject swap = MapBoardHit("StageTeamSwap", team, 418, 4, 70, 132, OpenVinylTeamPresets1102);
             teamSwapGlow1102 = NewImage("SwapGlow", swap.transform, VisualB1101.Glow(),
-                new Color(Accent.r, Accent.g, Accent.b, .12f));
-            PlaceTop(teamSwapGlow1102.rectTransform, -6, -8, 72, 104);
+                new Color(Accent.r, Accent.g, Accent.b, 0f));
+            PlaceTop(teamSwapGlow1102.rectTransform, -5, 3, 80, 90);
+            Text label = NewPlacedText(swap.transform, "换队", 20, Accent,
+                0, 96, 70, 36, TextAnchor.MiddleCenter, FontStyle.Bold);
+            label.name = "SwapLabel";
             RectTransform holder = VisualB1101.Rect("SwapGlyph", swap.transform);
-            PlaceTop(holder, 0, 18, 60, 52);
+            PlaceTop(holder, 5, 22, 60, 52);
+            CenterPivot(holder);
+            holder.localScale = Vector3.one * .86f;
             teamSwapGlyph1102 = VisualB1101.Rect("Glyph", holder);
             PlaceTop(teamSwapGlyph1102, 0, 0, 60, 52);
             CenterPivot(teamSwapGlyph1102);
@@ -328,14 +332,14 @@ namespace ChoSiren
                 teamSwapGlyph1102.localEulerAngles = new Vector3(0, 0, -360f * eased);
                 teamSwapGlyph1102.localScale = Vector3.one * (1f + .14f * Mathf.Sin(t * Mathf.PI));
                 teamSwapGlow1102.color = new Color(Accent.r, Accent.g, Accent.b,
-                    .12f + .54f * Mathf.Sin(t * Mathf.PI));
+                    .42f * Mathf.Sin(t * Mathf.PI));
                 yield return null;
             }
             if (teamSwapGlyph1102 != null)
             {
                 teamSwapGlyph1102.localEulerAngles = Vector3.zero;
                 teamSwapGlyph1102.localScale = Vector3.one;
-                teamSwapGlow1102.color = new Color(Accent.r, Accent.g, Accent.b, .12f);
+                teamSwapGlow1102.color = new Color(Accent.r, Accent.g, Accent.b, 0f);
             }
             teamSwapAnimating1102 = false;
             OpenStageTeamPresets1028();

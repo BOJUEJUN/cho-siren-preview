@@ -242,11 +242,11 @@ namespace ChoSiren.Panels
             bool skill = battle.CanUseTurnSkill(actor);
             int rounds = battle.TurnSkillRoundsLeft(actor);
             turnSkillButton.interactable = skill;
-            turnSkillNote.text = skill ? BattleSimulator.ActiveSkillName(battle.RaceOf(actor), false) : $"{rounds} 回合后可用";
+            turnSkillNote.text = skill ? MemberSkillNames1103.Name(actor.Definition.Id, battle.RaceOf(actor), false) : $"{rounds} 回合后可用";
             SetTurnButtonDim(turnSkillButton, !skill);
             bool ult = battle.IsUltimateReady(actor);
             turnUltButton.interactable = ult;
-            turnUltNote.text = ult ? BattleSimulator.ActiveSkillName(battle.RaceOf(actor), true) : $"能量 {battle.EnergyOf(actor)}%";
+            turnUltNote.text = ult ? MemberSkillNames1103.Name(actor.Definition.Id, battle.RaceOf(actor), true) : $"能量 {battle.EnergyOf(actor)}%";
             SetTurnButtonDim(turnUltButton, !ult);
             if (ult && !BattlePresentationOptions.ReduceMotion)
                 turnUltButton.transform.localScale = Vector3.one * (1f + .04f * Mathf.Sin(Time.unscaledTime * 7f));

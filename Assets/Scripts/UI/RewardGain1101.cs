@@ -284,6 +284,17 @@ namespace ChoSiren.UI
             return host;
         }
 
+        /// <summary>
+        /// 2026-11-03: pages that show their own reward cards (the victory page) still send the currency
+        /// icons flying to the header like every other grant, instead of being the one place without it.
+        /// </summary>
+        public static void FlyFrom(GameModel model, string itemId, Vector3 fromWorld, float delay)
+        {
+            RewardGain1101 host = HostFor(model);
+            if (host == null || !Application.isPlaying || !RewardCard1101.IsCurrency(itemId)) return;
+            host.FlyToHud(itemId, fromWorld, 3, delay);
+        }
+
         public static RewardGain1101 HostFor(GameModel model) =>
             model != null && hosts.TryGetValue(model, out RewardGain1101 host) && host != null ? host : null;
 
@@ -520,7 +531,20 @@ namespace ChoSiren.UI
         void FlyToHud(string itemId, Vector3 fromWorld, int count, float delay)
         {
             HudSlot slot = slots.Find(s => s.ItemId == itemId && !s.Retiring);
-            if (slot == null || slot.Pill == null) return;
+            if (slot == null || slot.Pill == null)
+            {
+                // 2026-11-03 (用户: 金币领取有些地方没有动画): pages without that HUD pill (关卡地图, 练习室…) still
+                // get the same burst, flying to where the pill sits on the lobby header and fading there.
+                if (BattlePresentationOptions.ReduceMotion || !RewardCard1101.IsCurrency(itemId)) return;
+                RectTransform fallbackLayer = LiteLayer();
+                var corners = new Vector3[4];
+                fallbackLayer.GetWorldCorners(corners);
+                float across = itemId == CurrencyIds.Diamond ? .47f : itemId == CurrencyIds.Gold ? .67f : .87f;
+                Vector3 end = Vector3.Lerp(corners[1], corners[2], across) + (corners[0] - corners[1]) * .03f;
+                for (int i = 0; i < count; i++)
+                    RewardFlyer1101.Spawn(fallbackLayer, itemId, fromWorld, null, delay + i * .055f, i, i == count - 1, end);
+                return;
+            }
             if (BattlePresentationOptions.ReduceMotion) { slot.Land(); return; }
             RectTransform layer = LiteLayer();
             slot.Flying = true;
@@ -935,11 +959,13 @@ namespace ChoSiren.UI
         RectTransform rect, trail;
         RewardGain1101.HudSlot slot;
         Vector3 start, burst;
+        Vector3? fixedEnd;
         float clock, delay;
         bool last, landed;
         const float BurstTime = .2f, FlyTime = .48f;
 
-        public static void Spawn(RectTransform layer, string itemId, Vector3 fromWorld, RewardGain1101.HudSlot slot, float delay, int index, bool last)
+        public static void Spawn(RectTransform layer, string itemId, Vector3 fromWorld, RewardGain1101.HudSlot slot, float delay, int index, bool last,
+            Vector3? fixedEnd = null)
         {
             var image = RewardCard1101.Img("Flyer-" + itemId + "-" + index, layer, RewardItemVisuals.SpriteFor(itemId), Color.white);
             image.preserveAspect = true;
@@ -949,7 +975,7 @@ namespace ChoSiren.UI
             rect.position = fromWorld;
             rect.localScale = Vector3.zero;
             var flyer = image.gameObject.AddComponent<RewardFlyer1101>();
-            flyer.rect = rect; flyer.slot = slot; flyer.delay = delay; flyer.last = last;
+            flyer.rect = rect; flyer.slot = slot; flyer.delay = delay; flyer.last = last; flyer.fixedEnd = fixedEnd;
             flyer.start = fromWorld;
             float angle = (index * 137.5f + 20f) * Mathf.Deg2Rad;
             float radius = 46f + (index % 3) * 18f;
@@ -968,7 +994,7 @@ namespace ChoSiren.UI
             clock += Mathf.Min(Time.unscaledDeltaTime, .05f);
             float t = clock - delay;
             if (t < 0f) return;
-            if (slot == null || slot.Pill == null) { Destroy(gameObject); return; }
+            if (!fixedEnd.HasValue && (slot == null || slot.Pill == null)) { Destroy(gameObject); return; }
             if (t < BurstTime)
             {
                 float k = t / BurstTime, e = 1f - (1f - k) * (1f - k) * (1f - k);
@@ -976,14 +1002,27 @@ namespace ChoSiren.UI
                 rect.localScale = Vector3.one * Mathf.Lerp(.3f, 1.1f, e);
                 return;
             }
-            Transform icon = slot.Pill.Find("DiamondIcon") ?? slot.Pill.Find("GoldIcon") ?? slot.Pill.Find("StaminaIcon");
-            Vector3 end = icon != null ? icon.position : slot.Pill.TransformPoint(slot.Pill.rect.center);
+            Vector3 end;
+            if (fixedEnd.HasValue) end = fixedEnd.Value;
+            else
+            {
+                Transform icon = slot.Pill.Find("DiamondIcon") ?? slot.Pill.Find("GoldIcon") ?? slot.Pill.Find("StaminaIcon");
+                end = icon != null ? icon.position : slot.Pill.TransformPoint(slot.Pill.rect.center);
+            }
             float f = Mathf.Clamp01((t - BurstTime) / FlyTime), ease = f * f * (3f - 2f * f) * .4f + f * f * .6f;
             Vector3 control = (burst + end) * .5f + new Vector3((burst.x - end.x) * .25f, Mathf.Abs(end.y - burst.y) * .15f, 0f);
             Vector3 a = Vector3.LerpUnclamped(burst, control, ease), b = Vector3.LerpUnclamped(control, end, ease);
             rect.position = Vector3.LerpUnclamped(a, b, ease);
             rect.localScale = Vector3.one * Mathf.Lerp(1.1f, .55f, f);
             if (trail != null) trail.localScale = Vector3.one * (1f + .4f * f);
+            if (fixedEnd.HasValue)
+            {
+                // No pill to land in: the icon shrinks and fades out at the header instead.
+                var image = GetComponent<Image>();
+                if (image != null) image.color = new Color(1f, 1f, 1f, 1f - Mathf.Clamp01((f - .7f) / .3f));
+                if (f >= 1f) Destroy(gameObject);
+                return;
+            }
             if (f >= 1f && !landed)
             {
                 landed = true;

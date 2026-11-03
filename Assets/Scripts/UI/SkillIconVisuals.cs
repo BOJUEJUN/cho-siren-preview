@@ -20,14 +20,26 @@ namespace ChoSiren
             return SkillIconKind.Slash;
         }
 
+        /// <summary>2026-11-03: member-specific skill names draw their race skill's pictogram.</summary>
+        private static string RaceSkillKey(string skillName)
+        {
+            if (!ChoSiren.Systems.Tactics.MemberSkillNames1103.TryFind(skillName, out string memberId, out bool big)) return skillName;
+            foreach (MemberDefinition member in GameModel.Members)
+                if (member.Id == memberId)
+                    return ChoSiren.Systems.Tactics.BattleSimulator.ActiveSkillName(
+                        ChoSiren.Systems.Tactics.BattleSimulator.ParseCombatRace(member.Race), big);
+            return skillName;
+        }
+
         public static SkillIconGraphic Create(Transform parent, string name, string skillName,
             string description, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(SkillIconGraphic));
             go.transform.SetParent(parent, false);
             var graphic = go.GetComponent<SkillIconGraphic>();
-            graphic.Kind = Resolve(skillName, description);
-            graphic.SkillKey = skillName;
+            string key = RaceSkillKey(skillName);
+            graphic.Kind = Resolve(key, description);
+            graphic.SkillKey = key;
             graphic.color = color;
             graphic.raycastTarget = false;
             return graphic;

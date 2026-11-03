@@ -118,7 +118,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0002/thumb",
       "BasePower": 8400,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0003",
@@ -129,7 +130,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0003/thumb",
       "BasePower": 8483,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0005",
@@ -140,7 +142,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0005/thumb",
       "BasePower": 8566,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0007",
@@ -151,7 +154,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0007/thumb",
       "BasePower": 8649,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0008",
@@ -162,7 +166,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0008/thumb",
       "BasePower": 8732,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0010",
@@ -173,7 +178,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0010/thumb",
       "BasePower": 8815,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0011",
@@ -184,7 +190,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0011/thumb",
       "BasePower": 8898,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0012",
@@ -195,7 +202,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0012/thumb",
       "BasePower": 8981,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0024",
@@ -206,7 +214,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0024/thumb",
       "BasePower": 9064,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0031",
@@ -217,7 +226,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0031/thumb",
       "BasePower": 9147,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0032",
@@ -228,7 +238,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0032/thumb",
       "BasePower": 9230,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0033",
@@ -239,7 +250,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0033/thumb",
       "BasePower": 9313,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0034",
@@ -250,7 +262,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0034/thumb",
       "BasePower": 7882,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0035",
@@ -261,7 +274,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0035/thumb",
       "BasePower": 7943,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0037",
@@ -272,7 +286,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0037/thumb",
       "BasePower": 8004,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0038",
@@ -283,7 +298,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0038/thumb",
       "BasePower": 7165,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0200",
@@ -294,7 +310,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0200/thumb",
       "BasePower": 7226,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0201",
@@ -305,7 +322,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0201/thumb",
       "BasePower": 7287,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0202",
@@ -316,7 +334,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0202/thumb",
       "BasePower": 7348,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0203",
@@ -327,7 +346,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0203/thumb",
       "BasePower": 7409,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0205",
@@ -338,7 +358,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0205/thumb",
       "BasePower": 7470,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0207",
@@ -349,7 +370,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0207/thumb",
       "BasePower": 7531,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0208",
@@ -360,7 +382,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0208/thumb",
       "BasePower": 7592,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0209",
@@ -371,7 +394,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0209/thumb",
       "BasePower": 7653,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0604",
@@ -382,7 +406,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0604/thumb",
       "BasePower": 7714,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0605",
@@ -393,7 +418,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0605/thumb",
       "BasePower": 7775,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0607",
@@ -404,7 +430,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0607/thumb",
       "BasePower": 7836,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0608",
@@ -415,7 +442,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0608/thumb",
       "BasePower": 7897,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0610",
@@ -426,7 +454,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0610/thumb",
       "BasePower": 7958,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0611",
@@ -437,7 +466,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0611/thumb",
       "BasePower": 8019,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0613",
@@ -448,7 +478,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0613/thumb",
       "BasePower": 6460,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0614",
@@ -459,7 +490,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0614/thumb",
       "BasePower": 6507,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0630",
@@ -470,7 +502,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0630/thumb",
       "BasePower": 6554,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0633",
@@ -481,7 +514,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0633/thumb",
       "BasePower": 6601,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0634",
@@ -492,7 +526,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0634/thumb",
       "BasePower": 6648,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0651",
@@ -503,7 +538,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0651/thumb",
       "BasePower": 6695,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0664",
@@ -514,7 +550,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0664/thumb",
       "BasePower": 6742,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0668",
@@ -525,7 +562,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0668/thumb",
       "BasePower": 6789,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-0670",
@@ -536,7 +574,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0670/thumb",
       "BasePower": 6836,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0671",
@@ -547,7 +586,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0671/thumb",
       "BasePower": 5983,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0672",
@@ -558,7 +598,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0672/thumb",
       "BasePower": 6030,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-0673",
@@ -569,7 +610,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0673/thumb",
       "BasePower": 6077,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0674",
@@ -580,7 +622,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0674/thumb",
       "BasePower": 6124,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-0675",
@@ -591,7 +634,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0675/thumb",
       "BasePower": 6171,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-0676",
@@ -602,7 +646,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-0676/thumb",
       "BasePower": 6218,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-1006",
@@ -613,7 +658,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1006/thumb",
       "BasePower": 6265,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-1008",
@@ -624,7 +670,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1008/thumb",
       "BasePower": 6312,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-1011",
@@ -635,7 +682,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1011/thumb",
       "BasePower": 6359,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-1013",
@@ -646,7 +694,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1013/thumb",
       "BasePower": 6406,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-1014",
@@ -657,7 +706,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1014/thumb",
       "BasePower": 6453,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-1016",
@@ -668,7 +718,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1016/thumb",
       "BasePower": 6500,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     },
     {
       "Id": "hero-1034",
@@ -679,7 +730,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1034/thumb",
       "BasePower": 6547,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魅族"
     },
     {
       "Id": "hero-1035",
@@ -690,7 +742,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1035/thumb",
       "BasePower": 6594,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "魔族 · 恶魔"
     },
     {
       "Id": "hero-1036",
@@ -701,7 +754,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1036/thumb",
       "BasePower": 6641,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "海灵族 · 人鱼"
     },
     {
       "Id": "hero-1037",
@@ -712,7 +766,8 @@
       "ThumbnailResourcePath": "Art/Members/hero-1037/thumb",
       "BasePower": 6688,
       "StartingLevel": 1,
-      "InitiallyUnlocked": false
+      "InitiallyUnlocked": false,
+      "Race": "血精灵"
     }
   ]
 }
