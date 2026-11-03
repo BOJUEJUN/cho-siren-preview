@@ -15,7 +15,8 @@ namespace ChoSiren.Tests
     {
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         private static readonly DateTime Now = new DateTime(2026, 10, 16, 12, 0, 0);
-        private static readonly int[] ScreenshotTeam = { 19, 59, 3, 0 };
+        // 2026-11-03: 洛羽 (19) is 魅族 since races follow the artwork (bunny ears); 诗音 (23) is the third blood elf.
+        private static readonly int[] ScreenshotTeam = { 23, 59, 3, 0 };
 
         private static void Call(object target, string method) => target.GetType()
             .GetMethod(method, Private).Invoke(target, null);
@@ -24,7 +25,7 @@ namespace ChoSiren.Tests
         {
             store = new InMemorySaveStore();
             var model = new GameModel(() => Now, store);
-            Assert.That(GameModel.Members[19].Name, Is.EqualTo("洛羽"));
+            Assert.That(GameModel.Members[23].Name, Is.EqualTo("诗音"));
             Assert.That(GameModel.Members[59].Name, Is.EqualTo("梦璃"));
             model.Save.UnlockedMembers = (onlyScreenshotMembers ? ScreenshotTeam :
                 model.Save.UnlockedMembers.Concat(ScreenshotTeam)).Distinct().OrderBy(i => i).ToList();
@@ -69,7 +70,7 @@ namespace ChoSiren.Tests
 
             Assert.That(model.TryAutoTeam(out string message), Is.True, message);
             Assert.That(model.Save.Team.Count, Is.EqualTo(4));
-            Assert.That(model.Save.Team[0], Is.EqualTo(19), "Keep the valid, trained current captain.");
+            Assert.That(model.Save.Team[0], Is.EqualTo(23), "Keep the valid, trained current captain.");
             Assert.That(model.Save.Team, Does.Contain(59), "Do not replace a trained member just to display four careers.");
             Assert.That(model.Save.Team.GroupBy(i => GameModel.Members[i].Race).All(g => g.Count() <= 2), Is.True);
             Assert.That(model.Save.Team.Select(i => GameModel.Members[i].Career).Distinct().Count(), Is.GreaterThanOrEqualTo(3));
@@ -100,7 +101,7 @@ namespace ChoSiren.Tests
             Assert.That(message, Does.Contain("3/4"));
             Assert.That(message, Does.Contain("无法补满"));
             Assert.That(model.IsTeamReady(out string problem), Is.True, problem);
-            Assert.That(model.Save.Team[0], Is.EqualTo(19));
+            Assert.That(model.Save.Team[0], Is.EqualTo(23));
             Assert.That(model.Save.UnlockedMembers, Is.EqualTo(owned));
             Assert.That(model.Save.MemberLevels, Is.EqualTo(levels));
         }
@@ -109,13 +110,13 @@ namespace ChoSiren.Tests
         public void LegalTwoBloodElvesStillEnterBattleAndCaptainSurvivesAutoFormation()
         {
             var model = ScreenshotModel(out _);
-            model.Save.Team = new List<int> { 19, 59, 0, 1 };
+            model.Save.Team = new List<int> { 23, 59, 0, 1 };
             Assert.That(model.IsTeamReady(out string problem), Is.True, problem);
             int stamina = model.Save.Stamina;
             Assert.That(model.StartStageBattle("stage-1-1", 101603UL, out string error), Is.Not.Null, error);
             Assert.That(model.Save.Stamina, Is.LessThan(stamina));
             model.AutoTeam();
-            Assert.That(model.Save.Team[0], Is.EqualTo(19));
+            Assert.That(model.Save.Team[0], Is.EqualTo(23));
             Assert.That(model.IsTeamReady(out problem), Is.True, problem);
         }
 
