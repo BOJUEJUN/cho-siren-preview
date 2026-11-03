@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "c7dd02c39f228d0a17ca128a5ff4d420.data.unityweb",
+    "d4fc723a4f75998332eb8a52ec9f9c61.framework.js.unityweb",
+    "9cdac3925fad09f40ec977600849389b.wasm.unityweb",
+    "be56ed09511725399f54a139c613a7d3.loader.js"
+  ],
+  "previous": [
     "d8f9f0ceed684d9b7ce1563490f513b8.data.unityweb",
     "546838e56bfe19ff388a2bd266c31ea7.framework.js.unityweb",
     "cb78e76cf16b2840e0bb3ee921209612.wasm.unityweb",
     "1a43fc0cdebf154bf57b91237b632697.loader.js"
   ],
-  "previous": [
-    "a1f80bc9ecd28dbb09d97d5b6c63ceb8.data.unityweb",
-    "ed1e313960ddc614aca36003bccfa277.framework.js.unityweb",
-    "1378a15ebba4551b3567ac2031a1267c.wasm.unityweb",
-    "705e4045dbe4debffb392b2c87dbc8fb.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.30",
+      "releaseId": "UI-20261102-AVATAR-MAP-R162",
+      "files": [
+        "d8f9f0ceed684d9b7ce1563490f513b8.data.unityweb",
+        "546838e56bfe19ff388a2bd266c31ea7.framework.js.unityweb",
+        "cb78e76cf16b2840e0bb3ee921209612.wasm.unityweb",
+        "1a43fc0cdebf154bf57b91237b632697.loader.js"
+      ]
+    },
     {
       "version": "0.9.29",
       "releaseId": "UI-20261102-FINAL-R161",
