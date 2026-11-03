@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#0b0b12">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>CHO-SIREN · 造型工坊</title>
+  <meta name="description" content="给成员换颜色、加图案、戴配饰、换舞台。点哪改哪，脸保持原样。">
+  <link rel="icon" href="../favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-tab="color">
+  <header class="bar">
+    <a class="back" href="../" aria-label="返回游戏">‹ 游戏</a>
+    <div class="title"><b>造型工坊</b><small>DRESS LAB · 试玩</small></div>
+    <div class="bar-tools">
+      <button id="undo" class="icon-btn" aria-label="撤销" disabled>↶</button>
+      <button id="redo" class="icon-btn" aria-label="重做" disabled>↷</button>
+      <button id="dice" class="icon-btn" aria-label="随机造型">🎲</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" id="stage" aria-label="造型预览，点角色身上选择要改的区域">
+      <div class="bg" id="bg"></div>
+      <div class="world" id="world">
+        <div class="layer back" id="back-layer"></div>
+        <canvas id="char" width="512" height="704"></canvas>
+        <canvas id="sel" width="512" height="704" aria-hidden="true"></canvas>
+        <div class="layer front" id="front-layer"></div>
+      </div>
+      <div class="light" id="light" aria-hidden="true"></div>
+      <div class="stage-hud">
+        <span class="name-tag" id="name-tag">星璃</span>
+        <button class="chip-btn" id="fit" hidden>还原视角</button>
+        <button class="chip-btn" id="peek">按住看原图</button>
+      </div>
+      <div class="hint" id="hint">点角色身上任意一块衣服或头发</div>
+    </section>
+
+    <section class="panel">
+      <div class="members" id="members" role="listbox" aria-label="选择成员"></div>
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="color" aria-selected="true">换色</button>
+        <button role="tab" data-tab="pattern">图案</button>
+        <button role="tab" data-tab="sticker">配饰</button>
+        <button role="tab" data-tab="stage">舞台</button>
+        <button role="tab" data-tab="save">造型</button>
+      </nav>
+
+      <div class="pane" data-pane="color">
+        <div class="row swatches" id="color-swatches"></div>
+        <label class="slider"><span>深浅</span><input id="light-amt" type="range" min="-40" max="40" value="0"><output id="light-out">0</output></label>
+        <label class="slider"><span>范围</span><input id="tol" type="range" min="10" max="80" value="40"><output id="tol-out">40</output></label>
+        <div class="row opts">
+          <div class="seg" id="mode-seg">
+            <button data-mode="near" class="on">只改这一块</button>
+            <button data-mode="all">同色全改</button>
+          </div>
+          <label class="check"><input id="protect" type="checkbox" checked> 保护皮肤</label>
+        </div>
+        <div class="row opts">
+          <button class="ghost" id="clear-sel">取消选择</button>
+          <button class="ghost" id="del-edit">去掉这处改动</button>
+          <span class="count" id="edit-count">已改 0 处</span>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="pattern" hidden>
+        <p class="pane-tip" id="pattern-tip">先点角色身上一块，再选图案</p>
+        <div class="row patterns" id="patterns"></div>
+        <div class="sub">图案颜色</div>
+        <div class="row swatches" id="pattern-swatches"></div>
+      </div>
+
+      <div class="pane" data-pane="sticker" hidden>
+        <div class="grid stickers" id="sticker-list"></div>
+        <div class="sticker-edit" id="sticker-edit" hidden>
+          <div class="row swatches" id="sticker-swatches"></div>
+          <label class="slider"><span>大小</span><input id="st-size" type="range" min="30" max="420" value="120"></label>
+          <label class="slider"><span>旋转</span><input id="st-rot" type="range" min="-180" max="180" value="0"></label>
+          <div class="row opts">
+            <button class="ghost" id="st-flip">左右翻转</button>
+            <button class="ghost" id="st-depth">放到身后</button>
+            <button class="ghost danger" id="st-del">删除</button>
+          </div>
+        </div>
+        <p class="pane-tip">拖动配饰移动，两指捏合缩放旋转</p>
+      </div>
+
+      <div class="pane" data-pane="stage" hidden>
+        <div class="sub">背景</div>
+        <div class="row opts-wrap" id="bg-list"></div>
+        <div class="sub">灯光</div>
+        <div class="row opts-wrap" id="light-list"></div>
+        <div class="sub">描边光</div>
+        <div class="row opts-wrap" id="glow-list"></div>
+      </div>
+
+      <div class="pane" data-pane="save" hidden>
+        <label class="field"><span>造型名</span><input id="look-name" maxlength="12" placeholder="给这套造型起个名字"></label>
+        <div class="grid slots" id="slots"></div>
+        <div class="row opts">
+          <button class="primary" id="export">导出图片</button>
+          <button class="ghost danger" id="reset">重置这位成员</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="sheet" id="sheet" hidden>
+    <div class="sheet-card">
+      <img id="sheet-img" alt="导出的造型图片">
+      <p>手机上长按图片保存到相册</p>
+      <div class="row opts"><a class="primary" id="sheet-dl" download="cho-siren-look.png">下载</a><button class="ghost" id="sheet-close">关闭</button></div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="stickers.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

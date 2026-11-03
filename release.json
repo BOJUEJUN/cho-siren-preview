@@ -1,17 +1,23 @@
 {
-  "version": "0.9.32",
-  "releaseId": "UI-20261103-ACTION-CAPTION-R164",
+  "version": "0.9.33",
+  "releaseId": "WEB-20261103-DRESS-LAB-R164A",
   "date": "2026-11-03",
-  "name": "界面统一与角色专属技能（修复）",
-  "notice": "修复开始挑战等主按钮文字看不清；按钮高亮统一：青色实心只表示已选中；优化顶部货币条与左上角档案；补齐金币飞入动画；修正部分角色种族，每位成员拥有专属技能名。",
-  "previousReleaseId": "UI-20261103-UNIFY-HUD-R163",
-  "previousWebCommit": "ed8fbed0f925518a7c8317826bfe84528d5fcd59",
-  "previousReleaseRecord": "releases/R163.json",
+  "name": "造型工坊试玩页",
+  "notice": "新增造型工坊试玩页：给成员换颜色、加图案、戴配饰、换舞台，脸部默认保护。游戏本体未改动。",
+  "previousReleaseId": "UI-20261103-ACTION-CAPTION-R164",
+  "previousWebCommit": "e195877cb989c5b7e4ae8f56b3c2889856e8a62c",
+  "previousReleaseRecord": "releases/R164.json",
+  "previousBackupBranch": "backup/v0.9.32",
+  "backupBranch": "backup/v0.9.33",
+  "unityBuild": "Unchanged R164 Unity package; web-only addition of /dress-lab/.",
   "validation": {
     "status": "staged",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.32",
-    "webPortal": "pending focused portal checks",
-    "webRuntime": "pending public WebGL verification"
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.32 (unchanged Unity package)",
+    "dressLabBrowserVerified": "Chromium iPhone 13 emulation: tap-select recolor, patterns, stickers with drag and two-finger pinch, stage zoom, backgrounds and lights, random look, save slot, PNG export; no page errors",
+    "webRuntime": "pending public verification"
   },
-  "knownLimits": []
+  "knownLimits": [
+    "Region selection is colour-based on the existing 512x704 member art, not per-part masks; similar neighbouring colours (white dress and silver armour) can be selected together.",
+    "Not yet in Unity; standalone web prototype at /dress-lab/."
+  ]
 }
