@@ -1,15 +1,15 @@
 {
-  "version": "0.9.31",
-  "releaseId": "UI-20261103-UNIFY-HUD-R163",
+  "version": "0.9.32",
+  "releaseId": "UI-20261103-ACTION-CAPTION-R164",
   "date": "2026-11-03",
-  "name": "界面统一与角色专属技能",
-  "notice": "按钮高亮统一：青色实心只表示已选中；优化顶部货币条与左上角档案；补齐金币飞入动画；修正部分角色种族，每位成员拥有专属技能名。",
-  "previousReleaseId": "UI-20261102-AVATAR-MAP-R162",
-  "previousWebCommit": "dae668047c2ad93b95f6616c66b833e306410e52",
-  "previousReleaseRecord": "releases/R162.json",
+  "name": "界面统一与角色专属技能（修复）",
+  "notice": "修复开始挑战等主按钮文字看不清；按钮高亮统一：青色实心只表示已选中；优化顶部货币条与左上角档案；补齐金币飞入动画；修正部分角色种族，每位成员拥有专属技能名。",
+  "previousReleaseId": "UI-20261103-UNIFY-HUD-R163",
+  "previousWebCommit": "ed8fbed0f925518a7c8317826bfe84528d5fcd59",
+  "previousReleaseRecord": "releases/R163.json",
   "validation": {
     "status": "staged",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.31",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.32",
     "webPortal": "pending focused portal checks",
     "webRuntime": "pending public WebGL verification"
   },
