@@ -256,12 +256,34 @@ namespace ChoSiren.UI
         public void OnPointerExit(PointerEventData e) { hovered = pressed = false; }
         public void OnPointerDown(PointerEventData e) { if (e.button == PointerEventData.InputButton.Left) pressed = true; }
         public void OnPointerUp(PointerEventData e) { pressed = false; }
+        private int captionScanFrame1103 = -1000;
+
+        /// <summary>
+        /// 2026-11-03 (用户: 开始挑战看不见了): many callers add or recolour their caption after skinning and still
+        /// paint it ink for the old teal face. On the dark action face any near-ink caption is invisible, so it is
+        /// redrawn in teal whenever it appears (checked a few times a second, captions only).
+        /// </summary>
+        private void KeepActionCaptionsReadable1103(bool active)
+        {
+            if (Time.frameCount - captionScanFrame1103 < 8) return;
+            captionScanFrame1103 = Time.frameCount;
+            foreach (var text in GetComponentsInChildren<UnityEngine.UI.Text>(false))
+            {
+                Color c = text.color;
+                if (c.a <= .2f || c.r * .3f + c.g * .59f + c.b * .11f >= .2f) continue;
+                Color readable = active ? (Color)Brand1025.Teal : SirenStickerUi.Muted;   // locked/disabled: muted
+                readable.a = c.a;
+                text.color = readable;
+            }
+        }
+
         private void OnDisable()
         { hovered = pressed = false; amount = 0; if (face != null) face.rectTransform.localScale = Vector3.one; }
         private void LateUpdate()
         {
             if (face == null || button == null) return;
             bool active = button.IsInteractable();
+            if (primary && !selected) KeepActionCaptionsReadable1103(active);
             if (active != wasInteractable)
             {
                 wasInteractable = active;
