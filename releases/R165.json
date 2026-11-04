@@ -1,0 +1,17 @@
+{
+  "version": "0.9.34",
+  "releaseId": "UI-20261103-DECK-BOSSES-R165",
+  "date": "2026-11-03",
+  "name": "企划书首领与敌人",
+  "notice": "首领按企划书登场：碎音·琉娜、幻蚀歌枢·梅洛蒂、深潮女王·赛琳；敌人与第一章阵容按企划书对齐；大招充能改为队长17秒；凌音、云歌、紫苑换上新立绘；大厅按钮悬停显示火焰边。",
+  "previousReleaseId": "WEB-20261103-DRESS-LAB-R164A",
+  "previousWebCommit": "67307a1973339a1a426794b07a713ea5bed20c72",
+  "previousReleaseRecord": "releases/R164A.json",
+  "validation": {
+    "status": "staged",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.34",
+    "webPortal": "pending focused portal checks",
+    "webRuntime": "pending public WebGL verification"
+  },
+  "knownLimits": []
+}

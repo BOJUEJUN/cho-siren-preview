@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "6683e548bedac7e09575f944429c8b92.data.unityweb",
+    "5ead8effcc4eb37786847754a8b2b7f3.framework.js.unityweb",
+    "5037b2b323ae3557aae791be67f9ea03.wasm.unityweb",
+    "8f86f8eb47f8166412a668287dadd5c0.loader.js"
+  ],
+  "previous": [
     "328b25d3d1867a74cb6c8f958953d127.data.unityweb",
     "3409255df7c9642fe5bf6af92fd02d88.framework.js.unityweb",
     "60fe5f444bec6787e168ea56a61eca2c.wasm.unityweb",
     "23e098d1137ed8972be12a9553285b9e.loader.js"
   ],
-  "previous": [
-    "c7dd02c39f228d0a17ca128a5ff4d420.data.unityweb",
-    "d4fc723a4f75998332eb8a52ec9f9c61.framework.js.unityweb",
-    "9cdac3925fad09f40ec977600849389b.wasm.unityweb",
-    "be56ed09511725399f54a139c613a7d3.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.32",
+      "releaseId": "WEB-20261103-DRESS-LAB-R164A",
+      "files": [
+        "328b25d3d1867a74cb6c8f958953d127.data.unityweb",
+        "3409255df7c9642fe5bf6af92fd02d88.framework.js.unityweb",
+        "60fe5f444bec6787e168ea56a61eca2c.wasm.unityweb",
+        "23e098d1137ed8972be12a9553285b9e.loader.js"
+      ]
+    },
     {
       "version": "0.9.31",
       "releaseId": "UI-20261103-UNIFY-HUD-R163",

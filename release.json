@@ -1,24 +1,17 @@
 {
-  "version": "0.9.32",
-  "releaseId": "WEB-20261103-DRESS-LAB-R164A",
+  "version": "0.9.34",
+  "releaseId": "UI-20261103-DECK-BOSSES-R165",
   "date": "2026-11-03",
-  "name": "造型工坊试玩页",
-  "notice": "新增造型工坊试玩页：给成员换颜色、加图案、戴配饰、换舞台，脸部默认保护。游戏本体未改动。",
-  "previousReleaseId": "UI-20261103-ACTION-CAPTION-R164",
-  "previousWebCommit": "e195877cb989c5b7e4ae8f56b3c2889856e8a62c",
-  "previousReleaseRecord": "releases/R164.json",
-  "previousBackupBranch": "backup/v0.9.32",
-  "backupBranch": "backup/v0.9.33",
-  "unityBuild": "Unchanged R164 Unity package; web-only addition of /dress-lab/.",
+  "name": "企划书首领与敌人",
+  "notice": "首领按企划书登场：碎音·琉娜、幻蚀歌枢·梅洛蒂、深潮女王·赛琳；敌人与第一章阵容按企划书对齐；大招充能改为队长17秒；凌音、云歌、紫苑换上新立绘；大厅按钮悬停显示火焰边。",
+  "previousReleaseId": "WEB-20261103-DRESS-LAB-R164A",
+  "previousWebCommit": "67307a1973339a1a426794b07a713ea5bed20c72",
+  "previousReleaseRecord": "releases/R164A.json",
   "validation": {
     "status": "staged",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.32 (unchanged Unity package)",
-    "dressLabBrowserVerified": "Chromium iPhone 13 emulation: tap-select recolor, patterns, stickers with drag and two-finger pinch, stage zoom, backgrounds and lights, random look, save slot, PNG export; no page errors",
-    "webRuntime": "pending public verification"
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.34",
+    "webPortal": "pending focused portal checks",
+    "webRuntime": "pending public WebGL verification"
   },
-  "knownLimits": [
-    "Region selection is colour-based on the existing 512x704 member art, not per-part masks; similar neighbouring colours (white dress and silver armour) can be selected together.",
-    "Not yet in Unity; standalone web prototype at /dress-lab/."
-  ],
-  "versionNote": "R164A 只新增独立的 /dress-lab/ 网页，游戏包仍是 0.9.32；版本号与 iPhone、桌面、安卓和原生更新清单保持一致（2026-11-03 由 0.9.33 改回）。"
+  "knownLimits": []
 }
