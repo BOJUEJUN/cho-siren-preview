@@ -26,12 +26,13 @@ namespace ChoSiren
         /// authored portrait and both idle clips with a margin for the clips' head motion. The box is placed
         /// per idol so it never covers this rect.
         /// </summary>
+        // 2026-11-04: offset by PsdHomeCharacterCarousel.CenterShift1104 (-25 / +63 / -40 / +54), which centres each face.
         public static readonly Rect[] FaceRects =
         {
-            Rect.MinMaxRect(290f, 245f, 485f, 420f),  // 卡塔莉娜 CATALENA
-            Rect.MinMaxRect(205f, 310f, 400f, 495f),  // 莉莉丝 LILITH
-            Rect.MinMaxRect(315f, 180f, 515f, 350f),  // 紫晶精灵 AMETHYST
-            Rect.MinMaxRect(255f, 320f, 485f, 520f),  // 粉珀人鱼 CORALIE
+            Rect.MinMaxRect(265f, 245f, 460f, 420f),  // 卡塔莉娜 CATALENA
+            Rect.MinMaxRect(268f, 310f, 463f, 495f),  // 莉莉丝 LILITH
+            Rect.MinMaxRect(275f, 180f, 475f, 350f),  // 紫晶精灵 AMETHYST
+            Rect.MinMaxRect(309f, 320f, 539f, 520f),  // 粉珀人鱼 CORALIE
         };
 
         /// <summary>Top-left of the box (not its name plate) per idol, in the same stage units.</summary>

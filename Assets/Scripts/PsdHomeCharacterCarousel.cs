@@ -30,6 +30,12 @@ namespace ChoSiren
             new Vector4(0, 184, 4027, 8358), new Vector4(0, 755, 2743, 7521),
             new Vector4(-852, 685, 4352, 8568), new Vector4(-272, 759, 4754, 8134),
         };
+        /// <summary>
+        /// 2026-11-04 (赵金 "这个角色中线偏了，要正一点"): stage units (720 wide) each idol moves sideways so her face
+        /// sits on the screen's centre line; measured on the authored stills (face centres were .535/.41/.555/.425).
+        /// The idle clips are children of the portrait and move with it.
+        /// </summary>
+        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 54f };
         public int Index { get; private set; }
         public bool Switching { get; private set; }
         public bool HasPerformance => Index == 0;
@@ -115,8 +121,9 @@ namespace ChoSiren
             portrait.sprite = portraits[index]; outline.sprite = outlines[index];
             const float scale = 720f / 4034f;
             Vector4 p = PortraitRects[index], o = OutlineRects[index];
-            Place(portrait.rectTransform, p.x * scale, p.y * scale, p.z * scale, p.w * scale);
-            Place(outline.rectTransform, o.x * scale, o.y * scale, o.z * scale, o.w * scale);
+            float shift = CenterShift1104[index];
+            Place(portrait.rectTransform, p.x * scale + shift, p.y * scale, p.z * scale, p.w * scale);
+            Place(outline.rectTransform, o.x * scale + shift, o.y * scale, o.z * scale, o.w * scale);
             portrait.rectTransform.localScale = outline.rectTransform.localScale = Vector3.one;
             portrait.enabled = outline.enabled = true;
             motion.SetCharacter(portrait.rectTransform); motion.SetOutline(outline.rectTransform);
