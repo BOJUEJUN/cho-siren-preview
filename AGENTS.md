@@ -14,6 +14,7 @@ Keep this file short. Load only the document that matches the work:
 - Solid teal fill means "selected" only; main actions use the dark face with a teal frame and teal caption (2026-11-03).
 - Bosses, enemies and chapter-one lineups follow the user's planning deck (`CHO-SIREN幻域魅声 游戏企划书`): 1-5 碎音·琉娜, 1-10 幻蚀歌枢·梅洛蒂 (`StageBoss1103.cs`); keep its enemy names and designs.
 - Ultimate charge (2026-11-03 deck): captain 17s, then 20s / 25s / 30s in formation order (`ChargeOrder1101.cs`).
+- Levels (2026-11-04, `Docs/BALANCE-1104.md`): training cap starts at Lv12, +5 per fifth stage cleared in order; Lv17/27/37… need a 突破 paid in 声纹碎晶 / 声核 / gold. Tune stages to the recommended-level pass rates there (normal ~70%, elite/boss ~60%).
 - Use the latest user supplied reference for visual acceptance and reproduce it 1:1 except for explicit user changes.
 - Homepage characters keep the two separately authored homepage designs. The revised member PSD updates member portraits/avatars only; never replace or add homepage characters unless the user supplies new homepage art explicitly (2026-10-15).
 - Preserve source aspect ratios and native RGBA. Reject checkerboards or solid backgrounds presented as transparency.

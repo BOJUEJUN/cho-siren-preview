@@ -39,6 +39,8 @@ namespace ChoSiren.UI
                     return Resources.Load<Sprite>("Art/Reward1101/ticket-recruit-1101") ?? (ticketIcon != null ? ticketIcon : ticketIcon = BuildSymbol(true));
                 case CurrencyIds.CostumeTicket:
                     return Resources.Load<Sprite>("Art/Reward1101/ticket-costume-1101") ?? (ticketIcon != null ? ticketIcon : ticketIcon = BuildSymbol(true));
+                case CurrencyIds.VoiceCrystal: return Resources.Load<Sprite>("Art/Reward1101/material-crystal-1104");
+                case CurrencyIds.VoiceCore: return Resources.Load<Sprite>("Art/Reward1101/material-core-1104");
                 default: return null;
             }
         }

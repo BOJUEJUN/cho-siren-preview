@@ -658,6 +658,8 @@ namespace ChoSiren
                 case CurrencyIds.RecruitTicket: return "签约券";
                 case CurrencyIds.CostumeTicket: return "服装券";
                 case CurrencyIds.Shard: return "碎片";
+                case CurrencyIds.VoiceCrystal: return "声纹碎晶";
+                case CurrencyIds.VoiceCore: return "声核";
                 default: return currencyId ?? string.Empty;
             }
         }
@@ -672,6 +674,8 @@ namespace ChoSiren
                 case CurrencyIds.RecruitTicket: return Save.RecruitTickets;
                 case CurrencyIds.CostumeTicket: return Save.CostumeTickets;
                 case CurrencyIds.Shard: return Save.Shards;
+                case CurrencyIds.VoiceCrystal: return Save.VoiceCrystals;
+                case CurrencyIds.VoiceCore: return Save.VoiceCores;
                 default: return 0;
             }
         }
@@ -996,6 +1000,13 @@ namespace ChoSiren
             if (level >= MaxMemberLevel)
             {
                 message = $"{Members[memberIndex].Name} 已达到最高等级";
+                return false;
+            }
+
+            // 2026-11-04: stage progress and breakthroughs cap training (GameModelBreakthrough1104).
+            if (level >= LevelCapOf1104(memberIndex))
+            {
+                message = LevelCapReason1104(memberIndex);
                 return false;
             }
 
@@ -1744,6 +1755,7 @@ namespace ChoSiren
             if (dailyPerformanceGoalReached) rewards.Add((CurrencyIds.Diamond, DailyPerformanceDiamondReward));
 
             rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
+            AddMaterialRewards1104(stage, firstClear, context.Seed, rewards);
 
             LastAwardedAccessory = -1;
             TagRewards1101(RewardGrant1101.SourceBattle);
@@ -2113,6 +2125,8 @@ namespace ChoSiren
                 case CurrencyIds.RecruitTicket: Save.RecruitTickets -= amount; return true;
                 case CurrencyIds.CostumeTicket: Save.CostumeTickets -= amount; return true;
                 case CurrencyIds.Shard: Save.Shards -= amount; return true;
+                case CurrencyIds.VoiceCrystal: Save.VoiceCrystals -= amount; return true;
+                case CurrencyIds.VoiceCore: Save.VoiceCores -= amount; return true;
                 case CurrencyIds.Stamina: Save.Stamina -= amount; return true;
                 default: return false;
             }
@@ -2138,6 +2152,8 @@ namespace ChoSiren
                 case CurrencyIds.RecruitTicket: Save.RecruitTickets += amount; break;
                 case CurrencyIds.CostumeTicket: Save.CostumeTickets += amount; break;
                 case CurrencyIds.Shard: Save.Shards += amount; break;
+                case CurrencyIds.VoiceCrystal: Save.VoiceCrystals += amount; break;
+                case CurrencyIds.VoiceCore: Save.VoiceCores += amount; break;
                 default:
                     // Non-currency drops (accessories, costumes) are cosmetics owned once.
                     if (!Save.OwnedCostumes.Contains(itemId)) Save.OwnedCostumes.Add(itemId);

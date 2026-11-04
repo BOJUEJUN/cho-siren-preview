@@ -28,6 +28,8 @@ namespace ChoSiren.Panels
         private bool reduceMotion;
         private bool animating;
         private int quoteGold;
+        // 2026-11-04: the cost header and the 只扣星光币 line switch to the breakthrough's materials.
+        private Text costLabel, noDiamondLabel;
         private MemberPracticePlan plan;
         private MemberPracticeOutcome lastOutcome;
         private Coroutine swapRoutine;
@@ -136,12 +138,16 @@ namespace ChoSiren.Panels
             string team = captain ? " · 队长" : model.IsInTeam(memberIndex) ? " · 出战中" : string.Empty;
             memberMeta.text = $"{(string.IsNullOrEmpty(race) ? "未知种族" : race)} · {member.Career}{team}";
             careerChipText.text = member.Career;
-            levelText.text = $"<size=20>LV.</size>{level}<size=20><color=#B7AECF> / {GameModel.MaxMemberLevel}</color></size>";
-            float progress = Mathf.Clamp01(level / (float)GameModel.MaxMemberLevel);
+            int cap = model.LevelCapOf1104(memberIndex);
+            levelText.text = $"<size=20>LV.</size>{level}<size=20><color=#B7AECF> / {cap}</color></size>";
+            float progress = Mathf.Clamp01(level / (float)Mathf.Max(1, cap));
             levelFill.fillAmount = progress;
             SecondaryTasks038Chrome.SetProgressMarker(levelMarker, LevelBarX, LevelBarY, LevelBarW, LevelBarH, progress,
                 SirenStickerUi.Cyan);
-            levelCaption.text = level >= GameModel.MaxMemberLevel ? "已满级" : $"距满级 {GameModel.MaxMemberLevel - level}";
+            levelCaption.text = level >= GameModel.MaxMemberLevel ? "已满级"
+                : level < cap ? $"本阶段还能升 {cap - level} 级"
+                : model.NeedsBreakthrough1104(memberIndex) ? "可以突破"
+                : model.LevelCapReason1104(memberIndex);
             powerText.text = model.PowerOf(memberIndex).ToString("N0");
 
             ReadStats(memberIndex, level, out int vocal, out int rhythm, out int presence, out int resonance);
@@ -159,6 +165,14 @@ namespace ChoSiren.Panels
 
         private void RefreshQuote()
         {
+            if (model.NeedsBreakthrough1104(memberIndex) && !animating)
+            {
+                RefreshBreakthroughQuote1104();
+                return;
+            }
+            if (costLabel != null) costLabel.text = "单次消耗";
+            specialtyChip.gameObject.SetActive(true);
+            if (noDiamondLabel != null) { noDiamondLabel.text = "只扣星光币 · 不消耗星钻"; noDiamondLabel.color = SirenStickerUi.Muted; }
             bool canTrain = model.CanTrain(memberIndex, out quoteGold, out string reason);
             MemberDefinition member = GameModel.Members[memberIndex];
             plan = MemberTrainingPractice.BuildPlan(member.Career, quoteGold, reduceMotion);
@@ -183,7 +197,9 @@ namespace ChoSiren.Panels
             if (plan.DiamondCost != 0) quoteText.text += " · 异常：出现星钻消耗";
 
             string startText = animating ? "练习中…" : canTrain ? (lastOutcome == null ? "开始练习" : "再练一次")
-                : model.LevelOf(memberIndex) >= GameModel.MaxMemberLevel ? "已满级" : "星光币不足";
+                : model.LevelOf(memberIndex) >= GameModel.MaxMemberLevel ? "已满级"
+                : model.LevelOf(memberIndex) >= model.LevelCapOf1104(memberIndex) ? model.LevelCapReason1104(memberIndex)
+                : "星光币不足";
             if (animating) canTrain = false;
             SecondaryTasks038Chrome.SetState(startObject, canTrain,
                 canTrain ? (Color)Brand1025.Teal : SecondaryTasks038Chrome.EdgeDisabled,
@@ -193,6 +209,45 @@ namespace ChoSiren.Panels
                 SecondaryTasks038Chrome.SetState(againObject, canTrain, SecondaryTasks038Chrome.EdgeViolet,
                     SecondaryTasks038Chrome.InsetViolet, canTrain ? PanelKit.White : SirenStickerUi.Muted,
                     canTrain ? "再练一次" : startText);
+        }
+
+        /// <summary>At a breakthrough level the cost panel shows gold plus the materials owned / needed.</summary>
+        private void RefreshBreakthroughQuote1104()
+        {
+            bool can = model.CanBreakthrough1104(memberIndex, out GameModel.BreakCost1104 cost, out string reason);
+            quoteGold = cost.Gold;
+            int nextCap = Mathf.Min(model.ProgressLevelCap1104, model.BreakLevelOf1104(memberIndex) + GameModel.BreakSpacing1104);
+            actionText.text = "等级突破";
+            focusText.text = $"突破后等级上限 Lv{nextCap}";
+            specialtyChip.gameObject.SetActive(false);
+            if (costLabel != null) costLabel.text = "突破消耗";
+            quoteText.text = cost.Gold.ToString("N0");
+            quoteText.fontSize = 34;
+            quoteText.resizeTextMaxSize = 34;
+            quoteText.alignment = TextAnchor.MiddleLeft;
+            PanelKit.PlaceTop(quoteText.rectTransform, 534f, 40f, 126f, 54f);
+            quoteText.color = model.Save.Gold >= cost.Gold ? PanelKit.Gold : new Color32(255, 190, 92, 255);
+            quoteIcon.enabled = true;
+            goldOwned.text = $"持有 {model.Save.Gold:N0}";
+            goldOwned.color = model.Save.Gold >= cost.Gold ? SirenStickerUi.Muted : new Color32(255, 150, 120, 255);
+            goldChipValue.text = model.Save.Gold.ToString("N0");
+            var parts = new System.Collections.Generic.List<string>();
+            if (cost.Crystals > 0) parts.Add($"声纹碎晶 {model.Save.VoiceCrystals}/{cost.Crystals}");
+            if (cost.Cores > 0) parts.Add($"声核 {model.Save.VoiceCores}/{cost.Cores}");
+            if (noDiamondLabel != null)
+            {
+                noDiamondLabel.text = "突破材料：" + string.Join(" · ", parts);
+                noDiamondLabel.color = can || reason.StartsWith("星光币", StringComparison.Ordinal)
+                    ? (Color)SirenStickerUi.Cyan : new Color32(255, 150, 120, 255);
+            }
+            string label = can ? "突破" : reason.StartsWith("星光币", StringComparison.Ordinal) ? "星光币不足" : "材料不足";
+            SecondaryTasks038Chrome.SetState(startObject, can,
+                can ? (Color)Brand1025.Teal : SecondaryTasks038Chrome.EdgeDisabled,
+                can ? (Color)Brand1025.Teal : SecondaryTasks038Chrome.InsetDisabled,
+                can ? (Color)Brand1025.Ink : PanelKit.White, label);
+            if (againObject != null)
+                SecondaryTasks038Chrome.SetState(againObject, false, SecondaryTasks038Chrome.EdgeViolet,
+                    SecondaryTasks038Chrome.InsetViolet, SirenStickerUi.Muted, label);
         }
 
         private void RefreshReduceMotionLabel()
@@ -225,6 +280,14 @@ namespace ChoSiren.Panels
         public bool CommitTraining()
         {
             if (animating) return false;
+            if (model.NeedsBreakthrough1104(memberIndex))
+            {
+                bool done = model.Breakthrough1104(memberIndex, out string breakMessage);
+                Notify(breakMessage);
+                if (done) ModalPolish038Chrome.PlaySuccess();
+                RefreshMember();
+                return false;
+            }
             if (!model.CanTrain(memberIndex, out int cost, out string reason))
             {
                 Notify(reason);

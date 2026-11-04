@@ -40,6 +40,8 @@ namespace ChoSiren.Tests
             var fresh = new GameSave { HomeCharacterIndex = 0, StoryProgress = 100, Gold = 9000000 };
             fresh.UnlockedMembers = new System.Collections.Generic.List<int> { 0, 1, 2, 3, 4, 5, 6 };
             fresh.Team = new System.Collections.Generic.List<int> { 0, 1, 2, 3 };
+            // 2026-11-04: start under the stage-progress cap (Lv12 before 1-5) so practice can level up.
+            for (int i = 0; i < fresh.MemberLevels.Count; i++) fresh.MemberLevels[i] = 5;
             PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(fresh));
             foreach (var old in Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None)) Object.Destroy(old.gameObject);
             yield return null;
@@ -197,6 +199,62 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(1.6f);
                 Assert.That(panel.ResultVisible, Is.True);
                 Shot(camera, rt, prefix + "-06-result.png");
+            }
+            finally
+            {
+                Object.DestroyImmediate(camera.gameObject); rt.Release(); Object.DestroyImmediate(rt);
+            }
+        }
+
+        /// <summary>2026-11-04: the practice room at the stage cap, short of materials, ready to break through, and after.</summary>
+        [UnityTest]
+        public IEnumerator CaptureCapAndBreakthroughStates()
+        {
+            var camera = new GameObject("Practice1104Camera", typeof(Camera)).GetComponent<Camera>();
+            var rt = new RenderTexture(1080, 2288, 24);
+            try
+            {
+                camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = Color.black;
+                camera.orthographic = true; camera.targetTexture = rt;
+                var canvas = app.GetComponentInChildren<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 1;
+                foreach (var fitter in canvas.GetComponentsInChildren<SafeAreaFitter>(true))
+                {
+                    fitter.enabled = false;
+                    var safe = (RectTransform)fitter.transform;
+                    safe.anchorMin = Vector2.zero; safe.anchorMax = Vector2.one;
+                    safe.offsetMin = safe.offsetMax = Vector2.zero;
+                }
+                canvas.GetComponent<CanvasScaler>().matchWidthOrHeight = 0f;
+                GameModel model = Model();
+                int member = model.Save.Team[0];
+                model.Save.MemberLevels[member] = 12;
+                yield return OpenPractice(member);
+                yield return new WaitForSecondsRealtime(.8f);
+                MemberPracticePanel panel = Object.FindAnyObjectByType<MemberPracticePanel>();
+                Assert.That(Find(panel.transform, "PracticeLevelCaption").GetComponent<Text>().text, Does.Contain("1-5"));
+                Shot(camera, rt, "break1104-01-capped.png");
+
+                model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-5", Stars = 3 });
+                model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-10", Stars = 3 });
+                model.Save.MemberLevels[member] = 17;
+                model.Save.VoiceCrystals = 4;
+                yield return OpenPractice(member);
+                yield return new WaitForSecondsRealtime(.8f);
+                panel = Object.FindAnyObjectByType<MemberPracticePanel>();
+                Assert.That(Find(panel.transform, "PracticeNoDiamond").GetComponent<Text>().text, Does.Contain("4/10"));
+                Shot(camera, rt, "break1104-02-short.png");
+
+                model.Save.VoiceCrystals = 10;
+                yield return OpenPractice(member);
+                yield return new WaitForSecondsRealtime(.8f);
+                panel = Object.FindAnyObjectByType<MemberPracticePanel>();
+                Shot(camera, rt, "break1104-03-ready.png");
+                Find(panel.transform, "StartPractice").GetComponent<Button>().onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.8f);
+                Assert.That(model.BreaksOf1104(member), Is.EqualTo(1));
+                Assert.That(model.LevelCapOf1104(member), Is.EqualTo(22));
+                Shot(camera, rt, "break1104-04-after.png");
             }
             finally
             {

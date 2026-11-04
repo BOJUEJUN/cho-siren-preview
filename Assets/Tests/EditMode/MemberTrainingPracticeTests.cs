@@ -134,20 +134,22 @@ namespace ChoSiren.Tests
         [Test]
         public void RepeatedCommitSpendsGoldEachTimeAndStopsAtLevelCap()
         {
+            // 2026-11-04: the cap is the stage-progress cap (Lv12 before 1-5 is cleared), not only Lv100.
             var model = new GameModel();
             model.Save.Gold = 100000000;
-            model.Save.MemberLevels[0] = GameModel.MaxMemberLevel - 1;
+            int cap = model.LevelCapOf1104(0);
+            model.Save.MemberLevels[0] = cap - 1;
             int goldBefore = model.Save.Gold;
             MemberPracticePanel panel = MemberPracticePanel.Open(host.transform, model, 0);
 
             Assert.That(panel.CommitTraining(), Is.True);
-            Assert.That(model.LevelOf(0), Is.EqualTo(GameModel.MaxMemberLevel));
+            Assert.That(model.LevelOf(0), Is.EqualTo(cap));
             int spentOnce = goldBefore - model.Save.Gold;
             Assert.That(spentOnce, Is.GreaterThan(0));
 
-            Assert.That(panel.CommitTraining(), Is.False, "满级后不得继续扣费");
+            Assert.That(panel.CommitTraining(), Is.False, "到上限后不得继续扣费");
             Assert.That(model.Save.Gold, Is.EqualTo(goldBefore - spentOnce));
-            Assert.That(Find<Text>(panel.transform, "PracticeQuoteGold").text, Does.Contain("最高等级").Or.Contain("满级"));
+            Assert.That(Find<Text>(panel.transform, "PracticeQuoteGold").text, Does.Contain("解锁").Or.Contain("突破"));
         }
 
         [Test]

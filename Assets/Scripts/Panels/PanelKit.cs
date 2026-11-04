@@ -443,6 +443,8 @@ namespace ChoSiren.Panels
                 case "recruit-ticket": return "招募券";
                 case "costume-ticket": return "服装券";
                 case "shard": return "碎片";
+                case "voice-crystal": return "声纹碎晶";
+                case "voice-core": return "声核";
                 default: return "道具";
             }
         }
@@ -457,6 +459,8 @@ namespace ChoSiren.Panels
                 case "recruit-ticket": return Pink;
                 case "costume-ticket": return new Color32(255, 150, 230, 255);
                 case "shard": return new Color32(190, 160, 255, 255);
+                case "voice-crystal": return new Color32(28, 242, 236, 255);
+                case "voice-core": return new Color32(255, 95, 210, 255);
                 default: return Muted;
             }
         }

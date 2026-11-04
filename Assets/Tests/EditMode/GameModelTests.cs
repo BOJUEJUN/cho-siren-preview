@@ -129,8 +129,10 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.Diamonds, Is.EqualTo(219));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(83));
             Assert.That(model.StatsOf(0).Hp, Is.EqualTo(8360));
-            Assert.That(model.CanTrain(0, out int cost, out _), Is.False);
-            Assert.That(cost, Is.EqualTo(583077));
+            // 2026-11-04: Lv68 sits above the stage-progress cap, so training waits (and quotes nothing) until it opens.
+            Assert.That(model.CanTrain(0, out int cost, out string capReason), Is.False);
+            Assert.That(cost, Is.Zero);
+            Assert.That(capReason, Does.Contain("解锁").Or.Contain("突破").Or.Contain("上限"));
             Assert.That(model.Train(0, out _), Is.False);
             var reloaded = new GameModel(() => now);
             Assert.That(reloaded.LevelOf(0), Is.EqualTo(68));
@@ -982,10 +984,13 @@ namespace ChoSiren.Tests
             Assert.That(PlayerPrefs.GetString(SaveKey), Is.EqualTo(before));
             Assert.That(changed, Is.Zero);
 
-            SaveRaw(new GameSave { Gold = 0 });
+            // Below the stage-progress cap (Lv12 on a new save) so the gold check is what stops it.
+            var broke = new GameSave { Gold = 0 };
+            broke.MemberLevels[0] = 5;
+            SaveRaw(broke);
             model = CreateModel();
             Assert.That(model.CanTrain(0, out cost, out string reason), Is.False);
-            Assert.That(cost, Is.EqualTo(996), "费用不足时仍显示真实报价，而不是免费。");
+            Assert.That(cost, Is.EqualTo(180 + 5 * 12), "费用不足时仍显示真实报价，而不是免费。");
             Assert.That(reason, Does.Contain("星光币不足"));
 
             var capped = new GameSave();

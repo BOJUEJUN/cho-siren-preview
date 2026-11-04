@@ -61,8 +61,12 @@ namespace ChoSiren
             string race = MemberRaceFamily(m, memberIndex);
             Color raceColor = TeamRaceColor(race);
             int level = model.LevelOf(memberIndex);
-            bool canTrain = model.CanTrain(memberIndex, out int trainingCost, out _);
+            bool canTrain = model.CanTrain(memberIndex, out int trainingCost, out string trainReason);
             bool atCap = level >= GameModel.MaxMemberLevel;
+            // 2026-11-04: a breakthrough is done in the practice room, so it opens the room like a level-up does.
+            bool breakNow = model.NeedsBreakthrough1104(memberIndex);
+            bool canPractice = canTrain || breakNow;
+            int levelCap = model.LevelCapOf1104(memberIndex);
             bool inTeam = model.IsInTeam(memberIndex);
             bool captain = model.Save.Team.Count > 0 && model.Save.Team[0] == memberIndex;
             var stats = model.StatsOf(memberIndex);
@@ -120,8 +124,8 @@ namespace ChoSiren
                 if (!model.DeepTalk(memberIndex, out string message, out string dialogue)) { Toast(message); return; }
                 OpenDeepTalkResult(memberIndex, teamSlot, dialogue, before, model.AffectionOf(memberIndex));
             });
-            DetailDiamond(page, "DetailPractice", 26, 270, "练习室", "练", canTrain, () =>
-            { if (model.CanTrain(memberIndex, out _, out _)) OpenTrainingPractice(memberIndex, teamSlot); else Toast(atCap ? "已满级" : "星光币不足"); });
+            DetailDiamond(page, "DetailPractice", 26, 270, "练习室", "练", canPractice, () =>
+            { if (canPractice) OpenTrainingPractice(memberIndex, teamSlot); else Toast(atCap ? "已满级" : trainReason); });
             DetailDiamond(page, "DetailCaptain", 606, 150, captain ? "当前队长" : "设为队长", "队", !captain, () =>
             { if (!captain) ConfirmCaptain(memberIndex); });
 
@@ -140,7 +144,7 @@ namespace ChoSiren
             SirenStickerUi.SkinPanel(plate);
             BoardText038(plate.transform, "LvTag", "LV.", 17, White, 20, 30, 34, 26);
             BoardText038(plate.transform, "Level", level.ToString(), 36, DetailGold, 52, 10, 70, 50);
-            BoardText038(plate.transform, "LevelCap", "/" + GameModel.MaxMemberLevel, 17, Muted, 112, 30, 50, 26);
+            BoardText038(plate.transform, "LevelCap", "/" + levelCap, 17, Muted, 112, 30, 50, 26);
             Text name = BoardText038(plate.transform, "MemberName", m.Name, 34, White, 156, 8, colW - 168, 54, TextAnchor.MiddleRight);
             PanelKit.EnableBestFit(name, 22);
             SirenStickerUi.SkinTitle(name);
@@ -148,7 +152,8 @@ namespace ChoSiren
             GameObject levelChip = NewImage("DetailLevelChip", page, PunkUi.SlantFill, new Color32(60, 54, 74, 235));
             PlaceTop(levelChip.GetComponent<RectTransform>(), colX + 4, 458, 86, 26);
             levelChip.GetComponent<Image>().raycastTarget = false;
-            BoardText038(levelChip.transform, "Label", atCap ? "已满级" : canTrain ? "可升级" : "币不足", 13, Muted,
+            BoardText038(levelChip.transform, "Label", atCap ? "已满级" : canTrain ? "可升级" : breakNow ? "可突破"
+                : level >= levelCap ? "到上限" : "币不足", 13, Muted,
                 0, 0, 86, 26, TextAnchor.MiddleCenter);
 
             int affection = model.AffectionOf(memberIndex);
@@ -209,12 +214,13 @@ namespace ChoSiren
             teamToggle.GetComponent<Image>().color = new Color32(22, 18, 28, 255);
             BoardText038(teamToggle.transform, "Label", captain ? "队长出战中" : inTeam ? "出战中" : "加入编队", 19, DetailGold, 0, 0, 152, 54, TextAnchor.MiddleCenter);
             GameObject train = BoardButton038("Train", page, new Rect(colX + 160, 780, colW - 160, 54), () =>
-            { if (model.CanTrain(memberIndex, out _, out _)) OpenTrainingPractice(memberIndex, teamSlot); else Toast(atCap ? "已满级" : "星光币不足"); });
+            { if (canPractice) OpenTrainingPractice(memberIndex, teamSlot); else Toast(atCap ? "已满级" : trainReason); });
             train.GetComponent<Image>().sprite = PunkUi.SlantFill;
-            train.GetComponent<Image>().color = canTrain ? PunkUi.Hot : new Color32(90, 70, 100, 255);
-            BoardText038(train.transform, "Label", atCap ? "已满级" : "练习升级", 20, White, 0, 0, colW - 160, 54, TextAnchor.MiddleCenter);
+            train.GetComponent<Image>().color = canPractice ? PunkUi.Hot : new Color32(90, 70, 100, 255);
+            BoardText038(train.transform, "Label", atCap ? "已满级" : breakNow ? "突破" : level >= levelCap ? trainReason : "练习升级",
+                20, White, 0, 0, colW - 160, 54, TextAnchor.MiddleCenter);
             SirenStickerUi.SkinButton(teamToggle, false, true);
-            SirenStickerUi.SkinButton(train, canTrain, true);
+            SirenStickerUi.SkinButton(train, canPractice, true);
 
             // 小队 bar → race & role.
             GameObject squad = NewImage("DetailSquad", page, PunkUi.SlantFill, SirenStickerUi.Ink);

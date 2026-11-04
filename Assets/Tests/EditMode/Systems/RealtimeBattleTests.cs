@@ -21,8 +21,9 @@ namespace ChoSiren.Tests
         [TestCase(5, 342, 47, 6, 88)]
         [TestCase(10, 441, 57, 7, 176)]
         [TestCase(30, 1217, 131, 14, 2879)]
-        [TestCase(68, 8360, 629, 49, 583077)]
-        [TestCase(100, 42336, 2349, 135, 51057107)]
+        // 2026-11-04: training cost grows ×1.08 a level after Lv30 (was ×1.15 all the way).
+        [TestCase(68, 8360, 629, 49, 53618)]
+        [TestCase(100, 42336, 2349, 135, 629319)]
         public void CompoundingUsesEachAuthoredFormulaInsteadOfConflictingIllustrativeTables(
             int level, int hp, int attack, int defense, int trainingCost)
         {

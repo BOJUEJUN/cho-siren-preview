@@ -52,6 +52,7 @@ namespace ChoSiren
                 int gold = ScalePositiveReward(rawGold, difficulty.GoldRewardPermille);
                 if (gold > 0) rewards.Add((CurrencyIds.Gold, gold));
                 rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
+                AddMaterialRewards1104(stage, false, runSeed, rewards);
                 if (RecordSuccessfulPerformance()) dailyBonus += DailyPerformanceDiamondReward;
                 Report(TaskTriggers.BattleWin);
             }

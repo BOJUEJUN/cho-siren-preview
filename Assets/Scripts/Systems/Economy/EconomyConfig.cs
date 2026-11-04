@@ -12,10 +12,13 @@ namespace ChoSiren.Systems.Economy
         public const string RecruitTicket = "recruit-ticket";
         public const string CostumeTicket = "costume-ticket";
         public const string Shard = "shard";
+        /// <summary>声纹碎晶 / 声核: breakthrough materials (2026-11-04).</summary>
+        public const string VoiceCrystal = "voice-crystal";
+        public const string VoiceCore = "voice-core";
 
         public static readonly string[] All =
         {
-            Diamond, Gold, Stamina, RecruitTicket, CostumeTicket, Shard
+            Diamond, Gold, Stamina, RecruitTicket, CostumeTicket, Shard, VoiceCrystal, VoiceCore
         };
 
         public static bool IsKnown(string id) => Array.IndexOf(All, id) >= 0;

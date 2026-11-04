@@ -253,13 +253,13 @@ namespace ChoSiren.Panels
             focusText = Label(c, "PracticeFocus", string.Empty, 20, SirenStickerUi.Cyan, ActionX, 92f, 294f, 28f,
                 TextAnchor.MiddleLeft, FontStyle.Bold);
             PanelKit.EnableBestFit(focusText, 14);
-            Text noDiamond = Label(c, "PracticeNoDiamond", "只扣星光币 · 不消耗星钻", 16, SirenStickerUi.Muted,
+            Text noDiamond = noDiamondLabel = Label(c, "PracticeNoDiamond", "只扣星光币 · 不消耗星钻", 16, SirenStickerUi.Muted,
                 ActionX, 124f, 294f, 24f, TextAnchor.MiddleLeft, FontStyle.Bold);
             PanelKit.EnableBestFit(noDiamond, 12);
 
             Image divider = kit.NewImage("PracticeProjectDivider", c, null, new Color32(137, 62, 255, 150));
             PanelKit.PlaceTop(divider.rectTransform, 470f, 20f, 2f, 120f);
-            Label(c, "PracticeCostLabel", "单次消耗", 16, SirenStickerUi.Muted, 482f, 14f, 176f, 24f,
+            costLabel = Label(c, "PracticeCostLabel", "单次消耗", 16, SirenStickerUi.Muted, 482f, 14f, 176f, 24f,
                 TextAnchor.MiddleCenter, FontStyle.Bold);
             quoteIcon = kit.NewImage("PracticeQuoteCoin", c, PanelKit.CurrencyIcon("gold"), Color.white);
             quoteIcon.preserveAspect = true;

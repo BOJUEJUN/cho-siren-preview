@@ -18,7 +18,7 @@
     { "Id": "daily-idle-claim", "Title": "领取一次舞台收益", "Cadence": "daily", "Trigger": "claim-idle", "Target": 1,
       "Reward": { "Currency": "gold", "Amount": 150 } },
     { "Id": "daily-stamina-40", "Title": "消耗 40 点体力", "Cadence": "daily", "Trigger": "spend-stamina", "Target": 40,
-      "Reward": { "Currency": "gold", "Amount": 250 } },
+      "Reward": { "Currency": "voice-crystal", "Amount": 5 } },
     { "Id": "weekly-battle-10", "Title": "本周赢得 10 场剧情战斗", "Cadence": "weekly", "Trigger": "battle-win", "Target": 10,
       "Reward": { "Currency": "recruit-ticket", "Amount": 1 } },
     { "Id": "weekly-perform-15", "Title": "本周完成 15 次舞台演出", "Cadence": "weekly", "Trigger": "perform", "Target": 15,

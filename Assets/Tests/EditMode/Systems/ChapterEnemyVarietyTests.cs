@@ -61,11 +61,15 @@ namespace ChoSiren.Tests.Systems
             {
                 var stages = data.Stages.Where(stage => stage.Id.StartsWith(chapter)).ToList();
                 Assert.That(stages.Count, Is.EqualTo(10), chapter);
+                // 2026-11-03: chapter one follows the planning deck's lineup table, which fields 毒蚀蛛娘 and 回声无人机
+                // once each; chapter two still brings every enemy back at least twice.
                 foreach (string id in art)
-                    Assert.That(stages.Count(stage => stage.Enemies.Any(spawn => spawn.UnitId == id)), Is.GreaterThanOrEqualTo(2), chapter + id);
+                    Assert.That(stages.Count(stage => stage.Enemies.Any(spawn => spawn.UnitId == id)),
+                        Is.GreaterThanOrEqualTo(chapter == "stage-1-" ? 1 : 2), chapter + id);
                 foreach (StageDefinition elite in stages.Where(stage => stage.EncounterType == "elite"))
                     Assert.That(elite.Enemies[0].UnitId, Is.EqualTo("static-golem"), elite.Id);
-                Assert.That(stages.Max(stage => stage.Enemies.Select(spawn => spawn.UnitId).Distinct().Count()), Is.GreaterThanOrEqualTo(4), chapter);
+                Assert.That(stages.Max(stage => stage.Enemies.Select(spawn => spawn.UnitId).Distinct().Count()),
+                    Is.GreaterThanOrEqualTo(chapter == "stage-1-" ? 3 : 4), chapter);
             }
             // Tank and poison minions arrive after the tutorial fights; 毒蚀蛛娘 debuts with the elite at 1-3 (企划书).
             Assert.That(data.Stages.Take(3).Any(stage => stage.Enemies.Any(spawn => spawn.UnitId == "pulse-guard")), Is.False);
@@ -78,8 +82,9 @@ namespace ChoSiren.Tests.Systems
             TacticsManifest data = Load();
             // 2026-11-01 rosters (Docs/BALANCE-1101.md 怪物分配表); health and attack are re-tuned to the 通过率 targets
             // (Balance1101Tests), so only the shape and the budgets are pinned here.
-            int[] expectedCounts = { 3, 4, 3, 4, 4, 4, 4, 5, 4, 4 };
-            int[] expectedWaves = { 2, 2, 2, 2, 2, 2, 2, 3, 2, 2 };
+            // 2026-11-03: chapter-one lineups follow the planning deck (1-1 is a single wave of two 噪音幽影).
+            int[] expectedCounts = { 2, 3, 3, 4, 3, 3, 4, 5, 3, 2 };
+            int[] expectedWaves = { 1, 2, 2, 2, 2, 2, 2, 3, 2, 2 };
             int[] expectedLevels = { 1, 1, 1, 1, 10, 11, 12, 13, 14, 16 };
             List<StageDefinition> chapterOne = data.Stages.FindAll(item => item.Id.StartsWith("stage-1-"));
             Assert.That(chapterOne.Count, Is.EqualTo(10));

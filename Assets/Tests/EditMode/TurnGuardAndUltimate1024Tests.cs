@@ -64,7 +64,8 @@ namespace ChoSiren.Tests
         public void TappedUltimatePreservesTheOtherBars()
         {
             BattleSimulator battle = TurnBattle("stage-1-1");
-            battle.AdvanceFormationCharge1102(12000);
+            // 2026-11-03: the captain's bar fills in 17 s (was 12 s).
+            battle.AdvanceFormationCharge1102(17000);
             BattleUnit caster = battle.FindUnit(battle.FormationOrder1102[0]);
             var before = battle.Units.Where(u => u.Side == BattleSide.Player && u != caster).ToDictionary(u => u.Id, battle.EnergyOf);
             Assert.That(battle.TryCastUltimateNow(caster, UltimateTimingGrade.Miss), Is.True);

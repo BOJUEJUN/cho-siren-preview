@@ -468,8 +468,13 @@ namespace ChoSiren.Systems.Tactics
                 Math.Floor(basis * Math.Pow(rate, Math.Max(0, Math.Min(100, level) - 1))) * (1000 + equipment) / 1000.0,
                 MidpointRounding.AwayFromZero)));
 
-        public static int TrainingCostAtLevel(int level) => (int)Math.Min(int.MaxValue,
-            Math.Ceiling(50 * Math.Pow(1.15, Math.Max(0, Math.Min(100, level) - 1))));
+        // 2026-11-04: ×1.15 a level up to Lv30, then ×1.08 (Lv40 used to cost 11,647 a step; now 6,216).
+        public static int TrainingCostAtLevel(int level)
+        {
+            int l = Math.Max(1, Math.Min(100, level));
+            double cost = 50 * Math.Pow(1.15, Math.Min(l, 30) - 1) * Math.Pow(1.08, Math.Max(0, l - 30));
+            return (int)Math.Min(int.MaxValue, Math.Ceiling(cost));
+        }
 
         public static CombatStats EnemyStats(UnitDefinition unit, EnemySpawn spawn,
             int hpDifficultyPermille = 1000, int attackDifficultyPermille = 1000)

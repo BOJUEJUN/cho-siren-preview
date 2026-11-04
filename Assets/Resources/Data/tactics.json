@@ -1618,25 +1618,26 @@
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1189,
-          "HpScalePermille": 6267,
+          "ScalePermille": 1134,
+          "HpScalePermille": 5979,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 953,
-          "HpScalePermille": 6267,
+          "ScalePermille": 909,
+          "HpScalePermille": 5979,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 953,
-          "HpScalePermille": 6267,
-          "Wave": 1
+          "ScalePermille": 909,
+          "HpScalePermille": 5979,
+          "Wave": 1,
+          "BossPhase": 2
         }
       ],
       "Drops": {
@@ -1711,24 +1712,24 @@
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 3399,
-          "HpScalePermille": 17118,
+          "ScalePermille": 3617,
+          "HpScalePermille": 18214,
           "Wave": 0
         },
         {
           "UnitId": "purify-dancer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 3399,
-          "HpScalePermille": 17118,
+          "ScalePermille": 3617,
+          "HpScalePermille": 18214,
           "Wave": 0
         },
         {
           "UnitId": "purify-dancer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 3399,
-          "HpScalePermille": 17118,
+          "ScalePermille": 3617,
+          "HpScalePermille": 18214,
           "Wave": 1
         }
       ],
@@ -1804,32 +1805,32 @@
           "UnitId": "cheer-shield",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 4299,
-          "HpScalePermille": 26039,
+          "ScalePermille": 4428,
+          "HpScalePermille": 26820,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 4299,
-          "HpScalePermille": 26039,
+          "ScalePermille": 4428,
+          "HpScalePermille": 26820,
           "Wave": 0
         },
         {
           "UnitId": "cheer-shield",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 4299,
-          "HpScalePermille": 26039,
+          "ScalePermille": 4428,
+          "HpScalePermille": 26820,
           "Wave": 1
         },
         {
           "UnitId": "neon-scout",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 4299,
-          "HpScalePermille": 26039,
+          "ScalePermille": 4428,
+          "HpScalePermille": 26820,
           "Wave": 1
         }
       ],
@@ -1905,40 +1906,40 @@
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 4610,
-          "HpScalePermille": 35194,
+          "ScalePermille": 4287,
+          "HpScalePermille": 32730,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 4610,
-          "HpScalePermille": 35194,
+          "ScalePermille": 4287,
+          "HpScalePermille": 32730,
           "Wave": 0
         },
         {
           "UnitId": "echo-drone",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 4610,
-          "HpScalePermille": 35194,
+          "ScalePermille": 4287,
+          "HpScalePermille": 32730,
           "Wave": 1
         },
         {
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 4610,
-          "HpScalePermille": 35194,
+          "ScalePermille": 4287,
+          "HpScalePermille": 32730,
           "Wave": 1
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 4610,
-          "HpScalePermille": 35194,
+          "ScalePermille": 4287,
+          "HpScalePermille": 32730,
           "Wave": 2
         }
       ],
@@ -2014,24 +2015,24 @@
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 4011,
-          "HpScalePermille": 19755,
+          "ScalePermille": 4155,
+          "HpScalePermille": 20466,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 4011,
-          "HpScalePermille": 19755,
+          "ScalePermille": 4155,
+          "HpScalePermille": 20466,
           "Wave": 0
         },
         {
           "UnitId": "afterimage-diva",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 4011,
-          "HpScalePermille": 19755,
+          "ScalePermille": 4155,
+          "HpScalePermille": 20466,
           "Wave": 1
         }
       ],
@@ -2108,17 +2109,18 @@
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 735,
-          "HpScalePermille": 20700,
+          "ScalePermille": 839,
+          "HpScalePermille": 23637,
           "Wave": 0
         },
         {
           "UnitId": "static-golem",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 735,
-          "HpScalePermille": 20700,
-          "Wave": 1
+          "ScalePermille": 839,
+          "HpScalePermille": 23637,
+          "Wave": 1,
+          "BossPhase": 2
         }
       ],
       "Drops": {
@@ -2193,32 +2195,32 @@
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 7918,
-          "HpScalePermille": 29239,
+          "ScalePermille": 7277,
+          "HpScalePermille": 26871,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 7918,
-          "HpScalePermille": 29239,
+          "ScalePermille": 7277,
+          "HpScalePermille": 26871,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 7918,
-          "HpScalePermille": 29239,
+          "ScalePermille": 7277,
+          "HpScalePermille": 26871,
           "Wave": 1
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 7918,
-          "HpScalePermille": 29239,
+          "ScalePermille": 7277,
+          "HpScalePermille": 26871,
           "Wave": 1
         }
       ],
@@ -2294,32 +2296,32 @@
           "UnitId": "echo-drone",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 5011,
-          "HpScalePermille": 47699,
+          "ScalePermille": 4485,
+          "HpScalePermille": 42691,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 5011,
-          "HpScalePermille": 47699,
+          "ScalePermille": 4485,
+          "HpScalePermille": 42691,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 5011,
-          "HpScalePermille": 47699,
+          "ScalePermille": 4485,
+          "HpScalePermille": 42691,
           "Wave": 1
         },
         {
           "UnitId": "echo-drone",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 5011,
-          "HpScalePermille": 47699,
+          "ScalePermille": 4485,
+          "HpScalePermille": 42691,
           "Wave": 1
         }
       ],
@@ -2395,32 +2397,32 @@
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 3278,
-          "HpScalePermille": 28160,
+          "ScalePermille": 3183,
+          "HpScalePermille": 27343,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 3278,
-          "HpScalePermille": 28160,
+          "ScalePermille": 3183,
+          "HpScalePermille": 27343,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 3278,
-          "HpScalePermille": 28160,
+          "ScalePermille": 3183,
+          "HpScalePermille": 27343,
           "Wave": 1
         },
         {
           "UnitId": "neon-scout",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 3278,
-          "HpScalePermille": 28160,
+          "ScalePermille": 3183,
+          "HpScalePermille": 27343,
           "Wave": 1
         }
       ],
@@ -2496,40 +2498,40 @@
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 5624,
-          "HpScalePermille": 35119,
+          "ScalePermille": 4927,
+          "HpScalePermille": 30764,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 5624,
-          "HpScalePermille": 35119,
+          "ScalePermille": 4927,
+          "HpScalePermille": 30764,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 5624,
-          "HpScalePermille": 35119,
+          "ScalePermille": 4927,
+          "HpScalePermille": 30764,
           "Wave": 1
         },
         {
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 5624,
-          "HpScalePermille": 35119,
+          "ScalePermille": 4927,
+          "HpScalePermille": 30764,
           "Wave": 1
         },
         {
           "UnitId": "echo-drone",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 5624,
-          "HpScalePermille": 35119,
+          "ScalePermille": 4927,
+          "HpScalePermille": 30764,
           "Wave": 2
         }
       ],
@@ -2606,24 +2608,24 @@
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1100,
-          "HpScalePermille": 24082,
+          "ScalePermille": 1001,
+          "HpScalePermille": 21915,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 879,
-          "HpScalePermille": 24082,
+          "ScalePermille": 800,
+          "HpScalePermille": 21915,
           "Wave": 0
         },
         {
           "UnitId": "echo-drone",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 879,
-          "HpScalePermille": 24082,
+          "ScalePermille": 800,
+          "HpScalePermille": 21915,
           "Wave": 1,
           "BossPhase": 2
         },
@@ -2631,8 +2633,8 @@
           "UnitId": "neon-scout",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 879,
-          "HpScalePermille": 24082,
+          "ScalePermille": 800,
+          "HpScalePermille": 21915,
           "Wave": 1,
           "BossPhase": 2
         }
@@ -2709,32 +2711,32 @@
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 5688,
-          "HpScalePermille": 26993,
+          "ScalePermille": 5580,
+          "HpScalePermille": 26480,
           "Wave": 0
         },
         {
           "UnitId": "echo-drone",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 5688,
-          "HpScalePermille": 26993,
+          "ScalePermille": 5580,
+          "HpScalePermille": 26480,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 5688,
-          "HpScalePermille": 26993,
+          "ScalePermille": 5580,
+          "HpScalePermille": 26480,
           "Wave": 1
         },
         {
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 5688,
-          "HpScalePermille": 26993,
+          "ScalePermille": 5580,
+          "HpScalePermille": 26480,
           "Wave": 1
         }
       ],
@@ -2810,40 +2812,40 @@
           "UnitId": "velvet-hexer",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 9445,
-          "HpScalePermille": 28419,
+          "ScalePermille": 8973,
+          "HpScalePermille": 26998,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 9445,
-          "HpScalePermille": 28419,
+          "ScalePermille": 8973,
+          "HpScalePermille": 26998,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 9445,
-          "HpScalePermille": 28419,
+          "ScalePermille": 8973,
+          "HpScalePermille": 26998,
           "Wave": 1
         },
         {
           "UnitId": "neon-scout",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 9445,
-          "HpScalePermille": 28419,
+          "ScalePermille": 8973,
+          "HpScalePermille": 26998,
           "Wave": 1
         },
         {
           "UnitId": "pulse-guard",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 9445,
-          "HpScalePermille": 28419,
+          "ScalePermille": 8973,
+          "HpScalePermille": 26998,
           "Wave": 2
         }
       ],
@@ -2919,48 +2921,48 @@
           "UnitId": "neon-scout",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 7467,
-          "HpScalePermille": 29973,
+          "ScalePermille": 7445,
+          "HpScalePermille": 29883,
           "Wave": 0
         },
         {
           "UnitId": "echo-drone",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 7467,
-          "HpScalePermille": 29973,
+          "ScalePermille": 7445,
+          "HpScalePermille": 29883,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 7467,
-          "HpScalePermille": 29973,
+          "ScalePermille": 7445,
+          "HpScalePermille": 29883,
           "Wave": 1
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 7467,
-          "HpScalePermille": 29973,
+          "ScalePermille": 7445,
+          "HpScalePermille": 29883,
           "Wave": 1
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 7467,
-          "HpScalePermille": 29973,
+          "ScalePermille": 7445,
+          "HpScalePermille": 29883,
           "Wave": 2
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 1,
-          "ScalePermille": 7467,
-          "HpScalePermille": 29973,
+          "ScalePermille": 7445,
+          "HpScalePermille": 29883,
           "Wave": 2
         }
       ],
@@ -3036,40 +3038,40 @@
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 4858,
-          "HpScalePermille": 31034,
+          "ScalePermille": 4766,
+          "HpScalePermille": 30444,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 4858,
-          "HpScalePermille": 31034,
+          "ScalePermille": 4766,
+          "HpScalePermille": 30444,
           "Wave": 0
         },
         {
           "UnitId": "echo-drone",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 4858,
-          "HpScalePermille": 31034,
+          "ScalePermille": 4766,
+          "HpScalePermille": 30444,
           "Wave": 1
         },
         {
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 4858,
-          "HpScalePermille": 31034,
+          "ScalePermille": 4766,
+          "HpScalePermille": 30444,
           "Wave": 1
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 4858,
-          "HpScalePermille": 31034,
+          "ScalePermille": 4766,
+          "HpScalePermille": 30444,
           "Wave": 2
         }
       ],
@@ -3146,24 +3148,24 @@
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1317,
-          "HpScalePermille": 23400,
+          "ScalePermille": 1300,
+          "HpScalePermille": 23096,
           "Wave": 0
         },
         {
           "UnitId": "echo-drone",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 1317,
-          "HpScalePermille": 23400,
+          "ScalePermille": 1300,
+          "HpScalePermille": 23096,
           "Wave": 0
         },
         {
           "UnitId": "static-golem",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 1317,
-          "HpScalePermille": 23400,
+          "ScalePermille": 1300,
+          "HpScalePermille": 23096,
           "Wave": 1,
           "BossPhase": 2
         },
@@ -3171,8 +3173,8 @@
           "UnitId": "velvet-hexer",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 1317,
-          "HpScalePermille": 23400,
+          "ScalePermille": 1300,
+          "HpScalePermille": 23096,
           "Wave": 1,
           "BossPhase": 2
         },
@@ -3180,8 +3182,8 @@
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 1,
-          "ScalePermille": 1317,
-          "HpScalePermille": 23400,
+          "ScalePermille": 1300,
+          "HpScalePermille": 23096,
           "Wave": 2,
           "BossPhase": 3
         }

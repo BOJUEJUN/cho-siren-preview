@@ -34,7 +34,8 @@ namespace ChoSiren.Systems.Tactics
             if (member >= 0)
             {
                 bool affordable = model.CanTrain(member, out int cost, out _);
-                if (affordable) text.Append($"训练{GameModel.Members[member].Name}需{cost:N0}星光币。");
+                if (model.NeedsBreakthrough1104(member)) text.Append($"{GameModel.Members[member].Name}可以突破，去练习室。");
+                else if (affordable) text.Append($"训练{GameModel.Members[member].Name}需{cost:N0}星光币。");
                 else if (cost > 0)
                 {
                     text.Append($"训练需{cost:N0}星光币；星光币不足，");
