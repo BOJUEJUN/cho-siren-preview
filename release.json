@@ -1,5 +1,5 @@
 {
-  "version": "0.9.33",
+  "version": "0.9.32",
   "releaseId": "WEB-20261103-DRESS-LAB-R164A",
   "date": "2026-11-03",
   "name": "造型工坊试玩页",
@@ -19,5 +19,6 @@
   "knownLimits": [
     "Region selection is colour-based on the existing 512x704 member art, not per-part masks; similar neighbouring colours (white dress and silver armour) can be selected together.",
     "Not yet in Unity; standalone web prototype at /dress-lab/."
-  ]
+  ],
+  "versionNote": "R164A 只新增独立的 /dress-lab/ 网页，游戏包仍是 0.9.32；版本号与 iPhone、桌面、安卓和原生更新清单保持一致（2026-11-03 由 0.9.33 改回）。"
 }
