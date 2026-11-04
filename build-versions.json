@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "7c360832be63ac1fd1d41c35debf6437.data.unityweb",
+    "374b72e092ac4b64726dbf50fa82dde9.framework.js.unityweb",
+    "d4ada974f0ec6c043ce08c31d9524dd9.wasm.unityweb",
+    "ebee467f3c6a5a868a3d2b72ebfeb7d9.loader.js"
+  ],
+  "previous": [
     "6683e548bedac7e09575f944429c8b92.data.unityweb",
     "5ead8effcc4eb37786847754a8b2b7f3.framework.js.unityweb",
     "5037b2b323ae3557aae791be67f9ea03.wasm.unityweb",
     "8f86f8eb47f8166412a668287dadd5c0.loader.js"
   ],
-  "previous": [
-    "328b25d3d1867a74cb6c8f958953d127.data.unityweb",
-    "3409255df7c9642fe5bf6af92fd02d88.framework.js.unityweb",
-    "60fe5f444bec6787e168ea56a61eca2c.wasm.unityweb",
-    "23e098d1137ed8972be12a9553285b9e.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.34",
+      "releaseId": "UI-20261103-DECK-BOSSES-R165",
+      "files": [
+        "6683e548bedac7e09575f944429c8b92.data.unityweb",
+        "5ead8effcc4eb37786847754a8b2b7f3.framework.js.unityweb",
+        "5037b2b323ae3557aae791be67f9ea03.wasm.unityweb",
+        "8f86f8eb47f8166412a668287dadd5c0.loader.js"
+      ]
+    },
     {
       "version": "0.9.32",
       "releaseId": "WEB-20261103-DRESS-LAB-R164A",
