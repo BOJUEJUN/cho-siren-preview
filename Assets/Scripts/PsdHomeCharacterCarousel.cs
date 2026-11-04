@@ -36,6 +36,13 @@ namespace ChoSiren
         /// The idle clips are children of the portrait and move with it.
         /// </summary>
         public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 54f };
+        /// <summary>
+        /// 2026-11-04 (赵金 "第四个角色可以歪一点"): degrees each idol turns counter-clockwise about her face so her
+        /// head reads upright; 粉珀人鱼's eye line falls ~8° to the right. The face stays where the centring put it.
+        /// </summary>
+        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 6f };
+        // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
+        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(365f, 397f) };
         public int Index { get; private set; }
         public bool Switching { get; private set; }
         public bool HasPerformance => Index == 0;
@@ -125,11 +132,24 @@ namespace ChoSiren
             Place(portrait.rectTransform, p.x * scale + shift, p.y * scale, p.z * scale, p.w * scale);
             Place(outline.rectTransform, o.x * scale + shift, o.y * scale, o.z * scale, o.w * scale);
             portrait.rectTransform.localScale = outline.rectTransform.localScale = Vector3.one;
+            Tilt(portrait.rectTransform, index); Tilt(outline.rectTransform, index);
             portrait.enabled = outline.enabled = true;
             motion.SetCharacter(portrait.rectTransform); motion.SetOutline(outline.rectTransform);
             motion.SetSpeaker(index);
             PsdHomeCharacterBridge.SetIdle(idols == null && HasPerformance && isActiveAndEnabled);
             idols?.ShowIdol(index, portrait.rectTransform);
+        }
+
+        // Turns a top-left-pivoted layer about the idol's face by moving its pivot so the face point stays put.
+        private static void Tilt(RectTransform rect, int index)
+        {
+            float degrees = Tilt1104[index];
+            rect.localRotation = Quaternion.Euler(0f, 0f, degrees);
+            if (Mathf.Approximately(degrees, 0f)) return;
+            Vector2 face = new Vector2(TiltPivot1104[index].x, -TiltPivot1104[index].y);
+            Vector2 v = face - rect.anchoredPosition;
+            float r = degrees * Mathf.Deg2Rad, c = Mathf.Cos(r), s = Mathf.Sin(r);
+            rect.anchoredPosition = face - new Vector2(v.x * c - v.y * s, v.x * s + v.y * c);
         }
 
         public void Respond()
