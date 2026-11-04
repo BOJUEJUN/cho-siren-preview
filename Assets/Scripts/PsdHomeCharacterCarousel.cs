@@ -38,9 +38,9 @@ namespace ChoSiren
         public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 54f };
         /// <summary>
         /// 2026-11-04 (赵金 "第四个角色可以歪一点…上面往右边歪下面往左边"): degrees each idol turns (negative = clockwise) about her face;
-        /// 粉珀人鱼 leans 6° clockwise, top to the right. The face stays where the centring put it.
+        /// 粉珀人鱼 leans 2° clockwise (6° was too much: 用户箭头 上往左、下往右). The face stays where the centring put it.
         /// </summary>
-        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, -6f };
+        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, -2f };
         // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
         private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(365f, 397f) };
         public int Index { get; private set; }
