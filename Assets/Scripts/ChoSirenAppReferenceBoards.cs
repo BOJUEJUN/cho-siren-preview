@@ -209,7 +209,7 @@ namespace ChoSiren
             }
             Text level = profile.Find("TeamAverageLevel")?.GetComponent<Text>();
             if (level == null)
-                level = BoardText038(profile, "TeamAverageLevel", "LV." + TeamAverageLevel,
+                level = BoardText038(profile, "TeamAverageLevel", "LV." + model.AccountLevel1104,
                     11, Muted, layout.Level.x, layout.Level.y, layout.Level.width, layout.Level.height);
             PlaceTop(level.rectTransform, layout.Level.x, layout.Level.y,
                 layout.Level.width, layout.Level.height);

@@ -498,7 +498,7 @@ namespace ChoSiren
                 psdIdleBadge.SetActive(model.CanClaimIdleIncome &&
                     (idle.AmountOf(CurrencyIds.Gold) > 0 || idle.AmountOf(CurrencyIds.Diamond) > 0));
             }
-            if (psdLevel != null) psdLevel.text = "LV." + TeamAverageLevel;
+            if (psdLevel != null) psdLevel.text = "LV." + model.AccountLevel1104;
             if (psdPower != null) psdPower.text = "战力 " + model.TeamPower.ToString("N0");
         }
 

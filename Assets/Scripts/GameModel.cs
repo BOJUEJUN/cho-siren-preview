@@ -1164,6 +1164,7 @@ namespace ChoSiren
                 message = $"演出完成！星光币 +{goldReward}（今日 {Save.DailyPerformances}/{DailyPerformanceGoal}）";
             }
 
+            GainAccountXp1104(PerformanceStaminaCost * XpPerStamina1104);
             SaveState();
             return true;
         }
@@ -1236,6 +1237,7 @@ namespace ChoSiren
             TagRewards1101(RewardGrant1101.SourceCheckIn);
             GrantItemInternal(itemId, amount);
             Report(TaskTriggers.CheckIn);
+            GainAccountXp1104(CheckInXp1104);
             SaveState();
             message = $"签到成功：连续第 {Save.CheckInDay} 天，" + FormatRewards(new List<(string, int)> { (itemId, amount) });
             return true;
@@ -1294,6 +1296,8 @@ namespace ChoSiren
 
             TagRewards1101(RewardGrant1101.SourceTask);
             GrantItemInternal(reward.Currency, reward.Amount);
+            TaskDefinition claimed = economy.Tasks?.FirstOrDefault(task => task.Id == taskId);
+            GainAccountXp1104(claimed != null && claimed.Cadence == TaskCadence.Weekly ? WeeklyTaskXp1104 : DailyTaskXp1104);
             SaveState();
             message += $"，{CurrencyName(reward.Currency)} +{reward.Amount}";
             return true;
@@ -1789,6 +1793,7 @@ namespace ChoSiren
             Report(TaskTriggers.BattleWin);
             // Sharing the stage with the deployed members is the main affection source.
             GainTeamAffection(2 + stars);
+            GainAccountXp1104(stage.StaminaCost * XpPerStamina1104 * (firstClear ? 2 : 1));
             SaveState();
 
             string difficultyName = DifficultyProfileFor(context.Difficulty).Name;
@@ -1844,7 +1849,7 @@ namespace ChoSiren
                 Save.StoryFlags = runner.Flags.Distinct(StringComparer.Ordinal).OrderBy(flag => flag, StringComparer.Ordinal).ToList();
             }
 
-            if (!Save.CompletedStories.Contains(storyId)) Save.CompletedStories.Add(storyId);
+            if (!Save.CompletedStories.Contains(storyId)) { Save.CompletedStories.Add(storyId); GainAccountXp1104(StoryXp1104); }
             Report(TaskTriggers.ReadStory);
             SaveState();
         }
@@ -2442,6 +2447,7 @@ namespace ChoSiren
             int loadedSchemaVersion = Save.SchemaVersion;
             Save.Diamonds = Mathf.Max(0, Save.Diamonds);
             Save.Gold = Mathf.Max(0, Save.Gold);
+            EnsureAccountLevel1104();
             // 2026-11-04 (用户: 120 满体力签到领 30，体力没变): rewards may lift stamina past the regen cap (StaminaRegen keeps
             // overflow and simply stops regenerating); only the overflow ceiling clamps here.
             Save.Stamina = Mathf.Clamp(Save.Stamina, 0, StaminaOverflowCap);

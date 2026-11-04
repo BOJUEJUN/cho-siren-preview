@@ -112,8 +112,22 @@ namespace ChoSiren
             renameButton.targetGraphic = renameHit;
             renameButton.onClick.AddListener(() => { VisualA1101.Click(); OpenPlayerContract1028(false, null); });
             rename.gameObject.AddComponent<VisualA1101Motion>().Press();
-            Text level = VisualA1101.Number(body, "ProfileLevel", $"LV.{TeamAverageLevel}", 20, VisualA1101.Teal, TextAnchor.MiddleLeft);
-            VisualA1101.Place(level.rectTransform, infoX, 54f, 120f, 28f);
+            // 2026-11-04 经纪人等级 (separate from member levels) with this level's experience bar.
+            Text level = VisualA1101.Number(body, "ProfileLevel", $"LV.{model.AccountLevel1104}", 20, VisualA1101.Teal, TextAnchor.MiddleLeft);
+            VisualA1101.Place(level.rectTransform, infoX, 54f, 80f, 28f);
+            int xpNeed = GameModel.XpToNext1104(model.AccountLevel1104);
+            float barX = infoX + 84f, barW = width - infoX - 84f - 58f;
+            Image xpTrack = VisualA1101.NewImage("ProfileXpTrack", body, RoundedSprite(6), new Color(1f, 1f, 1f, .14f));
+            xpTrack.type = Image.Type.Sliced;
+            VisualA1101.Place(xpTrack.rectTransform, barX, 58f, barW, 8f);
+            Image xpFill = VisualA1101.NewImage("ProfileXpFill", body, RoundedSprite(6), VisualA1101.Teal);
+            xpFill.type = Image.Type.Sliced;
+            float xpShare = model.AccountLevelMaxed1104 ? 1f : Mathf.Clamp01(model.AccountXp1104 / (float)xpNeed);
+            VisualA1101.Place(xpFill.rectTransform, barX, 58f, Mathf.Max(8f, barW * xpShare), 8f);
+            xpFill.enabled = xpShare > 0f;
+            Text xpText = VisualA1101.Label(body, "ProfileXp", model.AccountLevelMaxed1104 ? "已满级"
+                : $"经验 {model.AccountXp1104:N0}/{xpNeed:N0}", 13, VisualA1101.Muted, TextAnchor.MiddleLeft);
+            VisualA1101.Place(xpText.rectTransform, barX, 66f, barW, 20f);
             RectTransform bolt = VisualA1101.NeonIcon(body, "ProfilePowerIcon", "bolt", VisualA1101.Gold, 40f);
             VisualA1101.Place(bolt, infoX - 4f, 88f, 40f, 40f);
             Text power = VisualA1101.Number(body, "ProfilePower", model.TeamPower.ToString("N0"), 38, VisualA1101.Gold, TextAnchor.MiddleLeft);
@@ -179,7 +193,18 @@ namespace ChoSiren
                 tile.gameObject.AddComponent<VisualA1101Motion>().Pop(.12f + index * .05f);
             }
 
-            const float actionTop = 404f;
+            // The next 签约券 level and what it pays.
+            int milestone = model.NextMilestoneLevel1104;
+            if (milestone > 0)
+            {
+                string pays = string.Join(" · ", GameModel.LevelReward1104(milestone)
+                    .Where(r => r.ItemId != Systems.Economy.CurrencyIds.Gold && r.ItemId != Systems.Economy.CurrencyIds.Stamina)
+                    .Select(r => $"{GameModel.CurrencyName(r.ItemId)}×{r.Amount}"));
+                Text next = VisualA1101.Label(body, "ProfileNextReward", $"LV.{milestone} 奖励：{pays}，每升一级送星光币和体力",
+                    14, VisualA1101.Muted, TextAnchor.MiddleCenter);
+                VisualA1101.Place(next.rectTransform, 0f, 392f, width, 24f);
+            }
+            const float actionTop = 424f;
             float half = (width - 12f) * .5f;
             IconButton1101(body, "ProfileMembers", "cards", "图鉴", 20,
                 () => { CloseModal(); ShowScreen("members"); }, ModalPolish038ButtonStyle.Secondary, 0f, actionTop, half, 60f, 36f);

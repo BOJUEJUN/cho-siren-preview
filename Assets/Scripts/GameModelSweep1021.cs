@@ -81,6 +81,7 @@ namespace ChoSiren
             }
             foreach (var pair in granted) lastBattleRewards.Add((pair.Key, pair.Value));
             GainTeamAffection(times);
+            GainAccountXp1104(stage.StaminaCost * XpPerStamina1104 * times);
             SaveState();
             message = $"扫荡 ×{times} 完成，体力 -{cost}：{FormatRewards(lastBattleRewards.Where(r => AccessoryIndexForItem(r.ItemId) < 0).ToList())}";
             if (equipmentNotes.Count > 0) message += "\n" + string.Join("\n", equipmentNotes);

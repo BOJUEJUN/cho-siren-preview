@@ -14,6 +14,8 @@ namespace ChoSiren
         public const string SourcePerform = "perform";
         public const string SourceExchange = "exchange";
         public const string SourceStory = "story";
+        /// <summary>经纪人升级 rewards (2026-11-04).</summary>
+        public const string SourceLevelUp = "levelup";
         /// <summary>Stage settlement: the victory page shows these itself, so the global popup skips them.</summary>
         public const string SourceBattle = "battle";
 

@@ -46,7 +46,8 @@ namespace ChoSiren.Tests
         [UnityTest]
         public IEnumerator CaptureEachHomeIdol([Values(0, 1, 2, 3)] int index)
         {
-            var saveData = new GameSave { HomeCharacterIndex = index, StoryProgress = 100, PlayerName = "经纪人" };
+            var saveData = new GameSave { HomeCharacterIndex = index, StoryProgress = 100, PlayerName = "经纪人",
+                AccountLevel1104 = 7, AccountXp1104 = 300 };
             saveData.CompletedStories.Add(GameModel.PrologueStoryId);
             PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(saveData));
             PlayerPrefs.SetInt(AgreementKey, 1);
@@ -108,6 +109,11 @@ namespace ChoSiren.Tests
                 File.WriteAllBytes(Path.Combine(Out, $"idol-{index}.png"), shot.EncodeToPNG());
                 UnityEngine.Object.Destroy(shot);
                 RectTransform r = portrait.rectTransform;
+                var profileNode = canvas.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(t => t.name == "AccountXpFill1104");
+                if (profileNode != null)
+                    File.WriteAllText(Path.Combine(Out, $"xp-{index}.txt"), string.Join("\n", profileNode.parent.Cast<Transform>()
+                        .Select(t => $"{t.GetSiblingIndex()} {t.name} active={t.gameObject.activeInHierarchy} pos={((RectTransform)t).anchoredPosition} size={((RectTransform)t).sizeDelta}")));
+                else File.WriteAllText(Path.Combine(Out, $"xp-{index}.txt"), "no ring");
                 File.WriteAllText(Path.Combine(Out, $"idol-{index}.txt"),
                     $"pos={r.anchoredPosition} size={r.sizeDelta} rot={r.localEulerAngles.z} pivot={r.pivot}");
             }

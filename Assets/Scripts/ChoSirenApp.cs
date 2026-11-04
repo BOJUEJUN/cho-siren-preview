@@ -370,8 +370,21 @@ namespace ChoSiren
             route?.Invoke();
         }
 
+        private float levelUpCheckAt1104;
+
         private void Update()
         {
+            // 2026-11-04: 经纪人升级 rewards wait until no battle is on screen, then show as their own reward popup.
+            if (model != null && model.PendingLevelUpCount1104 > 0 && Time.unscaledTime >= levelUpCheckAt1104)
+            {
+                levelUpCheckAt1104 = Time.unscaledTime + .5f;
+                if (FindAnyObjectByType<Panels.TacticsBattlePanel>() == null)
+                {
+                    int reached = model.ClaimLevelUps1104();
+                    if (reached > 0) UI.RewardGain1101.Absorb($"经纪人升级：LV.{reached}");
+                }
+            }
+
             if (Input.GetMouseButtonDown(0) || Input.anyKeyDown ||
                 (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
                 ResumeMediaAfterUserGesture();
@@ -1666,7 +1679,7 @@ namespace ChoSiren
             int cap = model.StaminaCap;
             staminaText.text = $"{model.Save.Stamina}/{cap}";
             Text average = safeRoot.Find("TopBar/Profile/TeamAverageLevel")?.GetComponent<Text>();
-            if (average != null) average.text = "LV." + TeamAverageLevel;
+            if (average != null) average.text = "LV." + model.AccountLevel1104;
             FormatProfile1103();
         }
 

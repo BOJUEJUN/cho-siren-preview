@@ -46,6 +46,30 @@ namespace ChoSiren
                 if (shape != null) { shape.sprite = CircleSprite1103(); shape.type = Image.Type.Simple; }
                 if (visual != null) visual.SetSiblingIndex(avatarMask.GetSiblingIndex() + 1);
             }
+            // 2026-11-04 经纪人经验: a ring on the avatar's art ring fills clockwise from the top with this level's XP.
+            Transform track = profile.Find("AccountXpTrack1104"), fill = profile.Find("AccountXpFill1104");
+            if (track == null)
+            {
+                track = new GameObject("AccountXpTrack1104", typeof(RectTransform), typeof(Image)).transform;
+                track.SetParent(profile, false);
+                fill = new GameObject("AccountXpFill1104", typeof(RectTransform), typeof(Image)).transform;
+                fill.SetParent(profile, false);
+            }
+            float ringD = d + 6f;
+            foreach (Transform ring in new[] { track, fill })
+            {
+                Image img = ring.GetComponent<Image>();
+                img.sprite = RingSprite1104(); img.raycastTarget = false;
+                PlaceTop((RectTransform)ring, cx - ringD * .5f, cy - ringD * .5f, ringD, ringD);
+                ring.SetAsLastSibling();
+            }
+            track.GetComponent<Image>().color = new Color(0f, 0f, 0f, .55f);
+            Image fillImage = fill.GetComponent<Image>();
+            fillImage.color = Brand1025.Teal;
+            fillImage.type = Image.Type.Filled;
+            fillImage.fillMethod = Image.FillMethod.Radial360;
+            fillImage.fillOrigin = (int)Image.Origin360.Top;
+            fillImage.fillClockwise = true;
             // The tap target for the avatar picker follows the circle (it lives on the bar, above the plaque).
             Transform avatarHit = profile.parent != null ? profile.parent.Find("AvatarHit") : null;
             if (avatarHit != null)
@@ -115,9 +139,38 @@ namespace ChoSiren
             text.transform.SetAsLastSibling();
         }
 
+        static Sprite ring1104;
+
+        /// <summary>A 256px anti-aliased annulus (ring 7% of the diameter) for the account XP ring.</summary>
+        static Sprite RingSprite1104()
+        {
+            if (ring1104 != null) return ring1104;
+            const int n = 256;
+            var texture = new Texture2D(n, n, TextureFormat.RGBA32, false) { hideFlags = HideFlags.DontSave };
+            var pixels = new Color32[n * n];
+            float r = n * .5f, inner = r * .86f;
+            for (int y = 0; y < n; y++)
+                for (int x = 0; x < n; x++)
+                {
+                    float dist = Mathf.Sqrt((x + .5f - r) * (x + .5f - r) + (y + .5f - r) * (y + .5f - r));
+                    float a = Mathf.Clamp01(r - dist) * Mathf.Clamp01(dist - inner);
+                    pixels[y * n + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+                }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            ring1104 = Sprite.Create(texture, new Rect(0, 0, n, n), new Vector2(.5f, .5f), 100f, 0, SpriteMeshType.FullRect);
+            ring1104.hideFlags = HideFlags.DontSave;
+            return ring1104;
+        }
+
         private void FormatProfile1103()
         {
             if (teamLevelText == null || model == null) return;
+            Transform profileRoot = teamLevelText.transform.parent;
+            Image xpFill = profileRoot != null ? profileRoot.Find("AccountXpFill1104")?.GetComponent<Image>() : null;
+            if (xpFill != null)
+                xpFill.fillAmount = model.AccountLevelMaxed1104 ? 1f
+                    : Mathf.Clamp01(model.AccountXp1104 / (float)GameModel.XpToNext1104(model.AccountLevel1104));
             if (model.Save.Team.Count == 0) { teamLevelText.text = "尚未编队"; return; }
             teamLevelText.text = $"战力 <color=#{ColorUtility.ToHtmlStringRGB(ProfileGold)}>{model.TeamPower:N0}</color>";
         }
