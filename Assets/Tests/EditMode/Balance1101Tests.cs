@@ -21,6 +21,7 @@ namespace ChoSiren.Tests
         private const int TargetSeeds = 200;
         private const int ReportSeeds = 100;
         private static readonly string[] ArtEnemies = { "neon-scout", "noise-wraith", "pulse-guard", "velvet-hexer", "echo-drone", "static-golem" };
+        private static readonly string[] DeckEnemies = { "purify-dancer", "cheer-shield", "afterimage-diva" };
 
         /// <summary>Spam = 手动狂投 (2026-11-01c): before every own action spend every 骰子豆 on the best two dice.</summary>
         public enum Mode { Auto, NoReroll, NoDice, Idle, Spam }
@@ -205,12 +206,16 @@ namespace ChoSiren.Tests
         [Test]
         public void UltimateChargeFollowsPositionWithoutMovingTheNewCaptain()
         {
+            // 2026-11-03 planning deck: the captain charges first (17s), the others follow formation order.
             BattleSimulator battle = Start("stage-1-1", 1, -1, 5);
             BattleUnit[] team = battle.Units.Where(u => u.Side == BattleSide.Player).ToArray();
-            CollectionAssert.AreEqual(new[] { 1000, 800, 600, 400 }, team.Select(battle.ChargeOrderPermille).ToArray());
+            int[] order = battle.FormationOrder1102.ToArray();
+            CollectionAssert.AreEqual(new[] { 1000, 850, 680, 567 }, team.Select(battle.ChargeOrderPermille).ToArray());
             Assert.That(battle.CurrentLeaderId, Is.EqualTo(team[0].Id));
             Assert.That(battle.TrySwapCaptain(team[2].Id, out string message), Is.True, message);
-            CollectionAssert.AreEqual(new[] { 1000, 800, 600, 400 }, team.Select(battle.ChargeOrderPermille).ToArray(), "Changing captain preserves positions");
+            CollectionAssert.AreEqual(order, battle.FormationOrder1102.ToArray(), "Changing captain never moves a card");
+            CollectionAssert.AreEqual(new[] { 850, 680, 1000, 567 }, team.Select(battle.ChargeOrderPermille).ToArray(),
+                "The new captain releases first; the rest keep their formation order");
         }
 
         // ------------------------------------------------------------------ 怪物分配
@@ -219,12 +224,14 @@ namespace ChoSiren.Tests
         public void EveryEnemyWithArtFightsInBothChaptersWithItsOwnSkill()
         {
             var tactics = NewModel(1).Tactics;
-            foreach (string chapter in new[] { "stage-1-", "stage-2-" })
-            {
-                var stages = tactics.Stages.Where(s => s.Id.StartsWith(chapter)).ToList();
-                foreach (string id in ArtEnemies)
-                    Assert.That(stages.Count(s => s.Enemies.Any(e => e.UnitId == id)), Is.GreaterThanOrEqualTo(2), $"{chapter} {id}");
-            }
+            // 2026-11-03: chapter one follows the planning deck's 1-1..1-10 table (all eight enemies + the elite appear);
+            // chapter two keeps every original enemy in at least two fights.
+            var chapterOne = tactics.Stages.Where(s => s.Id.StartsWith("stage-1-")).ToList();
+            foreach (string id in ArtEnemies.Concat(DeckEnemies))
+                Assert.That(chapterOne.Count(s => s.Enemies.Any(e => e.UnitId == id)), Is.GreaterThanOrEqualTo(1), "stage-1- " + id);
+            var chapterTwo = tactics.Stages.Where(s => s.Id.StartsWith("stage-2-")).ToList();
+            foreach (string id in ArtEnemies)
+                Assert.That(chapterTwo.Count(s => s.Enemies.Any(e => e.UnitId == id)), Is.GreaterThanOrEqualTo(2), "stage-2- " + id);
             // Each reworked role shows up in real chapter-one fights (11-01c: 12 seeds — the retuned 1-3 elite fight is
             // short enough that its 蛛娘 sometimes falls before her venom in the first few).
             var skills = new HashSet<string>();

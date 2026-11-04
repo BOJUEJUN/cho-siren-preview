@@ -259,9 +259,10 @@
       "script": "stage-1-1",
       "line": 4,
       "subject": "feiyin",
-      "zh": "放心，{player}。区区斥候，唱两句就散了。",
-      "clip": "Story/stage-1-1-l4",
-      "reused": true
+      "zh": "放心，{player}。区区游魂，唱两句就散了。",
+      "clip": "Story/v1103-stage-1-1-l4",
+      "reused": false,
+      "ja": "安心して、プロデューサー。ただの亡霊なんて、少し歌えば消えちゃうわ。"
     },
     {
       "script": "stage-1-10-end",
@@ -458,9 +459,10 @@
       "script": "stage-1-4",
       "line": 2,
       "subject": "wubai",
-      "zh": "脉冲守卫在给整片街区供电……难怪杂音越来越响。",
-      "clip": "Story/stage-1-4-l2",
-      "reused": true
+      "zh": "浊浪溺者把整片街区泡进了黑水……难怪杂音越来越响。",
+      "clip": "Story/v1103-stage-1-4-l2",
+      "reused": false,
+      "ja": "濁流の溺れ者が、街じゅうを黒い水に沈めてる……だからノイズがどんどん大きくなるのね。"
     },
     {
       "script": "stage-1-4",
@@ -483,10 +485,10 @@
       "script": "stage-1-5-end",
       "line": 2,
       "subject": "xingli",
-      "zh": "我们……赢了魅声女王？",
-      "clip": "Story/v1102-stage-1-5-end-l2",
+      "zh": "我们……赢了琉娜？",
+      "clip": "Story/v1103-stage-1-5-end-l2",
       "reused": false,
-      "ja": "私たち、魅声の女王に勝ったの？"
+      "ja": "私たち……ルナに勝ったの？"
     },
     {
       "script": "stage-1-5-end",
@@ -510,9 +512,10 @@
       "script": "stage-1-5",
       "line": 2,
       "subject": "xingli",
-      "zh": "那个声音……是「魅声女王」？她在商圈的大屏上唱歌。",
-      "clip": "Story/stage-1-5-l2",
-      "reused": true
+      "zh": "那个声音……是「碎音·琉娜」？她在商圈的大屏上唱歌。",
+      "clip": "Story/v1103-stage-1-5-l2",
+      "reused": false,
+      "ja": "あの声……「砕音のルナ」？ショッピング街の大型ビジョンで歌ってる。"
     },
     {
       "script": "stage-1-5",
@@ -613,10 +616,10 @@
       "script": "stage-1-7-end",
       "line": 4,
       "subject": "producer",
-      "zh": "咒术师逃向了天台。追上去，别让她再操纵任何人。",
-      "clip": "Story/v1102-stage-1-7-end-l4",
+      "zh": "盾娘们逃向了天台。追上去，别让她们再操纵任何人。",
+      "clip": "Story/v1103-stage-1-7-end-l4",
       "reused": false,
-      "ja": "呪術師は屋上へ逃げた。追おう。もう誰も操らせない。"
+      "ja": "盾娘たちは屋上へ逃げた。追おう。もう誰も操らせない。"
     },
     {
       "script": "stage-1-7",
@@ -638,10 +641,10 @@
       "script": "stage-1-7",
       "line": 4,
       "subject": "producer",
-      "zh": "天鹅绒咒术师在操纵她们。打倒她，观众就会醒。",
-      "clip": "Story/v1102-stage-1-7-l4",
+      "zh": "应援盾娘在操纵她们。打倒她们，观众就会醒。",
+      "clip": "Story/v1103-stage-1-7-l4",
       "reused": false,
-      "ja": "ベルベットの呪術師が操っている。彼女を倒せば、観客も目を覚ます。"
+      "ja": "応援の盾娘たちが観客を操っている。彼女たちを倒せば、観客も目を覚ます。"
     },
     {
       "script": "stage-1-8-end",
@@ -1140,10 +1143,10 @@
       "script": "stage-2-7-end",
       "line": 2,
       "subject": "feiyin",
-      "zh": "咒术师又输了。这回她跑不掉了。",
-      "clip": "Story/v1102-stage-2-7-end-l2",
+      "zh": "蛛娘们又输了。这回她们跑不掉了。",
+      "clip": "Story/v1103-stage-2-7-end-l2",
       "reused": false,
-      "ja": "呪術師はまた負けた。今度こそ、逃がさないよ。"
+      "ja": "蜘蛛娘たちはまた負けた。今度こそ、逃がさないよ。"
     },
     {
       "script": "stage-2-7-end",
@@ -1175,9 +1178,10 @@
       "script": "stage-2-7",
       "line": 3,
       "subject": "wubai",
-      "zh": "咒术师守在桥中间……又是她们。",
-      "clip": "Story/stage-2-7-l3",
-      "reused": true
+      "zh": "毒蚀蛛娘守在桥中间……又是她们。",
+      "clip": "Story/v1103-stage-2-7-l3",
+      "reused": false,
+      "ja": "毒蝕の蜘蛛娘が橋の真ん中を塞いでる……また、あの子たち。"
     },
     {
       "script": "stage-2-7",

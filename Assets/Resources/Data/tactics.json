@@ -1172,6 +1172,45 @@
       ]
     },
     {
+      "Id": "purify-dancer",
+      "Name": "净化舞娘",
+      "Role": "敌方",
+      "MaxHp": 170,
+      "Attack": 11,
+      "Defense": 3,
+      "Speed": 95,
+      "CritPermille": 40,
+      "SkillIds": [
+        "static-burst"
+      ]
+    },
+    {
+      "Id": "cheer-shield",
+      "Name": "应援盾娘",
+      "Role": "敌方",
+      "MaxHp": 220,
+      "Attack": 9,
+      "Defense": 7,
+      "Speed": 90,
+      "CritPermille": 30,
+      "SkillIds": [
+        "static-burst"
+      ]
+    },
+    {
+      "Id": "afterimage-diva",
+      "Name": "残影歌姬",
+      "Role": "敌方",
+      "MaxHp": 150,
+      "Attack": 13,
+      "Defense": 2,
+      "Speed": 115,
+      "CritPermille": 60,
+      "SkillIds": [
+        "static-burst"
+      ]
+    },
+    {
       "Id": "siren-queen",
       "Name": "魅声女王",
       "Role": "敌方",
@@ -1206,25 +1245,17 @@
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 2218,
-          "HpScalePermille": 30800,
+          "ScalePermille": 2440,
+          "HpScalePermille": 33880,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 2218,
-          "HpScalePermille": 30800,
+          "ScalePermille": 2440,
+          "HpScalePermille": 33880,
           "Wave": 0
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 2,
-          "Col": 0,
-          "ScalePermille": 2218,
-          "HpScalePermille": 30800,
-          "Wave": 1
         }
       ],
       "Drops": {
@@ -1299,32 +1330,24 @@
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 2031,
-          "HpScalePermille": 28500,
+          "ScalePermille": 2193,
+          "HpScalePermille": 30780,
           "Wave": 0
         },
         {
-          "UnitId": "echo-drone",
+          "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 2031,
-          "HpScalePermille": 28500,
+          "ScalePermille": 2193,
+          "HpScalePermille": 30780,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 2031,
-          "HpScalePermille": 28500,
-          "Wave": 1
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 2031,
-          "HpScalePermille": 28500,
+          "ScalePermille": 2193,
+          "HpScalePermille": 30780,
           "Wave": 1
         }
       ],
@@ -1400,24 +1423,24 @@
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1362,
-          "HpScalePermille": 17600,
+          "ScalePermille": 1308,
+          "HpScalePermille": 16896,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 1362,
-          "HpScalePermille": 17600,
+          "ScalePermille": 1308,
+          "HpScalePermille": 16896,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 1362,
-          "HpScalePermille": 17600,
+          "ScalePermille": 1308,
+          "HpScalePermille": 16896,
           "Wave": 1
         }
       ],
@@ -1493,32 +1516,32 @@
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1673,
-          "HpScalePermille": 27200,
+          "ScalePermille": 1581,
+          "HpScalePermille": 25704,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 1673,
-          "HpScalePermille": 27200,
+          "ScalePermille": 1581,
+          "HpScalePermille": 25704,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 1673,
-          "HpScalePermille": 27200,
+          "ScalePermille": 1581,
+          "HpScalePermille": 25704,
           "Wave": 1
         },
         {
-          "UnitId": "echo-drone",
+          "UnitId": "afterimage-diva",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 1673,
-          "HpScalePermille": 27200,
+          "ScalePermille": 1581,
+          "HpScalePermille": 25704,
           "Wave": 1
         }
       ],
@@ -1595,35 +1618,25 @@
           "UnitId": "siren-queen",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1143,
-          "HpScalePermille": 6026,
+          "ScalePermille": 1189,
+          "HpScalePermille": 6267,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 916,
-          "HpScalePermille": 6026,
+          "ScalePermille": 953,
+          "HpScalePermille": 6267,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 916,
-          "HpScalePermille": 6026,
-          "Wave": 1,
-          "BossPhase": 2
-        },
-        {
-          "UnitId": "velvet-hexer",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 916,
-          "HpScalePermille": 6026,
-          "Wave": 1,
-          "BossPhase": 2
+          "ScalePermille": 953,
+          "HpScalePermille": 6267,
+          "Wave": 1
         }
       ],
       "Drops": {
@@ -1703,7 +1716,7 @@
           "Wave": 0
         },
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "purify-dancer",
           "Row": 1,
           "Col": 0,
           "ScalePermille": 3399,
@@ -1711,17 +1724,9 @@
           "Wave": 0
         },
         {
-          "UnitId": "velvet-hexer",
+          "UnitId": "purify-dancer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 3399,
-          "HpScalePermille": 17118,
-          "Wave": 1
-        },
-        {
-          "UnitId": "echo-drone",
-          "Row": 0,
-          "Col": 1,
           "ScalePermille": 3399,
           "HpScalePermille": 17118,
           "Wave": 1
@@ -1796,7 +1801,7 @@
       "RecommendedLevel": 12,
       "Enemies": [
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "cheer-shield",
           "Row": 0,
           "Col": 0,
           "ScalePermille": 4299,
@@ -1812,7 +1817,7 @@
           "Wave": 0
         },
         {
-          "UnitId": "pulse-guard",
+          "UnitId": "cheer-shield",
           "Row": 2,
           "Col": 0,
           "ScalePermille": 4299,
@@ -2022,17 +2027,9 @@
           "Wave": 0
         },
         {
-          "UnitId": "echo-drone",
+          "UnitId": "afterimage-diva",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 4011,
-          "HpScalePermille": 19755,
-          "Wave": 1
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 0,
-          "Col": 1,
           "ScalePermille": 4011,
           "HpScalePermille": 19755,
           "Wave": 1
@@ -2116,30 +2113,12 @@
           "Wave": 0
         },
         {
-          "UnitId": "velvet-hexer",
-          "Row": 1,
-          "Col": 0,
-          "ScalePermille": 735,
-          "HpScalePermille": 20700,
-          "Wave": 0
-        },
-        {
           "UnitId": "static-golem",
           "Row": 2,
           "Col": 0,
           "ScalePermille": 735,
           "HpScalePermille": 20700,
-          "Wave": 1,
-          "BossPhase": 2
-        },
-        {
-          "UnitId": "neon-scout",
-          "Row": 0,
-          "Col": 1,
-          "ScalePermille": 735,
-          "HpScalePermille": 20700,
-          "Wave": 1,
-          "BossPhase": 2
+          "Wave": 1
         }
       ],
       "Drops": {

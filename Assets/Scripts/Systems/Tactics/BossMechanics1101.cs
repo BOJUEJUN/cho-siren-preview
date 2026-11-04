@@ -101,7 +101,12 @@ namespace ChoSiren.Systems.Tactics
                     BattleUnit hurt = LowestHpRatioAlly(unit);
                     capability = hurt != null && (long)hurt.Hp * 2 < hurt.MaxHp ? EnemySpecialCapability.AllyHeal : EnemySpecialCapability.Venom;
                     return true;
-                case "neon-scout": capability = EnemySpecialCapability.Ambush; return true;
+                case "neon-scout": case "afterimage-diva": capability = EnemySpecialCapability.Ambush; return true;
+                case "purify-dancer":
+                    BattleUnit wounded = LowestHpRatioAlly(unit);
+                    if (wounded == null || (long)wounded.Hp * 2 >= wounded.MaxHp) return false;
+                    capability = EnemySpecialCapability.AllyHeal;
+                    return true;
                 case "echo-drone": capability = EnemySpecialCapability.CharmSeal; return true;
                 case "static-golem":
                     golemSpecials1101.TryGetValue(unit.Id, out int casts);

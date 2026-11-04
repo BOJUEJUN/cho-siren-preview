@@ -200,10 +200,11 @@ namespace ChoSiren
             // Header values live on the shared TopBar (see ConfigureReferenceHeader038).
             foreach (var pair in buttons)
             {
+                // 2026-11-03: the name plate and the music bar stay quiet; settings/mail/eye show their ink edge on hover.
                 var kind = pair.Key.StartsWith("Nav-") ? LobbyHotspotFeedback.VisualKind.Navigation :
                     pair.Key.StartsWith("Currency-") ? LobbyHotspotFeedback.VisualKind.CurrencyPlus :
-                    pair.Key == "Profile" ? LobbyHotspotFeedback.VisualKind.Profile :
-                    pair.Key == "Settings" || pair.Key == "Mail" ? LobbyHotspotFeedback.VisualKind.Settings :
+                    pair.Key == "Profile" || pair.Key == "MusicNext" ? LobbyHotspotFeedback.VisualKind.Quiet :
+                    pair.Key == "Settings" || pair.Key == "Mail" || pair.Key == "HideUi" ? LobbyHotspotFeedback.VisualKind.Quiet :
                     pair.Key == "LiveOnStage" ? LobbyHotspotFeedback.VisualKind.CallToAction : LobbyHotspotFeedback.VisualKind.Entry;
                 AttachLobbyHotspotFeedback(pair.Value, kind);
                 if (kind == LobbyHotspotFeedback.VisualKind.Navigation)

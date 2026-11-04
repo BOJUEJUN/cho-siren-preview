@@ -2,22 +2,29 @@
 
 Keep this file short. Load only the document that matches the work:
 
-- Release continuity or handoff: `Docs/AI-HANDOFF-2026-09-08.md`
+- **Start here (latest, 2026-11-03, game 0.9.34 / Android 934):** `Docs/AI-HANDOFF-2026-11-03-CONTINUE.md`, then the newest `Docs/FULL-RELEASE-*.md`
+- Earlier: `Docs/AI-HANDOFF-2026-10-29-CONTINUE.md`, `Docs/AI-HANDOFF-2026-10-20.md` (0.3.x era, history only)
+- Older release continuity: `Docs/AI-HANDOFF-2026-09-08.md`
 - WebGL build or publishing: `Docs/WEBGL-RELEASE-SAFETY-2026-09-05.md`
 - Battle UI or feedback: `Docs/BATTLE-UI-2026-09-05.md` and `Docs/BATTLE-FEEDBACK-20260907.md`
 
 ## Current product contract
 
-- Keep the existing `0.3.x` naming; the current homepage work is `0.3.8`.
+- Versions are `0.9.x` and only move forward (0.9.33 was a web-only dress-lab page; the next game release after 0.9.34 is 0.9.35). Never fall back to `0.3.x`.
+- Solid teal fill means "selected" only; main actions use the dark face with a teal frame and teal caption (2026-11-03).
+- Bosses, enemies and chapter-one lineups follow the user's planning deck (`CHO-SIREN幻域魅声 游戏企划书`): 1-5 碎音·琉娜, 1-10 幻蚀歌枢·梅洛蒂 (`StageBoss1103.cs`); keep its enemy names and designs.
+- Ultimate charge (2026-11-03 deck): captain 17s, then 20s / 25s / 30s in formation order (`ChargeOrder1101.cs`).
 - Use the latest user supplied reference for visual acceptance and reproduce it 1:1 except for explicit user changes.
+- Homepage characters keep the two separately authored homepage designs. The revised member PSD updates member portraits/avatars only; never replace or add homepage characters unless the user supplies new homepage art explicitly (2026-10-15).
 - Preserve source aspect ratios and native RGBA. Reject checkerboards or solid backgrounds presented as transparency.
 - Bottom navigation labels are Chinese only. Its five measured visual and hit regions are intentionally nonuniform.
-- Every interactive homepage hotspot needs visible hover, press, release, and exit feedback in a real browser.
+- Every interactive homepage hotspot needs visible hover, press, release, and exit feedback in a real browser; buttons show the green ink edge on hover (not at rest, not only on click). Exceptions by the user (2026-11-03): the name plate and the music bar stay unhighlighted.
 
 ## Working method
 
-- Prefer parallel agents for independent implementation, tests, and review. Give each writer an exclusive file scope.
-- Devin work must use `swe-2-max`. Do not use DeepSeek Harness unless the user enables it again.
+- The user explicitly forbids Devin (2026-10-15) and is not renewing it. Do not invoke, check, repair, or manage Devin; this overrides older skill/delegation guidance.
+- Only one AI should change this project at a time; check `git log` and the other repo (`/Users/bojuejun/cho-siren-web`, remote main) before releasing.
+- Codex or Claude continue implementation and verification directly. Do not use DeepSeek Harness unless the user enables it again.
 - Preserve unrelated local changes. Stage and commit only files belonging to the current task.
 - You may run safe local reads, Unity status checks, focused tests, builds, screenshots, and browser inspection without asking.
 - Use focused tests for the changed behavior. Broaden testing only when a failure or shared subsystem warrants it.

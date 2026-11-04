@@ -405,6 +405,7 @@ namespace ChoSiren.Systems.Tactics
         private void AddUnit(UnitDefinition definition, BattleSide side, int row, int col, int level,
             CombatStats stats)
         {
+            if (side == BattleSide.Enemy) definition = StageBoss1103.Present(Stage, definition);
             var unit = new BattleUnit
             {
                 Id = units.Count + 1,

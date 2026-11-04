@@ -573,7 +573,7 @@ namespace ChoSiren
             teamLevelText.resizeTextMaxSize = 13;
             teamLevelText.horizontalOverflow = HorizontalWrapMode.Overflow;
             AddReadableShadow(teamLevelText);
-            AttachLobbyHotspotFeedback(profile, LobbyHotspotFeedback.VisualKind.Profile);
+            AttachLobbyHotspotFeedback(profile, LobbyHotspotFeedback.VisualKind.Quiet); // 2026-11-03: no highlight on the name plate
 
             // Currency pills keep the v1 quiet-glass plate so presses still tint; the
             // baked pill art sits on a non-raycast VisualV2 child. Hit rects are trimmed

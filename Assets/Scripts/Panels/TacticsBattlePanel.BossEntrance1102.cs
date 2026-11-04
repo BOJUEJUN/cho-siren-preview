@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using ChoSiren.UI;
+using ChoSiren.Systems.Tactics;
 
 namespace ChoSiren.Panels
 {
@@ -11,6 +12,9 @@ namespace ChoSiren.Panels
         IEnumerator PlayBossEntrance1102()
         {
             if (battle == null || !battle.Stage.HasBossPhases) yield break;
+            // The user's entrance videos show the chapter-one bosses; other bosses get the 首领登场 card with their name.
+            var look = StageBoss1103.For(battle.Stage.Id);
+            if (look != null && !look.EntranceVideo) yield break;
             while (!closing && (coveredByStory || ChallengeVideoTransition.IsCoveringGame)) yield return null;
             if (closing) yield break;
             bossEntrancePlaying1102 = true;

@@ -29,6 +29,16 @@ namespace ChoSiren.Tests
         [UnityTest]
         public IEnumerator CaptureTwoMinionStage() => Capture("stage-1-1", "enemy-stage-minions");
 
+        // 2026-11-03 planning-deck enemies and the chapter-two boss.
+        [UnityTest]
+        public IEnumerator CaptureDeckEnemiesAndChapterTwoBoss()
+        {
+            yield return Capture("stage-1-4", "deck-afterimage");
+            yield return Capture("stage-1-6", "deck-purify");
+            yield return Capture("stage-1-7", "deck-cheer-shield");
+            yield return Capture("stage-2-5", "boss-chapter-two");
+        }
+
         static IEnumerator Capture(string stageId, string file)
         {
             bool had = PlayerPrefs.HasKey(GameModel.SaveKey), oldHad = PlayerPrefs.HasKey(GameModel.LegacySaveKey);
@@ -38,7 +48,11 @@ namespace ChoSiren.Tests
             var rt = new RenderTexture(720, 1536, 24);
             try
             {
-                PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(new GameSave { StoryProgress = 100 }));
+                var seed = new GameSave { StoryProgress = 100 };
+                // Chapter-two stages open once chapter one is cleared.
+                for (int i = 1; i <= 10; i++) seed.ClearedStages.Add(new StageClear { Id = "stage-1-" + i, Stars = 3 });
+                for (int i = 1; i <= 4; i++) seed.ClearedStages.Add(new StageClear { Id = "stage-2-" + i, Stars = 3 });
+                PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(seed));
                 var model = new GameModel();
                 BattleSimulator battle = model.StartStageBattle(stageId, 1031UL, out string message);
                 Assert.That(battle, Is.Not.Null, message);

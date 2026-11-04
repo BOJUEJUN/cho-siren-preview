@@ -10,7 +10,9 @@ namespace ChoSiren
     public sealed class LobbyHotspotFeedback : MonoBehaviour, IPointerEnterHandler,
         IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
-        public enum VisualKind { Entry, CallToAction, Navigation, CurrencyPlus, Profile, Settings }
+        /// <summary>Quiet (2026-11-03): keeps the press squash but draws no hover highlight (name plate, music bar,
+        /// and buttons whose ink edge already answers the hover).</summary>
+        public enum VisualKind { Entry, CallToAction, Navigation, CurrencyPlus, Profile, Settings, Quiet }
 
         private Button button;
         private RectTransform effectRoot;
@@ -92,6 +94,7 @@ namespace ChoSiren
             effectRoot.offsetMin = effectRoot.offsetMax = Vector2.zero;
             effectGroup = root.GetComponent<CanvasGroup>();
             effectGroup.alpha = 0f; effectGroup.interactable = false; effectGroup.blocksRaycasts = false;
+            if (kind == VisualKind.Quiet) return;
             GameObject node = new GameObject(AccentName(kind), typeof(RectTransform), typeof(CanvasRenderer), typeof(LobbyHotspotAccentGraphic));
             node.layer = gameObject.layer; node.transform.SetParent(effectRoot, false);
             RectTransform rect = node.GetComponent<RectTransform>();

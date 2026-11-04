@@ -196,12 +196,8 @@ namespace ChoSiren.Panels
             enemyStageRoot = kit.NewRect("PsdEnemyStage", psdRoot);
             PanelKit.Stretch(enemyStageRoot);
             foreach (var pair in enemyAnchors) pair.Value.SetParent(enemyStageRoot, false);
-            foreach (var unit in battle.Units)
-            {
-                if (unit.Side != BattleSide.Enemy || !enemyFigures.TryGetValue(unit.Id, out var figure)) continue;
-                if (unit.Definition.Id == "noise-wraith") figure.sprite = BattlePsdArt928.Sprite("enemy-0");
-                if (unit.Definition.Id == "neon-scout") figure.sprite = BattlePsdArt928.Sprite("enemy-1");
-            }
+            // 2026-11-03: every enemy keeps its planning-deck figure from Art/Enemies (the PSD's two baked enemy
+            // layers showed the old 游魂/刺客 designs and are no longer swapped in).
             if (bossPresentation != null)
             {
                 bossPresentation.transform.SetParent(psdRoot, false);

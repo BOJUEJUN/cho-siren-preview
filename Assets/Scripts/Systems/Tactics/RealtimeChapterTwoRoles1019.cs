@@ -43,6 +43,11 @@ namespace ChoSiren.Systems.Tactics
                 case "pulse-guard": case "static-golem": return EnemySpecialCapability.StunStrike;
                 case "velvet-hexer": return EnemySpecialCapability.AllyHeal;
                 case "siren-queen": return EnemySpecialCapability.SilenceStrike;
+                // 2026-11-03 planning-deck enemies on the existing specials: 净化舞娘 tends allies, 应援盾娘 shields
+                // them, 残影歌姬 strikes and slips away.
+                case "purify-dancer": return EnemySpecialCapability.AllyHeal;
+                case "cheer-shield": return EnemySpecialCapability.AllyShield;
+                case "afterimage-diva": return EnemySpecialCapability.SlowStrike;
                 default: return EnemySpecialCapability.HeavyStrike;
             }
         }

@@ -26,11 +26,13 @@ namespace ChoSiren
             }
         }
 
-        /// <summary>The selected tab lights (one burst, then steady); every tab flares when pressed.</summary>
+        /// <summary>
+        /// Every tab lights while hovered and flares when pressed (2026-11-03: the current tab no longer burns at
+        /// rest; its teal label and underline mark it).
+        /// </summary>
         private static void AttachNavigationFlame1031(Button button, Image icon, bool selected)
         {
-            UI.InkFlameEdge1031 edge = UI.InkFlameEdge1031.AttachToButton(button, icon, .19f);
-            if (edge != null && selected) edge.Ignite();
+            UI.InkFlameEdge1031.AttachToButton(button, icon, .19f);
         }
     }
 }

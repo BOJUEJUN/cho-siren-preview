@@ -368,8 +368,9 @@ namespace ChoSiren.Panels
             // Reuse clean stage art: the old image had obsolete HP cards baked into its pixels.
             battleStageSprite = LoadRuntimeSprite("Art/Reference038/battle-stage-038")
                 ?? LoadRuntimeSprite("Art/GachaAI/gacha-calm-stage-bg-ai-v2-20260903");
-            userBossSprite = battle?.Stage?.Id == "stage-1-5"
-                ? LoadRuntimeSprite("Art/BattleUser/boss-throne-20260928") : null;
+            // 2026-11-03: each boss stage shows its own boss (StageBoss1103, per the planning deck).
+            string bossArt = StageBoss1103.For(battle?.Stage?.Id)?.Art;
+            userBossSprite = bossArt != null ? LoadRuntimeSprite(bossArt) : null;
             userBossSprite ??= LoadRuntimeSprite("Art/BattleUser/boss-throne-user-v1");
             for (int index = 0; index < userDiceFaceSprites.Length; index++)
                 userDiceFaceSprites[index] = LoadRuntimeSprite($"Art/BattleUser/dice-face-{index + 1}-user-v1");

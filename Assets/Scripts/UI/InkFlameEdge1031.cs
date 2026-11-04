@@ -27,9 +27,19 @@ namespace ChoSiren.UI
         private Vector2 artCentre;
         private Texture2D field;
         private float reach, steady, flareAt = -10f;
-        private bool selected;
+        private bool selected, hovered;
 
-        /// <summary>Lit steadily (the current navigation tab).</summary>
+        /// <summary>
+        /// 2026-11-03 (用户: 大厅一直在燃烧不对，要鼠标悬停才显示): lit while the pointer rests on the button, like the
+        /// 「开始演出」 card; it no longer burns on the current tab or waits for a click.
+        /// </summary>
+        public bool Hovered
+        {
+            get => hovered;
+            set { hovered = value; enabled = true; }
+        }
+
+        /// <summary>Lit steadily (kept for callers that pin an edge on).</summary>
         public bool Selected
         {
             get => selected;
@@ -296,7 +306,7 @@ namespace ChoSiren.UI
         {
             if (BattlePresentationOptions.ReduceMotion != frozen) ApplyMotionSetting();
             float dt = Mathf.Min(Time.unscaledDeltaTime, .1f);
-            float target = selected ? 1f : 0f;
+            float target = selected || hovered ? 1f : 0f;
             steady = frozen ? target : Mathf.MoveTowards(steady, target, dt / .22f);
             float since = (Time.unscaledTime - flareAt) / FlareSeconds;
             // Reduced motion: the press still answers, as a brief steady edge without the leap.
@@ -308,7 +318,7 @@ namespace ChoSiren.UI
                 SetVerticesDirty();
             }
             // Nothing lit and nothing pending: sleep until selected or pressed again.
-            if (reach == 0f && !selected && since >= 1f) enabled = false;
+            if (reach == 0f && !selected && !hovered && since >= 1f) enabled = false;
         }
 
         private void LateUpdate()
@@ -349,10 +359,20 @@ namespace ChoSiren.UI
         }
     }
 
-    /// <summary>Lights the button's ink edge the moment it is pressed.</summary>
-    public sealed class InkFlameTrigger1031 : MonoBehaviour, IPointerDownHandler
+    /// <summary>Lights the button's ink edge while hovered, and flares it the moment it is pressed.</summary>
+    public sealed class InkFlameTrigger1031 : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
     {
         public InkFlameEdge1031 Edge;
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            var button = GetComponent<Button>();
+            if (Edge != null && (button == null || button.IsInteractable())) Edge.Hovered = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData) { if (Edge != null) Edge.Hovered = false; }
+
+        private void OnDisable() { if (Edge != null) Edge.Hovered = false; }
 
         public void OnPointerDown(PointerEventData eventData)
         {

@@ -171,17 +171,15 @@ namespace ChoSiren.Tests
                 yield return null;
                 var map = app.GetComponentInChildren<LevelMapPanel>();
                 Assert.That(map, Is.Not.Null);
-                var page = (RectTransform)map.transform.Find("AuthoredMapPage");
+                // 2026-11-03: the 1102 half-vinyl map replaced the authored board page; check its own layout instead.
+                var page = (RectTransform)map.transform.Find("VinylMapPage1102");
                 Assert.That(page, Is.Not.Null);
                 Assert.That(map.GetComponentsInChildren<ScreenEdgeExtend>(true), Is.Empty, "No stretched border strips.");
                 AssertSeparate(page.Find("ChapterSwitch"), page.Find("StaminaIcon"));
-                AssertSeparate(page.Find("ChapterSwitch"), page.Find("Level-1-10"));
-                AssertSeparate(page.Find("SweepRow"), page.Find("StageTeamPreset"));
-                AssertSeparate(page.Find("SweepRow"), page.Find("Level-1-1"));
+                AssertSeparate(page.Find("StageTeamPreset"), page.Find("SelectedLevel"));
                 AssertSeparate(page.Find("SelectedLevel"), page.Find("StartChallenge"));
-                var board = page.Find("MapReferenceBoard").GetComponent<Image>();
+                AssertSeparate(page.Find("SelectedLevel"), page.Find("ChapterRewards"));
                 Assert.That(page.localScale.x, Is.EqualTo(page.localScale.y).Within(.0001f));
-                Assert.That(page.rect.width / page.rect.height, Is.EqualTo(board.sprite.rect.width / board.sprite.rect.height).Within(.0001f));
                 float settle = Time.realtimeSinceStartup + .5f;
                 while (Time.realtimeSinceStartup < settle) yield return null;
                 Canvas.ForceUpdateCanvases();
