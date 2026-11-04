@@ -31,6 +31,11 @@ namespace ChoSiren
             new[] { new Vector4(-.1022f, -.0608f, .9591f, .9696f), new Vector4(-.1022f, -.0608f, .9591f, .9696f) },
         };
         private const float FadeSeconds = .35f;
+        /// <summary>2026-11-04 (用户: "切到这个角色的时候有第一帧错误的感觉"): how long a newly shown idol keeps her still portrait
+        /// hidden while her clip prepares. The still and the clip never line up exactly (pose, framing), so showing the still
+        /// first made the figure jump when the clip took over; past this wait (or if the clip fails) the still shows.</summary>
+        private const float ClipWaitSeconds = 1.5f;
+        private float awaitingSince;
 
         private sealed class Clip
         {
@@ -64,7 +69,7 @@ namespace ChoSiren
             if (material == null || index < 0 || index >= Files.Length) return;
             if (idol == index && portrait == portraitRect) return;
             Release();
-            idol = index; portrait = portraitRect; current = 0; shown = 0f;
+            idol = index; portrait = portraitRect; current = 0; shown = 0f; awaitingSince = Time.unscaledTime;
             for (int i = 0; i < 2; i++) clips[i] = Build(i);
             clips[0].Player.Prepare();
             clips[1].Player.Prepare();
@@ -165,7 +170,9 @@ namespace ChoSiren
             // The portrait and its rim hide under the clip (the clips carry the rim). Asserted every frame while
             // hidden, because the carousel restores the portrait after a swipe; never while the portrait is fully
             // shown, so the carousel's own fade of a newly shown portrait is left alone.
-            float hidden = Smooth((shown - .4f) / .6f);
+            bool waiting = live != null && !live.Failed && !ready && shown <= 0f &&
+                Time.unscaledTime - awaitingSince < ClipWaitSeconds;
+            float hidden = waiting ? 1f : Smooth((shown - .4f) / .6f);
             if (hidden > 0f || appliedHidden > 0f)
             {
                 appliedHidden = hidden;
