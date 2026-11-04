@@ -829,6 +829,7 @@ namespace ChoSiren
             voiceSource.Stop();
             voiceSource.clip = clip;
             activeVoiceOwner = owner;
+            TuneVoice1104(name);
             voiceSource.Play();
             return true;
         }
@@ -861,6 +862,7 @@ namespace ChoSiren
             int token = ++voiceRequest;
             voiceSource.Stop();
             activeVoiceOwner = owner;
+            TuneVoice1104(name);
             if (streamedVoices.TryGetValue(name, out AudioClip cached) && cached != null)
             {
                 StartVoiceClip(cached);
@@ -881,6 +883,15 @@ namespace ChoSiren
             ResumeAfterUserGesture();
             voiceSource.clip = clip;
             voiceSource.Play();
+        }
+
+        /// <summary>2026-11-04 创意工坊 声线: the speaking member's pitch and volume apply wherever her lines play.</summary>
+        private void TuneVoice1104(string clipName)
+        {
+            if (voiceSource == null || model == null) return;
+            model.VoiceTuning1104(UI.DialogueVoice1102.SubjectOf(clipName), out float pitch, out float volume);
+            voiceSource.pitch = pitch;
+            voiceSource.volume = SfxScale * volume;
         }
 
         private IEnumerator LoadStreamedVoice(string name, string owner, int token)

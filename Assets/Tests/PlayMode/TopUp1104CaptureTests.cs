@@ -44,10 +44,11 @@ namespace ChoSiren.Tests
         [UnityTest]
         public IEnumerator CaptureDiamondPanelAndTopUpShop()
         {
-            var saveData = new GameSave { HomeCharacterIndex = 0, StoryProgress = 100, PlayerName = "经纪人" };
+            var saveData = new GameSave { HomeCharacterIndex = 1, StoryProgress = 100, PlayerName = "经纪人" };
             saveData.CompletedStories.Add(GameModel.PrologueStoryId);
             PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(saveData));
             PlayerPrefs.SetInt(AgreementKey, 1);
+            foreach (var old in UnityEngine.Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None)) UnityEngine.Object.Destroy(old.gameObject);
             yield return null;
             var app = new GameObject("TopUp1104").AddComponent<ChoSirenApp>();
             var camera = new GameObject("TopUp1104Camera", typeof(Camera)).GetComponent<Camera>();
@@ -76,6 +77,32 @@ namespace ChoSiren.Tests
                 Invoke(app, "OpenCurrency1101", ChoSiren.Systems.Economy.CurrencyIds.Diamond);
                 yield return new WaitForSecondsRealtime(.8f);
                 Shot(camera, rt, "diamond-panel.png");
+                Invoke(app, "OpenTopUp1104");
+                yield return new WaitForSecondsRealtime(.6f);
+                Shot(camera, rt, "topup-shop-pre.png");
+                Invoke(app, "CloseModal");
+                yield return null;
+                // 2026-11-04: the former 专辑制作 card opens 创意工坊.
+                Invoke(app, "ActivatePsdHomeAction", "AlbumProduction");
+                yield return new WaitForSecondsRealtime(.8f);
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopPage1104"), Is.True, "创意工坊 opens");
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopDress"), Is.True);
+                Shot(camera, rt, "workshop.png");
+                var pageRect = canvas.GetComponentsInChildren<RectTransform>(true).First(r => r.name == "WorkshopPage1104");
+                File.WriteAllText(Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/topup-1104/order.txt")),
+                    string.Join("\n", pageRect.parent.Cast<Transform>().Select(t => $"{t.GetSiblingIndex()} {t.name} {t.gameObject.activeSelf} canvas={(t.GetComponent<Canvas>() != null)}")));
+                for (int tab = 1; tab < 4; tab++)
+                {
+                    canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "WorkshopTab-" + tab).onClick.Invoke();
+                    yield return new WaitForSecondsRealtime(.3f);
+                    Shot(camera, rt, $"workshop-tab{tab}.png");
+                }
+                Invoke(app, "OpenVoiceRecorder1104");
+                yield return new WaitForSecondsRealtime(.5f);
+                Shot(camera, rt, "workshop-recorder.png");
+                Invoke(app, "CloseModal");
+                Invoke(app, "CloseWorkshop1104");
+                yield return null;
                 Invoke(app, "OpenTopUp1104");
                 yield return new WaitForSecondsRealtime(.8f);
                 Shot(camera, rt, "topup-shop.png");

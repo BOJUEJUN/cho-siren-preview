@@ -488,8 +488,8 @@ namespace ChoSiren
             if (psdProfileBadge != null) psdProfileBadge.SetActive(model.ClaimableAchievementCount > 0);
             if (psdAlbumTag != null)
             {
-                var achievements = model.Achievements();
-                psdAlbumTag.SetActive(achievements.Count(item => item.Claimable) > 0);
+                // 2026-11-04: the card is 创意工坊 now; achievement notices live on the profile.
+                psdAlbumTag.SetActive(false);
             }
             if (psdSignInBadge != null) psdSignInBadge.SetActive(!model.SignedToday);
             if (psdIdleBadge != null)
@@ -525,9 +525,10 @@ namespace ChoSiren
             psdMotion.PlayClick(action);
             ResumeMediaAfterUserGesture();
             gameAudio?.PlayClick();
+            // 2026-11-04: the former 专辑制作 card is 创意工坊 (achievements stay on the profile's 成就 button).
             if (action == "AlbumProduction")
             {
-                OpenAchievements();
+                OpenWorkshop1104();
                 return;
             }
             StartCoroutine(OpenPsdHomeAfterMotion(action));

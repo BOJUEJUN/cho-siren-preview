@@ -26,6 +26,27 @@ namespace ChoSiren.UI
                 string.Equals(entry.zh, text, StringComparison.Ordinal) ? entry.clip : null;
         }
 
+        /// <summary>2026-11-04: who speaks a recorded line (story subject, or the home idol's member id), for 创意工坊 voice tuning.</summary>
+        public static string SubjectOf(string clip)
+        {
+            if (string.IsNullOrEmpty(clip)) return null;
+            if (clip.StartsWith("Home/yeying", StringComparison.Ordinal)) return "yeying";
+            if (clip.StartsWith("Home/wubai", StringComparison.Ordinal)) return "wubai";
+            if (entries == null) StoryClip(string.Empty, -1, null, string.Empty);
+            foreach (Entry e in entries.Values) if (e.clip == clip) return e.subject;
+            return null;
+        }
+
+        /// <summary>The first recorded story line a member speaks (the 创意工坊 preview line).</summary>
+        public static string FirstLineOf(string memberId, out string text)
+        {
+            text = null;
+            if (entries == null) StoryClip(string.Empty, -1, null, string.Empty);
+            foreach (Entry e in entries.Values)
+                if (e.subject == memberId && !string.IsNullOrEmpty(e.clip)) { text = e.zh; return e.clip; }
+            return null;
+        }
+
         public static string HomeClip(int character, int line)
         {
             if (line < 0) return null;
