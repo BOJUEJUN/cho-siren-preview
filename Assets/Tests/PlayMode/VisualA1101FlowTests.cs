@@ -128,7 +128,7 @@ namespace ChoSiren.Tests
 
         [UnityTest] public IEnumerator MailOpensALetterAndClaimsOnceFromEitherPlace()
         {
-            int diamonds = model.Save.Diamonds;
+            int diamonds = model.Save.Diamonds, tickets = model.Save.RecruitTickets;
             Call("OpenInbox"); yield return null;
             Click("Mail-idle-stage"); yield return null;
             Assert.That(Require("MailBody-idle-stage").GetComponent<Text>().text, Does.Contain("闪耀舞台"), "无附件邮件要能读到正文");
@@ -138,7 +138,8 @@ namespace ChoSiren.Tests
             Require("MailBody-welcome-2026");
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds), "打开邮件不能领取");
             Click("MailClaim-welcome-2026"); yield return null;
-            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + 150));
+            // 2026-11-04: the debut support is ten 签约券 instead of 150 星钻.
+            Assert.That(model.Save.RecruitTickets, Is.EqualTo(tickets + 10));
             Assert.That(Find("MailClaim-welcome-2026"), Is.Null, "领完不再有领取按钮");
             Require("MailClaimed");
         }

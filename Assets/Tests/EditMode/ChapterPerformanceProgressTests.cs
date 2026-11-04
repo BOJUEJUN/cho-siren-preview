@@ -71,9 +71,11 @@ namespace ChoSiren.Tests
         public void ExistingDailyBonusPaysOnceAndMidnightVictoryCountsInNewDay()
         {
             for (int i = 0; i < 2; i++) model.SettleStageBattle(WinBattle(), out _);
-            int diamonds = model.Save.Diamonds;
+            int diamonds = model.Save.Diamonds, gold = model.Save.Gold;
             model.SettleStageBattle(WinBattle(), out string message);
-            Assert.That(model.Save.Diamonds - diamonds, Is.EqualTo(GameModel.DailyPerformanceDiamondReward));
+            // 2026-11-04: the daily goal pays 星光币 (星钻 is the top-up currency).
+            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds));
+            Assert.That(model.Save.Gold - gold, Is.GreaterThanOrEqualTo(GameModel.DailyPerformanceGoldReward));
             Assert.That(message, Does.Contain("每日演出目标达成"));
             Assert.That(Progress("daily-perform-3"), Is.EqualTo(3));
             diamonds = model.Save.Diamonds;

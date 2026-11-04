@@ -161,7 +161,8 @@ namespace ChoSiren.Tests
                 Assert.That(toast.activeSelf, Is.False, "签到不再只出一条底部文字");
                 var day = GameObject.Find("SignInDay-1");
                 Assert.That(day, Is.Not.Null);
-                Assert.That(day.transform.Find("Icon").GetComponent<Image>().sprite, Is.SameAs(RewardItemVisuals.HudBadge(CurrencyIds.Diamond)));
+                // 2026-11-04: day one pays 星光币 (星钻 is the top-up currency).
+                Assert.That(day.transform.Find("Icon").GetComponent<Image>().sprite, Is.SameAs(RewardItemVisuals.HudBadge(CurrencyIds.Gold)));
                 yield return Wait(1.3f);
                 Capture(camera, rt, $"signin-popup-{tag}.png");
                 CollectPopup();

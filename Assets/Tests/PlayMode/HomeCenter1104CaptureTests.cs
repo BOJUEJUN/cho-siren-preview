@@ -52,10 +52,15 @@ namespace ChoSiren.Tests
             PlayerPrefs.SetInt(AgreementKey, 1);
             yield return null;
 
+            // HOMECENTER_ORIGINAL=1 captures the authored placement (no centring / tilt) for comparison.
+            bool original = Environment.GetEnvironmentVariable("HOMECENTER_ORIGINAL") == "1";
+            float keptShift = PsdHomeCharacterCarousel.CenterShift1104[index], keptTilt = PsdHomeCharacterCarousel.Tilt1104[index];
+            if (original) { PsdHomeCharacterCarousel.CenterShift1104[index] = 0f; PsdHomeCharacterCarousel.Tilt1104[index] = 0f; }
             var app = new GameObject("HomeCenter1104").AddComponent<ChoSirenApp>();
             var camera = new GameObject("HomeCenter1104Camera", typeof(Camera)).GetComponent<Camera>();
             camera.transform.SetParent(app.transform, false);
-            const int width = 1080, height = 2288;
+            int width = int.TryParse(Environment.GetEnvironmentVariable("HOMECENTER_W"), out int w) ? w : 1080;
+            int height = int.TryParse(Environment.GetEnvironmentVariable("HOMECENTER_H"), out int h) ? h : 2288;
             var rt = new RenderTexture(width, height, 24);
             try
             {
@@ -108,6 +113,7 @@ namespace ChoSiren.Tests
             }
             finally
             {
+                PsdHomeCharacterCarousel.CenterShift1104[index] = keptShift; PsdHomeCharacterCarousel.Tilt1104[index] = keptTilt;
                 camera.targetTexture = null;
                 rt.Release(); UnityEngine.Object.DestroyImmediate(rt);
             }

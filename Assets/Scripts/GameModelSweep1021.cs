@@ -53,10 +53,10 @@ namespace ChoSiren
                 if (gold > 0) rewards.Add((CurrencyIds.Gold, gold));
                 rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
                 AddMaterialRewards1104(stage, false, runSeed, rewards);
-                if (RecordSuccessfulPerformance()) dailyBonus += DailyPerformanceDiamondReward;
+                if (RecordSuccessfulPerformance()) dailyBonus += DailyPerformanceGoldReward;
                 Report(TaskTriggers.BattleWin);
             }
-            if (dailyBonus > 0) rewards.Add((CurrencyIds.Diamond, dailyBonus));
+            if (dailyBonus > 0) rewards.Add((CurrencyIds.Gold, dailyBonus));
 
             var equipmentNotes = new List<string>();
             var granted = new Dictionary<string, int>(StringComparer.Ordinal);

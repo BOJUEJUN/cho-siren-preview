@@ -956,7 +956,7 @@ namespace ChoSiren
                     : (UnityAction)null,
                 Help = new[]
                 {
-                    ("mic", "女团不在线时也在闪耀舞台演出，持续累积星光币和星钻"),
+                    ("mic", "女团不在线时也在闪耀舞台演出，持续累积星光币"),
                     ("clock", "收益有上限，满了就不再增长，记得常来领取"),
                 },
             });
@@ -974,6 +974,7 @@ namespace ChoSiren
         private static (string icon, string caption)[] CurrencySources1101(string currency)
         {
             if (currency == CurrencyIds.Stamina) return new[] { ("clock", "恢复"), ("calendar", "签到"), ("exchange", "兑换") };
+            if (currency == CurrencyIds.Diamond) return new[] { ("gift", "充值"), ("flag", "首通"), ("star", "章节") };
             return new[] { ("flag", "关卡"), ("check", "任务"), ("calendar", "签到"), ("coin", "舞台") };
         }
 
@@ -1053,13 +1054,16 @@ namespace ChoSiren
             }
             else
             {
+                // 2026-11-04: 星钻 is the top-up currency; the shop lists the packs (payment not connected yet).
                 GameObject locked = ModalPolish038Chrome.RowPlate(body, "NoRealPayment");
-                PanelKit.PlaceTop(locked.GetComponent<RectTransform>(), 0f, y, width, 64f);
+                PanelKit.PlaceTop(locked.GetComponent<RectTransform>(), 0f, y, width, 72f);
                 RectTransform glyph = VisualA1101.NeonIcon(locked.transform, "Icon", "nopay", VisualA1101.Gold, 40f);
-                VisualA1101.Place(glyph, 18f, 12f, 40f, 40f);
-                Text tag = VisualA1101.Label(locked.transform, "StateTitle", "充值未开放", 19, VisualA1101.Gold, TextAnchor.MiddleLeft);
-                VisualA1101.Place(tag.rectTransform, 70f, 0f, width - 80f, 64f);
-                y += 80f;
+                VisualA1101.Place(glyph, 18f, 16f, 40f, 40f);
+                Text tag = VisualA1101.Label(locked.transform, "StateTitle", "充值通道接入中", 18, VisualA1101.Gold, TextAnchor.MiddleLeft);
+                VisualA1101.Place(tag.rectTransform, 70f, 0f, width - 240f, 72f);
+                IconButton1101(locked.transform, "OpenTopUp", "gift", "星钻商城", 18, OpenTopUp1104,
+                    ModalPolish038ButtonStyle.Primary, width - 168f, 8f, 156f, 56f, 26f);
+                y += 88f;
             }
 
             float half = (width - 12f) * .5f;

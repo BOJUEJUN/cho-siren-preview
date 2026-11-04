@@ -511,18 +511,19 @@ namespace ChoSiren.Tests
             SaveRaw(new GameSave());
             DateTime clock = new DateTime(2026, 10, 10, 9, 0, 0);
             var model = new GameModel(() => clock);
-            int diamonds = model.Save.Diamonds, gold = model.Save.Gold;
+            int gold = model.Save.Gold, stamina = model.Save.Stamina;
             Assert.That(model.SignedToday, Is.False);
             Assert.That(model.SignInDay, Is.EqualTo(0));
             Assert.That(model.SignIn(out _), Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + 20));
+            // 2026-11-04: the seven-day cycle pays 星光币 / 体力 / 碎晶 / 签约券, no 星钻.
+            Assert.That(model.Save.Gold, Is.EqualTo(gold + 2000));
             Assert.That(model.SignIn(out _), Is.False, "同一天只能签到一次");
             Assert.That(model.HasCheckedInToday, Is.True, "七日签到与原有签到是同一份记录");
             clock = clock.AddDays(1);
             Assert.That(model.SignedToday, Is.False);
             Assert.That(model.SignInDay, Is.EqualTo(1));
             Assert.That(model.SignIn(out _), Is.True);
-            Assert.That(model.Save.Gold, Is.EqualTo(gold + 2000));
+            Assert.That(model.Save.Stamina, Is.EqualTo(stamina + 30), "满体力也能领到（可以超过上限）");
             Assert.That(new GameModel(() => clock).SignedToday, Is.True);
             clock = clock.AddDays(3);
             Assert.That(model.SignInDay, Is.EqualTo(0), "中断后从第 1 天重新开始");
@@ -533,10 +534,10 @@ namespace ChoSiren.Tests
         {
             SaveRaw(new GameSave());
             var model = new GameModel(() => now);
-            int diamonds = model.Save.Diamonds;
+            int tickets = model.Save.RecruitTickets;
             Assert.That(model.ClaimableMailCount, Is.GreaterThan(0));
             Assert.That(model.ClaimMail("welcome-2026", out _), Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds + 150));
+            Assert.That(model.Save.RecruitTickets, Is.EqualTo(tickets + 10));
             Assert.That(model.ClaimMail("welcome-2026", out _), Is.False);
             Assert.That(new GameModel(() => now).Mails().First(mail => mail.Id == "welcome-2026").Claimed, Is.True);
         }
@@ -713,16 +714,17 @@ namespace ChoSiren.Tests
                 Assert.That(model.Perform(out _), Is.True);
 
             Assert.That(model.Save.Gold,
-                Is.EqualTo(initialGold + perShowGold * GameModel.DailyPerformanceGoal), () =>
+                Is.EqualTo(initialGold + perShowGold * GameModel.DailyPerformanceGoal + GameModel.DailyPerformanceGoldReward), () =>
                     $"摩擦减益 {frictionPenalty}% 下每场应为 {perShowGold}");
             Assert.That(model.Save.Stamina,
                 Is.EqualTo(initialStamina - GameModel.PerformanceStaminaCost * GameModel.DailyPerformanceGoal));
             Assert.That(model.Save.DailyPerformances, Is.EqualTo(GameModel.DailyPerformanceGoal));
             Assert.That(model.DailyTaskComplete, Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + GameModel.DailyPerformanceDiamondReward));
+            // 2026-11-04: the daily goal pays 星光币; 星钻 only comes from top-up and one-time rewards.
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds));
 
             Assert.That(model.Perform(out _), Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + GameModel.DailyPerformanceDiamondReward));
+            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds));
 
             GameModel reloaded = CreateModel();
             Assert.That(reloaded.Save.DailyPerformances, Is.EqualTo(GameModel.DailyPerformanceGoal + 1));
@@ -822,15 +824,15 @@ namespace ChoSiren.Tests
         public void CheckInCanOnlyRewardOncePerDayAndTracksConsecutiveDays()
         {
             GameModel model = CreateModel();
-            int initialDiamonds = model.Save.Diamonds;
+            int initialGold = model.Save.Gold;
 
             Assert.That(model.CheckIn(out _), Is.True);
             Assert.That(model.HasCheckedInToday, Is.True);
             Assert.That(model.Save.CheckInDay, Is.EqualTo(1));
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + 20));
+            Assert.That(model.Save.Gold, Is.EqualTo(initialGold + 2000));
 
             Assert.That(model.CheckIn(out _), Is.False);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(initialDiamonds + 20));
+            Assert.That(model.Save.Gold, Is.EqualTo(initialGold + 2000));
 
             now = now.AddDays(1);
             Assert.That(model.CheckIn(out _), Is.True);
@@ -1296,7 +1298,7 @@ namespace ChoSiren.Tests
             {
                 Diamonds = -10,
                 Gold = -20,
-                Stamina = 999,
+                Stamina = 5000,
                 DailyPerformances = -3,
                 CheckInDay = 0,
                 StoryProgress = 500,
@@ -1317,7 +1319,7 @@ namespace ChoSiren.Tests
 
             Assert.That(model.Save.Diamonds, Is.Zero);
             Assert.That(model.Save.Gold, Is.Zero);
-            Assert.That(model.Save.Stamina, Is.EqualTo(GameModel.MaxStamina));
+            Assert.That(model.Save.Stamina, Is.EqualTo(GameModel.StaminaOverflowCap), "reward overflow is kept up to its ceiling");
             Assert.That(model.Save.DailyPerformances, Is.Zero);
             Assert.That(model.Save.CheckInDay, Is.EqualTo(1));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.MaxStoryProgress));

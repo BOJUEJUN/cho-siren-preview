@@ -225,7 +225,8 @@ namespace ChoSiren
         // 2026-11-01 (赵金 "钱并不够你花"): 520 → 160. A performance costs 5 stamina and no fight, so 520 out-earned every
         // stage several times over (≈104 星光币/体力 vs 19–35 from battles) and made training effectively free.
         public const int PerformanceGoldReward = 160;
-        public const int DailyPerformanceDiamondReward = 20;
+        // 2026-11-04: 星钻 is the top-up currency, so the daily performance goal pays 星光币 instead of 20 星钻.
+        public const int DailyPerformanceGoldReward = 300;
         public const int StoryStaminaCost = 8;
         public const int StoryGoldReward = 300;
         public const int StoryDiamondReward = 5;
@@ -710,6 +711,8 @@ namespace ChoSiren
         // ------------------------------------------------------------------ stamina
 
         public int StaminaCap => economy.StaminaMax;
+        /// <summary>Most stamina a save can hold from rewards (regeneration still stops at <see cref="StaminaCap"/>).</summary>
+        public const int StaminaOverflowCap = 999;
 
         public long SecondsUntilNextStamina
         {
@@ -1153,8 +1156,8 @@ namespace ChoSiren
             GrantItemInternal(CurrencyIds.Gold, goldReward);
             if (RecordSuccessfulPerformance())
             {
-                GrantItemInternal(CurrencyIds.Diamond, DailyPerformanceDiamondReward);
-                message = $"演出完成！星光币 +{goldReward}，每日目标达成，星钻 +{DailyPerformanceDiamondReward}";
+                GrantItemInternal(CurrencyIds.Gold, DailyPerformanceGoldReward);
+                message = $"演出完成！星光币 +{goldReward}，每日目标达成，星光币再 +{DailyPerformanceGoldReward}";
             }
             else
             {
@@ -1752,7 +1755,7 @@ namespace ChoSiren
                 rewards.Add((AccessoryItemIds[FirstClearAccessory(stage.Id)], 1));
             }
             bool dailyPerformanceGoalReached = RecordSuccessfulPerformance();
-            if (dailyPerformanceGoalReached) rewards.Add((CurrencyIds.Diamond, DailyPerformanceDiamondReward));
+            if (dailyPerformanceGoalReached) rewards.Add((CurrencyIds.Gold, DailyPerformanceGoldReward));
 
             rewards.AddRange(drops.Where(drop => drop.ItemId != CurrencyIds.Gold));
             AddMaterialRewards1104(stage, firstClear, context.Seed, rewards);
@@ -2439,7 +2442,9 @@ namespace ChoSiren
             int loadedSchemaVersion = Save.SchemaVersion;
             Save.Diamonds = Mathf.Max(0, Save.Diamonds);
             Save.Gold = Mathf.Max(0, Save.Gold);
-            Save.Stamina = Mathf.Clamp(Save.Stamina, 0, economy.StaminaMax);
+            // 2026-11-04 (用户: 120 满体力签到领 30，体力没变): rewards may lift stamina past the regen cap (StaminaRegen keeps
+            // overflow and simply stops regenerating); only the overflow ceiling clamps here.
+            Save.Stamina = Mathf.Clamp(Save.Stamina, 0, StaminaOverflowCap);
             Save.RecruitTickets = Mathf.Max(0, Save.RecruitTickets);
             Save.CostumeTickets = Mathf.Max(0, Save.CostumeTickets);
             Save.Shards = Mathf.Max(0, Save.Shards);

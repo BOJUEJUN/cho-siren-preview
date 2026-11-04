@@ -30,7 +30,8 @@ namespace ChoSiren
                     Id = "welcome-2026",
                     Title = "欢迎加入 CHO-SIREN",
                     Body = "{player}，你好！女团的舞台从今天开始。这是公司准备的出道支援，请收下。",
-                    Gift = new List<(string, int)> { (CurrencyIds.Diamond, 150), (CurrencyIds.Gold, 3000) },
+                    // 2026-11-04: 星钻 is bought, so the debut support is a free ten-pull of 签约券.
+                    Gift = new List<(string, int)> { (CurrencyIds.RecruitTicket, 10), (CurrencyIds.Gold, 3000) },
                 },
                 new MailView
                 {
@@ -43,7 +44,7 @@ namespace ChoSiren
                 {
                     Id = "idle-stage",
                     Title = "闪耀舞台开张",
-                    Body = "女团不在线时也会在闪耀舞台演出，持续累积星光币和星钻。大厅右侧「闪耀舞台」随时领取。",
+                    Body = "女团不在线时也会在闪耀舞台演出，持续累积星光币。大厅右侧「闪耀舞台」随时领取。",
                 },
             };
             foreach (MailView mail in mails) mail.Claimed = HasStoryFlag(MailFlagPrefix + mail.Id);
@@ -58,9 +59,10 @@ namespace ChoSiren
         public const int SignInCycle = 7;
         private static readonly (string ItemId, int Amount)[] SignInRewards =
         {
-            (CurrencyIds.Diamond, 20), (CurrencyIds.Gold, 2000), (CurrencyIds.Stamina, 30),
-            (CurrencyIds.Diamond, 20), (CurrencyIds.Gold, 4000), (CurrencyIds.Stamina, 60),
-            (CurrencyIds.Diamond, 60),
+            // 2026-11-04: no free 星钻 any more; day seven gives a 签约券 (one pull) instead of 60 星钻.
+            (CurrencyIds.Gold, 2000), (CurrencyIds.Stamina, 30), (CurrencyIds.Gold, 3000),
+            (CurrencyIds.VoiceCrystal, 5), (CurrencyIds.Gold, 4000), (CurrencyIds.Stamina, 60),
+            (CurrencyIds.RecruitTicket, 1),
         };
 
         public bool SignedToday => HasCheckedInToday;

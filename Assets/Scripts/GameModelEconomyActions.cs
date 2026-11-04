@@ -33,7 +33,7 @@ namespace ChoSiren
         public const int StaminaRefillMaximum = 60;
         public const int StaminaRefillDiamondCostPerPoint = 1;
         public const bool RealMoneyPurchasesEnabled = false;
-        public const string RealMoneyPurchaseNotice = "当前为试玩版，尚未接入真实支付，不会扣款或模拟充值到账。星钻可通过游戏奖励获得。";
+        public const string RealMoneyPurchaseNotice = "当前为试玩版，尚未接入真实支付，不会扣款或模拟充值到账。";
 
         public EconomyExchangeQuote PreviewGoldExchange()
         {
@@ -111,7 +111,7 @@ namespace ChoSiren
             switch (currencyId)
             {
                 case CurrencyIds.Diamond:
-                    return "星钻 · 稀有资源\n用途：面试签约、选秀招募、兑换星光币、补充体力。\n获取：关卡首通、任务、签到和舞台收益。\n" + RealMoneyPurchaseNotice;
+                    return "星钻 · 充值货币\n用途：面试签约、选秀招募、兑换星光币、补充体力。\n获取：星钻商城充值，以及关卡首通、章节星级和成就的一次性奖励。\n免费抽卡用签约券：每周任务、签到和新手邮件发放。\n" + RealMoneyPurchaseNotice;
                 case CurrencyIds.Gold:
                     return $"星光币 · 养成资源\n用途：训练成员、强化饰品、风险沟通休整。\n获取：关卡通关、任务和舞台收益。\n也可用 {GoldExchangeDiamondCost} 星钻兑换 {GoldExchangeAmount:N0} 星光币，确认后才会扣除。";
                 case CurrencyIds.Stamina:
