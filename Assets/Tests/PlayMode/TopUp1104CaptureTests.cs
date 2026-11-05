@@ -107,6 +107,24 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(.6f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "AiDressPanel"), Is.True, "AI 换装 stays in game");
                 Shot(camera, rt, "workshop-ai.png");
+                // 2026-11-05 poster reveal, from a saved outfit (no model call).
+                if (Environment.GetEnvironmentVariable("WORKSHOP_REVEAL_SAMPLE") is string sample && File.Exists(sample))
+                {
+                    var look = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                    look.LoadImage(File.ReadAllBytes(sample));
+                    typeof(ChoSirenApp).GetField("aiDressResult1104", Private).SetValue(app, look);
+                    stage.SetOverride(look);
+                    Invoke(app, "OpenAiDress1104");
+                    Invoke(app, "ShowAiReveal1105", look);
+                    yield return new WaitForSecondsRealtime(.8f);
+                    Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "AiReveal1105"), Is.True, "the new look gets its reveal");
+                    Shot(camera, rt, "workshop-reveal.png");
+                    Invoke(app, "CloseAiReveal1105");
+                    yield return new WaitForSecondsRealtime(.6f);
+                    Shot(camera, rt, "workshop-ai-look.png");
+                    Invoke(app, "UndoAiDress1105");
+                    yield return null;
+                }
                 // 2026-11-05: one real generation through the game's service (costs one model call; opt-in).
                 if (Environment.GetEnvironmentVariable("WORKSHOP_AI_LIVE") == "1")
                 {
