@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "9dae901b55122398e4c37877d8747d9b.data.unityweb",
+    "7bca45f65348af38eddf9ab6cfd2a1d5.framework.js.unityweb",
+    "0fb952a4758615b6528281cd696454c9.wasm.unityweb",
+    "c26363d26656fc3027defc1e791f6a08.loader.js"
+  ],
+  "previous": [
     "7c360832be63ac1fd1d41c35debf6437.data.unityweb",
     "374b72e092ac4b64726dbf50fa82dde9.framework.js.unityweb",
     "d4ada974f0ec6c043ce08c31d9524dd9.wasm.unityweb",
     "ebee467f3c6a5a868a3d2b72ebfeb7d9.loader.js"
   ],
-  "previous": [
-    "6683e548bedac7e09575f944429c8b92.data.unityweb",
-    "5ead8effcc4eb37786847754a8b2b7f3.framework.js.unityweb",
-    "5037b2b323ae3557aae791be67f9ea03.wasm.unityweb",
-    "8f86f8eb47f8166412a668287dadd5c0.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.35",
+      "releaseId": "UI-20261104-LEVEL-CAPS-TOPUP-R166",
+      "files": [
+        "7c360832be63ac1fd1d41c35debf6437.data.unityweb",
+        "374b72e092ac4b64726dbf50fa82dde9.framework.js.unityweb",
+        "d4ada974f0ec6c043ce08c31d9524dd9.wasm.unityweb",
+        "ebee467f3c6a5a868a3d2b72ebfeb7d9.loader.js"
+      ]
+    },
     {
       "version": "0.9.34",
       "releaseId": "UI-20261103-DECK-BOSSES-R165",
