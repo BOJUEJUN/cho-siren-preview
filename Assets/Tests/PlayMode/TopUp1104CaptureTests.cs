@@ -107,6 +107,23 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(.6f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "AiDressPanel"), Is.True, "AI 换装 stays in game");
                 Shot(camera, rt, "workshop-ai.png");
+                // 2026-11-05: one real generation through the game's service (costs one model call; opt-in).
+                if (Environment.GetEnvironmentVariable("WORKSHOP_AI_LIVE") == "1")
+                {
+                    Invoke(app, "StartAiDress1104");
+                    FieldInfo busy = typeof(ChoSirenApp).GetField("aiDressBusy1104", Private);
+                    float started = Time.realtimeSinceStartup;
+                    while ((bool)busy.GetValue(app) && Time.realtimeSinceStartup - started < 200f) yield return new WaitForSecondsRealtime(1f);
+                    Debug.Log("[AI1105] " + typeof(ChoSirenApp).GetField("aiDressStatus1104", Private).GetValue(app)
+                        + $" after {Time.realtimeSinceStartup - started:0}s");
+                    Assert.That(typeof(ChoSirenApp).GetField("aiDressResult1104", Private).GetValue(app), Is.Not.Null, "AI 换装 returns an outfit");
+                    yield return new WaitForSecondsRealtime(.8f);
+                    Shot(camera, rt, "workshop-ai-result.png");
+                    Invoke(app, "CloseModal");
+                    yield return new WaitForSecondsRealtime(1.5f);
+                    Shot(camera, rt, "workshop-ai-result-full.png");
+                    stage.SetOverride(null);
+                }
                 Tool("accent").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 stage.SetDialValue(1);

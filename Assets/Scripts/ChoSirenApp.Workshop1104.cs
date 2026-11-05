@@ -352,7 +352,7 @@ namespace ChoSiren
         {
             if (aiDressBusy1104) return;
             if (!WorkshopAi1104.Connected) { VisualA1101.Deny(); Toast(WorkshopAi1104.PendingNotice); return; }
-            string prompt = aiDressTag1104 + (string.IsNullOrWhiteSpace(aiDressPrompt1104) ? string.Empty : "，" + aiDressPrompt1104.Trim());
+            string prompt = WorkshopAi1104.PromptFor(aiDressTag1104, aiDressPrompt1104);
             Sprite still = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
                 : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath);
             aiDressBusy1104 = true; aiDressStatus1104 = "准备中…";

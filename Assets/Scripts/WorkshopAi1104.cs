@@ -19,7 +19,7 @@ namespace ChoSiren
     public static class WorkshopAi1104
     {
         /// <summary>The game's generation service (empty = not connected yet).</summary>
-        public static string Endpoint = string.Empty;
+        public static string Endpoint = "https://1318245308-d7n1q0c0wj.ap-guangzhou.tencentscf.com";
         public const string PendingNotice = "AI 服务开通中，开通后就能在这里直接生成";
         public static bool Connected => !string.IsNullOrEmpty(Endpoint);
 
@@ -27,6 +27,27 @@ namespace ChoSiren
         {
             "偶像演出服", "甜酷街头", "学院制服", "晚礼服", "赛博朋克", "国风", "运动风", "冬日针织",
         };
+
+        /// <summary>What each tag asks the model for: a clearly different outfit, not a touch-up of the current one.</summary>
+        public static readonly string[] StylePrompts =
+        {
+            "全新的亮片舞台演出服，白金配色，蓬蓬短裙、蝴蝶结和闪亮长靴",
+            "甜酷街头风：宽松短款卫衣、百褶短裙、厚底运动鞋，粉黑配色",
+            "日系学院制服：白衬衫、领结、格纹百褶裙、及膝袜和乐福鞋",
+            "缎面长款晚礼服，星空渐变色，裙摆及地，配长手套",
+            "赛博朋克机能风：发光线条短外套、紧身裤、霓虹配色的厚底靴",
+            "改良汉服：交领上衣、飘逸长裙和披帛，淡雅刺绣",
+            "运动风：运动背心、短款运动外套、运动短裤和球鞋",
+            "冬日针织：米白高领毛衣、格纹围巾、针织短裙和长靴",
+        };
+
+        /// <summary>The outfit request for a tag plus the player's own words.</summary>
+        public static string PromptFor(string tag, string extra)
+        {
+            int i = Array.IndexOf(StyleTags, tag);
+            string wish = i >= 0 ? StylePrompts[i] : tag;
+            return string.IsNullOrWhiteSpace(extra) ? wish : wish + "，" + extra.Trim();
+        }
 
         [Serializable] private sealed class Request { public string device, member, prompt, image; }
         [Serializable] private sealed class Reply { public string task, status, url, error; public int remaining = -1; }
@@ -38,10 +59,11 @@ namespace ChoSiren
             if (!Connected) { done(null, PendingNotice); yield break; }
             if (still == null) { done(null, "没有可用的立绘"); yield break; }
             progress?.Invoke("正在上传立绘…");
+            byte[] png = EncodeStill(still, 1024, out RectInt figure, out Vector2Int stillSize);
             var body = new Request
             {
                 device = SystemInfo.deviceUniqueIdentifier, member = memberId, prompt = prompt,
-                image = Convert.ToBase64String(EncodeStill(still, 1024)),
+                image = Convert.ToBase64String(png),
             };
             Reply reply = null; string error = null;
             yield return Send(UnityWebRequest.kHttpVerbPOST, Endpoint.TrimEnd('/') + "/dress", JsonUtility.ToJson(body),
@@ -65,7 +87,11 @@ namespace ChoSiren
                     image.timeout = 60;
                     yield return image.SendWebRequest();
                     if (image.result != UnityWebRequest.Result.Success) { done(null, "结果下载失败"); yield break; }
-                    Texture2D texture = DownloadHandlerTexture.GetContent(image);
+                    Texture2D raw = DownloadHandlerTexture.GetContent(image);
+                    progress?.Invoke("正在抠图…");
+                    yield return null;
+                    Texture2D texture = FitToStill(KeyGreen(raw), figure, stillSize);
+                    UnityEngine.Object.Destroy(raw);
                     texture.name = "workshop-ai-" + memberId;
                     done(texture, null);
                     yield break;
@@ -97,8 +123,9 @@ namespace ChoSiren
             }
         }
 
-        /// <summary>PNG of a (possibly non-readable) sprite, scaled to at most maxHeight, via a GPU blit.</summary>
-        public static byte[] EncodeStill(Sprite sprite, int maxHeight)
+        /// <summary>PNG of a (possibly non-readable) sprite, scaled to at most maxHeight, via a GPU blit; also the
+        /// figure's opaque bounds and the image size, so the result can be framed like her still.</summary>
+        public static byte[] EncodeStill(Sprite sprite, int maxHeight, out RectInt figure, out Vector2Int size)
         {
             Rect r = sprite.textureRect;
             float scale = Mathf.Min(1f, maxHeight / r.height);
@@ -110,9 +137,140 @@ namespace ChoSiren
             var copy = new Texture2D(w, h, TextureFormat.RGBA32, false);
             copy.ReadPixels(new Rect(0, 0, w, h), 0, 0); copy.Apply();
             RenderTexture.active = previous; RenderTexture.ReleaseTemporary(rt);
+            size = new Vector2Int(w, h);
+            figure = OpaqueBounds(copy.GetPixels32(), w, h);
             byte[] png = copy.EncodeToPNG();
             UnityEngine.Object.Destroy(copy);
             return png;
+        }
+
+        // ------------------------------------------------------------------ green key
+
+        /// <summary>
+        /// The model paints her on a plain green backdrop (often a soft, not pure, green with a floor shadow). The
+        /// backdrop colour is read from the border; pixels are scored by how much greener than red/blue they are
+        /// relative to it; everything that scores high and is connected to the border is the backdrop (so a green
+        /// dress inside her outline survives), enclosed holes are removed only when they match the backdrop closely,
+        /// and a soft edge plus despill removes the green fringe. Returns a new readable RGBA texture.
+        /// </summary>
+        public static Texture2D KeyGreen(Texture2D source)
+        {
+            int w = source.width, h = source.height, n = w * h;
+            Color32[] px = source.GetPixels32();
+            // Backdrop colour: median of a 6px border strip.
+            var rs = new System.Collections.Generic.List<int>(); var gs = new System.Collections.Generic.List<int>(); var bs = new System.Collections.Generic.List<int>();
+            for (int y = 0; y < h; y += 3)
+                for (int x = 0; x < w; x += 3)
+                {
+                    if (x >= 6 && x < w - 6 && y >= 6 && y < h - 6) continue;
+                    Color32 c = px[y * w + x]; rs.Add(c.r); gs.Add(c.g); bs.Add(c.b);
+                }
+            rs.Sort(); gs.Sort(); bs.Sort();
+            int br = rs[rs.Count / 2], bg = gs[gs.Count / 2], bb = bs[bs.Count / 2];
+            float bgGreen = Mathf.Max(24f, bg - Mathf.Max(br, bb));
+
+            var score = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                Color32 c = px[i];
+                score[i] = Mathf.Clamp01((c.g - Mathf.Max(c.r, c.b)) / bgGreen);
+            }
+
+            // Backdrop = high-scoring pixels connected to the border.
+            var back = new bool[n];
+            var stack = new int[n]; int top = 0;
+            void Seed(int i) { if (!back[i] && score[i] > .35f) { back[i] = true; stack[top++] = i; } }
+            for (int x = 0; x < w; x++) { Seed(x); Seed((h - 1) * w + x); }
+            for (int y = 0; y < h; y++) { Seed(y * w); Seed(y * w + w - 1); }
+            while (top > 0)
+            {
+                int i = stack[--top], x = i % w;
+                if (x > 0) Seed(i - 1);
+                if (x < w - 1) Seed(i + 1);
+                if (i >= w) Seed(i - w);
+                if (i < n - w) Seed(i + w);
+            }
+            // Enclosed gaps (between an arm and the body) that are the backdrop colour itself.
+            for (int i = 0; i < n; i++)
+            {
+                if (back[i] || score[i] < .65f) continue;
+                Color32 c = px[i];
+                if (Mathf.Abs(c.r - br) + Mathf.Abs(c.g - bg) + Mathf.Abs(c.b - bb) < 90) back[i] = true;
+            }
+            // The edge band: two pixels around the backdrop get a soft alpha and despill.
+            var edge = new bool[n];
+            for (int i = 0; i < n; i++)
+            {
+                if (!back[i]) continue;
+                int x = i % w, y = i / w;
+                for (int dy = -2; dy <= 2; dy++)
+                    for (int dx = -2; dx <= 2; dx++)
+                    {
+                        int xx = x + dx, yy = y + dy;
+                        if (xx >= 0 && xx < w && yy >= 0 && yy < h) edge[yy * w + xx] = true;
+                    }
+            }
+            for (int i = 0; i < n; i++)
+            {
+                if (!edge[i]) continue;
+                Color32 c = px[i];
+                float a = back[i] ? Mathf.Clamp01((.55f - score[i]) / .4f) : Mathf.Clamp01((.75f - score[i]) / .5f);
+                if (a <= 0f) { px[i] = new Color32(0, 0, 0, 0); continue; }
+                byte limit = (byte)Mathf.Max(c.r, c.b);
+                if (c.g > limit) c.g = limit;
+                c.a = (byte)Mathf.RoundToInt(a * 255f);
+                px[i] = c;
+            }
+            var result = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            result.SetPixels32(px); result.Apply();
+            return result;
+        }
+
+        /// <summary>Opaque bounds (alpha above ~10%) of a pixel block; the whole image when it has none.</summary>
+        public static RectInt OpaqueBounds(Color32[] px, int w, int h)
+        {
+            int x0 = w, y0 = h, x1 = -1, y1 = -1;
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    if (px[y * w + x].a < 26) continue;
+                    if (x < x0) x0 = x; if (x > x1) x1 = x;
+                    if (y < y0) y0 = y; if (y > y1) y1 = y;
+                }
+            return x1 < 0 ? new RectInt(0, 0, w, h) : new RectInt(x0, y0, x1 - x0 + 1, y1 - y0 + 1);
+        }
+
+        /// <summary>
+        /// Places the keyed figure on a canvas framed like her still: same image aspect, the figure as tall as hers and
+        /// standing in the same place (feet on her feet, centred on her), so the workshop's face close-ups still land.
+        /// </summary>
+        public static Texture2D FitToStill(Texture2D keyed, RectInt stillFigure, Vector2Int stillSize)
+        {
+            int w = keyed.width, h = keyed.height;
+            Color32[] src = keyed.GetPixels32();
+            RectInt fig = OpaqueBounds(src, w, h);
+            if (stillSize.x <= 0 || stillSize.y <= 0 || stillFigure.height <= 0) return keyed;
+            // Canvas scale keeps the AI figure at native resolution.
+            float k = fig.height / (float)stillFigure.height;
+            int cw = Mathf.Clamp(Mathf.RoundToInt(stillSize.x * k), 8, 4096), ch = Mathf.Clamp(Mathf.RoundToInt(stillSize.y * k), 8, 4096);
+            int ox = Mathf.RoundToInt((stillFigure.x + stillFigure.width * .5f) * k - (fig.x + fig.width * .5f));
+            int oy = Mathf.RoundToInt(stillFigure.y * k - fig.y);
+            var dst = new Color32[cw * ch];
+            for (int y = fig.y; y < fig.y + fig.height; y++)
+            {
+                int ty = y + oy;
+                if (ty < 0 || ty >= ch) continue;
+                for (int x = fig.x; x < fig.x + fig.width; x++)
+                {
+                    int tx = x + ox;
+                    if (tx < 0 || tx >= cw) continue;
+                    dst[ty * cw + tx] = src[y * w + x];
+                }
+            }
+            var result = new Texture2D(cw, ch, TextureFormat.RGBA32, false);
+            result.SetPixels32(dst); result.Apply();
+            if (Application.isPlaying) UnityEngine.Object.Destroy(keyed); else UnityEngine.Object.DestroyImmediate(keyed);
+            return result;
         }
 
         // ------------------------------------------------------------------ wardrobe (this device)
