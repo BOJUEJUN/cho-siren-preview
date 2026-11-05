@@ -250,7 +250,7 @@ namespace ChoSiren
                     break;
                 case "accent":
                     workshopStage1104.Dial(new WorkshopDial1104("应援色", WorkshopAccents1104.Length, () => look.Accent, v => look.Accent = v,
-                        v => WorkshopAccents1104[v].Name), raise);
+                        v => WorkshopAccents1104[v].Name) { Swatch = v => WorkshopAccents1104[v].Glow }, raise);
                     break;
                 case "bob":
                     workshopStage1104.Dial(new WorkshopDial1104("律动", 0, 100, 5, () => look.Bob, v => look.Bob = v, v => v.ToString()), raise);
@@ -381,6 +381,8 @@ namespace ChoSiren
         public readonly Action<int> Set;
         public readonly Func<int, string> Format;
         public Action Released;
+        /// <summary>Optional colour per value: the rim node shows the colour instead of text (应援色).</summary>
+        public Func<int, Color?> Swatch;
 
         public WorkshopDial1104(string name, int min, int max, int step, Func<int> get, Action<int> set, Func<int, string> format)
         { Name = name; Min = min; Max = max; Step = Math.Max(1, step); Get = get; Set = set; Format = format; }
@@ -392,30 +394,34 @@ namespace ChoSiren
     }
 
     /// <summary>
-    /// The workshop stage: background, accent glow, the member (her still, or an angle sheet while turning), the camera
-    /// that eases between face / bust / full shots, and the vinyl dial that rises while a value is being set.
+    /// The workshop stage: background, accent glow, the member (her still or idle loop, or an angle sheet while turning),
+    /// the camera that eases between face / bust / full shots, and the value dial — the same half record as 开始演出's
+    /// stage picker (VinylStageWheel1102): it slides in from the right edge while a value tool is in use, the values sit
+    /// on its rim as the stage map's torn-sticker nodes (teal rim = selected), and it slides back to a sliver when left alone.
     /// </summary>
     public sealed class WorkshopStage1104 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        private const float StepDegrees = 18f, DialSize = 620f;
-        private RectTransform root, figureRect, dialRect, discRect;
-        private Image figure, background, glow, disc, bubble;
-        private Text bubbleText;
+        private const float WheelSize = 1124f, NodeSize = 112f, IdleSeconds = 2f, NodeRadius = 348f;
+        private RectTransform root, figureRect, wheelRect;
+        private Image figure, background, glow;
         private Func<WorkshopLook1104> look;
-        private Sprite front;
+        private Sprite front, dot;
         private Sprite[] turn; // 0 front, 1 left 45, 2 left 90, 3 back, 4 right 90 (mirrored), 5 right 45 (mirrored)
         private static readonly bool[] Mirrored = { false, false, false, false, true, true };
         private Rect face;
         private WorkshopDial1104 dial;
-        private float zoom = -1f, panY, raise, dialAngle, turnPos, turnVel, peekUntil;
-        private bool dragging, held, turning;
-        private float dragStartAngle, dragStartValue;
+        private VinylStageWheel1102 wheel;
+        private Image[] nodeGlows;
+        private Text dialTitle;
+        private float zoom = -1f, panY, slide, turnPos, turnVel, lastTouch = -10f;
+        private bool turning;
         public int Shot = 1;
         public bool TurnMode;
         public Action Changed;
         public bool HasTurnViews => turn != null;
         public int View => turn == null ? 0 : ((Mathf.RoundToInt(turnPos) % 6) + 6) % 6;
-        public float Raise => raise;
+        /// <summary>0 tucked away … 1 fully out.</summary>
+        public float Raise => slide;
 
         /// <summary>初始角色's face in her 432x768 loop (normalised, y up), measured on the first frame.</summary>
         public static readonly Rect StarterFace = new Rect(180f / 432f, (768f - 145f) / 768f, 60f / 432f, 58f / 768f);
@@ -424,14 +430,13 @@ namespace ChoSiren
         private UnityEngine.Video.VideoPlayer player;
         private RenderTexture videoTexture;
         private Material videoMaterial;
-        private bool videoReady;
 
         /// <param name="idleVideo">Optional stacked-alpha loop under StreamingAssets (left colour, right alpha), the same
         /// frame as <paramref name="still"/>; the still shows until the first frame and whenever she is turned.</param>
         public void Build(RectTransform page, string subjectId, Sprite still, Rect faceRect, string idleVideo,
-            Func<WorkshopLook1104> source, Sprite rounded, Sprite dot)
+            Func<WorkshopLook1104> source, Sprite rounded, Sprite dotSprite)
         {
-            root = page; look = source;
+            root = page; look = source; dot = dotSprite;
             front = still;
             Sprite q45 = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-q45");
             Sprite side = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-side");
@@ -454,32 +459,18 @@ namespace ChoSiren
             figureRect.pivot = new Vector2(.5f, .5f);
             if (!string.IsNullOrEmpty(idleVideo)) BuildVideo(idleVideo);
 
-            // Dial: a vinyl disc whose top edge peeks above the bottom of the page, rising while a value is set.
-            dialRect = new GameObject("WorkshopDial", typeof(RectTransform)).GetComponent<RectTransform>();
-            dialRect.SetParent(page, false);
-            dialRect.anchorMin = dialRect.anchorMax = new Vector2(.5f, 0f); dialRect.pivot = new Vector2(.5f, .5f);
-            dialRect.sizeDelta = new Vector2(DialSize, DialSize);
-            disc = MakeImage("Disc", dialRect, Resources.Load<Sprite>("Art/LevelMap1102/vinyl"), Color.white);
-            disc.preserveAspect = true; disc.raycastTarget = true;
-            discRect = disc.rectTransform; discRect.anchorMin = Vector2.zero; discRect.anchorMax = Vector2.one;
-            discRect.offsetMin = discRect.offsetMax = Vector2.zero;
-            Image pointer = MakeImage("Pointer", dialRect, dot, Brand1025.Teal);
-            pointer.rectTransform.anchorMin = pointer.rectTransform.anchorMax = new Vector2(.5f, 1f);
-            pointer.rectTransform.sizeDelta = new Vector2(16f, 16f); pointer.rectTransform.anchoredPosition = new Vector2(0f, -6f);
-            bubble = MakeImage("ValueBubble", dialRect, rounded, new Color32(14, 9, 28, 235));
-            bubble.type = Image.Type.Sliced;
-            bubble.rectTransform.anchorMin = bubble.rectTransform.anchorMax = new Vector2(.5f, 1f);
-            bubble.rectTransform.pivot = new Vector2(.5f, 0f);
-            bubble.rectTransform.sizeDelta = new Vector2(230f, 54f); bubble.rectTransform.anchoredPosition = new Vector2(0f, 10f);
-            bubbleText = VisualA1101.Label(bubble.transform, "Text", string.Empty, 24, VisualA1101.Paper, TextAnchor.MiddleCenter);
-            bubbleText.supportRichText = true;
-            VisualA1101.Stretch(bubbleText.rectTransform);
-            var trigger = disc.gameObject.AddComponent<EventTrigger>();
-            AddTrigger(trigger, EventTriggerType.PointerDown, _ => held = true);
-            AddTrigger(trigger, EventTriggerType.PointerUp, _ => { held = false; peekUntil = Time.unscaledTime + .9f; dial?.Released?.Invoke(); Changed?.Invoke(); });
-            AddTrigger(trigger, EventTriggerType.BeginDrag, e => BeginDial((PointerEventData)e));
-            AddTrigger(trigger, EventTriggerType.Drag, e => DragDial((PointerEventData)e));
-            AddTrigger(trigger, EventTriggerType.EndDrag, _ => dragging = false);
+            // Dial container: the record's centre sits past the right edge; only its left arc and rim nodes show.
+            wheelRect = new GameObject("WorkshopDial", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
+            wheelRect.SetParent(page, false);
+            // Top-left pivot: VinylStageWheel1102 lays its rim nodes out from the record's top-left corner.
+            wheelRect.anchorMin = wheelRect.anchorMax = new Vector2(1f, 0f); wheelRect.pivot = new Vector2(0f, 1f);
+            wheelRect.sizeDelta = new Vector2(WheelSize, WheelSize);
+            Image hit = wheelRect.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, 0f); hit.raycastTarget = true;
+            wheelRect.gameObject.AddComponent<WorkshopDialTouch1104>().Touched = () => lastTouch = Time.unscaledTime;
+            dialTitle = VisualA1101.Label(page, "WorkshopDialTitle", string.Empty, 18, Brand1025.Teal, TextAnchor.MiddleRight);
+            dialTitle.rectTransform.anchorMin = dialTitle.rectTransform.anchorMax = new Vector2(1f, 0f);
+            dialTitle.rectTransform.pivot = new Vector2(1f, .5f);
+            dialTitle.rectTransform.sizeDelta = new Vector2(200f, 30f);
             Apply();
         }
 
@@ -523,13 +514,6 @@ namespace ChoSiren
             if (videoMaterial != null) Destroy(videoMaterial);
         }
 
-        private static void AddTrigger(EventTrigger trigger, EventTriggerType type, Action<BaseEventData> action)
-        {
-            var entry = new EventTrigger.Entry { eventID = type };
-            entry.callback.AddListener(e => action(e));
-            trigger.triggers.Add(entry);
-        }
-
         private static Image MakeImage(string objectName, Transform parent, Sprite sprite, Color color)
         {
             var go = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
@@ -539,55 +523,93 @@ namespace ChoSiren
             return image;
         }
 
-        /// <summary>Shows the dial for a value (null tucks it away). show=false only leaves its rim peeking.</summary>
+        /// <summary>Shows the dial for a value (null tucks it away completely). show=false leaves only its rim at the edge.</summary>
         public void Dial(WorkshopDial1104 value, bool show = true)
         {
             dial = value;
-            if (value != null) dialAngle = (value.Get() - value.Min) / (float)value.Step * -StepDegrees;
-            held = dragging = false;
-            peekUntil = value != null && show ? Time.unscaledTime + 1.8f : 0f;
-            UpdateBubble();
+            for (int i = wheelRect.childCount - 1; i >= 0; i--) Destroy(wheelRect.GetChild(i).gameObject);
+            if (wheel != null) Destroy(wheel);
+            wheel = null; nodeGlows = null;
+            lastTouch = show && value != null ? Time.unscaledTime : -10f;
+            dialTitle.text = value != null ? value.Name : string.Empty;
+            if (value == null) return;
+
+            Image disc = MakeImage("Disc", wheelRect, Resources.Load<Sprite>("Art/LevelMap1102/vinyl"), Color.white);
+            disc.preserveAspect = true;
+            var dr = disc.rectTransform; dr.anchorMin = dr.anchorMax = new Vector2(.5f, .5f); dr.sizeDelta = new Vector2(WheelSize, WheelSize);
+            int count = value.Steps + 1;
+            var nodes = new RectTransform[count];
+            var buttons = new Button[count];
+            nodeGlows = new Image[count];
+            for (int i = 0; i < count; i++)
+            {
+                int v = value.Min + i * value.Step, stage = i + 1;
+                var go = new GameObject("DialNode-" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+                go.transform.SetParent(wheelRect, false);
+                var r = (RectTransform)go.transform;
+                r.anchorMin = r.anchorMax = r.pivot = new Vector2(0f, 1f); r.sizeDelta = new Vector2(NodeSize, NodeSize);
+                Image paper = go.GetComponent<Image>();
+                paper.sprite = VisualA1101.TornSprite; paper.color = new Color32(190, 165, 222, 255);
+                Outline rim = go.AddComponent<Outline>();
+                rim.effectColor = new Color32(137, 115, 177, 230); rim.effectDistance = new Vector2(1.5f, -1.5f);
+                Image selected = MakeImage("SelectedRim", go.transform, VisualA1101.TornSprite, Brand1025.Teal);
+                Place(selected.rectTransform, -6f, -6f, NodeSize + 12f, NodeSize + 12f);
+                selected.transform.SetAsFirstSibling();
+                nodeGlows[i] = selected;
+                Color? swatch = value.Swatch?.Invoke(v);
+                Image core = MakeImage("Core", go.transform, dot, swatch ?? new Color32(14, 13, 29, 255));
+                Place(core.rectTransform, 8f, 8f, NodeSize - 16f, NodeSize - 16f);
+                Image nick = MakeImage("PaperNick", go.transform, PunkUi.SlantFill, new Color32(238, 224, 255, 240));
+                Place(nick.rectTransform, NodeSize - 34f, 8f, 26f, 6f);
+                nick.rectTransform.localEulerAngles = new Vector3(0f, 0f, -28f);
+                if (swatch == null)
+                {
+                    string text = value.Format(v);
+                    Text label = VisualA1101.Label(go.transform, "Label", text, text.Length > 3 ? 21 : 26, VisualA1101.Paper, TextAnchor.MiddleCenter);
+                    label.fontStyle = FontStyle.Bold;
+                    Place(label.rectTransform, 6f, 0f, NodeSize - 12f, NodeSize);
+                }
+                Button button = go.GetComponent<Button>();
+                button.transition = Selectable.Transition.None; button.targetGraphic = paper;
+                button.onClick.AddListener(() => Select(stage));
+                nodes[i] = r; buttons[i] = button;
+            }
+            wheel = wheelRect.gameObject.AddComponent<VinylStageWheel1102>();
+            int current = Mathf.Clamp((value.Get() - value.Min) / value.Step, 0, count - 1) + 1;
+            wheel.Configure(dr, nodes, buttons, current, Select, s => s >= 1 && s <= count);
+            Highlight(current);
         }
 
-        private float AngleOf(PointerEventData e)
+        private static void Place(RectTransform r, float x, float y, float w, float h)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(dialRect, e.position, e.pressEventCamera, out Vector2 p);
-            return Mathf.Atan2(p.y, p.x) * Mathf.Rad2Deg;
+            r.anchorMin = r.anchorMax = r.pivot = new Vector2(0f, 1f);
+            r.anchoredPosition = new Vector2(x, -y); r.sizeDelta = new Vector2(w, h);
         }
 
-        private void BeginDial(PointerEventData e)
+        private void Select(int stage)
         {
             if (dial == null) return;
-            dragging = held = true;
-            dragStartAngle = AngleOf(e); dragStartValue = dialAngle;
+            lastTouch = Time.unscaledTime;
+            int value = Mathf.Clamp(dial.Min + (stage - 1) * dial.Step, dial.Min, dial.Max);
+            bool changed = value != dial.Get();
+            dial.Set(value);
+            wheel?.ShowStage(stage);
+            Highlight(stage);
+            Apply();
+            if (changed) { dial.Released?.Invoke(); Changed?.Invoke(); }
         }
 
-        private void DragDial(PointerEventData e)
+        private void Highlight(int stage)
         {
-            if (dial == null || !dragging) return;
-            float delta = Mathf.DeltaAngle(dragStartAngle, AngleOf(e));
-            dialAngle = Mathf.Clamp(dragStartValue + delta, -dial.Steps * StepDegrees, 0f);
-            int value = dial.Min + Mathf.RoundToInt(-dialAngle / StepDegrees) * dial.Step;
-            if (value != dial.Get()) { dial.Set(value); VisualA1101.Click(); Apply(); }
-            UpdateBubble();
+            if (nodeGlows == null) return;
+            for (int i = 0; i < nodeGlows.Length; i++) nodeGlows[i].enabled = i == stage - 1;
         }
 
-        /// <summary>Tests and the stage UI: set the dial's value directly.</summary>
+        /// <summary>Tests and the stage UI: set the dial's value directly (it slides out to show it).</summary>
         public void SetDialValue(int value)
         {
             if (dial == null) return;
-            value = Mathf.Clamp(value, dial.Min, dial.Max);
-            dial.Set(value);
-            dialAngle = (value - dial.Min) / (float)dial.Step * -StepDegrees;
-            peekUntil = Time.unscaledTime + 1.8f;
-            Apply(); UpdateBubble();
-        }
-
-        private void UpdateBubble()
-        {
-            if (bubbleText == null) return;
-            bubbleText.text = dial == null ? string.Empty
-                : $"{dial.Name}  <color=#{ColorUtility.ToHtmlStringRGB(Brand1025.Teal)}>{dial.Format(dial.Get())}</color>";
+            Select(Mathf.Clamp((value - dial.Min) / dial.Step, 0, dial.Steps) + 1);
         }
 
         public void Apply()
@@ -635,21 +657,33 @@ namespace ChoSiren
             int view = View;
             Sprite want = turn != null ? turn[view] : front;
             if (want != null && figure.sprite != want) figure.sprite = want;
-            // The idle loop replaces the still once it has a frame, except while she is turned away.
             if (video != null)
             {
-                videoReady = player != null && player.isPrepared && player.isPlaying && (player.frame > 0 || player.time > .05);
-                bool showVideo = videoReady && view == 0;
+                bool ready = player != null && player.isPrepared && player.isPlaying && (player.frame > 0 || player.time > .05);
+                bool showVideo = ready && view == 0;
                 video.enabled = showVideo;
                 Color c = figure.color; c.a = showVideo ? 0f : 1f; figure.color = c;
             }
             float flip = turn != null && Mirrored[view] ? -1f : 1f;
 
-            // Camera: fit the shot (face / bust / full figure) into the stage between the top bar and the tools.
+            // Dial: out while a value tool is in use and touched recently; otherwise only the rim stays at the edge.
+            bool using_ = dial != null && (Time.unscaledTime - lastTouch < IdleSeconds || (wheel != null && wheel.IsDragging));
+            if (wheel != null && wheel.IsDragging) lastTouch = Time.unscaledTime;
+            slide = Mathf.MoveTowards(slide, using_ ? 1f : 0f, dt * 4.5f);
+            float r = slide * slide * (3f - 2f * slide);
+            // Out: the record's centre 138px past the right edge (as on the stage map); tucked: a 64px sliver of rim (tap it or the tool to bring it back).
+            float bottomBand = 186f, half = WheelSize * .5f;
+            float centreX = Mathf.Lerp(dial == null ? half + 40f : half - 64f, 138f, r);
+            float centreY = bottomBand + (page.y - bottomBand - 84f) * .5f;
+            wheelRect.anchoredPosition = new Vector2(centreX - half, centreY + half);
+            dialTitle.rectTransform.anchoredPosition = new Vector2(-24f, centreY + NodeRadius + 70f);
+            dialTitle.color = new Color(Brand1025.Teal.r / 255f, Brand1025.Teal.g / 255f, Brand1025.Teal.b / 255f, r);
+
+            // Camera: fit the shot (face / bust / full figure) into the stage between the top bar and the tools,
+            // sliding her left while the dial is out so the record never covers her.
             WorkshopLook1104 l = look?.Invoke();
             Vector2 art = want != null ? want.rect.size : new Vector2(1000f, 2400f);
-            float r = raise * raise * (3f - 2f * raise);
-            float top = page.y * .5f - 84f, bottom = -page.y * .5f + 186f + r * 90f, stageH = top - bottom;
+            float top = page.y * .5f - 84f, bottom = -page.y * .5f + bottomBand, stageH = top - bottom;
             float faceH = face.height * art.y, faceCy = face.center.y * art.y;
             float shotH = Shot == 0 ? faceH * 4.2f : Shot == 1 ? faceH * 6.6f : art.y * 1.02f;
             float focus = Shot == 2 ? art.y * .5f : Shot == 1 ? faceCy - faceH * 1.9f : faceCy - faceH * .55f;
@@ -660,29 +694,28 @@ namespace ChoSiren
             float drawH = art.y * zoom, drawW = art.x * zoom;
             float targetPan = (bottom + stageH * .5f) - (focus - art.y * .5f) * zoom;
             panY = Mathf.Lerp(panY, targetPan, ease);
+            float shiftX = -page.x * .17f * r;
             float t = Time.unscaledTime, bob = l != null ? l.Bob / 100f : .5f;
             figureRect.sizeDelta = new Vector2(drawW, drawH);
-            figureRect.anchoredPosition = new Vector2(0f, panY + 5f * bob * Mathf.Sin(t * 1.6f));
+            figureRect.anchoredPosition = new Vector2(shiftX, panY + 5f * bob * Mathf.Sin(t * 1.6f));
             figureRect.localScale = new Vector3(flip * (l != null && l.Mirror ? -1f : 1f) * (1f + .008f * bob * Mathf.Sin(t * 2.2f)), 1f, 1f);
             figureRect.localRotation = Quaternion.Euler(0f, 0f, 1f * bob * Mathf.Sin(t * 1.1f));
             glow.rectTransform.sizeDelta = new Vector2(Mathf.Min(drawW, page.x * 1.6f), Mathf.Min(drawH * .8f, page.y * 1.4f));
-            glow.rectTransform.anchoredPosition = new Vector2(0f, bottom + stageH * .5f);
+            glow.rectTransform.anchoredPosition = new Vector2(shiftX, bottom + stageH * .5f);
 
             // Background pushes in a little with the camera, so a close-up reads as the camera moving.
             float closeness = Mathf.InverseLerp(stageH / (art.y * 1.02f), stageH / (faceH * 4.2f), zoom);
             background.rectTransform.localScale = Vector3.one * Mathf.Lerp(1f, 1.15f, closeness);
             float dim = Mathf.Lerp(.68f, .5f, closeness);
             background.color = new Color(dim, dim, dim + .03f, 1f);
-
-            // Dial: rim peeks when a value tool is selected; rises while held, dragged or just picked; spins to the value.
-            bool up = dial != null && (held || dragging || Time.unscaledTime < peekUntil);
-            raise = Mathf.MoveTowards(raise, up ? 1f : 0f, dt * 4.5f);
-            float hidden = dial == null ? -DialSize * .5f - 20f : -DialSize * .5f + 54f;
-            dialRect.anchoredPosition = new Vector2(0f, Mathf.Lerp(hidden, -DialSize * .5f + 250f, r));
-            discRect.localRotation = Quaternion.Lerp(discRect.localRotation, Quaternion.Euler(0f, 0f, dialAngle), ease * 1.5f);
-            bubble.color = new Color(bubble.color.r, bubble.color.g, bubble.color.b, .92f * r);
-            bubbleText.color = new Color(1f, 1f, 1f, r);
         }
+    }
+
+    /// <summary>Marks the dial as in use on any touch (drags are handled by the record itself).</summary>
+    public sealed class WorkshopDialTouch1104 : MonoBehaviour, IPointerDownHandler
+    {
+        public Action Touched;
+        public void OnPointerDown(PointerEventData e) => Touched?.Invoke();
     }
 
     /// <summary>Forwards drags on the stage background to the stage (Unity only drag-routes to the hit object).</summary>

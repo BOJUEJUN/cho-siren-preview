@@ -98,11 +98,16 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(.5f);
                 stage.SetDialValue(80);
                 yield return new WaitForSecondsRealtime(.7f);
-                Assert.That(stage.Raise, Is.GreaterThan(.9f), "the dial rises while a value is set");
+                Assert.That(stage.Raise, Is.GreaterThan(.9f), "the dial slides out while a value is set");
                 Shot(camera, rt, "workshop-dial.png");
                 yield return new WaitForSecondsRealtime(2.6f);
-                Assert.That(stage.Raise, Is.LessThan(.1f), "the dial tucks away again");
+                Assert.That(stage.Raise, Is.LessThan(.1f), "the dial slides back to a sliver");
                 Shot(camera, rt, "workshop-tucked.png");
+                Tool("accent").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.4f);
+                stage.SetDialValue(1);
+                yield return new WaitForSecondsRealtime(.8f);
+                Shot(camera, rt, "workshop-accent.png");
                 Tool("bg").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 stage.SetDialValue(2);
