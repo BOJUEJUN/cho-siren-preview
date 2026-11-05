@@ -21,7 +21,30 @@ namespace ChoSiren
         /// <summary>The game's generation service (empty = not connected yet).</summary>
         public static string Endpoint = "https://1318245308-d7n1q0c0wj.ap-guangzhou.tencentscf.com";
         public const string PendingNotice = "AI 服务开通中，开通后就能在这里直接生成";
-        public static bool Connected => !string.IsNullOrEmpty(Endpoint);
+        public static bool Connected => !string.IsNullOrEmpty(ActiveEndpoint);
+
+        /// <summary>
+        /// 2026-11-05 (用户在美国出差，自己测试游戏里的 GPT 换装): GPT Image 2.6 personal test service in Tencent Cloud
+        /// Singapore. Used only when the local, never-committed file Resources/AiGptTestCode.txt exists (it holds the
+        /// test code the service requires); public builds don't have it and keep <see cref="Endpoint"/>.
+        /// </summary>
+        public const string GptTestEndpoint = "https://1318245308-m2ju450cfv.ap-singapore.tencentscf.com";
+        private static string testCode;
+        private static bool testCodeLoaded;
+        public static string TestCode
+        {
+            get
+            {
+                if (!testCodeLoaded)
+                {
+                    testCodeLoaded = true;
+                    TextAsset file = Resources.Load<TextAsset>("AiGptTestCode");
+                    testCode = file != null ? file.text.Trim() : null;
+                }
+                return testCode;
+            }
+        }
+        public static string ActiveEndpoint => string.IsNullOrEmpty(TestCode) ? Endpoint : GptTestEndpoint;
         /// <summary>Generations this device has left today, from the service (-1 = not known yet).</summary>
         public static int RemainingToday = -1;
         public const int DailyLimit = 5;
@@ -69,7 +92,7 @@ namespace ChoSiren
                 image = Convert.ToBase64String(png),
             };
             Reply reply = null; string error = null;
-            yield return Send(UnityWebRequest.kHttpVerbPOST, Endpoint.TrimEnd('/') + "/dress", JsonUtility.ToJson(body),
+            yield return Send(UnityWebRequest.kHttpVerbPOST, ActiveEndpoint.TrimEnd('/') + "/dress", JsonUtility.ToJson(body),
                 r => reply = r, e => error = e);
             if (error != null && error.Contains("次数用完")) RemainingToday = 0;
             if (error != null || reply == null || string.IsNullOrEmpty(reply.task)) { done(null, error ?? reply?.error ?? "生成请求失败"); yield break; }
@@ -81,18 +104,19 @@ namespace ChoSiren
                 progress?.Invoke($"AI 正在换装… {Mathf.FloorToInt(Time.unscaledTime - started)} 秒");
                 yield return new WaitForSecondsRealtime(2.5f);
                 Reply poll = null; string pollError = null;
-                yield return Send(UnityWebRequest.kHttpVerbGET, Endpoint.TrimEnd('/') + "/dress/" + UnityWebRequest.EscapeURL(reply.task), null,
+                yield return Send(UnityWebRequest.kHttpVerbGET, ActiveEndpoint.TrimEnd('/') + "/dress/" + UnityWebRequest.EscapeURL(reply.task), null,
                     r => poll = r, e => pollError = e);
                 if (pollError != null) continue;
                 if (poll.status == "failed") { done(null, poll.error ?? "生成失败，换个描述再试试"); yield break; }
                 if (poll.status != "done" || string.IsNullOrEmpty(poll.url)) continue;
                 progress?.Invoke("正在下载结果…");
-                using (UnityWebRequest image = UnityWebRequestTexture.GetTexture(poll.url))
+                using (UnityWebRequest image = UnityWebRequest.Get(poll.url))
                 {
                     image.timeout = 60;
                     yield return image.SendWebRequest();
                     if (image.result != UnityWebRequest.Result.Success) { done(null, "结果下载失败"); yield break; }
-                    Texture2D raw = DownloadHandlerTexture.GetContent(image);
+                    Texture2D raw = DecodeImage(image.downloadHandler.data);
+                    if (raw == null) { done(null, "结果下载失败"); yield break; }
                     progress?.Invoke("正在抠图…");
                     yield return null;
                     Texture2D texture = FitToStill(KeyGreen(raw), figure, stillSize);
@@ -105,10 +129,26 @@ namespace ChoSiren
             done(null, "生成超时，请稍后再试");
         }
 
+        /// <summary>PNG/JPEG bytes, or the same image as base64 text (the Singapore function URL sends it that way).</summary>
+        private static Texture2D DecodeImage(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < 8) return null;
+            if (bytes[0] == (byte)'i' && bytes[1] == (byte)'V' && bytes[2] == (byte)'B')
+            {
+                try { bytes = Convert.FromBase64String(System.Text.Encoding.ASCII.GetString(bytes).Trim()); }
+                catch { return null; }
+            }
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (texture.LoadImage(bytes)) return texture;
+            UnityEngine.Object.Destroy(texture);
+            return null;
+        }
+
         private static IEnumerator Send(string verb, string url, string json, Action<Reply> ok, Action<string> fail)
         {
             using (var request = new UnityWebRequest(url, verb))
             {
+                if (!string.IsNullOrEmpty(TestCode)) request.SetRequestHeader("X-Test-Code", TestCode);
                 if (json != null)
                 {
                     request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));

@@ -95,3 +95,7 @@ Desktop.ini
 # Unity may emit these next to a player when a custom output path is used.
 *_BackUpThisFolder_ButDontShipItWithYourGame/
 *_BurstDebugInformation_DoNotShip/
+
+# Local-only GPT test code (personal test builds only; never commit)
+Assets/Resources/AiGptTestCode.txt
+Assets/Resources/AiGptTestCode.txt.meta
