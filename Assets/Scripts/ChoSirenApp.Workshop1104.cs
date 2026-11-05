@@ -19,8 +19,6 @@ namespace ChoSiren
     /// </summary>
     public sealed partial class ChoSirenApp
     {
-        public const string DressLabUrl1104 = "https://bojuejun.github.io/cho-siren-preview/dress-lab/";
-
         internal static readonly (string Name, Color Tint)[] WorkshopFilters1104 =
         {
             ("原色", Color.white), ("暖光", new Color(1f, .9f, .8f)), ("冷调", new Color(.84f, .93f, 1f)),
@@ -219,15 +217,12 @@ namespace ChoSiren
             WorkshopLook1104 look = workshopLook1104;
             string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
             workshopStage1104.TurnMode = id == "turn";
+            if (id != "dress") CloseAiDress1104();
             switch (id)
             {
                 case "dress":
                     workshopStage1104.Dial(null);
-                    if (raise)
-                    {
-                        Application.OpenURL(DressLabUrl1104 + "?member=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(subjectId));
-                        Toast($"已打开 AI 换装：{subjectName}（只换衣服，不换脸）");
-                    }
+                    OpenAiDress1104();
                     break;
                 case "filter":
                     workshopStage1104.Dial(new WorkshopDial1104("滤镜", WorkshopFilters1104.Length, () => look.Filter, v => look.Filter = v,
@@ -260,6 +255,125 @@ namespace ChoSiren
                     if (raise) Toast(workshopStage1104.HasTurnViews ? "左右拖动她转身" : $"{subjectName}的多角度立绘还在制作中");
                     break;
             }
+        }
+
+        // ------------------------------------------------------------------ AI 换装 (in game)
+
+        private GameObject aiDressPanel1104;
+        private string aiDressTag1104 = WorkshopAi1104.StyleTags[0], aiDressPrompt1104 = string.Empty, aiDressStatus1104 = string.Empty;
+        private bool aiDressBusy1104;
+        private Texture2D aiDressResult1104;
+
+        private void CloseAiDress1104()
+        {
+            if (aiDressPanel1104 != null) Destroy(aiDressPanel1104);
+            aiDressPanel1104 = null;
+        }
+
+        /// <summary>The AI 换装 sheet above the tools: style tags, a description, 生成, then 保存到衣橱 / 换回原样.</summary>
+        private void OpenAiDress1104()
+        {
+            CloseAiDress1104();
+            if (workshopRoot1104 == null) return;
+            var root = (RectTransform)workshopRoot1104.transform;
+            Image sheet = NewImage("AiDressPanel", root, RoundedSprite(18), new Color32(12, 8, 26, 236)).GetComponent<Image>();
+            sheet.type = Image.Type.Sliced; sheet.raycastTarget = true;
+            aiDressPanel1104 = sheet.gameObject;
+            var r = sheet.rectTransform;
+            r.anchorMin = Vector2.zero; r.anchorMax = new Vector2(1f, 0f); r.pivot = new Vector2(.5f, 0f);
+            r.offsetMin = new Vector2(14f, 186f); r.offsetMax = new Vector2(-14f, 186f + 330f);
+            float w = Mathf.Max(400f, root.rect.width - 28f) - 36f, y = 16f;
+
+            Text title = VisualA1101.Label(sheet.transform, "Title", "AI 换装", 22, VisualA1101.Paper, TextAnchor.MiddleLeft);
+            PlaceTop(title.rectTransform, 18f, y, 200f, 34f);
+            Text note = VisualA1101.Label(sheet.transform, "Note", "只换衣服 · 不换脸 · AI 生成仅自己可见", 13, VisualA1101.Muted, TextAnchor.MiddleRight);
+            PlaceTop(note.rectTransform, w - 300f, y, 318f, 34f);
+            y += 44f;
+
+            string[] tags = WorkshopAi1104.StyleTags;
+            float chipW = (w - 3 * 8f) / 4f;
+            for (int i = 0; i < tags.Length; i++)
+            {
+                string tag = tags[i];
+                bool on = tag == aiDressTag1104;
+                Image chip = NewImage("Tag-" + i, sheet.transform, RoundedSprite(12), on ? (Color)Brand1025.Teal : new Color32(30, 22, 52, 255)).GetComponent<Image>();
+                chip.type = Image.Type.Sliced; chip.raycastTarget = true;
+                PlaceTop(chip.rectTransform, 18f + (i % 4) * (chipW + 8f), y + (i / 4) * 50f, chipW, 42f);
+                Text label = VisualA1101.Label(chip.transform, "Text", tag, 15, on ? (Color)Brand1025.Ink : VisualA1101.Paper, TextAnchor.MiddleCenter);
+                VisualA1101.Stretch(label.rectTransform);
+                Button b = chip.gameObject.AddComponent<Button>(); b.transition = Selectable.Transition.None; b.targetGraphic = chip;
+                b.onClick.AddListener(() => { VisualA1101.Click(); aiDressTag1104 = tag; OpenAiDress1104(); });
+            }
+            y += 104f;
+
+            Image box = NewImage("Describe", sheet.transform, RoundedSprite(12), new Color32(24, 17, 44, 255)).GetComponent<Image>();
+            box.type = Image.Type.Sliced; box.raycastTarget = true;
+            PlaceTop(box.rectTransform, 18f, y, w, 50f);
+            Text value = VisualA1101.Label(box.transform, "Value", string.Empty, 17, VisualA1101.Paper, TextAnchor.MiddleLeft);
+            value.supportRichText = false;
+            Stretch(value.rectTransform, 14, 0, -14, 0);
+            Text hint = VisualA1101.Label(box.transform, "Placeholder", "补充描述（选填）：比如 白色蕾丝、星星发饰…", 15, VisualA1101.Muted, TextAnchor.MiddleLeft);
+            Stretch(hint.rectTransform, 14, 0, -14, 0);
+            InputField input = box.gameObject.AddComponent<InputField>();
+            input.targetGraphic = box; input.textComponent = value; input.placeholder = hint;
+            input.characterLimit = 40; input.lineType = InputField.LineType.SingleLine;
+            input.text = aiDressPrompt1104;
+            input.onValueChanged.AddListener(v => aiDressPrompt1104 = v);
+            y += 62f;
+
+            bool hasResult = aiDressResult1104 != null;
+            float half = (w - 10f) * .5f;
+            GameObject go = ModalPolish038Chrome.ActionButton(sheet.transform, "AiGenerate", aiDressBusy1104 ? "生成中…" : hasResult ? "再生成一套" : "生成",
+                19, StartAiDress1104, ModalPolish038ButtonStyle.Primary);
+            PlaceTop(go.GetComponent<RectTransform>(), 18f, y, hasResult ? half : w, 56f);
+            ModalPolish038Chrome.SetActionEnabled(go, !aiDressBusy1104);
+            if (hasResult)
+            {
+                GameObject keep = ModalPolish038Chrome.ActionButton(sheet.transform, "AiSave", "保存到衣橱", 17, () =>
+                {
+                    WorkshopAi1104.SaveToWardrobe(WorkshopSubjectId1104, aiDressResult1104);
+                    VisualA1101.Success(); Toast("已保存到衣橱（本机）");
+                }, ModalPolish038ButtonStyle.Secondary);
+                PlaceTop(keep.GetComponent<RectTransform>(), 18f + half + 10f, y, half * .56f, 56f);
+                GameObject undo = ModalPolish038Chrome.ActionButton(sheet.transform, "AiUndo", "换回", 17, () =>
+                {
+                    aiDressResult1104 = null; workshopStage1104?.SetOverride(null); OpenAiDress1104();
+                }, ModalPolish038ButtonStyle.Secondary);
+                PlaceTop(undo.GetComponent<RectTransform>(), 18f + half + 10f + half * .56f + 8f, y, half * .44f - 8f, 56f);
+            }
+            y += 64f;
+            string status = aiDressBusy1104 ? aiDressStatus1104 : !WorkshopAi1104.Connected ? WorkshopAi1104.PendingNotice : aiDressStatus1104;
+            Text line = VisualA1101.Label(sheet.transform, "Status", status, 13, VisualA1101.Muted, TextAnchor.MiddleCenter);
+            PlaceTop(line.rectTransform, 18f, y - 4f, w, 22f);
+            r.offsetMax = new Vector2(-14f, 186f + y + 22f);
+        }
+
+        private void StartAiDress1104()
+        {
+            if (aiDressBusy1104) return;
+            if (!WorkshopAi1104.Connected) { VisualA1101.Deny(); Toast(WorkshopAi1104.PendingNotice); return; }
+            string prompt = aiDressTag1104 + (string.IsNullOrWhiteSpace(aiDressPrompt1104) ? string.Empty : "，" + aiDressPrompt1104.Trim());
+            Sprite still = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
+                : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath);
+            aiDressBusy1104 = true; aiDressStatus1104 = "准备中…";
+            OpenAiDress1104();
+            StartCoroutine(WorkshopAi1104.Generate(WorkshopSubjectId1104, still, prompt, text =>
+            {
+                aiDressStatus1104 = text;
+                Text line = aiDressPanel1104 != null ? aiDressPanel1104.transform.Find("Status")?.GetComponent<Text>() : null;
+                if (line != null) line.text = text;
+            }, (texture, error) =>
+            {
+                aiDressBusy1104 = false;
+                if (texture != null)
+                {
+                    aiDressResult1104 = texture; aiDressStatus1104 = "生成完成";
+                    workshopStage1104?.SetOverride(texture);
+                    VisualA1101.Success();
+                }
+                else { aiDressStatus1104 = error; Toast(error); }
+                if (aiDressPanel1104 != null) OpenAiDress1104();
+            }));
         }
 
         private void PlayWorkshopVoice1104()
@@ -401,17 +515,18 @@ namespace ChoSiren
     /// </summary>
     public sealed class WorkshopStage1104 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        private const float WheelSize = 1124f, NodeSize = 112f, IdleSeconds = 2f, NodeRadius = 348f;
+        private const float WheelSize = 1124f, NodeSize = 100f, IdleSeconds = 2f, NodeRadius = 348f;
         private RectTransform root, figureRect, wheelRect;
         private Image figure, background, glow;
         private Func<WorkshopLook1104> look;
-        private Sprite front, dot;
+        private Sprite front, dot, roundedSprite;
         private Sprite[] turn; // 0 front, 1 left 45, 2 left 90, 3 back, 4 right 90 (mirrored), 5 right 45 (mirrored)
         private static readonly bool[] Mirrored = { false, false, false, false, true, true };
         private Rect face;
         private WorkshopDial1104 dial;
         private VinylStageWheel1102 wheel;
-        private Image[] nodeGlows;
+        private Image[] nodeGlows, nodeFaces;
+        private Text[] nodeLabels;
         private Text dialTitle;
         private float zoom = -1f, panY, slide, turnPos, turnVel, lastTouch = -10f;
         private bool turning;
@@ -436,7 +551,7 @@ namespace ChoSiren
         public void Build(RectTransform page, string subjectId, Sprite still, Rect faceRect, string idleVideo,
             Func<WorkshopLook1104> source, Sprite rounded, Sprite dotSprite)
         {
-            root = page; look = source; dot = dotSprite;
+            root = page; look = source; dot = dotSprite; roundedSprite = rounded;
             front = still;
             Sprite q45 = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-q45");
             Sprite side = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-side");
@@ -529,18 +644,22 @@ namespace ChoSiren
             dial = value;
             for (int i = wheelRect.childCount - 1; i >= 0; i--) Destroy(wheelRect.GetChild(i).gameObject);
             if (wheel != null) Destroy(wheel);
-            wheel = null; nodeGlows = null;
+            wheel = null; nodeGlows = null; nodeFaces = null; nodeLabels = null;
             lastTouch = show && value != null ? Time.unscaledTime : -10f;
             dialTitle.text = value != null ? value.Name : string.Empty;
             if (value == null) return;
 
-            Image disc = MakeImage("Disc", wheelRect, Resources.Load<Sprite>("Art/LevelMap1102/vinyl"), Color.white);
+            // 2026-11-04 (用户: "不要照搬那个光碟…自己设计合适的"): the workshop's own tuning knob, and rim nodes in the same
+            // round style as the tool buttons (dark disc, thin white ring; solid teal = selected).
+            Image disc = MakeImage("Disc", wheelRect, Resources.Load<Sprite>("Art/Workshop1104/dial"), Color.white);
             disc.preserveAspect = true;
             var dr = disc.rectTransform; dr.anchorMin = dr.anchorMax = new Vector2(.5f, .5f); dr.sizeDelta = new Vector2(WheelSize, WheelSize);
             int count = value.Steps + 1;
             var nodes = new RectTransform[count];
             var buttons = new Button[count];
             nodeGlows = new Image[count];
+            nodeFaces = new Image[count];
+            nodeLabels = new Text[count];
             for (int i = 0; i < count; i++)
             {
                 int v = value.Min + i * value.Step, stage = i + 1;
@@ -548,29 +667,26 @@ namespace ChoSiren
                 go.transform.SetParent(wheelRect, false);
                 var r = (RectTransform)go.transform;
                 r.anchorMin = r.anchorMax = r.pivot = new Vector2(0f, 1f); r.sizeDelta = new Vector2(NodeSize, NodeSize);
-                Image paper = go.GetComponent<Image>();
-                paper.sprite = VisualA1101.TornSprite; paper.color = new Color32(190, 165, 222, 255);
-                Outline rim = go.AddComponent<Outline>();
-                rim.effectColor = new Color32(137, 115, 177, 230); rim.effectDistance = new Vector2(1.5f, -1.5f);
-                Image selected = MakeImage("SelectedRim", go.transform, VisualA1101.TornSprite, Brand1025.Teal);
-                Place(selected.rectTransform, -6f, -6f, NodeSize + 12f, NodeSize + 12f);
-                selected.transform.SetAsFirstSibling();
-                nodeGlows[i] = selected;
+                Image hit = go.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, .001f);
                 Color? swatch = value.Swatch?.Invoke(v);
-                Image core = MakeImage("Core", go.transform, dot, swatch ?? new Color32(14, 13, 29, 255));
-                Place(core.rectTransform, 8f, 8f, NodeSize - 16f, NodeSize - 16f);
-                Image nick = MakeImage("PaperNick", go.transform, PunkUi.SlantFill, new Color32(238, 224, 255, 240));
-                Place(nick.rectTransform, NodeSize - 34f, 8f, 26f, 6f);
-                nick.rectTransform.localEulerAngles = new Vector3(0f, 0f, -28f);
+                Image selected = MakeImage("SelectedRim", go.transform, VisualA1101.RingSprite, Brand1025.Teal);
+                Place(selected.rectTransform, -7f, -7f, NodeSize + 14f, NodeSize + 14f);
+                nodeGlows[i] = selected;
+                Image face = MakeImage("Face", go.transform, dot, swatch ?? new Color32(18, 12, 34, 230));
+                Place(face.rectTransform, 6f, 6f, NodeSize - 12f, NodeSize - 12f);
+                nodeFaces[i] = swatch == null ? face : null;
+                Image ring = MakeImage("Ring", face.transform, VisualA1101.RingSprite, new Color(1f, 1f, 1f, .45f));
+                VisualA1101.Stretch(ring.rectTransform);
                 if (swatch == null)
                 {
                     string text = value.Format(v);
-                    Text label = VisualA1101.Label(go.transform, "Label", text, text.Length > 3 ? 21 : 26, VisualA1101.Paper, TextAnchor.MiddleCenter);
+                    Text label = VisualA1101.Label(go.transform, "Label", text, text.Length > 3 ? 19 : 23, VisualA1101.Paper, TextAnchor.MiddleCenter);
                     label.fontStyle = FontStyle.Bold;
                     Place(label.rectTransform, 6f, 0f, NodeSize - 12f, NodeSize);
+                    nodeLabels[i] = label;
                 }
                 Button button = go.GetComponent<Button>();
-                button.transition = Selectable.Transition.None; button.targetGraphic = paper;
+                button.transition = Selectable.Transition.None; button.targetGraphic = hit;
                 button.onClick.AddListener(() => Select(stage));
                 nodes[i] = r; buttons[i] = button;
             }
@@ -602,7 +718,13 @@ namespace ChoSiren
         private void Highlight(int stage)
         {
             if (nodeGlows == null) return;
-            for (int i = 0; i < nodeGlows.Length; i++) nodeGlows[i].enabled = i == stage - 1;
+            for (int i = 0; i < nodeGlows.Length; i++)
+            {
+                bool on = i == stage - 1;
+                nodeGlows[i].enabled = on;
+                if (nodeFaces[i] != null) nodeFaces[i].color = on ? (Color)Brand1025.Teal : new Color32(18, 12, 34, 230);
+                if (nodeLabels[i] != null) nodeLabels[i].color = on ? (Color)Brand1025.Ink : VisualA1101.Paper;
+            }
         }
 
         /// <summary>Tests and the stage UI: set the dial's value directly (it slides out to show it).</summary>
@@ -637,6 +759,27 @@ namespace ChoSiren
         }
         public void OnEndDrag(PointerEventData e) { turning = false; }
 
+        private Sprite authoredFront;
+        private GameObject aiBadge;
+
+        /// <summary>Shows an AI outfit in place of her front view (null restores her authored still / idle loop).</summary>
+        public void SetOverride(Texture2D texture)
+        {
+            if (authoredFront == null) authoredFront = front;
+            if (aiBadge != null) Destroy(aiBadge);
+            if (texture == null) { front = authoredFront; if (turn != null) turn[0] = front; if (video != null) video.gameObject.SetActive(true); return; }
+            front = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(.5f, .5f), 100f);
+            if (turn != null) turn[0] = front;
+            if (video != null) video.gameObject.SetActive(false);
+            Image badge = MakeImage("AiBadge", root, roundedSprite, new Color32(12, 8, 26, 210));
+            badge.type = Image.Type.Sliced;
+            var br = badge.rectTransform; br.anchorMin = br.anchorMax = new Vector2(0f, 1f); br.pivot = new Vector2(0f, 1f);
+            br.anchoredPosition = new Vector2(14f, -90f); br.sizeDelta = new Vector2(96f, 30f);
+            Text label = VisualA1101.Label(badge.transform, "Text", "AI 生成", 14, Brand1025.Teal, TextAnchor.MiddleCenter);
+            VisualA1101.Stretch(label.rectTransform);
+            aiBadge = badge.gameObject;
+        }
+
         /// <summary>Tests: turn to a view index (0 front … 3 back).</summary>
         public void TurnTo(int view) { turnPos = view; turnVel = 0f; }
 
@@ -660,7 +803,7 @@ namespace ChoSiren
             if (video != null)
             {
                 bool ready = player != null && player.isPrepared && player.isPlaying && (player.frame > 0 || player.time > .05);
-                bool showVideo = ready && view == 0;
+                bool showVideo = ready && view == 0 && video.gameObject.activeSelf;
                 video.enabled = showVideo;
                 Color c = figure.color; c.a = showVideo ? 0f : 1f; figure.color = c;
             }

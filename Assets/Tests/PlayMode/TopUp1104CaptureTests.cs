@@ -103,6 +103,10 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(2.6f);
                 Assert.That(stage.Raise, Is.LessThan(.1f), "the dial slides back to a sliver");
                 Shot(camera, rt, "workshop-tucked.png");
+                Tool("dress").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.6f);
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "AiDressPanel"), Is.True, "AI 换装 stays in game");
+                Shot(camera, rt, "workshop-ai.png");
                 Tool("accent").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 stage.SetDialValue(1);
