@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "bb8ff9470f4465fea201e6af7b7be56d.data.unityweb",
+    "56b4402805d842d7fcde82259afc2c12.framework.js.unityweb",
+    "7172094574d90e53df3e7bec97b0dfb1.wasm.unityweb",
+    "ccf5335801f1e0e958fd4e928c9e8bb0.loader.js"
+  ],
+  "previous": [
     "9dae901b55122398e4c37877d8747d9b.data.unityweb",
     "7bca45f65348af38eddf9ab6cfd2a1d5.framework.js.unityweb",
     "0fb952a4758615b6528281cd696454c9.wasm.unityweb",
     "c26363d26656fc3027defc1e791f6a08.loader.js"
   ],
-  "previous": [
-    "7c360832be63ac1fd1d41c35debf6437.data.unityweb",
-    "374b72e092ac4b64726dbf50fa82dde9.framework.js.unityweb",
-    "d4ada974f0ec6c043ce08c31d9524dd9.wasm.unityweb",
-    "ebee467f3c6a5a868a3d2b72ebfeb7d9.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.36",
+      "releaseId": "UI-20261105-WORKSHOP-AI-DRESS-R167",
+      "files": [
+        "9dae901b55122398e4c37877d8747d9b.data.unityweb",
+        "7bca45f65348af38eddf9ab6cfd2a1d5.framework.js.unityweb",
+        "0fb952a4758615b6528281cd696454c9.wasm.unityweb",
+        "c26363d26656fc3027defc1e791f6a08.loader.js"
+      ]
+    },
     {
       "version": "0.9.35",
       "releaseId": "UI-20261104-LEVEL-CAPS-TOPUP-R166",

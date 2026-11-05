@@ -1,0 +1,17 @@
+{
+  "version": "0.9.37",
+  "releaseId": "UI-20261105-WORKSHOP-POSTER-R168",
+  "date": "2026-11-05",
+  "name": "创意工坊新版界面",
+  "notice": "创意工坊换成全新海报风界面：角色全身清晰显示，右侧斜切菜单一眼看清，换装风格做成贴纸，生成完成有 NEW LOOK! 全屏亮相，可以直接存进衣橱或再来一套。",
+  "previousReleaseId": "UI-20261105-WORKSHOP-AI-DRESS-R167",
+  "previousWebCommit": "31daa7ebdff7ca92a16c32025abb0d93e72799d5",
+  "previousReleaseRecord": "releases/R167.json",
+  "validation": {
+    "status": "staged",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.37",
+    "webPortal": "pending focused portal checks",
+    "webRuntime": "pending public WebGL verification"
+  },
+  "knownLimits": []
+}
