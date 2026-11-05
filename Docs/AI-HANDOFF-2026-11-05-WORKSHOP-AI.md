@@ -36,9 +36,9 @@ last fix. The user asked to try on Mac first, then release 0.9.36 to all channel
 - China-site RunningHub key: `~/XiaomiMiMoProjects/krea-studio-models/.env.local` (`RUNNINGHUB_API_KEY`).
 - Global-site RunningHub key: `~/.cho-siren-rh-ai.key` (the user pasted it in chat; suggest they rotate it later).
 - Tencent credentials: `~/.cho-siren-cos.json` (also used for SCF; user granted `QcloudSCFFullAccess`).
-- Deploy script (not in repo): scratch `deploy_fn.py` — zips `index.py`, Create/UpdateFunctionCode, then
+- Deploy script: `Tools/ai-dress-fn/deploy_fn.py` (run with a venv that has `tencentcloud-sdk-python`) — zips `index.py`, Create/UpdateFunctionCode, then
   UpdateFunctionConfiguration with env `RUNNINGHUB_AI_KEY, RUNNINGHUB_API_KEY, COS_BUCKET, COS_REGION,
-  COS_SECRET_ID, COS_SECRET_KEY`. Needs the `tencentcloud-sdk-python` package in a venv. Rewrite it if missing.
+  COS_SECRET_ID, COS_SECRET_KEY`.
   The HTTP trigger (function URL, AuthType NONE) already exists; redeploying code keeps it.
 
 ## Last step in progress (do this next)
