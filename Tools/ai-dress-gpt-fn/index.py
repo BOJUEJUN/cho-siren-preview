@@ -12,6 +12,8 @@ OpenAI Responses API background mode does the waiting, so the function needs no 
 """
 import base64
 import hmac
+import struct
+import zlib
 import json
 import os
 import urllib.error
@@ -94,6 +96,61 @@ def query(task, base):
     return reply(200, {"status": "failed", "error": friendly})
 
 
+def shrink_png(data, step=2):
+    """Halve a non-interlaced 8-bit RGB/RGBA PNG (stdlib only): the function URL cuts responses near 1 MB."""
+    if data[:8] != b"\x89PNG\r\n\x1a\n":
+        return data
+    pos, idat, width = 8, [], 0
+    while pos < len(data):
+        length, kind = struct.unpack(">I4s", data[pos:pos + 8])
+        body = data[pos + 8:pos + 8 + length]
+        if kind == b"IHDR":
+            width, height, depth, ctype, _, _, interlace = struct.unpack(">IIBBBBB", body)
+            if depth != 8 or ctype not in (2, 6) or interlace:
+                return data
+            bpp = 3 if ctype == 2 else 4
+        elif kind == b"IDAT":
+            idat.append(body)
+        pos += 12 + length
+    raw = zlib.decompress(b"".join(idat))
+    stride = width * bpp
+    prev = bytearray(stride)
+    out = bytearray()
+    for y in range(height):
+        f = raw[y * (stride + 1)]
+        line = bytearray(raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
+        if f == 1:
+            for i in range(bpp, stride):
+                line[i] = (line[i] + line[i - bpp]) & 255
+        elif f == 2:
+            for i in range(stride):
+                line[i] = (line[i] + prev[i]) & 255
+        elif f == 3:
+            for i in range(stride):
+                left = line[i - bpp] if i >= bpp else 0
+                line[i] = (line[i] + ((left + prev[i]) >> 1)) & 255
+        elif f == 4:
+            for i in range(stride):
+                a = line[i - bpp] if i >= bpp else 0
+                b = prev[i]
+                c = prev[i - bpp] if i >= bpp else 0
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                line[i] = (line[i] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        prev = line
+        if y % step == 0:
+            out.append(0)
+            for x in range(0, width, step):
+                out += line[x * bpp:x * bpp + bpp]
+    w2, h2 = (width + step - 1) // step, (height + step - 1) // step
+
+    def chunk(kind, body):
+        return struct.pack(">I", len(body)) + kind + body + struct.pack(">I", zlib.crc32(kind + body) & 0xFFFFFFFF)
+
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w2, h2, 8, 2 if bpp == 3 else 6, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(bytes(out), 9)) + chunk(b"IEND", b""))
+
+
 def image(response_id):
     response_id = safe_id(response_id)
     call = image_call(openai(f"{API}/{response_id}")) if response_id else None
@@ -102,7 +159,7 @@ def image(response_id):
     return {"isBase64Encoded": True, "statusCode": 200,
             "headers": {"Content-Type": "image/png", "Access-Control-Allow-Origin": "*",
                         "Cache-Control": "private, max-age=3600"},
-            "body": call["result"]}
+            "body": base64.b64encode(shrink_png(base64.b64decode(call["result"]))).decode()}
 
 
 def main_handler(event, context):
