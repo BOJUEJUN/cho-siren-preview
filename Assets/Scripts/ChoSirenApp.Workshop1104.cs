@@ -3,42 +3,39 @@ using System.IO;
 using ChoSiren.Panels;
 using ChoSiren.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ChoSiren
 {
     /// <summary>
-    /// 2026-11-04 创意工坊 (用户: "专辑制作改成创意工坊…高强度自定义，但页面要简单易用，一个角色占大地方其他是参数修改…
-    /// 自定义声音：录音念我们给的文稿、训练成专属声线"). A full page: the chosen member stands large in the upper stage and
-    /// every change shows on her at once; the lower panel has four tabs of simple controls.
-    ///   造型 — AI 换装 (opens the web 造型工坊 demo for her), colour filter, brightness.
-    ///   声线 — pitch and volume (applied wherever her lines play in the game), a preview line, and 我的声音: with consent,
-    ///          read three scripts into the microphone; the samples stay on this device until a voice-cloning service is
-    ///          connected (it needs a server holding the API key, so 生成专属声线 says so instead of uploading anything).
-    ///   舞台 — background and 应援色 (the glow behind her).
-    ///   动作 — idle sway, size, facing.
+    /// 2026-11-04 创意工坊, photo-editor layout (用户: "简单易用…角色上半身…参考开始演出的光碟滑动选择参数，没选的时候收起来，
+    /// 滑动时伸出来…参考手机 P 图软件…调节部位要有丝滑的镜头特写…想看身后"). The member's upper body fills the page; a thin
+    /// top bar (返回 · 创意工坊 · 成员名 · 保存) and one row of round tools sit over her. Picking a tool eases the camera to
+    /// the part it changes (face for 滤镜/亮度/音高/我的声音, bust for 换装/应援色, full figure for 背景/律动/转身) and raises the
+    /// vinyl dial from the bottom edge; turning it sets the value shown in a bubble, and it sinks back when left alone. 转身
+    /// turns her through the AI-drawn angle sheets (Art/Workshop1104/Turn/&lt;member&gt;-q45/side/back, right side mirrored).
     /// Every change is saved per member (GameSave.WorkshopLooks1104). The lobby card keeps its scene name AlbumProduction.
     /// </summary>
     public sealed partial class ChoSirenApp
     {
         public const string DressLabUrl1104 = "https://bojuejun.github.io/cho-siren-preview/dress-lab/";
 
-        private static readonly (string Name, Color Tint)[] WorkshopFilters1104 =
+        internal static readonly (string Name, Color Tint)[] WorkshopFilters1104 =
         {
             ("原色", Color.white), ("暖光", new Color(1f, .9f, .8f)), ("冷调", new Color(.84f, .93f, 1f)),
             ("霓虹", new Color(1f, .82f, 1f)), ("复古", new Color(.96f, .86f, .72f)), ("夜色", new Color(.74f, .76f, .98f)),
         };
-        private static readonly (string Name, string Path)[] WorkshopBackgrounds1104 =
+        internal static readonly (string Name, string Path)[] WorkshopBackgrounds1104 =
         {
             ("创作室", "Art/Workshop1104/bg-studio"), ("霓虹街", "Art/Workshop1104/bg-street"),
             ("巨蛋", "Art/Workshop1104/bg-dome"), ("大厅", "Art/LobbyBackground"),
         };
-        private static readonly (string Name, Color Glow)[] WorkshopAccents1104 =
+        internal static readonly (string Name, Color Glow)[] WorkshopAccents1104 =
         {
             ("青", new Color32(28, 242, 236, 255)), ("粉", new Color32(255, 95, 210, 255)), ("金", new Color32(255, 214, 107, 255)),
             ("紫", new Color32(156, 104, 255, 255)), ("红", new Color32(255, 80, 96, 255)), ("白", new Color32(240, 236, 255, 255)),
         };
-        private static readonly string[] WorkshopTabs1104 = { "造型", "声线", "舞台", "动作" };
         private static readonly string[] VoiceScripts1104 =
         {
             "大家好，我是今天的主唱，请多关照！",
@@ -46,286 +43,237 @@ namespace ChoSiren
             "三、二、一——一起喊出来吧！",
         };
 
+        /// <summary>Tool row: id, icon, caption, camera shot (0 face, 1 bust, 2 full figure).</summary>
+        private static readonly (string Id, string Icon, string Name, int Shot)[] WorkshopTools1104 =
+        {
+            ("dress", "sparkle", "AI换装", 1), ("filter", "star", "滤镜", 0), ("bright", "bolt", "亮度", 0),
+            ("pitch", "mic", "音高", 0), ("voice", "music", "我的声音", 0), ("bg", "flag", "背景", 2),
+            ("accent", "heart", "应援色", 1), ("bob", "refresh", "律动", 2), ("turn", "exchange", "转身", 2),
+        };
+
         private GameObject workshopRoot1104;
-        private RectTransform workshopPanel1104;
-        private Image workshopFigure1104, workshopBackground1104, workshopGlow1104;
-        private int workshopMember1104 = -1, workshopTab1104, workshopScript1104;
+        private WorkshopStage1104 workshopStage1104;
+        /// <summary>-1 = the 初始角色 (the workshop's own starter idol, 2026-11-04 user loop); otherwise a member index.</summary>
+        private int workshopMember1104 = -1, workshopScript1104;
+        public const string StarterId1104 = "starter";
+        public const string StarterName1104 = "初始角色";
         private WorkshopLook1104 workshopLook1104;
+        private string workshopTool1104 = "filter";
 
         private void OpenWorkshop1104()
         {
             CloseModal();
             CloseWorkshop1104();
-            if (workshopMember1104 < 0 || !model.IsUnlocked(workshopMember1104))
-                workshopMember1104 = model.Save.Team.Count > 0 ? model.Save.Team[0] : 0;
-            MemberDefinition member = GameModel.Members[workshopMember1104];
-            workshopLook1104 = model.WorkshopLook1104(member.Id);
+            if (workshopMember1104 >= 0 && !model.IsUnlocked(workshopMember1104)) workshopMember1104 = -1;
+            string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
+            workshopLook1104 = model.WorkshopLook1104(subjectId);
 
             workshopRoot1104 = NewImage("WorkshopPage1104", safeRoot, null, new Color32(8, 4, 16, 255));
             var root = (RectTransform)workshopRoot1104.transform;
             Stretch(root);
             workshopRoot1104.GetComponent<Image>().raycastTarget = true;
-            float width = root.rect.width > 0 ? root.rect.width : 720f;
+            workshopRoot1104.AddComponent<RectMask2D>();
 
-            // Stage: background, accent glow, the member herself.
-            workshopBackground1104 = NewImage("WorkshopBackground", root, null, Color.white).GetComponent<Image>();
-            Stretch(workshopBackground1104.rectTransform);
-            workshopBackground1104.preserveAspect = false;
-            workshopBackground1104.raycastTarget = false;
-            RectTransform stage = VisualA1101.Rect("WorkshopStage", root);
-            stage.anchorMin = new Vector2(0f, .4f); stage.anchorMax = Vector2.one;
-            stage.offsetMin = new Vector2(0f, 0f); stage.offsetMax = new Vector2(0f, -96f);
-            workshopGlow1104 = VisualA1101.NewImage("WorkshopGlow", stage, VisualA1101.Glow, Color.white);
-            workshopGlow1104.rectTransform.anchorMin = new Vector2(.1f, .05f); workshopGlow1104.rectTransform.anchorMax = new Vector2(.9f, .95f);
-            workshopGlow1104.rectTransform.offsetMin = workshopGlow1104.rectTransform.offsetMax = Vector2.zero;
-            workshopFigure1104 = NewImage("WorkshopFigure", stage, Resources.Load<Sprite>(member.ResourcePath), Color.white).GetComponent<Image>();
-            workshopFigure1104.preserveAspect = true;
-            workshopFigure1104.raycastTarget = false;
-            var figureRect = workshopFigure1104.rectTransform;
-            figureRect.anchorMin = new Vector2(.02f, 0f); figureRect.anchorMax = new Vector2(.98f, 1f);
-            figureRect.offsetMin = figureRect.offsetMax = Vector2.zero;
-            figureRect.pivot = new Vector2(.5f, 0f);
-            workshopFigure1104.gameObject.AddComponent<WorkshopFigureMotion1104>().Bind(() => workshopLook1104);
+            workshopStage1104 = workshopRoot1104.AddComponent<WorkshopStage1104>();
+            if (workshopMember1104 < 0)
+                workshopStage1104.Build(root, StarterId1104, Resources.Load<Sprite>("Art/Workshop1104/starter-still"),
+                    WorkshopStage1104.StarterFace, "Workshop/starter-idle.mp4", () => workshopLook1104, RoundedSprite(18), DotSprite());
+            else
+            {
+                MemberDefinition member = GameModel.Members[workshopMember1104];
+                Sprite still = Resources.Load<Sprite>(member.ResourcePath);
+                workshopStage1104.Build(root, member.Id, still, still != null ? PortraitFace1101.FaceFor(member.Id, still) : new Rect(.4f, .78f, .2f, .12f),
+                    null, () => workshopLook1104, RoundedSprite(18), DotSprite());
+            }
+            workshopStage1104.Changed = () => model.SaveWorkshopLook1104(workshopLook1104);
 
-            // Header: back, title, member switch.
-            GameObject back = ModalPolish038Chrome.ActionButton(root, "WorkshopBack", "返回", 18, CloseWorkshop1104,
-                ModalPolish038ButtonStyle.Secondary);
-            PlaceTop(back.GetComponent<RectTransform>(), 16f, 18f, 110f, 54f);
-            Text title = VisualA1101.Label(root, "WorkshopTitle", "创意工坊", 30, VisualA1101.Paper, TextAnchor.MiddleCenter);
-            VisualA1101.Place(title.rectTransform, 140f, 16f, width - 280f, 58f);
-            WorkshopArrow1104(root, "WorkshopPrev", "‹", 16f, -1);
-            WorkshopArrow1104(root, "WorkshopNext", "›", width - 72f, 1);
-            Text name = VisualA1101.Label(root, "WorkshopMemberName", $"{member.Name} · {member.Career}", 20,
-                VisualA1101.Paper, TextAnchor.MiddleCenter);
-            VisualA1101.Place(name.rectTransform, 80f, 80f, width - 160f, 30f);
+            // Thin top bar.
+            Image bar = NewImage("WorkshopTopBar", root, null, new Color32(10, 6, 20, 170)).GetComponent<Image>();
+            bar.rectTransform.anchorMin = new Vector2(0f, 1f); bar.rectTransform.anchorMax = Vector2.one;
+            bar.rectTransform.pivot = new Vector2(.5f, 1f);
+            bar.rectTransform.offsetMin = new Vector2(0f, -74f); bar.rectTransform.offsetMax = Vector2.zero;
+            WorkshopTextButton1104(bar.transform, "WorkshopBack", "‹ 返回", 20, new Vector2(0f, .5f), new Vector2(12f, 0f), CloseWorkshop1104);
+            Text title = VisualA1101.Label(bar.transform, "WorkshopTitle", $"创意工坊 · {subjectName}", 22, VisualA1101.Paper, TextAnchor.MiddleCenter);
+            title.rectTransform.anchorMin = Vector2.zero; title.rectTransform.anchorMax = Vector2.one;
+            title.rectTransform.offsetMin = new Vector2(190f, 0f); title.rectTransform.offsetMax = new Vector2(-190f, 0f);
+            WorkshopTextButton1104(bar.transform, "WorkshopPrev", "‹", 30, new Vector2(.5f, .5f), new Vector2(-180f, 0f), () => StepWorkshopMember1104(-1));
+            WorkshopTextButton1104(bar.transform, "WorkshopNext", "›", 30, new Vector2(.5f, .5f), new Vector2(180f, 0f), () => StepWorkshopMember1104(1));
+            WorkshopTextButton1104(bar.transform, "WorkshopSave", "保存", 20, new Vector2(1f, .5f), new Vector2(-12f, 0f), () =>
+            {
+                model.SaveWorkshopLook1104(workshopLook1104);
+                VisualA1101.Success();
+                Toast($"已保存「{subjectName}」的造型");
+            });
 
-            // Panel: tabs and controls.
-            Image panel = NewImage("WorkshopPanel", root, RoundedSprite(18), new Color32(14, 9, 28, 240)).GetComponent<Image>();
-            panel.type = Image.Type.Sliced;
-            workshopPanel1104 = panel.rectTransform;
-            workshopPanel1104.anchorMin = Vector2.zero; workshopPanel1104.anchorMax = new Vector2(1f, .4f);
-            workshopPanel1104.offsetMin = new Vector2(10f, 10f); workshopPanel1104.offsetMax = new Vector2(-10f, 0f);
-            ApplyWorkshopLook1104();
-            ShowWorkshopTab1104(workshopTab1104);
+            BuildWorkshopTools1104(root);
+            OpenWorkshopTool1104(workshopTool1104, false);
         }
 
         private void CloseWorkshop1104()
         {
             if (workshopRoot1104 != null) Destroy(workshopRoot1104);
             workshopRoot1104 = null;
+            workshopStage1104 = null;
             WorkshopRecorder1104.Cancel();
         }
 
-        private void WorkshopArrow1104(Transform parent, string objectName, string glyph, float x, int step)
+        private string WorkshopSubjectId1104 => workshopMember1104 < 0 ? StarterId1104 : GameModel.Members[workshopMember1104].Id;
+        private string WorkshopSubjectName1104 => workshopMember1104 < 0 ? StarterName1104 : GameModel.Members[workshopMember1104].Name;
+
+        /// <summary>Cycles 初始角色 → every unlocked member → 初始角色.</summary>
+        private void StepWorkshopMember1104(int step)
         {
-            GameObject arrow = ModalPolish038Chrome.ActionButton(parent, objectName, glyph, 30, () =>
-            {
-                int count = GameModel.Members.Length, next = workshopMember1104;
-                for (int i = 0; i < count; i++)
-                {
-                    next = (next + step + count) % count;
-                    if (model.IsUnlocked(next)) break;
-                }
-                workshopMember1104 = next;
-                VisualA1101.Click();
-                OpenWorkshop1104();
-            }, ModalPolish038ButtonStyle.Secondary);
-            PlaceTop(arrow.GetComponent<RectTransform>(), x, 76f, 56f, 40f);
-        }
-
-        private void ApplyWorkshopLook1104()
-        {
-            if (workshopFigure1104 == null || workshopLook1104 == null) return;
-            WorkshopLook1104 look = workshopLook1104;
-            Color tint = WorkshopFilters1104[Mathf.Clamp(look.Filter, 0, WorkshopFilters1104.Length - 1)].Tint;
-            float bright = look.Brightness / 100f;
-            workshopFigure1104.color = new Color(Mathf.Min(1f, tint.r * bright), Mathf.Min(1f, tint.g * bright), Mathf.Min(1f, tint.b * bright), 1f);
-            var bg = WorkshopBackgrounds1104[Mathf.Clamp(look.Background, 0, WorkshopBackgrounds1104.Length - 1)];
-            workshopBackground1104.sprite = Resources.Load<Sprite>(bg.Path) ?? Resources.Load<Sprite>("Art/LobbyBackground");
-            workshopBackground1104.color = new Color(.7f, .7f, .7f, 1f);
-            Color glow = WorkshopAccents1104[Mathf.Clamp(look.Accent, 0, WorkshopAccents1104.Length - 1)].Glow;
-            workshopGlow1104.color = new Color(glow.r, glow.g, glow.b, .45f);
-        }
-
-        private void SaveWorkshopLook1104()
-        {
-            model.SaveWorkshopLook1104(workshopLook1104);
-            ApplyWorkshopLook1104();
-        }
-
-        // ------------------------------------------------------------------ panel
-
-        private void ShowWorkshopTab1104(int tab)
-        {
-            workshopTab1104 = tab;
-            for (int i = workshopPanel1104.childCount - 1; i >= 0; i--) Destroy(workshopPanel1104.GetChild(i).gameObject);
-            float width = workshopPanel1104.rect.width > 0 ? workshopPanel1104.rect.width : 700f;
-            float inner = width - 40f;
-            float tabW = inner / WorkshopTabs1104.Length;
-            for (int i = 0; i < WorkshopTabs1104.Length; i++)
-            {
-                int captured = i;
-                WorkshopChip1104(workshopPanel1104, "WorkshopTab-" + i, WorkshopTabs1104[i], 20f + i * tabW, 18f, tabW - 10f, 60f, 22,
-                    i == tab, () => { VisualA1101.Click(); ShowWorkshopTab1104(captured); });
-            }
-            float y = 100f;
-            switch (tab)
-            {
-                case 0: y = LookTab1104(inner, y); break;
-                case 1: y = VoiceTab1104(inner, y); break;
-                case 2: y = StageTab1104(inner, y); break;
-                default: y = MotionTab1104(inner, y); break;
-            }
-            GameObject reset = ModalPolish038Chrome.ActionButton(workshopPanel1104, "WorkshopReset", "恢复默认", 16, () =>
-            {
-                bool consent = workshopLook1104.VoiceConsent; int samples = workshopLook1104.SamplesRecorded;
-                workshopLook1104 = new WorkshopLook1104 { MemberId = workshopLook1104.MemberId, VoiceConsent = consent, SamplesRecorded = samples };
-                SaveWorkshopLook1104();
-                ShowWorkshopTab1104(workshopTab1104);
-                Toast("已恢复默认");
-            }, ModalPolish038ButtonStyle.Secondary);
-            reset.GetComponent<RectTransform>().anchorMin = reset.GetComponent<RectTransform>().anchorMax = new Vector2(1f, 0f);
-            reset.GetComponent<RectTransform>().pivot = new Vector2(1f, 0f);
-            reset.GetComponent<RectTransform>().anchoredPosition = new Vector2(-20f, 16f);
-            reset.GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 46f);
-        }
-
-        private float LookTab1104(float inner, float y)
-        {
-            GameObject dress = ModalPolish038Chrome.ActionButton(workshopPanel1104, "WorkshopDress", "AI 换装 · 说一句话换衣服", 20, () =>
-            {
-                MemberDefinition member = GameModel.Members[workshopMember1104];
-                Application.OpenURL(DressLabUrl1104 + "?member=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(member.Id));
-                Toast($"已打开 AI 换装：{member.Name}（只换衣服，不换脸）");
-            }, ModalPolish038ButtonStyle.Primary);
-            PlaceTop(dress.GetComponent<RectTransform>(), 20f, y, inner, 72f);
-            y += 92f;
-            y = WorkshopChips1104("滤镜", WorkshopFilters1104.Length, i => WorkshopFilters1104[i].Name, workshopLook1104.Filter,
-                v => workshopLook1104.Filter = v, inner, y);
-            y = WorkshopSlider1104("亮度", 60, 130, workshopLook1104.Brightness, v => workshopLook1104.Brightness = v, inner, y, "%");
-            return y;
-        }
-
-        private float VoiceTab1104(float inner, float y)
-        {
-            y = WorkshopSlider1104("音高", -30, 30, workshopLook1104.Pitch, v => workshopLook1104.Pitch = v, inner, y, string.Empty);
-            y = WorkshopSlider1104("音量", 30, 100, workshopLook1104.Volume, v => workshopLook1104.Volume = v, inner, y, "%");
-            MemberDefinition member = GameModel.Members[workshopMember1104];
-            string clip = DialogueVoice1102.FirstLineOf(member.Id, out string line);
-            GameObject listen = ModalPolish038Chrome.ActionButton(workshopPanel1104, "WorkshopListen", clip != null ? "试听她的声音" : "她还没有录好的台词", 17, () =>
-            {
-                if (clip == null || gameAudio == null) { Toast("这位成员还没有录好的台词"); return; }
-                gameAudio.PlayVoice(clip, "workshop");
-                if (!string.IsNullOrEmpty(line)) Toast(line);
-            }, ModalPolish038ButtonStyle.Secondary);
-            PlaceTop(listen.GetComponent<RectTransform>(), 20f, y, inner * .5f - 6f, 64f);
-            GameObject mine = ModalPolish038Chrome.ActionButton(workshopPanel1104, "WorkshopMyVoice", "录制我的声音", 17,
-                OpenVoiceRecorder1104, ModalPolish038ButtonStyle.Primary);
-            PlaceTop(mine.GetComponent<RectTransform>(), 20f + inner * .5f + 6f, y, inner * .5f - 6f, 64f);
-            y += 80f;
-            Text note = VisualA1101.Label(workshopPanel1104, "WorkshopVoiceNote",
-                $"已录 {workshopLook1104.SamplesRecorded}/3 段 · 录满 3 段可生成专属声线", 16, VisualA1101.Muted, TextAnchor.MiddleLeft);
-            VisualA1101.Place(note.rectTransform, 20f, y, inner, 24f);
-            return y + 30f;
-        }
-
-        private float StageTab1104(float inner, float y)
-        {
-            y = WorkshopChips1104("背景", WorkshopBackgrounds1104.Length, i => WorkshopBackgrounds1104[i].Name, workshopLook1104.Background,
-                v => workshopLook1104.Background = v, inner, y);
-            y = WorkshopChips1104("应援色", WorkshopAccents1104.Length, i => WorkshopAccents1104[i].Name, workshopLook1104.Accent,
-                v => workshopLook1104.Accent = v, inner, y);
-            return y;
-        }
-
-        private float MotionTab1104(float inner, float y)
-        {
-            y = WorkshopSlider1104("律动", 0, 100, workshopLook1104.Bob, v => workshopLook1104.Bob = v, inner, y, string.Empty);
-            y = WorkshopSlider1104("大小", 85, 115, workshopLook1104.Scale, v => workshopLook1104.Scale = v, inner, y, "%");
-            y = WorkshopChips1104("朝向", 2, i => i == 0 ? "正向" : "镜像", workshopLook1104.Mirror ? 1 : 0,
-                v => workshopLook1104.Mirror = v == 1, inner, y);
-            return y;
-        }
-
-        // ------------------------------------------------------------------ controls
-
-        private float WorkshopChips1104(string label, int count, Func<int, string> names, int selected, Action<int> pick, float inner, float y)
-        {
-            Text tag = VisualA1101.Label(workshopPanel1104, "Label-" + label, label, 19, VisualA1101.Muted, TextAnchor.MiddleLeft);
-            VisualA1101.Place(tag.rectTransform, 20f, y, 84f, 56f);
-            float area = inner - 84f, chipW = area / count;
+            int count = GameModel.Members.Length + 1, slot = workshopMember1104 + 1;
             for (int i = 0; i < count; i++)
             {
-                int captured = i;
-                WorkshopChip1104(workshopPanel1104, $"Chip-{label}-{i}", names(i), 104f + i * chipW, y, chipW - 8f, 56f, 18,
-                    i == selected, () =>
-                    {
-                        VisualA1101.Click();
-                        pick(captured);
-                        SaveWorkshopLook1104();
-                        ShowWorkshopTab1104(workshopTab1104);
-                    });
+                slot = (slot + step + count) % count;
+                if (slot == 0 || model.IsUnlocked(slot - 1)) break;
             }
-            return y + 74f;
+            workshopMember1104 = slot - 1;
+            OpenWorkshop1104();
         }
 
-        /// <summary>Solid teal only when selected (the game-wide selected-state rule); otherwise a dark face.</summary>
-        private void WorkshopChip1104(Transform parent, string objectName, string text, float x, float y, float w, float h, int size,
-            bool selected, Action click)
+        private void WorkshopTextButton1104(Transform parent, string objectName, string text, int size, Vector2 anchor, Vector2 offset, Action click)
         {
-            Image face = NewImage(objectName, parent, RoundedSprite(12), selected ? (Color)Brand1025.Teal : new Color32(30, 22, 52, 255)).GetComponent<Image>();
-            face.type = Image.Type.Sliced;
-            face.raycastTarget = true;
-            PlaceTop(face.rectTransform, x, y, w, h);
-            Text caption = VisualA1101.Label(face.transform, "Text", text, size, selected ? (Color)Brand1025.Ink : VisualA1101.Paper, TextAnchor.MiddleCenter);
-            VisualA1101.Stretch(caption.rectTransform);
-            Button button = face.gameObject.AddComponent<Button>();
-            button.targetGraphic = face;
-            button.transition = Selectable.Transition.None;
-            button.onClick.AddListener(() => click());
-            face.gameObject.AddComponent<VisualA1101Motion>().Press();
+            var go = new GameObject(objectName, typeof(RectTransform), typeof(Image), typeof(Button));
+            go.transform.SetParent(parent, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = rect.anchorMax = anchor; rect.pivot = new Vector2(anchor.x, .5f);
+            rect.anchoredPosition = offset; rect.sizeDelta = new Vector2(text.Length <= 1 ? 52f : 110f, 60f);
+            Image hit = go.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, .001f);
+            Text label = VisualA1101.Label(go.transform, "Text", text, size, text == "保存" ? (Color)Brand1025.Teal : VisualA1101.Paper, TextAnchor.MiddleCenter);
+            VisualA1101.Stretch(label.rectTransform);
+            Button button = go.GetComponent<Button>(); button.transition = Selectable.Transition.None; button.targetGraphic = hit;
+            button.onClick.AddListener(() => { VisualA1101.Click(); click(); });
+            go.AddComponent<VisualA1101Motion>().Press();
         }
 
-        private float WorkshopSlider1104(string label, int min, int max, int value, Action<int> set, float inner, float y, string unit)
+        private void BuildWorkshopTools1104(RectTransform root)
         {
-            Text tag = VisualA1101.Label(workshopPanel1104, "Label-" + label, label, 19, VisualA1101.Muted, TextAnchor.MiddleLeft);
-            VisualA1101.Place(tag.rectTransform, 20f, y, 84f, 56f);
-            Text number = VisualA1101.Number(workshopPanel1104, "Value-" + label, value + unit, 19, VisualA1101.Teal, TextAnchor.MiddleRight);
-            VisualA1101.Place(number.rectTransform, inner - 60f, y, 80f, 56f);
-            var sliderGo = new GameObject("Slider-" + label, typeof(RectTransform), typeof(Slider));
-            sliderGo.transform.SetParent(workshopPanel1104, false);
-            PlaceTop((RectTransform)sliderGo.transform, 104f, y + 16f, inner - 184f, 24f);
-            Image track = NewImage("Track", sliderGo.transform, RoundedSprite(8), new Color32(40, 28, 70, 255)).GetComponent<Image>();
-            Stretch(track.rectTransform);
-            RectTransform fillArea = SliderArea038("FillArea", sliderGo.transform);
-            Image fill = NewImage("Fill", fillArea, RoundedSprite(8), Brand1025.Teal).GetComponent<Image>();
-            Stretch(fill.rectTransform);
-            RectTransform handleArea = SliderArea038("HandleArea", sliderGo.transform);
-            Image handle = NewImage("Handle", handleArea, DotSprite(), White).GetComponent<Image>();
-            handle.rectTransform.sizeDelta = new Vector2(42f, 42f);
-            handle.raycastTarget = true;
-            Slider slider = sliderGo.GetComponent<Slider>();
-            slider.fillRect = fill.rectTransform; slider.handleRect = handle.rectTransform;
-            slider.targetGraphic = handle; slider.direction = Slider.Direction.LeftToRight;
-            slider.minValue = min; slider.maxValue = max; slider.wholeNumbers = true; slider.value = value;
-            slider.onValueChanged.AddListener(v =>
+            // A soft dark gradient keeps the white tool captions readable over any background.
+            Image shade = NewImage("WorkshopToolShade", root, VisualA1101.Glow, new Color(0f, 0f, 0f, .55f)).GetComponent<Image>();
+            shade.raycastTarget = false;
+            shade.rectTransform.anchorMin = Vector2.zero; shade.rectTransform.anchorMax = new Vector2(1f, 0f);
+            shade.rectTransform.pivot = new Vector2(.5f, 0f);
+            shade.rectTransform.offsetMin = new Vector2(-200f, -60f); shade.rectTransform.offsetMax = new Vector2(200f, 260f);
+
+            var row = new GameObject("WorkshopTools", typeof(RectTransform), typeof(Image), typeof(ScrollRect), typeof(RectMask2D));
+            row.transform.SetParent(root, false);
+            var rect = (RectTransform)row.transform;
+            rect.anchorMin = Vector2.zero; rect.anchorMax = new Vector2(1f, 0f); rect.pivot = new Vector2(.5f, 0f);
+            rect.offsetMin = new Vector2(0f, 64f); rect.offsetMax = new Vector2(0f, 64f + 112f);
+            row.GetComponent<Image>().color = new Color(0f, 0f, 0f, .001f);
+            var content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(row.transform, false);
+            content.anchorMin = new Vector2(0f, 0f); content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, .5f);
+            const float cell = 92f;
+            content.sizeDelta = new Vector2(16f + cell * WorkshopTools1104.Length, 0f);
+            var scroll = row.GetComponent<ScrollRect>();
+            scroll.content = content; scroll.horizontal = true; scroll.vertical = false; scroll.movementType = ScrollRect.MovementType.Clamped;
+            for (int i = 0; i < WorkshopTools1104.Length; i++)
             {
-                number.text = (int)v + unit;
-                set((int)v);
-                ApplyWorkshopLook1104();
-            });
-            var trigger = sliderGo.AddComponent<UnityEngine.EventSystems.EventTrigger>();
-            var up = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerUp };
-            up.callback.AddListener(_ => model.SaveWorkshopLook1104(workshopLook1104));
-            trigger.triggers.Add(up);
-            return y + 74f;
+                var tool = WorkshopTools1104[i];
+                var go = new GameObject("WorkshopTool-" + tool.Id, typeof(RectTransform), typeof(Image), typeof(Button));
+                go.transform.SetParent(content, false);
+                var r = (RectTransform)go.transform;
+                r.anchorMin = r.anchorMax = new Vector2(0f, .5f); r.pivot = new Vector2(0f, .5f);
+                r.anchoredPosition = new Vector2(10f + i * cell, 0f); r.sizeDelta = new Vector2(cell - 6f, 108f);
+                go.GetComponent<Image>().color = new Color(0f, 0f, 0f, .001f);
+                Image disc = NewImage("Disc", go.transform, DotSprite(), new Color32(18, 12, 34, 220)).GetComponent<Image>();
+                PlaceTop(disc.rectTransform, (cell - 6f - 64f) * .5f, 4f, 64f, 64f);
+                Image ring = VisualA1101.NewImage("Ring", disc.transform, VisualA1101.RingSprite, new Color(1f, 1f, 1f, .4f));
+                VisualA1101.Stretch(ring.rectTransform);
+                RectTransform glyph = VisualA1101.NeonIcon(disc.transform, "Icon", tool.Icon, VisualA1101.Paper, 32f, 0f);
+                VisualA1101.Center(glyph, 32f);
+                Text caption = VisualA1101.Label(go.transform, "Caption", tool.Name, 15, VisualA1101.Paper, TextAnchor.MiddleCenter);
+                PlaceTop(caption.rectTransform, 0f, 72f, cell - 6f, 26f);
+                Button button = go.GetComponent<Button>(); button.transition = Selectable.Transition.None;
+                string id = tool.Id;
+                button.onClick.AddListener(() => { VisualA1101.Click(); OpenWorkshopTool1104(id); });
+                go.AddComponent<VisualA1101Motion>().Press();
+            }
+            Text group = VisualA1101.Label(root, "WorkshopGroups", "造型 · 声线 · 舞台 · 动作", 14, VisualA1101.Muted, TextAnchor.MiddleCenter);
+            group.rectTransform.anchorMin = Vector2.zero; group.rectTransform.anchorMax = new Vector2(1f, 0f);
+            group.rectTransform.pivot = new Vector2(.5f, 0f);
+            group.rectTransform.offsetMin = new Vector2(0f, 30f); group.rectTransform.offsetMax = new Vector2(0f, 60f);
+        }
+
+        /// <summary>Selects a tool: the selected one wears the solid teal disc (selected-only rule), the camera moves to
+        /// its part, and value tools raise the dial.</summary>
+        private void OpenWorkshopTool1104(string id) => OpenWorkshopTool1104(id, true);
+
+        private void OpenWorkshopTool1104(string id, bool raise)
+        {
+            if (workshopRoot1104 == null) return;
+            workshopTool1104 = id;
+            foreach (var tool in WorkshopTools1104)
+            {
+                Transform t = workshopRoot1104.transform.Find("WorkshopTools/Content/WorkshopTool-" + tool.Id);
+                if (t == null) continue;
+                bool on = tool.Id == id;
+                t.Find("Disc").GetComponent<Image>().color = on ? (Color)Brand1025.Teal : new Color32(18, 12, 34, 220);
+                Image glyph = VisualA1101.Glyph((RectTransform)t.Find("Disc/Icon"));
+                if (glyph != null) glyph.color = on ? (Color)Brand1025.Ink : VisualA1101.Paper;
+                if (on) workshopStage1104.Shot = tool.Shot;
+            }
+            WorkshopLook1104 look = workshopLook1104;
+            string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
+            workshopStage1104.TurnMode = id == "turn";
+            switch (id)
+            {
+                case "dress":
+                    workshopStage1104.Dial(null);
+                    if (raise)
+                    {
+                        Application.OpenURL(DressLabUrl1104 + "?member=" + UnityEngine.Networking.UnityWebRequest.EscapeURL(subjectId));
+                        Toast($"已打开 AI 换装：{subjectName}（只换衣服，不换脸）");
+                    }
+                    break;
+                case "filter":
+                    workshopStage1104.Dial(new WorkshopDial1104("滤镜", WorkshopFilters1104.Length, () => look.Filter, v => look.Filter = v,
+                        v => WorkshopFilters1104[v].Name), raise);
+                    break;
+                case "bright":
+                    workshopStage1104.Dial(new WorkshopDial1104("亮度", 60, 130, 5, () => look.Brightness, v => look.Brightness = v, v => v + "%"), raise);
+                    break;
+                case "pitch":
+                    workshopStage1104.Dial(new WorkshopDial1104("音高", -30, 30, 2, () => look.Pitch, v => look.Pitch = v,
+                        v => v > 0 ? "+" + v : v.ToString()) { Released = PlayWorkshopVoice1104 }, raise);
+                    break;
+                case "voice":
+                    workshopStage1104.Dial(null);
+                    if (raise) OpenVoiceRecorder1104();
+                    break;
+                case "bg":
+                    workshopStage1104.Dial(new WorkshopDial1104("背景", WorkshopBackgrounds1104.Length, () => look.Background, v => look.Background = v,
+                        v => WorkshopBackgrounds1104[v].Name), raise);
+                    break;
+                case "accent":
+                    workshopStage1104.Dial(new WorkshopDial1104("应援色", WorkshopAccents1104.Length, () => look.Accent, v => look.Accent = v,
+                        v => WorkshopAccents1104[v].Name), raise);
+                    break;
+                case "bob":
+                    workshopStage1104.Dial(new WorkshopDial1104("律动", 0, 100, 5, () => look.Bob, v => look.Bob = v, v => v.ToString()), raise);
+                    break;
+                case "turn":
+                    workshopStage1104.Dial(null);
+                    if (raise) Toast(workshopStage1104.HasTurnViews ? "左右拖动她转身" : $"{subjectName}的多角度立绘还在制作中");
+                    break;
+            }
+        }
+
+        private void PlayWorkshopVoice1104()
+        {
+            string clip = DialogueVoice1102.FirstLineOf(WorkshopSubjectId1104, out _);
+            model.SaveWorkshopLook1104(workshopLook1104);
+            if (clip != null && gameAudio != null) gameAudio.PlayVoice(clip, "workshop");
         }
 
         // ------------------------------------------------------------------ 我的声音
 
         private void OpenVoiceRecorder1104()
         {
-            MemberDefinition member = GameModel.Members[workshopMember1104];
+            string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
             RectTransform body = ProgressionModal("VoiceRecorderModal", "录制我的声音", null, 620f);
             var frame = new ModalPolish038Frame
             {
@@ -333,15 +281,15 @@ namespace ChoSiren
                 Width = 620f, Height = 620f / ModalPolish038Chrome.PanelAspect,
             };
             float width = BodyWidth1101(frame), y = 0f;
-            Text intro = VisualA1101.Label(body, "RecorderIntro", $"读下面 3 段文稿，用你的声音为「{member.Name}」生成专属声线", 15,
+            Text intro = VisualA1101.Label(body, "RecorderIntro", $"读下面 3 段文稿，用你的声音为「{subjectName}」生成专属声线", 15,
                 VisualA1101.Muted, TextAnchor.MiddleLeft);
             intro.horizontalOverflow = HorizontalWrapMode.Wrap;
             VisualA1101.Place(intro.rectTransform, 0f, y, width, 44f);
             y += 52f;
 
             bool consent = workshopLook1104.VoiceConsent;
-            WorkshopChip1104(body, "RecorderConsent", consent ? "✓ 我确认是本人的声音，同意用于生成声线" : "□ 我确认是本人的声音，同意用于生成声线",
-                0f, y, width, 48f, 15, consent, () =>
+            RecorderChip1104(body, "RecorderConsent", consent ? "✓ 我确认是本人的声音，同意用于生成声线" : "□ 我确认是本人的声音，同意用于生成声线",
+                0f, y, width, 48f, consent, () =>
                 {
                     workshopLook1104.VoiceConsent = !workshopLook1104.VoiceConsent;
                     model.SaveWorkshopLook1104(workshopLook1104);
@@ -361,7 +309,7 @@ namespace ChoSiren
 
             bool supported = WorkshopRecorder1104.Supported;
             bool recording = WorkshopRecorder1104.Recording;
-            bool has = WorkshopRecorder1104.HasSample(member.Id, index);
+            bool has = WorkshopRecorder1104.HasSample(subjectId, index);
             float third = (width - 24f) / 3f;
             GameObject rec = ModalPolish038Chrome.ActionButton(body, "RecorderRecord", recording ? "■ 停止" : "● 录音", 18, () =>
             {
@@ -369,9 +317,9 @@ namespace ChoSiren
                 if (!workshopLook1104.VoiceConsent) { Toast("请先确认是本人的声音"); return; }
                 if (WorkshopRecorder1104.Recording)
                 {
-                    if (WorkshopRecorder1104.Stop(member.Id, index, out string error))
+                    if (WorkshopRecorder1104.Stop(subjectId, index, out string error))
                     {
-                        workshopLook1104.SamplesRecorded = WorkshopRecorder1104.CountSamples(member.Id, VoiceScripts1104.Length);
+                        workshopLook1104.SamplesRecorded = WorkshopRecorder1104.CountSamples(subjectId, VoiceScripts1104.Length);
                         model.SaveWorkshopLook1104(workshopLook1104);
                         Toast($"第 {index + 1} 段已保存在本机");
                         if (index < VoiceScripts1104.Length - 1) workshopScript1104 = index + 1;
@@ -384,7 +332,7 @@ namespace ChoSiren
             PanelKit.PlaceTop(rec.GetComponent<RectTransform>(), 0f, y, third, 56f);
             GameObject play = ModalPolish038Chrome.ActionButton(body, "RecorderPlay", "▶ 回放", 18, () =>
             {
-                if (!WorkshopRecorder1104.Play(member.Id, index, this)) Toast("这一段还没有录音");
+                if (!WorkshopRecorder1104.Play(subjectId, index, this)) Toast("这一段还没有录音");
             }, ModalPolish038ButtonStyle.Secondary);
             PanelKit.PlaceTop(play.GetComponent<RectTransform>(), third + 12f, y, third, 56f);
             ModalPolish038Chrome.SetActionEnabled(play, has);
@@ -396,7 +344,7 @@ namespace ChoSiren
             PanelKit.PlaceTop(next.GetComponent<RectTransform>(), (third + 12f) * 2f, y, third, 56f);
             y += 70f;
 
-            int done = WorkshopRecorder1104.CountSamples(member.Id, VoiceScripts1104.Length);
+            int done = WorkshopRecorder1104.CountSamples(subjectId, VoiceScripts1104.Length);
             Text progress = VisualA1101.Label(body, "RecorderProgress", supported ? $"已录 {done}/3 段 · 录音只保存在本机" : "网页版暂不支持录音，请用 App 录制",
                 14, VisualA1101.Muted, TextAnchor.MiddleCenter);
             VisualA1101.Place(progress.rectTransform, 0f, y, width, 24f);
@@ -408,24 +356,342 @@ namespace ChoSiren
             ModalPolish038Chrome.SetActionEnabled(train, done >= VoiceScripts1104.Length);
             ModalPolish038Chrome.FitHeight(frame, y + 60f);
         }
+
+        private void RecorderChip1104(Transform parent, string objectName, string text, float x, float y, float w, float h, bool selected, Action click)
+        {
+            Image face = NewImage(objectName, parent, RoundedSprite(12), selected ? (Color)Brand1025.Teal : new Color32(30, 22, 52, 255)).GetComponent<Image>();
+            face.type = Image.Type.Sliced;
+            face.raycastTarget = true;
+            PlaceTop(face.rectTransform, x, y, w, h);
+            Text caption = VisualA1101.Label(face.transform, "Text", text, 15, selected ? (Color)Brand1025.Ink : VisualA1101.Paper, TextAnchor.MiddleCenter);
+            VisualA1101.Stretch(caption.rectTransform);
+            Button button = face.gameObject.AddComponent<Button>();
+            button.targetGraphic = face;
+            button.transition = Selectable.Transition.None;
+            button.onClick.AddListener(() => click());
+        }
     }
 
-    /// <summary>The workshop figure's idle sway, size and facing, read live from the look being edited.</summary>
-    public sealed class WorkshopFigureMotion1104 : MonoBehaviour
+    /// <summary>A value the vinyl dial edits: an integer range with a step, or a list of named options.</summary>
+    public sealed class WorkshopDial1104
     {
+        public readonly string Name;
+        public readonly int Min, Max, Step;
+        public readonly Func<int> Get;
+        public readonly Action<int> Set;
+        public readonly Func<int, string> Format;
+        public Action Released;
+
+        public WorkshopDial1104(string name, int min, int max, int step, Func<int> get, Action<int> set, Func<int, string> format)
+        { Name = name; Min = min; Max = max; Step = Math.Max(1, step); Get = get; Set = set; Format = format; }
+
+        public WorkshopDial1104(string name, int options, Func<int> get, Action<int> set, Func<int, string> format)
+            : this(name, 0, options - 1, 1, get, set, format) { }
+
+        public int Steps => (Max - Min) / Step;
+    }
+
+    /// <summary>
+    /// The workshop stage: background, accent glow, the member (her still, or an angle sheet while turning), the camera
+    /// that eases between face / bust / full shots, and the vinyl dial that rises while a value is being set.
+    /// </summary>
+    public sealed class WorkshopStage1104 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    {
+        private const float StepDegrees = 18f, DialSize = 620f;
+        private RectTransform root, figureRect, dialRect, discRect;
+        private Image figure, background, glow, disc, bubble;
+        private Text bubbleText;
         private Func<WorkshopLook1104> look;
-        public void Bind(Func<WorkshopLook1104> source) => look = source;
+        private Sprite front;
+        private Sprite[] turn; // 0 front, 1 left 45, 2 left 90, 3 back, 4 right 90 (mirrored), 5 right 45 (mirrored)
+        private static readonly bool[] Mirrored = { false, false, false, false, true, true };
+        private Rect face;
+        private WorkshopDial1104 dial;
+        private float zoom = -1f, panY, raise, dialAngle, turnPos, turnVel, peekUntil;
+        private bool dragging, held, turning;
+        private float dragStartAngle, dragStartValue;
+        public int Shot = 1;
+        public bool TurnMode;
+        public Action Changed;
+        public bool HasTurnViews => turn != null;
+        public int View => turn == null ? 0 : ((Mathf.RoundToInt(turnPos) % 6) + 6) % 6;
+        public float Raise => raise;
+
+        /// <summary>初始角色's face in her 432x768 loop (normalised, y up), measured on the first frame.</summary>
+        public static readonly Rect StarterFace = new Rect(180f / 432f, (768f - 145f) / 768f, 60f / 432f, 58f / 768f);
+
+        private RawImage video;
+        private UnityEngine.Video.VideoPlayer player;
+        private RenderTexture videoTexture;
+        private Material videoMaterial;
+        private bool videoReady;
+
+        /// <param name="idleVideo">Optional stacked-alpha loop under StreamingAssets (left colour, right alpha), the same
+        /// frame as <paramref name="still"/>; the still shows until the first frame and whenever she is turned.</param>
+        public void Build(RectTransform page, string subjectId, Sprite still, Rect faceRect, string idleVideo,
+            Func<WorkshopLook1104> source, Sprite rounded, Sprite dot)
+        {
+            root = page; look = source;
+            front = still;
+            Sprite q45 = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-q45");
+            Sprite side = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-side");
+            Sprite back = Resources.Load<Sprite>($"Art/Workshop1104/Turn/{subjectId}-back");
+            if (front != null && q45 != null && side != null && back != null) turn = new[] { front, q45, side, back, side, q45 };
+            face = faceRect;
+
+            background = MakeImage("WorkshopBackground", page, null, Color.white);
+            background.rectTransform.anchorMin = Vector2.zero; background.rectTransform.anchorMax = Vector2.one;
+            background.rectTransform.offsetMin = new Vector2(-40f, -40f); background.rectTransform.offsetMax = new Vector2(40f, 40f);
+            // The whole stage takes turning drags (the dial and tools sit above it and keep their own input).
+            background.raycastTarget = true;
+            background.gameObject.AddComponent<WorkshopDragRelay1104>().Target = this;
+
+            glow = MakeImage("WorkshopGlow", page, VisualA1101.Glow, Color.white);
+            glow.rectTransform.anchorMin = glow.rectTransform.anchorMax = new Vector2(.5f, .5f);
+            figure = MakeImage("WorkshopFigure", page, front, Color.white);
+            figureRect = figure.rectTransform;
+            figureRect.anchorMin = figureRect.anchorMax = new Vector2(.5f, .5f);
+            figureRect.pivot = new Vector2(.5f, .5f);
+            if (!string.IsNullOrEmpty(idleVideo)) BuildVideo(idleVideo);
+
+            // Dial: a vinyl disc whose top edge peeks above the bottom of the page, rising while a value is set.
+            dialRect = new GameObject("WorkshopDial", typeof(RectTransform)).GetComponent<RectTransform>();
+            dialRect.SetParent(page, false);
+            dialRect.anchorMin = dialRect.anchorMax = new Vector2(.5f, 0f); dialRect.pivot = new Vector2(.5f, .5f);
+            dialRect.sizeDelta = new Vector2(DialSize, DialSize);
+            disc = MakeImage("Disc", dialRect, Resources.Load<Sprite>("Art/LevelMap1102/vinyl"), Color.white);
+            disc.preserveAspect = true; disc.raycastTarget = true;
+            discRect = disc.rectTransform; discRect.anchorMin = Vector2.zero; discRect.anchorMax = Vector2.one;
+            discRect.offsetMin = discRect.offsetMax = Vector2.zero;
+            Image pointer = MakeImage("Pointer", dialRect, dot, Brand1025.Teal);
+            pointer.rectTransform.anchorMin = pointer.rectTransform.anchorMax = new Vector2(.5f, 1f);
+            pointer.rectTransform.sizeDelta = new Vector2(16f, 16f); pointer.rectTransform.anchoredPosition = new Vector2(0f, -6f);
+            bubble = MakeImage("ValueBubble", dialRect, rounded, new Color32(14, 9, 28, 235));
+            bubble.type = Image.Type.Sliced;
+            bubble.rectTransform.anchorMin = bubble.rectTransform.anchorMax = new Vector2(.5f, 1f);
+            bubble.rectTransform.pivot = new Vector2(.5f, 0f);
+            bubble.rectTransform.sizeDelta = new Vector2(230f, 54f); bubble.rectTransform.anchoredPosition = new Vector2(0f, 10f);
+            bubbleText = VisualA1101.Label(bubble.transform, "Text", string.Empty, 24, VisualA1101.Paper, TextAnchor.MiddleCenter);
+            bubbleText.supportRichText = true;
+            VisualA1101.Stretch(bubbleText.rectTransform);
+            var trigger = disc.gameObject.AddComponent<EventTrigger>();
+            AddTrigger(trigger, EventTriggerType.PointerDown, _ => held = true);
+            AddTrigger(trigger, EventTriggerType.PointerUp, _ => { held = false; peekUntil = Time.unscaledTime + .9f; dial?.Released?.Invoke(); Changed?.Invoke(); });
+            AddTrigger(trigger, EventTriggerType.BeginDrag, e => BeginDial((PointerEventData)e));
+            AddTrigger(trigger, EventTriggerType.Drag, e => DragDial((PointerEventData)e));
+            AddTrigger(trigger, EventTriggerType.EndDrag, _ => dragging = false);
+            Apply();
+        }
+
+        private void BuildVideo(string file)
+        {
+            Shader shader = Resources.Load<Shader>("Shaders/UIStackedAlpha");
+            if (shader == null) return;
+            videoMaterial = new Material(shader) { name = "WorkshopIdleStackedAlpha" };
+            var go = new GameObject("WorkshopFigureVideo", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+            go.transform.SetParent(figureRect, false);
+            video = go.GetComponent<RawImage>();
+            video.material = videoMaterial; video.raycastTarget = false; video.enabled = false;
+            var r = video.rectTransform; r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one; r.offsetMin = r.offsetMax = Vector2.zero;
+            player = gameObject.AddComponent<UnityEngine.Video.VideoPlayer>();
+            player.playOnAwake = false; player.isLooping = true; player.skipOnDrop = true; player.waitForFirstFrame = true;
+            player.source = UnityEngine.Video.VideoSource.Url;
+            player.renderMode = UnityEngine.Video.VideoRenderMode.RenderTexture;
+            player.audioOutputMode = UnityEngine.Video.VideoAudioOutputMode.None;
+            string url = Application.streamingAssetsPath.TrimEnd('/') + "/" + file;
+#if !UNITY_WEBGL || UNITY_EDITOR
+            if (!url.Contains("://")) url = new Uri(Path.GetFullPath(url)).AbsoluteUri;
+#endif
+            player.url = url;
+            player.prepareCompleted += p =>
+            {
+                videoTexture = new RenderTexture(Mathf.Max(2, (int)p.width), Mathf.Max(2, (int)p.height), 0, RenderTextureFormat.ARGB32);
+                videoTexture.Create();
+                p.targetTexture = videoTexture;
+                video.texture = videoTexture;
+                videoMaterial.SetFloat("_AlphaFromSrgb", QualitySettings.activeColorSpace == ColorSpace.Linear && videoTexture.sRGB ? 1f : 0f);
+                p.Play();
+            };
+            player.errorReceived += (p, message) => Debug.LogWarning("CHO_SIREN_WORKSHOP_IDLE clip failed: " + message);
+            player.Prepare();
+        }
+
+        private void OnDestroy()
+        {
+            if (player != null) player.Stop();
+            if (videoTexture != null) { videoTexture.Release(); Destroy(videoTexture); }
+            if (videoMaterial != null) Destroy(videoMaterial);
+        }
+
+        private static void AddTrigger(EventTrigger trigger, EventTriggerType type, Action<BaseEventData> action)
+        {
+            var entry = new EventTrigger.Entry { eventID = type };
+            entry.callback.AddListener(e => action(e));
+            trigger.triggers.Add(entry);
+        }
+
+        private static Image MakeImage(string objectName, Transform parent, Sprite sprite, Color color)
+        {
+            var go = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            go.transform.SetParent(parent, false);
+            Image image = go.GetComponent<Image>();
+            image.sprite = sprite; image.color = color; image.raycastTarget = false;
+            return image;
+        }
+
+        /// <summary>Shows the dial for a value (null tucks it away). show=false only leaves its rim peeking.</summary>
+        public void Dial(WorkshopDial1104 value, bool show = true)
+        {
+            dial = value;
+            if (value != null) dialAngle = (value.Get() - value.Min) / (float)value.Step * -StepDegrees;
+            held = dragging = false;
+            peekUntil = value != null && show ? Time.unscaledTime + 1.8f : 0f;
+            UpdateBubble();
+        }
+
+        private float AngleOf(PointerEventData e)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(dialRect, e.position, e.pressEventCamera, out Vector2 p);
+            return Mathf.Atan2(p.y, p.x) * Mathf.Rad2Deg;
+        }
+
+        private void BeginDial(PointerEventData e)
+        {
+            if (dial == null) return;
+            dragging = held = true;
+            dragStartAngle = AngleOf(e); dragStartValue = dialAngle;
+        }
+
+        private void DragDial(PointerEventData e)
+        {
+            if (dial == null || !dragging) return;
+            float delta = Mathf.DeltaAngle(dragStartAngle, AngleOf(e));
+            dialAngle = Mathf.Clamp(dragStartValue + delta, -dial.Steps * StepDegrees, 0f);
+            int value = dial.Min + Mathf.RoundToInt(-dialAngle / StepDegrees) * dial.Step;
+            if (value != dial.Get()) { dial.Set(value); VisualA1101.Click(); Apply(); }
+            UpdateBubble();
+        }
+
+        /// <summary>Tests and the stage UI: set the dial's value directly.</summary>
+        public void SetDialValue(int value)
+        {
+            if (dial == null) return;
+            value = Mathf.Clamp(value, dial.Min, dial.Max);
+            dial.Set(value);
+            dialAngle = (value - dial.Min) / (float)dial.Step * -StepDegrees;
+            peekUntil = Time.unscaledTime + 1.8f;
+            Apply(); UpdateBubble();
+        }
+
+        private void UpdateBubble()
+        {
+            if (bubbleText == null) return;
+            bubbleText.text = dial == null ? string.Empty
+                : $"{dial.Name}  <color=#{ColorUtility.ToHtmlStringRGB(Brand1025.Teal)}>{dial.Format(dial.Get())}</color>";
+        }
+
+        public void Apply()
+        {
+            WorkshopLook1104 l = look?.Invoke();
+            if (l == null || figure == null) return;
+            Color tint = ChoSirenApp.WorkshopFilters1104[Mathf.Clamp(l.Filter, 0, ChoSirenApp.WorkshopFilters1104.Length - 1)].Tint;
+            float bright = l.Brightness / 100f;
+            figure.color = new Color(Mathf.Min(1f, tint.r * bright), Mathf.Min(1f, tint.g * bright), Mathf.Min(1f, tint.b * bright), 1f);
+            if (video != null) video.color = figure.color;
+            var bg = ChoSirenApp.WorkshopBackgrounds1104[Mathf.Clamp(l.Background, 0, ChoSirenApp.WorkshopBackgrounds1104.Length - 1)];
+            background.sprite = Resources.Load<Sprite>(bg.Path) ?? Resources.Load<Sprite>("Art/LobbyBackground");
+            Color accent = ChoSirenApp.WorkshopAccents1104[Mathf.Clamp(l.Accent, 0, ChoSirenApp.WorkshopAccents1104.Length - 1)].Glow;
+            glow.color = new Color(accent.r, accent.g, accent.b, .45f);
+        }
+
+        // ------------------------------------------------------------------ 转身
+
+        public void OnBeginDrag(PointerEventData e) { turning = TurnMode && turn != null; }
+        public void OnDrag(PointerEventData e)
+        {
+            if (!turning) return;
+            float d = -e.delta.x / 110f;
+            turnPos += d; turnVel = d;
+        }
+        public void OnEndDrag(PointerEventData e) { turning = false; }
+
+        /// <summary>Tests: turn to a view index (0 front … 3 back).</summary>
+        public void TurnTo(int view) { turnPos = view; turnVel = 0f; }
 
         private void LateUpdate()
         {
+            if (root == null) return;
+            float dt = Mathf.Min(Time.unscaledDeltaTime, .05f);
+            Vector2 page = root.rect.size;
+            if (page.x <= 0f || page.y <= 0f) return;
+
+            // Turning coasts and settles on the nearest sheet; leaving 转身 turns her back to the front.
+            if (!TurnMode) turnPos = Mathf.MoveTowards(turnPos, Mathf.Round(turnPos / 6f) * 6f, dt * 9f);
+            else if (!turning)
+            {
+                turnPos += turnVel; turnVel *= .85f;
+                if (Mathf.Abs(turnVel) < .01f) turnPos = Mathf.MoveTowards(turnPos, Mathf.Round(turnPos), dt * 6f);
+            }
+            int view = View;
+            Sprite want = turn != null ? turn[view] : front;
+            if (want != null && figure.sprite != want) figure.sprite = want;
+            // The idle loop replaces the still once it has a frame, except while she is turned away.
+            if (video != null)
+            {
+                videoReady = player != null && player.isPrepared && player.isPlaying && (player.frame > 0 || player.time > .05);
+                bool showVideo = videoReady && view == 0;
+                video.enabled = showVideo;
+                Color c = figure.color; c.a = showVideo ? 0f : 1f; figure.color = c;
+            }
+            float flip = turn != null && Mirrored[view] ? -1f : 1f;
+
+            // Camera: fit the shot (face / bust / full figure) into the stage between the top bar and the tools.
             WorkshopLook1104 l = look?.Invoke();
-            if (l == null) return;
-            float t = Time.unscaledTime, amount = l.Bob / 100f;
-            float scale = l.Scale / 100f * (1f + .012f * amount * Mathf.Sin(t * 2.2f));
-            transform.localScale = new Vector3(l.Mirror ? -scale : scale, scale, 1f);
-            ((RectTransform)transform).anchoredPosition = new Vector2(0f, 10f * amount * Mathf.Sin(t * 1.6f));
-            transform.localRotation = Quaternion.Euler(0f, 0f, 1.4f * amount * Mathf.Sin(t * 1.1f));
+            Vector2 art = want != null ? want.rect.size : new Vector2(1000f, 2400f);
+            float r = raise * raise * (3f - 2f * raise);
+            float top = page.y * .5f - 84f, bottom = -page.y * .5f + 186f + r * 90f, stageH = top - bottom;
+            float faceH = face.height * art.y, faceCy = face.center.y * art.y;
+            float shotH = Shot == 0 ? faceH * 4.2f : Shot == 1 ? faceH * 6.6f : art.y * 1.02f;
+            float focus = Shot == 2 ? art.y * .5f : Shot == 1 ? faceCy - faceH * 1.9f : faceCy - faceH * .55f;
+            float targetZoom = stageH / shotH * (l != null ? Mathf.Clamp(l.Scale, 85, 115) / 100f : 1f);
+            float ease = 1f - Mathf.Exp(-dt * 6.5f);
+            if (zoom < 0f) zoom = targetZoom;
+            zoom = Mathf.Lerp(zoom, targetZoom, ease);
+            float drawH = art.y * zoom, drawW = art.x * zoom;
+            float targetPan = (bottom + stageH * .5f) - (focus - art.y * .5f) * zoom;
+            panY = Mathf.Lerp(panY, targetPan, ease);
+            float t = Time.unscaledTime, bob = l != null ? l.Bob / 100f : .5f;
+            figureRect.sizeDelta = new Vector2(drawW, drawH);
+            figureRect.anchoredPosition = new Vector2(0f, panY + 5f * bob * Mathf.Sin(t * 1.6f));
+            figureRect.localScale = new Vector3(flip * (l != null && l.Mirror ? -1f : 1f) * (1f + .008f * bob * Mathf.Sin(t * 2.2f)), 1f, 1f);
+            figureRect.localRotation = Quaternion.Euler(0f, 0f, 1f * bob * Mathf.Sin(t * 1.1f));
+            glow.rectTransform.sizeDelta = new Vector2(Mathf.Min(drawW, page.x * 1.6f), Mathf.Min(drawH * .8f, page.y * 1.4f));
+            glow.rectTransform.anchoredPosition = new Vector2(0f, bottom + stageH * .5f);
+
+            // Background pushes in a little with the camera, so a close-up reads as the camera moving.
+            float closeness = Mathf.InverseLerp(stageH / (art.y * 1.02f), stageH / (faceH * 4.2f), zoom);
+            background.rectTransform.localScale = Vector3.one * Mathf.Lerp(1f, 1.15f, closeness);
+            float dim = Mathf.Lerp(.68f, .5f, closeness);
+            background.color = new Color(dim, dim, dim + .03f, 1f);
+
+            // Dial: rim peeks when a value tool is selected; rises while held, dragged or just picked; spins to the value.
+            bool up = dial != null && (held || dragging || Time.unscaledTime < peekUntil);
+            raise = Mathf.MoveTowards(raise, up ? 1f : 0f, dt * 4.5f);
+            float hidden = dial == null ? -DialSize * .5f - 20f : -DialSize * .5f + 54f;
+            dialRect.anchoredPosition = new Vector2(0f, Mathf.Lerp(hidden, -DialSize * .5f + 250f, r));
+            discRect.localRotation = Quaternion.Lerp(discRect.localRotation, Quaternion.Euler(0f, 0f, dialAngle), ease * 1.5f);
+            bubble.color = new Color(bubble.color.r, bubble.color.g, bubble.color.b, .92f * r);
+            bubbleText.color = new Color(1f, 1f, 1f, r);
         }
+    }
+
+    /// <summary>Forwards drags on the stage background to the stage (Unity only drag-routes to the hit object).</summary>
+    public sealed class WorkshopDragRelay1104 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    {
+        public WorkshopStage1104 Target;
+        public void OnBeginDrag(PointerEventData e) => Target?.OnBeginDrag(e);
+        public void OnDrag(PointerEventData e) => Target?.OnDrag(e);
+        public void OnEndDrag(PointerEventData e) => Target?.OnEndDrag(e);
     }
 
     /// <summary>Microphone voice samples for 我的声音 (native only; WebGL has no Microphone API). Saved as 16-bit mono WAV

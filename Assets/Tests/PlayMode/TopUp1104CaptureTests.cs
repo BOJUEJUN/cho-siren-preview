@@ -86,17 +86,40 @@ namespace ChoSiren.Tests
                 Invoke(app, "ActivatePsdHomeAction", "AlbumProduction");
                 yield return new WaitForSecondsRealtime(.8f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopPage1104"), Is.True, "创意工坊 opens");
-                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopDress"), Is.True);
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopTool-filter"), Is.True);
+                yield return new WaitForSecondsRealtime(2.5f);
+                Assert.That(canvas.GetComponentsInChildren<RawImage>(true).Any(r => r.name == "WorkshopFigureVideo" && r.enabled),
+                    Is.True, "初始角色's idle loop plays");
                 Shot(camera, rt, "workshop.png");
-                var pageRect = canvas.GetComponentsInChildren<RectTransform>(true).First(r => r.name == "WorkshopPage1104");
-                File.WriteAllText(Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/topup-1104/order.txt")),
-                    string.Join("\n", pageRect.parent.Cast<Transform>().Select(t => $"{t.GetSiblingIndex()} {t.name} {t.gameObject.activeSelf} canvas={(t.GetComponent<Canvas>() != null)}")));
-                for (int tab = 1; tab < 4; tab++)
-                {
-                    canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "WorkshopTab-" + tab).onClick.Invoke();
-                    yield return new WaitForSecondsRealtime(.3f);
-                    Shot(camera, rt, $"workshop-tab{tab}.png");
-                }
+                var stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
+                Assert.That(stage, Is.Not.Null);
+                Button Tool(string id) => canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "WorkshopTool-" + id);
+                Tool("bright").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.5f);
+                stage.SetDialValue(80);
+                yield return new WaitForSecondsRealtime(.7f);
+                Assert.That(stage.Raise, Is.GreaterThan(.9f), "the dial rises while a value is set");
+                Shot(camera, rt, "workshop-dial.png");
+                yield return new WaitForSecondsRealtime(2.6f);
+                Assert.That(stage.Raise, Is.LessThan(.1f), "the dial tucks away again");
+                Shot(camera, rt, "workshop-tucked.png");
+                Tool("bg").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.4f);
+                stage.SetDialValue(2);
+                yield return new WaitForSecondsRealtime(1f);
+                Shot(camera, rt, "workshop-bg.png");
+                // 星璃 has the angle sheets; the starter does not.
+                Invoke(app, "StepWorkshopMember1104", 1);
+                yield return new WaitForSecondsRealtime(.8f);
+                stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
+                Tool("turn").onClick.Invoke();
+                stage.TurnTo(3);
+                yield return new WaitForSecondsRealtime(1.2f);
+                Assert.That(stage.View, Is.EqualTo(3), "转身 reaches the back view");
+                Shot(camera, rt, "workshop-back.png");
+                stage.TurnTo(2);
+                yield return new WaitForSecondsRealtime(.6f);
+                Shot(camera, rt, "workshop-side.png");
                 Invoke(app, "OpenVoiceRecorder1104");
                 yield return new WaitForSecondsRealtime(.5f);
                 Shot(camera, rt, "workshop-recorder.png");
