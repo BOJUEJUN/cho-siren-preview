@@ -54,6 +54,16 @@ namespace ChoSiren
             SaveState();
         }
 
+        /// <summary>2026-11-05 (用户: AI 换装改成星钻，有上限): one AI outfit costs 10 星钻 (1 元; the model call costs the
+        /// game about 0.15 元), paid only when the outfit arrives. The service still caps each device at 5 a day and
+        /// all players at 300 a day.</summary>
+        public const int AiDressDiamondCost1105 = 10;
+
+        public bool CanPayAiDress1105 => Save.Diamonds >= AiDressDiamondCost1105;
+
+        /// <summary>Takes the 星钻 for a finished outfit.</summary>
+        public bool PayAiDress1105() => TrySpend(ChoSiren.Systems.Economy.CurrencyIds.Diamond, AiDressDiamondCost1105);
+
         /// <summary>Voice pitch (AudioSource.pitch) and volume share a member's lines play with everywhere.</summary>
         public void VoiceTuning1104(string memberId, out float pitch, out float volume)
         {

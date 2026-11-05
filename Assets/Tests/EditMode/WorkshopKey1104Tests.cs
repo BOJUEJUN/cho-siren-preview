@@ -57,6 +57,22 @@ namespace ChoSiren.Tests
             Assert.That(fig.x + fig.width * .5f, Is.EqualTo(60 * k).Within(1f));
         }
 
+        [Test]
+        public void AnOutfitCostsTenDiamondsOnlyWhenAffordable()
+        {
+            PlayerPrefs.DeleteKey(GameModel.SaveKey);
+            var model = new GameModel(() => new System.DateTime(2026, 11, 5, 12, 0, 0, System.DateTimeKind.Utc), new InMemorySaveStore());
+            int start = model.Balance(ChoSiren.Systems.Economy.CurrencyIds.Diamond);
+            Assert.That(model.CanPayAiDress1105, Is.True);
+            Assert.That(model.PayAiDress1105(), Is.True);
+            Assert.That(model.Balance(ChoSiren.Systems.Economy.CurrencyIds.Diamond), Is.EqualTo(start - GameModel.AiDressDiamondCost1105));
+            model.Save.Diamonds = GameModel.AiDressDiamondCost1105 - 1;
+            Assert.That(model.CanPayAiDress1105, Is.False);
+            Assert.That(model.PayAiDress1105(), Is.False);
+            Assert.That(model.Save.Diamonds, Is.EqualTo(GameModel.AiDressDiamondCost1105 - 1));
+            PlayerPrefs.DeleteKey(GameModel.SaveKey);
+        }
+
         /// <summary>Real model output (when the QA sample exists): writes the keyed PNG for inspection.</summary>
         [Test]
         public void KeysARealSampleWhenPresent()

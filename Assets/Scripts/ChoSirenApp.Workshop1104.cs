@@ -286,7 +286,7 @@ namespace ChoSiren
 
             Text title = VisualA1101.Label(sheet.transform, "Title", "AI 换装", 22, VisualA1101.Paper, TextAnchor.MiddleLeft);
             PlaceTop(title.rectTransform, 18f, y, 200f, 34f);
-            Text note = VisualA1101.Label(sheet.transform, "Note", "只换衣服 · 不换脸 · AI 生成仅自己可见", 13, VisualA1101.Muted, TextAnchor.MiddleRight);
+            Text note = VisualA1101.Label(sheet.transform, "Note", $"只换衣服不换脸 · 每次 {GameModel.AiDressDiamondCost1105} 星钻 · 每天限 {WorkshopAi1104.DailyLimit} 次", 13, VisualA1101.Muted, TextAnchor.MiddleRight);
             PlaceTop(note.rectTransform, w - 300f, y, 318f, 34f);
             y += 44f;
 
@@ -323,7 +323,7 @@ namespace ChoSiren
 
             bool hasResult = aiDressResult1104 != null;
             float half = (w - 10f) * .5f;
-            GameObject go = ModalPolish038Chrome.ActionButton(sheet.transform, "AiGenerate", aiDressBusy1104 ? "生成中…" : hasResult ? "再生成一套" : "生成",
+            GameObject go = ModalPolish038Chrome.ActionButton(sheet.transform, "AiGenerate", aiDressBusy1104 ? "生成中…" : (hasResult ? "再生成一套" : "生成") + $" · {GameModel.AiDressDiamondCost1105} 星钻",
                 19, StartAiDress1104, ModalPolish038ButtonStyle.Primary);
             PlaceTop(go.GetComponent<RectTransform>(), 18f, y, hasResult ? half : w, 56f);
             ModalPolish038Chrome.SetActionEnabled(go, !aiDressBusy1104);
@@ -352,6 +352,7 @@ namespace ChoSiren
         {
             if (aiDressBusy1104) return;
             if (!WorkshopAi1104.Connected) { VisualA1101.Deny(); Toast(WorkshopAi1104.PendingNotice); return; }
+            if (!model.CanPayAiDress1105) { VisualA1101.Deny(); Toast($"星钻不足，每次需要 {GameModel.AiDressDiamondCost1105} 星钻"); return; }
             string prompt = WorkshopAi1104.PromptFor(aiDressTag1104, aiDressPrompt1104);
             Sprite still = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
                 : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath);
@@ -367,7 +368,10 @@ namespace ChoSiren
                 aiDressBusy1104 = false;
                 if (texture != null)
                 {
-                    aiDressResult1104 = texture; aiDressStatus1104 = "生成完成";
+                    aiDressResult1104 = texture;
+                    bool paid = model.PayAiDress1105();
+                    aiDressStatus1104 = (paid ? $"生成完成 · 消耗 {GameModel.AiDressDiamondCost1105} 星钻" : "生成完成")
+                        + (WorkshopAi1104.RemainingToday >= 0 ? $" · 今天还能换 {WorkshopAi1104.RemainingToday} 次" : string.Empty);
                     workshopStage1104?.SetOverride(texture);
                     VisualA1101.Success();
                 }

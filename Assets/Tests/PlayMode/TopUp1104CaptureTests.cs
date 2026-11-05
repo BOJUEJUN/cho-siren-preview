@@ -110,6 +110,8 @@ namespace ChoSiren.Tests
                 // 2026-11-05: one real generation through the game's service (costs one model call; opt-in).
                 if (Environment.GetEnvironmentVariable("WORKSHOP_AI_LIVE") == "1")
                 {
+                    var gameModel = (GameModel)typeof(ChoSirenApp).GetField("model", Private).GetValue(app);
+                    int diamondsBefore = gameModel.Save.Diamonds;
                     Invoke(app, "StartAiDress1104");
                     FieldInfo busy = typeof(ChoSirenApp).GetField("aiDressBusy1104", Private);
                     float started = Time.realtimeSinceStartup;
@@ -117,6 +119,7 @@ namespace ChoSiren.Tests
                     Debug.Log("[AI1105] " + typeof(ChoSirenApp).GetField("aiDressStatus1104", Private).GetValue(app)
                         + $" after {Time.realtimeSinceStartup - started:0}s");
                     Assert.That(typeof(ChoSirenApp).GetField("aiDressResult1104", Private).GetValue(app), Is.Not.Null, "AI 换装 returns an outfit");
+                    Assert.That(gameModel.Save.Diamonds, Is.EqualTo(diamondsBefore - GameModel.AiDressDiamondCost1105), "the outfit costs 星钻");
                     yield return new WaitForSecondsRealtime(.8f);
                     Shot(camera, rt, "workshop-ai-result.png");
                     Invoke(app, "CloseModal");

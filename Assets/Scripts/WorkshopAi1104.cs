@@ -22,6 +22,9 @@ namespace ChoSiren
         public static string Endpoint = "https://1318245308-d7n1q0c0wj.ap-guangzhou.tencentscf.com";
         public const string PendingNotice = "AI 服务开通中，开通后就能在这里直接生成";
         public static bool Connected => !string.IsNullOrEmpty(Endpoint);
+        /// <summary>Generations this device has left today, from the service (-1 = not known yet).</summary>
+        public static int RemainingToday = -1;
+        public const int DailyLimit = 5;
 
         public static readonly string[] StyleTags =
         {
@@ -68,7 +71,9 @@ namespace ChoSiren
             Reply reply = null; string error = null;
             yield return Send(UnityWebRequest.kHttpVerbPOST, Endpoint.TrimEnd('/') + "/dress", JsonUtility.ToJson(body),
                 r => reply = r, e => error = e);
+            if (error != null && error.Contains("次数用完")) RemainingToday = 0;
             if (error != null || reply == null || string.IsNullOrEmpty(reply.task)) { done(null, error ?? reply?.error ?? "生成请求失败"); yield break; }
+            if (reply.remaining >= 0) RemainingToday = reply.remaining;
 
             float started = Time.unscaledTime;
             while (Time.unscaledTime - started < 180f)
