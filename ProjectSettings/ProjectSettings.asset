@@ -149,7 +149,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.9.35
+  bundleVersion: 0.9.36
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -179,7 +179,7 @@ PlayerSettings:
     iPhone: 0
     tvOS: 0
   overrideDefaultApplicationIdentifier: 1
-  AndroidBundleVersionCode: 935
+  AndroidBundleVersionCode: 936
   AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
@@ -477,7 +477,7 @@ PlayerSettings:
   enableCrashReportAPI: 0
   cameraUsageDescription: 
   locationUsageDescription: 
-  microphoneUsageDescription: "用于在创意工坊录制你的声音样本，生成专属声线（录音只保存在本机）"
+  microphoneUsageDescription: "\u7528\u4E8E\u5728\u521B\u610F\u5DE5\u574A\u5F55\u5236\u4F60\u7684\u58F0\u97F3\u6837\u672C\uFF0C\u751F\u6210\u4E13\u5C5E\u58F0\u7EBF\uFF08\u5F55\u97F3\u53EA\u4FDD\u5B58\u5728\u672C\u673A\uFF09"
   bluetoothUsageDescription: 
   macOSTargetOSVersion: 12.0
   switchNMETAOverride: 
