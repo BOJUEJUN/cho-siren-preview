@@ -20,8 +20,12 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-RH = "https://www.runninghub.cn/openapi/v2"
-MODEL = os.environ.get("AI_DRESS_MODEL", "seedream-v4.7/image-to-image")
+# 2026-11-05 (用户: 用便宜版本): Nano Banana 2.1 economy on the global site (cleaner outfits, a pure green
+# backdrop, about $0.03 a call); Seedream 4.7 on the China site stays as the fallback when the global site refuses.
+HOSTS = {"b": ("https://www.runninghub.ai/openapi/v2", "RUNNINGHUB_AI_KEY"),
+         "s": ("https://www.runninghub.cn/openapi/v2", "RUNNINGHUB_API_KEY")}
+BANANA = os.environ.get("AI_DRESS_MODEL", "rhart-image-n-nb21/image-to-image")
+SEEDREAM = "seedream-v4.7/image-to-image"
 DAILY_LIMIT = int(os.environ.get("AI_DRESS_DAILY_LIMIT", "5"))
 GLOBAL_DAILY_LIMIT = int(os.environ.get("AI_DRESS_GLOBAL_LIMIT", "300"))
 TEMPLATE = ("把图中人物的服装完全换成一套新衣服：{wish}。新服装的款式和颜色必须和原图明显不同，原来的衣服不要保留。"
@@ -35,9 +39,10 @@ def reply(code, body):
     return {"isBase64Encoded": False, "statusCode": code, "headers": CORS, "body": json.dumps(body, ensure_ascii=False)}
 
 
-def rh(path, body):
-    request = urllib.request.Request(f"{RH}/{path}", data=json.dumps(body).encode(), method="POST", headers={
-        "Authorization": "Bearer " + os.environ["RUNNINGHUB_API_KEY"], "Content-Type": "application/json"})
+def rh(site, path, body):
+    host, key = HOSTS[site]
+    request = urllib.request.Request(f"{host}/{path}", data=json.dumps(body).encode(), method="POST", headers={
+        "Authorization": "Bearer " + os.environ[key], "Content-Type": "application/json"})
     with urllib.request.urlopen(request, timeout=40) as response:
         return json.loads(response.read())
 
@@ -94,16 +99,30 @@ def submit(body):
     remaining = take_quota(device)
     if remaining < 0:
         return reply(429, {"error": f"今天的 AI 换装次数用完了（每天 {DAILY_LIMIT} 次）"})
-    result = rh(MODEL, {"prompt": TEMPLATE.format(wish=wish), "imageUrls": ["data:image/png;base64," + image],
-                        "width": 1152, "height": 2048})
-    task = result.get("taskId")
+    prompt, image_url = TEMPLATE.format(wish=wish), "data:image/png;base64," + image
+    task, error = None, None
+    if os.environ.get("RUNNINGHUB_AI_KEY"):
+        try:
+            result = rh("b", BANANA, {"prompt": prompt, "imageUrls": [image_url], "aspectRatio": "9:16", "resolution": "2k"})
+            task = result.get("taskId") and "b:" + result["taskId"]
+            error = result.get("errorMessage")
+        except Exception as failure:  # fall back below
+            error = type(failure).__name__
     if not task:
-        return reply(502, {"error": result.get("errorMessage") or "AI 服务繁忙，请稍后再试"})
+        print("banana refused, using seedream:", (error or "")[:120])
+        result = rh("s", SEEDREAM, {"prompt": prompt, "imageUrls": [image_url], "width": 1152, "height": 2048})
+        task = result.get("taskId") and "s:" + result["taskId"]
+        error = result.get("errorMessage")
+    if not task:
+        return reply(502, {"error": "AI 服务繁忙，请稍后再试"})
     return reply(200, {"task": task, "remaining": remaining})
 
 
 def query(task):
-    result = rh("query", {"taskId": task})
+    site, _, task_id = task.partition(":") if ":" in task else ("s", ":", task)
+    if site not in HOSTS:
+        return reply(400, {"error": "任务不存在"})
+    result = rh(site, "query", {"taskId": task_id})
     status = result.get("status")
     if status == "SUCCESS":
         item = (result.get("results") or [{}])[0]
@@ -127,7 +146,7 @@ def main_handler(event, context):
                 raw = base64.b64decode(raw).decode()
             return submit(json.loads(raw))
         if method == "GET" and "/dress/" in path:
-            return query(path.rsplit("/", 1)[-1])
+            return query(urllib.parse.unquote(path.rsplit("/", 1)[-1]))
         if method == "GET":
             return reply(200, {"ok": True, "service": "cho-siren ai-dress"})
         return reply(404, {"error": "not found"})

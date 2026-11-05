@@ -117,7 +117,15 @@ namespace ChoSiren
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.timeout = 30;
                 yield return request.SendWebRequest();
-                if (request.result != UnityWebRequest.Result.Success) { fail("网络连接失败"); yield break; }
+                if (request.result != UnityWebRequest.Result.Success)
+                {
+                    // The service answers refusals (429 daily limit, 400, 502) with {error}; show that, not "network".
+                    string said = null;
+                    try { said = JsonUtility.FromJson<Reply>(request.downloadHandler?.text ?? string.Empty)?.error; } catch { }
+                    if (request.responseCode == 429) RemainingToday = 0;
+                    fail(string.IsNullOrEmpty(said) ? "网络连接失败" : said);
+                    yield break;
+                }
                 Reply reply;
                 try { reply = JsonUtility.FromJson<Reply>(request.downloadHandler.text); }
                 catch { fail("服务返回异常"); yield break; }

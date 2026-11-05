@@ -2,6 +2,7 @@
 
 Keep this file short. Load only the document that matches the work:
 
+- **Newest work (2026-11-05, unreleased 0.9.36 candidate: 创意工坊 AI 换装):** `Docs/AI-HANDOFF-2026-11-05-WORKSHOP-AI.md`
 - **Start here (latest, 2026-11-04, game 0.9.35 / Android 935):** `Docs/FULL-RELEASE-2026-11-04-0935.md` and `Docs/BALANCE-1104.md`, then `Docs/AI-HANDOFF-2026-11-03-CONTINUE.md`
 - Earlier: `Docs/AI-HANDOFF-2026-10-29-CONTINUE.md`, `Docs/AI-HANDOFF-2026-10-20.md` (0.3.x era, history only)
 - Older release continuity: `Docs/AI-HANDOFF-2026-09-08.md`
