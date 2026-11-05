@@ -77,6 +77,80 @@ namespace ChoSiren
 
         [Serializable] private sealed class Request { public string device, member, prompt, image; }
         [Serializable] private sealed class Reply { public string task, status, url, error; public int remaining = -1; }
+        [Serializable] private sealed class Pending
+        {
+            public string member, task, endpoint;
+            public bool submitting;
+            public int x, y, width, height, imageWidth, imageHeight;
+        }
+
+        private static string PendingPath(string member)
+        {
+            if (string.IsNullOrEmpty(member) || member.Length > 100) return null;
+            foreach (char c in member) if (!char.IsLetterOrDigit(c) && c != '-' && c != '_') return null;
+            return Path.Combine(Application.persistentDataPath, "workshop-jobs", member + ".json");
+        }
+
+        private static Pending LoadPending(string member, out string error) =>
+            LoadPendingAtPath(member, ActiveEndpoint.TrimEnd('/'), PendingPath(member), out error);
+
+        private static Pending LoadPendingAtPath(string member, string endpoint, string path, out string error)
+        {
+            error = null;
+            try
+            {
+                if (path == null) { error = "成员标识异常，未提交生成"; return null; }
+                if (!File.Exists(path))
+                {
+                    if (File.Exists(path + ".tmp")) error = "上次任务记录未保存完整，未重复生成";
+                    return null;
+                }
+                Pending job = JsonUtility.FromJson<Pending>(File.ReadAllText(path));
+                if (job == null || job.member != member || job.imageWidth <= 0 || job.imageHeight <= 0
+                    || job.width <= 0 || job.height <= 0 || job.x < 0 || job.y < 0
+                    || job.x > job.imageWidth - job.width || job.y > job.imageHeight - job.height
+                    || (!job.submitting && string.IsNullOrEmpty(job.task)))
+                { error = "上次任务记录异常，未重复生成"; return null; }
+                if (job.endpoint != endpoint)
+                { error = "上次任务属于另一生成服务，未重复提交"; return null; }
+                return job;
+            }
+            catch { error = "上次任务记录无法读取，未重复生成"; return null; }
+        }
+
+        public static bool HasPending(string member)
+        {
+            Pending job = LoadPending(member, out string error);
+            return job != null || error != null;
+        }
+
+        private static bool SavePending(Pending job) => SavePendingAtPath(job, PendingPath(job.member));
+
+        private static bool SavePendingAtPath(Pending job, string path)
+        {
+            try
+            {
+                if (path == null) return false;
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                string temporary = path + ".tmp";
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(job));
+                using (var file = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    file.Write(bytes, 0, bytes.Length);
+                    file.Flush(true);
+                }
+                if (File.Exists(path)) File.Replace(temporary, path, null);
+                else File.Move(temporary, path);
+                return true;
+            }
+            catch { Debug.LogWarning("[WorkshopAi] could not save generation progress"); return false; }
+        }
+
+        private static void ClearPending(string member)
+        {
+            try { string path = PendingPath(member); if (path != null && File.Exists(path)) File.Delete(path); }
+            catch { Debug.LogWarning("[WorkshopAi] could not clear generation progress"); }
+        }
 
         /// <summary>Generates an outfit. progress gets status text; done gets the texture (or null and an error).</summary>
         public static IEnumerator Generate(string memberId, Sprite still, string prompt, Action<string> progress,
@@ -84,49 +158,114 @@ namespace ChoSiren
         {
             if (!Connected) { done(null, PendingNotice); yield break; }
             if (still == null) { done(null, "没有可用的立绘"); yield break; }
-            progress?.Invoke("正在上传立绘…");
-            byte[] png = EncodeStill(still, 1024, out RectInt figure, out Vector2Int stillSize);
-            var body = new Request
+            string endpoint = ActiveEndpoint.TrimEnd('/');
+            Pending job = LoadPending(memberId, out string loadError);
+            if (loadError != null) { done(null, loadError); yield break; }
+            if (job != null && string.IsNullOrEmpty(job.task))
+            { done(null, "上次提交结果尚未确认，请勿重复生成"); yield break; }
+            bool saved = job != null;
+            if (job == null)
             {
-                device = SystemInfo.deviceUniqueIdentifier, member = memberId, prompt = prompt,
-                image = Convert.ToBase64String(png),
-            };
-            Reply reply = null; string error = null;
-            yield return Send(UnityWebRequest.kHttpVerbPOST, ActiveEndpoint.TrimEnd('/') + "/dress", JsonUtility.ToJson(body),
-                r => reply = r, e => error = e);
-            if (error != null && error.Contains("次数用完")) RemainingToday = 0;
-            if (error != null || reply == null || string.IsNullOrEmpty(reply.task)) { done(null, error ?? reply?.error ?? "生成请求失败"); yield break; }
-            if (reply.remaining >= 0) RemainingToday = reply.remaining;
+                progress?.Invoke("正在上传立绘…");
+                byte[] png = EncodeStill(still, 1024, out RectInt figure, out Vector2Int stillSize);
+                var body = new Request
+                {
+                    device = SystemInfo.deviceUniqueIdentifier, member = memberId, prompt = prompt,
+                    image = Convert.ToBase64String(png),
+                };
+                job = new Pending { member = memberId, endpoint = endpoint, submitting = true,
+                    x = figure.x, y = figure.y, width = figure.width, height = figure.height,
+                    imageWidth = stillSize.x, imageHeight = stillSize.y };
+                if (!SavePending(job))
+                { done(null, "无法保存生成进度，本次未提交，请检查存储空间"); yield break; }
+                Reply reply = null; string error = null; long submitStatus = 0;
+                yield return Send(UnityWebRequest.kHttpVerbPOST, endpoint + "/dress", JsonUtility.ToJson(body),
+                    r => reply = r, e => error = e, responseStatus: status => submitStatus = status);
+                if (error != null && error.Contains("次数用完")) RemainingToday = 0;
+                if (error != null || reply == null || string.IsNullOrEmpty(reply.task))
+                {
+                    if (submitStatus == 400 || submitStatus == 403 || submitStatus == 413 || submitStatus == 429)
+                        ClearPending(memberId);
+                    done(null, error ?? "服务未确认任务，可能已提交，请勿重复生成"); yield break;
+                }
+                if (reply.remaining >= 0) RemainingToday = reply.remaining;
+                job.task = reply.task; job.submitting = false;
+                saved = SavePending(job);
+                if (!saved) progress?.Invoke("任务已接收但暂存失败，请保持此页面");
+            }
+            else progress?.Invoke("继续上次生成…");
 
             float started = Time.unscaledTime;
-            while (Time.unscaledTime - started < 180f)
+            int transientFailures = 0;
+            while (Time.unscaledTime - started < 600f)
             {
                 progress?.Invoke($"AI 正在换装… {Mathf.FloorToInt(Time.unscaledTime - started)} 秒");
                 yield return new WaitForSecondsRealtime(2.5f);
-                Reply poll = null; string pollError = null;
-                yield return Send(UnityWebRequest.kHttpVerbGET, ActiveEndpoint.TrimEnd('/') + "/dress/" + UnityWebRequest.EscapeURL(reply.task), null,
-                    r => poll = r, e => pollError = e);
-                if (pollError != null) continue;
-                if (poll.status == "failed") { done(null, poll.error ?? "生成失败，换个描述再试试"); yield break; }
+                Reply poll = null; string pollError = null; bool retryable = false;
+                yield return Send(UnityWebRequest.kHttpVerbGET, endpoint + "/dress/" + UnityWebRequest.EscapeURL(job.task), null,
+                    r => poll = r, e => pollError = e, r => retryable = r);
+                if (pollError != null)
+                {
+                    if (!retryable || ++transientFailures >= 3)
+                    { done(null, pollError + (saved ? "；任务已保留，可继续查询" : "；任务暂存失败，请保持页面")); yield break; }
+                    progress?.Invoke("连接暂时中断，正在恢复查询…");
+                    continue;
+                }
+                transientFailures = 0;
+                if (poll == null) { done(null, saved ? "服务回复异常，任务已保留" : "服务回复异常，任务暂存失败"); yield break; }
+                if (poll.status == "failed")
+                { done(null, "本次未能完成生成" + (saved ? "，任务记录已保留" : "，任务暂存失败")); yield break; }
                 if (poll.status != "done" || string.IsNullOrEmpty(poll.url)) continue;
                 progress?.Invoke("正在下载结果…");
-                using (UnityWebRequest image = UnityWebRequest.Get(poll.url))
-                {
-                    image.timeout = 60;
-                    yield return image.SendWebRequest();
-                    if (image.result != UnityWebRequest.Result.Success) { done(null, "结果下载失败"); yield break; }
-                    Texture2D raw = DecodeImage(image.downloadHandler.data);
-                    if (raw == null) { done(null, "结果下载失败"); yield break; }
-                    progress?.Invoke("正在抠图…");
-                    yield return null;
-                    Texture2D texture = FitToStill(KeyGreen(raw), figure, stillSize);
-                    UnityEngine.Object.Destroy(raw);
-                    texture.name = "workshop-ai-" + memberId;
-                    done(texture, null);
-                    yield break;
-                }
+                Texture2D raw = null; string downloadError = null;
+                yield return DownloadResult(poll.url, progress, image => raw = image, message => downloadError = message);
+                if (raw == null)
+                { done(null, (downloadError ?? "结果下载未完成") + (saved ? "；任务已保留，可继续查询" : "；任务暂存失败")); yield break; }
+                progress?.Invoke("正在抠图…");
+                yield return null;
+                Texture2D texture = FitToStill(KeyGreen(raw), new RectInt(job.x, job.y, job.width, job.height),
+                    new Vector2Int(job.imageWidth, job.imageHeight));
+                UnityEngine.Object.Destroy(raw);
+                texture.name = "workshop-ai-" + memberId;
+                ClearPending(memberId);
+                done(texture, null);
+                yield break;
             }
-            done(null, "生成超时，请稍后再试");
+            done(null, saved ? "还在生成中，任务已保留，可稍后继续查询" : "还在生成中，暂存失败，请保持页面");
+        }
+
+        private static IEnumerator DownloadResult(string url, Action<string> progress, Action<Texture2D> done,
+            Action<string> fail)
+        {
+            // GET is safe to repeat. Never re-submit the paid generation after a slow/truncated download.
+            for (int attempt = 0; attempt < 2; attempt++)
+            {
+                using (UnityWebRequest image = UnityWebRequest.Get(url))
+                {
+                    image.timeout = 120;
+                    UnityWebRequestAsyncOperation operation = image.SendWebRequest();
+                    ulong previousKb = ulong.MaxValue;
+                    while (!operation.isDone)
+                    {
+                        ulong kb = image.downloadedBytes / 1024;
+                        if (kb != previousKb)
+                        { previousKb = kb; progress?.Invoke($"正在下载结果… {kb} KB"); }
+                        yield return null;
+                    }
+                    // Some gateways finish the complete payload but stall closing the response. Accept only a
+                    // structurally complete image, never a partial PNG that happened to reach the phone first.
+                    Texture2D decoded = image.responseCode == 200 || image.result == UnityWebRequest.Result.Success
+                        ? DecodeImage(image.downloadHandler.data) : null;
+                    if (decoded != null) { done(decoded); yield break; }
+                    bool retryable = image.responseCode == 0 || image.responseCode == 200 || image.responseCode == 408
+                        || image.responseCode == 429 || image.responseCode >= 500;
+                    Debug.LogWarning($"[WorkshopAi] phase=download result={image.result} http={image.responseCode} bytes={image.downloadedBytes}");
+                    if (!retryable || attempt == 1)
+                    { fail(retryable ? "结果下载暂时中断" : "结果暂时无法下载"); yield break; }
+                }
+                progress?.Invoke("下载连接中断，正在重试已生成的结果…");
+                yield return new WaitForSecondsRealtime(1f);
+            }
         }
 
         /// <summary>PNG/JPEG bytes, or the same image as base64 text (the Singapore function URL sends it that way).</summary>
@@ -138,13 +277,23 @@ namespace ChoSiren
                 try { bytes = Convert.FromBase64String(System.Text.Encoding.ASCII.GetString(bytes).Trim()); }
                 catch { return null; }
             }
+            bool png = bytes.Length >= 20 && bytes[0] == 137 && bytes[1] == 80 && bytes[2] == 78 && bytes[3] == 71;
+            bool jpeg = bytes.Length >= 4 && bytes[0] == 255 && bytes[1] == 216;
+            if (png)
+            {
+                byte[] ending = { 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 };
+                for (int i = 0; i < ending.Length; i++)
+                    if (bytes[bytes.Length - ending.Length + i] != ending[i]) return null;
+            }
+            else if (!jpeg || bytes[bytes.Length - 2] != 255 || bytes[bytes.Length - 1] != 217) return null;
             var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
             if (texture.LoadImage(bytes)) return texture;
             UnityEngine.Object.Destroy(texture);
             return null;
         }
 
-        private static IEnumerator Send(string verb, string url, string json, Action<Reply> ok, Action<string> fail)
+        private static IEnumerator Send(string verb, string url, string json, Action<Reply> ok, Action<string> fail,
+            Action<bool> retryable = null, Action<long> responseStatus = null)
         {
             using (var request = new UnityWebRequest(url, verb))
             {
@@ -153,25 +302,34 @@ namespace ChoSiren
                 {
                     request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
                     request.SetRequestHeader("Content-Type", "application/json");
+                    request.useHttpContinue = false;
                 }
                 request.downloadHandler = new DownloadHandlerBuffer();
-                request.timeout = 30;
+                bool submitting = verb == UnityWebRequest.kHttpVerbPOST;
+                request.timeout = submitting ? 90 : 30;
                 yield return request.SendWebRequest();
+                responseStatus?.Invoke(request.responseCode);
                 if (request.result != UnityWebRequest.Result.Success)
                 {
                     // The service answers refusals (429 daily limit, 400, 502) with {error}; show that, not "network".
-                    string said = null;
-                    try { said = JsonUtility.FromJson<Reply>(request.downloadHandler?.text ?? string.Empty)?.error; } catch { }
-                    if (request.responseCode == 429) RemainingToday = 0;
-                    fail(string.IsNullOrEmpty(said) ? "网络连接失败" : said);
+                    string message = WorkshopRequestError1105.Message(request.responseCode,
+                        request.downloadHandler?.text, request.error, submitting, out bool canRetry);
+                    if (message.Contains("次数用完")) RemainingToday = 0;
+                    retryable?.Invoke(canRetry);
+                    // No body, endpoint, task identifier, test code or provider key is written to logs.
+                    Debug.LogWarning($"[WorkshopAi] phase={(submitting ? "submit" : "query")} result={request.result} http={request.responseCode} message={message}");
+                    fail(message);
                     yield break;
                 }
-                Reply reply;
+                Reply reply = null;
                 try { reply = JsonUtility.FromJson<Reply>(request.downloadHandler.text); }
-                catch { fail("服务返回异常"); yield break; }
-                if (reply == null) { fail("服务返回异常"); yield break; }
-                if (!string.IsNullOrEmpty(reply.error) && string.IsNullOrEmpty(reply.task) && string.IsNullOrEmpty(reply.status))
-                { fail(reply.error); yield break; }
+                catch { /* Classify malformed replies below; never expose their raw text. */ }
+                if (reply == null || (string.IsNullOrEmpty(reply.task) && string.IsNullOrEmpty(reply.status)))
+                {
+                    string message = WorkshopRequestError1105.Message(request.responseCode,
+                        request.downloadHandler.text, null, submitting, out bool canRetry);
+                    retryable?.Invoke(canRetry); fail(message); yield break;
+                }
                 ok(reply);
             }
         }

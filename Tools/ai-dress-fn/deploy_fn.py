@@ -8,11 +8,21 @@ for line in open('/Users/bojuejun/XiaomiMiMoProjects/krea-studio-models/.env.loc
     if '=' in line and not line.startswith('#'): k,v=line.split('=',1); env[k.strip()]=v.strip().strip('"').strip("'")
 cred=credential.Credential(c['secretId'],c['secretKey']); cl=scf_client.ScfClient(cred,'ap-guangzhou')
 buf=io.BytesIO()
-with zipfile.ZipFile(buf,'w',zipfile.ZIP_DEFLATED) as z: z.write('/Users/bojuejun/cho-siren-unity/Tools/ai-dress-fn/index.py','index.py')
+with zipfile.ZipFile(buf,'w',zipfile.ZIP_DEFLATED) as z:
+    for name in ('index.py', 'music.py'):
+        z.write('/Users/bojuejun/cho-siren-unity/Tools/ai-dress-fn/' + name, name)
 code=base64.b64encode(buf.getvalue()).decode()
 import os
 variables=[{"Key":"RUNNINGHUB_AI_KEY","Value":open(os.path.expanduser("~/.cho-siren-rh-ai.key")).read().strip()},{"Key":"RUNNINGHUB_API_KEY","Value":env['RUNNINGHUB_API_KEY']},{"Key":"COS_BUCKET","Value":c['bucket']},{"Key":"COS_REGION","Value":c['region']},
    {"Key":"COS_SECRET_ID","Value":c['secretId']},{"Key":"COS_SECRET_KEY","Value":c['secretKey']}]
+# Keep existing live settings and private test access when deploying a code update.
+try:
+    current=models.GetFunctionRequest(); current.FunctionName='cho-siren-ai-dress'
+    existing={v.Key:v.Value for v in (cl.GetFunction(current).Environment.Variables or [])}
+except Exception:
+    existing={}
+existing.update({v['Key']:v['Value'] for v in variables})
+variables=[{'Key':k,'Value':v} for k,v in existing.items()]
 def status():
     g=models.GetFunctionRequest(); g.FunctionName='cho-siren-ai-dress'
     try: return cl.GetFunction(g).Status

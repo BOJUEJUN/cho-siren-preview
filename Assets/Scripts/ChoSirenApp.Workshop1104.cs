@@ -9,12 +9,10 @@ using UnityEngine.UI;
 namespace ChoSiren
 {
     /// <summary>
-    /// 2026-11-04 创意工坊, photo-editor layout (用户: "简单易用…角色上半身…参考开始演出的光碟滑动选择参数，没选的时候收起来，
-    /// 滑动时伸出来…参考手机 P 图软件…调节部位要有丝滑的镜头特写…想看身后"). The member's upper body fills the page; a thin
-    /// top bar (返回 · 创意工坊 · 成员名 · 保存) and one row of round tools sit over her. Picking a tool eases the camera to
-    /// the part it changes (face for 滤镜/亮度/音高/我的声音, bust for 换装/应援色, full figure for 背景/律动/转身) and raises the
-    /// vinyl dial from the bottom edge; turning it sets the value shown in a bubble, and it sinks back when left alone. 转身
-    /// turns her through the AI-drawn angle sheets (Art/Workshop1104/Turn/&lt;member&gt;-q45/side/back, right side mirrored).
+    /// 创意工坊 photo-editor layout: stable upper-body preview, the game's shared 返回 control, a horizontally scrollable
+    /// tool strip, and compact parameter drawers with explicit return/collapse. Sliders and preview cards change the real
+    /// per-member values; there is no giant record over the character. 转身 keeps the AI-drawn angle sheets
+    /// (Art/Workshop1104/Turn/&lt;member&gt;-q45/side/back, right side mirrored), with an optional full-figure framing control.
     /// Every change is saved per member (GameSave.WorkshopLooks1104). The lobby card keeps its scene name AlbumProduction.
     /// </summary>
     public sealed partial class ChoSirenApp
@@ -44,9 +42,10 @@ namespace ChoSiren
         /// <summary>Tool row: id, icon, caption, camera shot (0 face, 1 bust, 2 full figure).</summary>
         private static readonly (string Id, string Icon, string Name, int Shot)[] WorkshopTools1104 =
         {
-            ("dress", "sparkle", "换装", 2), ("filter", "star", "滤镜", 2), ("bright", "bolt", "亮度", 2),
-            ("pitch", "mic", "音高", 2), ("voice", "music", "录声音", 2), ("bg", "flag", "背景", 2),
-            ("accent", "heart", "应援色", 2), ("bob", "refresh", "律动", 2), ("turn", "exchange", "转身", 2),
+            ("dress", "sparkle", "换装", 1), ("filter", "star", "滤镜", 1), ("bright", "bolt", "亮度", 1),
+            ("pitch", "mic", "音高", 1), ("voice", "music", "录声音", 1), ("bg", "flag", "背景", 1),
+            ("accent", "heart", "应援色", 1), ("bob", "refresh", "律动", 1), ("turn", "exchange", "转身", 2),
+            ("music", "music", "作曲", 1),
         };
 
         private GameObject workshopRoot1104;
@@ -56,7 +55,10 @@ namespace ChoSiren
         public const string StarterId1104 = "starter";
         public const string StarterName1104 = "初始角色";
         private WorkshopLook1104 workshopLook1104;
-        private string workshopTool1104 = "filter";
+        private string workshopTool1104 = string.Empty;
+        private GameObject workshopParameter1105;
+        private int workshopFraming1105 = 1;
+        private const float WorkshopToolBand1105 = 118f;
 
         private void OpenWorkshop1104()
         {
@@ -84,6 +86,7 @@ namespace ChoSiren
                     null, () => workshopLook1104, RoundedSprite(18), DotSprite());
             }
             workshopStage1104.Changed = () => model.SaveWorkshopLook1104(workshopLook1104);
+            if (aiDressResult1104 != null && aiDressResultSubject1105 == subjectId) workshopStage1104.SetOverride(aiDressResult1104);
 
             BuildWorkshopHeader1105(root, subjectName);
             BuildWorkshopTools1104(root);
@@ -96,6 +99,9 @@ namespace ChoSiren
             workshopRoot1104 = null;
             workshopStage1104 = null;
             aiReveal1105 = null;
+            workshopParameter1105 = null;
+            aiDressPanel1104 = null;
+            CloseWorkshopMusic1105();
             WorkshopRecorder1104.Cancel();
         }
 
@@ -105,6 +111,7 @@ namespace ChoSiren
         /// <summary>Cycles 初始角色 → every unlocked member → 初始角色.</summary>
         private void StepWorkshopMember1104(int step)
         {
+            if (aiDressBusy1104) { Toast("生成中，完成后再切换成员"); return; }
             int count = GameModel.Members.Length + 1, slot = workshopMember1104 + 1;
             for (int i = 0; i < count; i++)
             {
@@ -136,7 +143,8 @@ namespace ChoSiren
         private void BuildWorkshopHeader1105(RectTransform root, string subjectName)
         {
             var top = new Vector2(0f, 1f);
-            WorkshopTextButton1104(root, "WorkshopBack", "‹ 返回", 20, top, new Vector2(14f, -40f), CloseWorkshop1104);
+            GameObject back = NewButton("WorkshopBack", root, "‹ 返回", 23, PanelKit.ButtonDark, White, CloseWorkshop1104);
+            WorkshopPoster1105.Corner((RectTransform)back.transform, top, 18f, -18f, 132f, 54f);
 
             Button save = WorkshopPoster1105.Ticket(root, "WorkshopSave", "保存", null, 20, () =>
             {
@@ -183,108 +191,292 @@ namespace ChoSiren
             VisualA1101.Stretch(name.rectTransform);
             WorkshopTextButton1104(tag.transform, "WorkshopPrev", "◀", 22, new Vector2(0f, .5f), new Vector2(10f, 0f), () => StepWorkshopMember1104(-1));
             WorkshopTextButton1104(tag.transform, "WorkshopNext", "▶", 22, new Vector2(1f, .5f), new Vector2(-10f, 0f), () => StepWorkshopMember1104(1));
+
+            var framing = new GameObject("WorkshopFraming", typeof(RectTransform)).GetComponent<RectTransform>();
+            framing.SetParent(root, false);
+            WorkshopPoster1105.Corner(framing, Vector2.one, -18f, -196f, 224f, 48f);
+            for (int i = 0; i < 2; i++)
+            {
+                int shot = i == 0 ? 1 : 2;
+                GameObject frame = NewButton("Frame-" + shot, framing, i == 0 ? "半身" : "全身", 20,
+                    PanelKit.ButtonDark, White, () => SetWorkshopFraming1105(shot));
+                WorkshopPoster1105.Corner((RectTransform)frame.transform, new Vector2(0f, 1f), i * 114f, 0f, 106f, 46f);
+                SirenPageChrome.Tab(frame, shot == workshopFraming1105);
+            }
         }
 
-        /// <summary>
-        /// 2026-11-05 tools as a slanted menu on the right (selected = biggest, solid teal, paper drop shadow). It slides
-        /// off to the right while the value dial is out, so the record never sits on top of it.
-        /// </summary>
+        /// <summary>Photo-editor tools stay in one horizontally scrollable strip below the live preview.</summary>
         private void BuildWorkshopTools1104(RectTransform root)
         {
-            var menu = new GameObject("WorkshopTools", typeof(RectTransform)).GetComponent<RectTransform>();
-            menu.SetParent(root, false);
-            WorkshopPoster1105.Corner(menu, Vector2.one, 0f, -258f, 250f, 9 * 62f);
+            Image bar = WorkshopPoster1105.Block(root, "WorkshopTools", null, new Color32(10, 7, 22, 252));
+            bar.raycastTarget = true;
+            var rect = bar.rectTransform;
+            rect.anchorMin = Vector2.zero; rect.anchorMax = new Vector2(1f, 0f); rect.pivot = new Vector2(.5f, 0f);
+            rect.offsetMin = Vector2.zero; rect.offsetMax = new Vector2(0f, WorkshopToolBand1105);
+            Image edge = WorkshopPoster1105.Block(bar.transform, "TopEdge", null, WorkshopPoster1105.Teal);
+            edge.rectTransform.anchorMin = new Vector2(0f, 1f); edge.rectTransform.anchorMax = Vector2.one;
+            edge.rectTransform.offsetMin = new Vector2(0f, -2f); edge.rectTransform.offsetMax = Vector2.zero;
+            var viewport = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+            viewport.SetParent(bar.transform, false); WorkshopPoster1105.Fill(viewport, 10f, 5f, -10f, -5f);
             var content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
-            content.SetParent(menu, false);
-            WorkshopPoster1105.Fill(content, 0f, 0f, 0f, 0f);
-            menu.gameObject.AddComponent<WorkshopMenuSlide1105>().Stage = workshopStage1104;
+            content.SetParent(viewport, false);
+            content.anchorMin = Vector2.zero; content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, .5f);
+            content.sizeDelta = new Vector2(WorkshopTools1104.Length * 94f, 0f);
+            var scroll = bar.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport; scroll.content = content; scroll.horizontal = true; scroll.vertical = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 30f; scroll.decelerationRate = .08f;
             for (int i = 0; i < WorkshopTools1104.Length; i++)
             {
                 var tool = WorkshopTools1104[i];
                 var go = new GameObject("WorkshopTool-" + tool.Id, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 go.transform.SetParent(content, false);
-                var r = (RectTransform)go.transform;
-                WorkshopPoster1105.Corner(r, Vector2.one, 14f, -i * 62f, 150f, 54f);
-                go.GetComponent<Image>().color = new Color(0f, 0f, 0f, .001f);
-                Image drop = WorkshopPoster1105.Block(go.transform, "Drop", WorkshopPoster1105.Slant(.36f), WorkshopPoster1105.Paper);
-                WorkshopPoster1105.Fill(drop.rectTransform, 7f, -7f, 7f, -7f);
-                Image plate = WorkshopPoster1105.Block(go.transform, "Disc", WorkshopPoster1105.Slant(.36f), new Color(.04f, .04f, .07f, .9f));
-                WorkshopPoster1105.Fill(plate.rectTransform, 0f, 0f, 0f, 0f);
-                Text caption = WorkshopPoster1105.Word(go.transform, "Caption", tool.Name, 24, WorkshopPoster1105.Paper);
-                WorkshopPoster1105.Fill(caption.rectTransform, 10f, 0f, 0f, 0f);
-                Button button = go.GetComponent<Button>(); button.transition = Selectable.Transition.None;
+                WorkshopPoster1105.Corner((RectTransform)go.transform, new Vector2(0f, .5f), 4f + i * 94f, 0f, 86f, 96f);
+                Image hit = go.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, .001f);
+                Image plate = WorkshopPoster1105.Block(go.transform, "Disc", WorkshopPoster1105.Slant(.16f), Color.clear);
+                WorkshopPoster1105.Fill(plate.rectTransform, 2f, 3f, -2f, -3f);
+                Image icon = WorkshopPoster1105.Block(go.transform, "Icon", VisualB1101.Icon(tool.Icon), WorkshopPoster1105.Paper);
+                WorkshopPoster1105.Corner(icon.rectTransform, new Vector2(.5f, 1f), 0f, -12f, 30f, 30f); icon.preserveAspect = true;
+                Text caption = WorkshopPoster1105.Word(go.transform, "Caption", tool.Name, 20, WorkshopPoster1105.Paper);
+                caption.rectTransform.anchorMin = new Vector2(0f, 0f); caption.rectTransform.anchorMax = new Vector2(1f, 0f);
+                caption.rectTransform.pivot = new Vector2(.5f, 0f); caption.rectTransform.anchoredPosition = new Vector2(0f, 11f);
+                caption.rectTransform.sizeDelta = new Vector2(0f, 30f);
                 string id = tool.Id;
+                var button = go.GetComponent<Button>(); button.targetGraphic = hit; button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => { VisualA1101.Click(); OpenWorkshopTool1104(id); });
-                go.AddComponent<VisualA1101Motion>().Press();
             }
         }
 
-        /// <summary>Selects a tool: the selected one wears the solid teal disc (selected-only rule), the camera moves to
-        /// its part, and value tools raise the dial.</summary>
-        private void OpenWorkshopTool1104(string id) => OpenWorkshopTool1104(id, true);
+        private void SetWorkshopFraming1105(int shot)
+        {
+            workshopFraming1105 = shot;
+            if (workshopStage1104 != null) workshopStage1104.Shot = shot;
+            RefreshWorkshopFraming1105();
+        }
 
-        private void OpenWorkshopTool1104(string id, bool raise)
+        private void RefreshWorkshopFraming1105()
         {
             if (workshopRoot1104 == null) return;
-            workshopTool1104 = id;
+            Transform framing = workshopRoot1104.transform.Find("WorkshopFraming");
+            if (framing == null) return;
+            int shot = workshopStage1104 != null ? workshopStage1104.Shot : workshopFraming1105;
+            foreach (Transform child in framing) SirenPageChrome.Tab(child.gameObject, child.name == "Frame-" + shot);
+        }
+
+        private void RefreshWorkshopTools1105()
+        {
+            if (workshopRoot1104 == null) return;
             for (int i = 0; i < WorkshopTools1104.Length; i++)
             {
                 var tool = WorkshopTools1104[i];
-                Transform t = workshopRoot1104.transform.Find("WorkshopTools/Content/WorkshopTool-" + tool.Id);
+                Transform t = workshopRoot1104.transform.Find("WorkshopTools/Viewport/Content/WorkshopTool-" + tool.Id);
                 if (t == null) continue;
-                bool on = tool.Id == id;
-                var r = (RectTransform)t;
-                // Selected: bigger, pushed further out, solid teal with ink text; the rest stay low-key.
-                r.sizeDelta = on ? new Vector2(210f, 62f) : new Vector2(150f, 50f);
-                r.anchoredPosition = new Vector2(on ? 22f : 14f, -i * 62f + (on ? 4f : 0f));
-                t.Find("Disc").GetComponent<Image>().color = on ? (Color)Brand1025.Teal : new Color(.04f, .04f, .07f, .9f);
-                t.Find("Drop").gameObject.SetActive(on);
-                Text caption = t.Find("Caption").GetComponent<Text>();
-                caption.color = on ? (Color)WorkshopPoster1105.Ink : WorkshopPoster1105.Paper;
-                caption.fontSize = on ? 30 : 22;
-                if (on) workshopStage1104.Shot = tool.Shot;
+                bool on = tool.Id == workshopTool1104;
+                t.Find("Disc").GetComponent<Image>().color = on ? WorkshopPoster1105.Teal : Color.clear;
+                t.Find("Icon").GetComponent<Image>().color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Paper;
+                t.Find("Caption").GetComponent<Text>().color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Paper;
             }
-            WorkshopLook1104 look = workshopLook1104;
-            string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
+        }
+
+        /// <summary>Only closes the parameter workspace; the page-level 返回 still leaves the workshop.</summary>
+        private void CollapseWorkshopEditor1105()
+        {
+            CloseWorkshopParameter1105(); CloseAiDress1104(); CloseWorkshopMusic1105();
+            workshopTool1104 = string.Empty;
+            if (workshopStage1104 != null)
+            {
+                workshopStage1104.Dial(null); workshopStage1104.TurnMode = false;
+                workshopStage1104.BottomBand = WorkshopToolBand1105; workshopStage1104.Shot = workshopFraming1105;
+            }
+            RefreshWorkshopFraming1105();
+            RefreshWorkshopTools1105();
+        }
+
+        private void CloseWorkshopParameter1105()
+        {
+            if (workshopParameter1105 != null)
+            {
+                var motion = workshopParameter1105.GetComponent<WorkshopDrawerMotion1105>();
+                if (motion != null) motion.Close(); else Destroy(workshopParameter1105);
+            }
+            workshopParameter1105 = null;
+        }
+
+        private RectTransform WorkshopEditorPanel1105(string name, string title, float height)
+        {
+            var panel = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
+            panel.SetParent(workshopRoot1104.transform, false);
+            panel.anchorMin = Vector2.zero; panel.anchorMax = new Vector2(1f, 0f); panel.pivot = new Vector2(.5f, 0f);
+            panel.offsetMin = new Vector2(0f, WorkshopToolBand1105); panel.offsetMax = new Vector2(0f, WorkshopToolBand1105 + height);
+            Image face = panel.GetComponent<Image>(); face.color = new Color32(12, 8, 26, 252); face.raycastTarget = true;
+            Image edge = WorkshopPoster1105.Block(panel, "PaperEdge", WorkshopPoster1105.Jag(), WorkshopPoster1105.Paper);
+            edge.rectTransform.anchorMin = new Vector2(0f, 1f); edge.rectTransform.anchorMax = Vector2.one;
+            edge.rectTransform.offsetMin = new Vector2(-12f, -6f); edge.rectTransform.offsetMax = new Vector2(12f, 3f);
+            GameObject back = NewButton("ParameterBack", panel, "‹ 工具", 20, PanelKit.ButtonDark, White, CollapseWorkshopEditor1105);
+            WorkshopPoster1105.Corner((RectTransform)back.transform, new Vector2(0f, 1f), 18f, -18f, 112f, 46f);
+            Text label = WorkshopPoster1105.Word(panel, "ParameterTitle", title, 25, WorkshopPoster1105.Paper, TextAnchor.MiddleLeft);
+            WorkshopPoster1105.Corner(label.rectTransform, new Vector2(0f, 1f), 150f, -18f, 310f, 46f);
+            GameObject close = NewButton("ParameterCollapse", panel, "收起 ⌄", 20, PanelKit.ButtonDark, White, CollapseWorkshopEditor1105);
+            WorkshopPoster1105.Corner((RectTransform)close.transform, Vector2.one, -18f, -18f, 118f, 46f);
+            panel.gameObject.AddComponent<WorkshopDrawerMotion1105>();
+            if (workshopStage1104 != null) workshopStage1104.BottomBand = WorkshopToolBand1105 + height + 14f;
+            return panel;
+        }
+
+        private void OpenWorkshopTool1104(string id) => OpenWorkshopTool1104(id, true);
+
+        private void OpenWorkshopTool1104(string id, bool toggle)
+        {
+            if (workshopRoot1104 == null) return;
+            if (string.IsNullOrEmpty(id) || (toggle && workshopTool1104 == id)) { CollapseWorkshopEditor1105(); return; }
+            CloseWorkshopParameter1105(); CloseAiDress1104(); CloseWorkshopMusic1105();
+            workshopTool1104 = id;
             workshopStage1104.TurnMode = id == "turn";
-            if (id != "dress") CloseAiDress1104();
+            workshopStage1104.Shot = id == "turn" ? 2 : workshopFraming1105;
+            RefreshWorkshopFraming1105();
+            RefreshWorkshopTools1105();
+            WorkshopLook1104 look = workshopLook1104;
             switch (id)
             {
-                case "dress":
-                    workshopStage1104.Dial(null);
-                    OpenAiDress1104();
-                    break;
+                case "dress": workshopStage1104.Dial(null); OpenAiDress1104(); break;
+                case "music": workshopStage1104.Dial(null); OpenWorkshopMusic1105(); break;
                 case "filter":
-                    workshopStage1104.Dial(new WorkshopDial1104("滤镜", WorkshopFilters1104.Length, () => look.Filter, v => look.Filter = v,
-                        v => WorkshopFilters1104[v].Name), raise);
-                    break;
+                    OpenWorkshopPresets1105(new WorkshopDial1104("滤镜", WorkshopFilters1104.Length, () => look.Filter, v => look.Filter = v,
+                        v => WorkshopFilters1104[v].Name), "filter"); break;
                 case "bright":
-                    workshopStage1104.Dial(new WorkshopDial1104("亮度", 60, 130, 5, () => look.Brightness, v => look.Brightness = v, v => v + "%"), raise);
-                    break;
+                    OpenWorkshopSlider1105(new WorkshopDial1104("亮度", 60, 130, 5, () => look.Brightness, v => look.Brightness = v, v => v + "%"), 100); break;
                 case "pitch":
-                    workshopStage1104.Dial(new WorkshopDial1104("音高", -30, 30, 2, () => look.Pitch, v => look.Pitch = v,
-                        v => v > 0 ? "+" + v : v.ToString()) { Released = PlayWorkshopVoice1104 }, raise);
-                    break;
-                case "voice":
-                    workshopStage1104.Dial(null);
-                    if (raise) OpenVoiceRecorder1104();
-                    break;
+                    OpenWorkshopSlider1105(new WorkshopDial1104("音高", -30, 30, 2, () => look.Pitch, v => look.Pitch = v,
+                        v => v > 0 ? "+" + v : v.ToString()) { Released = PlayWorkshopVoice1104 }, 0); break;
+                case "voice": workshopStage1104.Dial(null); OpenWorkshopVoicePanel1105(); break;
                 case "bg":
-                    workshopStage1104.Dial(new WorkshopDial1104("背景", WorkshopBackgrounds1104.Length, () => look.Background, v => look.Background = v,
-                        v => WorkshopBackgrounds1104[v].Name), raise);
-                    break;
+                    OpenWorkshopPresets1105(new WorkshopDial1104("背景", WorkshopBackgrounds1104.Length, () => look.Background, v => look.Background = v,
+                        v => WorkshopBackgrounds1104[v].Name), "bg"); break;
                 case "accent":
-                    workshopStage1104.Dial(new WorkshopDial1104("应援色", WorkshopAccents1104.Length, () => look.Accent, v => look.Accent = v,
-                        v => WorkshopAccents1104[v].Name) { Swatch = v => WorkshopAccents1104[v].Glow }, raise);
-                    break;
+                    OpenWorkshopPresets1105(new WorkshopDial1104("应援色", WorkshopAccents1104.Length, () => look.Accent, v => look.Accent = v,
+                        v => WorkshopAccents1104[v].Name) { Swatch = v => WorkshopAccents1104[v].Glow }, "accent"); break;
                 case "bob":
-                    workshopStage1104.Dial(new WorkshopDial1104("律动", 0, 100, 5, () => look.Bob, v => look.Bob = v, v => v.ToString()), raise);
-                    break;
-                case "turn":
-                    workshopStage1104.Dial(null);
-                    if (raise) Toast(workshopStage1104.HasTurnViews ? "左右拖动她转身" : $"{subjectName}的多角度立绘还在制作中");
-                    break;
+                    OpenWorkshopSlider1105(new WorkshopDial1104("律动", 0, 100, 5, () => look.Bob, v => look.Bob = v, v => v + "%"), 50); break;
+                case "turn": workshopStage1104.Dial(null); OpenWorkshopTurnPanel1105(); break;
             }
+        }
+
+        private void OpenWorkshopPresets1105(WorkshopDial1104 value, string kind)
+        {
+            workshopStage1104.Dial(value, false);
+            var panel = WorkshopEditorPanel1105("WorkshopParameterPanel", value.Name, 280f);
+            workshopParameter1105 = panel.gameObject;
+            var viewport = new GameObject("PresetViewport", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+            viewport.SetParent(panel, false);
+            WorkshopPoster1105.Fill(viewport, 18f, 20f, -18f, -84f);
+            var content = new GameObject("PresetContent", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(viewport, false);
+            content.anchorMin = Vector2.zero; content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, .5f);
+            int count = value.Steps + 1;
+            content.sizeDelta = new Vector2(count * 128f, 0f);
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            Image viewportHit = viewport.gameObject.AddComponent<Image>(); viewportHit.color = new Color(0f, 0f, 0f, .001f);
+            scroll.viewport = viewport; scroll.content = content; scroll.horizontal = true; scroll.vertical = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 28f;
+            Sprite portrait = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
+                : PlayerAvatar1102.Member(WorkshopSubjectId1104);
+            var faces = new Image[count]; var labels = new Text[count];
+            void Refresh()
+            {
+                for (int j = 0; j < count; j++)
+                {
+                    bool on = value.Get() == value.Min + j * value.Step;
+                    faces[j].color = on ? WorkshopPoster1105.Teal : new Color32(46, 38, 62, 255);
+                    labels[j].color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Paper;
+                }
+            }
+            for (int i = 0; i < count; i++)
+            {
+                int v = value.Min + i * value.Step;
+                Image face = WorkshopPoster1105.Block(content, "Preset-" + v, WorkshopPoster1105.Slant(.08f), Color.clear);
+                face.raycastTarget = true;
+                WorkshopPoster1105.Corner(face.rectTransform, new Vector2(0f, .5f), 4f + i * 128f, 0f, 116f, 164f);
+                faces[i] = face;
+                Sprite preview = kind == "bg" ? Resources.Load<Sprite>(WorkshopBackgrounds1104[v].Path) : portrait;
+                Color tint = kind == "accent" ? WorkshopAccents1104[v].Glow : kind == "filter" ? WorkshopFilters1104[v].Tint : Color.white;
+                Image thumb = WorkshopPoster1105.Block(face.transform, "Preview", kind == "accent" ? DotSprite() : preview, tint);
+                thumb.preserveAspect = true;
+                WorkshopPoster1105.Corner(thumb.rectTransform, new Vector2(.5f, 1f), 0f, -8f, 98f, 116f);
+                Text caption = WorkshopPoster1105.Word(face.transform, "Label", value.Format(v), 20, White);
+                WorkshopPoster1105.Corner(caption.rectTransform, new Vector2(.5f, 0f), 0f, 5f, 110f, 32f);
+                labels[i] = caption;
+                Button button = face.gameObject.AddComponent<Button>(); button.targetGraphic = face; button.transition = Selectable.Transition.None;
+                button.onClick.AddListener(() => { VisualA1101.Click(); workshopStage1104.SetEditorValue1105(v, true); Refresh(); });
+            }
+            Refresh();
+        }
+
+        private void OpenWorkshopSlider1105(WorkshopDial1104 value, int defaultValue)
+        {
+            workshopStage1104.Dial(value, false);
+            var panel = WorkshopEditorPanel1105("WorkshopParameterPanel", value.Name, value.Released == null ? 264f : 312f);
+            workshopParameter1105 = panel.gameObject;
+            Text number = WorkshopPoster1105.Word(panel, "ParameterValue", value.Format(value.Get()), 32, WorkshopPoster1105.Teal);
+            WorkshopPoster1105.Corner(number.rectTransform, new Vector2(.5f, 1f), 0f, -86f, 220f, 46f);
+            var sliderRoot = new GameObject("ParameterSlider", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Slider));
+            sliderRoot.transform.SetParent(panel, false);
+            WorkshopPoster1105.Corner((RectTransform)sliderRoot.transform, new Vector2(.5f, 1f), 0f, -138f, 536f, 54f);
+            sliderRoot.GetComponent<Image>().color = new Color(0f, 0f, 0f, .001f);
+            Image track = WorkshopPoster1105.Block(sliderRoot.transform, "Track", null, new Color32(69, 60, 88, 255));
+            track.rectTransform.anchorMin = new Vector2(0f, .5f); track.rectTransform.anchorMax = new Vector2(1f, .5f);
+            track.rectTransform.offsetMin = new Vector2(0f, -3f); track.rectTransform.offsetMax = new Vector2(0f, 3f);
+            Image fill = WorkshopPoster1105.Block(track.transform, "Fill", null, WorkshopPoster1105.Teal);
+            WorkshopPoster1105.Fill(fill.rectTransform, 0f, 0f, 0f, 0f);
+            Image handle = WorkshopPoster1105.Block(sliderRoot.transform, "Handle", WorkshopPoster1105.Jag(), WorkshopPoster1105.Paper);
+            handle.rectTransform.sizeDelta = new Vector2(26f, 36f);
+            var slider = sliderRoot.GetComponent<Slider>();
+            slider.fillRect = fill.rectTransform; slider.handleRect = handle.rectTransform; slider.targetGraphic = handle;
+            slider.minValue = 0; slider.maxValue = value.Steps; slider.wholeNumbers = true;
+            slider.SetValueWithoutNotify((value.Get() - value.Min) / value.Step);
+            void Set(int v, bool released)
+            {
+                workshopStage1104.SetEditorValue1105(v, released);
+                number.text = value.Format(value.Get());
+                slider.SetValueWithoutNotify((value.Get() - value.Min) / value.Step);
+            }
+            slider.onValueChanged.AddListener(v => Set(value.Min + Mathf.RoundToInt(v) * value.Step, false));
+            sliderRoot.AddComponent<WorkshopSliderRelease1105>().Released = () => value.Released?.Invoke();
+            GameObject minus = NewButton("ParameterMinus", panel, "−", 25, PanelKit.ButtonDark, White, () => Set(value.Get() - value.Step, true));
+            WorkshopPoster1105.Corner((RectTransform)minus.transform, new Vector2(0f, 1f), 18f, -142f, 54f, 48f);
+            GameObject plus = NewButton("ParameterPlus", panel, "+", 25, PanelKit.ButtonDark, White, () => Set(value.Get() + value.Step, true));
+            WorkshopPoster1105.Corner((RectTransform)plus.transform, Vector2.one, -18f, -142f, 54f, 48f);
+            WorkshopTextButton1104(panel, "ParameterReset", "重置", 19, new Vector2(.5f, 0f), new Vector2(0f, 32f), () => Set(defaultValue, true));
+            if (value.Released != null)
+            {
+                GameObject play = NewButton("ParameterPreview", panel, "▶ 试听", 20, PanelKit.ButtonDark, White, () => value.Released());
+                WorkshopPoster1105.Corner((RectTransform)play.transform, new Vector2(.5f, 0f), 0f, 64f, 160f, 48f);
+            }
+        }
+
+        private void OpenWorkshopTurnPanel1105()
+        {
+            var panel = WorkshopEditorPanel1105("WorkshopParameterPanel", "转身", 260f);
+            workshopParameter1105 = panel.gameObject;
+            bool ready = workshopStage1104.HasTurnViews;
+            Text hint = WorkshopPoster1105.Word(panel, "TurnHint", ready ? "左右拖动角色，查看不同角度" : "这位成员的多角度立绘还在制作中", 20, VisualA1101.Muted);
+            WorkshopPoster1105.Corner(hint.rectTransform, new Vector2(.5f, 1f), 0f, -86f, 660f, 40f);
+            string[] names = { "正面", "侧面", "背面" }; int[] views = { 0, 2, 3 };
+            for (int i = 0; i < names.Length; i++)
+            {
+                int view = views[i];
+                GameObject button = NewButton("TurnView-" + view, panel, names[i], 21, PanelKit.ButtonDark, White, () => workshopStage1104.TurnTo(view));
+                WorkshopPoster1105.Corner((RectTransform)button.transform, new Vector2(0f, 0f), 80f + i * 190f, 42f, 172f, 54f);
+                button.GetComponent<Button>().interactable = ready || view == 0;
+            }
+        }
+
+        private void OpenWorkshopVoicePanel1105()
+        {
+            var panel = WorkshopEditorPanel1105("WorkshopParameterPanel", "录声音", 244f);
+            workshopParameter1105 = panel.gameObject;
+            Text hint = WorkshopPoster1105.Word(panel, "VoiceHint", $"已录 {WorkshopRecorder1104.CountSamples(WorkshopSubjectId1104, 3)}/3 段 · 录音保存在本机", 20, VisualA1101.Muted);
+            WorkshopPoster1105.Corner(hint.rectTransform, new Vector2(.5f, 1f), 0f, -88f, 660f, 38f);
+            GameObject open = NewButton("OpenVoiceRecorder", panel, "打开录音", 22, PanelKit.ButtonDark, White, OpenVoiceRecorder1104);
+            WorkshopPoster1105.Corner((RectTransform)open.transform, new Vector2(.5f, 0f), 0f, 30f, 300f, 58f);
         }
 
         // ------------------------------------------------------------------ AI 换装 (in game)
@@ -293,12 +485,18 @@ namespace ChoSiren
         private string aiDressTag1104 = WorkshopAi1104.StyleTags[0], aiDressPrompt1104 = string.Empty, aiDressStatus1104 = string.Empty;
         private bool aiDressBusy1104;
         private Texture2D aiDressResult1104;
+        private string aiDressResultSubject1105, aiDressResultStyle1105;
+        private Sprite aiDressSource1105;
 
         private void CloseAiDress1104()
         {
-            if (aiDressPanel1104 != null) Destroy(aiDressPanel1104);
+            if (aiDressPanel1104 != null)
+            {
+                var motion = aiDressPanel1104.GetComponent<WorkshopDrawerMotion1105>();
+                if (motion != null) motion.Close(); else Destroy(aiDressPanel1104);
+            }
             aiDressPanel1104 = null;
-            if (workshopStage1104 != null) workshopStage1104.BottomBand = 70f;
+            if (workshopStage1104 != null) workshopStage1104.BottomBand = WorkshopToolBand1105;
         }
 
         /// <summary>
@@ -309,25 +507,10 @@ namespace ChoSiren
         {
             CloseAiDress1104();
             if (workshopRoot1104 == null) return;
-            var root = (RectTransform)workshopRoot1104.transform;
-            var panel = new GameObject("AiDressPanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
-            panel.SetParent(root, false);
+            var panel = WorkshopEditorPanel1105("AiDressPanel", "换装", 440f);
             aiDressPanel1104 = panel.gameObject;
-            panel.anchorMin = Vector2.zero; panel.anchorMax = new Vector2(1f, 0f); panel.pivot = new Vector2(.5f, 0f);
-            panel.offsetMin = Vector2.zero; panel.offsetMax = new Vector2(0f, 420f);
-            panel.GetComponent<Image>().color = new Color(0f, 0f, 0f, .001f);
-            panel.GetComponent<Image>().raycastTarget = true;
-            if (workshopStage1104 != null) workshopStage1104.BottomBand = 330f;
-
-            Image band = WorkshopPoster1105.Block(panel, "Band", null, new Color(.03f, .03f, .06f, .92f));
-            WorkshopPoster1105.Corner(band.rectTransform, new Vector2(.5f, 0f), 0f, -150f, 1400f, 470f, 5f);
-            Image edge = WorkshopPoster1105.Block(panel, "Edge", null, WorkshopPoster1105.Paper);
-            WorkshopPoster1105.Corner(edge.rectTransform, new Vector2(.5f, 0f), 0f, 300f, 1400f, 10f, 5f);
-            Image edge2 = WorkshopPoster1105.Block(panel, "EdgeHot", null, WorkshopPoster1105.Hot);
-            WorkshopPoster1105.Corner(edge2.rectTransform, new Vector2(.5f, 0f), 0f, 286f, 1400f, 6f, 5f);
-
-            Text note = WorkshopPoster1105.Word(panel, "Note", $"只换衣服不换脸 · 每次 {GameModel.AiDressDiamondCost1105} 星钻", 15, VisualA1101.Muted, TextAnchor.MiddleRight);
-            WorkshopPoster1105.Corner(note.rectTransform, new Vector2(1f, 0f), -24f, 296f, 420f, 26f);
+            Text note = WorkshopPoster1105.Word(panel, "Note", $"只换衣服不换脸 · 完成后消耗 {GameModel.AiDressDiamondCost1105} 星钻", 17, VisualA1101.Muted, TextAnchor.MiddleLeft);
+            WorkshopPoster1105.Corner(note.rectTransform, new Vector2(0f, 1f), 28f, -80f, 664f, 30f);
 
             // Torn style stickers, 4 x 2, each tilted a little differently.
             string[] tags = WorkshopAi1104.StyleTags;
@@ -342,7 +525,7 @@ namespace ChoSiren
                 var go = new GameObject("Tag-" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 go.transform.SetParent(panel, false);
                 var r = (RectTransform)go.transform;
-                WorkshopPoster1105.Corner(r, Vector2.zero, left + (i % 4) * (cw + gap), 222f - (i / 4) * (ch + 14f), cw, ch, tilts[i]);
+                WorkshopPoster1105.Corner(r, Vector2.zero, left + (i % 4) * (cw + gap), 266f - (i / 4) * (ch + 14f), cw, ch, tilts[i]);
                 bool dark = i % 3 == 1 && !on;
                 Image sticker = go.GetComponent<Image>(); sticker.sprite = WorkshopPoster1105.Jag(); sticker.color = dark ? WorkshopPoster1105.Paper : face;
                 if (dark)
@@ -360,7 +543,7 @@ namespace ChoSiren
 
             Image box = WorkshopPoster1105.Block(panel, "Describe", WorkshopPoster1105.Slant(.18f), new Color(1f, 1f, 1f, .08f));
             box.raycastTarget = true;
-            WorkshopPoster1105.Corner(box.rectTransform, Vector2.zero, 26f, 96f, 668f, 46f);
+            WorkshopPoster1105.Corner(box.rectTransform, Vector2.zero, 26f, 144f, 668f, 46f);
             Text value = VisualA1101.Label(box.transform, "Value", string.Empty, 17, VisualA1101.Paper, TextAnchor.MiddleLeft);
             value.supportRichText = false;
             Stretch(value.rectTransform, 20, 0, -14, 0);
@@ -372,8 +555,9 @@ namespace ChoSiren
             input.text = aiDressPrompt1104;
             input.onValueChanged.AddListener(v => aiDressPrompt1104 = v);
 
-            bool hasResult = aiDressResult1104 != null;
-            Button go1 = WorkshopPoster1105.Ticket(panel, "AiGenerate", aiDressBusy1104 ? "生成中…" : hasResult ? "再来一套" : "生成新造型",
+            bool hasResult = aiDressResult1104 != null && aiDressResultSubject1105 == WorkshopSubjectId1104;
+            bool pending = WorkshopAi1104.HasPending(WorkshopSubjectId1104);
+            Button go1 = WorkshopPoster1105.Ticket(panel, "AiGenerate", aiDressBusy1104 ? "生成中…" : pending ? "继续上次生成" : hasResult ? "再来一套" : "生成新造型",
                 aiDressBusy1104 ? null : $"{GameModel.AiDressDiamondCost1105} 星钻", 24, StartAiDress1104);
             WorkshopPoster1105.Corner((RectTransform)go1.transform, Vector2.zero, 30f, 22f, hasResult ? 400f : 560f, 60f);
             go1.interactable = !aiDressBusy1104;
@@ -383,22 +567,24 @@ namespace ChoSiren
                     WorkshopPoster1105.Ink, WorkshopPoster1105.Paper, WorkshopPoster1105.Ink);
                 WorkshopPoster1105.Corner((RectTransform)keep.transform, Vector2.zero, 446f, 22f, 170f, 56f);
                 WorkshopTextButton1104(panel, "AiUndo", "换回", 18, Vector2.zero, new Vector2(626f, 50f), UndoAiDress1105);
+                RectTransform undo = (RectTransform)panel.Find("AiUndo");
+                undo.anchoredPosition = new Vector2(640f, 50f); undo.sizeDelta = new Vector2(68f, 60f);
             }
             string status = aiDressBusy1104 ? aiDressStatus1104 : !WorkshopAi1104.Connected ? WorkshopAi1104.PendingNotice : aiDressStatus1104;
             Text line = WorkshopPoster1105.Word(panel, "Status", status, 14, VisualA1101.Muted, TextAnchor.MiddleLeft);
-            WorkshopPoster1105.Corner(line.rectTransform, Vector2.zero, 30f, 296f, 300f, 26f);
+            WorkshopPoster1105.Corner(line.rectTransform, Vector2.zero, 28f, 102f, 664f, 30f);
         }
 
         private void SaveAiDress1105()
         {
             if (aiDressResult1104 == null) return;
-            WorkshopAi1104.SaveToWardrobe(WorkshopSubjectId1104, aiDressResult1104);
+            WorkshopAi1104.SaveToWardrobe(string.IsNullOrEmpty(aiDressResultSubject1105) ? WorkshopSubjectId1104 : aiDressResultSubject1105, aiDressResult1104);
             VisualA1101.Success(); Toast("已存进衣橱（本机）");
         }
 
         private void UndoAiDress1105()
         {
-            aiDressResult1104 = null; workshopStage1104?.SetOverride(null);
+            aiDressResult1104 = null; aiDressResultSubject1105 = null; aiDressSource1105 = null; workshopStage1104?.SetOverride(null);
             CloseAiReveal1105();
             if (aiDressPanel1104 != null) OpenAiDress1104();
         }
@@ -433,8 +619,8 @@ namespace ChoSiren
             Image paperBand = WorkshopPoster1105.Block(page, "BandPaper", null, WorkshopPoster1105.Paper);
             WorkshopPoster1105.At(paperBand.rectTransform, 0f, -230f, 1800f, 26f, -14f);
 
-            Sprite before = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
-                : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath);
+            Sprite before = aiDressSource1105 ?? (workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
+                : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath));
             float pageH = Mathf.Max(1200f, root.rect.height);
             if (before != null)
             {
@@ -459,7 +645,7 @@ namespace ChoSiren
             Image tagPlate = WorkshopPoster1105.Block(page, "StylePlate", WorkshopPoster1105.Jag(), WorkshopPoster1105.Paper);
             WorkshopPoster1105.Corner(tagPlate.rectTransform, new Vector2(0f, 1f), 30f, -250f, 200f, 60f, -5f);
             WorkshopPoster1105.HardShadow(tagPlate, WorkshopPoster1105.Ink, 6f, -6f);
-            Text style = WorkshopPoster1105.Word(tagPlate.transform, "Text", aiDressTag1104, 26, WorkshopPoster1105.Ink);
+            Text style = WorkshopPoster1105.Word(tagPlate.transform, "Text", aiDressResultStyle1105 ?? aiDressTag1104, 26, WorkshopPoster1105.Ink);
             VisualA1101.Stretch(style.rectTransform);
 
             WorkshopTextButton1104(page, "AiRevealPeek", "先看看 ›", 20, Vector2.one, new Vector2(-16f, -40f), CloseAiReveal1105);
@@ -480,9 +666,10 @@ namespace ChoSiren
             string prompt = WorkshopAi1104.PromptFor(aiDressTag1104, aiDressPrompt1104);
             Sprite still = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
                 : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath);
+            string generatingSubject = WorkshopSubjectId1104, generatingStyle = aiDressTag1104;
             aiDressBusy1104 = true; aiDressStatus1104 = "准备中…";
             OpenAiDress1104();
-            StartCoroutine(WorkshopAi1104.Generate(WorkshopSubjectId1104, still, prompt, text =>
+            StartCoroutine(WorkshopAi1104.Generate(generatingSubject, still, prompt, text =>
             {
                 aiDressStatus1104 = text;
                 Text line = aiDressPanel1104 != null ? aiDressPanel1104.transform.Find("Status")?.GetComponent<Text>() : null;
@@ -493,12 +680,16 @@ namespace ChoSiren
                 if (texture != null)
                 {
                     aiDressResult1104 = texture;
+                    aiDressResultSubject1105 = generatingSubject; aiDressResultStyle1105 = generatingStyle; aiDressSource1105 = still;
                     bool paid = model.PayAiDress1105();
                     aiDressStatus1104 = (paid ? $"生成完成 · 消耗 {GameModel.AiDressDiamondCost1105} 星钻" : "生成完成")
                         + (WorkshopAi1104.RemainingToday >= 0 ? $" · 今天还能换 {WorkshopAi1104.RemainingToday} 次" : string.Empty);
-                    workshopStage1104?.SetOverride(texture);
                     VisualA1101.Success();
-                    ShowAiReveal1105(texture);
+                    if (workshopRoot1104 != null && WorkshopSubjectId1104 == generatingSubject)
+                    {
+                        workshopStage1104?.SetOverride(texture);
+                        ShowAiReveal1105(texture);
+                    }
                 }
                 else { aiDressStatus1104 = error; Toast(error); }
                 if (aiDressPanel1104 != null) OpenAiDress1104();
@@ -638,9 +829,8 @@ namespace ChoSiren
 
     /// <summary>
     /// The workshop stage: background, accent glow, the member (her still or idle loop, or an angle sheet while turning),
-    /// the camera that eases between face / bust / full shots, and the value dial — the same half record as 开始演出's
-    /// stage picker (VinylStageWheel1102): it slides in from the right edge while a value tool is in use, the values sit
-    /// on its rim as the stage map's torn-sticker nodes (teal rim = selected), and it slides back to a sliver when left alone.
+    /// and the camera that eases between half-body and full shots. Value bindings remain here while their actual controls
+    /// live in the photo-editor drawer, leaving the stage clear for preview and turning gestures.
     /// </summary>
     public sealed class WorkshopStage1104 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
@@ -659,9 +849,9 @@ namespace ChoSiren
         private Text dialTitle;
         private float zoom = -1f, panY, slide, turnPos, turnVel, lastTouch = -10f;
         private bool turning;
-        public int Shot = 2;
+        public int Shot = 1;
         /// <summary>2026-11-05 poster layout: space kept clear above (title) and below (AI panel) the full-length figure.</summary>
-        public float TopBand = 250f, BottomBand = 70f;
+        public float TopBand = 250f, BottomBand = 118f;
         public bool TurnMode;
         public Action Changed;
         public bool HasTurnViews => turn != null;
@@ -718,6 +908,8 @@ namespace ChoSiren
             dialTitle.rectTransform.anchorMin = dialTitle.rectTransform.anchorMax = new Vector2(1f, 0f);
             dialTitle.rectTransform.pivot = new Vector2(1f, .5f);
             dialTitle.rectTransform.sizeDelta = new Vector2(200f, 30f);
+            wheelRect.gameObject.SetActive(false);
+            dialTitle.gameObject.SetActive(false);
             Apply();
         }
 
@@ -781,51 +973,18 @@ namespace ChoSiren
             dialTitle.text = value != null ? value.Name : string.Empty;
             if (value == null) return;
 
-            // 2026-11-04 (用户: "不要照搬那个光碟…自己设计合适的"): the workshop's own tuning knob, and rim nodes in the same
-            // round style as the tool buttons (dark disc, thin white ring; solid teal = selected).
-            Image disc = MakeImage("Disc", wheelRect, Resources.Load<Sprite>("Art/Workshop1104/dial"), Color.white);
-            disc.preserveAspect = true;
-            var dr = disc.rectTransform; dr.anchorMin = dr.anchorMax = new Vector2(.5f, .5f); dr.sizeDelta = new Vector2(WheelSize, WheelSize);
-            int count = value.Steps + 1;
-            var nodes = new RectTransform[count];
-            var buttons = new Button[count];
-            nodeGlows = new Image[count];
-            nodeFaces = new Image[count];
-            nodeLabels = new Text[count];
-            for (int i = 0; i < count; i++)
-            {
-                int v = value.Min + i * value.Step, stage = i + 1;
-                var go = new GameObject("DialNode-" + i, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-                go.transform.SetParent(wheelRect, false);
-                var r = (RectTransform)go.transform;
-                r.anchorMin = r.anchorMax = r.pivot = new Vector2(0f, 1f); r.sizeDelta = new Vector2(NodeSize, NodeSize);
-                Image hit = go.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, .001f);
-                Color? swatch = value.Swatch?.Invoke(v);
-                Image selected = MakeImage("SelectedRim", go.transform, VisualA1101.RingSprite, Brand1025.Teal);
-                Place(selected.rectTransform, -7f, -7f, NodeSize + 14f, NodeSize + 14f);
-                nodeGlows[i] = selected;
-                Image face = MakeImage("Face", go.transform, dot, swatch ?? new Color32(18, 12, 34, 230));
-                Place(face.rectTransform, 6f, 6f, NodeSize - 12f, NodeSize - 12f);
-                nodeFaces[i] = swatch == null ? face : null;
-                Image ring = MakeImage("Ring", face.transform, VisualA1101.RingSprite, new Color(1f, 1f, 1f, .45f));
-                VisualA1101.Stretch(ring.rectTransform);
-                if (swatch == null)
-                {
-                    string text = value.Format(v);
-                    Text label = VisualA1101.Label(go.transform, "Label", text, text.Length > 3 ? 19 : 23, VisualA1101.Paper, TextAnchor.MiddleCenter);
-                    label.fontStyle = FontStyle.Bold;
-                    Place(label.rectTransform, 6f, 0f, NodeSize - 12f, NodeSize);
-                    nodeLabels[i] = label;
-                }
-                Button button = go.GetComponent<Button>();
-                button.transition = Selectable.Transition.None; button.targetGraphic = hit;
-                button.onClick.AddListener(() => Select(stage));
-                nodes[i] = r; buttons[i] = button;
-            }
-            wheel = wheelRect.gameObject.AddComponent<VinylStageWheel1102>();
-            int current = Mathf.Clamp((value.Get() - value.Min) / value.Step, 0, count - 1) + 1;
-            wheel.Configure(dr, nodes, buttons, current, Select, s => s >= 1 && s <= count);
-            Highlight(current);
+            // Values are edited in the compact drawer, never on a giant half-disc over the character.
+            wheelRect.gameObject.SetActive(false);
+            dialTitle.gameObject.SetActive(false);
+        }
+
+        /// <summary>Continuously applies a photo-editor control; optional release previews audio once, not on every drag tick.</summary>
+        public void SetEditorValue1105(int value, bool released)
+        {
+            if (dial == null) return;
+            value = Mathf.Clamp(dial.Min + Mathf.RoundToInt((value - dial.Min) / (float)dial.Step) * dial.Step, dial.Min, dial.Max);
+            if (value != dial.Get()) { dial.Set(value); Apply(); Changed?.Invoke(); }
+            if (released) dial.Released?.Invoke();
         }
 
         private static void Place(RectTransform r, float x, float y, float w, float h)
@@ -906,7 +1065,8 @@ namespace ChoSiren
             Image badge = MakeImage("AiBadge", root, roundedSprite, new Color32(12, 8, 26, 210));
             badge.type = Image.Type.Sliced;
             var br = badge.rectTransform; br.anchorMin = br.anchorMax = new Vector2(0f, 1f); br.pivot = new Vector2(0f, 1f);
-            br.anchoredPosition = new Vector2(14f, -90f); br.sizeDelta = new Vector2(96f, 30f);
+            br.anchorMin = br.anchorMax = br.pivot = Vector2.one;
+            br.anchoredPosition = new Vector2(-20f, -148f); br.sizeDelta = new Vector2(110f, 32f);
             Text label = VisualA1101.Label(badge.transform, "Text", "AI 生成", 14, Brand1025.Teal, TextAnchor.MiddleCenter);
             VisualA1101.Stretch(label.rectTransform);
             aiBadge = badge.gameObject;
@@ -960,8 +1120,8 @@ namespace ChoSiren
             Vector2 art = want != null ? want.rect.size : new Vector2(1000f, 2400f);
             float top = page.y * .5f - TopBand, bottom = -page.y * .5f + BottomBand, stageH = top - bottom;
             float faceH = face.height * art.y, faceCy = face.center.y * art.y;
-            float shotH = Shot == 0 ? faceH * 4.2f : Shot == 1 ? faceH * 6.6f : art.y * 1.02f;
-            float focus = Shot == 2 ? art.y * .5f : Shot == 1 ? faceCy - faceH * 1.9f : faceCy - faceH * .55f;
+            float shotH = Shot == 0 ? faceH * 4.2f : Shot == 1 ? art.y * .43f : art.y * 1.02f;
+            float focus = Shot == 2 ? art.y * .5f : Shot == 1 ? art.y * .78f : faceCy - faceH * .55f;
             float targetZoom = stageH / shotH * (l != null ? Mathf.Clamp(l.Scale, 85, 115) / 100f : 1f);
             float ease = 1f - Mathf.Exp(-dt * 6.5f);
             if (zoom < 0f) zoom = targetZoom;
@@ -969,8 +1129,8 @@ namespace ChoSiren
             float drawH = art.y * zoom, drawW = art.x * zoom;
             float targetPan = (bottom + stageH * .5f) - (focus - art.y * .5f) * zoom;
             panY = Mathf.Lerp(panY, targetPan, ease);
-            // Poster layout: she stands left of centre (the menu is on the right) and leans a little.
-            float shiftX = -page.x * .13f - page.x * .12f * r;
+            // The editor leaves the preview centered; opening controls only adjusts its available height.
+            float shiftX = 0f;
             float t = Time.unscaledTime, bob = l != null ? l.Bob / 100f : .5f;
             figureRect.sizeDelta = new Vector2(drawW, drawH);
             figureRect.anchoredPosition = new Vector2(shiftX, panY + 5f * bob * Mathf.Sin(t * 1.6f));
@@ -985,6 +1145,41 @@ namespace ChoSiren
             float dim = Mathf.Lerp(.5f, .4f, closeness);
             background.color = new Color(dim, dim, dim + .03f, 1f);
         }
+    }
+
+    /// <summary>Short drawer movement; closing immediately releases raycasts while it slides away.</summary>
+    public sealed class WorkshopDrawerMotion1105 : MonoBehaviour
+    {
+        private RectTransform rect;
+        private CanvasGroup group;
+        private Vector2 target;
+        private float age;
+        private bool closing;
+        private void Awake()
+        {
+            rect = (RectTransform)transform; target = rect.anchoredPosition;
+            group = gameObject.AddComponent<CanvasGroup>(); group.alpha = 0f;
+        }
+        public void Close() { if (closing) return; closing = true; age = 0f; group.blocksRaycasts = false; }
+        private void Update()
+        {
+            age += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(age / .2f), ease = 1f - Mathf.Pow(1f - t, 3f);
+            float reveal = closing ? 1f - ease : ease;
+            rect.anchoredPosition = target + Vector2.down * (1f - reveal) * 90f;
+            group.alpha = reveal;
+            if (closing && t >= 1f) Destroy(gameObject);
+        }
+    }
+
+    public sealed class WorkshopSliderRelease1105 : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IEndDragHandler
+    {
+        public Action Released;
+        private bool pending;
+        public void OnPointerDown(PointerEventData e) => pending = true;
+        public void OnPointerUp(PointerEventData e) => Finish();
+        public void OnEndDrag(PointerEventData e) => Finish();
+        private void Finish() { if (!pending) return; pending = false; Released?.Invoke(); }
     }
 
     /// <summary>Slides the right-hand tool menu off the edge while the value dial is out (2026-11-05 poster layout).</summary>

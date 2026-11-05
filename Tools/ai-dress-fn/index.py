@@ -19,6 +19,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import music
 
 # 2026-11-05 (用户: 用便宜版本): Nano Banana 2.1 economy on the global site (cleaner outfits, a pure green
 # backdrop, about $0.03 a call); Seedream 4.7 on the China site stays as the fallback when the global site refuses.
@@ -135,6 +136,9 @@ def query(task):
 
 
 def main_handler(event, context):
+    music_reply = music.route(event)
+    if music_reply is not None:
+        return music_reply
     method = (event.get("httpMethod") or event.get("requestContext", {}).get("httpMethod") or "GET").upper()
     path = event.get("path") or event.get("rawPath") or "/"
     if method == "OPTIONS":
