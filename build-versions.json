@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "daf0a5690dd66c27062e09edab1f3212.data.unityweb",
+    "9364fb15c4a3b517a440756513147263.framework.js.unityweb",
+    "a6747a6923f9e391d09355c5abcd3318.wasm.unityweb",
+    "017a5792a31515854aca63101f83799d.loader.js"
+  ],
+  "previous": [
     "bb8ff9470f4465fea201e6af7b7be56d.data.unityweb",
     "56b4402805d842d7fcde82259afc2c12.framework.js.unityweb",
     "7172094574d90e53df3e7bec97b0dfb1.wasm.unityweb",
     "ccf5335801f1e0e958fd4e928c9e8bb0.loader.js"
   ],
-  "previous": [
-    "9dae901b55122398e4c37877d8747d9b.data.unityweb",
-    "7bca45f65348af38eddf9ab6cfd2a1d5.framework.js.unityweb",
-    "0fb952a4758615b6528281cd696454c9.wasm.unityweb",
-    "c26363d26656fc3027defc1e791f6a08.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.37",
+      "releaseId": "UI-20261105-WORKSHOP-POSTER-R168",
+      "files": [
+        "bb8ff9470f4465fea201e6af7b7be56d.data.unityweb",
+        "56b4402805d842d7fcde82259afc2c12.framework.js.unityweb",
+        "7172094574d90e53df3e7bec97b0dfb1.wasm.unityweb",
+        "ccf5335801f1e0e958fd4e928c9e8bb0.loader.js"
+      ]
+    },
     {
       "version": "0.9.36",
       "releaseId": "UI-20261105-WORKSHOP-AI-DRESS-R167",
