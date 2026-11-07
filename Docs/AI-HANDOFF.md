@@ -19,8 +19,8 @@
 | 网页 | 0.9.39 / R169 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main `aefba0a` |
 | Windows / Mac / Android 下载 + 更新清单 | 0.9.39 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`；Android 用 GitHub Release 地址（COS 的 APK 地址实际下载 403） |
 | 本机 `/Applications/幻域魅声.app` | 0.9.39 | Dock 入口保留 |
-| 伯爵君 iPhone | **0.9.38 私人版** | 带 GPT 换装测试码 |
-| 五条悟专用机 | **0.9.38 私人版** | 少爷 11-06 要求装来自测；同一个包 |
+| 伯爵君 iPhone | 0.9.39 公开版 | 11-07 覆盖安装，不再带 GPT 测试码；包 `Builds/iOS-DerivedData-device-0.9.39/…/CHO-SIREN.app`，描述文件 11-13 到期 |
+| 五条悟专用机 | **0.9.38 私人版** | 11-07 少爷要求换 0.9.39，手机锁屏没装成，解锁后用同一个 0.9.39 包装 |
 
 - 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 已是 0.9.39 / Android 939（11-07 全量发布，记录 `Docs/FULL-RELEASE-2026-11-07-0939.md`）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
@@ -116,7 +116,7 @@
 ## 5. 未完成 / 提醒
 
 - 2026-11-13 前给两台 iPhone 重签重装。
-- 0.9.39 已全量发布（11-07）；两台 iPhone 仍是 0.9.38 私人版。
+- 0.9.39 已全量发布（11-07）；伯爵君已装 0.9.39，五条悟专用机待解锁后装。
 - 手机上 GPT 换装、作曲的真实体验等少爷反馈。
 - 上面网站的可选清理。
 
