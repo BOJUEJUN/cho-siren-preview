@@ -2,16 +2,14 @@
 
 Keep this file short. Load only the document that matches the work:
 
-- **Latest release (2026-11-05, 0.9.37 创意工坊 poster look):** `Docs/FULL-RELEASE-2026-11-05-0937.md`, then `Docs/AI-HANDOFF-2026-11-05-WORKSHOP-AI.md` (GPT 换装 personal test, AI 换装 background)
-- **Start here (latest, 2026-11-04, game 0.9.35 / Android 935):** `Docs/FULL-RELEASE-2026-11-04-0935.md` and `Docs/BALANCE-1104.md`, then `Docs/AI-HANDOFF-2026-11-03-CONTINUE.md`
-- Earlier: `Docs/AI-HANDOFF-2026-10-29-CONTINUE.md`, `Docs/AI-HANDOFF-2026-10-20.md` (0.3.x era, history only)
-- Older release continuity: `Docs/AI-HANDOFF-2026-09-08.md`
+- **Start here:** `Docs/AI-HANDOFF.md` — the only current handoff (game 0.9.37 public / 0.9.38 private on both iPhones, AI 换装, enzoban.com site, secrets, release flow). Earlier handoff docs were deleted 2026-11-06; use git history if needed.
+- Release records: `Docs/FULL-RELEASE-2026-11-05-0937.md` (latest), `Docs/BALANCE-1104.md` for level/balance rules
 - WebGL build or publishing: `Docs/WEBGL-RELEASE-SAFETY-2026-09-05.md`
 - Battle UI or feedback: `Docs/BATTLE-UI-2026-09-05.md` and `Docs/BATTLE-FEEDBACK-20260907.md`
 
 ## Current product contract
 
-- Versions are `0.9.x` and only move forward (0.9.33 was a web-only dress-lab page; the next game release after 0.9.35 is 0.9.36). Never fall back to `0.3.x`.
+- Versions are `0.9.x` and only move forward (0.9.33 was a web-only dress-lab page; 0.9.38 is installed privately on both iPhones, so the next public release is 0.9.38 or higher). Never fall back to `0.3.x`.
 - Solid teal fill means "selected" only; main actions use the dark face with a teal frame and teal caption (2026-11-03).
 - Bosses, enemies and chapter-one lineups follow the user's planning deck (`CHO-SIREN幻域魅声 游戏企划书`): 1-5 碎音·琉娜, 1-10 幻蚀歌枢·梅洛蒂 (`StageBoss1103.cs`); keep its enemy names and designs.
 - Ultimate charge (2026-11-03 deck): captain 17s, then 20s / 25s / 30s in formation order (`ChargeOrder1101.cs`).
@@ -40,5 +38,5 @@ A change is complete when its behavior is implemented, affected regression tests
 
 - 用户要求发布时一并更新现有网页、PC/macOS/Android 下载和增量更新清单。
 - 同步替换本机 `/Applications/幻域魅声.app`，保留现有 Dock 入口并验证其指向最新版本。
-- 安装到用户指定 iPhone，保留存档，查询已装版本；不要自动打开手机游戏。当前五条悟暂缓，仅伯爵君。
+- 安装到用户指定 iPhone，保留存档，查询已装版本；不要自动打开手机游戏。两台都可装（五条悟专用机 2026-11-06 起用户自测），以用户当次指定为准。
 - 分别报告线上、桌面、手机完成情况；未完成的渠道不能宣称已上线。

@@ -13,7 +13,7 @@ Unity 原生竖屏游戏项目，基于 CHO-SIREN 网页原型重构。当前包
 
 - [`Docs/GETTING_STARTED.md`](Docs/GETTING_STARTED.md)：clone、环境、首次打开、测试、构建与预览
 - [`Docs/CONTINUITY.md`](Docs/CONTINUITY.md)：跨电脑 checkpoint、回滚、Git LFS 与交接门禁
-- [`Docs/AI-COLLAB-HANDOFF.md`](Docs/AI-COLLAB-HANDOFF.md)：当前产品事实、文件所有权及视觉/功能验收
+- [`Docs/AI-HANDOFF.md`](Docs/AI-HANDOFF.md)：唯一现行交接（当前状态、发版流程、秘密位置）
 - [`Docs/CHAPTER-01-PROGRESSION.md`](Docs/CHAPTER-01-PROGRESSION.md)：十关、难度、章节奖励和章节任务规范
 - [`Docs/BATTLE-VFX-ANIMATION.md`](Docs/BATTLE-VFX-ANIMATION.md)：Boss 动画、战斗特效及分层升级路线
 
