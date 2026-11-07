@@ -205,6 +205,13 @@ namespace ChoSiren
             }
         }
 
+        /// <summary>
+        /// 2026-11-07 public release: 作曲 only works with the private test code (the Suno service refuses everyone
+        /// else), so public builds leave that tool out instead of showing a button that always says "未开通".
+        /// </summary>
+        internal static (string Id, string Icon, string Name, int Shot)[] ShownWorkshopTools1107 =>
+            WorkshopMusic1105.TestBuild ? WorkshopTools1104 : System.Array.FindAll(WorkshopTools1104, t => t.Id != "music");
+
         /// <summary>Photo-editor tools stay in one horizontally scrollable strip below the live preview.</summary>
         private void BuildWorkshopTools1104(RectTransform root)
         {
@@ -221,13 +228,14 @@ namespace ChoSiren
             var content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
             content.SetParent(viewport, false);
             content.anchorMin = Vector2.zero; content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, .5f);
-            content.sizeDelta = new Vector2(WorkshopTools1104.Length * 94f, 0f);
+            var tools = ShownWorkshopTools1107;
+            content.sizeDelta = new Vector2(tools.Length * 94f, 0f);
             var scroll = bar.gameObject.AddComponent<ScrollRect>();
             scroll.viewport = viewport; scroll.content = content; scroll.horizontal = true; scroll.vertical = false;
             scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 30f; scroll.decelerationRate = .08f;
-            for (int i = 0; i < WorkshopTools1104.Length; i++)
+            for (int i = 0; i < tools.Length; i++)
             {
-                var tool = WorkshopTools1104[i];
+                var tool = tools[i];
                 var go = new GameObject("WorkshopTool-" + tool.Id, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 go.transform.SetParent(content, false);
                 WorkshopPoster1105.Corner((RectTransform)go.transform, new Vector2(0f, .5f), 4f + i * 94f, 0f, 86f, 96f);

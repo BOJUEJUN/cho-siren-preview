@@ -94,7 +94,9 @@ namespace ChoSiren.Tests
                 var stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
                 Assert.That(stage, Is.Not.Null);
                 Button Tool(string id) => canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "WorkshopTool-" + id);
-                Assert.That(canvas.GetComponentsInChildren<Button>(true).Count(b => b.name.StartsWith("WorkshopTool-")), Is.EqualTo(10), "all editing tools and 作曲 stay accessible");
+                // 2026-11-07: 作曲 is shown only in the private test build (public builds have nine tools).
+                Assert.That(canvas.GetComponentsInChildren<Button>(true).Count(b => b.name.StartsWith("WorkshopTool-")), Is.EqualTo(WorkshopMusic1105.TestBuild ? 10 : 9), "all editing tools stay accessible");
+                Assert.That(canvas.GetComponentsInChildren<Button>(true).Any(b => b.name == "WorkshopTool-music"), Is.EqualTo(WorkshopMusic1105.TestBuild), "作曲 only appears with the private test code");
                 Assert.That(stage.Shot, Is.EqualTo(1), "the editor initially frames the upper body");
                 var workshopPage = canvas.GetComponentsInChildren<RectTransform>(true).First(r => r.name == "WorkshopPage1104");
                 Assert.That(workshopPage.Find("WorkshopDial").gameObject.activeSelf, Is.False, "parameters never cover her with a giant disc");
@@ -124,7 +126,8 @@ namespace ChoSiren.Tests
                 typeof(ChoSirenApp).GetField("workshopMusicEnabled1105", Private).SetValue(app, true);
                 var musicModel = (GameModel)typeof(ChoSirenApp).GetField("model", Private).GetValue(app);
                 int musicDiamondsBefore = musicModel.Save.Diamonds;
-                Tool("music").onClick.Invoke();
+                // The panel itself is still exercised offline, opened directly because public builds hide its button.
+                typeof(ChoSirenApp).GetMethod("OpenWorkshopTool1104", Private, null, new[] { typeof(string) }, null).Invoke(app, new object[] { "music" });
                 yield return new WaitForSecondsRealtime(.4f);
                 RectTransform MusicPanel() => canvas.GetComponentsInChildren<RectTransform>(false).First(r => r.name == "WorkshopMusicPanel");
                 var musicPanel = MusicPanel();
