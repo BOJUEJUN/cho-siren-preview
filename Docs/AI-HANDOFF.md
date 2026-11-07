@@ -1,4 +1,4 @@
-# CHO-SIREN 与 enzoban.com 交接（唯一现行交接，2026-11-06）
+# CHO-SIREN 与 enzoban.com 交接（唯一现行交接，2026-11-07）
 
 本文件取代以前所有 `AI-HANDOFF-*`、`AI-COLLAB-HANDOFF`、`WORKSHOP-PRIVATE-PREVIEW-*` 文档（已删除，需要时可从 git 历史查）。各次发版记录仍在 `Docs/FULL-RELEASE-*.md` / `RELEASE-*.md`。接手时先实查一遍状态，别照抄本文数字当结果。
 
@@ -16,15 +16,15 @@
 
 | 渠道 | 版本 | 说明 |
 |---|---|---|
-| 网页 | 0.9.37 / R168 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main `228337a` |
-| Windows / Mac / Android 下载 + 更新清单 | 0.9.37 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`；Android 用 GitHub Release 地址（COS 的 APK 地址实际下载 403） |
-| 本机 `/Applications/幻域魅声.app` | 0.9.37 | Dock 入口保留 |
+| 网页 | 0.9.39 / R169 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main `aefba0a` |
+| Windows / Mac / Android 下载 + 更新清单 | 0.9.39 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`；Android 用 GitHub Release 地址（COS 的 APK 地址实际下载 403） |
+| 本机 `/Applications/幻域魅声.app` | 0.9.39 | Dock 入口保留 |
 | 伯爵君 iPhone | **0.9.38 私人版** | 带 GPT 换装测试码 |
 | 五条悟专用机 | **0.9.38 私人版** | 少爷 11-06 要求装来自测；同一个包 |
 
-- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 已是 0.9.38 / Android 938。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
+- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 已是 0.9.39 / Android 939（11-07 全量发布，记录 `Docs/FULL-RELEASE-2026-11-07-0939.md`）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
-- 0.9.38 没有全量发布：公开网页/下载/清单/本机桌面都还是 0.9.37。下一次正式发版用 **0.9.38 或更高**，打公开包前**确认 `Assets/Resources/AiGptTestCode.txt` 不存在**（它是 gitignore 的私人开关，有它就会走 GPT 测试服务）。
+- 公开版 0.9.39 = 0.9.38 的工坊编辑页 + 作曲按钮隐藏（作曲只在带测试码的私人包显示）。下一次正式发版用 **0.9.40 或更高**，打公开包前**确认 `Assets/Resources/AiGptTestCode.txt` 不存在**（它是 gitignore 的私人开关，有它就会走 GPT 测试服务）。
 
 ### iPhone 签名
 
@@ -54,7 +54,7 @@
 - 两台手机的 0.9.38 都带测试码，所以都会走 GPT。少爷回国后在大陆用不了这条；要恢复正常就装不带测试码的公开包。
 - OpenAI key 少爷决定**不换**（11-06），别再催。
 
-### 0.9.38 私人版新增（未公开）
+### 0.9.38 私人版新增（0.9.39 起公开，作曲除外）
 
 - 编辑页半身/全身切换、转身查看；底部工具栏 + 参数抽屉；滤镜、背景、应援色、亮度/音高/律动。
 - 作曲：`WorkshopMusic1105.cs` / `ChoSirenApp.WorkshopMusic1105.cs`，后端 `Tools/ai-dress-fn/music.py`（Suno，经广州函数，测试码保护），报价约 USD 0.08/次。只真实跑过一次 40 秒纯音乐；80 秒和日语女声没实测。
@@ -83,7 +83,7 @@
 ### 正式发版流程（少爷说"发布"时）
 
 1. 定新版本号（只往前），先确认没有别的 AI 在构建；只提交本次文件。
-2. 复用 `Builds/qa-logs/full-release-0937/`（及更早的 `full-release-0930/`）里的脚本，复制后改版本号再用。
+2. 复用 `Builds/qa-logs/full-release-0939/`（含 `stage-web.py` 网页上架脚本；更早的 `full-release-0937/`、`0930/`）里的脚本，复制后改版本号再用。
    - 不要盲跑 `Tools/release-installers.sh`（末尾会删历史包）。
    - 不要用 `Tools/Stage-WebGL.mjs`（会删旧 Build 文件）。
 3. 原生包先传、验真，最后才改 latest 和 `app-version.json`。
@@ -116,7 +116,7 @@
 ## 5. 未完成 / 提醒
 
 - 2026-11-13 前给两台 iPhone 重签重装。
-- 0.9.38 还没正式发布，发布前去掉私人测试码、走第 3 节流程。
+- 0.9.39 已全量发布（11-07）；两台 iPhone 仍是 0.9.38 私人版。
 - 手机上 GPT 换装、作曲的真实体验等少爷反馈。
 - 上面网站的可选清理。
 
