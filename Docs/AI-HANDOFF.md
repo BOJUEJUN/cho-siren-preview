@@ -22,7 +22,7 @@
 | 伯爵君 iPhone | **0.9.38 私人版** | 带 GPT 换装测试码 |
 | 五条悟专用机 | **0.9.38 私人版** | 少爷 11-06 要求装来自测；同一个包 |
 
-- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 已是 0.9.38 / Android 938。最新提交 `8f09814`（私人 0.9.38：工坊编辑页 + Suno 作曲），**本地比远端多 1 个提交、尚未推送**。
+- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 已是 0.9.38 / Android 938。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
 - 0.9.38 没有全量发布：公开网页/下载/清单/本机桌面都还是 0.9.37。下一次正式发版用 **0.9.38 或更高**，打公开包前**确认 `Assets/Resources/AiGptTestCode.txt` 不存在**（它是 gitignore 的私人开关，有它就会走 GPT 测试服务）。
 
@@ -95,7 +95,7 @@
 
 - Next.js（新版，改代码前读 `node_modules/next/dist/docs/`），部署在 Vercel 项目 `krea-studio`。手动部署：`npx vercel deploy --prod --yes`，没接 GitHub 自动部署。
 - 域名在腾讯云 DNSPod，A 记录 216.198.79.1。广州实测打开约 0.25 秒，大陆可流畅用；`*.vercel.app` 在大陆被挡，朋友用 enzoban.com。
-- 当前分支 `feat/vercel-gpt`（已推远端，线上就是它），**比 `origin/main` 多 2 个提交（安全修复、每日上限）**，以后合到 main。
+- 当前分支 `feat/vercel-gpt`（线上就是它），11-07 已快进合到 `main`，两者一致。
 - 模型：
   - RunningHub Krea2 工作流：棕色尘埃、小小英雄、LOL 2.36MP V1.1（默认）、LOL 2.36MP、CherryCHE、局内视角。
   - Nano Banana 2.1（RunningHub 海外站）、Krea 3（Krea API，余额单独充）、GPT Image 2.6 Flare / Sunburst（OpenAI）。
@@ -103,7 +103,7 @@
 - 存储：图片和记录在腾讯云香港桶 `enzoban-studio-1318245308`（ap-hongkong，`COS_PREFIX=root`），代码 `lib/cos.ts`。RunningHub 结果经腾讯云"搬图"函数（`FETCH_FN_URL` / `FETCH_FN_TOKEN`）搬进 COS。
 - 登录与安全（11-06）：
   - 名字 + 邀请码登录，会话 cookie 365 天。
-  - 店主账号（enzoban、enzo）必须用单独的店主码（Vercel env `OWNER_CODE`），邀请码登不进店主号。
+  - 店主账号（enzoban、enzo）必须用单独的店主码（Vercel env `OWNER_CODE`），邀请码登不进店主号。11-07 少爷自己定了新店主码，线上和本机文件都已换，旧码失效。
   - 旧的密码登录已关闭；同一 IP 10 分钟输错 8 次锁定；不登录所有接口 401。
   - 已知弱点（少爷没要求修）：朋友之间知道名字+邀请码就能互登；要防就得给每个账号加密码。
 - 每日上限：每位朋友每天默认 30 张（北京时间零点重置，删了也算，失败不算），店主不限。管理页"设置"里改，0 = 不限。代码 `lib/quota.ts`，接口 `app/api/admin`。
@@ -116,9 +116,9 @@
 ## 5. 未完成 / 提醒
 
 - 2026-11-13 前给两台 iPhone 重签重装。
-- 游戏 `8f09814` 还没推送；0.9.38 还没正式发布，发布前去掉私人测试码、走第 3 节流程。
+- 0.9.38 还没正式发布，发布前去掉私人测试码、走第 3 节流程。
 - 手机上 GPT 换装、作曲的真实体验等少爷反馈。
-- 网站 `feat/vercel-gpt` 合并到 main；上面网站的可选清理。
+- 上面网站的可选清理。
 
 ## 6. 秘密文件位置（只读路径，不读出内容）
 
