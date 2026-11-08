@@ -300,36 +300,45 @@
       .ld-row { display: flex; align-items: baseline; justify-content: space-between; color: #fff; }
       .ld-row b { font-size: 3cqw; font-weight: 800; letter-spacing: 0.08em; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
       .ld-row span { font-size: 4.4cqw; font-style: italic; font-weight: 900; color: var(--cyan); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+      /* 2026-11-07: runners clip (stacked-alpha MP4 composited into the canvas) over a dark band. */
+      .ld-runners { position: relative; width: 100%; aspect-ratio: 480 / 154; margin-bottom: -0.6cqw; pointer-events: none; }
+      .ld-runners::before {
+        content: ""; position: absolute; inset: -32% -8% -18%;
+        background: radial-gradient(ellipse at 50% 62%, rgba(8, 4, 20, 0.88), rgba(8, 4, 20, 0) 70%);
+      }
+      .ld-runners canvas { position: relative; display: block; width: 100%; height: 100%; }
+      .ld-runners video { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+      /* The pink bow bar from 赵金's 进度条.png: white capsule, striped fill, bow riding the fill's end. */
       .track {
         position: relative;
-        height: 1cqw;
-        min-height: 4px;
-        margin-top: 1.6cqw;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.2);
+        width: 100%;
+        aspect-ratio: 1117 / 50;
+        background: url("./media/loading-track.png") center / 100% 100% no-repeat;
       }
+      .track-inner { position: absolute; left: 2.86%; right: 2.6%; top: 16%; bottom: 16%; border-radius: 999px; }
       #progress {
         position: absolute;
         left: 0;
         top: 0;
         bottom: 0;
         width: 0;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #ff6db5, var(--hot));
-        box-shadow: 0 0 10px rgba(255, 46, 147, 0.85);
+        border-radius: 999px;
+        background: repeating-linear-gradient(135deg, #e5bfca 0 1.4cqw, #efd5dd 1.4cqw 2.8cqw);
         transition: width 260ms ease-out;
       }
       #progress::after {
         content: "";
         position: absolute;
-        right: -2cqw;
-        top: 50%;
-        width: 4cqw;
-        aspect-ratio: 1;
-        background: #fff;
-        transform: translateY(-50%);
-        clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        right: -2.1cqw;
+        bottom: -28%;
+        width: 4.2cqw;
+        aspect-ratio: 63 / 84;
+        background: url("./media/loading-bow.png") center bottom / contain no-repeat;
       }
+      .loading-progress .ld-row { margin-top: 1.2cqw; }
+      /* While loading, the logo steps up so the runners never cover it; it settles back for TAP TO START. */
+      .ld-title { transition: translate 420ms ease; }
+      #loading:not(.is-ready) .ld-title { translate: 0 -31cqw; }
       .loading-status {
         position: absolute;
         width: 1px;
@@ -628,8 +637,10 @@
           </button>
         </div>
         <div class="loading-progress">
+          <!-- 2026-11-07 (赵金): the four leads and the pig run on a dark band, the bow bar under their feet. -->
+          <div class="ld-runners" aria-hidden="true"><canvas id="ld-runners" width="480" height="154"></canvas><video id="ld-runners-src" src="./media/loading-run.mp4" muted playsinline loop autoplay preload="auto"></video></div>
+          <div class="track"><div class="track-inner"><div id="progress"></div></div></div>
           <div class="ld-row" aria-hidden="true"><b>载入中</b><span id="loading-percent">0%</span></div>
-          <div class="track"><div id="progress"></div></div>
           <div id="loading-status" class="loading-status">载入中 · 0%</div>
           <div id="loading-note" class="loading-note"></div>
           <div class="loading-tip"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1.5l2.4 8.1 8.1 2.4-8.1 2.4-2.4 8.1-2.4-8.1L1.5 12l8.1-2.4z" fill="currentColor"/></svg></b><span id="loading-tip">点角色，她会回应你</span></div>
@@ -654,6 +665,7 @@
     <script src="./home-stage.js?v=20260928-r12a"></script>
     <script src="./character-moments.js?v=20261006-r17j"></script>
     <script src="./loading-cg.js?v=20261015-r64"></script>
+    <script src="./loading-run.js?v=20261108-r170"></script>
     <script>
       const pageUrl = new URL("./", document.baseURI);
       const retryToken = new URL(window.location.href).searchParams.get("retry");
