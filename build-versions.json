@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "09cd63cc24ed4502bfe928c3c3d0ead8.data.unityweb",
+    "4eb361dff301cd2f68f9fee011d0f97d.framework.js.unityweb",
+    "d6cdac68dbbbdcbc21c2a0de47e7bd8a.wasm.unityweb",
+    "9c77abdc570858cb696efaac81ea2c69.loader.js"
+  ],
+  "previous": [
     "daf0a5690dd66c27062e09edab1f3212.data.unityweb",
     "9364fb15c4a3b517a440756513147263.framework.js.unityweb",
     "a6747a6923f9e391d09355c5abcd3318.wasm.unityweb",
     "017a5792a31515854aca63101f83799d.loader.js"
   ],
-  "previous": [
-    "bb8ff9470f4465fea201e6af7b7be56d.data.unityweb",
-    "56b4402805d842d7fcde82259afc2c12.framework.js.unityweb",
-    "7172094574d90e53df3e7bec97b0dfb1.wasm.unityweb",
-    "ccf5335801f1e0e958fd4e928c9e8bb0.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.39",
+      "releaseId": "UI-20261107-WORKSHOP-EDITOR-R169",
+      "files": [
+        "daf0a5690dd66c27062e09edab1f3212.data.unityweb",
+        "9364fb15c4a3b517a440756513147263.framework.js.unityweb",
+        "a6747a6923f9e391d09355c5abcd3318.wasm.unityweb",
+        "017a5792a31515854aca63101f83799d.loader.js"
+      ]
+    },
     {
       "version": "0.9.37",
       "releaseId": "UI-20261105-WORKSHOP-POSTER-R168",

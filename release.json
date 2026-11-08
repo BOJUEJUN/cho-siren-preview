@@ -1,19 +1,19 @@
 {
-  "version": "0.9.39",
-  "releaseId": "UI-20261107-WORKSHOP-EDITOR-R169",
-  "date": "2026-11-07",
-  "name": "创意工坊编辑页",
-  "notice": "创意工坊升级成编辑页：半身/全身切换、转身查看，底部工具栏可以调滤镜、背景、应援色、亮度、音高和律动；AI 换装网络更稳，断线后能接着查结果。",
-  "previousReleaseId": "UI-20261105-WORKSHOP-POSTER-R168",
-  "previousWebCommit": "228337a7fea62777db9f051d91671d034b9a81f8",
-  "previousReleaseRecord": "releases/R168.json",
+  "version": "0.9.40",
+  "releaseId": "UI-20261108-SIX-SCREENS-LV200-R170",
+  "date": "2026-11-08",
+  "name": "六页新美术 · 200 级 · 角色体力",
+  "notice": "成员满级提升到 200 级（30 级后要敌人残魂和种族生魂）；新增角色体力，连续战斗会疲劳、要休息；练习室、加载页、库存、任务、团队、面试按新美术重做；首领放大、大招镜头推拉；更新公告会列出你上次版本后的全部改动。",
+  "previousReleaseId": "UI-20261107-WORKSHOP-EDITOR-R169",
+  "previousWebCommit": "aefba0a9747a1ec656ad6ee132c450c419890eb2",
+  "previousReleaseRecord": "releases/R169.json",
   "validation": {
     "status": "staged",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.39",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.40",
     "webPortal": "pending focused portal checks",
     "webRuntime": "pending public WebGL verification"
   },
   "knownLimits": [
-    "作曲只在私人测试包开放，公开版不显示。"
+    "生魂、残魂图标是临时图；作曲只在私人测试包开放。"
   ]
 }
