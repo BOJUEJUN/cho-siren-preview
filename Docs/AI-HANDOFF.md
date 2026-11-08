@@ -22,9 +22,10 @@
 
 | 渠道 | 版本 | 说明 |
 |---|---|---|
-| 网页 | 0.9.40 / R170 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main；官网 `site/` 有更新说明区 |
+| 网页 | 0.9.40 / R170 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
+| 官网 | 已下线（11-08 少爷要求保密） | 原 `site/` 已从公开仓库删除，本机副本 `~/cho-siren-site-private/`；别再发布到公开地址 |
 | Windows 下载 + 更新清单 | 0.9.40 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
-| Mac 下载 | 0.9.39（不再更新） | 官网 MAC 按钮仍是 0.9.39 dmg |
+| Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
 | 本机 `/Applications/幻域魅声.app` | 0.9.40 | 11-08 替换，Dock 入口保留 |
 | 伯爵君 iPhone | 0.9.40 | 11-08 覆盖安装（无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
 | 五条悟专用机 | 0.9.40 | 11-08 覆盖安装，同上 |
