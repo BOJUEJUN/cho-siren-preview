@@ -298,14 +298,12 @@ namespace ChoSiren.Tests
             int beforeGold = model.Save.Gold; int[] beforeTeam = model.Save.Team.ToArray();
             Call(app, "OpenTrainingPractice", trainee, -1); yield return Settle();
             var practice = RequireComponent<MemberPracticePanel>();
-            var phone = practice.GetComponentInChildren<SirenPracticeScene>();
-            Assert.That(phone, Is.Not.Null); Assert.That(phone.HasCompleteCast, Is.True);
-            foreach (string id in new[] { "xingli", "feiyin", "wubai", "yeying" })
-            {
-                var image = Find(phone.transform, "Chibi-" + id).GetComponent<Image>();
-                Assert.That(image.sprite, Is.EqualTo(Resources.Load<Sprite>(SirenPracticeScene.ArtRoot + "chibi-" + id)));
-                Assert.That(image.sprite, Is.Not.Null); Assert.That(image.preserveAspect, Is.True);
-            }
+            // 2026-11-07: the practice room is a camera view of the four leads' cut-out clips (练习室界面.psd).
+            var phone = practice.GetComponentInChildren<PracticeVideoStage1107>();
+            Assert.That(phone, Is.Not.Null);
+            Assert.That(phone.Clips.Clips.Count, Is.EqualTo(2));
+            foreach (string id in PracticeVideoStage1107.LeadIds) Assert.That(Find(phone.transform, "Lead-" + id), Is.Not.Null);
+            Assert.That(Find(phone.transform, "PracticeRoom").GetComponent<Image>().sprite, Is.Not.Null);
             Save("14-practice-phone", "practice-four-fixed-chibis-selected-member");
             Assert.That(model.CanTrain(trainee, out int trainingCost, out string reason), Is.True, reason);
             Click(practice.transform, "StartPractice");

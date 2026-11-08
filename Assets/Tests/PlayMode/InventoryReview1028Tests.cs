@@ -47,29 +47,34 @@ namespace ChoSiren.Tests
         [UnityTest]
         public IEnumerator RecentAcquisitionFiltersAndAllCatalogItemsStayReachable()
         {
+            // 2026-11-07 (装备2.psd): one row per slot, four cells a row, ‹ › pages every row together.
             model.Save.OwnedAccessories.Clear();
             model.Save.OwnedAccessories.AddRange(new[] { 60, 1, 12, 3 });
             typeof(ChoSirenApp).GetField("inventorySort", Private).SetValue(app, 2);
             ShowInventory(); yield return null;
-            CollectionAssert.AreEqual(new[] { 3, 12, 1, 60 }, GridItems());
-            Click("InventoryTab-1"); yield return null;
-            Assert.That(GridItems().Length, Is.EqualTo(66));
-            foreach (Transform tile in Require("InventoryGrid").transform)
+            CollectionAssert.AreEquivalent(new[] { 3, 12, 1, 60 }, GridItems());
+            foreach (int item in GridItems())
             {
-                Assert.That(tile.Find("ItemArt").GetComponent<Image>().sprite, Is.Not.Null);
+                Transform tile = Require("InventoryGrid").transform.Find("Accessory-" + item);
+                int slot = GameModel.AccessorySlot(item);
+                float rowTop = Require("InventorySlot-" + slot).GetComponent<RectTransform>().anchoredPosition.y;
+                Assert.That(((RectTransform)tile).anchoredPosition.y, Is.EqualTo(rowTop).Within(4f), "item sits in its slot row");
             }
-            var scroll = Require("InventoryViewport").GetComponent<ScrollRect>();
-            Canvas.ForceUpdateCanvases();
-            Assert.That(scroll.content.rect.height, Is.GreaterThan(scroll.viewport.rect.height));
-            scroll.verticalNormalizedPosition = 0;
-            Canvas.ForceUpdateCanvases();
-            Vector3[] itemCorners = new Vector3[4], viewCorners = new Vector3[4];
-            ((RectTransform)scroll.content.GetChild(scroll.content.childCount - 1)).GetWorldCorners(itemCorners);
-            scroll.viewport.GetWorldCorners(viewCorners);
-            Assert.That(itemCorners[0].y, Is.GreaterThanOrEqualTo(viewCorners[0].y - 1f));
-            Assert.That(itemCorners[1].y, Is.LessThanOrEqualTo(viewCorners[1].y + 1f));
-            Click("InventoryFilter-2"); yield return null;
-            Assert.That(GridItems().All(i => GameModel.AccessorySlot(i) == 1), Is.True);
+            Click("InventoryTab-1"); yield return null;
+            var seen = new System.Collections.Generic.HashSet<int>();
+            string first = Require("InventoryPage").GetComponent<Text>().text;
+            int pages = int.Parse(first.Split('/')[1]);
+            for (int p = 0; p < pages; p++)
+            {
+                foreach (int item in GridItems())
+                {
+                    seen.Add(item);
+                    Assert.That(Require("InventoryGrid").transform.Find("Accessory-" + item + "/ItemArt").GetComponent<Image>().sprite, Is.Not.Null);
+                }
+                Click("InventoryNextPage"); yield return null;
+            }
+            Assert.That(seen.Count, Is.EqualTo(66), "every catalog item is reachable through the pages");
+            Assert.That(Require("InventoryPage").GetComponent<Text>().text, Is.EqualTo(first), "› wraps back to page 1");
         }
 
         [UnityTest]
@@ -97,16 +102,18 @@ namespace ChoSiren.Tests
             model.Save.OwnedAccessories.Clear();
             model.Save.OwnedAccessories.AddRange(Enumerable.Range(0, 66));
             model.Save.Gold = 100000;
+            // Open the page that holds item 1, upgrade it there and stay on that page.
+            var items = (int[])typeof(ChoSirenApp).GetMethod("InventoryItems", Private).Invoke(app, new object[] { GameModel.AccessorySlot(1) });
+            int page = System.Array.IndexOf(items, 1) / 4;
+            typeof(ChoSirenApp).GetField("inventoryPage", Private).SetValue(app, page);
             ShowInventory(); yield return null;
-            var scroll = Require("InventoryViewport").GetComponent<ScrollRect>();
-            Canvas.ForceUpdateCanvases(); scroll.verticalNormalizedPosition = .35f;
             Invoke("OpenAccessoryCard", 1, -1, null); yield return null;
             var card = Require("AccessoryCard");
             card.GetComponentsInChildren<Button>().Single(b => b.name == "Upgrade").onClick.Invoke();
             yield return null;
             Assert.That(model.AccessoryUpgradeLevel(1), Is.EqualTo(1));
             Assert.That(Require("InventoryGrid").transform.Find("Accessory-1/Level").GetComponent<Text>().text, Is.EqualTo("02"));
-            Assert.That(Require("InventoryViewport").GetComponent<ScrollRect>().verticalNormalizedPosition, Is.EqualTo(.35f).Within(.01f));
+            Assert.That(typeof(ChoSirenApp).GetField("inventoryPage", Private).GetValue(app), Is.EqualTo(page));
             Require("AccessoryCard").GetComponentsInChildren<Button>().Single(b => b.name == "Close").onClick.Invoke();
             yield return null;
             Assert.That(GameObject.Find("AccessoryCard"), Is.Null);

@@ -31,6 +31,15 @@ namespace ChoSiren
             times = Mathf.Clamp(times, 1, MaxSweepTimes);
             bool stateChanged = Tick();
             int cost = stage.StaminaCost * times;
+            // 2026-11-07 角色体力: every run tires the team like a fought battle.
+            int memberCost = MemberStaminaCost1107(stage);
+            int tired = TooTiredInTeam1107(memberCost, times);
+            if (tired >= 0)
+            {
+                if (stateChanged) SaveState();
+                message = NeedsRestMessage1107(tired, memberCost, times);
+                return false;
+            }
             if (Save.Stamina < cost || !SpendStaminaInternal(cost))
             {
                 if (stateChanged) SaveState();
@@ -38,6 +47,7 @@ namespace ChoSiren
                 return false;
             }
 
+            SpendTeamStamina1107(memberCost * times);
             BattleDifficultyProfile difficulty = CurrentBattleDifficultyProfile;
             var rewards = new List<(string ItemId, int Amount)>();
             int dailyBonus = 0;

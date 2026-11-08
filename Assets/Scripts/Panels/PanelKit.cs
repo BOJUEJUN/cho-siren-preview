@@ -443,8 +443,12 @@ namespace ChoSiren.Panels
                 case "recruit-ticket": return "招募券";
                 case "costume-ticket": return "服装券";
                 case "shard": return "碎片";
-                case "voice-crystal": return "声纹碎晶";
-                case "voice-core": return "声核";
+                case "voice-crystal": return "敌人残魂";
+                case "voice-core": return "通用生魂";
+                case "soul-charm": return "魅族生魂";
+                case "soul-demon": return "魔族生魂";
+                case "soul-sea": return "海灵族生魂";
+                case "soul-blood": return "血精灵生魂";
                 default: return "道具";
             }
         }

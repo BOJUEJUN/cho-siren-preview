@@ -41,7 +41,7 @@ namespace ChoSiren.Panels
         public bool IsAnimating => animating;
         /// <summary>The member currently being trained (changes when a stage figure is tapped).</summary>
         public int MemberIndex => memberIndex;
-        public SirenPracticeScene Stage => stage;
+        public PracticeVideoStage1107 Stage => stage;
         public bool ResultVisible => resultGroup != null && resultGroup.activeSelf;
 
         public static MemberPracticePanel Open(Transform host, GameModel gameModel, int member,
@@ -90,6 +90,28 @@ namespace ChoSiren.Panels
         /// Switches the trainee. Called by a tap on a stage figure; refuses while a practice run is
         /// playing so the committed level-up and its animation always belong to the same member.
         /// </summary>
+        /// <summary>‹ / ›: the previous or next owned member (team order first), wrapping around.</summary>
+        public bool StepMember(int direction)
+        {
+            if (animating || stage == null || stage.Roster.Count < 2) return false;
+            var roster = stage.Roster;
+            int at = 0;
+            for (int i = 0; i < roster.Count; i++) if (roster[i] == memberIndex) at = i;
+            for (int step = 1; step < roster.Count; step++)
+            {
+                int candidate = roster[((at + direction * step) % roster.Count + roster.Count) % roster.Count];
+                if (model.IsUnlocked(candidate)) return SelectMember(candidate);
+            }
+            return false;
+        }
+
+        /// <summary>A tap on a lead in the camera view; a lead not yet signed says so.</summary>
+        private void PickFromStage(int member)
+        {
+            if (member >= 0 && !model.IsUnlocked(member)) { Notify($"{GameModel.Members[member].Name} 尚未签约"); return; }
+            SelectMember(member);
+        }
+
         public bool SelectMember(int member)
         {
             if (animating || member < 0 || member >= GameModel.Members.Length || !model.IsUnlocked(member))
@@ -172,7 +194,12 @@ namespace ChoSiren.Panels
             }
             if (costLabel != null) costLabel.text = "单次消耗";
             specialtyChip.gameObject.SetActive(true);
-            if (noDiamondLabel != null) { noDiamondLabel.text = "只扣星光币 · 不消耗星钻"; noDiamondLabel.color = SirenStickerUi.Muted; }
+            int remnants = GameModel.RemnantCostAtLevel1107(model.LevelOf(memberIndex));
+            if (noDiamondLabel != null)
+            {
+                noDiamondLabel.text = remnants > 0 ? $"另需敌人残魂 {model.Save.VoiceCrystals}/{remnants} · 不消耗星钻" : "只扣星光币 · 不消耗星钻";
+                noDiamondLabel.color = remnants > model.Save.VoiceCrystals ? new Color32(255, 150, 120, 255) : (Color)SirenStickerUi.Muted;
+            }
             bool canTrain = model.CanTrain(memberIndex, out quoteGold, out string reason);
             MemberDefinition member = GameModel.Members[memberIndex];
             plan = MemberTrainingPractice.BuildPlan(member.Career, quoteGold, reduceMotion);
@@ -199,6 +226,7 @@ namespace ChoSiren.Panels
             string startText = animating ? "练习中…" : canTrain ? (lastOutcome == null ? "开始练习" : "再练一次")
                 : model.LevelOf(memberIndex) >= GameModel.MaxMemberLevel ? "已满级"
                 : model.LevelOf(memberIndex) >= model.LevelCapOf1104(memberIndex) ? model.LevelCapReason1104(memberIndex)
+                : reason.StartsWith("敌人残魂", StringComparison.Ordinal) ? "残魂不足"
                 : "星光币不足";
             if (animating) canTrain = false;
             SecondaryTasks038Chrome.SetState(startObject, canTrain,
@@ -232,8 +260,8 @@ namespace ChoSiren.Panels
             goldOwned.color = model.Save.Gold >= cost.Gold ? SirenStickerUi.Muted : new Color32(255, 150, 120, 255);
             goldChipValue.text = model.Save.Gold.ToString("N0");
             var parts = new System.Collections.Generic.List<string>();
-            if (cost.Crystals > 0) parts.Add($"声纹碎晶 {model.Save.VoiceCrystals}/{cost.Crystals}");
-            if (cost.Cores > 0) parts.Add($"声核 {model.Save.VoiceCores}/{cost.Cores}");
+            parts.Add($"{GameModel.CurrencyName(cost.SoulId)} {model.Balance(cost.SoulId)}/{cost.Souls}");
+            if (model.Save.VoiceCores > 0) parts.Add($"通用生魂 {model.Save.VoiceCores}");
             if (noDiamondLabel != null)
             {
                 noDiamondLabel.text = "突破材料：" + string.Join(" · ", parts);
@@ -344,7 +372,9 @@ namespace ChoSiren.Panels
             float duration = plan != null ? plan.DurationSeconds : MemberTrainingPractice.StandardDurationSeconds;
             Vector3 baseScale = Vector3.one;
             float elapsed = 0f;
-            while (elapsed < duration)
+            skipRequested1107 = false;
+            if (skipButton1107 != null) { skipButton1107.SetActive(true); skipButton1107.transform.SetAsLastSibling(); }
+            while (elapsed < duration && !skipRequested1107)
             {
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / Mathf.Max(0.01f, duration));
@@ -385,7 +415,29 @@ namespace ChoSiren.Panels
             animating = false;
             stage?.SetPracticing(false, reduceMotion);
             RefreshQuote();
-            if (lastOutcome != null) RevealResult();
+            if (lastOutcome != null)
+            {
+                // 2026-11-07 会议 (跳过动画): a skip lands straight on the settled result card.
+                if (skipRequested1107) ShowResultFinal();
+                else RevealResult();
+            }
+            if (skipButton1107 != null) skipButton1107.SetActive(skipRequested1107 ? false : resultRoutine != null);
+        }
+
+        private bool skipRequested1107;
+        private GameObject skipButton1107;
+
+        /// <summary>The small 跳过 ›› chip in the stage corner: ends the practice run's animation (and the roll-in).</summary>
+        public void SkipAnimation1107()
+        {
+            skipRequested1107 = true;
+            if (!animating && resultRoutine != null)
+            {
+                StopCoroutine(resultRoutine);
+                resultRoutine = null;
+                ShowResultFinal();
+            }
+            if (!animating && skipButton1107 != null) skipButton1107.SetActive(false);
         }
 
         private IEnumerator SwapCardIn()

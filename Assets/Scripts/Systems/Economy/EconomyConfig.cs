@@ -15,10 +15,17 @@ namespace ChoSiren.Systems.Economy
         /// <summary>声纹碎晶 / 声核: breakthrough materials (2026-11-04).</summary>
         public const string VoiceCrystal = "voice-crystal";
         public const string VoiceCore = "voice-core";
+        /// <summary>2026-11-07 种族生魂: the per-race breakthrough material from Lv30 (VoiceCore = 通用生魂, any race).</summary>
+        public const string SoulCharm = "soul-charm";
+        public const string SoulDemon = "soul-demon";
+        public const string SoulSea = "soul-sea";
+        public const string SoulBlood = "soul-blood";
+        public static readonly string[] Souls = { SoulCharm, SoulDemon, SoulSea, SoulBlood };
 
         public static readonly string[] All =
         {
-            Diamond, Gold, Stamina, RecruitTicket, CostumeTicket, Shard, VoiceCrystal, VoiceCore
+            Diamond, Gold, Stamina, RecruitTicket, CostumeTicket, Shard, VoiceCrystal, VoiceCore,
+            SoulCharm, SoulDemon, SoulSea, SoulBlood
         };
 
         public static bool IsKnown(string id) => Array.IndexOf(All, id) >= 0;

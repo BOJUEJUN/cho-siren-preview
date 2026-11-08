@@ -128,7 +128,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.Gold, Is.EqualTo(11300));
             Assert.That(model.Save.Diamonds, Is.EqualTo(219));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(83));
-            Assert.That(model.StatsOf(0).Hp, Is.EqualTo(8360));
+            Assert.That(model.StatsOf(0).Hp, Is.EqualTo(3190)); // 2026-11-07 half-speed growth past Lv30
             // 2026-11-04: Lv68 sits above the stage-progress cap, so training waits (and quotes nothing) until it opens.
             Assert.That(model.CanTrain(0, out int cost, out string capReason), Is.False);
             Assert.That(cost, Is.Zero);

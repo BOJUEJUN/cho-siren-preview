@@ -107,8 +107,9 @@ namespace ChoSiren.Tests
         {
             int[] before = model.Save.Team.ToArray();
             RectTransform band = Require("TeamLabel-0").GetComponent<RectTransform>();
-            Assert.That(band.rect.width, Is.EqualTo(334f).Within(.1f));
-            Assert.That(band.rect.height, Is.EqualTo(110f).Within(.1f));
+            // 2026-11-07 (团队.psd): the band is the card's bottom strip — still a large, phone-sized target.
+            Assert.That(band.rect.width, Is.GreaterThanOrEqualTo(280f));
+            Assert.That(band.rect.height, Is.GreaterThanOrEqualTo(80f));
             // Hit the left-hand information area, deliberately far from the right tag.
             Click("TeamLabel-0", new Vector2(.10f, .50f));
             yield return null;

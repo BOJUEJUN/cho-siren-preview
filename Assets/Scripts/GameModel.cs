@@ -219,7 +219,7 @@ namespace ChoSiren
 
         public const int RecruitCost = 800;
         public const int MaxStamina = 120;
-        public const int MaxMemberLevel = 100;
+        public const int MaxMemberLevel = 200; // 2026-11-07 会议: 满级 200 (Docs/BALANCE-1107-LV200.md)
         public const int DailyPerformanceGoal = 3;
         public const int PerformanceStaminaCost = 5;
         // 2026-11-01 (赵金 "钱并不够你花"): 520 → 160. A performance costs 5 stamina and no fight, so 520 out-earned every
@@ -659,8 +659,12 @@ namespace ChoSiren
                 case CurrencyIds.RecruitTicket: return "签约券";
                 case CurrencyIds.CostumeTicket: return "服装券";
                 case CurrencyIds.Shard: return "碎片";
-                case CurrencyIds.VoiceCrystal: return "声纹碎晶";
-                case CurrencyIds.VoiceCore: return "声核";
+                case CurrencyIds.VoiceCrystal: return "敌人残魂";
+                case CurrencyIds.VoiceCore: return "通用生魂";
+                case CurrencyIds.SoulCharm: return "魅族生魂";
+                case CurrencyIds.SoulDemon: return "魔族生魂";
+                case CurrencyIds.SoulSea: return "海灵族生魂";
+                case CurrencyIds.SoulBlood: return "血精灵生魂";
                 default: return currencyId ?? string.Empty;
             }
         }
@@ -677,7 +681,7 @@ namespace ChoSiren
                 case CurrencyIds.Shard: return Save.Shards;
                 case CurrencyIds.VoiceCrystal: return Save.VoiceCrystals;
                 case CurrencyIds.VoiceCore: return Save.VoiceCores;
-                default: return 0;
+                default: return SoulBalance1107(currencyId);
             }
         }
 
@@ -1021,6 +1025,14 @@ namespace ChoSiren
                 return false;
             }
 
+            // 2026-11-07: from Lv30 every level also costs 敌人残魂 (Docs/BALANCE-1107-LV200.md).
+            int remnants = RemnantCostAtLevel1107(level);
+            if (Save.VoiceCrystals < remnants)
+            {
+                message = $"敌人残魂不足（{Save.VoiceCrystals}/{remnants}）";
+                return false;
+            }
+
             message = string.Empty;
             return true;
         }
@@ -1030,6 +1042,7 @@ namespace ChoSiren
             if (!CanTrain(memberIndex, out int cost, out message)) return false;
             int level = LevelOf(memberIndex);
             Save.Gold -= cost;
+            Save.VoiceCrystals -= RemnantCostAtLevel1107(level);
             Save.MemberLevels[memberIndex] = level + 1;
             GainAffection(memberIndex, 3);
             Report(TaskTriggers.Train);
@@ -1664,6 +1677,16 @@ namespace ChoSiren
                 return null;
             }
 
+            // 2026-11-07 角色体力: a member who cannot pay this battle's stamina needs rest first.
+            int memberCost = MemberStaminaCost1107(stage);
+            int tired = TooTiredInTeam1107(memberCost, 1);
+            if (tired >= 0)
+            {
+                if (stateChanged) SaveState();
+                message = NeedsRestMessage1107(tired, memberCost, 1);
+                return null;
+            }
+
             List<PlayerUnitSetup> party = BuildParty();
             if (party.Count == 0)
             {
@@ -1697,6 +1720,7 @@ namespace ChoSiren
             }
 
             SpendStaminaInternal(stage.StaminaCost);
+            SpendTeamStamina1107(memberCost);
             pendingBattles[battle] = new PendingBattleContext
             {
                 Seed = seed,
@@ -2136,7 +2160,7 @@ namespace ChoSiren
                 case CurrencyIds.VoiceCrystal: Save.VoiceCrystals -= amount; return true;
                 case CurrencyIds.VoiceCore: Save.VoiceCores -= amount; return true;
                 case CurrencyIds.Stamina: Save.Stamina -= amount; return true;
-                default: return false;
+                default: return AddSoul1107(currencyId, -amount);
             }
         }
 
@@ -2162,6 +2186,8 @@ namespace ChoSiren
                 case CurrencyIds.Shard: Save.Shards += amount; break;
                 case CurrencyIds.VoiceCrystal: Save.VoiceCrystals += amount; break;
                 case CurrencyIds.VoiceCore: Save.VoiceCores += amount; break;
+                case CurrencyIds.SoulCharm: case CurrencyIds.SoulDemon: case CurrencyIds.SoulSea: case CurrencyIds.SoulBlood:
+                    AddSoul1107(itemId, amount); break;
                 default:
                     // Non-currency drops (accessories, costumes) are cosmetics owned once.
                     if (!Save.OwnedCostumes.Contains(itemId)) Save.OwnedCostumes.Add(itemId);
@@ -2309,7 +2335,8 @@ namespace ChoSiren
                     Row = slot % BattleGrid.Rows,
                     Col = slot / BattleGrid.Rows,
                     Level = LevelOf(index),
-                    Equipment = MemberEquipmentBonuses(index)
+                    Equipment = MemberEquipmentBonuses(index),
+                    FatiguePermille = FatiguePermille1107(index),
                 });
                 slot++;
             }

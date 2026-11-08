@@ -435,7 +435,9 @@ namespace ChoSiren.Tests
                     "Boss 主视觉高度至少应为伴生敌人的两倍，不能退化成普通单位卡。");
                 // 2026-10-31 (赵金, refs/07): the boss now runs from under the top HUD down to the member cards,
                 // past the legacy EnemyStage rect, so it is bounded by the PSD stage instead and must be large.
-                AssertContained(Find(fixture.Panel.transform, "BattlePSD928") as RectTransform, bossRig, "Boss 主视觉");
+                // 2026-11-07 (赵金: "BOSS 再大 3 分之一，最好满一点"): the boss may spill past the stage sides (the screen
+                // clips her) by up to a tenth of the stage each side, but never past the top or below the cards.
+                AssertBossFillsStage1107(Find(fixture.Panel.transform, "BattlePSD928") as RectTransform, bossRig);
                 Assert.That(bossRig.rect.height, Is.GreaterThanOrEqualTo(600f), "Boss 应从顶部 HUD 下方延伸到卡片上方。");
 
                 Button focus = Find(fixture.Panel.transform, "BossPortrait").GetComponent<Button>();
@@ -679,6 +681,17 @@ namespace ChoSiren.Tests
             Assert.That(icon.raycastTarget, Is.False);
             Assert.That(icon.rectTransform.rect.width, Is.InRange(18f, 28f), "Semantic glyphs remain legible and compact.");
             Assert.That(icon.rectTransform.rect.height, Is.InRange(18f, 28f));
+        }
+
+        private static void AssertBossFillsStage1107(RectTransform outer, RectTransform inner)
+        {
+            Vector3[] o = new Vector3[4], i = new Vector3[4];
+            outer.GetWorldCorners(o); inner.GetWorldCorners(i);
+            float spill = (o[2].x - o[0].x) * .1f;
+            Assert.That(i[0].x, Is.GreaterThanOrEqualTo(o[0].x - spill), "Boss 左侧超出舞台太多。");
+            Assert.That(i[2].x, Is.LessThanOrEqualTo(o[2].x + spill), "Boss 右侧超出舞台太多。");
+            Assert.That(i[0].y, Is.GreaterThanOrEqualTo(o[0].y - .5f), "Boss 底部超出舞台。");
+            Assert.That(i[2].y, Is.LessThanOrEqualTo(o[2].y + .5f), "Boss 顶部超出舞台。");
         }
 
         private static void AssertContained(RectTransform outer, RectTransform inner, string label)

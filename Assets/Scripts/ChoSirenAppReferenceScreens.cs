@@ -328,7 +328,12 @@ namespace ChoSiren
         // ------------------------------------------------------------------
         // team — central stellar orbit stage
 
-        private void BuildTeamReference() => BuildTeamBoard038();
+        // 2026-11-07: 团队.psd layout (ChoSirenAppTeam1107.cs) when its art is present.
+        private void BuildTeamReference()
+        {
+            if (Resources.Load<Sprite>(TeamArt1107 + "team-board") != null) BuildTeamBoard1107();
+            else BuildTeamBoard038();
+        }
 
         /// <summary>
         /// One orbit slot on the stellar stage. The hit rect stays unrotated so the
@@ -699,7 +704,7 @@ namespace ChoSiren
             statTitle.name = "MemberSectionBaseStats";
             NewPlacedText(statPanel.transform, "实时数据", 9, new Color32(150, 145, 200, 200),
                 150, 12, 110, 18, TextAnchor.MiddleRight, FontStyle.Italic).name = "MemberSectionBaseStatsEn";
-            ReferenceStatRow(statPanel.transform, "MemberStatVocal", "声波", vocal.ToString(), 0);
+            ReferenceStatRow(statPanel.transform, "MemberStatVocal", "声乐", vocal.ToString(), 0);
             ReferenceStatRow(statPanel.transform, "MemberStatRhythm", "说唱", rhythm.ToString(), 1);
             ReferenceStatRow(statPanel.transform, "MemberStatPresence", "舞蹈", presence.ToString(), 2);
             ReferenceStatRow(statPanel.transform, "MemberStatResonance", "名气", resonance.ToString(), 3);

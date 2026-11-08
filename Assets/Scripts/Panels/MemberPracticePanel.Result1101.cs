@@ -309,8 +309,16 @@ namespace ChoSiren.Panels
             ShowResultFinal();
             if (!Application.isPlaying) return;
             if (resultRoutine != null) StopCoroutine(resultRoutine);
-            resultRoutine = StartCoroutine(reduceMotion || BattlePresentationOptions.ReduceMotion
-                ? FadeResultIn() : RollResultIn());
+            resultRoutine = StartCoroutine(RunResult1107(reduceMotion || BattlePresentationOptions.ReduceMotion
+                ? FadeResultIn() : RollResultIn()));
+        }
+
+        /// <summary>Runs a reveal and then clears it, hiding the 跳过 chip once nothing is left to skip.</summary>
+        private IEnumerator RunResult1107(IEnumerator reveal)
+        {
+            yield return reveal;
+            resultRoutine = null;
+            if (skipButton1107 != null) skipButton1107.SetActive(false);
         }
 
         private void HideResult()

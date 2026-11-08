@@ -60,13 +60,13 @@ namespace ChoSiren.Tests
         public void HighLevelStatsStayReadableAfterGrowthNerf()
         {
             var model = NewModel();
-            model.Save.MemberLevels[0] = 100;
+            // 2026-11-07: the cap is 200; past Lv30 growth runs at half speed so Lv200 stays readable.
+            model.Save.MemberLevels[0] = 200;
             CombatStats stats = model.StatsOf(0);
-
-            // Old curve (1.085/1.065/1.05) produced roughly 550x attack and 2400x HP at level 100.
-            Assert.That(stats.Attack, Is.LessThan(3200), "100 级攻击不应再膨胀到数万");
-            Assert.That(stats.Hp, Is.LessThan(50000), "100 级生命不应再膨胀到数十万");
-            Assert.That(stats.Attack, Is.GreaterThan(800), "削弱后仍要明显强于 1 级");
+            Assert.That(stats.Attack, Is.LessThan(6000), "200 级攻击不应膨胀到数万");
+            Assert.That(stats.Hp, Is.LessThan(120000), "200 级生命不应膨胀到数十万");
+            model.Save.MemberLevels[0] = 100;
+            Assert.That(model.StatsOf(0).Attack, Is.GreaterThan(500), "100 级仍要明显强于 1 级");
         }
 
         [Test]

@@ -286,27 +286,35 @@ namespace ChoSiren.UI
             progressGroup = new GameObject("Progress", typeof(RectTransform));
             progressGroup.transform.SetParent(transform, false);
             RectTransform progress = (RectTransform)progressGroup.transform;
-            Anchor(progress, new Vector2(.5f, 0), new Vector2(0f, bottom + 92f), new Vector2(620f, 100f), new Vector2(.5f, 0));
-            Text label = Label("Label", "载入中", 19, Color.white, TextAnchor.MiddleLeft, FontStyle.Bold, progress);
-            progressLabel = label;
-            Anchor(label.rectTransform, new Vector2(0, 1), Vector2.zero, new Vector2(400f, 32f));
-            progressText = Label("Percent", "0%", 24, PunkUi.Cyan, TextAnchor.MiddleRight, FontStyle.BoldAndItalic, progress);
-            Anchor(progressText.rectTransform, new Vector2(1, 1), Vector2.zero, new Vector2(160f, 32f), new Vector2(1, 1));
-            Image track = Solid("Track", new Color(1f, 1f, 1f, .2f), progress);
-            Anchor(track.rectTransform, new Vector2(0, 1), new Vector2(0f, -42f), new Vector2(620f, 6f));
-            progressFill = Solid("Fill", Brand1025.Teal, track.rectTransform);
+            Anchor(progress, new Vector2(.5f, 0), new Vector2(0f, bottom + 92f), new Vector2(620f, 104f), new Vector2(.5f, 0));
+            // 2026-11-07 (赵金): the leads and the pig run over a dark band with the pink bow bar under their feet;
+            // the bar follows the real progress (the hidden fill below stays the single source of truth).
+            Image track = Solid("Track", new Color(1f, 1f, 1f, 0f), progress);
+            Anchor(track.rectTransform, new Vector2(0, 1), new Vector2(0f, -30f), new Vector2(620f, 6f));
+            progressFill = Solid("Fill", new Color(1f, 1f, 1f, 0f), track.rectTransform);
             progressFill.rectTransform.anchorMin = Vector2.zero;
             progressFill.rectTransform.anchorMax = new Vector2(0f, 1f);
             progressFill.rectTransform.offsetMin = progressFill.rectTransform.offsetMax = Vector2.zero;
+            RectTransform fillRect = progressFill.rectTransform;
+            LoadingRun1107 run = LoadingRun1107.Create(progress, 620f, () => fillRect.anchorMax.x, true);
+            var runRect = (RectTransform)run.transform;
+            runRect.anchorMin = runRect.anchorMax = new Vector2(0f, 1f);
+            runRect.pivot = Vector2.zero;
+            runRect.anchoredPosition = new Vector2(0f, -30f);
+            Text label = Label("Label", "载入中", 19, Color.white, TextAnchor.MiddleLeft, FontStyle.Bold, progress);
+            progressLabel = label;
+            Anchor(label.rectTransform, new Vector2(0, 1), new Vector2(0f, -34f), new Vector2(400f, 32f));
+            progressText = Label("Percent", "0%", 24, PunkUi.Cyan, TextAnchor.MiddleRight, FontStyle.BoldAndItalic, progress);
+            Anchor(progressText.rectTransform, new Vector2(1, 1), new Vector2(0f, -34f), new Vector2(160f, 32f), new Vector2(1, 1));
             // visual-a 1101c: a light-bulb sticker instead of the English 「TIPS」 tag.
             Image tipTag = Solid("TipTag", Brand1025.Teal, progress);
             tipTag.sprite = PunkUi.SlantFill;
-            Anchor(tipTag.rectTransform, new Vector2(0, 1), new Vector2(0f, -64f), new Vector2(44f, 32f));
+            Anchor(tipTag.rectTransform, new Vector2(0, 1), new Vector2(0f, -70f), new Vector2(44f, 32f));
             RectTransform bulb = VisualA1101.NeonIcon(tipTag.rectTransform, "TipIcon", "sparkle", Brand1025.Ink, 24f, 0f);
             bulb.anchorMin = bulb.anchorMax = bulb.pivot = new Vector2(.5f, .5f);
             bulb.anchoredPosition = Vector2.zero;
             tipText = Label("Tip", Tips[0], 18, Color.white, TextAnchor.MiddleLeft, FontStyle.Bold, progress);
-            Anchor(tipText.rectTransform, new Vector2(0, 1), new Vector2(56f, -66f), new Vector2(564f, 28f));
+            Anchor(tipText.rectTransform, new Vector2(0, 1), new Vector2(56f, -72f), new Vector2(564f, 28f));
             nextTipAt = Time.unscaledTime + 4f;
 
             var start = new GameObject("TapToStart", typeof(RectTransform), typeof(CanvasGroup));
@@ -646,13 +654,53 @@ namespace ChoSiren.UI
             if (soundIcon != null) soundIcon.sprite = soundEnabled ? soundOn : soundOff;
         }
 
+        /// <summary>The newest version whose notes this player has already been shown (2026-11-07).</summary>
+        private const string NotesReadKey = "cho-notes-read";
+
         private void ShowNotice()
         {
             if (ageDialog != null) return;
-            ShowTextDialog("公告", null, $"v{Application.version}\n\n…", "知道了", null);
+            // 2026-11-07 (少爷): list every change since the version this player last read, not only the newest release.
+            string baseline = PlayerPrefs.GetString(NotesReadKey, PlayerPrefs.GetString(NoticeSeenKey, string.Empty));
+            noticeBaseline1107 = baseline;
+            ShowTextDialog("公告", null, ChangelogSince1107(baseline, Application.version), "知道了", null);
             if (noticeDot != null) noticeDot.SetActive(false);
-            PlayerPrefs.SetString(NoticeSeenKey, string.IsNullOrEmpty(latestVersion) ? Application.version : latestVersion);
+            string newest = string.IsNullOrEmpty(latestVersion) || AppUpdate1022.IsNewer(Application.version, latestVersion) ? Application.version : latestVersion;
+            PlayerPrefs.SetString(NoticeSeenKey, newest);
+            PlayerPrefs.SetString(NotesReadKey, Application.version);
             StartCoroutine(FetchNotice());
+        }
+
+        private string noticeBaseline1107 = string.Empty;
+
+        [System.Serializable] private sealed class ChangelogEntry1107 { public string Version; public string Date; public string[] Notes; }
+        [System.Serializable] private sealed class Changelog1107 { public int SchemaVersion; public ChangelogEntry1107[] Entries; }
+
+        /// <summary>
+        /// Every embedded release (Resources/Data/changelog.json, newest first) after <paramref name="baseline"/> up to
+        /// <paramref name="current"/>; with no baseline (a first install) only the current version's notes.
+        /// </summary>
+        public static string ChangelogSince1107(string baseline, string current)
+        {
+            TextAsset json = Resources.Load<TextAsset>("Data/changelog");
+            Changelog1107 log = json != null ? JsonUtility.FromJson<Changelog1107>(json.text) : null;
+            var parts = new System.Collections.Generic.List<string>();
+            if (log?.Entries != null)
+                foreach (ChangelogEntry1107 entry in log.Entries)
+                {
+                    if (entry == null || string.IsNullOrEmpty(entry.Version)) continue;
+                    if (AppUpdate1022.IsNewer(entry.Version, current)) continue;           // newer than this build
+                    bool first = string.IsNullOrEmpty(baseline);
+                    if (!first && !AppUpdate1022.IsNewer(entry.Version, baseline)) break;  // already read
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append($"【v{entry.Version}】  {entry.Date}");
+                    if (entry.Notes != null) foreach (string note in entry.Notes) sb.Append("\n· ").Append(note);
+                    parts.Add(sb.ToString());
+                    if (first) break;
+                }
+            string head = !string.IsNullOrEmpty(baseline) && AppUpdate1022.IsNewer(current, baseline)
+                ? $"v{baseline} → v{current}" : $"当前版本 v{current}";
+            return parts.Count == 0 ? head : head + "\n\n" + string.Join("\n\n", parts);
         }
 
         private IEnumerator FetchNotice()
@@ -665,14 +713,12 @@ namespace ChoSiren.UI
                 Text body = ageDialog.GetComponentInChildren<Text>(true) != null
                     ? FindBody(ageDialog.transform) : null;
                 if (body == null) yield break;
-                if (request.result != UnityWebRequest.Result.Success)
-                {
-                    body.text = $"v{Application.version}\n\n网络不可用";
-                    yield break;
-                }
+                // The local list is already shown; the server only adds a newer release this build does not know yet.
+                if (request.result != UnityWebRequest.Result.Success) yield break;
                 ReleaseInfo info = JsonUtility.FromJson<ReleaseInfo>(request.downloadHandler.text);
-                body.text = info == null ? $"v{Application.version}"
-                    : $"{NoticeVersionHeading(Application.version, info.version, info.date)}\n\n{(!string.IsNullOrEmpty(info.notice) ? info.notice : !string.IsNullOrEmpty(info.notes) ? info.notes : info.name)}";
+                if (info == null || string.IsNullOrEmpty(info.version) || !AppUpdate1022.IsNewer(Application.version, info.version)) yield break;
+                string latest = !string.IsNullOrEmpty(info.notice) ? info.notice : !string.IsNullOrEmpty(info.notes) ? info.notes : info.name;
+                body.text = $"【可更新 v{info.version}】  {info.date}\n· {latest}\n\n" + ChangelogSince1107(noticeBaseline1107, Application.version);
             }
         }
 

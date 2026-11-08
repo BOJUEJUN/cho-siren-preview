@@ -109,7 +109,7 @@ namespace ChoSiren
             selectedArt.GetComponent<Image>().raycastTarget = false;
             GameModel.StageStats(m, member, model.SigningChannelOf(member) == 0 ? 0 : 1, model.LevelOf(member), out int vocal, out int rap,
                 out int dance, out int popularity, out int appearance);
-            string[] names = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] names = { "声乐", "说唱", "舞蹈", "名气", "颜值" };
             int[] values = { vocal, rap, dance, popularity, appearance };
             for (int i = 0; i < 5; i++)
                 BoardText038(root, "EquipmentStageStat-" + i, $"{names[i]} {values[i]}", 16, i == 4 ? Accent : Cyan,

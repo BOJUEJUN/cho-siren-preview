@@ -229,27 +229,32 @@ namespace ChoSiren
             MusicContextScope.Attach(routeArtGate, GameAudio.MusicContext.Silent);
             PsdHomeStageBridge.SetActive(false);
             GameObject card = NewPanel("Card", routeArtGate.transform, new Color32(35, 25, 78, 255), 26);
-            PlaceTop(card.GetComponent<RectTransform>(), 70, 590, 580, 300);
+            PlaceTop(card.GetComponent<RectTransform>(), 70, 470, 580, 440);
             NewPlacedText(card.transform, "正在准备界面", 28, White, 70, 34, 440, 48, TextAnchor.MiddleCenter, FontStyle.Bold);
             BuildReferenceArtClose(card.transform);
 
             // Waiting view: thin progress bar, one short line, retry only after a failure.
             routeArtWaitView = NewObject("Waiting", card.transform);
             Stretch(RectOf(routeArtWaitView));
-            GameObject track = NewImage("ProgressTrack", routeArtWaitView.transform, RoundedSprite(6), new Color32(255, 255, 255, 38));
+            // 2026-11-07 (赵金): the leads run over the pink bow bar while the art loads; the hidden fill is its source.
+            GameObject track = NewImage("ProgressTrack", routeArtWaitView.transform, RoundedSprite(6), new Color32(255, 255, 255, 0));
             track.GetComponent<Image>().type = Image.Type.Sliced;
-            PlaceTop(track.GetComponent<RectTransform>(), 70, 130, 440, 12);
-            GameObject fill = NewImage("ProgressFill", track.transform, null, new Color32(255, 70, 170, 255));
+            PlaceTop(track.GetComponent<RectTransform>(), 70, 270, 440, 12);
+            GameObject fill = NewImage("ProgressFill", track.transform, null, new Color32(255, 70, 170, 0));
             Stretch(fill.GetComponent<RectTransform>());
             routeArtFill = fill.GetComponent<Image>();
             routeArtFill.type = Image.Type.Filled;
             routeArtFill.fillMethod = Image.FillMethod.Horizontal;
             routeArtFill.fillOrigin = 0;
+            Image runSource = routeArtFill;
+            ChoSiren.UI.LoadingRun1107 run = ChoSiren.UI.LoadingRun1107.Create(routeArtWaitView.transform, 440f,
+                () => runSource != null ? runSource.fillAmount : 0f, false);
+            PlaceTop((RectTransform)run.transform, 70, 290 - run.Height, 440, run.Height);
             routeArtStatus = NewPlacedText(routeArtWaitView.transform, "", 19, new Color32(220, 214, 240, 255),
-                40, 160, 500, 44, TextAnchor.MiddleCenter);
+                40, 300, 500, 44, TextAnchor.MiddleCenter);
             routeArtRetry = NewButton("Retry", routeArtWaitView.transform, "重试", 22, Accent, Brand1025.Ink,
                 () => { if (!routeArtLoading) StartCoroutine(EnsureRemainingReferenceArt()); });
-            PlaceTop(routeArtRetry.GetComponent<RectTransform>(), 190, 216, 200, 60);
+            PlaceTop(routeArtRetry.GetComponent<RectTransform>(), 190, 356, 200, 60);
             routeArtRetry.SetActive(false);
 
             // Close view: what should happen to the preparation.

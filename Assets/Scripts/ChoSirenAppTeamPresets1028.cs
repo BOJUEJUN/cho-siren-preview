@@ -7,29 +7,41 @@ namespace ChoSiren
 {
     public sealed partial class ChoSirenApp
     {
-        private void BuildTeamPresetControls1028(Transform root)
+        /// <summary>
+        /// Team preset tabs. 2026-11-07 (团队.psd): with <paramref name="chips1107"/> they sit top-left as the PSD's teal /
+        /// dark chips at (<paramref name="left"/>, <paramref name="top"/>), the active one dark text on teal.
+        /// </summary>
+        private void BuildTeamPresetControls1028(Transform root, float left = 80f, float top = 1520f, bool chips1107 = false)
         {
             int visible = model.VisibleTeamPresetCount;
             bool canAdd = visible < GameModel.TeamPresetCount;
             int items = visible + (canAdd ? 1 : 0);
             const float gap = 8f;
-            float width = Mathf.Clamp((620f - gap * (items - 1)) / items, 92f, 132f);
-            float x = 80f;
+            float width = chips1107 ? 132f : Mathf.Clamp((620f - gap * (items - 1)) / items, 92f, 132f);
+            float height = chips1107 ? 54f : 64f;
+            float x = left;
             for (int i = 0; i < visible; i++)
             {
                 int slot = i;
                 var preset = model.Save.TeamPresets[i];
                 bool active = i == model.Save.ActiveTeamPreset;
                 GameObject button = BoardButton038("TeamPreset-" + i, root,
-                    new Rect(x, 1520, width, 64), () =>
+                    new Rect(x, top, width, height), () =>
                 {
                     if (active) { Toast("正在使用这支队伍"); return; }
                     if (model.SelectTeamPreset(slot, out string message)) ShowScreen("team");
                     else Toast(message);
                 });
                 Text label = BoardText038(button.transform, "Label", preset.Name,
-                    23, active ? Cyan : White, 8, 2, width - 16, 60, TextAnchor.MiddleCenter);
-                SirenPageChrome.Tab(button, active);
+                    23, chips1107 ? (active ? (Color)Brand1025.Ink : White) : active ? Cyan : White, 8, 2, width - 16, height - 4, TextAnchor.MiddleCenter);
+                if (chips1107)
+                {
+                    Image face = button.GetComponent<Image>();
+                    face.sprite = Resources.Load<Sprite>("Art/Ui1107/" + (active ? "team-tab-on" : "team-tab-off"));
+                    face.color = Color.white;
+                    label.fontStyle = FontStyle.Bold;
+                }
+                else SirenPageChrome.Tab(button, active);
                 PanelKit.EnableBestFit(label, 16);
                 label.supportRichText = false;
                 if (active && visible > 1)
@@ -42,13 +54,19 @@ namespace ChoSiren
                 x += width + gap;
             }
             if (!canAdd) return;
-            GameObject add = BoardButton038("TeamPresetAdd", root, new Rect(x, 1520, width, 64), () =>
+            GameObject add = BoardButton038("TeamPresetAdd", root, new Rect(x, top, width, height), () =>
             {
                 if (model.AddTeamPreset(out string message)) ShowScreen("team");
                 Toast(message);
             });
-            BoardText038(add.transform, "Label", "+", 34, Cyan, 0, 0, width, 64, TextAnchor.MiddleCenter);
-            SirenPageChrome.Tab(add, false);
+            BoardText038(add.transform, "Label", "+", 34, chips1107 ? White : Cyan, 0, 0, width, height, TextAnchor.MiddleCenter);
+            if (chips1107)
+            {
+                Image face = add.GetComponent<Image>();
+                face.sprite = Resources.Load<Sprite>("Art/Ui1107/team-tab-off");
+                face.color = Color.white;
+            }
+            else SirenPageChrome.Tab(add, false);
         }
 
         private void OpenDeleteTeamDialog1028(int slot)

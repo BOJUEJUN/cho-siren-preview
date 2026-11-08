@@ -1,0 +1,581 @@
+{
+ "SchemaVersion": 1,
+ "Profiles": [
+  {
+   "Id": "xingli",
+   "Age": 22,
+   "Job": "声乐助教",
+   "Hobby": "弹吉他爱好者",
+   "Trait": "好胜",
+   "Blood": "A+",
+   "Birthday": "7月4日"
+  },
+  {
+   "Id": "feiyin",
+   "Age": 18,
+   "Job": "健身操教练",
+   "Hobby": "健身爱好者",
+   "Trait": "元气",
+   "Blood": "B+",
+   "Birthday": "3月12日"
+  },
+  {
+   "Id": "wubai",
+   "Age": 19,
+   "Job": "网络主播",
+   "Hobby": "烘焙爱好者",
+   "Trait": "好胜",
+   "Blood": "B+",
+   "Birthday": "8月22日"
+  },
+  {
+   "Id": "yeying",
+   "Age": 16,
+   "Job": "音乐博主",
+   "Hobby": "打游戏爱好者",
+   "Trait": "元气",
+   "Blood": "A+",
+   "Birthday": "3月21日"
+  },
+  {
+   "Id": "yaoguang",
+   "Age": 24,
+   "Job": "舞蹈学院学生",
+   "Hobby": "跳舞爱好者",
+   "Trait": "元气",
+   "Blood": "B+",
+   "Birthday": "4月3日"
+  },
+  {
+   "Id": "hupo",
+   "Age": 22,
+   "Job": "网络主播",
+   "Hobby": "逛街爱好者",
+   "Trait": "乐天派",
+   "Blood": "O+",
+   "Birthday": "6月23日"
+  },
+  {
+   "Id": "xianyue",
+   "Age": 23,
+   "Job": "音乐学院学生",
+   "Hobby": "哼歌爱好者",
+   "Trait": "乐天派",
+   "Blood": "O+",
+   "Birthday": "7月10日"
+  },
+  {
+   "Id": "chuxue",
+   "Age": 22,
+   "Job": "芭蕾舞者",
+   "Hobby": "跳舞爱好者",
+   "Trait": "温柔",
+   "Blood": "A+",
+   "Birthday": "9月7日"
+  },
+  {
+   "Id": "chengxia",
+   "Age": 18,
+   "Job": "平面模特",
+   "Hobby": "逛街爱好者",
+   "Trait": "完美主义",
+   "Blood": "AB-",
+   "Birthday": "1月11日"
+  },
+  {
+   "Id": "hero-0002",
+   "Age": 16,
+   "Job": "咖啡馆歌手",
+   "Hobby": "弹吉他爱好者",
+   "Trait": "好胜",
+   "Blood": "AB+",
+   "Birthday": "3月1日"
+  },
+  {
+   "Id": "hero-0003",
+   "Age": 24,
+   "Job": "芭蕾舞者",
+   "Hobby": "健身爱好者",
+   "Trait": "元气",
+   "Blood": "O+",
+   "Birthday": "7月1日"
+  },
+  {
+   "Id": "hero-0005",
+   "Age": 22,
+   "Job": "平面模特",
+   "Hobby": "化妆爱好者",
+   "Trait": "元气",
+   "Blood": "B+",
+   "Birthday": "7月5日"
+  },
+  {
+   "Id": "hero-0007",
+   "Age": 16,
+   "Job": "电台DJ",
+   "Hobby": "玩滑板爱好者",
+   "Trait": "爱撒娇",
+   "Blood": "O+",
+   "Birthday": "10月14日"
+  },
+  {
+   "Id": "hero-0008",
+   "Age": 20,
+   "Job": "舞蹈学院学生",
+   "Hobby": "跑酷爱好者",
+   "Trait": "温柔",
+   "Blood": "AB-",
+   "Birthday": "10月2日"
+  },
+  {
+   "Id": "hero-0010",
+   "Age": 18,
+   "Job": "偶像练习生",
+   "Hobby": "化妆爱好者",
+   "Trait": "神秘",
+   "Blood": "A+",
+   "Birthday": "12月23日"
+  },
+  {
+   "Id": "hero-0011",
+   "Age": 21,
+   "Job": "咖啡馆歌手",
+   "Hobby": "卡拉OK爱好者",
+   "Trait": "天然呆",
+   "Blood": "B+",
+   "Birthday": "3月14日"
+  },
+  {
+   "Id": "hero-0012",
+   "Age": 17,
+   "Job": "健身操教练",
+   "Hobby": "健身爱好者",
+   "Trait": "毒舌",
+   "Blood": "O+",
+   "Birthday": "3月16日"
+  },
+  {
+   "Id": "hero-0024",
+   "Age": 24,
+   "Job": "服装店店员",
+   "Hobby": "养猫爱好者",
+   "Trait": "乐天派",
+   "Blood": "O+",
+   "Birthday": "11月13日"
+  },
+  {
+   "Id": "hero-0031",
+   "Age": 24,
+   "Job": "作词人",
+   "Hobby": "录播客爱好者",
+   "Trait": "毒舌",
+   "Blood": "O-",
+   "Birthday": "2月17日"
+  },
+  {
+   "Id": "hero-0032",
+   "Age": 21,
+   "Job": "芭蕾舞者",
+   "Hobby": "跳舞爱好者",
+   "Trait": "天然呆",
+   "Blood": "O+",
+   "Birthday": "8月5日"
+  },
+  {
+   "Id": "hero-0033",
+   "Age": 21,
+   "Job": "剧团演员",
+   "Hobby": "拍照爱好者",
+   "Trait": "完美主义",
+   "Blood": "O+",
+   "Birthday": "6月4日"
+  },
+  {
+   "Id": "hero-0034",
+   "Age": 20,
+   "Job": "音乐学院学生",
+   "Hobby": "卡拉OK爱好者",
+   "Trait": "天然呆",
+   "Blood": "A+",
+   "Birthday": "9月15日"
+  },
+  {
+   "Id": "hero-0035",
+   "Age": 18,
+   "Job": "舞蹈学院学生",
+   "Hobby": "看舞台剧爱好者",
+   "Trait": "毒舌",
+   "Blood": "O-",
+   "Birthday": "2月11日"
+  },
+  {
+   "Id": "hero-0037",
+   "Age": 23,
+   "Job": "网络主播",
+   "Hobby": "追剧爱好者",
+   "Trait": "好胜",
+   "Blood": "A-",
+   "Birthday": "5月21日"
+  },
+  {
+   "Id": "hero-0038",
+   "Age": 19,
+   "Job": "地下说唱歌手",
+   "Hobby": "写词爱好者",
+   "Trait": "乐天派",
+   "Blood": "A+",
+   "Birthday": "1月7日"
+  },
+  {
+   "Id": "hero-0200",
+   "Age": 18,
+   "Job": "健身操教练",
+   "Hobby": "跳舞爱好者",
+   "Trait": "温柔",
+   "Blood": "O+",
+   "Birthday": "5月9日"
+  },
+  {
+   "Id": "hero-0201",
+   "Age": 22,
+   "Job": "服装店店员",
+   "Hobby": "化妆爱好者",
+   "Trait": "傲娇",
+   "Blood": "B+",
+   "Birthday": "10月20日"
+  },
+  {
+   "Id": "hero-0202",
+   "Age": 21,
+   "Job": "驻唱歌手",
+   "Hobby": "听古典乐爱好者",
+   "Trait": "好胜",
+   "Blood": "A+",
+   "Birthday": "1月22日"
+  },
+  {
+   "Id": "hero-0203",
+   "Age": 24,
+   "Job": "芭蕾舞者",
+   "Hobby": "滑板爱好者",
+   "Trait": "元气",
+   "Blood": "AB+",
+   "Birthday": "8月5日"
+  },
+  {
+   "Id": "hero-0205",
+   "Age": 17,
+   "Job": "服装店店员",
+   "Hobby": "烘焙爱好者",
+   "Trait": "好胜",
+   "Blood": "O+",
+   "Birthday": "7月6日"
+  },
+  {
+   "Id": "hero-0207",
+   "Age": 21,
+   "Job": "音乐博主",
+   "Hobby": "涂鸦爱好者",
+   "Trait": "毒舌",
+   "Blood": "A+",
+   "Birthday": "7月26日"
+  },
+  {
+   "Id": "hero-0208",
+   "Age": 23,
+   "Job": "芭蕾舞者",
+   "Hobby": "健身爱好者",
+   "Trait": "好胜",
+   "Blood": "A+",
+   "Birthday": "9月18日"
+  },
+  {
+   "Id": "hero-0209",
+   "Age": 19,
+   "Job": "美妆博主",
+   "Hobby": "烘焙爱好者",
+   "Trait": "毒舌",
+   "Blood": "A+",
+   "Birthday": "9月2日"
+  },
+  {
+   "Id": "hero-0604",
+   "Age": 19,
+   "Job": "合唱团领唱",
+   "Hobby": "卡拉OK爱好者",
+   "Trait": "完美主义",
+   "Blood": "O+",
+   "Birthday": "6月28日"
+  },
+  {
+   "Id": "hero-0605",
+   "Age": 19,
+   "Job": "街舞教练",
+   "Hobby": "跑酷爱好者",
+   "Trait": "神秘",
+   "Blood": "A+",
+   "Birthday": "7月7日"
+  },
+  {
+   "Id": "hero-0607",
+   "Age": 20,
+   "Job": "剧团演员",
+   "Hobby": "拍照爱好者",
+   "Trait": "温柔",
+   "Blood": "O+",
+   "Birthday": "6月28日"
+  },
+  {
+   "Id": "hero-0608",
+   "Age": 24,
+   "Job": "音乐博主",
+   "Hobby": "涂鸦爱好者",
+   "Trait": "好胜",
+   "Blood": "B-",
+   "Birthday": "9月1日"
+  },
+  {
+   "Id": "hero-0610",
+   "Age": 17,
+   "Job": "健身操教练",
+   "Hobby": "逛街爱好者",
+   "Trait": "毒舌",
+   "Blood": "AB+",
+   "Birthday": "6月28日"
+  },
+  {
+   "Id": "hero-0611",
+   "Age": 22,
+   "Job": "网络主播",
+   "Hobby": "追剧爱好者",
+   "Trait": "温柔",
+   "Blood": "O+",
+   "Birthday": "10月4日"
+  },
+  {
+   "Id": "hero-0613",
+   "Age": 24,
+   "Job": "录音棚和声",
+   "Hobby": "卡拉OK爱好者",
+   "Trait": "元气",
+   "Blood": "AB-",
+   "Birthday": "6月23日"
+  },
+  {
+   "Id": "hero-0614",
+   "Age": 21,
+   "Job": "伴舞演员",
+   "Hobby": "跳舞爱好者",
+   "Trait": "温柔",
+   "Blood": "O+",
+   "Birthday": "10月9日"
+  },
+  {
+   "Id": "hero-0630",
+   "Age": 16,
+   "Job": "美妆博主",
+   "Hobby": "养猫爱好者",
+   "Trait": "乐天派",
+   "Blood": "O-",
+   "Birthday": "6月1日"
+  },
+  {
+   "Id": "hero-0633",
+   "Age": 20,
+   "Job": "电台DJ",
+   "Hobby": "打游戏爱好者",
+   "Trait": "神秘",
+   "Blood": "AB+",
+   "Birthday": "9月4日"
+  },
+  {
+   "Id": "hero-0634",
+   "Age": 21,
+   "Job": "芭蕾舞者",
+   "Hobby": "逛街爱好者",
+   "Trait": "神秘",
+   "Blood": "A+",
+   "Birthday": "6月9日"
+  },
+  {
+   "Id": "hero-0651",
+   "Age": 17,
+   "Job": "网络主播",
+   "Hobby": "逛街爱好者",
+   "Trait": "完美主义",
+   "Blood": "A+",
+   "Birthday": "6月27日"
+  },
+  {
+   "Id": "hero-0664",
+   "Age": 24,
+   "Job": "合唱团领唱",
+   "Hobby": "写歌爱好者",
+   "Trait": "乐天派",
+   "Blood": "O+",
+   "Birthday": "9月10日"
+  },
+  {
+   "Id": "hero-0668",
+   "Age": 24,
+   "Job": "芭蕾舞者",
+   "Hobby": "看舞台剧爱好者",
+   "Trait": "冷静",
+   "Blood": "O+",
+   "Birthday": "1月14日"
+  },
+  {
+   "Id": "hero-0670",
+   "Age": 17,
+   "Job": "美妆博主",
+   "Hobby": "逛街爱好者",
+   "Trait": "温柔",
+   "Blood": "B+",
+   "Birthday": "9月5日"
+  },
+  {
+   "Id": "hero-0671",
+   "Age": 16,
+   "Job": "电台DJ",
+   "Hobby": "收集球鞋爱好者",
+   "Trait": "傲娇",
+   "Blood": "O+",
+   "Birthday": "8月27日"
+  },
+  {
+   "Id": "hero-0672",
+   "Age": 17,
+   "Job": "健身操教练",
+   "Hobby": "健身爱好者",
+   "Trait": "傲娇",
+   "Blood": "O+",
+   "Birthday": "7月2日"
+  },
+  {
+   "Id": "hero-0673",
+   "Age": 23,
+   "Job": "网络主播",
+   "Hobby": "逛街爱好者",
+   "Trait": "元气",
+   "Blood": "B+",
+   "Birthday": "6月27日"
+  },
+  {
+   "Id": "hero-0674",
+   "Age": 23,
+   "Job": "音乐学院学生",
+   "Hobby": "写歌爱好者",
+   "Trait": "完美主义",
+   "Blood": "O+",
+   "Birthday": "12月6日"
+  },
+  {
+   "Id": "hero-0675",
+   "Age": 17,
+   "Job": "芭蕾舞者",
+   "Hobby": "跳舞爱好者",
+   "Trait": "温柔",
+   "Blood": "O+",
+   "Birthday": "7月5日"
+  },
+  {
+   "Id": "hero-0676",
+   "Age": 24,
+   "Job": "剧团演员",
+   "Hobby": "烘焙爱好者",
+   "Trait": "慢热",
+   "Blood": "O-",
+   "Birthday": "5月14日"
+  },
+  {
+   "Id": "hero-1006",
+   "Age": 23,
+   "Job": "说唱社团长",
+   "Hobby": "录播客爱好者",
+   "Trait": "乐天派",
+   "Blood": "O+",
+   "Birthday": "5月6日"
+  },
+  {
+   "Id": "hero-1008",
+   "Age": 23,
+   "Job": "街舞教练",
+   "Hobby": "跳舞爱好者",
+   "Trait": "乐天派",
+   "Blood": "B+",
+   "Birthday": "7月21日"
+  },
+  {
+   "Id": "hero-1011",
+   "Age": 16,
+   "Job": "服装店店员",
+   "Hobby": "养猫爱好者",
+   "Trait": "慢热",
+   "Blood": "B+",
+   "Birthday": "9月25日"
+  },
+  {
+   "Id": "hero-1013",
+   "Age": 18,
+   "Job": "音乐学院学生",
+   "Hobby": "哼歌爱好者",
+   "Trait": "元气",
+   "Blood": "A+",
+   "Birthday": "3月16日"
+  },
+  {
+   "Id": "hero-1014",
+   "Age": 24,
+   "Job": "健身操教练",
+   "Hobby": "逛街爱好者",
+   "Trait": "爱撒娇",
+   "Blood": "O-",
+   "Birthday": "9月19日"
+  },
+  {
+   "Id": "hero-1016",
+   "Age": 23,
+   "Job": "美妆博主",
+   "Hobby": "养猫爱好者",
+   "Trait": "冷静",
+   "Blood": "O+",
+   "Birthday": "4月4日"
+  },
+  {
+   "Id": "hero-1034",
+   "Age": 20,
+   "Job": "地下说唱歌手",
+   "Hobby": "玩滑板爱好者",
+   "Trait": "慢热",
+   "Blood": "O-",
+   "Birthday": "6月12日"
+  },
+  {
+   "Id": "hero-1035",
+   "Age": 20,
+   "Job": "伴舞演员",
+   "Hobby": "跳舞爱好者",
+   "Trait": "天然呆",
+   "Blood": "A+",
+   "Birthday": "11月11日"
+  },
+  {
+   "Id": "hero-1036",
+   "Age": 20,
+   "Job": "网络主播",
+   "Hobby": "化妆爱好者",
+   "Trait": "慢热",
+   "Blood": "B-",
+   "Birthday": "8月17日"
+  },
+  {
+   "Id": "hero-1037",
+   "Age": 19,
+   "Job": "音乐学院学生",
+   "Hobby": "写歌爱好者",
+   "Trait": "傲娇",
+   "Blood": "B+",
+   "Birthday": "1月15日"
+  }
+ ]
+}

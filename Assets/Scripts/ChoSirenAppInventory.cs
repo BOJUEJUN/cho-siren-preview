@@ -29,108 +29,147 @@ namespace ChoSiren
             return c;
         }
 
+        private int inventoryPage;
+        private const string InventoryArt = "Art/Ui1107/";
+        /// <summary>PSD (装备2.psd, 1329 wide) → board: 0.65 scale, PSD y 107 (the pig's top) at board y 195 under the HUD.</summary>
+        private static Rect Inv1107(float x, float y, float w, float h) => new Rect(x * .65f, 195f + (y - 107f) * .65f, w * .65f, h * .65f);
+        private static readonly float[] InventoryRowY = { 597f, 905f, 1195f, 1518f };
+        private static readonly float[] InventoryCellX = { 298f, 542f, 783f, 1019f };
+        private const int InventoryPerRow = 4;
+
+        /// <summary>
+        /// 2026-11-07 库存 (赵金 装备2.psd): title sticker, 饰品 / 图鉴 tabs and the sort chip over the PSD frame; one row
+        /// per slot (耳饰 / 项链 / 手饰 / 头饰) with four cells each, the cell's fill and bottom bar showing the quality.
+        /// ‹ › pages every row together (会议: 库存分页).
+        /// </summary>
         private void BuildInventory()
         {
-            RectTransform root = ReferenceBoard038("InventoryBoard", "Art/Reference038/team-board-038");
-            int slotFilter = Mathf.Clamp(equipmentSlotFilter, -1, GameModel.EquipmentSlotCount - 1);
+            RectTransform root = ReferenceBoard038("InventoryBoard", InventoryArt + "page-bg-board");
 
-            // ---- dark header card
-            GameObject header = NewImage("InventoryHeader", root, null, new Color32(14, 10, 22, 245));
-            PlaceTop(header.GetComponent<RectTransform>(), 30, 200, 803, 236);
-            SirenStickerUi.SkinPanel(header);
-            header.GetComponent<Image>().raycastTarget = false;
-            GameObject accent = NewImage("Accent", header.transform, null, Brand1025.Teal);
-            PlaceTop(accent.GetComponent<RectTransform>(), 30, 26, 6, 52);
-            SirenStickerUi.SkinTitle(BoardText038(header.transform, "Title", "库存", 54, White, 48, 14, 300, 72), true);
-            // 2026-11-01 visual-b: the explanation line lives behind 「?」.
-            VisualB1101.HelpButton(header.transform, "InventoryHelp", 214, 30, 40, "饰品说明", AccessoryHelpLines);
+            Image frame = NewImage("InventoryFrame", root, Resources.Load<Sprite>(InventoryArt + "inv-frame"), White).GetComponent<Image>();
+            frame.type = Image.Type.Sliced;
+            frame.pixelsPerUnitMultiplier = 1f / .65f;
+            frame.raycastTarget = false;
+            Rect frameRect = Inv1107(30, 240, 1270, 0);
+            PlaceTop(frame.rectTransform, frameRect.x, frameRect.y, frameRect.width, 1460f - frameRect.y);
+
+            InventoryArtImage(root, "InventoryTitle", "inv-title", Inv1107(60, 207, 312, 223));
+            Rect help = Inv1107(380, 279, 63, 62);
+            VisualB1101.HelpButton(root, "InventoryHelp", help.x, help.y, help.width, "饰品说明", AccessoryHelpLines);
+
             string[] tabs = { "饰品", "图鉴" };
+            Rect[] tabRects = { Inv1107(81, 427, 261, 98), Inv1107(351, 430, 242, 94) };
             for (int i = 0; i < tabs.Length; i++)
             {
                 bool active = inventoryCatalog == (i == 1);
                 bool catalog = i == 1;
-                GameObject tab = BoardButton038("InventoryTab-" + i, header.transform, new Rect(24 + i * 182, 146, 170, 64), () =>
-                { inventoryCatalog = catalog; ShowScreen("accessory"); });
+                GameObject tab = BoardButton038("InventoryTab-" + i, root, tabRects[i], () =>
+                { inventoryCatalog = catalog; inventoryPage = 0; ShowScreen("accessory"); });
                 Image face = tab.GetComponent<Image>();
-                face.sprite = PunkUi.SlantFill;
-                face.color = active ? (Color)PunkUi.Hot : new Color32(38, 32, 50, 255);
-                BoardText038(tab.transform, "Label", tabs[i], 24, White, 0, 0, 170, 64, TextAnchor.MiddleCenter);
-                SirenPageChrome.Tab(tab, active);
+                face.sprite = Resources.Load<Sprite>(InventoryArt + (active ? "inv-tab-on" : "inv-tab-off"));
+                face.color = White;
+                BoardText038(tab.transform, "Label", tabs[i], 24, active ? (Color)Brand1025.Ink : White, 0, 0, tabRects[i].width, tabRects[i].height,
+                    TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
             }
-            GameObject sort = BoardButton038("InventorySort", header.transform, new Rect(530, 146, 250, 64), () =>
-            { inventorySort = (inventorySort + 1) % InventorySortNames.Length; ShowScreen("accessory"); });
-            sort.GetComponent<Image>().sprite = PunkUi.SlantFill;
-            sort.GetComponent<Image>().color = new Color32(38, 32, 50, 255);
-            Text sortLabel = BoardText038(sort.transform, "Label", InventorySortNames[inventorySort], 22, White, 30, 0, 220, 64, TextAnchor.MiddleCenter);
-            VisualB1101.NeonIcon(sort.transform, "SortIcon", "sort", Brand1025.Teal, 104 - sortLabel.preferredWidth * .5f, 18, 28, false);
-            SirenStickerUi.SkinButton(sort, false, true);
 
-            // ---- light inventory panel
-            GameObject panel = NewImage("InventoryPanel", root, null, InventoryPanel);
-            PlaceTop(panel.GetComponent<RectTransform>(), 30, 450, 803, 1090);
-            panel.GetComponent<Image>().raycastTarget = false;
-            Outline panelEdge = panel.AddComponent<Outline>();
-            panelEdge.effectColor = new Color32(255, 46, 147, 150);
-            panelEdge.effectDistance = new Vector2(2, -2);
-            SirenStickerUi.SkinPanel(panel, false);
+            Rect sortRect = Inv1107(910, 430, 330, 100);
+            GameObject sort = BoardButton038("InventorySort", root, sortRect, () =>
+            { inventorySort = (inventorySort + 1) % InventorySortNames.Length; inventoryPage = 0; ShowScreen("accessory"); });
+            sort.GetComponent<Image>().sprite = Resources.Load<Sprite>(InventoryArt + "inv-sort");
+            sort.GetComponent<Image>().color = White;
+            BoardText038(sort.transform, "Label", InventorySortNames[inventorySort] + "  ▼", 22, White, 66, 0, sortRect.width - 76, sortRect.height,
+                TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
 
-            // Vertical slot filter (全部 + the four equipment slots).
-            for (int f = -1; f < GameModel.EquipmentSlotCount; f++)
+            InventoryArtImage(root, "InventoryPig", "inv-pig", Inv1107(869, 107, 422, 329));
+
+            // One row per slot; every row shows the same page.
+            int pages = 1;
+            int[][] rows = new int[GameModel.EquipmentSlotCount][];
+            for (int slot = 0; slot < rows.Length; slot++)
             {
-                int filter = f;
-                bool active = slotFilter == f;
-                GameObject chip = BoardButton038("InventoryFilter-" + (f + 1), panel.transform, new Rect(20, 24 + (f + 1) * 104, 104, 92), () =>
-                { equipmentSlotFilter = filter; ShowScreen("accessory"); });
-                chip.GetComponent<Image>().color = active ? (Color)PunkUi.Hot : new Color32(44, 38, 56, 255);
-                if (f < 0) BoardText038(chip.transform, "Label", "全部", 24, White, 0, 0, 104, 92, TextAnchor.MiddleCenter);
-                else
+                rows[slot] = InventoryItems(slot);
+                pages = Mathf.Max(pages, Mathf.CeilToInt(rows[slot].Length / (float)InventoryPerRow));
+            }
+            inventoryPage = Mathf.Clamp(inventoryPage, 0, pages - 1);
+            RectTransform grid = NewObject("InventoryGrid", root).AddComponent<RectTransform>();
+            Stretch(grid);
+            for (int slot = 0; slot < rows.Length; slot++)
+            {
+                InventoryArtImage(grid, "InventorySlot-" + slot, "inv-slot-" + slot, Inv1107(58, InventoryRowY[slot], 207, 138));
+                for (int c = 0; c < InventoryPerRow; c++)
                 {
-                    int sample = Enumerable.Range(0, GameModel.AccessoryNames.Length).FirstOrDefault(i => GameModel.AccessorySlot(i) == filter);
-                    GameObject icon = NewImage("Icon", chip.transform, AccessoryItemSprite(sample), White);
-                    PlaceTop(icon.GetComponent<RectTransform>(), 22, 6, 60, 54);
-                    icon.GetComponent<Image>().preserveAspect = true;
-                    icon.GetComponent<Image>().raycastTarget = false;
-                    BoardText038(chip.transform, "Label", GameModel.EquipmentSlotNames[f], 17, White, 0, 60, 104, 28, TextAnchor.MiddleCenter);
+                    int n = inventoryPage * InventoryPerRow + c;
+                    Rect cell = Inv1107(InventoryCellX[c], InventoryRowY[slot] + 2f, 218, 281);
+                    if (n < rows[slot].Length)
+                    {
+                        int item = rows[slot][n];
+                        InventoryCell1107(grid, item, cell, () => OpenAccessoryCard(item, -1));
+                    }
+                    else InventoryArtImage(grid, $"InventoryEmpty-{slot}-{c}", "inv-cell-empty", cell);
                 }
-                SirenPageChrome.Tab(chip, active);
             }
 
-            int[] items = InventoryItems(slotFilter);
-            BoardText038(panel.transform, "InventoryCount", inventoryCatalog
-                ? $"已收集 {model.Save.OwnedAccessories.Distinct().Count()}/{GameModel.AccessoryNames.Length}"
-                : $"共 {items.Length} 件", 18, new Color32(169, 156, 196, 255), 20, 560, 110, 60, TextAnchor.MiddleCenter);
+            int owned = model.Save.OwnedAccessories.Distinct().Count();
+            BoardText038(root, "InventoryCount", inventoryCatalog ? $"已收集 {owned}/{GameModel.AccessoryNames.Length}" : $"共 {owned} 件",
+                20, new Color32(190, 178, 222, 255), 50, 1322, 200, 50, TextAnchor.MiddleLeft);
+            // ‹ 1/3 › with the shared switch arrows.
+            BoardText038(root, "InventoryPage", $"{inventoryPage + 1}/{pages}", 26, White, 382, 1318, 100, 56, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
+            Button previous = SwitchArrow1107.Create(root, "InventoryPreviousPage", -1, new Rect(300, 1306, 80, 80), () =>
+            { inventoryPage = (inventoryPage - 1 + pages) % pages; ShowScreen("accessory"); });
+            Button next = SwitchArrow1107.Create(root, "InventoryNextPage", 1, new Rect(484, 1306, 80, 80), () =>
+            { inventoryPage = (inventoryPage + 1) % pages; ShowScreen("accessory"); });
+            previous.interactable = next.interactable = pages > 1;
 
-            // Scrolling 5-column grid.
-            const float viewX = 140f, viewY = 18f, viewW = 650f, viewH = 1056f;
-            const float tileW = 118f, tileH = 140f, gapX = 12f, gapY = 14f;
-            GameObject viewport = NewImage("InventoryViewport", panel.transform, null, new Color(1, 1, 1, .004f));
-            PlaceTop(viewport.GetComponent<RectTransform>(), viewX, viewY, viewW, viewH);
-            viewport.AddComponent<RectMask2D>();
-            GameObject contentObject = NewObject("InventoryGrid", viewport.transform);
-            RectTransform grid = contentObject.AddComponent<RectTransform>();
-            int rows = Mathf.Max(1, (items.Length + 4) / 5);
-            PlaceTop(grid, 0, 0, viewW, rows * (tileH + gapY) + 10);
-            ScrollRect scroll = viewport.AddComponent<ScrollRect>();
-            scroll.content = grid;
-            scroll.horizontal = false;
-            scroll.vertical = true;
-            scroll.movementType = ScrollRect.MovementType.Clamped;
-            scroll.scrollSensitivity = 30f;
-            scroll.viewport = viewport.GetComponent<RectTransform>();
-            for (int n = 0; n < items.Length; n++)
+            if (owned == 0 && !inventoryCatalog)
             {
-                int item = items[n];
-                Rect cell = new Rect(4 + (n % 5) * (tileW + gapX), 4 + (n / 5) * (tileH + gapY), tileW, tileH);
-                InventoryTileView(grid, item, cell, () => OpenAccessoryCard(item, -1));
-            }
-            if (items.Length == 0)
-            {
-                // Empty: a big muted hanger + one 「去关卡」 button instead of a sentence.
-                VisualB1101.NeonIcon(grid, "InventoryEmptyIcon", "hanger", new Color32(169, 156, 196, 160), viewW * .5f - 70, 150, 140);
-                GameObject go = ModalPolish038Chrome.ActionButton(grid, "InventoryEmpty", "去关卡", 24, OpenLevelMap, ModalPolish038ButtonStyle.Primary);
-                PlaceTop(go.GetComponent<RectTransform>(), viewW * .5f - 120, 320, 240, 72);
+                GameObject go = ModalPolish038Chrome.ActionButton(root, "InventoryEmpty", "去关卡", 24, OpenLevelMap, ModalPolish038ButtonStyle.Primary);
+                PlaceTop(go.GetComponent<RectTransform>(), 600, 1310, 210, 64);
                 VisualB1101.AddButtonIcon(go, "pin");
             }
+        }
+
+        private GameObject InventoryArtImage(Transform parent, string name, string sprite, Rect rect)
+        {
+            GameObject go = NewImage(name, parent, Resources.Load<Sprite>(InventoryArt + sprite), White);
+            PlaceTop(go.GetComponent<RectTransform>(), rect.x, rect.y, rect.width, rect.height);
+            go.GetComponent<Image>().raycastTarget = false;
+            return go;
+        }
+
+        /// <summary>Quality cell art for a rarity: grey / teal / purple / pink (Legendary shares pink with a gold rim).</summary>
+        private static int InventoryQuality(int item)
+        {
+            int rarity = (int)GameModel.AccessoryRarityOf(item);
+            return Mathf.Clamp(rarity, 0, 3);
+        }
+
+        /// <summary>One PSD cell: quality fill + bar, the item art, LV and the wearer's face; dim when not owned.</summary>
+        private GameObject InventoryCell1107(Transform parent, int item, Rect cell, UnityEngine.Events.UnityAction action)
+        {
+            bool owned = model.OwnsAccessory(item);
+            GameObject tile = BoardButton038("Accessory-" + item, parent, cell, action);
+            Image face = tile.GetComponent<Image>();
+            face.sprite = Resources.Load<Sprite>(InventoryArt + "inv-cell-q" + InventoryQuality(item));
+            face.color = owned ? White : new Color(.55f, .52f, .62f, .75f);
+            if (GameModel.AccessoryRarityOf(item) == GameModel.AccessoryRarity.Legendary)
+            {
+                Outline gold = tile.AddComponent<Outline>();
+                gold.effectColor = new Color32(255, 205, 96, 200);
+                gold.effectDistance = new Vector2(2f, -2f);
+            }
+            GameObject art = NewImage("ItemArt", tile.transform, AccessoryItemSprite(item), owned ? White : new Color(.45f, .4f, .55f, .5f));
+            PlaceTop(art.GetComponent<RectTransform>(), 14, 18, cell.width - 28, cell.height - 64);
+            art.GetComponent<Image>().preserveAspect = true;
+            art.GetComponent<Image>().raycastTarget = false;
+            if (owned)
+            {
+                BoardText038(tile.transform, "LvTag", "LV.", 11, InventoryInk, 8, cell.height - 50, 30, 14);
+                BoardText038(tile.transform, "Level", (model.AccessoryUpgradeLevel(item) + 1).ToString("00"), 24, InventoryInk, 6, cell.height - 42, 56, 30);
+                int wearer = model.AccessoryOwner(item);
+                if (wearer >= 0) MemberHead1101(tile.transform, "Wearer", wearer, cell.width - 48, cell.height - 56, 42, Brand1025.Teal);
+            }
+            else BoardText038(tile.transform, "Locked", "未获得", 15, InventoryInk, 0, cell.height - 40, cell.width, 24, TextAnchor.MiddleCenter);
+            return tile;
         }
 
         private int[] InventoryItems(int slotFilter)

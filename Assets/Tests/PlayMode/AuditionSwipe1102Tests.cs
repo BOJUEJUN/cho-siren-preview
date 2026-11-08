@@ -99,7 +99,7 @@ namespace ChoSiren.Tests
                 Assert.That(model.Save.UnlockedMembers.Count, Is.EqualTo(owned), "a swipe never signs a candidate");
                 Assert.That(panel.GetComponentsInChildren<Transform>().Any(t => t.name == "SignConfirmOverlay"), Is.False);
                 Canvas.ForceUpdateCanvases(); Capture(camera, target, "next-candidate.png");
-                foreach (string name in new[] { "PreviousCandidate", "NextCandidate", "InterviewPool-0", "InterviewPool-1", "ViewInterview", "SignCandidate" })
+                foreach (string name in new[] { "PreviousCandidate", "NextCandidate", "InterviewPool-0", "InterviewPool-1", "SignCandidate" })
                     AssertReachable(Find(panel, name).GetComponent<Button>(), raycaster, camera);
                 Button next = Find(panel, "NextCandidate").GetComponent<Button>();
                 Click(next, raycaster, camera); yield return null;

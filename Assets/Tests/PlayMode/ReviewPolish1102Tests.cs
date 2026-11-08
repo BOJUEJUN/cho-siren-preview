@@ -132,16 +132,17 @@ namespace ChoSiren.Tests
                     Transform root = app.GetComponentsInChildren<Transform>().First(t => t.name == "TeamReferenceBoard038");
                     Text title = root.Find("TeamTitle").GetComponent<Text>();
                     Assert.That(title.text, Is.EqualTo("超神队"));
-                    RectTransform plate = root.Find("SirenTitlePlate-TeamTitle") as RectTransform;
+                    // 2026-11-07 (团队.psd): the name sits on the PSD plate (RenameTeamTitle) with the pencil right beside it;
+                    // the power number fills the black banner and shrinks to fit long values.
+                    RectTransform plate = root.Find("RenameTeamTitle") as RectTransform;
                     RectTransform pencil = root.Find("RenameTeam/Pencil") as RectTransform;
                     float pencilGap = BoundsIn(pencil, root).xMin - BoundsIn(plate, root).xMax;
-                    Assert.That(pencilGap, Is.InRange(0f, 22f), "pencil should sit beside the name plate");
-                    Transform power = root.Find("TeamPowerReadout");
-                    Text value = power.Find("TeamPowerValue").GetComponent<Text>();
-                    RectTransform bolt = power.Find("PowerIcon") as RectTransform;
+                    Assert.That(pencilGap, Is.InRange(0f, 40f), "pencil should sit beside the name plate");
+                    Text value = root.Find("TeamPowerValue").GetComponent<Text>();
                     Assert.That(value.text.Replace(",", "").Length, Is.EqualTo(digits));
-                    float powerGap = RenderedTextLeft(value, power) - BoundsIn(bolt, power).xMax;
-                    Assert.That(powerGap, Is.InRange(-4f, 24f), "bolt should follow visible numbers, including long values");
+                    Rect box = BoundsIn((RectTransform)value.transform, root);
+                    float rendered = Mathf.Min(value.preferredWidth, value.rectTransform.rect.width);
+                    Assert.That(rendered, Is.LessThanOrEqualTo(box.width + 1f), "long power values stay inside the banner");
                     Capture(camera, target, "team-" + digits + "digits.png");
                 }
             }

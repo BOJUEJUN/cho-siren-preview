@@ -56,7 +56,7 @@ namespace ChoSiren.Tests
         {
             Assert.That(GameModel.LevelReward1104(5), Does.Contain((CurrencyIds.RecruitTicket, 1)));
             Assert.That(GameModel.LevelReward1104(10), Does.Contain((CurrencyIds.RecruitTicket, 2)));
-            Assert.That(GameModel.LevelReward1104(10), Does.Contain((CurrencyIds.VoiceCore, 1)));
+            Assert.That(GameModel.LevelReward1104(10), Does.Contain((CurrencyIds.VoiceCore, 3)));
             Assert.That(GameModel.LevelReward1104(7).Exists(r => r.Item1 == CurrencyIds.RecruitTicket), Is.False);
             foreach (var r in GameModel.LevelReward1104(30)) Assert.That(r.Item1, Is.Not.EqualTo(CurrencyIds.Diamond));
         }

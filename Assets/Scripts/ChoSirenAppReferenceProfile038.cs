@@ -102,7 +102,7 @@ namespace ChoSiren
             ProfileSkill038(skills.transform, "MemberSkillPrimary", firstName, firstEffect, 0, Accent);
             ProfileSkill038(skills.transform, "MemberSkillSecondary", secondName, secondEffect, 153, Cyan);
             GameObject stats = ProfileGroup038(page, "MemberStatPanel", new Rect(505, 873, 292, 265));
-            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] labels = { "声乐", "说唱", "舞蹈", "名气", "颜值" };
             string[] names = { "MemberStatVocal", "MemberStatRhythm", "MemberStatPresence", "MemberStatResonance", "MemberStatCharm" };
             int[] values = { vocal, rhythm, dance, fame, beauty };
             for (int i = 0; i < labels.Length; i++)

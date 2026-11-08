@@ -46,7 +46,7 @@ namespace ChoSiren
         public static List<(string ItemId, int Amount)> LevelReward1104(int level)
         {
             var reward = new List<(string, int)> { (CurrencyIds.Gold, 300 + 100 * level), (CurrencyIds.Stamina, 30) };
-            if (level % 10 == 0) { reward.Add((CurrencyIds.RecruitTicket, 2)); reward.Add((CurrencyIds.VoiceCore, 1)); }
+            if (level % 10 == 0) { reward.Add((CurrencyIds.RecruitTicket, 2)); reward.Add((CurrencyIds.VoiceCore, 3)); } // 1107: 3 通用生魂
             else if (level % 5 == 0) reward.Add((CurrencyIds.RecruitTicket, 1));
             else if (level % 3 == 0) reward.Add((CurrencyIds.VoiceCrystal, 3));
             return reward;

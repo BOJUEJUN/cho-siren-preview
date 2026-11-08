@@ -155,26 +155,22 @@ namespace ChoSiren.Tests
         [Test]
         public void TappingAStageFigureSwitchesTheTraineeAndOnlyThatMemberTrains()
         {
+            // 2026-11-07: the camera view's leads are tap targets; the ▼ marker follows the trainee.
             var model = new GameModel();
             MemberPracticePanel panel = MemberPracticePanel.Open(host.transform, model, 0);
-            ChoSiren.UI.SirenPracticeScene stage = panel.Stage;
+            ChoSiren.UI.PracticeVideoStage1107 stage = panel.Stage;
             Assert.That(stage, Is.Not.Null);
-            Assert.That(stage.Count, Is.EqualTo(model.Save.UnlockedMembers.Count), "舞台上的小人＝实际拥有的成员");
             Assert.That(stage.SelectedMember, Is.EqualTo(0));
 
             const int target = 1;
             MemberDefinition member = GameModel.Members[target];
+            Assert.That(member.Id, Is.EqualTo("feiyin"));
             int targetLevel = model.LevelOf(target), firstLevel = model.LevelOf(0);
-            Find<Button>(panel.transform, "PracticeActor-" + member.Id).onClick.Invoke();
+            Find<Button>(panel.transform, "Lead-" + member.Id).onClick.Invoke();
 
             Assert.That(panel.MemberIndex, Is.EqualTo(target));
             Assert.That(stage.SelectedMember, Is.EqualTo(target));
-            Assert.That(stage.SelectionAmount(target), Is.EqualTo(1f));
-            Assert.That(stage.SelectionAmount(0), Is.EqualTo(0f));
-            Transform chosenBody = stage.ActorRect(target).Find("Body");
-            Transform otherBody = stage.ActorRect(0).Find("Body");
-            Assert.That(chosenBody.localScale.y, Is.GreaterThan(otherBody.localScale.y * 1.15f), "选中的小人要放大上前");
-            Assert.That(chosenBody.Find("SelectGlow"), Is.Not.Null, "选中的小人要有发光描边");
+            Assert.That(Find<RectTransform>(panel.transform, "LeadMarker").gameObject.activeSelf, Is.True);
             Assert.That(Find<Image>(panel.transform, "PracticePortrait").sprite,
                 Is.EqualTo(Resources.Load<Sprite>(member.ResourcePath)));
             Assert.That(Find<Text>(panel.transform, "PracticeMemberName").text, Is.EqualTo(member.Name));
@@ -188,6 +184,21 @@ namespace ChoSiren.Tests
             Assert.That(model.LevelOf(0), Is.EqualTo(firstLevel), "切换后不得再给原成员升级");
             Assert.That(Find<Text>(panel.transform, "PracticeDelta-等级").text,
                 Does.Contain(targetLevel.ToString()).And.Contain("→"));
+        }
+
+        [Test]
+        public void SwitchArrowsCycleOwnedMembers()
+        {
+            var model = new GameModel();
+            MemberPracticePanel panel = MemberPracticePanel.Open(host.transform, model, 0);
+            var roster = panel.Stage.Roster;
+            Assume.That(roster.Count, Is.GreaterThan(1));
+            Find<Button>(panel.transform, "PracticeNextMember").onClick.Invoke();
+            Assert.That(panel.MemberIndex, Is.EqualTo(roster[1]));
+            Find<Button>(panel.transform, "PracticePreviousMember").onClick.Invoke();
+            Assert.That(panel.MemberIndex, Is.EqualTo(roster[0]));
+            Find<Button>(panel.transform, "PracticePreviousMember").onClick.Invoke();
+            Assert.That(panel.MemberIndex, Is.EqualTo(roster[roster.Count - 1]), "‹ wraps to the last member");
         }
 
         private static T Find<T>(Transform root, string name) where T : Component

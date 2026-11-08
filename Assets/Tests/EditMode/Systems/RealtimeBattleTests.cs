@@ -20,10 +20,11 @@ namespace ChoSiren.Tests
         [TestCase(1, 280, 40, 6, 50)]
         [TestCase(5, 342, 47, 6, 88)]
         [TestCase(10, 441, 57, 7, 176)]
-        [TestCase(30, 1217, 131, 14, 2879)]
-        // 2026-11-04: training cost grows ×1.08 a level after Lv30 (was ×1.15 all the way).
-        [TestCase(68, 8360, 629, 49, 53618)]
-        [TestCase(100, 42336, 2349, 135, 629319)]
+        [TestCase(30, 1217, 131, 14, 2880)]
+        // 2026-11-07 (Lv200): after Lv30 growth runs at half a step a level and gold grows +54 a level.
+        [TestCase(68, 3190, 288, 27, 4932)]
+        [TestCase(100, 7180, 556, 45, 6660)]
+        [TestCase(200, 90563, 4354, 217, 12006)]
         public void CompoundingUsesEachAuthoredFormulaInsteadOfConflictingIllustrativeTables(
             int level, int hp, int attack, int defense, int trainingCost)
         {

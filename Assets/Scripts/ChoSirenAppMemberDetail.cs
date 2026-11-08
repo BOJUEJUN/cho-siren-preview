@@ -445,7 +445,7 @@ namespace ChoSiren
         {
             GameModel.StageStats(m, memberIndex, model.SigningChannelOf(memberIndex) == 0 ? 0 : 1, level,
                 out int vocal, out int rap, out int dance, out int fame, out int beauty);
-            string[] names = { "声波", "说唱", "舞蹈", "名气", "颜值", "薪资", "风险" };
+            string[] names = { "声乐", "说唱", "舞蹈", "名气", "颜值", "薪资", "风险" };
             string[] values = { vocal.ToString(), rap.ToString(), dance.ToString(), fame.ToString(), beauty.ToString(),
                 $"{model.EstimatedMonthlySalary(memberIndex):N0}/期", model.RiskOf(memberIndex).ToString() };
             RectTransform content = DetailTextScroll(panel, width, "DetailProfileScroll");

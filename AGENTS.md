@@ -2,7 +2,7 @@
 
 Keep this file short. Load only the document that matches the work:
 
-- **Start here:** `Docs/AI-HANDOFF.md` — the only current handoff (game 0.9.39 public / 0.9.38 private on both iPhones, AI 换装, enzoban.com site, secrets, release flow). Earlier handoff docs were deleted 2026-11-06; use git history if needed.
+- **Start here:** `Docs/AI-HANDOFF.md` — the only current handoff (game 0.9.39 public; 0.9.40 test build on 伯爵君 iPhone + local Mac, uncommitted; AI 换装, enzoban.com site, secrets, release flow). Earlier handoff docs were deleted 2026-11-06; use git history if needed.
 - Release records: `Docs/FULL-RELEASE-2026-11-07-0939.md` (latest), `Docs/BALANCE-1104.md` for level/balance rules
 - WebGL build or publishing: `Docs/WEBGL-RELEASE-SAFETY-2026-09-05.md`
 - Battle UI or feedback: `Docs/BATTLE-UI-2026-09-05.md` and `Docs/BATTLE-FEEDBACK-20260907.md`

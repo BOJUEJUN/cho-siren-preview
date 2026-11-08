@@ -422,9 +422,10 @@ namespace ChoSiren.Tests
                 Is.False, "钻石余额应由主界面顶栏统一显示。");
             Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item => item.name == "BalanceGold"),
                 Is.False, "星光币余额应由主界面顶栏统一显示。");
+            // 2026-11-07 会议: keep SSR / SR on the interview card (no ten-pull) — 选秀.psd shows it.
             Assert.That(panel.GetComponentsInChildren<Text>(true).Any(label =>
-                    label.text == "SSR" || label.text == "SR" || label.text == "R"),
-                Is.False, "选秀候选页不应再显示抽卡稀有度。");
+                    label.name == "CandidateRarity" && (label.text == "SSR" || label.text == "SR")),
+                Is.True, "面试卡显示 SSR / SR 分级。");
 
             Assert.That(FindNamed<Transform>(panel.transform, "InterviewPool-0"), Is.Not.Null);
             Assert.That(FindNamed<Transform>(panel.transform, "InterviewPool-1"), Is.Not.Null);
@@ -433,54 +434,35 @@ namespace ChoSiren.Tests
                 Does.Contain("18:00"));
             Assert.That(panel.InterviewPoolIndex, Is.Zero);
 
-            RectTransform card = FindNamed<RectTransform>(panel.transform, "CandidateCard");
+            // 2026-11-07 (选秀.psd): ID-card stack + paper card; the sign hit sits on the board's 面试 button.
+            Assert.That(FindNamed<RectTransform>(panel.transform, "CandidateCard"), Is.Not.Null);
             RectTransform actions = FindNamed<RectTransform>(panel.transform, "InterviewActions");
-            // 斜卡使用中心 pivot：真实底边 = -anchored.y + 高·(1-pivot.y)，不能用旧枢轴公式。
-            Assert.That(-card.anchoredPosition.y + card.rect.height * (1f - card.pivot.y),
-                Is.LessThanOrEqualTo(1290f));
-            // 授权整页把签约区烘进 y1400–1668 的契约构图；透明命中区对齐该烘区，
-            // 不得再套用旧内容面板 1290 上限。
-            Assert.That(-actions.anchoredPosition.y, Is.GreaterThanOrEqualTo(1380f),
-                "签约操作区必须落在授权契约带内。");
-            Assert.That(-actions.anchoredPosition.y + actions.rect.height, Is.LessThanOrEqualTo(1670f),
-                "签约操作区不得越出授权契约带。");
+            Assert.That(FindButton(actions, "SignCandidate"), Is.Not.Null, "签约（面试）按钮在操作区内。");
             Assert.That(FindNamed<Transform>(panel.transform, "PreviousCandidate"), Is.Not.Null);
             Assert.That(FindNamed<Transform>(panel.transform, "NextCandidate"), Is.Not.Null);
 
-            Image portrait = FindNamed<Image>(panel.transform, "CandidatePortrait");
+            Image portrait = FindNamed<Image>(panel.transform, "CandidatePortraitArt");
             Assert.That(portrait.sprite, Is.Not.Null, "候选卡必须使用现有本地角色立绘。");
-            Assert.That(portrait.preserveAspect, Is.True, "候选立绘不能被拉伸。");
             Assert.That(FindNamed<Text>(panel.transform, "CandidateName").text, Is.Not.Empty);
-            // 2026-11-01 visual-b: identity = race badge + role chip + battle-position chip (no sentence).
-            Assert.That(FindNamed<Image>(panel.transform, "CandidateRace").sprite, Is.Not.Null, "种族用徽章表达。");
-            Assert.That(FindNamed<Text>(panel.transform, "CandidateCareer").text,
-                Does.Match("^(主唱|主舞|Rapper|门面)$"), "候选资料必须使用新版四种偶像职业。");
-            Assert.That(FindNamed<Text>(panel.transform, "CandidatePosition").text,
-                Does.Match("治疗|增益|输出|共鸣|破甲|护盾|毒伤|斩杀"), "候选资料必须在职能之后给出阵容定位。");
-            Assert.That(FindNamed<Transform>(panel.transform, "CandidatePositionChip").Find("Icon"), Is.Not.Null,
-                "阵容定位带图标。");
+            Assert.That(FindNamed<Text>(panel.transform, "CandidateProfile").text, Does.Contain("岁"), "名字下一行是年龄、职业、爱好。");
 
-            string[] statKeys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
-            string[] statNames = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            // 声乐 / 舞蹈 / 说唱 / 名气 with a rank letter each (颜值 is not on the PSD card).
+            string[] statKeys = { "Vocal", "Presence", "Rhythm", "Resonance" };
             for (int index = 0; index < statKeys.Length; index++)
             {
-                Assert.That(FindNamed<Text>(panel.transform, "StatLabel-" + statKeys[index]).text,
-                    Is.EqualTo(statNames[index]), "五维标签必须使用真实舞台属性名。");
                 int value = int.Parse(FindNamed<Text>(panel.transform, "StatValue-" + statKeys[index]).text);
-                Assert.That(value, Is.InRange(30, 68), "线上池五维读数必须落在渠道区间内。");
+                Assert.That(value, Is.InRange(30, 68), "线上池读数必须落在渠道区间内。");
+                Assert.That(FindNamed<Text>(panel.transform, "StatRank-" + statKeys[index]).text, Is.EqualTo(MemberProfile1107.Rank(value)));
             }
             Assert.That(panel.GetComponentsInChildren<Transform>(true)
                     .Count(item => item.name == "StrongestStat"), Is.EqualTo(1),
-                "五维只突出一个最强项，避免所有属性同时抢视觉焦点。");
-            Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(item => item.name == "CandidateTrait"), Is.False,
-                "舞台特质整句已去掉：最强项由 ★ 标出。");
+                "只突出一个最强项。");
+            Assert.That(FindNamed<Text>(panel.transform, "RiskLabel").text, Is.EqualTo("风险"), "会议：幸福感改为风险。");
 
             Text signingPrice = FindNamed<Text>(panel.transform, "SigningPrice");
             int onlinePrice = int.Parse(signingPrice.text.Replace(",", string.Empty));
             // v0.3.3: 签约改用星钻(稀有货币),报价从金币 700-1000 压到星钻 60-200
             Assert.That(onlinePrice, Is.InRange(60, 200));
-            Transform viewInterview = FindNamed<Transform>(panel.transform, "ViewInterview");
-            Assert.That(FindNamed<Text>(viewInterview, "Label").text, Is.EqualTo("查看视频面试"));
             Assert.That(FindButton(panel.transform, "SignCandidate"), Is.Not.Null);
 
             FindButton(panel.transform, "InterviewPool-1").onClick.Invoke();

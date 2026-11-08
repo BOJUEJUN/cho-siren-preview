@@ -30,12 +30,13 @@ namespace ChoSiren.Tests
             {
                 var model = Model(); model.Save.Diamonds = 10000;
                 var panel = GachaPanel.OpenEmbedded(host.transform, model, model);
-                Assert.That(Find(panel.transform, "AuditionReferenceBoard").GetComponent<Image>().preserveAspect, Is.True);
+                // 2026-11-07 (选秀.psd): four stats — 声乐 / 舞蹈 / 说唱 / 名气 — on the new board.
+                Assert.That(Find(panel.transform, "InterviewBoard1107").GetComponent<Image>().sprite, Is.Not.Null);
                 int member = model.InterviewCandidates(0)[0];
                 GameModel.StageStats(GameModel.Members[member], member, 0, model.PreviewSigningLevel(member, 0),
-                    out int vocal, out int rhythm, out int dance, out int fame, out int beauty);
-                string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
-                int[] values = { vocal, rhythm, dance, fame, beauty };
+                    out int vocal, out int rhythm, out int dance, out int fame, out _);
+                string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance" };
+                int[] values = { vocal, rhythm, dance, fame };
                 for (int i = 0; i < keys.Length; i++)
                     Assert.That(Find(panel.transform, "StatValue-" + keys[i]).GetComponent<Text>().text, Is.EqualTo(values[i].ToString()));
                 int diamonds = model.Save.Diamonds;
@@ -75,15 +76,16 @@ namespace ChoSiren.Tests
                 foreach (string buttonName in new[] { "PreviousCandidate", "NextCandidate" })
                 {
                     var hit = Find(panel.transform, buttonName).GetComponent<RectTransform>();
-                    float scale = Find(panel.transform, "AuthoredInterviewPage").localScale.x;
+                    float scale = Find(panel.transform, "Interview1107Page").localScale.x;
                     Assert.That(hit.rect.width * scale, Is.GreaterThanOrEqualTo(44));
                     Assert.That(hit.rect.height * scale, Is.GreaterThanOrEqualTo(44));
                     Assert.That(hit.GetComponent<Button>().IsInteractable(), Is.True);
                     Assert.That(hit.GetComponent<Image>().raycastTarget, Is.True);
                     Assert.That(hit.GetComponent<EventTrigger>(), Is.Null, "不得用整片矩形填色遮住美术");
-                    Assert.That(hit.GetComponent<LobbyHotspotFeedback>(), Is.Not.Null);
-                    Image visual = hit.Find("CandidateArrowVisualV2").GetComponent<Image>();
-                    Assert.That(visual.color.a, Is.GreaterThan(.9f), "切换箭头必须常驻可见");
+                    // 2026-11-07: the shared switch arrow (SwitchArrow1107) with its own hover / press feedback.
+                    Assert.That(hit.GetComponent<PsdHomeChevronFeedback>(), Is.Not.Null);
+                    Graphic visual = hit.Find("ArrowVisual/Chevron").GetComponent<Graphic>();
+                    Assert.That(visual.color.a, Is.GreaterThan(.6f), "切换箭头必须常驻可见");
                     Assert.That(visual.GetComponentsInChildren<Graphic>().All(g => !g.raycastTarget), Is.True,
                         "按钮图文不能截断真实Button指针事件");
                 }
@@ -129,7 +131,7 @@ namespace ChoSiren.Tests
                     GameModel.SigningStartingLevelOffset(channel), 1, GameModel.MaxMemberLevel)));
                 var panel = GachaPanel.OpenEmbedded(host.transform, model, model);
                 if (channel == 1) Find(panel.transform, "InterviewPool-1").GetComponent<Button>().onClick.Invoke();
-                string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
+                string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance" };
                 int[] shown = keys.Select(key => int.Parse(Find(panel.transform,
                     "StatValue-" + key).GetComponent<Text>().text)).ToArray();
                 Assert.That(Find(panel.transform, "StrongestStat"), Is.Not.Null);
@@ -148,9 +150,9 @@ namespace ChoSiren.Tests
                     Assert.That(state.LevelOf(member), Is.EqualTo(signedLevel));
                     Assert.That(state.SigningChannelOf(member), Is.EqualTo(channel));
                     GameModel.StageStats(GameModel.Members[member], member, state.SigningChannelOf(member),
-                        state.LevelOf(member), out int vocal, out int rap, out int dance, out int fame, out int beauty);
-                    Assert.That(new[] { vocal, rap, dance, fame, beauty }, Is.EqualTo(shown),
-                        "签约与重载后，五维必须与确认前的面试卡逐项相同");
+                        state.LevelOf(member), out int vocal, out int rap, out int dance, out int fame, out _);
+                    Assert.That(new[] { vocal, rap, dance, fame }, Is.EqualTo(shown),
+                        "签约与重载后，四项能力必须与确认前的面试卡逐项相同");
                 }
             }
             finally { UnityEngine.Object.DestroyImmediate(host); }
@@ -170,16 +172,16 @@ namespace ChoSiren.Tests
                     var hit = Find(panel.transform, buttonName).GetComponent<RectTransform>();
                     Vector3 position = hit.localPosition, scale = hit.localScale;
                     Vector2 size = hit.sizeDelta;
-                    CanvasGroup fx = hit.Find("InteractionFx")?.GetComponent<CanvasGroup>();
-                    Assert.That(fx, Is.Not.Null, "缺少独立的悬停可见反馈层");
-                    Assert.That(fx.alpha, Is.LessThanOrEqualTo(.01f), "静止时反馈必须完全透明");
-                    RectTransform visual = hit.Find("CandidateArrowVisualV2")?.GetComponent<RectTransform>();
+                    Graphic glyph = hit.Find("ArrowVisual/Chevron")?.GetComponent<Graphic>();
+                    Assert.That(glyph, Is.Not.Null, "缺少箭头图形");
+                    float rest = glyph.color.a;
+                    RectTransform visual = hit.Find("ArrowVisual")?.GetComponent<RectTransform>();
                     Assert.That(visual, Is.Not.Null);
                     Vector3 visualScale = visual.localScale;
                     ExecuteEvents.Execute<IPointerEnterHandler>(hit.gameObject, pointer,
                         ExecuteEvents.pointerEnterHandler);
                     yield return new WaitForSecondsRealtime(.25f);
-                    Assert.That(fx.alpha, Is.GreaterThan(.05f), "悬停必须产生玩家可见的反馈");
+                    Assert.That(glyph.color.a, Is.GreaterThan(rest + .05f), "悬停必须产生玩家可见的反馈");
                     Assert.That(visual.localScale.x, Is.Not.EqualTo(visualScale.x),
                         "箭头美术层必须承担可见动效");
                     ExecuteEvents.Execute<IPointerDownHandler>(hit.gameObject, pointer,
@@ -190,8 +192,8 @@ namespace ChoSiren.Tests
                     ExecuteEvents.Execute<IPointerExitHandler>(hit.gameObject, pointer,
                         ExecuteEvents.pointerExitHandler);
                     yield return new WaitForSecondsRealtime(.4f);
-                    Assert.That(fx.alpha, Is.LessThanOrEqualTo(.01f), "移出后反馈必须恢复透明");
-                    Assert.That(visual.localScale, Is.EqualTo(visualScale),
+                    Assert.That(glyph.color.a, Is.EqualTo(rest).Within(.03f), "移出后反馈必须恢复");
+                    Assert.That(visual.localScale.x, Is.EqualTo(visualScale.x).Within(.01f),
                         "动效结束后美术层必须复位");
                     Assert.That(hit.localPosition, Is.EqualTo(position), "命中区不可移动");
                     Assert.That(hit.localScale, Is.EqualTo(scale), "命中区不可缩放");

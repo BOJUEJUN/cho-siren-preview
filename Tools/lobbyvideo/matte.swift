@@ -52,6 +52,10 @@ var colours: [Data] = []  // BGRA, halfW x halfH, tightly packed
 var cores: [Data] = []    // 1 where Vision calls the pixel the figure (mask >= .9), halfW x halfH
 var backdrops: [(Double, Double, Double)] = []
 let coreVoteRadius = 5
+// 2026-11-07 (loading clip): ENCLOSED_FROM_X=0.82 keeps backdrop-coloured pixels solid when they are not connected to
+// the frame border through backdrop colour, right of that fraction of the width. Vision misses the small white pig
+// there, and the white key alone left its body see-through. Unset = old behaviour.
+let enclosedFromX = Double(ProcessInfo.processInfo.environment["ENCLOSED_FROM_X"] ?? "") ?? 2.0
 
 func bytes(_ buffer: CVPixelBuffer) -> (UnsafeMutablePointer<UInt8>, Int) {
     CVPixelBufferLockBaseAddress(buffer, [])
@@ -141,6 +145,27 @@ for frame in 0..<colours.count {
     let window = Int32(hi - lo + 1)
     let (bgR, bgG, bgB) = backdrops[frame]
     let core = [UInt8](cores[frame])
+    var enclosed = [Bool](repeating: false, count: enclosedFromX < 1 ? halfW * halfH : 0)
+    if enclosedFromX < 1 {
+        // Flood the backdrop from the border through near-backdrop pixels; what stays unreached is enclosed.
+        var reached = [Bool](repeating: false, count: halfW * halfH)
+        var stack: [Int] = []
+        func near(_ i: Int) -> Bool {
+            let c = colours[frame].withUnsafeBytes { $0.bindMemory(to: UInt8.self).baseAddress! + i * 4 }
+            return max(abs(bgR - Double(c[2])), max(abs(bgG - Double(c[1])), abs(bgB - Double(c[0])))) / 255 < 0.10
+        }
+        for x in 0..<halfW { stack.append(x); stack.append((halfH - 1) * halfW + x) }
+        for y in 0..<halfH { stack.append(y * halfW); stack.append(y * halfW + halfW - 1) }
+        while let i = stack.popLast() {
+            if reached[i] || !near(i) { continue }
+            reached[i] = true
+            let x = i % halfW, y = i / halfW
+            if x > 0 { stack.append(i - 1) }; if x < halfW - 1 { stack.append(i + 1) }
+            if y > 0 { stack.append(i - halfW) }; if y < halfH - 1 { stack.append(i + halfW) }
+        }
+        let fromX = Int(enclosedFromX * Double(halfW))
+        for y in 0..<halfH { for x in fromX..<halfW { enclosed[y * halfW + x] = !reached[y * halfW + x] } }
+    }
     var out = Data(count: outW * outH * 4)
     out.withUnsafeMutableBytes { (raw: UnsafeMutableRawBufferPointer) in
         let o = raw.bindMemory(to: UInt8.self).baseAddress!
@@ -157,7 +182,7 @@ for frame in 0..<colours.count {
                     // which keeps the cyan rim and clears white gaps between arms, legs and hair.
                     // Only ever removes solidity: a symmetric median invented white patches where a fast arm uncovers
                     // backdrop (mermaid-a 2.8k -> 5.8k px), so the core must also hold in this very frame.
-                    let a = core[y * halfW + x] != 0 && votes[y * halfW + x] * 2 > window ? 1 : key
+                    let a = (core[y * halfW + x] != 0 && votes[y * halfW + x] * 2 > window) || (!enclosed.isEmpty && enclosed[y * halfW + x]) ? 1 : key
                     // Remove the white backdrop from edge colours: C = a F + (1 - a) W.
                     var fr = r, fg = g, fb = b
                     if a > 0.004 && a < 0.999 {
@@ -199,7 +224,8 @@ print("frames", frames.count, "fps", fps, "out", outW, "x", outH)
 
 // ping-pong: 0..n-1 then n-2..1
 var order = Array(0..<frames.count)
-if frames.count > 2 { order += Array((1..<(frames.count - 1)).reversed()) }
+// 2026-11-07: NO_PINGPONG=1 writes the clip forward only (a run cycle played backwards looks wrong).
+if frames.count > 2 && ProcessInfo.processInfo.environment["NO_PINGPONG"] != "1" { order += Array((1..<(frames.count - 1)).reversed()) }
 
 if rawOut {
     for f in order { FileHandle.standardOutput.write(frames[f]) }

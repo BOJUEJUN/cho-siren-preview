@@ -26,7 +26,8 @@ namespace ChoSiren.Panels
     /// </summary>
     public sealed class TaskBoardPanel : MonoBehaviour
     {
-        private const string StageBackgroundResource = "Art/TaskAI/task-board-bg-ai-v1-20260903";
+        // 2026-11-07 (任务.psd): the shared dark-top / light-bottom page gradient instead of the neon city stage.
+        private const string StageBackgroundResource = "Art/Ui1107/page-bg-board";
         // 2026-10-25 readability pass (少爷: "一大推信息文字太乱了"): one line of info and one action per row.
         private const float RowHeight = 118f;
         private const float RowGap = 12f;
@@ -212,8 +213,16 @@ namespace ChoSiren.Panels
 
             // Keep the generated stage visible while gently damping its brightest floor lights behind text.
             // Darken the stage art so the black cards read as one calm surface.
-            Image shade = kit.NewImage("TaskBoardStageShade", transform, null, new Color32(11, 8, 18, 190));
+            Image shade = kit.NewImage("TaskBoardStageShade", transform, null, new Color32(11, 8, 18, 40));
             PanelKit.Stretch(shade.rectTransform);
+            // The PSD's pig peeks in from the bottom-left corner.
+            Image pig = kit.NewImage("TaskBoardPig", transform, Resources.Load<Sprite>("Art/Ui1107/task-pig"), Color.white);
+            pig.preserveAspect = true;
+            pig.raycastTarget = false;
+            RectTransform pigRect = pig.rectTransform;
+            pigRect.anchorMin = pigRect.anchorMax = pigRect.pivot = Vector2.zero;
+            pigRect.anchoredPosition = new Vector2(-40f, 0f);
+            pigRect.sizeDelta = new Vector2(150f, 157f);
         }
 
         private void BuildList()

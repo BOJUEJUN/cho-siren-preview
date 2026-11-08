@@ -234,6 +234,13 @@ namespace ChoSiren.Panels
             RectTransform contentRect = interviewContent.AddComponent<RectTransform>();
             PanelKit.Stretch(contentRect);
 
+            // 2026-11-07: 选秀.psd layout (GachaPanel.Interview1107.cs) replaces the 038 authored board.
+            if (Resources.Load<Sprite>(InterviewArt1107 + "iv-board") != null)
+            {
+                BuildInterview1107(contentRect);
+                return;
+            }
+
             Sprite authoredBoard = ReferenceArt038.Load("Art/Reference038/audition-board-038");
             if (authoredBoard != null)
             {
@@ -360,7 +367,7 @@ namespace ChoSiren.Panels
             CandidateStats(member, memberIndex, interviewPoolIndex, out int vocal, out int rhythm,
                 out int dance, out int fame, out int beauty);
             string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
-            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] labels = { "声乐", "说唱", "舞蹈", "名气", "颜值" };
             int[] values = { vocal, rhythm, dance, fame, beauty };
             var glyphs = new[]
             {
@@ -670,7 +677,7 @@ namespace ChoSiren.Panels
             int[] values = { vocal, rhythm, presence, resonance, charm };
             // 09-15 参考图的可见标签；StatValue-*/StatBar-* 节点名沿用旧四维键，
             // 保证按节点名取值的既有检查仍然命中间一个真实属性。
-            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] labels = { "声乐", "说唱", "舞蹈", "名气", "颜值" };
             string[] nodeKeys = { "声能", "律动", "气场", "共鸣", "颜值" };
             int strongest = 0;
             for (int stat = 1; stat < values.Length; stat++)

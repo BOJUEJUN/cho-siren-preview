@@ -22,7 +22,8 @@ namespace ChoSiren.Panels
         };
 
         private RectTransform page;
-        private SirenPracticeScene stage;
+        private PracticeVideoStage1107 stage;
+        private RectTransform previousArrow, nextArrow, practicePig;
         private RectTransform memberCard, projectCard, startRect, motionRect, doneRect;
         private Vector2 memberCardHome;
         private float pageScale = 1f;
@@ -60,13 +61,29 @@ namespace ChoSiren.Panels
             page.anchorMin = page.anchorMax = page.pivot = new Vector2(.5f, 1f);
             page.sizeDelta = new Vector2(PageWidth, DefaultPageHeight);
 
-            stage = SirenPracticeScene.Build(page, kit.Font, model,
-                SirenPracticeScene.OwnedRoster(model, memberIndex), memberIndex, member => SelectMember(member));
+            // 2026-11-07 (练习室界面.psd): the camera view with the leads' cut-out clips replaces the sticker stage.
+            stage = PracticeVideoStage1107.Build(page, kit.Font, model,
+                PracticeVideoStage1107.OwnedRoster(model, memberIndex), memberIndex, PickFromStage);
             stage.SetPracticing(false, reduceMotion);
 
             BuildHeader();
             BuildMemberCard();
             BuildProjectCard();
+
+            // ‹ › switch any owned member (the shared switch arrow); the PSD's pig peeks over the card.
+            previousArrow = (RectTransform)SwitchArrow1107.Create(page, "PracticePreviousMember", -1,
+                new Rect(0f, 0f, 56f, 112f), () => StepMember(-1)).transform;
+            nextArrow = (RectTransform)SwitchArrow1107.Create(page, "PracticeNextMember", 1,
+                new Rect(PageWidth - 56f, 0f, 56f, 112f), () => StepMember(1)).transform;
+            Image pig = kit.NewImage("PracticePig", page, Resources.Load<Sprite>(PracticeVideoStage1107.ArtRoot + "practice-pig"), Color.white);
+            pig.raycastTarget = false;
+            pig.preserveAspect = true;
+            practicePig = pig.rectTransform;
+
+            // 2026-11-07 会议: a small 跳过 chip in the stage's top-right corner while the level-up plays.
+            skipButton1107 = SecondaryTasks038Chrome.Button(page, "PracticeSkip", "跳过 ››", 20, SkipAnimation1107,
+                ModalPolish038ButtonStyle.Secondary);
+            skipButton1107.SetActive(false);
 
             startObject = SecondaryTasks038Chrome.Button(page, "StartPractice", "开始练习", 40,
                 StartPractice, ModalPolish038ButtonStyle.Primary);
@@ -323,6 +340,11 @@ namespace ChoSiren.Panels
             y += stageH + gaps[1];
             PanelKit.PlaceTop(memberCard, 24f, y, 672f, InfoH);
             memberCardHome = memberCard.anchoredPosition;
+            PanelKit.PlaceTop(practicePig, 500f, y - 111f, 181f, 135f);
+            PanelKit.PlaceTop(previousArrow, 0f, y + InfoH * .5f - 56f, 56f, 112f);
+            PanelKit.PlaceTop(nextArrow, PageWidth - 56f, y + InfoH * .5f - 56f, 56f, 112f);
+            practicePig.SetAsLastSibling(); previousArrow.SetAsLastSibling(); nextArrow.SetAsLastSibling();
+            PanelKit.PlaceTop((RectTransform)skipButton1107.transform, PageWidth - 132f, HeaderH + gaps[0] + 66f, 116f, 44f);
             y += InfoH + gaps[2];
             PanelKit.PlaceTop(projectCard, 24f, y, 672f, ProjectH);
             y += ProjectH + gaps[3];

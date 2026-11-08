@@ -2035,8 +2035,9 @@ namespace ChoSiren.Panels
             Sfx("crit");
             if (!BattlePresentationOptions.ReduceMotion)
             {
-                if (stageShake != null) StopCoroutine(stageShake);
-                stageShake = StartCoroutine(ShakeStage(.4f, 16f));
+                // 2026-11-07: the camera pushes in and pulls back first; the shake lands after it (one owner of the root).
+                if (stageShake != null) { StopCoroutine(stageShake); stageShake = null; }
+                UltimateCameraPunch1107();
             }
             StartCoroutine(UltimateTitleSlam(title, accent));
         }

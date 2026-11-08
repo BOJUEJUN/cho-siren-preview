@@ -23,6 +23,12 @@ namespace ChoSiren.Panels
         internal const float PsdStageWidth1031 = 2946f;
         /// <summary>Head plates are 72% of the PSD's corner name frames.</summary>
         internal const float EnemyPlateScale1031 = .72f;
+        /// <summary>2026-11-07: the boss is drawn a third larger than the 1031 stage fit.</summary>
+        internal const float BossSizeBoost1107 = 4f / 3f;
+        /// <summary>Widest the boosted boss may be (canvas units; the stage is 720 wide).</summary>
+        internal const float BossMaxWidth1107 = 860f; // about 1/10 of the stage spills past each side, clipped by the screen
+        /// <summary>2026-11-07 (赵金: "角色太小"): wide minions may spill this far past their half-stage lane.</summary>
+        internal const float MinionWidthAllowance1107 = 1.45f;
         private static readonly Vector2 EnemyPlateBadgeOffset1031 = new Vector2(70f, 22f);
         private const float EnemyPlateBadgeHeight1031 = 30f;
 
@@ -46,7 +52,11 @@ namespace ChoSiren.Panels
             float ratio = art != null ? art.rect.width / Mathf.Max(1f, art.rect.height) : 1f;
             BossArtFrame1031(art, out float visTop, out float visBottom, out Vector2 headFraction);
             float foot = 3670f * PsdScale, topLimit = EnemyStageTop1031 * PsdScale - 2f;
-            float h = Mathf.Min((foot - topLimit) / Mathf.Max(.2f, visBottom - visTop), 640f / Mathf.Max(.2f, ratio));
+            // 2026-11-07 (赵金: "BOSS 再大一点，再大 3 分之一，最好满一点"): one third larger than the stage-fit size,
+            // feet still on the member cards; her head may pass under the top HUD.
+            float h = Mathf.Min((foot - topLimit) / Mathf.Max(.2f, visBottom - visTop), 640f / Mathf.Max(.2f, ratio)) * BossSizeBoost1107;
+            // Never wider than the stage plus a sliver each side, so her silhouette stays on screen and clear of the adds.
+            h = Mathf.Min(h, BossMaxWidth1107 / Mathf.Max(.2f, ratio));
             float w = h * ratio;
             float top = foot - visBottom * h;
             PanelKit.PlaceTop(rig, 360f - w / 2f, top - stageTop, w, h);
@@ -129,7 +139,7 @@ namespace ChoSiren.Panels
                 Sprite sprite = figure.sprite;
                 float ratio = sprite != null ? sprite.rect.width / sprite.rect.height : .5f;
                 // Same footing for every enemy; very wide silhouettes are bounded by their lane.
-                float visualHeight = Mathf.Min(foot - top, width * (adds ? 1f : 1.06f) / Mathf.Max(.1f, ratio));
+                float visualHeight = Mathf.Min(foot - top, width * (adds ? 1.2f : MinionWidthAllowance1107) / Mathf.Max(.1f, ratio));
                 rect.sizeDelta = new Vector2(visualHeight * ratio, visualHeight) * PsdScale;
                 motion.SetLayoutOrigin(new Vector2(0f, -(foot - top - visualHeight / 2f) * PsdScale));
                 float centre = x + width / 2f;

@@ -174,21 +174,16 @@ namespace ChoSiren
                 BoardText038(root, "MemberEmpty", "没有符合条件的成员，请调整筛选", 23, White,
                     70, 670, 700, 80, TextAnchor.MiddleCenter);
 
-            GameObject previous = BoardButton038("MemberPreviousPage", root, new Rect(165, 1386, 185, 76), () =>
-            { memberPageIndex = MemberRosterPagination.MovePage(memberPageIndex, -1, page.PageCount); ShowScreen("members"); });
+            // 2026-11-07 (赵金: 统一所有左右切换按钮): the shared ‹ › chevrons beside the page counter.
+            GameObject previous = SwitchArrow1107.Create(root, "MemberPreviousPage", -1, new Rect(250, 1386, 100, 76), () =>
+            { memberPageIndex = MemberRosterPagination.MovePage(memberPageIndex, -1, page.PageCount); ShowScreen("members"); }).gameObject;
             previous.GetComponent<Button>().interactable = page.HasPrevious;
-            BoardText038(previous.transform, "Label", "上一页", 24,
-                page.HasPrevious ? White : Muted, 0, 0, 185, 76, TextAnchor.MiddleCenter);
             BoardText038(root, "MemberPageLabel", $"{(page.PageCount == 0 ? 0 : page.PageIndex + 1)}/{page.PageCount}",
                 34, White, 360, 1382, 120, 86, TextAnchor.MiddleCenter);
-            GameObject next = BoardButton038("MemberNextPage", root, new Rect(491, 1386, 186, 76), () =>
-            { memberPageIndex = MemberRosterPagination.MovePage(memberPageIndex, 1, page.PageCount); ShowScreen("members"); });
+            GameObject next = SwitchArrow1107.Create(root, "MemberNextPage", 1, new Rect(491, 1386, 100, 76), () =>
+            { memberPageIndex = MemberRosterPagination.MovePage(memberPageIndex, 1, page.PageCount); ShowScreen("members"); }).gameObject;
             next.GetComponent<Button>().interactable = page.HasNext;
-            BoardText038(next.transform, "Label", "下一页", 24,
-                page.HasNext ? White : Muted, 0, 0, 186, 76, TextAnchor.MiddleCenter);
             Image membersBoard = root.GetComponent<Image>();
-            SirenStickerUi.SkinButton(previous);
-            SirenStickerUi.SkinButton(next);
             // One page (the usual owned roster): no pager at all.
             bool paged = page.PageCount > 1;
             previous.SetActive(paged); next.SetActive(paged);

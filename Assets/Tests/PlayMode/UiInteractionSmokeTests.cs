@@ -919,7 +919,7 @@ namespace ChoSiren.Tests
             GameModel.StageStats(GameModel.Members[memberIndex], memberIndex,
                 state.SigningChannelOf(memberIndex) == 0 ? 0 : 1, state.LevelOf(memberIndex),
                 out int vocal, out int rap, out int dance, out int fame, out int beauty);
-            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] labels = { "声乐", "说唱", "舞蹈", "名气", "颜值" };
             int[] values = { vocal, rap, dance, fame, beauty };
             for (int i = 0; i < labels.Length; i++)
             {
@@ -952,7 +952,7 @@ namespace ChoSiren.Tests
                 stageState.PreviewSigningLevel(memberIndex, panel.InterviewPoolIndex),
                 out int vocal, out int rhythm, out int dance, out int fame, out int beauty);
             string[] keys = { "Vocal", "Rhythm", "Presence", "Resonance", "Charm" };
-            string[] labels = { "声波", "说唱", "舞蹈", "名气", "颜值" };
+            string[] labels = { "声乐", "说唱", "舞蹈", "名气", "颜值" };
             int[] values = { vocal, rhythm, dance, fame, beauty };
             for (int i = 0; i < keys.Length; i++)
             {

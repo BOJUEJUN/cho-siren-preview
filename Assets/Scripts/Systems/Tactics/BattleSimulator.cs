@@ -116,6 +116,8 @@ namespace ChoSiren.Systems.Tactics
         public int Col;
         public int Level = 1;
         public CombatStatBonuses Equipment;
+        /// <summary>2026-11-07 角色体力: a tired member fights at this share of her HP and attack (1000 = rested).</summary>
+        public int FatiguePermille = 1000;
     }
 
     /// <summary>Equipment is additive to base stats, capped at +20% per stat (design p19).</summary>
@@ -214,8 +216,11 @@ namespace ChoSiren.Systems.Tactics
                     ?? throw new ArgumentException($"未知单位：{setup.UnitId}", nameof(party));
                 if (!BattleGrid.IsValid(setup.Row, setup.Col) || !occupied.Add(setup.Row * BattleGrid.Columns + setup.Col))
                     throw new ArgumentException($"成员 {setup.UnitId} 的站位无效或重复", nameof(party));
-                AddUnit(definition, BattleSide.Player, setup.Row, setup.Col, Math.Max(1, setup.Level),
-                    PlayerStats(definition, setup.Level, setup.Equipment));
+                CombatStats stats = PlayerStats(definition, setup.Level, setup.Equipment);
+                if (setup.FatiguePermille > 0 && setup.FatiguePermille < 1000)
+                    stats = new CombatStats(Math.Max(1, (int)((long)stats.Hp * setup.FatiguePermille / 1000)),
+                        Math.Max(1, (int)((long)stats.Attack * setup.FatiguePermille / 1000)), stats.Defense, stats.Speed, stats.CritPermille);
+                AddUnit(definition, BattleSide.Player, setup.Row, setup.Col, Math.Max(1, setup.Level), stats);
             }
 
             for (int index = 0; index < stage.Enemies.Count; index++)
@@ -465,14 +470,27 @@ namespace ChoSiren.Systems.Tactics
         // now, so truncation erased most of a low-level member's bonus (40 attack × 1.024 = 40.96 → 40).
         private static int GrowthStat(int basis, int level, double rate, int equipment, int minimum) =>
             Math.Max(minimum, (int)Math.Min(int.MaxValue, Math.Round(
-                Math.Floor(basis * Math.Pow(rate, Math.Max(0, Math.Min(100, level) - 1))) * (1000 + equipment) / 1000.0,
+                Math.Floor(basis * Math.Pow(rate, GrowthSteps1107(level))) * (1000 + equipment) / 1000.0,
                 MidpointRounding.AwayFromZero)));
 
-        // 2026-11-04: ×1.15 a level up to Lv30, then ×1.08 (Lv40 used to cost 11,647 a step; now 6,216).
+        /// <summary>
+        /// 2026-11-07 (Lv200): growth steps from Lv1. Up to Lv30 one step a level (unchanged, so stage balance holds);
+        /// after that half a step a level, so Lv200 lands near the old Lv114 magnitude instead of exploding.
+        /// </summary>
+        public static double GrowthSteps1107(int level)
+        {
+            int l = Math.Max(1, Math.Min(200, level));
+            return l <= 30 ? l - 1 : 29 + (l - 30) * 0.5;
+        }
+
+        /// <summary>
+        /// 2026-11-07 (Docs/BALANCE-1107-LV200.md): 50 × 1.15^(L−1) up to Lv29, then 2,880 + 54 × (L−30) a level
+        /// (Lv199→200 costs 12,006). From Lv30 a level also costs 敌人残魂 (GameModel.RemnantCostAtLevel1107).
+        /// </summary>
         public static int TrainingCostAtLevel(int level)
         {
-            int l = Math.Max(1, Math.Min(100, level));
-            double cost = 50 * Math.Pow(1.15, Math.Min(l, 30) - 1) * Math.Pow(1.08, Math.Max(0, l - 30));
+            int l = Math.Max(1, Math.Min(199, level));
+            double cost = l < 30 ? 50 * Math.Pow(1.15, l - 1) : 2880 + 54 * (l - 30);
             return (int)Math.Min(int.MaxValue, Math.Ceiling(cost));
         }
 

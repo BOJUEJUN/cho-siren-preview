@@ -69,35 +69,35 @@ namespace ChoSiren.Tests
             yield return OpenPractice(first);
             MemberPracticePanel panel = Object.FindAnyObjectByType<MemberPracticePanel>();
             Assert.That(panel, Is.Not.Null);
-            SirenPracticeScene stage = panel.Stage;
-            Assert.That(stage.Count, Is.EqualTo(model.Save.UnlockedMembers.Count));
-            Assert.That(stage.PageCount, Is.GreaterThan(1), "超过 4 名成员要能翻页");
+            PracticeVideoStage1107 stage = panel.Stage;
+            Assert.That(stage.Roster.Count, Is.EqualTo(model.Save.UnlockedMembers.Count));
 
             int target = model.Save.Team[1];
+            int lead = System.Array.IndexOf(PracticeVideoStage1107.LeadIds, GameModel.Members[target].Id);
+            Assert.That(lead, Is.GreaterThanOrEqualTo(0), "Team[1] is one of the four leads in the test save");
             int targetLevel = model.LevelOf(target), firstLevel = model.LevelOf(first);
-            RectTransform actor = stage.ActorRect(target);
-            Assert.That(ClickThroughEventSystem(actor), Is.True, "小人必须能被真实指针点到（不能被其它控件挡住）");
+            Assert.That(ClickThroughEventSystem(stage.LeadRect(lead)), Is.True, "小人必须能被真实指针点到（不能被其它控件挡住）");
             yield return new WaitForSecondsRealtime(.6f);
 
             Assert.That(panel.MemberIndex, Is.EqualTo(target));
             Assert.That(stage.SelectedMember, Is.EqualTo(target));
-            Assert.That(stage.SelectionAmount(target), Is.GreaterThan(.95f));
-            Assert.That(stage.SelectionAmount(first), Is.LessThan(.05f));
             Assert.That(Find(panel.transform, "PracticeMemberName").GetComponent<Text>().text,
                 Is.EqualTo(GameModel.Members[target].Name));
             Assert.That(Find(panel.transform, "PracticePortrait").GetComponent<Image>().sprite,
                 Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[target].ResourcePath)));
 
-            // Page two shows the members beyond the first four; paging back keeps the selection.
-            stage.ShowPage(1);
+            // The shared ‹ › arrows reach members beyond the four leads; › then ‹ returns to the target.
+            Assert.That(ClickThroughEventSystem((RectTransform)Find(panel.transform, "PracticeNextMember")), Is.True);
             yield return new WaitForSecondsRealtime(.4f);
-            Assert.That(stage.Page, Is.EqualTo(1));
-            stage.ShowPage(0);
+            Assert.That(panel.MemberIndex, Is.Not.EqualTo(target));
+            Assert.That(ClickThroughEventSystem((RectTransform)Find(panel.transform, "PracticePreviousMember")), Is.True);
             yield return new WaitForSecondsRealtime(.4f);
+            Assert.That(panel.MemberIndex, Is.EqualTo(target));
 
             Find(panel.transform, "StartPractice").GetComponent<Button>().onClick.Invoke();
             Assert.That(panel.IsAnimating, Is.True);
-            Assert.That(ClickThroughEventSystem(stage.ActorRect(first)), Is.True);
+            int firstLead = System.Array.IndexOf(PracticeVideoStage1107.LeadIds, GameModel.Members[first].Id);
+            Assert.That(ClickThroughEventSystem(stage.LeadRect(firstLead)), Is.True);
             yield return null;
             Assert.That(panel.MemberIndex, Is.EqualTo(target), "练习进行中不得切换成员");
             float deadline = Time.realtimeSinceStartup + 6f;
@@ -125,13 +125,16 @@ namespace ChoSiren.Tests
             yield return OpenPractice(first);
             MemberPracticePanel panel = Object.FindAnyObjectByType<MemberPracticePanel>();
             Assert.That(panel.ReduceMotion, Is.True);
-            Assert.That(ClickThroughEventSystem(panel.Stage.ActorRect(target)), Is.True);
+            int lead = System.Array.IndexOf(PracticeVideoStage1107.LeadIds, GameModel.Members[target].Id);
+            Assert.That(ClickThroughEventSystem(panel.Stage.LeadRect(lead)), Is.True);
             yield return null;
-            Assert.That(panel.Stage.SelectionAmount(target), Is.EqualTo(1f), "减弱动画下选中立即到位");
-            Transform body = panel.Stage.ActorRect(target).Find("Body");
-            Vector2 pose = ((RectTransform)body).anchoredPosition;
+            Assert.That(panel.MemberIndex, Is.EqualTo(target), "减弱动画下选中立即到位");
+            var glyph = (RectTransform)Find(panel.transform, "LeadMarker").GetChild(0);
+            Vector2 pose = glyph.anchoredPosition;
             yield return new WaitForSecondsRealtime(.3f);
-            Assert.That(((RectTransform)body).anchoredPosition, Is.EqualTo(pose), "减弱动画下小人不得待机跳动");
+            Assert.That(glyph.anchoredPosition, Is.EqualTo(pose), "减弱动画下标记不得跳动");
+            foreach (var clip in panel.Stage.Clips.Clips)
+                Assert.That(clip.Player.isPlaying, Is.False, "减弱动画下练习视频定格");
 
             Find(panel.transform, "StartPractice").GetComponent<Button>().onClick.Invoke();
             yield return new WaitForSecondsRealtime(MemberTrainingPractice.ReducedDurationSeconds + .4f);
@@ -178,15 +181,15 @@ namespace ChoSiren.Tests
                 Shot(camera, rt, prefix + "-01-before.png");
 
                 int target = model.Save.Team[1];
-                Find(panel.transform, "PracticeActor-" + GameModel.Members[target].Id).GetComponent<Button>().onClick.Invoke();
+                Find(panel.transform, "Lead-" + GameModel.Members[target].Id).GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.8f);
                 Assert.That(panel.MemberIndex, Is.EqualTo(target));
                 Shot(camera, rt, prefix + "-02-switched.png");
 
-                panel.Stage.ShowPage(1);
+                Find(panel.transform, "PracticeNextMember").GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.6f);
-                Shot(camera, rt, prefix + "-03-page2.png");
-                panel.Stage.ShowPage(0);
+                Shot(camera, rt, prefix + "-03-next-member.png");
+                Find(panel.transform, "PracticePreviousMember").GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
 
                 Find(panel.transform, "StartPractice").GetComponent<Button>().onClick.Invoke();
@@ -235,17 +238,19 @@ namespace ChoSiren.Tests
                 Assert.That(Find(panel.transform, "PracticeLevelCaption").GetComponent<Text>().text, Does.Contain("1-5"));
                 Shot(camera, rt, "break1104-01-capped.png");
 
-                model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-5", Stars = 3 });
-                model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-10", Stars = 3 });
-                model.Save.MemberLevels[member] = 17;
-                model.Save.VoiceCrystals = 4;
+                // 2026-11-07: the first break is now Lv30 (after 2-10) and costs 10 of the member's race 生魂.
+                foreach (string id in new[] { "stage-1-5", "stage-1-10", "stage-2-5", "stage-2-10" })
+                    model.Save.ClearedStages.Add(new StageClear { Id = id, Stars = 3 });
+                model.Save.MemberLevels[member] = 30;
+                string soul = model.SoulIdOf1107(member);
+                model.Grant(new ChoSiren.Systems.Economy.CurrencyAmount(soul, 4));
                 yield return OpenPractice(member);
                 yield return new WaitForSecondsRealtime(.8f);
                 panel = Object.FindAnyObjectByType<MemberPracticePanel>();
                 Assert.That(Find(panel.transform, "PracticeNoDiamond").GetComponent<Text>().text, Does.Contain("4/10"));
                 Shot(camera, rt, "break1104-02-short.png");
 
-                model.Save.VoiceCrystals = 10;
+                model.Grant(new ChoSiren.Systems.Economy.CurrencyAmount(soul, 6));
                 yield return OpenPractice(member);
                 yield return new WaitForSecondsRealtime(.8f);
                 panel = Object.FindAnyObjectByType<MemberPracticePanel>();
@@ -253,7 +258,7 @@ namespace ChoSiren.Tests
                 Find(panel.transform, "StartPractice").GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.8f);
                 Assert.That(model.BreaksOf1104(member), Is.EqualTo(1));
-                Assert.That(model.LevelCapOf1104(member), Is.EqualTo(22));
+                Assert.That(model.LevelCapOf1104(member), Is.EqualTo(40));
                 Shot(camera, rt, "break1104-04-after.png");
             }
             finally

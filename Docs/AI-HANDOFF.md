@@ -12,15 +12,18 @@
 - 手机：覆盖安装、保留存档、**不自动打开游戏**。
 - 秘密只在运行时从本机文件读，绝不打印、提交、贴进聊天/文档/日志（清单见第 6 节）。拉下来的 vercel env 文件用完即删。
 
-## 1. 游戏现状（2026-11-06）
+## 1. 游戏现状（2026-11-07 晚）
+
+- **0.9.40 测试版（未发布网页/下载）**：赵金 11-07 六页新美术 + 会议纪要落地 + 200 级 + 角色体力 + 累计更新公告。明细 `Docs/ART-FEEDBACK-2026-11-07.md`、数值 `Docs/BALANCE-1107-LV200.md`。`ProjectSettings` 已是 0.9.40 / Android 940；代码**未提交**。正式发 0.9.40 时按 0.9.39 流程（`Builds/qa-logs/full-release-0939/`）走，网页 release notes 用 `Assets/Resources/Data/changelog.json` 的 0.9.40 条目。
+- PlayMode 全量 487 条里有 ~127 条是改动前就不过的老测试（基线对比 11-07：只这次新增的 9 条已全部修好）；EditMode 803 条全过。
 
 | 渠道 | 版本 | 说明 |
 |---|---|---|
 | 网页 | 0.9.39 / R169 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main `aefba0a` |
 | Windows / Mac / Android 下载 + 更新清单 | 0.9.39 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`；Android 用 GitHub Release 地址（COS 的 APK 地址实际下载 403） |
-| 本机 `/Applications/幻域魅声.app` | 0.9.39 | Dock 入口保留 |
-| 伯爵君 iPhone | 0.9.39 公开版 | 11-07 覆盖安装，不再带 GPT 测试码；包 `Builds/iOS-DerivedData-device-0.9.39/…/CHO-SIREN.app`，描述文件 11-13 到期 |
-| 五条悟专用机 | **0.9.38 私人版** | 11-07 少爷要求换 0.9.39，手机锁屏没装成，解锁后用同一个 0.9.39 包装 |
+| 本机 `/Applications/幻域魅声.app` | **0.9.40 测试版** | 11-07 本地预览（未发布），Dock 入口保留 |
+| 伯爵君 iPhone | **0.9.40 测试版** | 11-07 覆盖安装（无 GPT 测试码，存档保留）；包 `Builds/iOS-DerivedData-device-0.9.40/…/CHO-SIREN.app`，描述文件 11-13 到期 |
+| 五条悟专用机 | **0.9.38 私人版** | 11-07 要装 0.9.40 测试版，手机锁屏（CoreDevice 4016/10003）没装成；解锁后用 `Builds/qa-logs/private-0940/install.sh 00008140-001154D23E93001C` |
 
 - 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 已是 0.9.39 / Android 939（11-07 全量发布，记录 `Docs/FULL-RELEASE-2026-11-07-0939.md`）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
