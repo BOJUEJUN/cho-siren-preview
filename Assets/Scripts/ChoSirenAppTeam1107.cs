@@ -25,6 +25,9 @@ namespace ChoSiren
             { new Rect(100, 1350, 900, 2470), new Rect(950, 1380, 1750, 2450), new Rect(110, 2500, 980, 3500), new Rect(1080, 2550, 1900, 3480) };
         private static readonly Rect[] TeamCardWindow1107 =
             { new Rect(190, 1440, 860, 2190), new Rect(1015, 1480, 1655, 2210), new Rect(185, 2600, 925, 3270), new Rect(1115, 2600, 1860, 3250) };
+        // Bounding boxes (frame-local PSD px) of each card's fitted window quad (team-card-window-n).
+        private static readonly Rect[] TeamCardQuad1107 =
+            { new Rect(44, 105, 754, 743), new Rect(50, 60, 663, 778), new Rect(47, 53, 776, 690), new Rect(29, 28, 766, 639) };
         private static readonly Vector2[] TeamCardIcon1107 = { new Vector2(195, 1395), new Vector2(1020, 1480), new Vector2(155, 2595), new Vector2(1105, 2570) };
         private static readonly Vector2[] TeamCardLevel1107 = { new Vector2(700, 2075), new Vector2(1565, 2050), new Vector2(808, 3040), new Vector2(1720, 3062) };
         private static readonly Vector2[] TeamCardBand1107 = { new Vector2(130, 2240), new Vector2(995, 2265), new Vector2(205, 3265), new Vector2(1095, 3257) };
@@ -124,10 +127,17 @@ namespace ChoSiren
             }
             MemberDefinition m = GameModel.Members[index];
             string race = MemberRaceFamily(m, index);
-            GameObject windowObject = NewImage("PortraitWindow", hit.transform, null, new Color(0, 0, 0, 0));
+            // 2026-11-08 (少爷: "头像没有完美拼合到卡片里…角度不对"): the bust is clipped by the card's own tilted window
+            // (team-card-window-n: a quad fitted to the frame's inner edges, at frame size) instead of an upright box.
+            GameObject cardMask = NewImage("PortraitMask", hit.transform, Resources.Load<Sprite>(TeamArt1107 + "team-card-window-" + slot), White);
+            PlaceTop(cardMask.GetComponent<RectTransform>(), 0f, 0f, frame.width, frame.height);
+            cardMask.GetComponent<Image>().raycastTarget = false;
+            cardMask.AddComponent<Mask>().showMaskGraphic = false;
+            Rect quad = TeamCardQuad1107[slot];
+            local = new Rect(quad.x * .39f, quad.y * .39f, quad.width * .39f, quad.height * .39f);
+            GameObject windowObject = NewImage("PortraitWindow", cardMask.transform, null, new Color(0, 0, 0, 0));
             PlaceTop(windowObject.GetComponent<RectTransform>(), local.x, local.y, local.width, local.height);
             windowObject.GetComponent<Image>().raycastTarget = false;
-            windowObject.AddComponent<RectMask2D>();
             GameObject portrait = NewImage("TeamCharacter-" + slot, windowObject.transform, Resources.Load<Sprite>(m.ResourcePath), White);
             portrait.GetComponent<Image>().preserveAspect = true;
             portrait.GetComponent<Image>().raycastTarget = false;
