@@ -16,7 +16,7 @@ namespace ChoSiren.Panels
     public sealed partial class TacticsBattlePanel
     {
         // ---- geometry, PSD units (the stage art is 2946 × 6144)
-        /// <summary>Just under the top HUD's health bar (battle-52 ends at 678).</summary>
+        /// <summary>Just under the top HUD's health bar (battle-52 ends at 678); no enemy art may rise above it (2026-11-08).</summary>
         internal const float EnemyStageTop1031 = 735f;
         /// <summary>The member records start at 3670; feet stand right on their top edge.</summary>
         internal const float EnemyStageFoot1031 = 3690f;
@@ -52,9 +52,11 @@ namespace ChoSiren.Panels
             float ratio = art != null ? art.rect.width / Mathf.Max(1f, art.rect.height) : 1f;
             BossArtFrame1031(art, out float visTop, out float visBottom, out Vector2 headFraction);
             float foot = 3670f * PsdScale, topLimit = EnemyStageTop1031 * PsdScale - 2f;
-            // 2026-11-07 (赵金: "BOSS 再大一点，再大 3 分之一，最好满一点"): one third larger than the stage-fit size,
-            // feet still on the member cards; her head may pass under the top HUD.
-            float h = Mathf.Min((foot - topLimit) / Mathf.Max(.2f, visBottom - visTop), 640f / Mathf.Max(.2f, ratio)) * BossSizeBoost1107;
+            // 2026-11-07 (赵金: "BOSS 再大一点，再大 3 分之一"): a third larger than the old 640-wide fit…
+            // 2026-11-08 (少爷: "可以大但是 UI 问题太大了"): …but her visible figure never rises into the top HUD
+            // and her feet stay on the member cards, so the boss fills the stage exactly and covers no control text.
+            float fitHeight = (foot - topLimit) / Mathf.Max(.2f, visBottom - visTop);
+            float h = Mathf.Min(fitHeight, 640f / Mathf.Max(.2f, ratio) * BossSizeBoost1107);
             // Never wider than the stage plus a sliver each side, so her silhouette stays on screen and clear of the adds.
             h = Mathf.Min(h, BossMaxWidth1107 / Mathf.Max(.2f, ratio));
             float w = h * ratio;
@@ -94,6 +96,8 @@ namespace ChoSiren.Panels
             string name = art != null ? art.name : string.Empty;
             if (name.Contains("20260928")) { top = .002f; bottom = .977f; head = new Vector2(.5f, .1f); return; }
             if (name.Contains("boss-throne-user-v1")) { top = .044f; bottom = .938f; head = new Vector2(.5f, .17f); return; }
+            // 2026-11-08: measured alpha bounds (crown at the very top, tail fin at the bottom edge).
+            if (name.Contains("boss-selene-1103")) { top = .001f; bottom = 1f; head = new Vector2(.5f, .12f); return; }
             top = .03f; bottom = .95f; head = new Vector2(.5f, .15f);
         }
 

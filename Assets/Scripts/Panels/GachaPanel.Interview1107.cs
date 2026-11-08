@@ -49,13 +49,31 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(stack, 0f, 0f, 720f, IvPageH);
             IvImage(stack, "InterviewCard2", Resources.Load<Sprite>(InterviewArt1107 + "iv-card-2"), Iv(0, 3515, 1665, 5734));
             IvImage(stack, "InterviewCard1", Resources.Load<Sprite>(InterviewArt1107 + "iv-card-1"), Iv(0, 2866, 1658, 5085));
+            // 2026-11-08: the front badge is its own rect, pivoted on the lanyard clip so it can swing. The photo sits
+            // in a rotated rect behind the badge's tilted window and is clipped by the window's own shape
+            // (iv-card-0-window, cut from the card art), so the portrait never spills past the frame.
+            Rect cardRect = Iv(0, 1700, 1947, 4593);
             RectTransform front = kit.NewRect("CandidatePortrait", page);
-            PanelKit.PlaceTop(front, 0f, 0f, 720f, IvPageH);
+            front.anchorMin = front.anchorMax = new Vector2(0f, 1f);
+            front.pivot = BadgeClipPivot1108;
+            front.sizeDelta = cardRect.size;
+            front.anchoredPosition = new Vector2(cardRect.x + cardRect.width * front.pivot.x, -(cardRect.y + cardRect.height * (1f - front.pivot.y)));
             RectTransform window = kit.NewRect("CandidateWindow", front);
-            Rect windowRect = Iv(168, 2325, 1681, 4163);
-            PanelKit.PlaceTop(window, windowRect.x, windowRect.y, windowRect.width, windowRect.height);
-            window.gameObject.AddComponent<RectMask2D>();
-            IvImage(front, "InterviewCard0", Resources.Load<Sprite>(InterviewArt1107 + "iv-card-0"), Iv(0, 1700, 1947, 4593));
+            PanelKit.Stretch(window);
+            Image windowShape = window.gameObject.AddComponent<Image>();
+            windowShape.sprite = Resources.Load<Sprite>(InterviewArt1107 + "iv-card-0-window");
+            windowShape.raycastTarget = false;
+            window.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            float px = cardRect.width / BadgeArtSize1108.x;
+            RectTransform photo = kit.NewRect("CandidatePhoto", window);
+            photo.anchorMin = photo.anchorMax = new Vector2(0f, 1f);
+            photo.pivot = new Vector2(.5f, .5f);
+            photo.anchoredPosition = new Vector2(BadgeHoleCentre1108.x * px, -BadgeHoleCentre1108.y * px);
+            photo.sizeDelta = BadgeHoleSize1108 * px * 1.06f;
+            photo.localEulerAngles = new Vector3(0f, 0f, BadgeTilt1108);
+            Image badgeFrame = kit.NewImage("InterviewCard0", front, Resources.Load<Sprite>(InterviewArt1107 + "iv-card-0"), Color.white);
+            PanelKit.Stretch(badgeFrame.rectTransform);
+            badgeFrame.raycastTarget = false;
             IvImage(page, "InterviewPig", Resources.Load<Sprite>(InterviewArt1107 + "iv-pig"), Iv(1214, 534, 2302, 1486));
 
             BuildInterviewPools1107(page);
@@ -71,10 +89,10 @@ namespace ChoSiren.Panels
             MemberDefinition member = GameModel.Members[memberIndex];
             MemberProfile1107 profile = MemberProfile1107.Of(member.Id);
 
-            Image portrait = kit.NewImage("CandidatePortraitArt", window, CandidateSprite(member), Color.white);
+            Image portrait = kit.NewImage("CandidatePortraitArt", photo, CandidateSprite(member), Color.white);
             PanelKit.Stretch(portrait.rectTransform);
             portrait.raycastTarget = false;
-            if (portrait.sprite != null) PanelKit.FrameBustPortrait(portrait, window, member.Id);
+            if (portrait.sprite != null) PanelKit.FrameBustPortrait(portrait, photo, member.Id);
 
             Text name = IvText(page, "CandidateName", member.Name, 50, Color.white, Iv(1980, 1440, 2680, 1800), TextAnchor.MiddleCenter, FontStyle.Bold);
             name.gameObject.AddComponent<Outline>().effectColor = new Color32(60, 30, 110, 255);
@@ -143,10 +161,38 @@ namespace ChoSiren.Panels
                 nav.x + 70f, nav.y, nav.width - 140f, nav.height, TextAnchor.MiddleCenter, FontStyle.Bold);
             counter.name = "CandidateCounter";
             counter.gameObject.AddComponent<Outline>().effectColor = new Color32(20, 10, 40, 255);
-            Button previous = SwitchArrow1107.Create(page, "PreviousCandidate", -1, new Rect(nav.x, nav.y, 70f, nav.height), () => MoveInterviewCandidate(-1));
-            Button next = SwitchArrow1107.Create(page, "NextCandidate", 1, new Rect(nav.xMax - 70f, nav.y, 70f, nav.height), () => MoveInterviewCandidate(1));
+            InterviewBadgeSwipe1108 swipe = AttachBadgeSwipe1108(page, Iv(0, 1700, 1700, 5800));
+            Button previous = SwitchArrow1107.Create(page, "PreviousCandidate", -1, new Rect(nav.x, nav.y, 70f, nav.height), () => ThrowBadge1108(swipe, -1));
+            Button next = SwitchArrow1107.Create(page, "NextCandidate", 1, new Rect(nav.xMax - 70f, nav.y, 70f, nav.height), () => ThrowBadge1108(swipe, 1));
             previous.interactable = next.interactable = candidates.Count > 1;
-            AttachCandidateSwipe1102(page, Iv(0, 1700, 1700, 5800));
+        }
+
+        // iv-card-0 (623 × 925 px): the lanyard clip, the tilted window's centre / size and its tilt (measured from the art).
+        private static readonly Vector2 BadgeArtSize1108 = new Vector2(623f, 925f);
+        private static readonly Vector2 BadgeClipPivot1108 = new Vector2(180f / 623f, 1f - 18f / 925f);
+        private static readonly Vector2 BadgeHoleCentre1108 = new Vector2(291f, 494f);
+        private static readonly Vector2 BadgeHoleSize1108 = new Vector2(423f, 568f);
+        private const float BadgeTilt1108 = 15f;
+
+        /// <summary>Drag surface over the badge stack: the badge swings on its clip and is thrown to change candidate.</summary>
+        private InterviewBadgeSwipe1108 AttachBadgeSwipe1108(RectTransform page, Rect bounds)
+        {
+            var badge = page.Find("CandidatePortrait") as RectTransform;
+            var stack = page.Find("CandidateCard") as RectTransform;
+            if (badge == null) return null;
+            Image hit = kit.NewImage("CandidateSwipeSurface", page, null, Color.clear);
+            PanelKit.PlaceTop(hit.rectTransform, bounds.x, bounds.y, bounds.width, bounds.height);
+            hit.raycastTarget = true;
+            var swipe = hit.gameObject.AddComponent<InterviewBadgeSwipe1108>();
+            swipe.Configure(badge, stack, () => !closing && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
+            return swipe;
+        }
+
+        /// <summary>‹ ›: change at once (the counter and buttons answer immediately); the new badge swings in from the stack.</summary>
+        private void ThrowBadge1108(InterviewBadgeSwipe1108 swipe, int direction)
+        {
+            if (InterviewCandidates().Count > 1) InterviewBadgeSwipe1108.PendingEntry = direction;
+            MoveInterviewCandidate(direction);
         }
 
         /// <summary>线上面试 / 线下面试 are baked into the board: hits over each, the chosen one gets a teal underline.</summary>
