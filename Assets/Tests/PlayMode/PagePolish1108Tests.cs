@@ -77,12 +77,43 @@ namespace ChoSiren.Tests
                 Assert.That(pig.GetSiblingIndex(), Is.LessThan(board.GetSiblingIndex()), "the pig peeks from behind the banner");
                 Text power = team.Find("TeamPowerValue").GetComponent<Text>();
                 Assert.That(power.rectTransform.localEulerAngles.z, Is.EqualTo(5.5f).Within(.01f), "the number rides the banner's slant");
-                Assert.That(team.Find("TeamPresetStrip"), Is.Not.Null, "five chips scroll in their own strip");
-                Assert.That(team.Find("TeamPresetStrip").GetComponent<ScrollRect>().horizontal, Is.True);
-                Assert.That(team.Find("ChangeLeader").GetComponent<BakedRegionMotion038>(), Is.Not.Null, "更换队长 presses with its art");
-                Assert.That(team.Find("AutoTeam").GetComponent<BakedRegionMotion038>(), Is.Not.Null, "一键编队 presses with its art");
+                Assert.That(team.Find("TeamPreset-0"), Is.Null, "no row of chips under the pig / banner");
+                Assert.That(team.Find("TeamPresetPicker/Label").GetComponent<Text>().text, Is.EqualTo(model.ActiveTeamName));
+                foreach (string sticker in new[] { "ChangeLeader", "AutoTeam" })
+                {
+                    // 更换队长 / 一键编队 are their own RGBA layers; the lobby feedback squashes on press and pops past full size on release.
+                    Transform hit = team.Find(sticker);
+                    RectTransform art = (RectTransform)hit.Find("StickerVisualV2");
+                    Assert.That(art.GetComponent<Image>().sprite, Is.Not.Null, sticker);
+                    Assert.That(hit.GetComponent<LobbyHotspotFeedback>(), Is.Not.Null, sticker);
+                    var press = new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left, pointerId = 0 };
+                    ExecuteEvents.Execute(hit.gameObject, press, ExecuteEvents.pointerEnterHandler);
+                    ExecuteEvents.Execute(hit.gameObject, press, ExecuteEvents.pointerDownHandler);
+                    yield return new WaitForSecondsRealtime(.15f);
+                    Assert.That(art.localScale.x, Is.LessThan(1f), sticker + " squashes under the finger");
+                    ExecuteEvents.Execute(hit.gameObject, press, ExecuteEvents.pointerUpHandler);
+                    ExecuteEvents.Execute(hit.gameObject, press, ExecuteEvents.pointerExitHandler);
+                    float peak = 0f;
+                    for (float t = 0f; t < .3f; t += Time.unscaledDeltaTime) { peak = Mathf.Max(peak, art.localScale.x); yield return null; }
+                    Assert.That(peak, Is.GreaterThan(1.02f), sticker + " pops out on release");
+                    yield return new WaitForSecondsRealtime(.3f);
+                    Assert.That(art.localScale.x, Is.EqualTo(1f).Within(.002f), sticker + " settles");
+                }
                 AssertCovered(team);
                 Capture(camera, target, "team.png");
+                // 2026-11-08 (少爷: "队伍搞下拉选择吧"): the picker drops down every team plus 新建队伍.
+                team.Find("TeamPresetPicker").GetComponent<Button>().onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.3f);
+                Transform teamMenu = team.Find("TeamPresetMenu");
+                Assert.That(teamMenu, Is.Not.Null);
+                Assert.That(teamMenu.Find("TeamPresetAdd"), Is.Not.Null, "room for a fifth team");
+                Assert.That(Enumerable.Range(0, model.VisibleTeamPresetCount).All(i => teamMenu.Find("TeamPreset-" + i) != null), Is.True);
+                Capture(camera, target, "team-picker.png");
+                int other = model.Save.ActiveTeamPreset == 0 ? 1 : 0;
+                teamMenu.Find("TeamPreset-" + other).GetComponent<Button>().onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.3f);
+                Assert.That(model.Save.ActiveTeamPreset, Is.EqualTo(other));
+                Assert.That(Find("TeamReferenceBoard038").Find("TeamPresetMenu"), Is.Null);
 
                 // 饰品: sort drop-down
                 yield return Show("accessory");
@@ -110,6 +141,8 @@ namespace ChoSiren.Tests
                 yield return Show("audition");
                 Transform photoBg = app.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "CandidatePhotoBg");
                 Assert.That(photoBg, Is.Not.Null, "cut-out busts stand on the badge-blue backdrop");
+                Assert.That(app.GetComponentsInChildren<Image>().Count(i => i.name == "BackCardPortrait" && i.sprite != null), Is.EqualTo(2),
+                    "both back cards show the next candidates");
                 Capture(camera, target, "audition.png");
                 Text counter = app.GetComponentsInChildren<Text>().First(t => t.name == "CandidateCounter");
                 string before = counter.text;
@@ -125,7 +158,9 @@ namespace ChoSiren.Tests
                     eligibleForClick = true, button = PointerEventData.InputButton.Left,
                 };
                 swipe.OnPointerClick(click);
-                yield return new WaitForSecondsRealtime(.6f);
+                yield return new WaitForSecondsRealtime(.2f);
+                Capture(camera, target, "audition-promoting.png");
+                yield return new WaitForSecondsRealtime(.5f);
                 counter = app.GetComponentsInChildren<Text>().First(t => t.name == "CandidateCounter");
                 Assert.That(counter.text, Is.Not.EqualTo(before), "tapping a back card brings it forward");
                 yield return new WaitForSecondsRealtime(.7f);

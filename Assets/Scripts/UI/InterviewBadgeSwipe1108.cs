@@ -32,6 +32,8 @@ namespace ChoSiren.UI
         int throwSteps = 1;
         /// <summary>2026-11-08 (少爷: "点击下面两张直接切换或者上下左右"): maps a tap to how many candidates to skip (0 = ignore).</summary>
         public Func<PointerEventData, int> TapSteps;
+        /// <summary>When set, a tapped back card is promoted by the owner's own animation instead of a throw.</summary>
+        public Action<int> TapPromote;
         float dragStartOffset, speed, previousX, previousTime;
         // animation state
         enum Mode { Idle, Home, Exit, Enter }
@@ -68,7 +70,13 @@ namespace ChoSiren.UI
         {
             if (dragging || !e.eligibleForClick || TapSteps == null) return;
             int steps = TapSteps(e);
-            if (steps != 0) Throw(steps);
+            if (steps == 0) return;
+            if (TapPromote != null)
+            {
+                if (Busy || allowed == null || !allowed()) return;
+                TapPromote(steps);
+            }
+            else Throw(steps);
         }
 
         public void OnInitializePotentialDrag(PointerEventData e)

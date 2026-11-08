@@ -46,11 +46,13 @@ namespace ChoSiren
             PlaceTop(pig.rectTransform, pigRect.x, pigRect.y, pigRect.width, pigRect.height);
             pig.raycastTarget = false;
             Image board = NewImage("TeamBoard1107", root, Resources.Load<Sprite>(TeamArt1107 + "team-board"), White).GetComponent<Image>();
-            Rect boardRect = Team1107(30, 420, 1994, 4272);
+            // 2026-11-08 (少爷: "战斗力右边很生硬的硬切了"): the banner art runs 240 px past the PSD edge so it leaves the
+            // screen instead of stopping short of it.
+            Rect boardRect = Team1107(30, 420, 1994 + 240, 4272);
             PlaceTop(board.rectTransform, boardRect.x, boardRect.y, boardRect.width, boardRect.height);
             board.raycastTarget = false;
 
-            BuildTeamPresetControls1028(root, TX(40), TY(458), true, TX(770) - TX(40));
+            BuildTeamPresetPicker1108(root, TX(40), TY(458));
 
             // 队伍 plate: the name (tap to rename) and the pencil.
             Rect plate = Team1107(325, 950, 675, 1100);
@@ -74,7 +76,7 @@ namespace ChoSiren
 
             // 2026-11-08 (少爷: "战斗力太粗糙…字体是斜的"): the board's number is inpainted out of 主UI (no boxes), and the live
             // number is drawn like the PSD's: huge, italic, white, riding the banner's ~5.5° rise.
-            Rect power = Team1107(1030, 660, 1985, 1040);
+            Rect power = Team1107(1020, 660, 1940, 1040);
             Text powerValue = BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 160, White, power.x, power.y, power.width, power.height, TextAnchor.MiddleCenter);
             powerValue.fontStyle = FontStyle.BoldAndItalic;
             powerValue.raycastTarget = false;
@@ -90,8 +92,8 @@ namespace ChoSiren
 
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++) TeamCard1107(root, slot, count);
 
-            TeamSticker1107("ChangeLeader", root, Team1107(375, 3500, 900, 3850), OpenCaptainPicker);
-            TeamSticker1107("AutoTeam", root, Team1107(987, 3512, 1575, 3862), () =>
+            TeamSticker1107("ChangeLeader", root, "team-sticker-leader", Team1107(315, 3472, 959, 3902), OpenCaptainPicker);
+            TeamSticker1107("AutoTeam", root, "team-sticker-auto", Team1107(955, 3473, 1610, 3888), () =>
             {
                 model.TryAutoTeam(out string message);
                 ShowScreen("team");
@@ -237,20 +239,20 @@ namespace ChoSiren
             ModalPolish038Chrome.FitHeight(frame, 280f);
         }
 
-        /// <summary>A baked PSD sticker button: an invisible hit area with the lobby's hover / press feedback.</summary>
-        private void TeamSticker1107(string name, Transform parent, Rect bounds, UnityEngine.Events.UnityAction action)
+        /// <summary>
+        /// 2026-11-08 (少爷: "没有单独的图层吗…像首页那样点击后有放大的感觉"): 更换队长 / 一键编队 are cut out of the board
+        /// into their own RGBA layers (team-sticker-*.png) and live inside the button, so the lobby's tactile feedback moves
+        /// the real sticker: it grows on hover, squashes on press and springs back past full size on release.
+        /// </summary>
+        private void TeamSticker1107(string name, Transform parent, string art, Rect bounds, UnityEngine.Events.UnityAction action)
         {
             GameObject button = BoardButton038(name, parent, bounds, action);
             button.GetComponent<Image>().color = Color.clear;
-            // 2026-11-08 (少爷: "更换队长跟一键编队没有点击感反馈"): the baked sticker itself lifts on hover and presses in.
-            Image board = parent.Find("TeamBoard1107")?.GetComponent<Image>();
-            if (board != null)
-            {
-                // Board px: PSD minus (30, 420), scaled to the imported texture (the 1964 px art imports at max 2048 tall).
-                float k = board.sprite != null ? board.sprite.rect.width / 1964f / .39f : 1f / .39f;
-                Rect region = new Rect((bounds.x - TX(30)) * k, (bounds.y - TY(420)) * k, bounds.width * k, bounds.height * k);
-                MainBakedMotion038Attach(button, board, region);
-            }
+            Image sticker = NewImage("StickerVisualV2", button.transform, Resources.Load<Sprite>(TeamArt1107 + art), White).GetComponent<Image>();
+            Stretch(sticker.rectTransform);
+            sticker.raycastTarget = false;
+            sticker.transform.SetAsFirstSibling();
+            AttachLobbyHotspotFeedback(button, LobbyHotspotFeedback.VisualKind.Entry); // re-capture with the sticker layer
         }
 
         /// <summary>Rotates a placed label about its centre so it rides a slanted PSD plate.</summary>

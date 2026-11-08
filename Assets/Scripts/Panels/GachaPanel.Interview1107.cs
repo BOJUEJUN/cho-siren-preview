@@ -97,6 +97,12 @@ namespace ChoSiren.Panels
             PanelKit.Stretch(portrait.rectTransform);
             portrait.raycastTarget = false;
             if (portrait.sprite != null) PanelKit.FrameBustPortrait(portrait, photo, member.Id);
+            // 2026-11-08 (少爷: "底部两张也要有角色立绘"): the back cards show the next two candidates.
+            for (int k = 1; k <= 2 && k < candidates.Count; k++)
+            {
+                var back = stack.Find("InterviewCard" + k) as RectTransform;
+                if (back != null) BackCardPortrait1108(back, k, candidates[(interviewCandidateIndex + k) % candidates.Count]);
+            }
 
             Text name = IvText(page, "CandidateName", member.Name, 50, Color.white, Iv(1980, 1440, 2680, 1800), TextAnchor.MiddleCenter, FontStyle.Bold);
             name.gameObject.AddComponent<Outline>().effectColor = new Color32(60, 30, 110, 255);
@@ -175,9 +181,82 @@ namespace ChoSiren.Panels
         // iv-card-0 (623 × 925 px): the lanyard clip, the tilted window's centre / size and its tilt (measured from the art).
         private static readonly Vector2 BadgeArtSize1108 = new Vector2(623f, 925f);
         private static readonly Vector2 BadgeClipPivot1108 = new Vector2(180f / 623f, 1f - 18f / 925f);
-        private static readonly Vector2 BadgeHoleCentre1108 = new Vector2(291f, 494f);
-        private static readonly Vector2 BadgeHoleSize1108 = new Vector2(423f, 568f);
-        private const float BadgeTilt1108 = 15f;
+        // 2026-11-08 (少爷: "工牌边缘有点脏"): the window is redrawn as a crisp rounded rect with a clean purple rim.
+        private static readonly Vector2 BadgeHoleCentre1108 = new Vector2(297.6f, 495.5f);
+        private static readonly Vector2 BadgeHoleSize1108 = new Vector2(424f, 581f);
+        private const float BadgeTilt1108 = 15.5f;
+        // The two back cards (iv-card-1 / -2, 530 × 710 px) and their windows.
+        private static readonly Vector2 BackCardArt1108 = new Vector2(530f, 710f);
+        private static readonly Vector2[] BackHoleCentre1108 = { new Vector2(273f, 392.1f), new Vector2(275f, 392.3f) };
+        private static readonly Vector2 BackHoleSize1108 = new Vector2(317.7f, 443.6f);
+
+        /// <summary>A back card's masked photo: badge-blue backdrop + the candidate's bust, tilted like its window.</summary>
+        private void BackCardPortrait1108(RectTransform card, int k, int memberIndex)
+        {
+            if (memberIndex < 0 || memberIndex >= GameModel.Members.Length) return;
+            float px = card.sizeDelta.x / BackCardArt1108.x;
+            RectTransform window = kit.NewRect("BackCardWindow", card);
+            PanelKit.Stretch(window);
+            Image shape = window.gameObject.AddComponent<Image>();
+            shape.sprite = Resources.Load<Sprite>(InterviewArt1107 + "iv-card-" + k + "-window");
+            shape.raycastTarget = false;
+            window.gameObject.AddComponent<Mask>().showMaskGraphic = false;
+            RectTransform photo = kit.NewRect("BackCardPhoto", window);
+            photo.anchorMin = photo.anchorMax = new Vector2(0f, 1f);
+            photo.pivot = new Vector2(.5f, .5f);
+            Vector2 centre = BackHoleCentre1108[k - 1];
+            photo.anchoredPosition = new Vector2(centre.x * px, -centre.y * px);
+            photo.sizeDelta = BackHoleSize1108 * px * 1.06f;
+            photo.localEulerAngles = new Vector3(0f, 0f, BadgeTilt1108);
+            Image bg = kit.NewImage("BackCardPhotoBg", photo, Resources.Load<Sprite>(InterviewArt1107 + "iv-photo-bg"), Color.white);
+            PanelKit.Stretch(bg.rectTransform);
+            bg.raycastTarget = false;
+            MemberDefinition member = GameModel.Members[memberIndex];
+            Image bust = kit.NewImage("BackCardPortrait", photo, CandidateSprite(member), Color.white);
+            PanelKit.Stretch(bust.rectTransform);
+            bust.raycastTarget = false;
+            if (bust.sprite != null) PanelKit.FrameBustPortrait(bust, photo, member.Id);
+        }
+
+        private bool promoting1108;
+
+        /// <summary>The tapped back card rises over the stack into the front badge's place while the front badge slides off.</summary>
+        private System.Collections.IEnumerator PromoteBackCard1108(RectTransform page, int steps)
+        {
+            var stack = page != null ? page.Find("CandidateCard") as RectTransform : null;
+            var card = stack != null ? stack.Find(steps >= 2 ? "InterviewCard2" : "InterviewCard1") as RectTransform : null;
+            var front = page != null ? page.Find("CandidatePortrait") as RectTransform : null;
+            if (card == null || front == null || ChoSiren.BattlePresentationOptions.ReduceMotion) { MoveInterviewCandidate(steps); yield break; }
+            promoting1108 = true;
+            card.SetParent(page, true);
+            card.SetAsLastSibling();
+            Vector2 from = card.anchoredPosition;
+            Rect target = Iv(0, 1700, 1947, 4593);
+            Vector2 to = new Vector2(target.x, -target.y);
+            float grow = target.width / Mathf.Max(1f, card.sizeDelta.x);
+            CanvasGroup fade = front.GetComponent<CanvasGroup>();
+            if (fade == null) fade = front.gameObject.AddComponent<CanvasGroup>();
+            Vector2 frontFrom = front.anchoredPosition;
+            Quaternion frontTurn = front.localRotation;
+            const float seconds = .42f;
+            for (float t = 0f; t < seconds;)
+            {
+                t += Mathf.Min(Time.unscaledDeltaTime, .05f);
+                float k = Mathf.Clamp01(t / seconds);
+                float c = 1.4f, e = 1f + (c + 1f) * Mathf.Pow(k - 1f, 3f) + c * Mathf.Pow(k - 1f, 2f); // ease-out-back
+                float arc = Mathf.Sin(k * Mathf.PI);
+                card.anchoredPosition = Vector2.LerpUnclamped(from, to, e) + new Vector2(0f, arc * 36f);
+                card.localScale = Vector3.one * Mathf.LerpUnclamped(1f, grow, e);
+                card.localEulerAngles = new Vector3(0f, 0f, -arc * 5f);
+                front.anchoredPosition = frontFrom + new Vector2(-280f * k * k, -24f * k);
+                front.localRotation = frontTurn * Quaternion.Euler(0f, 0f, 14f * k);
+                fade.alpha = 1f - k;
+                yield return null;
+            }
+            promoting1108 = false;
+            ChoSiren.UI.InterviewBadgeSwipe1108.PendingEntry = 0;
+            MoveInterviewCandidate(steps);
+        }
 
         /// <summary>Drag surface over the badge stack: the badge swings on its clip and is thrown to change candidate.</summary>
         private InterviewBadgeSwipe1108 AttachBadgeSwipe1108(RectTransform page, Rect bounds)
@@ -189,7 +268,9 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(hit.rectTransform, bounds.x, bounds.y, bounds.width, bounds.height);
             hit.raycastTarget = true;
             var swipe = hit.gameObject.AddComponent<InterviewBadgeSwipe1108>();
-            swipe.Configure(badge, stack, () => !closing && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
+            swipe.Configure(badge, stack, () => !closing && !promoting1108 && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
+            // 2026-11-08 (少爷: "点击底部第一张要有这张到最顶部的动画"): a tapped back card flies up to the front.
+            swipe.TapPromote = steps => StartCoroutine(PromoteBackCard1108(page, steps));
             // Tapping the visible strip of the first back card skips one candidate, the second back card two.
             swipe.TapSteps = e =>
             {

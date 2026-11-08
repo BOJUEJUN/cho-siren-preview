@@ -83,11 +83,16 @@ namespace ChoSiren
         private int state;
         private float elapsed, duration, fromAlpha, fromScale = 1f, fromLift;
         private bool release;
+        // 2026-11-08 (少爷: "点击后有放大的感觉…统一优化触感"): letting go of a press pops the art out past full size and
+        // back (a finger has no hover, so this is the part of the feedback a phone actually shows).
+        private float popElapsed = -1f;
+        private const float PopSeconds = .24f, PopAmount = .055f;
 
         public void Update(int target, float dt)
         {
             if (state != target)
             {
+                if (state == 2) popElapsed = 0f;
                 release = state == 2 && target == 1;
                 state = target; elapsed = 0f;
                 duration = target == 2 ? .08f : target == 0 ? .12f : .16f;
@@ -99,10 +104,16 @@ namespace ChoSiren
             float spring = release ? 1f + 1.65f * Mathf.Pow(t - 1f, 3f) + .65f * Mathf.Pow(t - 1f, 2f) : eased;
             Alpha = Mathf.Lerp(fromAlpha, state == 2 ? .92f : state == 1 ? .62f : 0f, eased);
             Scale = Mathf.LerpUnclamped(fromScale, state == 2 ? .97f : state == 1 ? 1.025f : 1f, spring);
+            if (popElapsed >= 0f)
+            {
+                popElapsed += dt;
+                if (popElapsed >= PopSeconds || state == 2) popElapsed = -1f;
+                else Scale += PopAmount * Mathf.Sin(Mathf.PI * popElapsed / PopSeconds);
+            }
             Lift = Mathf.LerpUnclamped(fromLift, state == 1 ? 2f : 0f, spring);
         }
 
-        public void Reset() { state = 0; elapsed = duration = 0; Alpha = Lift = fromAlpha = fromLift = 0f; Scale = fromScale = 1f; release = false; }
+        public void Reset() { state = 0; elapsed = duration = 0; Alpha = Lift = fromAlpha = fromLift = 0f; Scale = fromScale = 1f; release = false; popElapsed = -1f; }
     }
 
     /// <summary>Only image artwork moves; captions, underlines and input/layout objects stay fixed.</summary>

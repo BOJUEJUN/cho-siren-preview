@@ -11,8 +11,7 @@ namespace ChoSiren
         /// Team preset tabs. 2026-11-07 (团队.psd): with <paramref name="chips1107"/> they sit top-left as the PSD's teal /
         /// dark chips at (<paramref name="left"/>, <paramref name="top"/>), the active one dark text on teal.
         /// </summary>
-        private void BuildTeamPresetControls1028(Transform root, float left = 80f, float top = 1520f, bool chips1107 = false,
-            float stripWidth = 0f)
+        private void BuildTeamPresetControls1028(Transform root, float left = 80f, float top = 1520f, bool chips1107 = false)
         {
             int visible = model.VisibleTeamPresetCount;
             bool canAdd = visible < GameModel.TeamPresetCount;
@@ -21,33 +20,6 @@ namespace ChoSiren
             float width = chips1107 ? 132f : Mathf.Clamp((620f - gap * (items - 1)) / items, 92f, 132f);
             float height = chips1107 ? 54f : 64f;
             float x = left;
-            RectTransform strip = null, viewport = null;
-            if (chips1107 && stripWidth > 0f && items * (width + gap) - gap > stripWidth)
-            {
-                // 2026-11-08 (少爷: "队伍加多了会有UI遮挡"): more chips than fit left of the pig / banner scroll sideways in
-                // their own clipped strip (a slimmer chip so the next one peeks out), instead of running under the banner.
-                width = 112f;
-                const float pad = 10f;
-                var view = NewImage("TeamPresetStrip", root, null, Color.clear);
-                viewport = view.GetComponent<RectTransform>();
-                PlaceTop(viewport, left, top - pad, stripWidth, height + pad * 2f);
-                view.GetComponent<Image>().raycastTarget = true;
-                view.AddComponent<RectMask2D>().softness = new Vector2Int(14, 0);
-                var content = new GameObject("Content", typeof(RectTransform));
-                content.transform.SetParent(viewport, false);
-                strip = (RectTransform)content.transform;
-                float contentWidth = items * (width + gap) - gap;
-                PlaceTop(strip, 0f, 0f, contentWidth, height + pad * 2f);
-                var scroll = view.AddComponent<ScrollRect>();
-                scroll.content = strip; scroll.viewport = viewport;
-                scroll.horizontal = true; scroll.vertical = false;
-                scroll.movementType = ScrollRect.MovementType.Elastic;
-                scroll.scrollSensitivity = 18f;
-                float activeX = model.Save.ActiveTeamPreset * (width + gap);
-                float target = Mathf.Clamp(activeX - (stripWidth - width) * .5f, 0f, Mathf.Max(0f, contentWidth - stripWidth));
-                strip.anchoredPosition = new Vector2(-target, 0f);
-                root = strip; x = 0f; top = pad;
-            }
             for (int i = 0; i < visible; i++)
             {
                 int slot = i;
@@ -95,6 +67,93 @@ namespace ChoSiren
                 face.color = Color.white;
             }
             else SirenPageChrome.Tab(add, false);
+        }
+
+        /// <summary>
+        /// 2026-11-08 (少爷: "队伍搞下拉选择吧"): the 团队 page shows one chip with the current team; tapping it drops down every
+        /// team (current one solid teal, × to delete it when there is more than one) and 「＋ 新建队伍」 while there is room.
+        /// </summary>
+        private void BuildTeamPresetPicker1108(Transform root, float left, float top)
+        {
+            const float width = 210f, height = 54f;
+            var active = model.Save.TeamPresets[model.Save.ActiveTeamPreset];
+            GameObject picker = BoardButton038("TeamPresetPicker", root, new Rect(left, top, width, height),
+                () => ToggleTeamPresetMenu1108(root, new Rect(left, top, width, height)));
+            Image face = picker.GetComponent<Image>();
+            face.sprite = Resources.Load<Sprite>("Art/Ui1107/team-tab-on");
+            face.color = Color.white;
+            Text label = BoardText038(picker.transform, "Label", active.Name, 23, Brand1025.Ink, 14, 2, width - 58, height - 4, TextAnchor.MiddleCenter);
+            label.fontStyle = FontStyle.Bold;
+            label.supportRichText = false;
+            PanelKit.EnableBestFit(label, 16);
+            BoardText038(picker.transform, "Arrow", "▼", 20, Brand1025.Ink, width - 46, 2, 30, height - 4, TextAnchor.MiddleCenter);
+        }
+
+        private void ToggleTeamPresetMenu1108(Transform root, Rect anchor)
+        {
+            Transform existing = root.Find("TeamPresetMenu");
+            if (existing != null)
+            {
+                Destroy(existing.gameObject);
+                Transform oldBlocker = root.Find("TeamPresetBlocker");
+                if (oldBlocker != null) Destroy(oldBlocker.gameObject);
+                return;
+            }
+            int visible = model.VisibleTeamPresetCount;
+            bool canAdd = visible < GameModel.TeamPresetCount;
+            GameObject blocker = NewImage("TeamPresetBlocker", root, null, new Color(0f, 0f, 0f, .16f));
+            RectTransform blockerRect = blocker.GetComponent<RectTransform>();
+            blockerRect.anchorMin = blockerRect.anchorMax = blockerRect.pivot = new Vector2(.5f, .5f);
+            blockerRect.anchoredPosition = Vector2.zero;
+            blockerRect.sizeDelta = new Vector2(12000f, 12000f);
+            blocker.GetComponent<Image>().raycastTarget = true;
+            GameObject menu = NewImage("TeamPresetMenu", root, null, new Color32(16, 10, 34, 246));
+            void Close() { Destroy(menu); Destroy(blocker); }
+            blocker.AddComponent<Button>().onClick.AddListener(Close);
+            const float rowH = 58f, pad = 8f;
+            float width = anchor.width + 40f;
+            int rows = visible + (canAdd ? 1 : 0);
+            PlaceTop(menu.GetComponent<RectTransform>(), anchor.x, anchor.yMax + 6f, width, pad * 2f + rowH * rows);
+            menu.GetComponent<Image>().raycastTarget = true;
+            Outline rim = menu.AddComponent<Outline>();
+            rim.effectColor = Brand1025.Teal; rim.effectDistance = new Vector2(2f, -2f);
+            for (int i = 0; i < visible; i++)
+            {
+                int slot = i;
+                bool on = i == model.Save.ActiveTeamPreset;
+                GameObject row = BoardButton038("TeamPreset-" + i, menu.transform, new Rect(pad, pad + rowH * i, width - pad * 2f, rowH - 6f), () =>
+                {
+                    Close();
+                    if (on) return;
+                    if (model.SelectTeamPreset(slot, out string message)) ShowScreen("team");
+                    else Toast(message);
+                });
+                row.GetComponent<Image>().color = on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .06f);
+                Text name = BoardText038(row.transform, "Label", model.Save.TeamPresets[i].Name, 22, on ? (Color)Brand1025.Ink : Color.white,
+                    10, 0, width - pad * 2f - (on && visible > 1 ? 60f : 20f), rowH - 6f, TextAnchor.MiddleCenter);
+                name.fontStyle = FontStyle.Bold;
+                name.supportRichText = false;
+                PanelKit.EnableBestFit(name, 16);
+                if (on && visible > 1)
+                {
+                    // Delete sits only on the current team, so a stray tap cannot remove another one.
+                    GameObject delete = BoardButton038("TeamPresetDelete-" + i, row.transform,
+                        new Rect(width - pad * 2f - 48f, (rowH - 6f - 40f) * .5f, 40f, 40f), () => { Close(); OpenDeleteTeamDialog1028(slot); });
+                    BoardText038(delete.transform, "Cross", "×", 28, Brand1025.Ink, 0, 0, 40, 40, TextAnchor.MiddleCenter);
+                }
+            }
+            if (canAdd)
+            {
+                GameObject add = BoardButton038("TeamPresetAdd", menu.transform, new Rect(pad, pad + rowH * visible, width - pad * 2f, rowH - 6f), () =>
+                {
+                    Close();
+                    if (model.AddTeamPreset(out string message)) ShowScreen("team");
+                    Toast(message);
+                });
+                add.GetComponent<Image>().color = new Color(1f, 1f, 1f, .06f);
+                BoardText038(add.transform, "Label", "＋ 新建队伍", 22, Brand1025.Teal, 0, 0, width - pad * 2f, rowH - 6f, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
+            }
+            menu.AddComponent<DropdownPop1108>();
         }
 
         private void OpenDeleteTeamDialog1028(int slot)

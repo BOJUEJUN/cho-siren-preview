@@ -208,9 +208,15 @@ namespace ChoSiren
         /// <summary>
         /// 2026-11-07 public release: 作曲 only works with the private test code (the Suno service refuses everyone
         /// else), so public builds leave that tool out instead of showing a button that always says "未开通".
+        /// 2026-11-08 (少爷: "创意工坊…功能太多了要简化"): the bar keeps only what players come here for — AI 换装, 背景 and
+        /// 转身 (with 半身/全身 above). 滤镜 / 亮度 / 音高 / 录声音 / 应援色 / 律动 stay in code but are no longer shown.
         /// </summary>
+        internal static readonly string[] CoreWorkshopTools1108 = { "dress", "bg", "turn" };
+
+        /// <summary>The tools shown in the bar (作曲 only with the private test code).</summary>
         internal static (string Id, string Icon, string Name, int Shot)[] ShownWorkshopTools1107 =>
-            WorkshopMusic1105.TestBuild ? WorkshopTools1104 : System.Array.FindAll(WorkshopTools1104, t => t.Id != "music");
+            System.Array.FindAll(WorkshopTools1104, t => System.Array.IndexOf(CoreWorkshopTools1108, t.Id) >= 0
+                || t.Id == "music" && WorkshopMusic1105.TestBuild);
 
         /// <summary>Photo-editor tools stay in one horizontally scrollable strip below the live preview.</summary>
         private void BuildWorkshopTools1104(RectTransform root)
@@ -229,7 +235,9 @@ namespace ChoSiren
             content.SetParent(viewport, false);
             content.anchorMin = Vector2.zero; content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, .5f);
             var tools = ShownWorkshopTools1107;
-            content.sizeDelta = new Vector2(tools.Length * 94f, 0f);
+            // A few tools spread evenly across the bar instead of huddling at the left of a scroll strip.
+            float slot = Mathf.Max(94f, 700f / Mathf.Max(1, tools.Length));
+            content.sizeDelta = new Vector2(tools.Length * slot, 0f);
             var scroll = bar.gameObject.AddComponent<ScrollRect>();
             scroll.viewport = viewport; scroll.content = content; scroll.horizontal = true; scroll.vertical = false;
             scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 30f; scroll.decelerationRate = .08f;
@@ -238,7 +246,7 @@ namespace ChoSiren
                 var tool = tools[i];
                 var go = new GameObject("WorkshopTool-" + tool.Id, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 go.transform.SetParent(content, false);
-                WorkshopPoster1105.Corner((RectTransform)go.transform, new Vector2(0f, .5f), 4f + i * 94f, 0f, 86f, 96f);
+                WorkshopPoster1105.Corner((RectTransform)go.transform, new Vector2(0f, .5f), (slot - 120f) * .5f + i * slot, 0f, 120f, 96f);
                 Image hit = go.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, .001f);
                 Image plate = WorkshopPoster1105.Block(go.transform, "Disc", WorkshopPoster1105.Slant(.16f), Color.clear);
                 WorkshopPoster1105.Fill(plate.rectTransform, 2f, 3f, -2f, -3f);

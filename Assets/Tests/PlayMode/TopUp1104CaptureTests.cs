@@ -86,7 +86,7 @@ namespace ChoSiren.Tests
                 Invoke(app, "ActivatePsdHomeAction", "AlbumProduction");
                 yield return new WaitForSecondsRealtime(.8f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopPage1104"), Is.True, "创意工坊 opens");
-                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopTool-filter"), Is.True);
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopTool-dress"), Is.True);
                 yield return new WaitForSecondsRealtime(2.5f);
                 Assert.That(canvas.GetComponentsInChildren<RawImage>(true).Any(r => r.name == "WorkshopFigureVideo" && r.enabled),
                     Is.True, "初始角色's idle loop plays");
@@ -94,13 +94,15 @@ namespace ChoSiren.Tests
                 var stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
                 Assert.That(stage, Is.Not.Null);
                 Button Tool(string id) => canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "WorkshopTool-" + id);
+                // 2026-11-08: hidden tools (滤镜 / 亮度 / 应援色 …) are still opened directly to keep their panels covered.
+                void OpenTool(string id) => typeof(ChoSirenApp).GetMethod("OpenWorkshopTool1104", Private, null, new[] { typeof(string) }, null).Invoke(app, new object[] { id });
                 // 2026-11-07: 作曲 is shown only in the private test build (public builds have nine tools).
-                Assert.That(canvas.GetComponentsInChildren<Button>(true).Count(b => b.name.StartsWith("WorkshopTool-")), Is.EqualTo(WorkshopMusic1105.TestBuild ? 10 : 9), "all editing tools stay accessible");
+                Assert.That(canvas.GetComponentsInChildren<Button>(true).Count(b => b.name.StartsWith("WorkshopTool-")), Is.EqualTo(WorkshopMusic1105.TestBuild ? 4 : 3), "the simplified bar shows 换装 / 背景 / 转身");
                 Assert.That(canvas.GetComponentsInChildren<Button>(true).Any(b => b.name == "WorkshopTool-music"), Is.EqualTo(WorkshopMusic1105.TestBuild), "作曲 only appears with the private test code");
                 Assert.That(stage.Shot, Is.EqualTo(1), "the editor initially frames the upper body");
                 var workshopPage = canvas.GetComponentsInChildren<RectTransform>(true).First(r => r.name == "WorkshopPage1104");
                 Assert.That(workshopPage.Find("WorkshopDial").gameObject.activeSelf, Is.False, "parameters never cover her with a giant disc");
-                Tool("bright").onClick.Invoke();
+                OpenTool("bright");
                 yield return new WaitForSecondsRealtime(.5f);
                 Slider parameterSlider = canvas.GetComponentsInChildren<Slider>(true).First(s => s.name == "ParameterSlider");
                 parameterSlider.value = 4; // 60 + 4 * 5 = 80%
@@ -114,9 +116,9 @@ namespace ChoSiren.Tests
                 canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "ParameterCollapse").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(false).Any(r => r.name == "WorkshopParameterPanel"), Is.False, "explicit 收起 returns to the preview and tools");
-                Tool("filter").onClick.Invoke();
+                Tool("bg").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.3f);
-                Tool("filter").onClick.Invoke();
+                Tool("bg").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(false).Any(r => r.name == "WorkshopParameterPanel"), Is.False, "tapping the selected tool also collapses its drawer");
                 Assert.That(stage.BottomBand, Is.EqualTo(118f), "closing returns the preview space");
@@ -202,7 +204,7 @@ namespace ChoSiren.Tests
                     Shot(camera, rt, "workshop-ai-result-full.png");
                     stage.SetOverride(null);
                 }
-                Tool("accent").onClick.Invoke();
+                OpenTool("accent");
                 yield return new WaitForSecondsRealtime(.4f);
                 stage.SetDialValue(1);
                 yield return new WaitForSecondsRealtime(.8f);
