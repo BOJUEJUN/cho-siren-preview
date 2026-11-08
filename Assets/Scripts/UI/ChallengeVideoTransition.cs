@@ -11,13 +11,15 @@ namespace ChoSiren.UI
     /// CHO-SIREN title. It fades in over the page, the scene switches under full cover, the clip
     /// plays out and then fades away onto the new page. If the clip cannot start in time the scene
     /// still switches (the game never waits on a video).
+    /// 2026-11-08 (赵金 关卡转折过场镜头, 少爷: "放快成为关卡转折过场镜头"): the clip is now the neon CHO SIREN title
+    /// drawing itself and filling with the four leads, its 5 s compressed to 2.2 s (1080 × 1920, H.264).
     /// </summary>
     public sealed class ChallengeVideoTransition : MonoBehaviour
     {
         public const string ClipFile = "Transitions/challenge-cut.mp4";
         /// <summary>Kept for older callers.</summary>
         public const string ActionCgResource = "Art/Story/Portraits1019/xingli";
-        public const float CoverTime = .18f, SplitStart = 1.28f, Duration = 1.6f;
+        public const float CoverTime = .18f, SplitStart = 1.9f, Duration = 2.2f;
         public const float ArtWaitTimeout = .8f;
         static int coveringCount;
         bool registeredCover, playing, switched, returning, retired, waitingForClip;
@@ -186,7 +188,7 @@ namespace ChoSiren.UI
             if (group != null && playing) group.alpha = Mathf.Min(fadeIn, fadeOut);
             // Cover the screen with the clip, keeping its aspect (crop the overflow).
             float w = Mathf.Max(1, root.rect.width), h = Mathf.Max(1, root.rect.height);
-            float vw = player != null && player.width > 0 ? player.width : 704f, vh = player != null && player.height > 0 ? player.height : 1440f;
+            float vw = player != null && player.width > 0 ? player.width : 1080f, vh = player != null && player.height > 0 ? player.height : 1920f;
             float scale = Mathf.Max(w / vw, h / vh);
             screen.rectTransform.sizeDelta = new Vector2(vw * scale, vh * scale);
             screen.rectTransform.localScale = Vector3.one * (returning ? 1f : Mathf.Lerp(1.06f, 1f, fadeIn));

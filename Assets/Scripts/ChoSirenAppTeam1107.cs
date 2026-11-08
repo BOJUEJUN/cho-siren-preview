@@ -96,8 +96,13 @@ namespace ChoSiren
             int index = slot < count ? model.Save.Team[slot] : -1;
             bool valid = index >= 0 && index < GameModel.Members.Length;
             Rect frame = XY(TeamCardFrame1107[slot]);
-            GameObject hit = BoardButton038("TeamOrbit-" + slot, root, frame, () =>
-                { if (valid) OpenTeamMember(index, slot); else OpenTeamSlotPicker(Math.Min(slot, model.Save.Team.Count)); });
+            GameObject hit = null;
+            hit = BoardButton038("TeamOrbit-" + slot, root, frame, () =>
+            {
+                if (!valid) { OpenTeamSlotPicker(Math.Min(slot, model.Save.Team.Count)); return; }
+                // 2026-11-08 (赵金 转场): her race's cyan-silhouette card plays before the detail page opens.
+                PlayRaceTransition1108(index, hit != null ? (RectTransform)hit.transform : null, () => OpenTeamMember(index, slot));
+            });
             hit.GetComponent<Image>().color = Color.clear;
             Rect window = XY(TeamCardWindow1107[slot]);
             Rect local = new Rect(window.x - frame.x, window.y - frame.y, window.width, window.height);
@@ -181,6 +186,20 @@ namespace ChoSiren
         }
 
         /// <summary>休息: shows the member's stamina, when she is rested, and 补满 for 星光币.</summary>
+        /// <summary>Silhouette transition (RaceTransition1108) from a tapped member card, then <paramref name="open"/>.</summary>
+        private void PlayRaceTransition1108(int memberIndex, RectTransform from, Action open)
+        {
+            string race = memberIndex >= 0 && memberIndex < GameModel.Members.Length ? GameModel.Members[memberIndex].Race : null;
+            var host = (RectTransform)safeRoot;
+            Vector2 tap = Vector2.zero;
+            if (from != null && host != null)
+            {
+                Vector3 world = from.TransformPoint(from.rect.center);
+                tap = (Vector2)host.InverseTransformPoint(world) - host.rect.center;
+            }
+            RaceTransition1108.Play(host, race, tap, open);
+        }
+
         private void OpenRestDialog1107(int member)
         {
             if (member < 0 || member >= GameModel.Members.Length) return;
