@@ -191,6 +191,16 @@
   .tip b { color: var(--red); font-style: italic; font-size: 18px; margin-right: 8px; }
   .tip p { font-size: 14px; display: inline; }
 
+  /* patch notes */
+  #notes { background: var(--black); }
+  .patches { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; }
+  #notes .wrap { min-height: 0; }
+  .patch { height: auto; min-height: 0; background: #1a1a1a; border-left: 6px solid var(--red); padding: 16px 20px; clip-path: polygon(0 0, 100% 3%, 99% 100%, 0 97%); }
+  .patch b { color: var(--red); font-style: italic; font-size: 22px; margin-right: 10px; }
+  .patch em { color: #9a9a9a; font-style: normal; font-size: 13px; }
+  .patch ul { margin: 10px 0 0 18px; display: grid; gap: 6px; }
+  .patch li { font-size: 14px; line-height: 1.6; }
+
   footer { background: var(--black); padding: 40px 0 56px; font-size: 13px; color: #9a9a9a; border-top: 6px solid var(--white); }
   footer .wrap { display: flex; gap: 20px; align-items: flex-start; }
   footer .age { width: 46px; flex: none; }
@@ -280,7 +290,7 @@
           <a class="btn" href="https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/releases/CHO-SIREN-Mac-latest.dmg"><span>MAC</span></a>
           <a class="btn" href="https://bojuejun.github.io/cho-siren-preview/"><span>网页试玩</span></a>
         </div>
-        <p class="note">测试版 · 下载即最新版本 · 已安装的客户端会自动提示更新</p>
+        <p class="note">测试版 · 当前版本 v0.9.40 · 下载即最新版本 · 已安装的客户端会自动提示更新 · <a href="#notes" style="color:inherit">更新说明</a></p>
       </div>
     </div>
     <div class="ticker" aria-hidden="true"><div>
@@ -347,6 +357,18 @@
           <div class="tip"><b>MAC</b><p>需 M1 及以后芯片。打开 .dmg，把「幻域魅声」拖进「应用程序」；首次打开请右键 →「打开」。</p></div>
           <div class="tip"><b>更新</b><p>有新版本时，开始画面会显示更新内容，点「立即更新」后自动下载并重新打开游戏（电脑版），存档保留。</p></div>
         </div>
+      </div>
+    </div>
+  </section>
+  <!-- 2026-11-08: patch notes (newest first), kept in step with Assets/Resources/Data/changelog.json. -->
+  <section id="notes">
+    <div class="ghost" aria-hidden="true">PATCH NOTES</div>
+    <div class="wrap">
+      <h2 class="title rv"><b>更新说明</b><small>WHAT'S NEW</small></h2>
+      <div class="patches">
+          <div class="patch rv"><b>v0.9.40</b><em>2026-11-07</em><ul><li>成员满级提升到 200 级：30 级前只花星光币；30 级后每级还要敌人残魂，每 10 级突破要 10 个本种族生魂（声纹碎晶改名敌人残魂，声核改名通用生魂，可代替任何种族的生魂）。</li><li>新增角色体力：每场战斗或扫荡都会消耗上场成员的体力，体力低于 36 会疲劳（生命、攻击 -10%），不够一场就要休息；6 小时休息满，也可以用星光币立即补满。</li><li>练习室换成摄像机画面：四位主角唱歌、跳舞两段视频随机轮播，点画面里的小人或用左右箭头切换成员；升级动画可以点「跳过」。</li><li>库存、任务、团队、面试按新美术重做：库存按部位分行并可翻页；面试卡显示年龄、职业、爱好、血型、生日和 SSR/SR，「幸福感」改为「风险」。</li><li>加载画面换成四位主角和小猪一起奔跑，下面的进度条跟着真实进度走；大厅背景更新。</li><li>战斗中首领放大三分之一、小怪更大，大招结束时镜头推近再拉远。</li><li>「声波」统一改名「声乐」，全游戏左右切换按钮统一样式；更新公告会列出你上次版本之后的所有改动。</li></ul></div>
+          <div class="patch rv"><b>v0.9.39</b><em>2026-11-07</em><ul><li>创意工坊升级成编辑页：半身/全身、转身查看，底部工具栏加滤镜、背景、应援色、亮度、音高、律动。</li><li>AI 换装网络更稳，断线或切出后能接着查结果，不会重复扣费。</li></ul></div>
+          <div class="patch rv"><b>v0.9.37</b><em>2026-11-05</em><ul><li>创意工坊换成全新海报风界面：角色全身清晰显示，右侧斜切菜单，选中项最醒目。</li><li>AI 换装风格做成撕纸贴纸，生成完成有 NEW LOOK! 全屏亮相，可直接存进衣橱、再来一套或换回原装。</li></ul></div>
       </div>
     </div>
   </section>
