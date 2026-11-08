@@ -1,18 +1,28 @@
 {
   "schemaVersion": 1,
   "current": [
+    "3efe15e84834f8ae13dce1372c89d373.data.unityweb",
+    "add9ea9b88f20f36692b6226be5176cc.framework.js.unityweb",
+    "8b7c1ed6320e8a3f614b1480019d6245.wasm.unityweb",
+    "c77eb371bc5d5ef24c328bee7755b9f1.loader.js"
+  ],
+  "previous": [
     "09cd63cc24ed4502bfe928c3c3d0ead8.data.unityweb",
     "4eb361dff301cd2f68f9fee011d0f97d.framework.js.unityweb",
     "d6cdac68dbbbdcbc21c2a0de47e7bd8a.wasm.unityweb",
     "9c77abdc570858cb696efaac81ea2c69.loader.js"
   ],
-  "previous": [
-    "daf0a5690dd66c27062e09edab1f3212.data.unityweb",
-    "9364fb15c4a3b517a440756513147263.framework.js.unityweb",
-    "a6747a6923f9e391d09355c5abcd3318.wasm.unityweb",
-    "017a5792a31515854aca63101f83799d.loader.js"
-  ],
   "retained": [
+    {
+      "version": "0.9.40",
+      "releaseId": "UI-20261108-SIX-SCREENS-LV200-R170",
+      "files": [
+        "09cd63cc24ed4502bfe928c3c3d0ead8.data.unityweb",
+        "4eb361dff301cd2f68f9fee011d0f97d.framework.js.unityweb",
+        "d6cdac68dbbbdcbc21c2a0de47e7bd8a.wasm.unityweb",
+        "9c77abdc570858cb696efaac81ea2c69.loader.js"
+      ]
+    },
     {
       "version": "0.9.39",
       "releaseId": "UI-20261107-WORKSHOP-EDITOR-R169",

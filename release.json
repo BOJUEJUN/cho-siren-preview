@@ -1,15 +1,15 @@
 {
-  "version": "0.9.40",
-  "releaseId": "UI-20261108-SIX-SCREENS-LV200-R170",
+  "version": "0.9.41",
+  "releaseId": "UI-20261108-INVENTORY-TABS-R171",
   "date": "2026-11-08",
-  "name": "六页新美术 · 200 级 · 角色体力",
-  "notice": "成员满级提升到 200 级（30 级后要敌人残魂和种族生魂）；新增角色体力，连续战斗会疲劳、要休息；练习室、加载页、库存、任务、团队、面试按新美术重做；首领放大、大招镜头推拉；更新公告会列出你上次版本后的全部改动。",
-  "previousReleaseId": "UI-20261107-WORKSHOP-EDITOR-R169",
-  "previousWebCommit": "aefba0a9747a1ec656ad6ee132c450c419890eb2",
-  "previousReleaseRecord": "releases/R169.json",
+  "name": "饰品分类页签 · 电脑版小补丁更新",
+  "notice": "饰品库存改成分类查看：默认显示耳饰，点左边切换项链、手饰、头饰；电脑版以后更新只下载改动的部分，更新包小很多。",
+  "previousReleaseId": "UI-20261108-SIX-SCREENS-LV200-R170",
+  "previousWebCommit": "48424a2cd3450b3fc31b21f9613e1c43361c4d34",
+  "previousReleaseRecord": "releases/R170.json",
   "validation": {
     "status": "staged",
-    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.40",
+    "webBuild": "CHO_SIREN_BUILD_OK WebGL 0.9.41",
     "webPortal": "pending focused portal checks",
     "webRuntime": "pending public WebGL verification"
   },
