@@ -79,8 +79,9 @@ namespace ChoSiren.Tests
                 var shortDrag = Begin(new Vector2(36f, 0));
                 Assert.That(swipe.IsDragging, Is.True);
                 Assert.That(portrait.anchoredPosition.x - portraitHome.x, Is.EqualTo(36f).Within(1f));
-                // 2026-11-08: the badge swings on its clip; the cards behind drift a sixth as far.
-                Assert.That(card.anchoredPosition.x - cardHome.x, Is.EqualTo(36f * .16f).Within(1f));
+                // 2026-11-08: the badge swings on its clip; the first back card starts growing into its place.
+                RectTransform backCard = Find(panel, "InterviewCard1") as RectTransform;
+                Assert.That(backCard.localScale.x, Is.GreaterThan(1.0005f), "the next badge starts coming forward");
                 Assert.That(Mathf.DeltaAngle(0f, portrait.localEulerAngles.z), Is.LessThan(-.5f), "dragging right tilts the badge");
                 Assert.That(panel.InterviewCandidateIndex, Is.EqualTo(initial), "candidate must follow the pointer before release, not jump immediately");
                 Capture(camera, target, "following.png");

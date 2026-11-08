@@ -183,6 +183,28 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(.8f); // no end-drag, no finger down
                 Assert.That(swipe.IsDragging, Is.False, "a lifted finger ends the drag");
                 Assert.That(swipe.Offset, Is.EqualTo(0f).Within(.5f), "the badge springs home instead of hanging mid-swing");
+
+                // 2026-11-08 (少爷: "第一张划走…下面这张上来成第一位"): dragging right also brings the NEXT candidate, and the
+                // first back card is already in the front window when the page rebuilds.
+                var pageModel = (GameModel)typeof(ChoSirenApp).GetField("model", Private).GetValue(app);
+                string nextName = app.GetComponentsInChildren<Image>().First(i => i.name == "BackCardPortrait" && i.GetComponentsInParent<Transform>().Any(t => t.name == "InterviewCard1")).sprite.texture.name;
+                counter = app.GetComponentsInChildren<Text>().First(t => t.name == "CandidateCounter");
+                string beforeRight = counter.text;
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.initializePotentialDrag);
+                drag.pressPosition = start; drag.position = start + new Vector2(120f, 0f);
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.beginDragHandler);
+                drag.position = start + new Vector2(260f, 0f);
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.dragHandler);
+                yield return null;
+                Capture(camera, target, "audition-dragging.png");
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.endDragHandler);
+                yield return new WaitForSecondsRealtime(.5f);
+                counter = app.GetComponentsInChildren<Text>().First(t => t.name == "CandidateCounter");
+                int beforeIndex = int.Parse(beforeRight.Split('/')[0].Trim()), afterIndex = int.Parse(counter.text.Split('/')[0].Trim());
+                Assert.That(afterIndex, Is.EqualTo(beforeIndex % 10 + 1), "a right swipe shows the next candidate too");
+                Assert.That(app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name, Is.EqualTo(nextName),
+                    "the badge that came forward is the one now in front");
+                Capture(camera, target, "audition-after-swipe.png");
             }
             finally { Object.DestroyImmediate(camera.gameObject); target.Release(); Object.DestroyImmediate(target); }
         }

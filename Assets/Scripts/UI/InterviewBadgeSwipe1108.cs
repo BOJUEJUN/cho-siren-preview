@@ -41,6 +41,23 @@ namespace ChoSiren.UI
         float time, from, swing;
         int direction;
 
+        // 2026-11-08 (少爷: "我把第一张划走那不应该是下面这张上来成第一位"): the back cards ride the drag. As the front badge
+        // leaves, the first back card grows into the front badge's window and the second into the first's, so after the
+        // throw the rebuilt page already shows them there (no entry animation).
+        RectTransform card1, card2;
+        Vector2 card1Home, card2Home, card1Target, card2Target;
+        float card1Scale = 1f, card2Scale = 1f;
+        const float PromoteReach = 300f;
+        public bool StackPromotes => card1 != null;
+
+        public void SetBackCards(RectTransform first, Vector2 firstTarget, float firstScale,
+            RectTransform second, Vector2 secondTarget, float secondScale)
+        {
+            card1 = first; card2 = second;
+            if (card1 != null) { card1Home = card1.anchoredPosition; card1Target = firstTarget; card1Scale = firstScale; }
+            if (card2 != null) { card2Home = card2.anchoredPosition; card2Target = secondTarget; card2Scale = secondScale; }
+        }
+
         public float Offset { get; private set; }
         public bool Busy => dragging || mode != Mode.Idle;
         public bool IsDragging => dragging;
@@ -120,7 +137,7 @@ namespace ChoSiren.UI
             {
                 verticalSwipe = false; e.eligibleForClick = false;
                 float dy = LocalY(e.position, e) - LocalY(e.pressPosition, e);
-                if (Mathf.Abs(dy) >= Threshold * .7f) Throw(dy > 0 ? 1 : -1);
+                if (Mathf.Abs(dy) >= Threshold * .7f) Throw(StackPromotes || dy > 0 ? 1 : -1);
                 return;
             }
             if (passVertical) { if (parentScroll != null) parentScroll.OnEndDrag(e); passVertical = false; return; }
@@ -160,7 +177,11 @@ namespace ChoSiren.UI
             return p.x;
         }
 
-        void BeginExit(float sign) { mode = Mode.Exit; time = 0f; from = Offset; direction = sign < 0 ? 1 : -1; swing = sign; }
+        void BeginExit(float sign)
+        {
+            mode = Mode.Exit; time = 0f; from = Offset; swing = sign;
+            direction = StackPromotes ? 1 : sign < 0 ? 1 : -1; // with a promoting stack, either side brings the next card up
+        }
 
         void BeginEnter(int next)
         {
@@ -199,7 +220,7 @@ namespace ChoSiren.UI
                     if (t >= 1f)
                     {
                         mode = Mode.Idle;
-                        PendingEntry = direction;
+                        PendingEntry = StackPromotes && direction > 0 ? 0 : direction;
                         int steps = throwSteps; throwSteps = 1;
                         changed?.Invoke(direction * steps);
                     }
@@ -241,6 +262,20 @@ namespace ChoSiren.UI
                 front.localScale = Vector3.one * scale;
             }
             if (frontGroup != null) frontGroup.alpha = alpha;
+            if (card1 != null)
+            {
+                float p = Mathf.Clamp01(Mathf.Abs(x) / PromoteReach);
+                float e = p * p * (3f - 2f * p);
+                if (mode == Mode.Enter) e = 0f;
+                card1.anchoredPosition = Vector2.LerpUnclamped(card1Home, card1Target, e);
+                card1.localScale = Vector3.one * Mathf.LerpUnclamped(1f, card1Scale, e);
+                if (card2 != null)
+                {
+                    card2.anchoredPosition = Vector2.LerpUnclamped(card2Home, card2Target, e);
+                    card2.localScale = Vector3.one * Mathf.LerpUnclamped(1f, card2Scale, e);
+                }
+                return;
+            }
             if (back != null) back.anchoredPosition = backHome + new Vector2(stackX, 0f);
         }
 

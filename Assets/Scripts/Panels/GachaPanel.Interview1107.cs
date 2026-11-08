@@ -268,6 +268,28 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(hit.rectTransform, bounds.x, bounds.y, bounds.width, bounds.height);
             hit.raycastTarget = true;
             var swipe = hit.gameObject.AddComponent<InterviewBadgeSwipe1108>();
+            // The back cards grow into the place in front of them as the badge is dragged away (windows matched by centre
+            // and width, so the photos land exactly where the rebuilt page puts them).
+            var c1 = stack != null ? stack.Find("InterviewCard1") as RectTransform : null;
+            var c2 = stack != null ? stack.Find("InterviewCard2") as RectTransform : null;
+            if (c1 != null && InterviewCandidates().Count > 1)
+            {
+                Rect frontRect = Iv(0, 1700, 1947, 4593);
+                float px0 = frontRect.width / BadgeArtSize1108.x, px1 = c1.sizeDelta.x / BackCardArt1108.x;
+                Vector2 frontWindow = new Vector2(frontRect.x + BadgeHoleCentre1108.x * px0, -(frontRect.y + BadgeHoleCentre1108.y * px0));
+                Vector2 hole1 = new Vector2(BackHoleCentre1108[0].x * px1, -BackHoleCentre1108[0].y * px1);
+                float s1 = BadgeHoleSize1108.x * px0 / (BackHoleSize1108.x * px1);
+                Vector2 t1 = frontWindow - hole1 * s1;
+                Vector2 t2 = Vector2.zero; float s2 = 1f;
+                if (c2 != null)
+                {
+                    float px2 = c2.sizeDelta.x / 532f;
+                    Vector2 hole2 = new Vector2(BackHoleCentre1108[1].x * px2, -BackHoleCentre1108[1].y * px2);
+                    s2 = px1 / px2;
+                    t2 = c1.anchoredPosition + hole1 - hole2 * s2;
+                }
+                swipe.SetBackCards(c1, t1, s1, c2, t2, s2);
+            }
             swipe.Configure(badge, stack, () => !closing && !promoting1108 && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
             // 2026-11-08 (少爷: "点击底部第一张要有这张到最顶部的动画"): a tapped back card flies up to the front.
             swipe.TapPromote = steps => StartCoroutine(PromoteBackCard1108(page, steps));
