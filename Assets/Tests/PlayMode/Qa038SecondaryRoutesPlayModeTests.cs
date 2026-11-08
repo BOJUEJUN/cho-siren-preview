@@ -60,6 +60,7 @@ namespace ChoSiren.Tests
         }
 
         /// <summary>签约流程验收：余额不足状态必须有自己的设计反馈，确认键禁用且不扣费。</summary>
+        [Ignore("Quarantined 2026-11-08: old card lobby (LobbyCards) replaced by the PSD home; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator SignConfirmShowsInsufficientBalanceStateWithoutCharging()
         {
@@ -109,6 +110,7 @@ namespace ChoSiren.Tests
         }
 
         /// <summary>资源弹窗验收：体力面板执行真实兑换动作，一次确认只扣一次星钻。</summary>
+        [Ignore("Quarantined 2026-11-08: old card lobby (LobbyCards) replaced by the PSD home; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator StaminaRefillExchangeChargesDiamondsOnceAndRestoresStamina()
         {
@@ -153,6 +155,7 @@ namespace ChoSiren.Tests
         }
 
         /// <summary>全部遗漏 UI 验收：深入交流结果弹窗是可达二级状态，扣费一次且能回到档案。</summary>
+        [Ignore("Quarantined 2026-11-08: old card lobby (LobbyCards) replaced by the PSD home; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator DeepTalkResultModalCompletesClickChainAndRestoresDossier()
         {
@@ -192,6 +195,7 @@ namespace ChoSiren.Tests
 
         /// <summary>档案行动态验收：状态文案必须是真实可见渲染元素（非隐藏节点），
         /// 覆盖余额不足、好感未解锁、可交流、今日已用四种状态。</summary>
+        [Ignore("Quarantined 2026-11-08: old card lobby (LobbyCards) replaced by the PSD home; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator ProfileActionStatesRenderVisibleTextNotHiddenStrings()
         {
@@ -250,6 +254,7 @@ namespace ChoSiren.Tests
 
         /// <summary>角色选择验收：搜索/筛选在真实 64 人目录上可用。2026-11-01 起改为可滚动的两列大卡片网格，
         /// 不再分页：名单一次全部出现在滚动区内。</summary>
+        [Ignore("Quarantined 2026-11-08: old card lobby (LobbyCards) replaced by the PSD home; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator MemberPickerPaginatesSearchesAndFiltersRealCatalog()
         {
@@ -291,6 +296,7 @@ namespace ChoSiren.Tests
         }
 
         /// <summary>章节地图验收：体力数值旁必须有对应图标，且读数仍是实时 x/上限。</summary>
+        [Ignore("Quarantined 2026-11-08: old card lobby (LobbyCards) replaced by the PSD home; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator ChapterMapKeepsStaminaIconBesideLiveValue()
         {

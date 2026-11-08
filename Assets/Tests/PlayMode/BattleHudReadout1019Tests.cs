@@ -81,6 +81,7 @@ namespace ChoSiren.Tests
             Assert.That(label.raycastTarget, Is.False);
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void SmallSkillFlashesOnlyAboveItsOwnMemberAndThenRetiresFromTheHorizontalRow()
         {

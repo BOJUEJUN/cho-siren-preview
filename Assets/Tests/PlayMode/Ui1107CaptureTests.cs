@@ -165,6 +165,35 @@ namespace ChoSiren.Tests
             finally { Release(); }
         }
 
+        [UnityTest]
+        public IEnumerator CaptureTeamStaminaAndRestDialog()
+        {
+            yield return Boot(new GameSave { HomeCharacterIndex = 1, StoryProgress = 100, PlayerName = "经纪人", Gold = 50000 });
+            try
+            {
+                GameModel model = Model;
+                var set = typeof(GameModel).GetMethod("SetMemberStamina1107", Private);
+                set.Invoke(model, new object[] { model.Save.Team[1], 30 });   // 疲劳
+                set.Invoke(model, new object[] { model.Save.Team[2], 4 });    // 需休息
+                set.Invoke(model, new object[] { model.Save.Team[3], 90 });
+                Invoke(app, "ShowScreenSafely", "team");
+                yield return new WaitForSecondsRealtime(1f);
+                Shot(camera, rt, "team-stamina.png");
+                Assert.That(GameObject.Find("TeamStamina-" + model.Save.Team[2]), Is.Not.Null);
+                Invoke(app, "OpenRestDialog1107", model.Save.Team[2]);
+                yield return new WaitForSecondsRealtime(.6f);
+                Shot(camera, rt, "team-rest-dialog.png");
+                var rest = GameObject.Find("RestNow").GetComponent<Button>();
+                int gold = model.Save.Gold;
+                rest.onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.6f);
+                Assert.That(model.MemberStamina1107(model.Save.Team[2]), Is.EqualTo(GameModel.MemberStaminaMax1107));
+                Assert.That(model.Save.Gold, Is.EqualTo(gold - 116 * GameModel.RestGoldPerPoint1107));
+                Shot(camera, rt, "team-after-rest.png");
+            }
+            finally { Release(); }
+        }
+
         private static void Shot(Camera camera, RenderTexture rt, string name)
         {
             foreach (Canvas stray in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))

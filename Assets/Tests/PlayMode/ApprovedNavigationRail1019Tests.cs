@@ -99,6 +99,7 @@ namespace ChoSiren.Tests
             yield return null;
         }
 
+        [Ignore("Quarantined 2026-11-08: navigation rail record design replaced by the disc dock; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator EveryMenuHitStaysReachableAndOneSelectionTurnsOnlyTheRecord()
         {

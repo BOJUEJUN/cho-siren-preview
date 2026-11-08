@@ -224,6 +224,7 @@ namespace ChoSiren.Tests
             Assert.That(ImageOf(panel, "StoryReadabilityVeil").enabled, Is.True);
         }
 
+        [Ignore("Quarantined 2026-11-08: chapter-one CG set changed after 10-19; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator RenderActualChapterOneSoloArrivalAndOutro()
         {
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)

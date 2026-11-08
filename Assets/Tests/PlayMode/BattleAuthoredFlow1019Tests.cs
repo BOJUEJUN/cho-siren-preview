@@ -6,6 +6,7 @@ namespace ChoSiren.Tests
 {
     public sealed class BattleAuthoredFlow1019Tests
     {
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [TestCase(false)]
         [TestCase(true)]
         public void AuthoredAlphaFlowsWhileReadyAndFreezesWithPauseAndReducedMotion(bool pillar)

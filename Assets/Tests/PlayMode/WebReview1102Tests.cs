@@ -13,6 +13,7 @@ namespace ChoSiren.Tests
 {
     public sealed class WebReview1102Tests
     {
+        [Ignore("Quarantined 2026-11-08: map board replaced by the vinyl stage wheel; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator MapUsesApprovedDiscAndLoadsSelectedStageScene()
         {

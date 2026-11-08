@@ -168,14 +168,14 @@ namespace ChoSiren
             GameObject row = BoardButton038("TeamStamina-" + member, parent, new Rect(x - 4f, y - 2f, 170f, 26f), () => OpenRestDialog1107(member));
             row.GetComponent<Image>().color = Color.clear;
             Image track = NewImage("Track", row.transform, null, new Color(1f, 1f, 1f, .16f)).GetComponent<Image>();
-            PlaceTop(track.rectTransform, 4f, 9f, 70f, 7f);
+            PlaceTop(track.rectTransform, 4f, 9f, 64f, 8f);
             track.raycastTarget = false;
             Image fill = NewImage("Fill", track.transform, null, tone).GetComponent<Image>();
             Stretch(fill.rectTransform);
             fill.rectTransform.anchorMax = new Vector2(stamina / (float)GameModel.MemberStaminaMax1107, 1f);
             fill.raycastTarget = false;
             string label = needsRest ? "需休息" : tired ? $"疲劳 {stamina}" : $"体力 {stamina}";
-            Text text = BoardText038(row.transform, "Label", label, 14, tone, 80f, 0f, 90f, 24f);
+            Text text = BoardText038(row.transform, "Label", label, 17, tone, 74f, -1f, 100f, 26f);
             text.fontStyle = FontStyle.Bold;
             text.raycastTarget = false;
         }
@@ -186,9 +186,15 @@ namespace ChoSiren
             if (member < 0 || member >= GameModel.Members.Length) return;
             int stamina = model.MemberStamina1107(member);
             int seconds = model.SecondsToRested1107(member);
-            string when = seconds <= 0 ? "体力已满" : $"{seconds / 3600} 小时 {seconds / 60 % 60} 分后休息好";
+            string when = seconds <= 0 ? "体力已满" : $"再休息 {seconds / 3600} 小时 {seconds / 60 % 60} 分就满";
             var frame = ModalPolish038Chrome.Begin(safeRoot, "MemberRestDialog", $"{GameModel.Members[member].Name} 体力 {stamina}/{GameModel.MemberStaminaMax1107}",
-                $"每场战斗消耗 {GameModel.BattleMemberStamina1107}（首领关 {GameModel.BossMemberStamina1107}），低于 {GameModel.TiredBelow1107} 会疲劳（生命、攻击 -10%）。\n{when}", null, 520f);
+                null, null, 540f);
+            float width = frame.Width * (ModalPolish038Chrome.BodyRight - ModalPolish038Chrome.BodyLeft);
+            Text info = ModalPolish038Chrome.Text(frame.Body, "RestInfo",
+                $"{when}\n每场战斗 -{GameModel.BattleMemberStamina1107}（首领关 -{GameModel.BossMemberStamina1107}），低于 {GameModel.TiredBelow1107} 会疲劳：生命、攻击 -10%",
+                22, White, FontStyle.Normal, TextAnchor.UpperLeft);
+            info.lineSpacing = 1.3f;
+            PlaceTop(info.rectTransform, 0, 0, width, 104);
             int cost = model.RestCost1107(member);
             var restNow = ModalPolish038Chrome.ActionButton(frame.Body, "RestNow", cost > 0 ? $"补满 · {cost:N0} 星光币" : "体力已满", 24, () =>
             {
@@ -197,10 +203,11 @@ namespace ChoSiren
                 Toast(message);
                 if (ok) ShowScreen("team");
             }, ModalPolish038ButtonStyle.Primary);
-            PlaceTop(restNow.GetComponent<RectTransform>(), 0, 42, 460, 72);
+            PlaceTop(restNow.GetComponent<RectTransform>(), 0, 118, width, 72);
             restNow.GetComponent<Button>().interactable = cost > 0;
             var later = ModalPolish038Chrome.ActionButton(frame.Body, "RestLater", "让她休息", 22, () => Destroy(frame.Overlay), ModalPolish038ButtonStyle.Ghost);
-            PlaceTop(later.GetComponent<RectTransform>(), 0, 134, 460, 64);
+            PlaceTop(later.GetComponent<RectTransform>(), 0, 204, width, 64);
+            ModalPolish038Chrome.FitHeight(frame, 280f);
         }
 
         /// <summary>A baked PSD sticker button: an invisible hit area with the lobby's hover / press feedback.</summary>

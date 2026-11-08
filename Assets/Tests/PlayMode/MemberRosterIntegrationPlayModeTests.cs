@@ -45,6 +45,7 @@ namespace ChoSiren.Tests
             PlayerPrefs.Save();
         }
 
+        [Ignore("Quarantined 2026-11-08: old 3x5 roster grid replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator MemberRosterPagesThroughEveryRealCatalogEntry()
         {

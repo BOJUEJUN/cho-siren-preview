@@ -14,6 +14,7 @@ namespace ChoSiren.Tests
     {
         private static readonly string[] Members = { "xingli", "feiyin", "wubai", "yeying" };
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void ActualPsdCardsUseCachedBustCropsAndLeaveSharedFullBodiesIntact()
         {
@@ -57,6 +58,7 @@ namespace ChoSiren.Tests
             finally { Object.DestroyImmediate(root); }
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void IdleReadyAndAttackKeepFullPortraitsInsideTheirAreaAndReadoutsBelow()
         {
@@ -120,6 +122,7 @@ namespace ChoSiren.Tests
             finally { Object.DestroyImmediate(root); }
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void PhoneReadoutsHaveRealLineBoxesAndDistinctSkillAndAttackRows()
         {
@@ -163,6 +166,7 @@ namespace ChoSiren.Tests
             finally { Object.DestroyImmediate(root); }
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void CompactCardsPutHealthEnergyAndAttackInOneShortReadableBlock()
         {

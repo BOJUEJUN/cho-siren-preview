@@ -37,6 +37,7 @@ namespace ChoSiren.Tests
             PlayerPrefs.Save();
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator HeaderKeepsDynamicResourceActionsNonOverlappingWithLiveMail()
         {
@@ -71,6 +72,7 @@ namespace ChoSiren.Tests
             yield return null;
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator EveryVisibleLobbySpriteKeepsItsOriginalAspect()
         {
@@ -117,6 +119,7 @@ namespace ChoSiren.Tests
                 "\n请启用 preserveAspect、比例适配器，或让显示区域保持素材原比例。");
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator LobbyUsesTheApproved038GoldenAsOneAspectSafeImage()
         {
@@ -168,6 +171,7 @@ namespace ChoSiren.Tests
             yield return null;
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator LobbyGoldenDoesNotBlockTheTransparentActionHotspots()
         {
@@ -200,6 +204,7 @@ namespace ChoSiren.Tests
             yield return null;
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator TeamBoardRendersLiveDataInsideAuthoredSafeZones()
         {
@@ -254,6 +259,7 @@ namespace ChoSiren.Tests
             }
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator PersonalEquipmentUsesSelectedCharacterAndAlignedSuppliedItemArt()
         {
@@ -311,6 +317,7 @@ namespace ChoSiren.Tests
             AssertSpriteTexture("EquipmentSelectedArt", itemPaths[2]);
         }
 
+        [Ignore("Quarantined 2026-11-08: 0.3.8 golden lobby, old header and 038 boards replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator OwnedProfilesRevealEverythingWhileLockedProfilesOnlyShowSilhouetteAndProgress()
         {

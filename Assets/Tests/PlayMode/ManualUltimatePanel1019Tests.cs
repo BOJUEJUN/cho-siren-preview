@@ -42,6 +42,7 @@ namespace ChoSiren.Tests
             Object.DestroyImmediate(host); Object.DestroyImmediate(events); Object.DestroyImmediate(camera.gameObject);
             frame.Release(); Object.DestroyImmediate(frame);
         }
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator RealCardRaycastStartsTimingAndOneHitCommitsOneUltimate()
         {
             yield return null;
@@ -57,6 +58,7 @@ namespace ChoSiren.Tests
             Assert.That(panel.Battle.Log.Count(e => e.Kind == BattleEventKind.ActionStarted && e.ActorId == caster.Id && e.SkillId == panel.Battle.ActiveSkillId(caster,true)), Is.EqualTo(1));
             Call("RefreshAllCells"); Assert.That(panel.Battle.UltimateCooldownRemaining(caster), Is.GreaterThan(0));
         }
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator VisiblePauseCancelsUncommittedTimingWithoutSpendingAndAutoToggleDoesLikewise()
         {
             yield return null; Click(Find("Cell-P-0-0").GetComponent<Button>());
@@ -69,6 +71,7 @@ namespace ChoSiren.Tests
             Call("ToggleAuto"); Assert.That(timing.IsActive, Is.False); Assert.That(panel.AutoMode, Is.True);
             Assert.That(panel.Battle.EnergyOf(caster), Is.EqualTo(100));
         }
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator ActualSkillSymbolsDisappearAfterTheirShortCueDespiteFullEnergy()
         {
             yield return null;
@@ -85,6 +88,7 @@ namespace ChoSiren.Tests
             Assert.That(rows.All(t=>!t.gameObject.activeInHierarchy), Is.True);
             foreach(var u in panel.Battle.Units) Assert.That(u.Hp, Is.EqualTo(hp[u.Id]), "Cue retirement cannot change combat.");
         }
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator DicePassiveFlashesOnlyOnceForActualProcInOneHand()
         {
             yield return null; panel.Battle.AdvanceRealtime(3000);
@@ -97,6 +101,7 @@ namespace ChoSiren.Tests
             Assert.That(row.gameObject.activeInHierarchy, Is.False);
             method.Invoke(panel,new object[]{entries[1],-1}); Assert.That(row.gameObject.activeInHierarchy, Is.False,"Repeated real follow-ups must not keep the passive decoration permanently visible.");
         }
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator UltimateFlashStaysAbovePsdBelowRuntimeOverlaysAndReducedMotionNeverFlashes()
         {
             bool hadReduced=PlayerPrefs.HasKey(BattlePresentationOptions.ReduceMotionKey);

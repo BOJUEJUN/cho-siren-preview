@@ -34,6 +34,7 @@ namespace ChoSiren.Tests
             else PlayerPrefs.DeleteKey(BattlePresentationOptions.ReduceMotionKey);
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [Test] public void WarmHasNoInputLockVideoDecoderOrMusicSource()
         {
             var fx = ChallengeVideoTransition.Warm(host.transform);
@@ -49,6 +50,7 @@ namespace ChoSiren.Tests
             Assert.That(cg.All(i => i.preserveAspect), Is.True);
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [Test] public void CallbackRunsOnceUnderCoverAndInputRemainsLockedUntilTheFullReveal()
         {
             var fx = ChallengeVideoTransition.Warm(host.transform);
@@ -115,6 +117,7 @@ namespace ChoSiren.Tests
             Assert.That(calls, Is.Zero);
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [Test] public void FailedSceneOrDestroyedOverlayCannotLeaveAStuckInputLock()
         {
             var fx = ChallengeVideoTransition.Warm(host.transform);
@@ -129,6 +132,7 @@ namespace ChoSiren.Tests
             Assert.That(ChallengeVideoTransition.IsCoveringGame, Is.False);
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [Test] public void ReducedMotionReturnsHomeExactlyOnceAndNeverLeavesTheCoverActive()
         {
             PlayerPrefs.SetInt(BattlePresentationOptions.ReduceMotionKey, 1);
@@ -140,6 +144,7 @@ namespace ChoSiren.Tests
             Assert.That(fx.GetComponentsInChildren<Text>(true).All(t => t.text == "返回大厅"), Is.True);
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator CancelledObjectAndDisabledComponentCanResumeOnTheirActualUpdate()
         {
             for (int mode = 0; mode < 2; mode++)

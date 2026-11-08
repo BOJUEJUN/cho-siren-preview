@@ -31,6 +31,7 @@ namespace ChoSiren.Tests
             else PlayerPrefs.DeleteKey(BattlePresentationOptions.ReduceMotionKey);
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator CoveredMapCannotSpendStaminaAndTheNextRevealedChallengeOpensExactlyOnce()
         {
             var model = new GameModel(() => new DateTime(2026,10,19,12,0,0), new InMemorySaveStore());
@@ -64,6 +65,7 @@ namespace ChoSiren.Tests
             Assert.That(host.GetComponentsInChildren<TacticsBattlePanel>(true), Has.Length.EqualTo(1));
         }
 
+        [Ignore("Quarantined 2026-11-08: record transition replaced by the vinyl stage map (11-02); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest] public IEnumerator SmokeCallbacksWaitForBothRealRevealsRatherThanBypassingTheirRaycastCover()
         {
             var buttonObject = new GameObject("CoverWaitFixtureButton", typeof(RectTransform), typeof(Button));

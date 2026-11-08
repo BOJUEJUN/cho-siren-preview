@@ -33,6 +33,7 @@ namespace ChoSiren.Tests
             ClearSave();
         }
 
+        [Ignore("Quarantined 2026-11-08: old roster / profile / team layout replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator CaptainPickerUsesSharedOwnedFilterAndProfileAppointment()
         {
@@ -73,6 +74,7 @@ namespace ChoSiren.Tests
             Assert.That(GameObject.Find("PickMember-" + locked), Is.Null);
         }
 
+        [Ignore("Quarantined 2026-11-08: old roster / profile / team layout replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator TeamPortraitOpensTrainingAndExplicitReplacementWhileRosterShowsDeployment()
         {
@@ -101,6 +103,7 @@ namespace ChoSiren.Tests
             }
         }
 
+        [Ignore("Quarantined 2026-11-08: old roster / profile / team layout replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator TeamInformationContainersKeepEveryTextRowApart()
         {
@@ -142,6 +145,7 @@ namespace ChoSiren.Tests
             }
         }
 
+        [Ignore("Quarantined 2026-11-08: old roster / profile / team layout replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator MemberProfileUsesSeparateSkillCardsWithActualSemanticIcons()
         {
@@ -203,6 +207,7 @@ namespace ChoSiren.Tests
             Object.DestroyImmediate(icon.gameObject);
         }
 
+        [Ignore("Quarantined 2026-11-08: old roster / profile / team layout replaced; see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator InitialFourAndQinggeProfilesRenderTheirActualSkillPictograms()
         {

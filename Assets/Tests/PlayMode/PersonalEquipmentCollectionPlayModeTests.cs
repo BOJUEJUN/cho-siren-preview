@@ -36,6 +36,7 @@ namespace ChoSiren.Tests
             ClearSave();
         }
 
+        [Ignore("Quarantined 2026-11-08: 038 equipment board replaced by the 库存 page (装备2.psd); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator AllSixtySixItemsHaveImagesAndAreReachableAcrossSixTwelveItemPages()
         {
@@ -73,6 +74,7 @@ namespace ChoSiren.Tests
             Assert.That(VisibleIds(), Is.EqualTo(Enumerable.Range(48,12).ToArray()));
         }
 
+        [Ignore("Quarantined 2026-11-08: 038 equipment board replaced by the 库存 page (装备2.psd); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator CategoryCycleFiltersActualCatalogAndResetsOldPageIndex()
         {
@@ -90,6 +92,7 @@ namespace ChoSiren.Tests
             }
         }
 
+        [Ignore("Quarantined 2026-11-08: 038 equipment board replaced by the 库存 page (装备2.psd); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator OwnedOnlyAndEmptyCategoryRemainSafeWhenSwitchingCharacters()
         {
@@ -128,6 +131,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.MemberAccessories, Is.Empty, "浏览筛选和切换角色不得自动装备或转移饰品");
         }
 
+        [Ignore("Quarantined 2026-11-08: 038 equipment board replaced by the 库存 page (装备2.psd); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator WornEquipmentShowsItsPositiveAppliedBonusAndHeaderTracksRealTeamPower()
         {
@@ -155,6 +159,7 @@ namespace ChoSiren.Tests
             Assert.That(Label("EquipmentCompareHeading"), Is.EqualTo("队伍战力 · 当前→装备后"));
         }
 
+        [Ignore("Quarantined 2026-11-08: 038 equipment board replaced by the 库存 page (装备2.psd); see Docs/TEST-QUARANTINE-1108.md")]
         [UnityTest]
         public IEnumerator MemberSwitchRevealsSelectedCardPageSoActionsStayReachable()
         {

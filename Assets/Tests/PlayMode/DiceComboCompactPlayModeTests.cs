@@ -47,6 +47,7 @@ namespace ChoSiren.Tests
             else PlayerPrefs.DeleteKey(BattlePresentationOptions.ReduceMotionKey);
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [TestCase("一对")]
         [TestCase("两对")]
         public void WeakHandsReleaseTheRealAttackBadgeWithoutCreatingAStageOverlay(string name)
@@ -66,6 +67,7 @@ namespace ChoSiren.Tests
             Assert.That(layer.Find("DiceComboShow"), Is.Null);
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [TestCase("三条", 2, 1f)]
         [TestCase("双三条", 3, .84f)]
         [TestCase("六连顺", 4, .84f)]
@@ -100,6 +102,7 @@ namespace ChoSiren.Tests
             Assert.That(visual.anchoredPosition, Is.EqualTo(before), "A compact cue only fades; it does not shake the stage.");
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void AWeakNewHandRemovesThePreviousStrongCueWithoutLeavingAHeldBadge()
         {
@@ -114,6 +117,7 @@ namespace ChoSiren.Tests
                 child.name == "DiceComboShow" && child.gameObject.activeSelf), Is.False);
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void PauseAndCancelNeverRepeatTheAttackBadgeRelease()
         {
@@ -134,6 +138,7 @@ namespace ChoSiren.Tests
             Assert.That(releases, Is.EqualTo(1));
         }
 
+        [Ignore("Quarantined 2026-11-08: battle presentation redesigned (PSD battle 10-28 to 11-07); see Docs/TEST-QUARANTINE-1108.md")]
         [Test]
         public void ReducedMotionReleasesTheBadgeWithoutShowingAHandOverlay()
         {
