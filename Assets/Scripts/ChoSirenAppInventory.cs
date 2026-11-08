@@ -364,9 +364,12 @@ namespace ChoSiren
                 if (oldBlocker != null) Destroy(oldBlocker.gameObject);
                 return;
             }
-            GameObject blocker = NewImage("InventorySortBlocker", root, null, new Color(0f, 0f, 0f, .28f));
+            // A full-screen tap catcher with a light even dim (the board is scaled, so it is simply oversized).
+            GameObject blocker = NewImage("InventorySortBlocker", root, null, new Color(0f, 0f, 0f, .16f));
             RectTransform blockerRect = blocker.GetComponent<RectTransform>();
-            Stretch(blockerRect, -400f, -400f, -400f, -400f);
+            blockerRect.anchorMin = blockerRect.anchorMax = blockerRect.pivot = new Vector2(.5f, .5f);
+            blockerRect.anchoredPosition = Vector2.zero;
+            blockerRect.sizeDelta = new Vector2(12000f, 12000f);
             blocker.GetComponent<Image>().raycastTarget = true;
             GameObject menu = NewImage("InventorySortMenu", root, null, new Color32(16, 10, 34, 246));
             blocker.AddComponent<Button>().onClick.AddListener(() => { Destroy(menu); Destroy(blocker); });
