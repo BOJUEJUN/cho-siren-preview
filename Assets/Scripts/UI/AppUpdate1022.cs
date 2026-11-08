@@ -40,7 +40,10 @@ namespace ChoSiren
         }
 
         // Delta updates (2026-10-22): {version, base, files:[{path, size, sha256}]}; each file lives at base + sha256.
-        [Serializable] private sealed class FileEntry { public string path, sha256; public long size; }
+        // 2026-11-08 small patches: a big file may also list content-defined chunks; the updater rebuilds it from
+        // the chunks it already has locally plus the few it downloads (Tools/patch/cdc.swift is the same chunker).
+        [Serializable] private sealed class ChunkEntry { public string sha256; public long size; }
+        [Serializable] private sealed class FileEntry { public string path, sha256; public long size; public ChunkEntry[] chunks; }
         [Serializable] private sealed class FileList { public string version, @base; public FileEntry[] files; }
 
         public static void CheckLater(MonoBehaviour host, Transform canvasChild, Font font, Func<NativeTitleScreen> title)
@@ -244,8 +247,22 @@ namespace ChoSiren
             while (!task.IsCompleted) yield return null;
             if (task.IsFaulted) { fallback(); yield break; }
 
+            // For chunked files, work out which chunks the player's current copy already holds (worker thread).
+            var plans = new Dictionary<FileEntry, ChunkPlan>();
+            var planTask = System.Threading.Tasks.Task.Run(() =>
+            {
+                foreach (FileEntry entry in changed)
+                {
+                    if (entry.chunks == null || entry.chunks.Length == 0) continue;
+                    string local = Path.Combine(root, entry.path.Replace('/', Path.DirectorySeparatorChar));
+                    ChunkPlan plan = ChunkPlan.For(local, entry.chunks);
+                    lock (plans) plans[entry] = plan;
+                }
+            });
+            while (!planTask.IsCompleted) yield return null;
+
             long total = 0;
-            foreach (FileEntry entry in changed) total += entry.size;
+            foreach (FileEntry entry in changed) total += plans.TryGetValue(entry, out ChunkPlan p) ? p.MissingBytes : entry.size;
             string folder = Path.Combine(Application.temporaryCachePath, "update");
             string staging = Path.Combine(folder, "files");
             try { if (Directory.Exists(folder)) Directory.Delete(folder, true); Directory.CreateDirectory(staging); }
@@ -253,11 +270,47 @@ namespace ChoSiren
 
             long done = 0;
             float started = Time.realtimeSinceStartup;
+            string Detail(long now) => $"{now / 1048576f:0.0}/{total / 1048576f:0.0} MB · {now / Mathf.Max(.5f, Time.realtimeSinceStartup - started) / 1048576f:0.0} MB/s（只下载改动的部分）";
             for (int i = 0; i < changed.Count; i++)
             {
                 FileEntry entry = changed[i];
                 string target = Path.Combine(staging, entry.path.Replace('/', Path.DirectorySeparatorChar));
                 Directory.CreateDirectory(Path.GetDirectoryName(target));
+                if (plans.TryGetValue(entry, out ChunkPlan plan))
+                {
+                    // Rebuild from local chunks + downloaded ones, then check the whole file's SHA-256.
+                    bool ok = true;
+                    using (var output = new FileStream(target, FileMode.Create, FileAccess.Write))
+                    {
+                        foreach (ChunkEntry chunk in entry.chunks)
+                        {
+                            if (plan.TryLocal(chunk.sha256, out byte[] bytes)) { output.Write(bytes, 0, bytes.Length); continue; }
+                            using (var request = UnityWebRequest.Get(list.@base + chunk.sha256))
+                            {
+                                request.SendWebRequest();
+                                while (!request.isDone)
+                                {
+                                    progress(total > 0 ? (done + (long)request.downloadedBytes) / (float)total : 1f, "正在下载更新", Detail(done + (long)request.downloadedBytes));
+                                    yield return null;
+                                }
+                                if (request.result != UnityWebRequest.Result.Success || request.downloadHandler.data == null ||
+                                    request.downloadHandler.data.LongLength != chunk.size) { ok = false; break; }
+                                output.Write(request.downloadHandler.data, 0, request.downloadHandler.data.Length);
+                                done += chunk.size;
+                            }
+                        }
+                    }
+                    plan.Dispose();
+                    if (ok)
+                    {
+                        string expected = entry.sha256;
+                        var verify = System.Threading.Tasks.Task.Run(() => ChunkPlan.Sha256Of(target));
+                        while (!verify.IsCompleted) yield return null;
+                        ok = !verify.IsFaulted && string.Equals(verify.Result, expected, StringComparison.OrdinalIgnoreCase);
+                    }
+                    if (!ok) { fallback(); yield break; }   // the full package still works
+                    continue;
+                }
                 using (var request = new UnityWebRequest(list.@base + entry.sha256, UnityWebRequest.kHttpVerbGET))
                 {
                     request.downloadHandler = new DownloadHandlerFile(target) { removeFileOnAbort = true };
@@ -265,9 +318,7 @@ namespace ChoSiren
                     while (!request.isDone)
                     {
                         long now = done + (long)request.downloadedBytes;
-                        float speed = now / Mathf.Max(.5f, Time.realtimeSinceStartup - started) / 1048576f;
-                        progress(total > 0 ? now / (float)total : 1f, "正在下载更新",
-                            $"{now / 1048576f:0.0}/{total / 1048576f:0.0} MB · {speed:0.0} MB/s（只下载改动的 {changed.Count} 个文件）");
+                        progress(total > 0 ? now / (float)total : 1f, "正在下载更新", Detail(now));
                         yield return null;
                     }
                     if (request.result != UnityWebRequest.Result.Success) { fail("下载失败：" + request.error); yield break; }
@@ -281,6 +332,113 @@ namespace ChoSiren
             try { error = SwapAndRestart(staging, folder, root); }
             catch (Exception e) { error = e.Message; Debug.LogException(e); }
             if (error != null) fail("安装失败：" + error);
+        }
+
+        /// <summary>
+        /// Content-defined chunking identical to Tools/patch/cdc.swift: gear rolling hash h = (h &lt;&lt; 1) + gear[b];
+        /// a chunk ends once it is at least 256 KiB and (h &amp; (2^20 - 1)) == 0, or at 4 MiB. gear[] comes from
+        /// splitmix64 seeded 0x5EED1107. Public for the cross-check test.
+        /// </summary>
+        public static class Cdc
+        {
+            public const int MinSize = 256 * 1024, MaxSize = 4 * 1024 * 1024;
+            const ulong Mask = (1UL << 20) - 1;
+            static readonly ulong[] Gear = BuildGear();
+
+            static ulong[] BuildGear()
+            {
+                var gear = new ulong[256];
+                ulong state = 0x5EED1107;
+                for (int i = 0; i < 256; i++)
+                {
+                    state += 0x9E3779B97F4A7C15UL;
+                    ulong z = state;
+                    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9UL;
+                    z = (z ^ (z >> 27)) * 0x94D049BB133111EBUL;
+                    gear[i] = z ^ (z >> 31);
+                }
+                return gear;
+            }
+
+            /// <summary>(offset, size) of every chunk in <paramref name="data"/>[0..length).</summary>
+            public static List<(long Offset, int Size)> Split(Stream stream)
+            {
+                var result = new List<(long, int)>();
+                var buffer = new byte[MaxSize];
+                long offset = 0;
+                int filled = 0;
+                while (true)
+                {
+                    int read;
+                    while (filled < MaxSize && (read = stream.Read(buffer, filled, MaxSize - filled)) > 0) filled += read;
+                    if (filled == 0) break;
+                    ulong h = 0;
+                    int cut = filled;
+                    for (int i = 0; i < filled; i++)
+                    {
+                        h = (h << 1) + Gear[buffer[i]];
+                        if (i + 1 >= MinSize && (h & Mask) == 0) { cut = i + 1; break; }
+                    }
+                    result.Add((offset, cut));
+                    offset += cut;
+                    Buffer.BlockCopy(buffer, cut, buffer, 0, filled - cut);
+                    filled -= cut;
+                }
+                return result;
+            }
+        }
+
+        /// <summary>Which of a file's new chunks the player's current copy already holds.</summary>
+        sealed class ChunkPlan : IDisposable
+        {
+            readonly Dictionary<string, (long Offset, int Size)> local = new Dictionary<string, (long, int)>(StringComparer.OrdinalIgnoreCase);
+            FileStream source;
+            public long MissingBytes;
+
+            public static ChunkPlan For(string localPath, ChunkEntry[] wanted)
+            {
+                var plan = new ChunkPlan();
+                try
+                {
+                    if (File.Exists(localPath))
+                    {
+                        plan.source = File.OpenRead(localPath);
+                        var buffer = new byte[Cdc.MaxSize];
+                        using (var sha = System.Security.Cryptography.SHA256.Create())
+                            foreach ((long offset, int size) in Cdc.Split(plan.source))
+                            {
+                                plan.source.Position = offset;
+                                int got = 0, read;
+                                while (got < size && (read = plan.source.Read(buffer, got, size - got)) > 0) got += read;
+                                string hex = BitConverter.ToString(sha.ComputeHash(buffer, 0, size)).Replace("-", "");
+                                plan.local[hex] = (offset, size);
+                            }
+                    }
+                }
+                catch (Exception) { plan.local.Clear(); }
+                foreach (ChunkEntry chunk in wanted) if (!plan.local.ContainsKey(chunk.sha256)) plan.MissingBytes += chunk.size;
+                return plan;
+            }
+
+            public bool TryLocal(string sha256, out byte[] bytes)
+            {
+                bytes = null;
+                if (source == null || !local.TryGetValue(sha256, out var at)) return false;
+                bytes = new byte[at.Size];
+                source.Position = at.Offset;
+                int got = 0, read;
+                while (got < at.Size && (read = source.Read(bytes, got, at.Size - got)) > 0) got += read;
+                return got == at.Size;
+            }
+
+            public static string Sha256Of(string path)
+            {
+                using (var sha = System.Security.Cryptography.SHA256.Create())
+                using (var stream = File.OpenRead(path))
+                    return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+            }
+
+            public void Dispose() { source?.Dispose(); source = null; }
         }
 
         /// <summary>Downloads the whole update zip, reporting (progress, label, detail), then swaps and restarts.</summary>

@@ -34,11 +34,19 @@ def host_of(cfg):
     return f"{cfg['bucket']}.cos.{cfg['region']}.myqcloud.com"
 
 
+def upload_host_of(cfg):
+    """2026-11-08: uploads go through COS global acceleration (enabled on the bucket) unless COS_ACCELERATE=0;
+    public URLs keep the regular Guangzhou domain."""
+    if os.environ.get("COS_ACCELERATE", "1") == "0":
+        return host_of(cfg)
+    return f"{cfg['bucket']}.cos.accelerate.myqcloud.com"
+
+
 def public_url(cfg, key):
     return f"https://{host_of(cfg)}/{urllib.parse.quote(key)}"
 
 
-def authorization(cfg, method, path, headers):
+def authorization(cfg, method, path, headers, params=None):
     now = int(time.time())
     key_time = f"{now - 60};{now + 3600}"
     sign_key = hmac.new(cfg["secretKey"].encode(), key_time.encode(), hashlib.sha1).hexdigest()
@@ -46,11 +54,70 @@ def authorization(cfg, method, path, headers):
     header_string = "&".join(
         f"{urllib.parse.quote(n, safe='')}={urllib.parse.quote(str(headers[next(k for k in headers if k.lower() == n)]), safe='')}"
         for n in names)
-    http_string = f"{method.lower()}\n{path}\n\n{header_string}\n"
+    params = params or {}
+    param_names = sorted(k.lower() for k in params)
+    param_string = "&".join(
+        f"{urllib.parse.quote(n, safe='')}={urllib.parse.quote(str(params[next(k for k in params if k.lower() == n)]), safe='')}"
+        for n in param_names)
+    http_string = f"{method.lower()}\n{path}\n{param_string}\n{header_string}\n"
     string_to_sign = f"sha1\n{key_time}\n{hashlib.sha1(http_string.encode()).hexdigest()}\n"
     signature = hmac.new(sign_key.encode(), string_to_sign.encode(), hashlib.sha1).hexdigest()
     return (f"q-sign-algorithm=sha1&q-ak={cfg['secretId']}&q-sign-time={key_time}&q-key-time={key_time}"
-            f"&q-header-list={';'.join(names)}&q-url-param-list=&q-signature={signature}")
+            f"&q-header-list={';'.join(names)}&q-url-param-list={';'.join(param_names)}&q-signature={signature}")
+
+
+MULTIPART_MIN = 64 * 1024 * 1024
+PART_SIZE = 16 * 1024 * 1024
+PART_WORKERS = int(os.environ.get("COS_PART_WORKERS", "8"))
+
+
+def _request(cfg, method, key, params=None, body=None, extra=None, timeout=300):
+    host = upload_host_of(cfg)
+    params = params or {}
+    query = "&".join(f"{k}={urllib.parse.quote(str(v), safe='')}" if v != "" else k for k, v in params.items())
+    url = f"https://{host}/{urllib.parse.quote(key)}" + (f"?{query}" if query else "")
+    request = urllib.request.Request(url, data=body if body is not None else (b"" if method in ("POST", "PUT") else None), method=method)
+    request.add_header("Host", host)
+    for name, value in (extra or {}).items():
+        request.add_header(name, value)
+    request.add_header("Authorization", authorization(cfg, method, "/" + key, {"Host": host}, params))
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.status, dict(response.headers), response.read()
+
+
+def upload_multipart(cfg, local, key, content_type, extra_headers):
+    """2026-11-08: big installers go up in 16 MB parts, 8 at a time, each retried; a stalled
+    single connection no longer holds the whole release back."""
+    import concurrent.futures
+    import re
+    status, _, body = _request(cfg, "POST", key, {"uploads": ""}, b"", dict(extra_headers, **{"Content-Type": content_type}))
+    upload_id = re.search(rb"<UploadId>([^<]+)</UploadId>", body).group(1).decode()
+    size = os.path.getsize(local)
+    parts = [(n + 1, n * PART_SIZE, min(PART_SIZE, size - n * PART_SIZE)) for n in range((size + PART_SIZE - 1) // PART_SIZE)]
+
+    def send(part):
+        number, offset, length = part
+        with open(local, "rb") as handle:
+            handle.seek(offset)
+            data = handle.read(length)
+        for attempt in range(8):
+            try:
+                _, headers, _ = _request(cfg, "PUT", key, {"partNumber": number, "uploadId": upload_id}, data,
+                                         {"Content-Length": str(length)}, timeout=180)
+                etag = next(v for k, v in headers.items() if k.lower() == "etag")
+                return number, etag
+            except Exception as error:  # network hiccup: back off and resend this part only
+                if attempt == 7:
+                    raise
+                time.sleep(min(60, 3 * (attempt + 1)))
+
+    with concurrent.futures.ThreadPoolExecutor(PART_WORKERS) as pool:
+        done = sorted(pool.map(send, parts))
+    xml = "<CompleteMultipartUpload>" + "".join(
+        f"<Part><PartNumber>{n}</PartNumber><ETag>{etag}</ETag></Part>" for n, etag in done) + "</CompleteMultipartUpload>"
+    status, _, body = _request(cfg, "POST", key, {"uploadId": upload_id}, xml.encode(), {"Content-Type": "application/xml"}, timeout=600)
+    if status != 200 or b"<Error>" in body:
+        raise SystemExit(f"multipart complete failed: HTTP {status}")
 
 
 def upload(local, key, content_type=None, quiet=False):
@@ -59,8 +126,14 @@ def upload(local, key, content_type=None, quiet=False):
     content_type = content_type or mimetypes.guess_type(local)[0] or "application/octet-stream"
     if local.endswith(".apk"):
         content_type = "application/vnd.android.package-archive"
+    if size >= MULTIPART_MIN:
+        upload_multipart(cfg, local, key, content_type, {"Cache-Control": "no-cache"} if key.endswith(".json") else {})
+        url = public_url(cfg, key)
+        if not quiet:
+            print(url)
+        return url
     path = "/" + urllib.parse.quote(key)
-    headers = {"Host": host_of(cfg), "Content-Length": str(size), "Content-Type": content_type}
+    headers = {"Host": upload_host_of(cfg), "Content-Length": str(size), "Content-Type": content_type}
     if key.endswith(".json"):
         headers["Cache-Control"] = "no-cache"
     auth = authorization(cfg, "PUT", "/" + key, {"Host": headers["Host"]})
