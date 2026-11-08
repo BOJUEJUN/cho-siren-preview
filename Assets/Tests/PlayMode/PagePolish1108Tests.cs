@@ -165,6 +165,24 @@ namespace ChoSiren.Tests
                 Assert.That(counter.text, Is.Not.EqualTo(before), "tapping a back card brings it forward");
                 yield return new WaitForSecondsRealtime(.7f);
                 Capture(camera, target, "audition-after-tap.png");
+
+                // 2026-11-08 (少爷: "我划走了…bug了吗"): a drag whose end event never arrives must not leave the badge hanging.
+                swipe = app.GetComponentsInChildren<InterviewBadgeSwipe1108>().First();
+                RectTransform surface = (RectTransform)swipe.transform;
+                Vector2 start = RectTransformUtility.WorldToScreenPoint(camera, surface.TransformPoint(surface.rect.center));
+                var drag = new PointerEventData(EventSystem.current)
+                {
+                    pressPosition = start, position = start, button = PointerEventData.InputButton.Left,
+                    pointerPressRaycast = new RaycastResult { module = canvas.GetComponent<GraphicRaycaster>() },
+                };
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.initializePotentialDrag);
+                drag.position = start + new Vector2(60f, 0f);
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.beginDragHandler);
+                ExecuteEvents.Execute(swipe.gameObject, drag, ExecuteEvents.dragHandler);
+                Assert.That(swipe.IsDragging, Is.True);
+                yield return new WaitForSecondsRealtime(.8f); // no end-drag, no finger down
+                Assert.That(swipe.IsDragging, Is.False, "a lifted finger ends the drag");
+                Assert.That(swipe.Offset, Is.EqualTo(0f).Within(.5f), "the badge springs home instead of hanging mid-swing");
             }
             finally { Object.DestroyImmediate(camera.gameObject); target.Release(); Object.DestroyImmediate(target); }
         }

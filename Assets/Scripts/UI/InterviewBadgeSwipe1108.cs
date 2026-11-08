@@ -13,7 +13,7 @@ namespace ChoSiren.UI
     /// play the same entry.
     /// </summary>
     public sealed class InterviewBadgeSwipe1108 : MonoBehaviour, IInitializePotentialDragHandler,
-        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerUpHandler
     {
         const float Threshold = 95f, FlickDistance = 26f, FlickSpeed = 620f, ThrowDistance = 760f;
         const float ExitSeconds = .22f, EnterSeconds = .62f, HomeSeconds = .32f;
@@ -125,7 +125,24 @@ namespace ChoSiren.UI
             }
             if (passVertical) { if (parentScroll != null) parentScroll.OnEndDrag(e); passVertical = false; return; }
             if (!dragging) return;
-            OnDrag(e); dragging = false; e.eligibleForClick = false;
+            OnDrag(e); e.eligibleForClick = false;
+            Release();
+        }
+
+        /// <summary>
+        /// 2026-11-08 (少爷: "我划走了…bug了吗"): a badge was left hanging mid-swing on a phone when the end-of-drag event
+        /// never arrived. Lifting the finger (pointer up) now settles it too, and <see cref="Update"/> settles any drag
+        /// whose finger is gone, so the badge is always either thrown (next candidate rises) or sprung home.
+        /// </summary>
+        public void OnPointerUp(PointerEventData e)
+        {
+            if (dragging) Release();
+        }
+
+        void Release()
+        {
+            if (!dragging) return;
+            dragging = false;
             bool flick = Mathf.Abs(speed) > FlickSpeed && Mathf.Abs(Offset) > FlickDistance && Mathf.Sign(speed) == Mathf.Sign(Offset);
             if ((Mathf.Abs(Offset) >= Threshold || flick) && (allowed?.Invoke() ?? false)) { throwSteps = 1; BeginExit(Mathf.Sign(Offset)); }
             else { mode = Mode.Home; time = 0f; from = Offset; }
@@ -153,8 +170,12 @@ namespace ChoSiren.UI
             Update();
         }
 
+        static bool PointerHeld() => Input.touchCount > 0 || Input.GetMouseButton(0);
+
         void Update()
         {
+            if (dragging && !PointerHeld() && Time.unscaledTime - previousTime > .25f) Release();
+            if (!dragging && mode == Mode.Idle && Mathf.Abs(Offset) > .5f) { mode = Mode.Home; time = 0f; from = Offset; }
             if (mode == Mode.Idle) return;
             time += Mathf.Min(Time.unscaledDeltaTime, .05f);
             switch (mode)
