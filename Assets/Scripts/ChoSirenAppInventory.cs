@@ -47,6 +47,7 @@ namespace ChoSiren
         private void BuildInventory()
         {
             RectTransform root = ReferenceBoard038("InventoryBoard", InventoryArt + "page-bg-board");
+            CoverPageBackground1108(root);
 
             Image frame = NewImage("InventoryFrame", root, Resources.Load<Sprite>(InventoryArt + "inv-frame"), White).GetComponent<Image>();
             frame.type = Image.Type.Sliced;
@@ -75,8 +76,8 @@ namespace ChoSiren
             }
 
             Rect sortRect = Inv1107(910, 430, 330, 100);
-            GameObject sort = BoardButton038("InventorySort", root, sortRect, () =>
-            { inventorySort = (inventorySort + 1) % InventorySortNames.Length; inventoryPage = 0; ShowScreen("accessory"); });
+            // 2026-11-08 (少爷: "稀有度的按键是点击后展开可以选择的面板"): the sort plate opens a drop-down to choose from.
+            GameObject sort = BoardButton038("InventorySort", root, sortRect, () => ToggleInventorySortMenu1108(root, sortRect));
             sort.GetComponent<Image>().sprite = Resources.Load<Sprite>(InventoryArt + "inv-sort");
             sort.GetComponent<Image>().color = White;
             BoardText038(sort.transform, "Label", InventorySortNames[inventorySort] + "  ▼", 22, White, 66, 0, sortRect.width - 76, sortRect.height,
@@ -350,6 +351,47 @@ namespace ChoSiren
             ChoSiren.UI.RewardBurst1022.Play(safeRoot, font, "强化成功",
                 new List<(string, int)> { (GameModel.AccessoryItemIds[accessory], 1) },
                 new List<string> { "Lv." + (model.AccessoryUpgradeLevel(accessory) + 1) });
+        }
+
+        /// <summary>Drop-down under the sort plate: one row per order, the current one solid teal; tap outside to close.</summary>
+        private void ToggleInventorySortMenu1108(RectTransform root, Rect anchor)
+        {
+            Transform existing = root.Find("InventorySortMenu");
+            if (existing != null)
+            {
+                Destroy(existing.gameObject);
+                Transform oldBlocker = root.Find("InventorySortBlocker");
+                if (oldBlocker != null) Destroy(oldBlocker.gameObject);
+                return;
+            }
+            GameObject blocker = NewImage("InventorySortBlocker", root, null, new Color(0f, 0f, 0f, .28f));
+            RectTransform blockerRect = blocker.GetComponent<RectTransform>();
+            Stretch(blockerRect, -400f, -400f, -400f, -400f);
+            blocker.GetComponent<Image>().raycastTarget = true;
+            GameObject menu = NewImage("InventorySortMenu", root, null, new Color32(16, 10, 34, 246));
+            blocker.AddComponent<Button>().onClick.AddListener(() => { Destroy(menu); Destroy(blocker); });
+            const float rowH = 62f, pad = 8f;
+            float width = anchor.width;
+            float height = pad * 2f + rowH * InventorySortNames.Length;
+            RectTransform menuRect = menu.GetComponent<RectTransform>();
+            PlaceTop(menuRect, anchor.x, anchor.yMax + 6f, width, height);
+            Outline rim = menu.AddComponent<Outline>();
+            rim.effectColor = Brand1025.Teal; rim.effectDistance = new Vector2(2f, -2f);
+            for (int i = 0; i < InventorySortNames.Length; i++)
+            {
+                int order = i;
+                bool on = i == inventorySort;
+                GameObject row = BoardButton038("InventorySortOption-" + i, menu.transform, new Rect(pad, pad + rowH * i, width - pad * 2f, rowH - 6f), () =>
+                {
+                    Destroy(menu); Destroy(blocker);
+                    if (inventorySort == order) return;
+                    inventorySort = order; inventoryPage = 0; ShowScreen("accessory");
+                });
+                row.GetComponent<Image>().color = on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .06f);
+                BoardText038(row.transform, "Label", InventorySortNames[i], 22, on ? (Color)Brand1025.Ink : White, 0, 0, width - pad * 2f, rowH - 6f,
+                    TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
+            }
+            menu.AddComponent<DropdownPop1108>();
         }
 }
 }

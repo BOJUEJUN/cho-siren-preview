@@ -71,6 +71,10 @@ namespace ChoSiren.Panels
             photo.anchoredPosition = new Vector2(BadgeHoleCentre1108.x * px, -BadgeHoleCentre1108.y * px);
             photo.sizeDelta = BadgeHoleSize1108 * px * 1.06f;
             photo.localEulerAngles = new Vector3(0f, 0f, BadgeTilt1108);
+            // 2026-11-08 (少爷: "工牌不要镂空…弄成纯蓝色就是工牌设计本身那个颜色"): cut-out busts stand on a badge-blue photo backdrop.
+            Image photoBg = kit.NewImage("CandidatePhotoBg", photo, Resources.Load<Sprite>(InterviewArt1107 + "iv-photo-bg"), Color.white);
+            PanelKit.Stretch(photoBg.rectTransform);
+            photoBg.raycastTarget = false;
             Image badgeFrame = kit.NewImage("InterviewCard0", front, Resources.Load<Sprite>(InterviewArt1107 + "iv-card-0"), Color.white);
             PanelKit.Stretch(badgeFrame.rectTransform);
             badgeFrame.raycastTarget = false;
@@ -152,8 +156,9 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(actions, 0f, 0f, 720f, IvPageH);
             IvText(actions, "SigningPrice", cost.ToString("N0"), 34, new Color32(70, 230, 240, 255), Iv(3480, 5440, 4000, 5700), TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
             Rect signRect = Iv(1700, 5300, 4270, 6190);
-            InterviewBoardHotspot("SignCandidate", actions, signRect.x, signRect.y, signRect.width, signRect.height,
+            GameObject signHit = InterviewBoardHotspot("SignCandidate", actions, signRect.x, signRect.y, signRect.width, signRect.height,
                 () => SignInterviewCandidate(memberIndex, cost));
+            IvBakedMotion1108(signHit, page, signRect, actions.Find("SigningPrice"));
 
             // ‹ 1/10 › under the card stack (the shared switch arrows), plus a swipe on the stack.
             Rect nav = Iv(40, 5880, 1560, 6260);
@@ -185,6 +190,16 @@ namespace ChoSiren.Panels
             hit.raycastTarget = true;
             var swipe = hit.gameObject.AddComponent<InterviewBadgeSwipe1108>();
             swipe.Configure(badge, stack, () => !closing && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
+            // Tapping the visible strip of the first back card skips one candidate, the second back card two.
+            swipe.TapSteps = e =>
+            {
+                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(page, e.position, e.pressEventCamera, out Vector2 p)) return 0;
+                float y = -p.y;
+                int count = InterviewCandidates().Count;
+                if (y >= Iv(0, 5085, 1, 5086).y) return count > 2 ? 2 : 1;
+                if (y >= Iv(0, 4593, 1, 4594).y) return 1;
+                return 0;
+            };
             return swipe;
         }
 
@@ -204,6 +219,7 @@ namespace ChoSiren.Panels
                 int pool = i;
                 GameObject hit = InterviewBoardHotspot("InterviewPool-" + i, page, pools[i].x, pools[i].y, pools[i].width, pools[i].height,
                     () => SelectInterviewPool(pool));
+                IvBakedMotion1108(hit, page, pools[i]);
                 if (i != interviewPoolIndex) continue;
                 Image glow = ReferencePunkFx.Deco(page, "SelectedChannelGlow", ReferencePunkFx.Glow(), new Color(.11f, .95f, .93f, .4f),
                     pools[i].x, pools[i].yMax - 14f, pools[i].width, 26f);
@@ -212,6 +228,20 @@ namespace ChoSiren.Panels
                 mark.raycastTarget = false;
                 hit.transform.SetAsLastSibling();
             }
+        }
+
+        /// <summary>2026-11-08 (少爷: "按键哪里有触屏没有反馈的都要优化"): the baked board art under a hotspot lifts / pops on press.</summary>
+        private static void IvBakedMotion1108(GameObject hit, RectTransform page, Rect pageRect, params Transform[] extras)
+        {
+            Image board = page.Find("InterviewBoard1107")?.GetComponent<Image>();
+            if (hit == null || board == null || board.sprite == null) return;
+            Rect b = Iv(0, 700, 4320, 7100);
+            float k = board.sprite.rect.width / b.width;
+            var region = new Rect((pageRect.x - b.x) * k, (pageRect.y - b.y) * k, pageRect.width * k, pageRect.height * k);
+            extras = System.Array.FindAll(extras, t => t != null);
+            if (BakedRegionMotion038.Attach(hit, board, region, extras) == null) return;
+            Transform body = hit.transform.Find(BakedRegionMotion038.BodyName);
+            if (body != null) body.SetAsFirstSibling();
         }
 
         private Image IvImage(Transform parent, string name, Sprite sprite, Rect rect)

@@ -13,7 +13,7 @@ namespace ChoSiren.UI
     /// play the same entry.
     /// </summary>
     public sealed class InterviewBadgeSwipe1108 : MonoBehaviour, IInitializePotentialDragHandler,
-        IBeginDragHandler, IDragHandler, IEndDragHandler
+        IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
         const float Threshold = 95f, FlickDistance = 26f, FlickSpeed = 620f, ThrowDistance = 760f;
         const float ExitSeconds = .22f, EnterSeconds = .62f, HomeSeconds = .32f;
@@ -28,7 +28,10 @@ namespace ChoSiren.UI
         Func<bool> allowed;
         Action<int> changed;
         ScrollRect parentScroll;
-        bool dragging, passVertical;
+        bool dragging, passVertical, verticalSwipe;
+        int throwSteps = 1;
+        /// <summary>2026-11-08 (少爷: "点击下面两张直接切换或者上下左右"): maps a tap to how many candidates to skip (0 = ignore).</summary>
+        public Func<PointerEventData, int> TapSteps;
         float dragStartOffset, speed, previousX, previousTime;
         // animation state
         enum Mode { Idle, Home, Exit, Enter }
@@ -45,7 +48,8 @@ namespace ChoSiren.UI
             surface = (RectTransform)transform; front = badge; back = stack; allowed = canSwipe; changed = onChanged;
             frontHome = front.anchoredPosition; frontRotation = front.localRotation;
             backHome = back != null ? back.anchoredPosition : Vector2.zero;
-            frontGroup = front.GetComponent<CanvasGroup>() ?? front.gameObject.AddComponent<CanvasGroup>();
+            frontGroup = front.GetComponent<CanvasGroup>();
+            if (frontGroup == null) frontGroup = front.gameObject.AddComponent<CanvasGroup>();
             parentScroll = transform.parent != null ? transform.parent.GetComponentInParent<ScrollRect>() : null;
             int entry = PendingEntry; PendingEntry = 0;
             if (entry != 0) BeginEnter(entry);
@@ -54,8 +58,17 @@ namespace ChoSiren.UI
         /// <summary>‹ › arrows: throw the badge the same way a swipe would (direction +1 = next).</summary>
         public void Throw(int next)
         {
-            if (Busy || allowed == null || !allowed()) return;
+            if (next == 0 || Busy || allowed == null || !allowed()) return;
+            throwSteps = Mathf.Max(1, Mathf.Abs(next));
             BeginExit(next > 0 ? -1f : 1f);
+        }
+
+        /// <summary>Tapping a back card of the stack brings it forward (the front badge is thrown off first).</summary>
+        public void OnPointerClick(PointerEventData e)
+        {
+            if (dragging || !e.eligibleForClick || TapSteps == null) return;
+            int steps = TapSteps(e);
+            if (steps != 0) Throw(steps);
         }
 
         public void OnInitializePotentialDrag(PointerEventData e)
@@ -68,6 +81,9 @@ namespace ChoSiren.UI
         {
             Vector2 delta = e.position - e.pressPosition;
             passVertical = Mathf.Abs(delta.y) > Mathf.Abs(delta.x) * .8f;
+            // With no page scroll to hand it to, an up / down swipe changes the candidate too (up = next).
+            verticalSwipe = passVertical && parentScroll == null;
+            if (verticalSwipe) { passVertical = false; e.eligibleForClick = false; return; }
             if (passVertical) { if (parentScroll != null) parentScroll.OnBeginDrag(e); return; }
             if (mode == Mode.Exit || mode == Mode.Enter || allowed == null || !allowed()) return;
             dragging = true; mode = Mode.Idle; e.eligibleForClick = false;
@@ -78,6 +94,7 @@ namespace ChoSiren.UI
 
         public void OnDrag(PointerEventData e)
         {
+            if (verticalSwipe) { e.eligibleForClick = false; return; }
             if (passVertical) { if (parentScroll != null) parentScroll.OnDrag(e); return; }
             if (!dragging) return;
             e.eligibleForClick = false;
@@ -91,12 +108,25 @@ namespace ChoSiren.UI
 
         public void OnEndDrag(PointerEventData e)
         {
+            if (verticalSwipe)
+            {
+                verticalSwipe = false; e.eligibleForClick = false;
+                float dy = LocalY(e.position, e) - LocalY(e.pressPosition, e);
+                if (Mathf.Abs(dy) >= Threshold * .7f) Throw(dy > 0 ? 1 : -1);
+                return;
+            }
             if (passVertical) { if (parentScroll != null) parentScroll.OnEndDrag(e); passVertical = false; return; }
             if (!dragging) return;
             OnDrag(e); dragging = false; e.eligibleForClick = false;
             bool flick = Mathf.Abs(speed) > FlickSpeed && Mathf.Abs(Offset) > FlickDistance && Mathf.Sign(speed) == Mathf.Sign(Offset);
-            if ((Mathf.Abs(Offset) >= Threshold || flick) && (allowed?.Invoke() ?? false)) BeginExit(Mathf.Sign(Offset));
+            if ((Mathf.Abs(Offset) >= Threshold || flick) && (allowed?.Invoke() ?? false)) { throwSteps = 1; BeginExit(Mathf.Sign(Offset)); }
             else { mode = Mode.Home; time = 0f; from = Offset; }
+        }
+
+        float LocalY(Vector2 screenPoint, PointerEventData e)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface, screenPoint, e.pressEventCamera, out Vector2 p);
+            return p.y;
         }
 
         float LocalX(Vector2 screenPoint, PointerEventData e)
@@ -141,7 +171,8 @@ namespace ChoSiren.UI
                     {
                         mode = Mode.Idle;
                         PendingEntry = direction;
-                        changed?.Invoke(direction);
+                        int steps = throwSteps; throwSteps = 1;
+                        changed?.Invoke(direction * steps);
                     }
                     break;
                 }
@@ -186,7 +217,7 @@ namespace ChoSiren.UI
 
         void OnDisable()
         {
-            dragging = passVertical = false;
+            dragging = passVertical = verticalSwipe = false;
             if (mode == Mode.Exit) PendingEntry = 0;
             mode = Mode.Idle;
             PoseAt(0f, Vector2.zero, 0f, 1f, 1f, 0f);

@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace ChoSiren
 {
-    /// <summary>The background record turns once; navigation hit targets and labels never rotate.</summary>
+    /// <summary>The background record turns once per selection; navigation hit targets and labels never rotate.
+    /// 2026-11-08 (少爷: "光碟做缓慢旋转类似播放的光碟效果"): on top of that it keeps turning slowly like a playing record. The
+    /// drift is visual only (shared across page rebuilds so it never jumps) and is not part of the remembered selection pose.</summary>
     public sealed class LobbyNavigationDisc1019 : MonoBehaviour
     {
         private RectTransform record;
@@ -11,6 +13,8 @@ namespace ChoSiren
         private float start, target, elapsed;
         public bool Spinning { get; private set; }
         public float Angle { get; private set; }
+        public const float IdleDegreesPerSecond = 7f;
+        private static float idleDrift;
 
         public void Configure(RectTransform art, float from, float to, Action<float> poseChanged)
         {
@@ -19,7 +23,14 @@ namespace ChoSiren
             Pose(Spinning ? from : to);
         }
 
-        private void Update() => Advance(Time.unscaledDeltaTime);
+        private void Update()
+        {
+            float dt = Time.unscaledDeltaTime;
+            Advance(dt);
+            if (record == null || BattlePresentationOptions.ReduceMotion || dt <= 0f || dt > 1f) return;
+            idleDrift = Mathf.Repeat(idleDrift - IdleDegreesPerSecond * dt, 360f); // clockwise, like a turntable
+            record.localEulerAngles = new Vector3(0, 0, Angle + idleDrift);
+        }
 
         public void Advance(float seconds)
         {
@@ -35,7 +46,7 @@ namespace ChoSiren
         private void Pose(float degrees)
         {
             Angle = degrees;
-            if (record != null) record.localEulerAngles = new Vector3(0, 0, degrees);
+            if (record != null) record.localEulerAngles = new Vector3(0, 0, degrees + (Application.isPlaying ? idleDrift : 0f));
             remember?.Invoke(degrees);
         }
     }

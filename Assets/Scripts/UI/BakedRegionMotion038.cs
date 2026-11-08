@@ -50,6 +50,10 @@ namespace ChoSiren
         private readonly List<Part> parts = new List<Part>();
         private Vector3 bodyBaseScale = Vector3.one;
         private bool hovered, pressed;
+        // 2026-11-08 (少爷: "没有点击感…统一优化下触感"): a finger has no hover, so the desktop "settle below hover" press read as
+        // nothing on phones. A touch press pops the baked body out with the sheen and springs it back on release.
+        private bool touchPress;
+        private const float TouchPressScale = 1.045f;
         private bool nativeMode;
         private int state;
         private float elapsed, duration, fromScale = 1f, fromAlpha;
@@ -304,7 +308,7 @@ namespace ChoSiren
             int target = pressed ? 2 : hovered ? 1 : 0;
             if (state != target)
             {
-                release = state == 2 && target == 1;
+                release = state == 2 && (target == 1 || touchPress);
                 state = target; elapsed = 0f;
                 duration = target == 2 ? .08f : target == 0 ? .12f : .16f;
                 fromScale = scale; fromAlpha = alpha;
@@ -316,11 +320,11 @@ namespace ChoSiren
             // Baked slices keep a scale floor of 1: the overlay must always cover the
             // identical baked art. A native-layer body owns its silhouette outright, so
             // its press may settle at 0.97 and its hover grow to 1.04.
-            float targetScale = target == 2 ? (nativeMode ? .97f : 1.006f)
+            float targetScale = target == 2 ? (nativeMode ? .97f : touchPress ? TouchPressScale : 1.006f)
                 : target == 1 ? (nativeMode ? 1.04f : 1.03f) : 1f;
             scale = nativeMode ? Mathf.LerpUnclamped(fromScale, targetScale, spring)
                 : Mathf.Max(1f, Mathf.LerpUnclamped(fromScale, targetScale, spring));
-            alpha = Mathf.Lerp(fromAlpha, target == 2 ? .55f : target == 1 ? .30f : 0f, eased);
+            alpha = Mathf.Lerp(fromAlpha, target == 2 ? (touchPress ? .6f : .55f) : target == 1 ? .30f : 0f, eased);
             body.localScale = bodyBaseScale * scale;
             if (sheen != null) sheen.alpha = alpha;
 
@@ -359,7 +363,11 @@ namespace ChoSiren
         public void OnPointerDown(PointerEventData eventData)
         {
             if (eventData.button == PointerEventData.InputButton.Left
-                && (button == null || button.enabled && button.IsInteractable())) pressed = true;
+                && (button == null || button.enabled && button.IsInteractable()))
+            {
+                pressed = true;
+                touchPress = eventData.pointerId >= 0; // mouse buttons are -1/-2/-3, touches 0+
+            }
         }
         public void OnPointerUp(PointerEventData eventData) { pressed = false; }
 

@@ -86,13 +86,14 @@ namespace ChoSiren
         private void BuildRosterPolish038MembersBoard()
         {
             RectTransform root = ReferenceBoard038("MembersReferenceBoard038", "Art/Reference038/members-board-038");
-            // Reuse the already authored quiet backdrop, retaining the measured card/filter layout.
-            Sprite calm = ReferenceArt038.Load("Art/Reference038/member-detail-bg");
-            if (calm != null)
+            // 2026-11-08 (少爷: "成员页面的背景也统一改成饰品这样的"): the same full-screen page background as 团队 / 饰品,
+            // retaining the measured card/filter layout.
+            Sprite shared = Resources.Load<Sprite>("Art/Ui1107/page-bg-board");
+            if (shared != null)
             {
-                root.GetComponent<Image>().sprite = calm;
+                root.GetComponent<Image>().sprite = shared;
                 root.GetComponent<Image>().preserveAspect = false;
-                ChoSiren.UI.PageAmbient.Set(root.gameObject, calm, featherEdges: root);
+                CoverPageBackground1108(root, shared);
             }
             Text heading = BoardText038(root, "MembersTitle", "成员", 54, White, 46, 210, 650, 84);
             SirenStickerUi.SkinTitle(heading);
@@ -220,10 +221,12 @@ namespace ChoSiren
                 });
                 Image plate = row.GetComponent<Image>();
                 plate.sprite = PunkUi.SlantFill;
-                plate.color = on ? (Color)new Color32(255, 47, 142, 255) : new Color32(36, 26, 56, 255);
+                // Solid teal = selected (2026-11-03 contract), same as the 饰品 sort drop-down.
+                plate.color = on ? (Color)Brand1025.Teal : new Color32(36, 26, 56, 255);
                 BoardText038(row.transform, "Label", (on ? "✓ " : string.Empty) + (options[i].Length == 0 ? "全部" + title : options[i]),
-                    18, White, 0, 0, width - 12f, rowH - 6f, TextAnchor.MiddleCenter);
+                    18, on ? (Color)Brand1025.Ink : White, 0, 0, width - 12f, rowH - 6f, TextAnchor.MiddleCenter);
             }
+            list.AddComponent<DropdownPop1108>();
         }
 
         private static Sprite memberCardFrame;

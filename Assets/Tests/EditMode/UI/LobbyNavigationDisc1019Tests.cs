@@ -44,7 +44,7 @@ namespace ChoSiren.Tests
             Assert.That(Mathf.DeltaAngle(art.localEulerAngles.z, 75), Is.EqualTo(0).Within(.001f));
             Assert.That(disc.Spinning, Is.False);
             int settledCalls = calls; disc.Advance(10);
-            Assert.That(calls, Is.EqualTo(settledCalls), "there is no idle rotation after a selection");
+            Assert.That(calls, Is.EqualTo(settledCalls), "the selection pose settles (the slow playing drift is visual only)");
         }
 
         [Test]

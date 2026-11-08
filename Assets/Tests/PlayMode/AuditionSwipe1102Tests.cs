@@ -89,11 +89,19 @@ namespace ChoSiren.Tests
                 Assert.That(swipe.Offset, Is.EqualTo(0f).Within(.01f));
                 Assert.That(panel.InterviewCandidateIndex, Is.EqualTo(initial), "a short drag springs back");
 
-                var vertical = Begin(new Vector2(10f, 150f)); End(vertical);
+                var nudge = Begin(new Vector2(6f, 40f)); End(nudge);
                 yield return null;
                 Assert.That(swipe.IsDragging, Is.False);
                 Assert.That(swipe.Offset, Is.EqualTo(0f).Within(.01f));
-                Assert.That(panel.InterviewCandidateIndex, Is.EqualTo(initial), "vertical gestures must not browse candidates");
+                Assert.That(panel.InterviewCandidateIndex, Is.EqualTo(initial), "a short vertical nudge does not browse");
+                // 2026-11-08 (少爷: "上下左右就行"): a full up swipe brings the next candidate too.
+                var up = Begin(new Vector2(10f, 150f)); End(up);
+                yield return new WaitForSecondsRealtime(.35f);
+                Assert.That(panel.InterviewCandidateIndex, Is.EqualTo((initial + 1) % candidateCount), "an up swipe shows the next candidate");
+                yield return new WaitForSecondsRealtime(.7f);
+                swipe = panel.GetComponentInChildren<InterviewBadgeSwipe1108>();
+                surface = (RectTransform)swipe.transform;
+                initial = panel.InterviewCandidateIndex;
 
                 var left = Begin(new Vector2(-140f, 0)); End(left);
                 yield return new WaitForSecondsRealtime(.3f);

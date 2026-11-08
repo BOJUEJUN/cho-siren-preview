@@ -35,6 +35,23 @@ namespace ChoSiren
         }
 
         /// <summary>
+        /// 2026-11-08: for boards whose art is only the page background (团队 / 饰品 / 成员 share Ui1107 page-bg-board), the
+        /// background covers the real screen through <see cref="ChoSiren.UI.PageAmbient.SetCover"/>; the board keeps its rect as
+        /// the layout root but no longer draws (or edge-stretches) its own copy.
+        /// </summary>
+        private static void CoverPageBackground1108(RectTransform board, Sprite art = null)
+        {
+            if (board == null) return;
+            Image image = board.GetComponent<Image>();
+            art = art != null ? art : image != null ? image.sprite : null;
+            if (art == null) return;
+            ChoSiren.UI.ScreenEdgeExtend extend = board.GetComponent<ChoSiren.UI.ScreenEdgeExtend>();
+            if (extend != null) Destroy(extend);
+            if (image != null) image.color = new Color(1f, 1f, 1f, 0f);
+            ChoSiren.UI.PageAmbient.SetCover(board.gameObject, art);
+        }
+
+        /// <summary>
         /// HeaderPolish038 / NativeHeaderChrome038: user-directed unified header,
         /// second revision. The opaque universal band was rejected — each page's own
         /// art must stay continuous behind the header. So the shared header is now

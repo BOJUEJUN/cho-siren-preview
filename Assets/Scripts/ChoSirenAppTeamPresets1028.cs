@@ -11,7 +11,8 @@ namespace ChoSiren
         /// Team preset tabs. 2026-11-07 (团队.psd): with <paramref name="chips1107"/> they sit top-left as the PSD's teal /
         /// dark chips at (<paramref name="left"/>, <paramref name="top"/>), the active one dark text on teal.
         /// </summary>
-        private void BuildTeamPresetControls1028(Transform root, float left = 80f, float top = 1520f, bool chips1107 = false)
+        private void BuildTeamPresetControls1028(Transform root, float left = 80f, float top = 1520f, bool chips1107 = false,
+            float stripWidth = 0f)
         {
             int visible = model.VisibleTeamPresetCount;
             bool canAdd = visible < GameModel.TeamPresetCount;
@@ -20,6 +21,33 @@ namespace ChoSiren
             float width = chips1107 ? 132f : Mathf.Clamp((620f - gap * (items - 1)) / items, 92f, 132f);
             float height = chips1107 ? 54f : 64f;
             float x = left;
+            RectTransform strip = null, viewport = null;
+            if (chips1107 && stripWidth > 0f && items * (width + gap) - gap > stripWidth)
+            {
+                // 2026-11-08 (少爷: "队伍加多了会有UI遮挡"): more chips than fit left of the pig / banner scroll sideways in
+                // their own clipped strip (a slimmer chip so the next one peeks out), instead of running under the banner.
+                width = 112f;
+                const float pad = 10f;
+                var view = NewImage("TeamPresetStrip", root, null, Color.clear);
+                viewport = view.GetComponent<RectTransform>();
+                PlaceTop(viewport, left, top - pad, stripWidth, height + pad * 2f);
+                view.GetComponent<Image>().raycastTarget = true;
+                view.AddComponent<RectMask2D>().softness = new Vector2Int(14, 0);
+                var content = new GameObject("Content", typeof(RectTransform));
+                content.transform.SetParent(viewport, false);
+                strip = (RectTransform)content.transform;
+                float contentWidth = items * (width + gap) - gap;
+                PlaceTop(strip, 0f, 0f, contentWidth, height + pad * 2f);
+                var scroll = view.AddComponent<ScrollRect>();
+                scroll.content = strip; scroll.viewport = viewport;
+                scroll.horizontal = true; scroll.vertical = false;
+                scroll.movementType = ScrollRect.MovementType.Elastic;
+                scroll.scrollSensitivity = 18f;
+                float activeX = model.Save.ActiveTeamPreset * (width + gap);
+                float target = Mathf.Clamp(activeX - (stripWidth - width) * .5f, 0f, Mathf.Max(0f, contentWidth - stripWidth));
+                strip.anchoredPosition = new Vector2(-target, 0f);
+                root = strip; x = 0f; top = pad;
+            }
             for (int i = 0; i < visible; i++)
             {
                 int slot = i;

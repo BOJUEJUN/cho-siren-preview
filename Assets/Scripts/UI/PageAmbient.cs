@@ -21,6 +21,7 @@ namespace ChoSiren.UI
             public Color Tint;
             public float Aspect;
             public RectTransform Feather;
+            public Rect Uv = new Rect(0f, 0f, 1f, 1f);
         }
 
         private static PageAmbient instance;
@@ -76,6 +77,29 @@ namespace ChoSiren.UI
             instance.Refresh();
         }
 
+        /// <summary>
+        /// 2026-11-08 (少爷: "背景没有适配好…左边空出一点"): a page whose board art is only a background shows that art itself,
+        /// sharp and at full brightness, covering the whole screen (aspect kept, cropped), instead of a dimmed blur plus
+        /// stretched edge strips. The caller hides its own copy of the art and keeps the board only as the layout root.
+        /// </summary>
+        public static void SetCover(GameObject owner, Sprite art)
+        {
+            if (instance == null || owner == null || art == null || art.texture == null) return;
+            Rect r = art.textureRect;
+            Texture texture = art.texture;
+            instance.entries.RemoveAll(entry => entry.Owner == owner);
+            instance.entries.Add(new Entry
+            {
+                Owner = owner,
+                Texture = texture,
+                Tint = Color.white,
+                Aspect = r.width / Mathf.Max(1f, r.height),
+                Uv = new Rect(r.x / texture.width, r.y / texture.height, r.width / texture.width, r.height / texture.height),
+            });
+            instance.shown = null;
+            instance.Refresh();
+        }
+
         /// <summary>A plain colour for owners without art (e.g. a dark page).</summary>
         public static void SetColor(GameObject owner, Color color)
         {
@@ -102,6 +126,7 @@ namespace ChoSiren.UI
             BuildFeathers(top);
             if (top == null) return;
             image.texture = top.Texture;
+            image.uvRect = top.Uv;
             image.color = top.Tint;
             fitter.enabled = top.Aspect > 0f;
             if (top.Aspect > 0f) fitter.aspectRatio = top.Aspect;

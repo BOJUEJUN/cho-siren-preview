@@ -35,20 +35,22 @@ namespace ChoSiren
         private void BuildTeamBoard1107()
         {
             RectTransform root = ReferenceBoard038("TeamReferenceBoard038", TeamArt1107 + "page-bg-board");
+            CoverPageBackground1108(root);
             int count = Math.Min(GameModel.TeamCapacity, model.Save.Team.Count);
             int roles = model.Save.Team.Take(count).Where(i => i >= 0 && i < GameModel.Members.Length)
                 .Select(i => GameModel.Members[i].Career).Distinct().Count();
 
+            // 2026-11-08 (少爷: "猪也是很生硬的放上去"): as in 团队.psd the pig sits under 主UI and peeks over the banner's top edge.
+            Image pig = NewImage("TeamPig", root, Resources.Load<Sprite>(TeamArt1107 + "team-pig"), White).GetComponent<Image>();
+            Rect pigRect = Team1107(780, 312, 1217, 632);
+            PlaceTop(pig.rectTransform, pigRect.x, pigRect.y, pigRect.width, pigRect.height);
+            pig.raycastTarget = false;
             Image board = NewImage("TeamBoard1107", root, Resources.Load<Sprite>(TeamArt1107 + "team-board"), White).GetComponent<Image>();
             Rect boardRect = Team1107(30, 420, 1994, 4272);
             PlaceTop(board.rectTransform, boardRect.x, boardRect.y, boardRect.width, boardRect.height);
             board.raycastTarget = false;
 
-            BuildTeamPresetControls1028(root, TX(40), TY(458), true);
-            Image pig = NewImage("TeamPig", root, Resources.Load<Sprite>(TeamArt1107 + "team-pig"), White).GetComponent<Image>();
-            Rect pigRect = Team1107(780, 400, 1217, 720);
-            PlaceTop(pig.rectTransform, pigRect.x, pigRect.y, pigRect.width, pigRect.height);
-            pig.raycastTarget = false;
+            BuildTeamPresetControls1028(root, TX(40), TY(458), true, TX(770) - TX(40));
 
             // 队伍 plate: the name (tap to rename) and the pencil.
             Rect plate = Team1107(325, 950, 675, 1100);
@@ -58,6 +60,7 @@ namespace ChoSiren
             teamTitle.fontStyle = FontStyle.BoldAndItalic;
             teamTitle.raycastTarget = false;
             PanelKit.EnableBestFit(teamTitle, 20);
+            TiltText1108(teamTitle, 5f);
             Rect pencil = Team1107(700, 960, 800, 1060);
             GameObject renameTeam = BoardButton038("RenameTeam", root, pencil, () => OpenTeamNameDialog1028(model.Save.ActiveTeamPreset));
             Image renameHit = renameTeam.GetComponent<Image>();
@@ -69,16 +72,21 @@ namespace ChoSiren
                 BoardText038(root, "TeamFormationIssue", formationProblem.Split('\n').Last(), 20, Warn, TX(140), TY(1130), 330, 60);
             BoardText038(root, "TeamResonanceValue", $"职业种类 {roles}/4", 16, Cyan, TX(1380), TY(1280), 220, 24, TextAnchor.MiddleRight);
 
-            Rect power = Team1107(1050, 625, 1975, 1025);
-            Text powerValue = BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 92, White, power.x, power.y, power.width, power.height, TextAnchor.MiddleCenter);
+            // 2026-11-08 (少爷: "战斗力太粗糙…字体是斜的"): the board's number is inpainted out of 主UI (no boxes), and the live
+            // number is drawn like the PSD's: huge, italic, white, riding the banner's ~5.5° rise.
+            Rect power = Team1107(1030, 660, 1985, 1040);
+            Text powerValue = BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 160, White, power.x, power.y, power.width, power.height, TextAnchor.MiddleCenter);
             powerValue.fontStyle = FontStyle.BoldAndItalic;
             powerValue.raycastTarget = false;
-            PanelKit.EnableBestFit(powerValue, 40);
-            Rect members = Team1107(1690, 1112, 1960, 1275);
-            Text memberCount = BoardText038(root, "TeamMemberCount", $"{count}/{GameModel.TeamCapacity}", 50, new Color32(132, 92, 255, 255),
+            PanelKit.EnableBestFit(powerValue, 60);
+            powerValue.resizeTextMaxSize = 160;
+            TiltText1108(powerValue, 5.5f);
+            Rect members = Team1107(1690, 1120, 1960, 1270);
+            Text memberCount = BoardText038(root, "TeamMemberCount", $"{count}/{GameModel.TeamCapacity}", 56, new Color32(132, 92, 255, 255),
                 members.x, members.y, members.width, members.height, TextAnchor.MiddleLeft);
             memberCount.fontStyle = FontStyle.BoldAndItalic;
             memberCount.raycastTarget = false;
+            TiltText1108(memberCount, 4f);
 
             for (int slot = 0; slot < GameModel.TeamCapacity; slot++) TeamCard1107(root, slot, count);
 
@@ -234,7 +242,25 @@ namespace ChoSiren
         {
             GameObject button = BoardButton038(name, parent, bounds, action);
             button.GetComponent<Image>().color = Color.clear;
-            AttachLobbyHotspotFeedback(button, LobbyHotspotFeedback.VisualKind.Entry);
+            // 2026-11-08 (少爷: "更换队长跟一键编队没有点击感反馈"): the baked sticker itself lifts on hover and presses in.
+            Image board = parent.Find("TeamBoard1107")?.GetComponent<Image>();
+            if (board != null)
+            {
+                // Board px: PSD minus (30, 420), scaled to the imported texture (the 1964 px art imports at max 2048 tall).
+                float k = board.sprite != null ? board.sprite.rect.width / 1964f / .39f : 1f / .39f;
+                Rect region = new Rect((bounds.x - TX(30)) * k, (bounds.y - TY(420)) * k, bounds.width * k, bounds.height * k);
+                MainBakedMotion038Attach(button, board, region);
+            }
+        }
+
+        /// <summary>Rotates a placed label about its centre so it rides a slanted PSD plate.</summary>
+        private static void TiltText1108(Text text, float degrees)
+        {
+            RectTransform r = text.rectTransform;
+            Vector2 size = r.sizeDelta;
+            r.anchoredPosition += Vector2.Scale(new Vector2(.5f, .5f) - r.pivot, size);
+            r.pivot = new Vector2(.5f, .5f);
+            r.localEulerAngles = new Vector3(0f, 0f, degrees);
         }
     }
 }
