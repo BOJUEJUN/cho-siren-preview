@@ -30,6 +30,8 @@ namespace ChoSiren
         }
 
         private int inventoryPage;
+        /// <summary>Category tab on the 库存 page: 0 耳饰 (default), 1 项链, 2 手饰, 3 头饰.</summary>
+        private int inventorySlot;
         private const string InventoryArt = "Art/Ui1107/";
         /// <summary>PSD (装备2.psd, 1329 wide) → board: 0.65 scale, PSD y 107 (the pig's top) at board y 195 under the HUD.</summary>
         private static Rect Inv1107(float x, float y, float w, float h) => new Rect(x * .65f, 195f + (y - 107f) * .65f, w * .65f, h * .65f);
@@ -38,9 +40,9 @@ namespace ChoSiren
         private const int InventoryPerRow = 4;
 
         /// <summary>
-        /// 2026-11-07 库存 (赵金 装备2.psd): title sticker, 饰品 / 图鉴 tabs and the sort chip over the PSD frame; one row
-        /// per slot (耳饰 / 项链 / 手饰 / 头饰) with four cells each, the cell's fill and bottom bar showing the quality.
-        /// ‹ › pages every row together (会议: 库存分页).
+        /// 2026-11-07 库存 (赵金 装备2.psd): title sticker, 饰品 / 图鉴 tabs and the sort chip over the PSD frame.
+        /// 2026-11-08: the 耳饰 / 项链 / 手饰 / 头饰 plates are category tabs and the 4×4 grid shows only that category;
+        /// the cell's fill and bottom bar show the quality. ‹ › pages the category (会议: 库存分页).
         /// </summary>
         private void BuildInventory()
         {
@@ -82,35 +84,47 @@ namespace ChoSiren
 
             InventoryArtImage(root, "InventoryPig", "inv-pig", Inv1107(869, 107, 422, 329));
 
-            // One row per slot; every row shows the same page.
-            int pages = 1;
-            int[][] rows = new int[GameModel.EquipmentSlotCount][];
-            for (int slot = 0; slot < rows.Length; slot++)
-            {
-                rows[slot] = InventoryItems(slot);
-                pages = Mathf.Max(pages, Mathf.CeilToInt(rows[slot].Length / (float)InventoryPerRow));
-            }
+            // 2026-11-08 (少爷): the four slot plates on the left are category tabs (耳饰 by default); the 4×4 grid
+            // shows only the chosen category, ‹ › pages through it 16 at a time. Selected plate = solid teal.
+            inventorySlot = Mathf.Clamp(inventorySlot, 0, GameModel.EquipmentSlotCount - 1);
+            int[] items = InventoryItems(inventorySlot);
+            int perPage = InventoryPerRow * InventoryRowY.Length;
+            int pages = Mathf.Max(1, Mathf.CeilToInt(items.Length / (float)perPage));
             inventoryPage = Mathf.Clamp(inventoryPage, 0, pages - 1);
+            for (int slot = 0; slot < GameModel.EquipmentSlotCount; slot++)
+            {
+                int chosen = slot;
+                bool on = slot == inventorySlot;
+                GameObject plate = BoardButton038("InventorySlot-" + slot, root, Inv1107(58, InventoryRowY[slot], 207, 138), () =>
+                {
+                    if (inventorySlot == chosen) return;
+                    inventorySlot = chosen; inventoryPage = 0; ShowScreen("accessory");
+                });
+                Image plateFace = plate.GetComponent<Image>();
+                plateFace.sprite = Resources.Load<Sprite>(InventoryArt + "inv-slot-" + slot + (on ? "-on" : ""));
+                plateFace.color = White;
+            }
             RectTransform grid = NewObject("InventoryGrid", root).AddComponent<RectTransform>();
             Stretch(grid);
-            for (int slot = 0; slot < rows.Length; slot++)
+            for (int row = 0; row < InventoryRowY.Length; row++)
             {
-                InventoryArtImage(grid, "InventorySlot-" + slot, "inv-slot-" + slot, Inv1107(58, InventoryRowY[slot], 207, 138));
                 for (int c = 0; c < InventoryPerRow; c++)
                 {
-                    int n = inventoryPage * InventoryPerRow + c;
-                    Rect cell = Inv1107(InventoryCellX[c], InventoryRowY[slot] + 2f, 218, 281);
-                    if (n < rows[slot].Length)
+                    int n = inventoryPage * perPage + row * InventoryPerRow + c;
+                    Rect cell = Inv1107(InventoryCellX[c], InventoryRowY[row] + 2f, 218, 281);
+                    if (n < items.Length)
                     {
-                        int item = rows[slot][n];
+                        int item = items[n];
                         InventoryCell1107(grid, item, cell, () => OpenAccessoryCard(item, -1));
                     }
-                    else InventoryArtImage(grid, $"InventoryEmpty-{slot}-{c}", "inv-cell-empty", cell);
+                    else InventoryArtImage(grid, $"InventoryEmpty-{row}-{c}", "inv-cell-empty", cell);
                 }
             }
 
             int owned = model.Save.OwnedAccessories.Distinct().Count();
-            BoardText038(root, "InventoryCount", inventoryCatalog ? $"已收集 {owned}/{GameModel.AccessoryNames.Length}" : $"共 {owned} 件",
+            int slotOwned = model.Save.OwnedAccessories.Distinct().Count(i => GameModel.AccessorySlot(i) == inventorySlot);
+            int slotTotal = Enumerable.Range(0, GameModel.AccessoryNames.Length).Count(i => GameModel.AccessorySlot(i) == inventorySlot);
+            BoardText038(root, "InventoryCount", inventoryCatalog ? $"已收集 {slotOwned}/{slotTotal}" : $"共 {slotOwned} 件",
                 20, new Color32(190, 178, 222, 255), 50, 1322, 200, 50, TextAnchor.MiddleLeft);
             // ‹ 1/3 › with the shared switch arrows.
             BoardText038(root, "InventoryPage", $"{inventoryPage + 1}/{pages}", 26, White, 382, 1318, 100, 56, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;

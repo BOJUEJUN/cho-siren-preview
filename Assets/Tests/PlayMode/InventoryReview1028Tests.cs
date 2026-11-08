@@ -47,34 +47,39 @@ namespace ChoSiren.Tests
         [UnityTest]
         public IEnumerator RecentAcquisitionFiltersAndAllCatalogItemsStayReachable()
         {
-            // 2026-11-07 (装备2.psd): one row per slot, four cells a row, ‹ › pages every row together.
+            // 2026-11-08: the slot plates are category tabs, 耳饰 by default; the grid shows only that category.
             model.Save.OwnedAccessories.Clear();
             model.Save.OwnedAccessories.AddRange(new[] { 60, 1, 12, 3 });
             typeof(ChoSirenApp).GetField("inventorySort", Private).SetValue(app, 2);
             ShowInventory(); yield return null;
-            CollectionAssert.AreEquivalent(new[] { 3, 12, 1, 60 }, GridItems());
-            foreach (int item in GridItems())
+            Assert.That(Require("InventorySlot-0").GetComponent<Image>().sprite.name, Does.EndWith("-on"), "耳饰 selected by default");
+            for (int slot = 0; slot < GameModel.EquipmentSlotCount; slot++)
             {
-                Transform tile = Require("InventoryGrid").transform.Find("Accessory-" + item);
-                int slot = GameModel.AccessorySlot(item);
-                float rowTop = Require("InventorySlot-" + slot).GetComponent<RectTransform>().anchoredPosition.y;
-                Assert.That(((RectTransform)tile).anchoredPosition.y, Is.EqualTo(rowTop).Within(4f), "item sits in its slot row");
+                if (slot > 0) { Click("InventorySlot-" + slot); yield return null; }
+                Assert.That(Require("InventorySlot-" + slot).GetComponent<Image>().sprite.name, Does.EndWith("-on"));
+                int[] expected = new[] { 3, 12, 1, 60 }.Where(i => GameModel.AccessorySlot(i) == slot).ToArray();
+                CollectionAssert.AreEqual(expected, GridItems(), "only the chosen category, newest first");
             }
             Click("InventoryTab-1"); yield return null;
             var seen = new System.Collections.Generic.HashSet<int>();
-            string first = Require("InventoryPage").GetComponent<Text>().text;
-            int pages = int.Parse(first.Split('/')[1]);
-            for (int p = 0; p < pages; p++)
+            for (int slot = 0; slot < GameModel.EquipmentSlotCount; slot++)
             {
-                foreach (int item in GridItems())
+                Click("InventorySlot-" + slot); yield return null;
+                string first = Require("InventoryPage").GetComponent<Text>().text;
+                int pages = int.Parse(first.Split('/')[1]);
+                for (int p = 0; p < pages; p++)
                 {
-                    seen.Add(item);
-                    Assert.That(Require("InventoryGrid").transform.Find("Accessory-" + item + "/ItemArt").GetComponent<Image>().sprite, Is.Not.Null);
+                    foreach (int item in GridItems())
+                    {
+                        Assert.That(GameModel.AccessorySlot(item), Is.EqualTo(slot));
+                        seen.Add(item);
+                        Assert.That(Require("InventoryGrid").transform.Find("Accessory-" + item + "/ItemArt").GetComponent<Image>().sprite, Is.Not.Null);
+                    }
+                    Click("InventoryNextPage"); yield return null;
                 }
-                Click("InventoryNextPage"); yield return null;
+                Assert.That(Require("InventoryPage").GetComponent<Text>().text, Is.EqualTo(first), "› wraps back to page 1");
             }
-            Assert.That(seen.Count, Is.EqualTo(66), "every catalog item is reachable through the pages");
-            Assert.That(Require("InventoryPage").GetComponent<Text>().text, Is.EqualTo(first), "› wraps back to page 1");
+            Assert.That(seen.Count, Is.EqualTo(66), "every catalog item is reachable through the tabs and pages");
         }
 
         [UnityTest]
@@ -104,7 +109,8 @@ namespace ChoSiren.Tests
             model.Save.Gold = 100000;
             // Open the page that holds item 1, upgrade it there and stay on that page.
             var items = (int[])typeof(ChoSirenApp).GetMethod("InventoryItems", Private).Invoke(app, new object[] { GameModel.AccessorySlot(1) });
-            int page = System.Array.IndexOf(items, 1) / 4;
+            int page = System.Array.IndexOf(items, 1) / 16;
+            typeof(ChoSirenApp).GetField("inventorySlot", Private).SetValue(app, GameModel.AccessorySlot(1));
             typeof(ChoSirenApp).GetField("inventoryPage", Private).SetValue(app, page);
             ShowInventory(); yield return null;
             Invoke("OpenAccessoryCard", 1, -1, null); yield return null;
