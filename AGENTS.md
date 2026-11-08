@@ -2,14 +2,14 @@
 
 Keep this file short. Load only the document that matches the work:
 
-- **Start here:** `Docs/AI-HANDOFF.md` — the only current handoff (game 0.9.40 public on web, PC, local Mac and both iPhones; AI 换装, enzoban.com site, secrets, release flow). Earlier handoff docs were deleted 2026-11-06; use git history if needed.
-- Release records: `Docs/FULL-RELEASE-2026-11-08-0940.md` (latest), `Docs/BALANCE-1107-LV200.md` for level/balance rules
+- **Start here:** `Docs/AI-HANDOFF.md` — the only current handoff (game 0.9.41 public on PC, local Mac and both iPhones; web no longer updated; AI 换装, enzoban.com site, secrets, release flow). Earlier handoff docs were deleted 2026-11-06; use git history if needed.
+- Release records: `Docs/FULL-RELEASE-2026-11-08-0941.md` (latest), `Docs/BALANCE-1107-LV200.md` for level/balance rules
 - WebGL build or publishing: `Docs/WEBGL-RELEASE-SAFETY-2026-09-05.md`
 - Battle UI or feedback: `Docs/BATTLE-UI-2026-09-05.md` and `Docs/BATTLE-FEEDBACK-20260907.md`
 
 ## Current product contract
 
-- Versions are `0.9.x` and only move forward (0.9.33 was a web-only dress-lab page; 0.9.40 is the current public release, so the next one is 0.9.41 or higher). Never fall back to `0.3.x`.
+- Versions are `0.9.x` and only move forward (0.9.33 was a web-only dress-lab page; 0.9.41 is the current public release, so the next one is 0.9.42 or higher). Never fall back to `0.3.x`.
 - Solid teal fill means "selected" only; main actions use the dark face with a teal frame and teal caption (2026-11-03).
 - Bosses, enemies and chapter-one lineups follow the user's planning deck (`CHO-SIREN幻域魅声 游戏企划书`): 1-5 碎音·琉娜, 1-10 幻蚀歌枢·梅洛蒂 (`StageBoss1103.cs`); keep its enemy names and designs.
 - Ultimate charge (2026-11-03 deck): captain 17s, then 20s / 25s / 30s in formation order (`ChargeOrder1101.cs`).
@@ -36,7 +36,7 @@ A change is complete when its behavior is implemented, affected regression tests
 
 ## Release delivery flow (2026-11-02)
 
-- 全量发布（2026-11-08 起）只发：网页、PC（Windows）下载 + 增量更新清单、本机 Mac 应用、手机。Mac 安装包和 Android 安装包不用发，除非少爷要求。上传走腾讯云全球加速（`Tools/cos_upload.py` 默认）；PC 增量用分块补丁（`Tools/publish_files.py --previous`）。
+- 全量发布（2026-11-08 晚起）只发：PC（Windows）下载 + 增量更新清单、本机 Mac 应用、手机。网页、Mac 安装包、Android 安装包都不用发，除非少爷要求。上传走腾讯云全球加速（`Tools/cos_upload.py` 默认）；PC 增量用分块补丁（`Tools/publish_files.py --previous`）。
 - 同步替换本机 `/Applications/幻域魅声.app`，保留现有 Dock 入口并验证其指向最新版本。
 - 安装到用户指定 iPhone，保留存档，查询已装版本；不要自动打开手机游戏。两台都可装（五条悟专用机 2026-11-06 起用户自测），以用户当次指定为准。
 - 分别报告线上、桌面、手机完成情况；未完成的渠道不能宣称已上线。

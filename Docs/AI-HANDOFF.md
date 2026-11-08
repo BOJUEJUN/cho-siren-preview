@@ -14,23 +14,23 @@
 
 ## 1. 游戏现状（2026-11-08）
 
-- **0.9.40 已全量发布**（记录 `Docs/FULL-RELEASE-2026-11-08-0940.md`）：赵金 11-07 六页新美术 + 会议纪要落地 + 200 级 + 角色体力 + 累计更新公告。明细 `Docs/ART-FEEDBACK-2026-11-07.md`、数值 `Docs/BALANCE-1107-LV200.md`。下一版 **0.9.41**。
-- 全量发布范围（11-08 起）：网页、PC 下载 + 更新清单、本机 Mac 应用、手机。Mac 安装包和安卓包不发；清单里 Mac 字段留空，Mac 客户端不会被提示更新。
+- **0.9.41 已全量发布**（记录 `Docs/FULL-RELEASE-2026-11-08-0941.md`，上一版 `Docs/FULL-RELEASE-2026-11-08-0940.md`）：赵金 11-07 六页新美术 + 会议纪要落地 + 200 级 + 角色体力 + 累计更新公告。明细 `Docs/ART-FEEDBACK-2026-11-07.md`、数值 `Docs/BALANCE-1107-LV200.md`。下一版 **0.9.42**。
+- 全量发布范围（11-08 晚起）：PC 下载 + 更新清单、本机 Mac 应用、手机。**网页不再更新**（性能不够），Mac 安装包和安卓包也不发；清单里 Mac 字段留空，Mac 客户端不会被提示更新。
 - PC 更新改成分块补丁：大文件切约 1MB 小块，客户端只下改动的块（`AppUpdate1022.cs` 的 `ChunkPlan`/`Cdc`，上传端 `Tools/publish_files.py --previous <上一版 windows-stage>`）。0.9.39 客户端还用旧整文件方式，所以本次仍开着整文件上传；**0.9.41 起加 `--no-legacy-whole`**，每次只传几十到一两百 MB。
 - 上传默认走腾讯云全球加速（11-08 开通，`Tools/cos_upload.py`；`COS_ACCELERATE=0` 关闭）；64MB 以上分块并发上传（`COS_PART_WORKERS`）。实测约 5MB/s。
 - PlayMode 118 条改版前老界面测试已隔离（`Docs/TEST-QUARANTINE-1108.md`），其余全过；EditMode 全过。
 
 | 渠道 | 版本 | 说明 |
 |---|---|---|
-| 网页 | 0.9.40 / R170 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
+| 网页（不再更新） | 0.9.41 / R171 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
 | 官网 | 已下线（11-08 少爷要求保密） | 原 `site/` 已从公开仓库删除，本机副本 `~/cho-siren-site-private/`；别再发布到公开地址 |
-| Windows 下载 + 更新清单 | 0.9.40 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
+| Windows 下载 + 更新清单 | 0.9.41 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
 | Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
-| 本机 `/Applications/幻域魅声.app` | 0.9.40 | 11-08 替换，Dock 入口保留 |
-| 伯爵君 iPhone | 0.9.40 | 11-08 覆盖安装（无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
-| 五条悟专用机 | 0.9.40 | 11-08 覆盖安装，同上 |
+| 本机 `/Applications/幻域魅声.app` | 0.9.41 | 11-08 替换，Dock 入口保留 |
+| 伯爵君 iPhone | 0.9.41 | 11-08 覆盖安装（无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
+| 五条悟专用机 | 0.9.41 | 11-08 覆盖安装，同上 |
 
-- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.40 / Android 940（11-08 全量发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
+- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.41 / Android 941（11-08 全量发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
 - 公开版 0.9.39 = 0.9.38 的工坊编辑页 + 作曲按钮隐藏（作曲只在带测试码的私人包显示）。下一次正式发版用 **0.9.40 或更高**，打公开包前**确认 `Assets/Resources/AiGptTestCode.txt` 不存在**（它是 gitignore 的私人开关，有它就会走 GPT 测试服务）。
 

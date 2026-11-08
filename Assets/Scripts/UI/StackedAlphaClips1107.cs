@@ -73,7 +73,7 @@ namespace ChoSiren.UI
                     clip.Image.material.SetFloat("_AlphaFromSrgb",
                         QualitySettings.activeColorSpace == ColorSpace.Linear && clip.Texture.sRGB ? 1f : 0f);
                 clip.Prepared = true;
-                if (current < 0 || clips[current].Failed) Start(clips.IndexOf(clip));
+                if (current < 0 || clips[current].Failed) PlayClip(clips.IndexOf(clip));
             };
             player.errorReceived += (source, message) =>
             {
@@ -85,7 +85,7 @@ namespace ChoSiren.UI
             {
                 if (current < 0 || clips[current].Player != source || clips.Count < 2) return;
                 int next = random.Next(clips.Count);
-                if (next != current && clips[next].Prepared && !clips[next].Failed) Start(next);
+                if (next != current && clips[next].Prepared && !clips[next].Failed) PlayClip(next);
             };
             clip.Player = player;
             clips.Add(clip);
@@ -105,7 +105,7 @@ namespace ChoSiren.UI
         /// <summary>Overall opacity (a panel fading in or out).</summary>
         public void SetTint(float alpha) => tint = Mathf.Clamp01(alpha);
 
-        private void Start(int index)
+        private void PlayClip(int index)
         {
             if (index < 0 || index >= clips.Count) return;
             Clip next = clips[index];
