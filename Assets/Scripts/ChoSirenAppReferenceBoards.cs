@@ -86,7 +86,9 @@ namespace ChoSiren
             // 2026-11-03: the 1152x256 pill art is far wider than its slot (4.5:1), so drawn at its own aspect it was
             // only ~30px tall. It is now 9-sliced: the icon cap (left 300px) and plus cap (right 272px) keep their
             // proportions at PillArtH1103 and only the dark number band between them is shortened.
-            public const float PillArtH1103 = 38f, PillCapLeft1103 = 300f, PillCapRight1103 = 272f;
+            public const float PillArtH1103 = 44f, PillCapLeft1103 = 300f, PillCapRight1103 = 272f;
+            /// <summary>The profile plaque's draw scale (top-left pivot), 2026-11-09.</summary>
+            public const float ProfileScale1109 = .92f;
             public static float PillArtScale1103 => PillArtH1103 / 256f;
 
             public static HeaderPolish038Layout For(string screen)
@@ -101,8 +103,10 @@ namespace ChoSiren
                 // Mail + gear live only on the lobby (stacked at its right edge), so the three
                 // pills spread across the full width after the profile plaque.
                 // Centred on the profile plaque (y≈57) and spread across 290–716 with 6px gaps.
-                const float pillW = 138f, pillH = 52f, pillY = 31f;
-                float[] pillX = { 290f, 434f, 578f };
+                // 2026-11-09 (少爷: "右上角这三个金币体力啥的还是放大一些…比例整体"): the profile plaque draws at
+                // ProfileScale1109 so the three pills get the room to grow: 148 wide (was 138), art 44 tall (was 38).
+                const float pillW = 148f, pillH = 52f, pillY = 27f;
+                float[] pillX = { 266f, 417f, 568f };
                 return new HeaderPolish038Layout
                 {
                     Profile = new Rect(4, 5, 282, 104),
@@ -111,12 +115,12 @@ namespace ChoSiren
                     Level = new Rect(110, 44, 150, 25),
                     Power = new Rect(110, 69, 162, 30),
                     Pills = pillX.Select(x => new Rect(x, pillY, pillW, pillH)).ToArray(),
-                    Icons = Enumerable.Repeat(new Rect(6, 13, 26, 26), 3).ToArray(),
+                    Icons = Enumerable.Repeat(new Rect(7, 12, 30, 30), 3).ToArray(),
                     // Between the two sliced caps, so digits never touch the icon or plus.
                     Values = Enumerable.Repeat(new Rect(PillCapLeft1103 * PillArtScale1103, 8,
                         pillW - (PillCapLeft1103 + PillCapRight1103) * PillArtScale1103, 36), 3).ToArray(),
                     // Centred on the art's baked plus (155px in from the art's right edge).
-                    Tiles = pillX.Select(x => new Rect(x + pillW - 155.5f * PillArtScale1103 - 17f, pillY + 8, 34, 36)).ToArray(),
+                    Tiles = pillX.Select(x => new Rect(x + pillW - 155.5f * PillArtScale1103 - 19f, pillY + 6, 38, 40)).ToArray(),
                     Settings = new Rect(678, 48, 38, 38),
                     Gear = new Rect(3, 3, 32, 32),
                     Mail = new Rect(678, 8, 38, 36),
@@ -124,7 +128,7 @@ namespace ChoSiren
                     NativeChrome = true,
                     LiveIcons = false,
                     // 2026-11-03: sized to the art's dark interior band (~half the pill art height).
-                    ValueMax = new[] { 14, 14, 13 },
+                    ValueMax = new[] { 16, 16, 14 },
                 };
             }
         }
@@ -182,6 +186,7 @@ namespace ChoSiren
             if (profile == null) return;
             PlaceTop((RectTransform)profile, layout.Profile.x, layout.Profile.y,
                 layout.Profile.width, layout.Profile.height);
+            profile.localScale = Vector3.one * (layout.NativeChrome ? HeaderPolish038Layout.ProfileScale1109 : 1f);
             // Avatar discs may protrude below/above the band by design (the baked ring
             // does); only the bar-level mask may clip them at the screen edge.
             RectMask2D staleProfileMask = profile.GetComponent<RectMask2D>();
