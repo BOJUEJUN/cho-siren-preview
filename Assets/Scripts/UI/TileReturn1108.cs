@@ -15,10 +15,10 @@ namespace ChoSiren.UI
     public sealed class TileReturn1108 : MonoBehaviour
     {
         const float FlashEnd = .24f, CoverStart = .16f, CoverEnd = .50f, HoldEnd = .80f, RevealEnd = 1.12f, WashEnd = 1.38f;
-        const float TileSize = 118f, TileAngle = -28f, Wave = .2f;
+        const float TileSize = 118f, TileAngle = -28f, Wave = .12f;
         static readonly Color TileColor = new Color32(16, 15, 19, 255);
 
-        sealed class Tile { public RectTransform Rect; public Image Face, Edge; public float Order, Shade, Glint; public Vector2 Home; }
+        sealed class Tile { public RectTransform Rect; public Image Face, Edge; public float Order, RevealOrder, Shade, Glint; public Vector2 Home; }
 
         readonly List<Tile> tiles = new List<Tile>();
         RectTransform root;
@@ -72,9 +72,13 @@ namespace ChoSiren.UI
             float span = Mathf.Sqrt(w * w + h * h) + TileSize * 2f;
             int n = Mathf.CeilToInt(span / TileSize);
             Quaternion turn = Quaternion.Euler(0f, 0f, TileAngle);
-            // Sweep direction on screen: from the bottom-right corner towards the top-left.
-            Vector2 dir = new Vector2(-w, h).normalized;
-            float reach = Mathf.Abs(Vector2.Dot(new Vector2(w, h) * .5f, dir)) + TileSize;
+            // 2026-11-08 (少爷: "是右边到左边的一个转场"): the black blocks come in from the right edge and sweep left along a
+            // steep front (its foot slightly ahead), as in 转场参考视频 frames 230-242; they leave from the bottom-right
+            // corner towards the top-left (frames 272-284).
+            Vector2 dir = new Vector2(-.954f, .3f).normalized;
+            Vector2 revealDir = new Vector2(-w, h).normalized;
+            float reach = Mathf.Abs(dir.x) * w * .5f + Mathf.Abs(dir.y) * h * .5f + TileSize;
+            float revealReach = Mathf.Abs(Vector2.Dot(new Vector2(w, h) * .5f, revealDir)) + TileSize;
             var rng = new System.Random(1108);
             for (int y = 0; y < n; y++)
             for (int x = 0; x < n; x++)
@@ -99,9 +103,10 @@ namespace ChoSiren.UI
                 edge.anchorMin = new Vector2(0f, 1f); edge.anchorMax = Vector2.one; edge.pivot = new Vector2(.5f, 1f);
                 edge.offsetMin = new Vector2(0f, -2.5f); edge.offsetMax = Vector2.zero;
                 tile.Edge.color = new Color(1f, 1f, 1f, 0f);
-                // 0 = first (bottom-right corner) … 1 = last (top-left), with a little jitter so the front is ragged.
-                float along = (Vector2.Dot(screen, dir) + reach) / (2f * reach);
-                tile.Order = Mathf.Clamp01(along + ((float)rng.NextDouble() - .5f) * .06f);
+                // 0 = first … 1 = last along each sweep, with a little jitter so the front is ragged.
+                float jitter = ((float)rng.NextDouble() - .5f) * .06f;
+                tile.Order = Mathf.Clamp01((Vector2.Dot(screen, dir) + reach) / (2f * reach) + jitter);
+                tile.RevealOrder = Mathf.Clamp01((Vector2.Dot(screen, revealDir) + revealReach) / (2f * revealReach) + jitter);
                 tiles.Add(tile);
             }
             // The reference holds the black screen on a faint studio mark; ours shows the game's name.
@@ -166,12 +171,12 @@ namespace ChoSiren.UI
 
             // 2) the tiles: in along the staircase, then out the same way
             float coverSpan = CoverEnd - CoverStart, revealSpan = RevealEnd - HoldEnd;
-            Vector2 slide = new Vector2(1f, -1f) * 46f; // tiles arrive from the bottom-right, in the field's rotated frame
+            Vector2 slide = (Vector2)(Quaternion.Euler(0f, 0f, -TileAngle) * new Vector3(1f, -.3f, 0f)) * 46f; // they arrive from the right
             foreach (Tile tile in tiles)
             {
                 float start = CoverStart + tile.Order * (coverSpan - Wave);
                 float s = Ease((time - start) / Wave);
-                float leave = HoldEnd + tile.Order * (revealSpan - Wave);
+                float leave = HoldEnd + tile.RevealOrder * (revealSpan - Wave);
                 float r = Mathf.Clamp01((time - leave) / Wave);
                 // Once settled every block is solid; the mosaic only shows along the moving front.
                 float settled = Mathf.Clamp01((time - start - Wave) / .12f) * (1f - Mathf.Clamp01(r * 3f));
