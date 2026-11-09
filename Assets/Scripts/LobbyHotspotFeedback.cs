@@ -84,7 +84,12 @@ namespace ChoSiren
         private void BuildEffect(Sprite glyph)
         {
             Transform existing = transform.Find("InteractionFx");
-            if (existing != null) { existing.gameObject.SetActive(false); Destroy(existing.gameObject); }
+            if (existing != null)
+            {
+                existing.gameObject.SetActive(false);
+                existing.name = "InteractionFx-old";
+                if (Application.isPlaying) Destroy(existing.gameObject); else DestroyImmediate(existing.gameObject);
+            }
             accent = null; plusTint = null;
             GameObject root = new GameObject("InteractionFx", typeof(RectTransform), typeof(CanvasGroup));
             root.layer = gameObject.layer;
