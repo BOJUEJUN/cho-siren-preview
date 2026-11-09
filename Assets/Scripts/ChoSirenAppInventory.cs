@@ -105,14 +105,18 @@ namespace ChoSiren
             // ‹ › pages through it 16 at a time. Selected plate = solid teal (labels are live text on blank plates).
             inventorySlot = Mathf.Clamp(inventorySlot, -1, InventoryMaterialsTab1109);
             bool materials = inventorySlot == InventoryMaterialsTab1109;
-            int[] items = materials ? Enumerable.Range(0, InventoryMaterials1109.Length).ToArray() : InventoryItems(inventorySlot);
+            // 饰品 lists only what you hold; 图鉴 lists every material (11-09, 少爷: "我没有点击图鉴但是显示全部材料了").
+            int[] items = materials
+                ? Enumerable.Range(0, InventoryMaterials1109.Length).Where(m => inventoryCatalog || model.Balance(InventoryMaterials1109[m].Id) > 0).ToArray()
+                : InventoryItems(inventorySlot);
             int perPage = InventoryPerRow * InventoryRowY.Length;
             int pages = Mathf.Max(1, Mathf.CeilToInt(items.Length / (float)perPage));
             inventoryPage = Mathf.Clamp(inventoryPage, 0, pages - 1);
-            // Six plates now (全部, four slots, 材料): a little shorter and tighter so they still span the grid.
+            // Six plates (全部, four slots, 材料) stacked close together from the grid's top
+            // (2026-11-09, 少爷: "这几个UI紧凑些吧").
             const float plateH = 116f;
-            float columnTop = InventoryRowY[0], columnBottom = InventoryRowY[InventoryRowY.Length - 1] + 281f;
-            float plateStep = (columnBottom - columnTop - plateH) / (GameModel.EquipmentSlotCount + 1);
+            float columnTop = InventoryRowY[0];
+            const float plateStep = plateH + 26f;
             for (int slot = -1; slot <= InventoryMaterialsTab1109; slot++)
             {
                 int chosen = slot;
@@ -156,7 +160,7 @@ namespace ChoSiren
             int owned = model.Save.OwnedAccessories.Distinct().Count();
             int slotOwned = model.Save.OwnedAccessories.Distinct().Count(i => inventorySlot < 0 || GameModel.AccessorySlot(i) == inventorySlot);
             int slotTotal = Enumerable.Range(0, GameModel.AccessoryNames.Length).Count(i => inventorySlot < 0 || GameModel.AccessorySlot(i) == inventorySlot);
-            BoardText038(root, "InventoryCount", materials ? $"共 {InventoryMaterials1109.Length} 种材料" : inventoryCatalog ? $"已收集 {slotOwned}/{slotTotal}" : $"共 {slotOwned} 件",
+            BoardText038(root, "InventoryCount", materials ? (inventoryCatalog ? $"已收集 {InventoryMaterials1109.Count(m => model.Balance(m.Id) > 0)}/{InventoryMaterials1109.Length}" : $"共 {items.Length} 种材料") : inventoryCatalog ? $"已收集 {slotOwned}/{slotTotal}" : $"共 {slotOwned} 件",
                 20, new Color32(190, 178, 222, 255), 50, 1322, 200, 50, TextAnchor.MiddleLeft);
             // ‹ 1/3 › with the shared switch arrows.
             BoardText038(root, "InventoryPage", $"{inventoryPage + 1}/{pages}", 26, White, 382, 1318, 100, 56, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;

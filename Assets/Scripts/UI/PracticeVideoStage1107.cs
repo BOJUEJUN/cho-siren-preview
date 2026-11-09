@@ -131,7 +131,10 @@ namespace ChoSiren.UI
             // 2026-11-09 (少爷: "左上角有个练习舞台好像UI重叠"): on screens where the camera window's top is cut off by
             // the stage edge the title would be half hidden under the header, so it only shows when it fits.
             title.gameObject.SetActive(offsetY >= -2f);
-            Place((RectTransform)timecode.transform, new Rect(828, 1659, 400, 90)); // over the erased PSD timecode
+            // Over the erased PSD timecode, lifted when the stage cuts the camera window's bottom off
+            // (2026-11-09, 少爷: "这个时间UI重叠了").
+            float visibleBottom = PsdTop + (height - offsetY) / Mathf.Max(.0001f, scale);
+            Place((RectTransform)timecode.transform, new Rect(828, Mathf.Min(1659f, visibleBottom - 120f), 400, 90));
             timecode.fontSize = Mathf.Max(10, Mathf.RoundToInt(46 * scale));
             PlaceMarker();
         }

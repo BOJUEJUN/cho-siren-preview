@@ -135,7 +135,14 @@ namespace ChoSiren.Tests
                 inventory.Find("InventorySlot-Materials").GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.3f);
                 inventory = Find("InventoryBoard");
-                Assert.That(inventory.GetComponentsInChildren<Transform>().Count(t => t.name.StartsWith("Material-")), Is.EqualTo(9));
+                var held = new[] { "voice-crystal", "voice-core", "soul-charm", "soul-demon", "soul-sea", "soul-blood", "shard", "recruit-ticket", "costume-ticket" }
+                    .Where(id => model.Balance(id) > 0).ToArray();
+                Assert.That(inventory.GetComponentsInChildren<Transform>().Count(t => t.name.StartsWith("Material-")), Is.EqualTo(held.Length),
+                    "饰品 shows only the materials you hold");
+                inventory.Find("InventoryTab-1").GetComponent<Button>().onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.3f);
+                inventory = Find("InventoryBoard");
+                Assert.That(inventory.GetComponentsInChildren<Transform>().Count(t => t.name.StartsWith("Material-")), Is.EqualTo(9), "图鉴 shows them all");
                 Assert.That(inventory.GetComponentsInChildren<Transform>().First(t => t.name == "Material-soul-charm").Find("ItemArt")
                     .GetComponent<Image>().sprite, Is.Not.Null);
                 Capture(camera, target, "accessory-materials.png");
