@@ -73,10 +73,9 @@ namespace ChoSiren.UI
             int n = Mathf.CeilToInt(span / TileSize);
             Quaternion turn = Quaternion.Euler(0f, 0f, TileAngle);
             // 2026-11-08 (少爷: "是右边到左边的一个转场"): the black blocks come in from the right edge and sweep left along a
-            // steep front (its foot slightly ahead), as in 转场参考视频 frames 230-242; they leave from the bottom-right
-            // corner towards the top-left (frames 272-284).
+            // steep front (its foot slightly ahead), as in 转场参考视频 frames 230-242, and leave the same way.
             Vector2 dir = new Vector2(-.954f, .3f).normalized;
-            Vector2 revealDir = new Vector2(-w, h).normalized;
+            Vector2 revealDir = dir; // 少爷: they leave right-to-left too, the same way they came in
             float reach = Mathf.Abs(dir.x) * w * .5f + Mathf.Abs(dir.y) * h * .5f + TileSize;
             float revealReach = Mathf.Abs(Vector2.Dot(new Vector2(w, h) * .5f, revealDir)) + TileSize;
             var rng = new System.Random(1108);
