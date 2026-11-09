@@ -172,6 +172,37 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(.7f);
                 Capture(camera, target, "audition-after-tap.png");
 
+                // 2026-11-08 (少爷: "点击不是很灵敏"): a tap on the first back card's visible strip, just under the front badge's
+                // slanted bottom edge (inside the front badge's bounding box), still brings that badge forward.
+                {
+                    yield return new WaitForSecondsRealtime(.3f);
+                    var tapSwipe = app.GetComponentsInChildren<InterviewBadgeSwipe1108>().First();
+                    RectTransform frontBadge = app.GetComponentsInChildren<RectTransform>().First(t => t.name == "CandidatePortrait");
+                    RectTransform firstBack = app.GetComponentsInChildren<RectTransform>().First(t => t.name == "InterviewCard1");
+                    string middleArt = app.GetComponentsInChildren<Image>().First(i => i.name == "BackCardPortrait"
+                        && i.GetComponentsInParent<Transform>().Any(t => t.name == "InterviewCard1")).sprite.texture.name;
+                    // Art px of iv-card-1 near its lower-left body (below the front badge's tilted bottom edge).
+                    Rect br = firstBack.rect;
+                    Vector2 screen = Vector2.zero; bool found = false;
+                    // The lowest point of the first back card (art x 230) that is still inside the front badge's bounding box.
+                    for (float ay = 690f; ay > 300f && !found; ay -= 10f)
+                    {
+                        Vector3 w = firstBack.TransformPoint(new Vector2(br.xMin + 230f / 530f * br.width, br.yMax - ay / 710f * br.height));
+                        screen = RectTransformUtility.WorldToScreenPoint(camera, w);
+                        found = RectTransformUtility.RectangleContainsScreenPoint(frontBadge, screen, camera);
+                    }
+                    Assert.That(found, Is.True, "the back badge strip overlaps the front badge's bounding box");
+                    var strip = new PointerEventData(EventSystem.current)
+                    {
+                        position = screen, eligibleForClick = true, button = PointerEventData.InputButton.Left,
+                        pointerPressRaycast = new RaycastResult { module = canvas.GetComponent<GraphicRaycaster>() },
+                    };
+                    tapSwipe.OnPointerClick(strip);
+                    yield return new WaitForSecondsRealtime(.8f);
+                    Assert.That(app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name,
+                        Is.EqualTo(middleArt), "the tapped back badge comes forward");
+                }
+
                 // 2026-11-08 (少爷: "我划走了…bug了吗"): a drag whose end event never arrives must not leave the badge hanging.
                 swipe = app.GetComponentsInChildren<InterviewBadgeSwipe1108>().First();
                 RectTransform surface = (RectTransform)swipe.transform;

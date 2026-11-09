@@ -174,7 +174,8 @@ namespace ChoSiren
             int available = 0;
             for (int i = 0; i < Count; i++) if (IsUnlocked(i, model)) available++;
             if (available == 0) return StartIndex(model);
-            int pick = UnityEngine.Random.Range(0, available);
+            // A fresh time-seeded generator: UnityEngine.Random can start every launch in the same state.
+            int pick = new System.Random(unchecked(System.Environment.TickCount ^ System.DateTime.Now.GetHashCode() ^ System.Guid.NewGuid().GetHashCode())).Next(available);
             for (int i = 0; i < Count; i++)
                 if (IsUnlocked(i, model) && pick-- == 0) return i;
             return StartIndex(model);

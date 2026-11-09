@@ -190,6 +190,18 @@ namespace ChoSiren.Panels
         private static readonly Vector2[] BackHoleCentre1108 = { new Vector2(273f, 392.1f), new Vector2(275f, 392.3f) };
         private static readonly Vector2 BackHoleSize1108 = new Vector2(317.7f, 443.6f);
 
+        /// <summary>Whether a pointer lies inside a badge's body: a rectangle tilted 15.5° measured from its art (art px, top-left origin).</summary>
+        private static bool BadgeHit1108(RectTransform card, UnityEngine.EventSystems.PointerEventData e, Vector2 art, Vector2 centre, Vector2 size)
+        {
+            if (card == null || !card.gameObject.activeInHierarchy) return false;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(card, e.position, e.pressEventCamera, out Vector2 local)) return false;
+            Rect r = card.rect;
+            float px = (local.x - r.xMin) / Mathf.Max(1f, r.width) * art.x, py = (r.yMax - local.y) / Mathf.Max(1f, r.height) * art.y;
+            float t = -15.5f * Mathf.Deg2Rad, dx = px - centre.x, dy = py - centre.y;
+            float rx = dx * Mathf.Cos(t) + dy * Mathf.Sin(t), ry = -dx * Mathf.Sin(t) + dy * Mathf.Cos(t);
+            return Mathf.Abs(rx) <= size.x * .5f && Mathf.Abs(ry) <= size.y * .5f;
+        }
+
         /// <summary>A back card's masked photo: badge-blue backdrop + the candidate's bust, tilted like its window.</summary>
         private void BackCardPortrait1108(RectTransform card, int k, int memberIndex)
         {
@@ -308,14 +320,15 @@ namespace ChoSiren.Panels
             swipe.Configure(badge, stack, () => !closing && !promoting1108 && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
             // 2026-11-08 (少爷: "点击底部第一张要有这张到最顶部的动画"): a tapped back card flies up to the front.
             swipe.TapPromote = steps => StartCoroutine(PromoteBackCard1108(page, steps));
-            // Tapping the visible strip of the first back card skips one candidate, the second back card two.
+            // 2026-11-08 (少爷: "点击不是很灵敏…要点很边缘才有响应"): a tap hits the topmost badge whose real tilted outline
+            // contains it — anywhere visible on the first back card skips one candidate, on the second two.
+            var front = page.Find("CandidatePortrait") as RectTransform;
             swipe.TapSteps = e =>
             {
-                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(page, e.position, e.pressEventCamera, out Vector2 p)) return 0;
-                float y = -p.y;
+                if (BadgeHit1108(front, e, BadgeArtSize1108, new Vector2(282.9f, 423.8f), new Vector2(486.5f, 868.3f))) return 0;
                 int count = InterviewCandidates().Count;
-                if (y >= Iv(0, 5085, 1, 5086).y) return count > 2 ? 2 : 1;
-                if (y >= Iv(0, 4593, 1, 4594).y) return 1;
+                if (BadgeHit1108(c1, e, BackCardArt1108, new Vector2(260.4f, 335.9f), new Vector2(385.3f, 688.1f))) return 1;
+                if (BadgeHit1108(c2, e, new Vector2(532f, 710f), new Vector2(262.5f, 335.9f), new Vector2(385.1f, 688f))) return count > 2 ? 2 : 1;
                 return 0;
             };
             return swipe;
