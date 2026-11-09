@@ -1,6 +1,14 @@
 {
   "tracks": [
-    { "id": "my-light-my-rules", "title": "光的规则", "artist": "绯音", "cover": "Art/Music1101/cover-lilith", "file": "home-f19d89ea8124a31b.mp3", "clip": "Audio/bgm", "categories": ["home", "char"], "isNew": false, "unlock": "", "unlockHint": "", "duration": 172.38 },
-    { "id": "chase-the-glow-a", "title": "Chase the Glow", "artist": "CHO-SIREN 全员", "cover": "Art/Music1101/cover-catalena", "file": "home-chase-5d360e8e7acbc7c6.mp3", "clip": "", "categories": ["home"], "isNew": false, "unlock": "", "unlockHint": "", "duration": 158.76 }
+    {"id": "my-light-my-rules", "title": "光的规则", "artist": "绯音", "cover": "Art/Music1101/cover-lilith", "file": "home-f19d89ea8124a31b.mp3", "clip": "Audio/bgm", "categories": ["home", "char"], "isNew": false, "unlock": "", "unlockHint": "", "duration": 172.38},
+    {"id": "chase-the-glow-a", "title": "Chase the Glow", "artist": "CHO-SIREN 全员", "cover": "Art/Music1101/cover-catalena", "file": "home-chase-5d360e8e7acbc7c6.mp3", "clip": "", "categories": ["home"], "isNew": false, "unlock": "", "unlockHint": "", "duration": 158.76},
+    {"id": "suno-rrose-a", "title": "BLACK ROSE (A)", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-lilith", "file": "song-rrose-a-7eecc67a73b1.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 170.04},
+    {"id": "suno-rrose-b", "title": "BLACK ROSE (B)", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-lilith", "file": "song-rrose-b-4a5068c55ac3.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 163.15},
+    {"id": "suno-rcrown-b", "title": "CROWN ME", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-amethyst", "file": "song-rcrown-b-dcb4f87b7fd5.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 156.84},
+    {"id": "suno-rqueen-a", "title": "QUEEN MODE", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-lilith", "file": "song-rqueen-a-84576aa25bbe.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 150.02},
+    {"id": "suno-manager-a", "title": "マネージャーさん (A)", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-catalena", "file": "song-manager-a-a65be33dfcac.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 178.82},
+    {"id": "suno-manager-b", "title": "マネージャーさん (B)", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-catalena", "file": "song-manager-b-d4444ac7969e.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 178.82},
+    {"id": "suno-kirari-a", "title": "キラリ☆スタートライン", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-catalena", "file": "song-kirari-a-12b7aa20df3b.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 178.8},
+    {"id": "suno-midnight-a", "title": "ミッドナイト・ハイウェイ", "artist": "CHO-SIREN", "cover": "Art/Music1101/cover-coralie", "file": "song-midnight-a-52f531112624.mp3", "clip": "", "categories": ["home"], "isNew": true, "unlock": "", "unlockHint": "", "duration": 178.82}
   ]
 }

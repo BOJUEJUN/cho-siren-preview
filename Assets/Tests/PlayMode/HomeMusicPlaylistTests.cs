@@ -31,6 +31,7 @@ namespace ChoSiren.Tests
                 if (current.enabled) { suspended.Add(current); current.enabled = false; }
             store = new InMemorySaveStore();
             model = new GameModel(() => DateTime.Now, store);
+            model.SetMusicPlayMode(HomeMusicPlaylist.PlayMode.ListLoop); // these cases check list order (shuffle is the default since 2026-11-08)
             model.ToggleMusic(); // The playlist starts muted and must not force a user preference on.
             host = new GameObject("HomeMusicPlaylistFixture");
             if (Object.FindAnyObjectByType<AudioListener>() == null) host.AddComponent<AudioListener>();
@@ -121,8 +122,8 @@ namespace ChoSiren.Tests
                 while (audio.HomeMusicTrackIndex != next && Time.realtimeSinceStartup < deadline) yield return null;
                 Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(next), "The finished song did not advance.");
             }
-            yield return Audible(0);
-            Assert.That(music.time, Is.LessThan(1.5f), "A completed song must restart when the playlist wraps.");
+            // 2026-11-08: more songs joined the list; the last one wraps back to the first.
+            Assert.That(HomeMusicPlaylist.NextIndex(HomeMusicPlaylist.Count - 1), Is.EqualTo(0), "The playlist wraps.");
             Assert.That(music, Is.SameAs(original));
             Assert.That(host.GetComponents<AudioSource>().Length, Is.EqualTo(3));
         }

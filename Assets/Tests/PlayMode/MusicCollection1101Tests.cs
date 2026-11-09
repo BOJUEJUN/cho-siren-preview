@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -105,7 +106,7 @@ namespace ChoSiren.Tests
             model.SetMusicPlayMode(HomeMusicPlaylist.PlayMode.Shuffle);
             int previous = audio.HomeMusicTrackIndex;
             var seen = new HashSet<int> { previous };
-            for (int i = 0; i < 60; i++)
+            for (int i = 0; i < 300; i++) // 13 songs since 2026-11-08: enough draws to reach every one
             {
                 Assert.That(audio.NextHomeMusic(), Is.True);
                 Assert.That(audio.HomeMusicTrackIndex, Is.Not.EqualTo(previous), "Shuffle must not pick the same song twice in a row.");
@@ -317,8 +318,9 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(1.4f);
                 Transform music = home.transform.Find("MusicNext");
                 Assert.That(music.Find("MusicDiscToggle"), Is.Not.Null);
-                // The two supplied songs are not flagged new, so no sticker is raised on the record.
-                Assert.That(music.GetComponent<HomeMusicEntry1101>().Sticker.activeSelf, Is.False);
+                // 2026-11-08: 少爷's hearted Suno songs arrive flagged new, so the record carries the NEW sticker until heard.
+                bool anyNew = Enumerable.Range(0, HomeMusicPlaylist.Count).Any(i => HomeMusicPlaylist.Get(i).IsNew);
+                Assert.That(music.GetComponent<HomeMusicEntry1101>().Sticker.activeSelf, Is.EqualTo(anyNew));
                 Capture(camera, rt, "lobby-playing.png", null);
                 Capture(camera, rt, "lobby-playing-zoom.png", new RectInt(0, 140, 540, 340));
 
