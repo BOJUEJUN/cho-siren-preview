@@ -929,9 +929,29 @@ namespace ChoSiren.Panels
             BuildInterview();
         }
 
+        // 2026-11-08 (少爷: "点了最底部的这张卡之后…只有第一张被换走"): tapping a back badge swaps it with the front one only,
+        // so the shown order can differ from the model's; it is kept per pool while the candidate set is unchanged.
+        private readonly Dictionary<int, List<int>> interviewOrder1108 = new Dictionary<int, List<int>>();
+
         private List<int> InterviewCandidates()
         {
-            return new List<int>(model.InterviewCandidates(interviewPoolIndex));
+            var fresh = new List<int>(model.InterviewCandidates(interviewPoolIndex));
+            if (interviewOrder1108.TryGetValue(interviewPoolIndex, out List<int> order)
+                && order.Count == fresh.Count && order.TrueForAll(fresh.Contains))
+                return new List<int>(order);
+            interviewOrder1108.Remove(interviewPoolIndex);
+            return fresh;
+        }
+
+        /// <summary>Swaps the candidate <paramref name="steps"/> behind the front one into the front (the others keep their places).</summary>
+        private void SwapInterviewCandidate1108(int steps)
+        {
+            List<int> order = InterviewCandidates();
+            if (order.Count <= 1 || steps <= 0) return;
+            int a = interviewCandidateIndex, b = (interviewCandidateIndex + steps) % order.Count;
+            (order[a], order[b]) = (order[b], order[a]);
+            interviewOrder1108[interviewPoolIndex] = order;
+            RebuildInterview();
         }
 
         private int InterviewCost(int memberIndex)

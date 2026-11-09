@@ -226,36 +226,43 @@ namespace ChoSiren.Panels
             var stack = page != null ? page.Find("CandidateCard") as RectTransform : null;
             var card = stack != null ? stack.Find(steps >= 2 ? "InterviewCard2" : "InterviewCard1") as RectTransform : null;
             var front = page != null ? page.Find("CandidatePortrait") as RectTransform : null;
-            if (card == null || front == null || ChoSiren.BattlePresentationOptions.ReduceMotion) { MoveInterviewCandidate(steps); yield break; }
+            if (card == null || front == null || ChoSiren.BattlePresentationOptions.ReduceMotion) { SwapInterviewCandidate1108(steps); yield break; }
             promoting1108 = true;
+            int k1 = steps >= 2 ? 2 : 1;
+            float pxCard = card.sizeDelta.x / (k1 == 1 ? BackCardArt1108.x : 532f);
+            Vector2 hole = new Vector2(BackHoleCentre1108[k1 - 1].x * pxCard, -BackHoleCentre1108[k1 - 1].y * pxCard);
+            Vector2 cardHome = card.anchoredPosition;
+            Vector2 cardWindow = cardHome + hole;
+            // The tapped badge grows into the front window; the front badge shrinks into the tapped badge's slot.
+            Rect target = Iv(0, 1700, 1947, 4593);
+            float px0 = target.width / BadgeArtSize1108.x;
+            Vector2 frontWindow = new Vector2(target.x + BadgeHoleCentre1108.x * px0, -(target.y + BadgeHoleCentre1108.y * px0));
+            float grow = BadgeHoleSize1108.x * px0 / (BackHoleSize1108.x * pxCard);
+            Vector2 to = frontWindow - hole * grow;
+            Vector2 frontFrom = front.anchoredPosition;
+            Vector2 frontWindowFromPivot = frontWindow - frontFrom;
+            float shrink = 1f / grow;
+            Vector2 frontTo = cardWindow - frontWindowFromPivot * shrink;
             card.SetParent(page, true);
             card.SetAsLastSibling();
-            Vector2 from = card.anchoredPosition;
-            Rect target = Iv(0, 1700, 1947, 4593);
-            Vector2 to = new Vector2(target.x, -target.y);
-            float grow = target.width / Mathf.Max(1f, card.sizeDelta.x);
-            CanvasGroup fade = front.GetComponent<CanvasGroup>();
-            if (fade == null) fade = front.gameObject.AddComponent<CanvasGroup>();
-            Vector2 frontFrom = front.anchoredPosition;
-            Quaternion frontTurn = front.localRotation;
             const float seconds = .42f;
             for (float t = 0f; t < seconds;)
             {
                 t += Mathf.Min(Time.unscaledDeltaTime, .05f);
                 float k = Mathf.Clamp01(t / seconds);
                 float c = 1.4f, e = 1f + (c + 1f) * Mathf.Pow(k - 1f, 3f) + c * Mathf.Pow(k - 1f, 2f); // ease-out-back
+                float smooth = k * k * (3f - 2f * k);
                 float arc = Mathf.Sin(k * Mathf.PI);
-                card.anchoredPosition = Vector2.LerpUnclamped(from, to, e) + new Vector2(0f, arc * 36f);
+                card.anchoredPosition = Vector2.LerpUnclamped(cardHome, to, e) + new Vector2(0f, arc * 36f);
                 card.localScale = Vector3.one * Mathf.LerpUnclamped(1f, grow, e);
                 card.localEulerAngles = new Vector3(0f, 0f, -arc * 5f);
-                front.anchoredPosition = frontFrom + new Vector2(-280f * k * k, -24f * k);
-                front.localRotation = frontTurn * Quaternion.Euler(0f, 0f, 14f * k);
-                fade.alpha = 1f - k;
+                front.anchoredPosition = Vector2.Lerp(frontFrom, frontTo, smooth) + new Vector2(-arc * 60f, 0f);
+                front.localScale = Vector3.one * Mathf.Lerp(1f, shrink, smooth);
                 yield return null;
             }
             promoting1108 = false;
             ChoSiren.UI.InterviewBadgeSwipe1108.PendingEntry = 0;
-            MoveInterviewCandidate(steps);
+            SwapInterviewCandidate1108(steps);
         }
 
         /// <summary>Drag surface over the badge stack: the badge swings on its clip and is thrown to change candidate.</summary>

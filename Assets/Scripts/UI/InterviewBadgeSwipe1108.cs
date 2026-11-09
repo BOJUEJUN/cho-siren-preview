@@ -28,17 +28,17 @@ namespace ChoSiren.UI
         Func<bool> allowed;
         Action<int> changed;
         ScrollRect parentScroll;
-        bool dragging, passVertical, verticalSwipe;
+        bool dragging, passVertical;
         int throwSteps = 1;
         /// <summary>2026-11-08 (少爷: "点击下面两张直接切换或者上下左右"): maps a tap to how many candidates to skip (0 = ignore).</summary>
         public Func<PointerEventData, int> TapSteps;
         /// <summary>When set, a tapped back card is promoted by the owner's own animation instead of a throw.</summary>
         public Action<int> TapPromote;
-        float dragStartOffset, speed, previousX, previousTime;
+        float previousTime;
         // animation state
         enum Mode { Idle, Home, Exit, Enter }
         Mode mode;
-        float time, from, swing;
+        float time, swing;
         int direction;
 
         // 2026-11-08 (少爷: "我把第一张划走那不应该是下面这张上来成第一位"): the back cards ride the drag. As the front badge
@@ -58,9 +58,14 @@ namespace ChoSiren.UI
             if (card2 != null) { card2Home = card2.anchoredPosition; card2Target = secondTarget; card2Scale = secondScale; }
         }
 
-        public float Offset { get; private set; }
+        /// <summary>Horizontal part of the badge's drag offset (canvas units).</summary>
+        public float Offset => drag.x;
+        /// <summary>2026-11-08 (少爷: "工牌可以任意角度拖动滑走"): the full 2-D drag offset.</summary>
+        public Vector2 Drag => drag;
         public bool Busy => dragging || mode != Mode.Idle;
         public bool IsDragging => dragging;
+
+        Vector2 drag, dragStart, velocity, previousPoint, fromDrag, throwDir;
 
         public void Configure(RectTransform badge, RectTransform stack, Func<bool> canSwipe, Action<int> onChanged)
         {
@@ -74,15 +79,15 @@ namespace ChoSiren.UI
             if (entry != 0) BeginEnter(entry);
         }
 
-        /// <summary>‹ › arrows: throw the badge the same way a swipe would (direction +1 = next).</summary>
+        /// <summary>Programmatic throw (direction +1 = next): the badge leaves sideways.</summary>
         public void Throw(int next)
         {
             if (next == 0 || Busy || allowed == null || !allowed()) return;
             throwSteps = Mathf.Max(1, Mathf.Abs(next));
-            BeginExit(next > 0 ? -1f : 1f);
+            BeginExit(new Vector2(next > 0 ? -1f : 1f, 0f));
         }
 
-        /// <summary>Tapping a back card of the stack brings it forward (the front badge is thrown off first).</summary>
+        /// <summary>Tapping a back card of the stack brings it forward.</summary>
         public void OnPointerClick(PointerEventData e)
         {
             if (dragging || !e.eligibleForClick || TapSteps == null) return;
@@ -105,41 +110,33 @@ namespace ChoSiren.UI
         public void OnBeginDrag(PointerEventData e)
         {
             Vector2 delta = e.position - e.pressPosition;
-            passVertical = Mathf.Abs(delta.y) > Mathf.Abs(delta.x) * .8f;
-            // With no page scroll to hand it to, an up / down swipe changes the candidate too (up = next).
-            verticalSwipe = passVertical && parentScroll == null;
-            if (verticalSwipe) { passVertical = false; e.eligibleForClick = false; return; }
-            if (passVertical) { if (parentScroll != null) parentScroll.OnBeginDrag(e); return; }
+            // Only a page that scrolls keeps vertical gestures; otherwise the badge follows the finger at any angle.
+            passVertical = parentScroll != null && Mathf.Abs(delta.y) > Mathf.Abs(delta.x) * .8f;
+            if (passVertical) { parentScroll.OnBeginDrag(e); return; }
             if (mode == Mode.Exit || mode == Mode.Enter || allowed == null || !allowed()) return;
             dragging = true; mode = Mode.Idle; e.eligibleForClick = false;
-            dragStartOffset = Offset; speed = 0f;
-            previousX = LocalX(e.position, e); previousTime = Time.unscaledTime;
+            dragStart = drag; velocity = Vector2.zero;
+            previousPoint = Local(e.position, e); previousTime = Time.unscaledTime;
             OnDrag(e);
         }
 
         public void OnDrag(PointerEventData e)
         {
-            if (verticalSwipe) { e.eligibleForClick = false; return; }
             if (passVertical) { if (parentScroll != null) parentScroll.OnDrag(e); return; }
             if (!dragging) return;
             e.eligibleForClick = false;
-            float x = LocalX(e.position, e), now = Time.unscaledTime, dt = now - previousTime;
-            if (dt > .001f) speed = Mathf.Lerp(speed, (x - previousX) / dt, .55f);
-            previousX = x; previousTime = now;
-            float raw = dragStartOffset + x - LocalX(e.pressPosition, e);
-            float extent = Mathf.Abs(raw);
-            Pose(Mathf.Sign(raw) * (extent <= 220f ? extent : 220f + (extent - 220f) * .3f), 0f, 1f);
+            Vector2 point = Local(e.position, e);
+            float now = Time.unscaledTime, dt = now - previousTime;
+            if (dt > .001f) velocity = Vector2.Lerp(velocity, (point - previousPoint) / dt, .55f);
+            previousPoint = point; previousTime = now;
+            Vector2 raw = dragStart + point - Local(e.pressPosition, e);
+            float extent = raw.magnitude;
+            Vector2 soft = extent <= 220f ? raw : raw / extent * (220f + (extent - 220f) * .3f);
+            Pose(soft, 0f, 1f);
         }
 
         public void OnEndDrag(PointerEventData e)
         {
-            if (verticalSwipe)
-            {
-                verticalSwipe = false; e.eligibleForClick = false;
-                float dy = LocalY(e.position, e) - LocalY(e.pressPosition, e);
-                if (Mathf.Abs(dy) >= Threshold * .7f) Throw(StackPromotes || dy > 0 ? 1 : -1);
-                return;
-            }
             if (passVertical) { if (parentScroll != null) parentScroll.OnEndDrag(e); passVertical = false; return; }
             if (!dragging) return;
             OnDrag(e); e.eligibleForClick = false;
@@ -147,9 +144,8 @@ namespace ChoSiren.UI
         }
 
         /// <summary>
-        /// 2026-11-08 (少爷: "我划走了…bug了吗"): a badge was left hanging mid-swing on a phone when the end-of-drag event
-        /// never arrived. Lifting the finger (pointer up) now settles it too, and <see cref="Update"/> settles any drag
-        /// whose finger is gone, so the badge is always either thrown (next candidate rises) or sprung home.
+        /// 2026-11-08 (少爷: "我划走了…bug了吗"): lifting the finger (pointer up) settles the drag too, and <see cref="Update"/>
+        /// settles any drag whose finger is gone, so the badge is always either thrown or sprung home.
         /// </summary>
         public void OnPointerUp(PointerEventData e)
         {
@@ -160,33 +156,34 @@ namespace ChoSiren.UI
         {
             if (!dragging) return;
             dragging = false;
-            bool flick = Mathf.Abs(speed) > FlickSpeed && Mathf.Abs(Offset) > FlickDistance && Mathf.Sign(speed) == Mathf.Sign(Offset);
-            if ((Mathf.Abs(Offset) >= Threshold || flick) && (allowed?.Invoke() ?? false)) { throwSteps = 1; BeginExit(Mathf.Sign(Offset)); }
-            else { mode = Mode.Home; time = 0f; from = Offset; }
+            float extent = drag.magnitude;
+            bool flick = velocity.magnitude > FlickSpeed && extent > FlickDistance && Vector2.Dot(velocity, drag) > 0f;
+            if ((extent >= Threshold || flick) && (allowed?.Invoke() ?? false))
+            {
+                throwSteps = 1;
+                // It flies off the way it was moving: the flick's direction, else the drag's.
+                BeginExit(flick ? velocity.normalized : drag / Mathf.Max(.001f, extent));
+            }
+            else { mode = Mode.Home; time = 0f; fromDrag = drag; }
         }
 
-        float LocalY(Vector2 screenPoint, PointerEventData e)
+        Vector2 Local(Vector2 screenPoint, PointerEventData e)
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(surface, screenPoint, e.pressEventCamera, out Vector2 p);
-            return p.y;
+            return p;
         }
 
-        float LocalX(Vector2 screenPoint, PointerEventData e)
+        void BeginExit(Vector2 dir)
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface, screenPoint, e.pressEventCamera, out Vector2 p);
-            return p.x;
-        }
-
-        void BeginExit(float sign)
-        {
-            mode = Mode.Exit; time = 0f; from = Offset; swing = sign;
-            direction = StackPromotes ? 1 : sign < 0 ? 1 : -1; // with a promoting stack, either side brings the next card up
+            mode = Mode.Exit; time = 0f; fromDrag = drag;
+            throwDir = dir.sqrMagnitude > .0001f ? dir.normalized : Vector2.left;
+            swing = throwDir.x >= 0f ? 1f : -1f;
+            direction = StackPromotes ? 1 : throwDir.x < 0f ? 1 : -1; // with a promoting stack, any throw brings the next card up
         }
 
         void BeginEnter(int next)
         {
             mode = Mode.Enter; time = 0f; direction = next;
-            // Came from the left after a "previous" throw, from the stack (right/below) after "next".
             swing = next > 0 ? 1f : -1f;
             Update();
         }
@@ -196,7 +193,7 @@ namespace ChoSiren.UI
         void Update()
         {
             if (dragging && !PointerHeld() && Time.unscaledTime - previousTime > .25f) Release();
-            if (!dragging && mode == Mode.Idle && Mathf.Abs(Offset) > .5f) { mode = Mode.Home; time = 0f; from = Offset; }
+            if (!dragging && mode == Mode.Idle && drag.magnitude > .5f) { mode = Mode.Home; time = 0f; fromDrag = drag; }
             if (mode == Mode.Idle) return;
             time += Mathf.Min(Time.unscaledDeltaTime, .05f);
             switch (mode)
@@ -204,19 +201,18 @@ namespace ChoSiren.UI
                 case Mode.Home:
                 {
                     float t = Mathf.Clamp01(time / HomeSeconds);
-                    // Spring home with a small overshoot.
                     float k = 1f - Mathf.Pow(1f - t, 3f);
                     float over = Mathf.Sin(t * Mathf.PI) * .12f * (1f - t);
-                    Pose(Mathf.LerpUnclamped(from, 0f, k + over), 0f, 1f);
-                    if (t >= 1f) { mode = Mode.Idle; Pose(0f, 0f, 1f); }
+                    Pose(Vector2.LerpUnclamped(fromDrag, Vector2.zero, k + over), 0f, 1f);
+                    if (t >= 1f) { mode = Mode.Idle; Pose(Vector2.zero, 0f, 1f); }
                     break;
                 }
                 case Mode.Exit:
                 {
                     float t = Mathf.Clamp01(time / ExitSeconds);
                     float k = t * t; // ease in: it leaves the hand and speeds up
-                    float x = Mathf.Lerp(from, swing * ThrowDistance, k);
-                    Pose(x, swing * 18f * k, 1f - Mathf.Clamp01((t - .45f) / .55f));
+                    Vector2 d = Vector2.Lerp(fromDrag, throwDir * ThrowDistance, k);
+                    Pose(d, throwDir.x * 18f * k, 1f - Mathf.Clamp01((t - .45f) / .55f));
                     if (t >= 1f)
                     {
                         mode = Mode.Idle;
@@ -229,42 +225,40 @@ namespace ChoSiren.UI
                 case Mode.Enter:
                 {
                     float t = Mathf.Clamp01(time / EnterSeconds);
-                    // Rises from the stack: starts behind (down-right, smaller, faint), lands with a damped swing.
                     float rise = 1f - Mathf.Pow(1f - Mathf.Clamp01(t / .55f), 3f);
                     float pendulum = Mathf.Exp(-5.5f * t) * Mathf.Cos(t * 15f) * (1f - Mathf.Clamp01((t - .85f) / .15f));
                     float startX = swing > 0 ? 70f : -220f;
-                    float x = Mathf.Lerp(startX, 0f, rise);
-                    Vector2 lift = new Vector2(0f, Mathf.Lerp(-46f, 0f, rise));
-                    float scale = Mathf.Lerp(.9f, 1f, rise);
-                    PoseAt(x, lift, -swing * 9f * pendulum, Mathf.Clamp01(t / .25f), scale, Mathf.Lerp(-28f, 0f, rise));
-                    if (t >= 1f) { mode = Mode.Idle; Pose(0f, 0f, 1f); }
+                    Vector2 d = new Vector2(Mathf.Lerp(startX, 0f, rise), Mathf.Lerp(-46f, 0f, rise));
+                    PoseAt(d, -swing * 9f * pendulum, Mathf.Clamp01(t / .25f), Mathf.Lerp(.9f, 1f, rise), Mathf.Lerp(-28f, 0f, rise));
+                    if (t >= 1f) { mode = Mode.Idle; Pose(Vector2.zero, 0f, 1f); }
                     break;
                 }
             }
         }
 
-        /// <summary>Badge offset x (canvas units) on its lanyard: tilt and lift follow the drag; the stack drifts a little.</summary>
-        void Pose(float x, float extraTilt, float alpha)
+        /// <summary>Badge drag offset on its lanyard: it follows the finger, tilts with the sideways part and lifts a little.</summary>
+        void Pose(Vector2 d, float extraTilt, float alpha)
         {
-            float lift = -Mathf.Min(Mathf.Abs(x), 260f) * .07f;
-            float tilt = Mathf.Clamp(-x * .045f, -13f, 13f) + extraTilt * -1f;
-            float scale = 1f + Mathf.Min(Mathf.Abs(x), 160f) / 160f * .03f;
-            PoseAt(x, new Vector2(0f, lift), tilt, alpha, scale, x * .16f);
+            float extent = d.magnitude;
+            Vector2 lifted = d + new Vector2(0f, -Mathf.Min(Mathf.Abs(d.x), 260f) * .07f);
+            float tilt = Mathf.Clamp(-d.x * .045f, -13f, 13f) - extraTilt;
+            float scale = 1f + Mathf.Min(extent, 160f) / 160f * .03f;
+            PoseAt(lifted, tilt, alpha, scale, d.x * .16f, d);
         }
 
-        void PoseAt(float x, Vector2 lift, float tilt, float alpha, float scale, float stackX)
+        void PoseAt(Vector2 position, float tilt, float alpha, float scale, float stackX, Vector2? dragOffset = null)
         {
-            Offset = x;
+            drag = dragOffset ?? (mode == Mode.Enter ? Vector2.zero : position);
             if (front != null)
             {
-                front.anchoredPosition = frontHome + new Vector2(x, 0f) + lift;
+                front.anchoredPosition = frontHome + position;
                 front.localRotation = frontRotation * Quaternion.Euler(0f, 0f, tilt);
                 front.localScale = Vector3.one * scale;
             }
             if (frontGroup != null) frontGroup.alpha = alpha;
             if (card1 != null)
             {
-                float p = Mathf.Clamp01(Mathf.Abs(x) / PromoteReach);
+                float p = Mathf.Clamp01(drag.magnitude / PromoteReach);
                 float e = p * p * (3f - 2f * p);
                 if (mode == Mode.Enter) e = 0f;
                 card1.anchoredPosition = Vector2.LerpUnclamped(card1Home, card1Target, e);
@@ -281,10 +275,10 @@ namespace ChoSiren.UI
 
         void OnDisable()
         {
-            dragging = passVertical = verticalSwipe = false;
+            dragging = passVertical = false;
             if (mode == Mode.Exit) PendingEntry = 0;
             mode = Mode.Idle;
-            PoseAt(0f, Vector2.zero, 0f, 1f, 1f, 0f);
+            PoseAt(Vector2.zero, 0f, 1f, 1f, 0f, Vector2.zero);
         }
     }
 }

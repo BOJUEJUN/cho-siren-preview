@@ -79,12 +79,15 @@ namespace ChoSiren
 
             // 2026-11-08 (少爷: "战斗力太粗糙…字体是斜的"): the board's number is inpainted out of 主UI (no boxes), and the live
             // number is drawn like the PSD's: huge, italic, white, riding the banner's ~5.5° rise.
-            Rect power = Team1107(1020, 660, 1940, 1040);
-            Text powerValue = BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 160, White, power.x, power.y, power.width, power.height, TextAnchor.MiddleCenter);
-            powerValue.fontStyle = FontStyle.BoldAndItalic;
+            // Heavy italic like the PSD's "1,089": thickened, sheared and tightly spaced (HeavyItalicText1108), large enough
+            // to sit over the banner's lower stripe.
+            Rect power = Team1107(1000, 640, 1950, 1070);
+            Text powerValue = BoardText038(root, "TeamPowerValue", model.TeamPower.ToString("N0"), 196, White, power.x, power.y, power.width, power.height, TextAnchor.MiddleCenter);
+            powerValue.fontStyle = FontStyle.Bold;
             powerValue.raycastTarget = false;
-            PanelKit.EnableBestFit(powerValue, 60);
-            powerValue.resizeTextMaxSize = 160;
+            PanelKit.EnableBestFit(powerValue, 70);
+            powerValue.resizeTextMaxSize = 196;
+            powerValue.gameObject.AddComponent<ChoSiren.UI.HeavyItalicText1108>();
             TiltText1108(powerValue, 5.5f);
             Rect members = Team1107(1690, 1120, 1960, 1270);
             Text memberCount = BoardText038(root, "TeamMemberCount", $"{count}/{GameModel.TeamCapacity}", 56, new Color32(132, 92, 255, 255),

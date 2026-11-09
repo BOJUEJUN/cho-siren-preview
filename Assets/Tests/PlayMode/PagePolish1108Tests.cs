@@ -146,10 +146,14 @@ namespace ChoSiren.Tests
                 Capture(camera, target, "audition.png");
                 Text counter = app.GetComponentsInChildren<Text>().First(t => t.name == "CandidateCounter");
                 string before = counter.text;
+                string FrontArt() => app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name;
+                string BackArt(string card) => app.GetComponentsInChildren<Image>()
+                    .First(i => i.name == "BackCardPortrait" && i.GetComponentsInParent<Transform>().Any(t => t.name == card)).sprite.texture.name;
+                string frontBefore = FrontArt(), middleBefore = BackArt("InterviewCard1"), bottomBefore = BackArt("InterviewCard2");
                 var swipe = app.GetComponentsInChildren<InterviewBadgeSwipe1108>().First();
-                RectTransform card1 = app.GetComponentsInChildren<RectTransform>().First(t => t.name == "InterviewCard1");
-                Vector3[] corners = new Vector3[4]; card1.GetWorldCorners(corners);
-                // A point on the visible lower strip of the first back card (below the front badge).
+                RectTransform card2 = app.GetComponentsInChildren<RectTransform>().First(t => t.name == "InterviewCard2");
+                Vector3[] corners = new Vector3[4]; card2.GetWorldCorners(corners);
+                // A point on the visible lower strip of the bottom badge.
                 Vector3 world = Vector3.Lerp(corners[0], corners[3], .45f) + (corners[1] - corners[0]) * .1f;
                 var click = new PointerEventData(EventSystem.current)
                 {
@@ -161,8 +165,10 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(.2f);
                 Capture(camera, target, "audition-promoting.png");
                 yield return new WaitForSecondsRealtime(.5f);
-                counter = app.GetComponentsInChildren<Text>().First(t => t.name == "CandidateCounter");
-                Assert.That(counter.text, Is.Not.EqualTo(before), "tapping a back card brings it forward");
+                // 2026-11-08 (少爷: "点了最底部的这张卡之后…只有第一张被换走"): only the front and the tapped badge trade places.
+                Assert.That(FrontArt(), Is.EqualTo(bottomBefore), "the tapped bottom badge is now in front");
+                Assert.That(BackArt("InterviewCard1"), Is.EqualTo(middleBefore), "the middle badge stays");
+                Assert.That(BackArt("InterviewCard2"), Is.EqualTo(frontBefore), "the old front badge takes the bottom slot");
                 yield return new WaitForSecondsRealtime(.7f);
                 Capture(camera, target, "audition-after-tap.png");
 

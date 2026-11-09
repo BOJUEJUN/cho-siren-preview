@@ -91,7 +91,7 @@ namespace ChoSiren.Tests
                 Assert.That(panel.InterviewCandidateIndex, Is.EqualTo(initial), "a short drag springs back");
 
                 var nudge = Begin(new Vector2(6f, 40f)); End(nudge);
-                yield return null;
+                yield return new WaitForSecondsRealtime(.45f);
                 Assert.That(swipe.IsDragging, Is.False);
                 Assert.That(swipe.Offset, Is.EqualTo(0f).Within(.01f));
                 Assert.That(panel.InterviewCandidateIndex, Is.EqualTo(initial), "a short vertical nudge does not browse");
