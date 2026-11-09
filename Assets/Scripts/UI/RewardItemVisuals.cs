@@ -40,6 +40,7 @@ namespace ChoSiren.UI
                 case CurrencyIds.CostumeTicket:
                     return Resources.Load<Sprite>("Art/Reward1101/ticket-costume-1101") ?? (ticketIcon != null ? ticketIcon : ticketIcon = BuildSymbol(true));
                 // 2026-11-07: 敌人残魂 / 通用生魂 / race 生魂 icons are GPT stand-ins until 赵金's art lands.
+                case CurrencyIds.Shard: return Resources.Load<Sprite>("Art/Reward1101/material-crystal-1104"); // 11-09: 库存 材料 tab
                 case CurrencyIds.VoiceCrystal: return Resources.Load<Sprite>("Art/Reward1101/voice-crystal-1107") ?? Resources.Load<Sprite>("Art/Reward1101/material-crystal-1104");
                 case CurrencyIds.VoiceCore: return Resources.Load<Sprite>("Art/Reward1101/voice-core-1107") ?? Resources.Load<Sprite>("Art/Reward1101/material-core-1104");
                 case CurrencyIds.SoulCharm: case CurrencyIds.SoulDemon: case CurrencyIds.SoulSea: case CurrencyIds.SoulBlood:

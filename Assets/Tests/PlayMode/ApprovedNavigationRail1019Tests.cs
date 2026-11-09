@@ -15,7 +15,7 @@ namespace ChoSiren.Tests
     public sealed class ApprovedNavigationRail1019Tests
     {
         private static readonly string[] Ids = { "team", "members", "lobby", "accessory", "audition" };
-        private static readonly string[] Labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+        private static readonly string[] Labels = { "团队", "成员", "大厅", "库存", "选秀" };
         private const BindingFlags PrivateInstance = BindingFlags.NonPublic | BindingFlags.Instance;
         private ChoSirenApp app;
         private bool hadSave, hadLegacy, hadMotion;

@@ -131,6 +131,14 @@ namespace ChoSiren.Tests
                 inventory = Find("InventoryBoard");
                 Assert.That(inventory.Find("InventorySort/Label").GetComponent<Text>().text, Does.StartWith("强化等级"));
                 Assert.That(inventory.Find("InventorySortMenu"), Is.Null);
+                // 2026-11-09 (少爷: "加一个材料分类"): 材料 lists the upgrade materials with their counts.
+                inventory.Find("InventorySlot-Materials").GetComponent<Button>().onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.3f);
+                inventory = Find("InventoryBoard");
+                Assert.That(inventory.GetComponentsInChildren<Transform>().Count(t => t.name.StartsWith("Material-")), Is.EqualTo(9));
+                Assert.That(inventory.GetComponentsInChildren<Transform>().First(t => t.name == "Material-soul-charm").Find("ItemArt")
+                    .GetComponent<Image>().sprite, Is.Not.Null);
+                Capture(camera, target, "accessory-materials.png");
 
                 // 成员 shares the background
                 yield return Show("members");

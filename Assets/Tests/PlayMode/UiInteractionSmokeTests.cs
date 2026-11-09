@@ -895,7 +895,7 @@ namespace ChoSiren.Tests
                 }
             }
 
-            string[] navigationLabels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            string[] navigationLabels = { "团队", "成员", "大厅", "库存", "选秀" };
             for (int index = 0; index < navigationLabels.Length; index++)
             {
                 GameObject navigation = RequireActiveObject("Nav-" + new[]

@@ -653,7 +653,7 @@ namespace ChoSiren
             ClearChildren(navRoot);
             navHighlights.Clear();
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
-            string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            string[] labels = { "团队", "成员", "大厅", "库存", "选秀" }; // 11-09: 饰品 → 库存 (it holds materials too)
 
             navRoot.anchorMin = new Vector2(0f, 0f);
             navRoot.anchorMax = new Vector2(1f, 0f);

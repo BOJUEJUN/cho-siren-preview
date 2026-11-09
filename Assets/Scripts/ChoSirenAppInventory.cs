@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Panels;
+using ChoSiren.Systems.Economy;
 using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,8 +31,22 @@ namespace ChoSiren
         }
 
         private int inventoryPage;
-        /// <summary>Category tab on the 库存 page: -1 全部 (default, 2026-11-08), 0 耳饰, 1 项链, 2 手饰, 3 头饰.</summary>
+        /// <summary>Category tab on the 库存 page: -1 全部 (default, 2026-11-08), 0 耳饰, 1 项链, 2 手饰, 3 头饰, 4 材料 (11-09).</summary>
         private int inventorySlot = -1;
+        private const int InventoryMaterialsTab1109 = 4;
+        /// <summary>2026-11-09 (少爷: "加一个材料分类…用来升级的那些总的有个看得见的地方"): what the 材料 tab lists.</summary>
+        private static readonly (string Id, string Use)[] InventoryMaterials1109 =
+        {
+            (CurrencyIds.VoiceCrystal, "30 级后每次升级都要用；关卡掉落"),
+            (CurrencyIds.VoiceCore, "可代替任何种族的生魂用于突破"),
+            (CurrencyIds.SoulCharm, "魅族成员突破用"),
+            (CurrencyIds.SoulDemon, "魔族成员突破用"),
+            (CurrencyIds.SoulSea, "海灵族成员突破用"),
+            (CurrencyIds.SoulBlood, "血精灵成员突破用"),
+            (CurrencyIds.Shard, "生魂不够时 10 个碎片抵 1 个生魂"),
+            (CurrencyIds.RecruitTicket, "选秀签约用"),
+            (CurrencyIds.CostumeTicket, "换装用"),
+        };
         private const string InventoryArt = "Art/Ui1107/";
         /// <summary>PSD (装备2.psd, 1329 wide) → board: 0.65 scale, PSD y 107 (the pig's top) at board y 195 under the HUD.</summary>
         private static Rect Inv1107(float x, float y, float w, float h) => new Rect(x * .65f, 195f + (y - 107f) * .65f, w * .65f, h * .65f);
@@ -88,21 +103,23 @@ namespace ChoSiren
             // 2026-11-08 (少爷: "分类还是加一个全部，然后默认选中的是全部"): five category plates down the left — 全部 (default),
             // 耳饰, 项链, 手饰, 头饰 — evenly spaced over the grid's height; the 4×4 grid shows the chosen category and
             // ‹ › pages through it 16 at a time. Selected plate = solid teal (labels are live text on blank plates).
-            inventorySlot = Mathf.Clamp(inventorySlot, -1, GameModel.EquipmentSlotCount - 1);
-            int[] items = InventoryItems(inventorySlot);
+            inventorySlot = Mathf.Clamp(inventorySlot, -1, InventoryMaterialsTab1109);
+            bool materials = inventorySlot == InventoryMaterialsTab1109;
+            int[] items = materials ? Enumerable.Range(0, InventoryMaterials1109.Length).ToArray() : InventoryItems(inventorySlot);
             int perPage = InventoryPerRow * InventoryRowY.Length;
             int pages = Mathf.Max(1, Mathf.CeilToInt(items.Length / (float)perPage));
             inventoryPage = Mathf.Clamp(inventoryPage, 0, pages - 1);
-            const float plateH = 128f;
+            // Six plates now (全部, four slots, 材料): a little shorter and tighter so they still span the grid.
+            const float plateH = 116f;
             float columnTop = InventoryRowY[0], columnBottom = InventoryRowY[InventoryRowY.Length - 1] + 281f;
-            float plateStep = (columnBottom - columnTop - plateH) / GameModel.EquipmentSlotCount;
-            for (int slot = -1; slot < GameModel.EquipmentSlotCount; slot++)
+            float plateStep = (columnBottom - columnTop - plateH) / (GameModel.EquipmentSlotCount + 1);
+            for (int slot = -1; slot <= InventoryMaterialsTab1109; slot++)
             {
                 int chosen = slot;
                 bool on = slot == inventorySlot;
                 float y = columnTop + (slot + 1) * plateStep;
                 Rect plateRect = Inv1107(58, y, 207, plateH);
-                GameObject plate = BoardButton038(slot < 0 ? "InventorySlot-All" : "InventorySlot-" + slot, root, plateRect, () =>
+                GameObject plate = BoardButton038(slot < 0 ? "InventorySlot-All" : slot == InventoryMaterialsTab1109 ? "InventorySlot-Materials" : "InventorySlot-" + slot, root, plateRect, () =>
                 {
                     if (inventorySlot == chosen) return;
                     inventorySlot = chosen; inventoryPage = 0; ShowScreen("accessory");
@@ -110,7 +127,7 @@ namespace ChoSiren
                 Image plateFace = plate.GetComponent<Image>();
                 plateFace.sprite = Resources.Load<Sprite>(InventoryArt + (on ? "inv-slot-blank-on" : "inv-slot-blank"));
                 plateFace.color = White;
-                Text plateLabel = BoardText038(plate.transform, "Label", slot < 0 ? "全部" : GameModel.EquipmentSlotNames[slot], 24,
+                Text plateLabel = BoardText038(plate.transform, "Label", slot < 0 ? "全部" : slot == InventoryMaterialsTab1109 ? "材料" : GameModel.EquipmentSlotNames[slot], 24,
                     on ? (Color)Brand1025.Ink : White, 0, 0, plateRect.width, plateRect.height, TextAnchor.MiddleCenter);
                 plateLabel.fontStyle = FontStyle.Bold;
             }
@@ -122,7 +139,12 @@ namespace ChoSiren
                 {
                     int n = inventoryPage * perPage + row * InventoryPerRow + c;
                     Rect cell = Inv1107(InventoryCellX[c], InventoryRowY[row] + 2f, 218, 281);
-                    if (n < items.Length)
+                    if (n < items.Length && materials)
+                    {
+                        int m = items[n];
+                        InventoryMaterialCell1109(grid, m, cell);
+                    }
+                    else if (n < items.Length)
                     {
                         int item = items[n];
                         InventoryCell1107(grid, item, cell, () => OpenAccessoryCard(item, -1));
@@ -134,7 +156,7 @@ namespace ChoSiren
             int owned = model.Save.OwnedAccessories.Distinct().Count();
             int slotOwned = model.Save.OwnedAccessories.Distinct().Count(i => inventorySlot < 0 || GameModel.AccessorySlot(i) == inventorySlot);
             int slotTotal = Enumerable.Range(0, GameModel.AccessoryNames.Length).Count(i => inventorySlot < 0 || GameModel.AccessorySlot(i) == inventorySlot);
-            BoardText038(root, "InventoryCount", inventoryCatalog ? $"已收集 {slotOwned}/{slotTotal}" : $"共 {slotOwned} 件",
+            BoardText038(root, "InventoryCount", materials ? $"共 {InventoryMaterials1109.Length} 种材料" : inventoryCatalog ? $"已收集 {slotOwned}/{slotTotal}" : $"共 {slotOwned} 件",
                 20, new Color32(190, 178, 222, 255), 50, 1322, 200, 50, TextAnchor.MiddleLeft);
             // ‹ 1/3 › with the shared switch arrows.
             BoardText038(root, "InventoryPage", $"{inventoryPage + 1}/{pages}", 26, White, 382, 1318, 100, 56, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
@@ -144,7 +166,7 @@ namespace ChoSiren
             { inventoryPage = (inventoryPage + 1) % pages; ShowScreen("accessory"); });
             previous.interactable = next.interactable = pages > 1;
 
-            if (owned == 0 && !inventoryCatalog)
+            if (owned == 0 && !inventoryCatalog && !materials)
             {
                 GameObject go = ModalPolish038Chrome.ActionButton(root, "InventoryEmpty", "去关卡", 24, OpenLevelMap, ModalPolish038ButtonStyle.Primary);
                 PlaceTop(go.GetComponent<RectTransform>(), 600, 1310, 210, 64);
@@ -168,6 +190,28 @@ namespace ChoSiren
         }
 
         /// <summary>One PSD cell: quality fill + bar, the item art, LV and the wearer's face; dim when not owned.</summary>
+        /// <summary>One 材料 tile: the material's art, its name and how many you hold; tapping says what it is for.</summary>
+        private GameObject InventoryMaterialCell1109(Transform parent, int index, Rect cell)
+        {
+            var (id, use) = InventoryMaterials1109[index];
+            int count = model.Balance(id);
+            string name = GameModel.CurrencyName(id);
+            GameObject tile = BoardButton038("Material-" + id, parent, cell, () => Toast($"{name}：{use}（持有 {count:N0}）"));
+            Image face = tile.GetComponent<Image>();
+            face.sprite = Resources.Load<Sprite>(InventoryArt + "inv-cell-q" + (id == CurrencyIds.VoiceCore ? 3 : id.StartsWith("soul-") ? 2 : 1));
+            face.color = count > 0 ? White : new Color(.55f, .52f, .62f, .75f);
+            GameObject art = NewImage("ItemArt", tile.transform, ChoSiren.UI.RewardItemVisuals.SpriteFor(id), count > 0 ? White : new Color(.6f, .55f, .7f, .6f));
+            PlaceTop(art.GetComponent<RectTransform>(), 22, 16, cell.width - 44, cell.height - 76);
+            art.GetComponent<Image>().preserveAspect = true;
+            art.GetComponent<Image>().raycastTarget = false;
+            Text label = BoardText038(tile.transform, "Name", name, 13, InventoryInk, 6, cell.height - 54, cell.width - 12, 18, TextAnchor.MiddleCenter);
+            label.fontStyle = FontStyle.Bold;
+            PanelKit.EnableBestFit(label, 10);
+            Text amount = BoardText038(tile.transform, "Count", "×" + count.ToString("N0"), 20, InventoryInk, 6, cell.height - 36, cell.width - 12, 28, TextAnchor.MiddleCenter);
+            amount.fontStyle = FontStyle.BoldAndItalic;
+            return tile;
+        }
+
         private GameObject InventoryCell1107(Transform parent, int item, Rect cell, UnityEngine.Events.UnityAction action)
         {
             bool owned = model.OwnsAccessory(item);

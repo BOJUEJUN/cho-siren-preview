@@ -670,7 +670,7 @@ namespace ChoSiren.Tests
         public IEnumerator BottomNavigationMatchesLatestFiveNonOverlappingDestinations()
         {
             string[] ids = { "team", "members", "lobby", "accessory", "audition" };
-            string[] labels = { "团队", "成员", "大厅", "饰品", "选秀" };
+            string[] labels = { "团队", "成员", "大厅", "库存", "选秀" };
             Canvas canvas = Object.FindAnyObjectByType<Canvas>();
             CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
             canvas.renderMode = RenderMode.WorldSpace;
@@ -762,7 +762,7 @@ namespace ChoSiren.Tests
             var sourceSpriteRects = new Rect[ids.Length];
             var sourceFonts = new Font[ids.Length];
             var glyphBounds = new Rect[ids.Length];
-            var chinese = new[] { "团队", "成员", "大厅", "饰品", "选秀" };
+            var chinese = new[] { "团队", "成员", "大厅", "库存", "选秀" };
             foreach (string destination in destinations)
             {
                 RequireButtonRect("Nav-" + destination).GetComponent<Button>().onClick.Invoke();
