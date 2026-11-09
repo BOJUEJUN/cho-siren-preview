@@ -161,6 +161,25 @@ namespace ChoSiren
             return current;
         }
 
+        /// <summary>
+        /// 2026-11-08 (少爷: "进去还是光的规则…要随机的"): the song the game opens on. In shuffle mode (the default) it is a
+        /// random unlocked song unless the player picked a 首页曲; otherwise <see cref="StartIndex"/>.
+        /// </summary>
+        public static int OpeningIndex(GameModel model)
+        {
+            if (model == null) return StartIndex(model);
+            PlayMode mode = model.MusicPlayMode; // runs the one-time save migrations first
+            bool chosen = IndexOf(model.Save.HomeMusicId) >= 0;
+            if (chosen || mode != PlayMode.Shuffle) return StartIndex(model);
+            int available = 0;
+            for (int i = 0; i < Count; i++) if (IsUnlocked(i, model)) available++;
+            if (available == 0) return StartIndex(model);
+            int pick = UnityEngine.Random.Range(0, available);
+            for (int i = 0; i < Count; i++)
+                if (IsUnlocked(i, model) && pick-- == 0) return i;
+            return StartIndex(model);
+        }
+
         /// <summary>The saved 首页曲 when it exists and is unlocked, otherwise the first unlocked song.</summary>
         public static int StartIndex(GameModel model)
         {

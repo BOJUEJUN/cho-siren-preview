@@ -37,6 +37,8 @@ namespace ChoSiren.Tests
             store = new InMemorySaveStore();
             if (saveJson != null) store.SetString(GameModel.SaveKey, saveJson);
             model = new GameModel(() => DateTime.Now, store);
+            // Fixtures open on the first song (list order); cases about shuffle switch it on themselves.
+            if (saveJson == null) model.SetMusicPlayMode(HomeMusicPlaylist.PlayMode.ListLoop);
             if (model.Save.MusicEnabled != musicOn) model.ToggleMusic();
             host = new GameObject("MusicCollection1101Fixture", typeof(RectTransform));
             if (Object.FindAnyObjectByType<AudioListener>() == null) host.AddComponent<AudioListener>();
@@ -91,12 +93,34 @@ namespace ChoSiren.Tests
         [UnityTest]
         public IEnumerator TransportStartsOnTheSavedHomeSongWithoutDownloadingWhileMuted()
         {
-            yield return MakeTransport(false, JsonUtility.ToJson(new GameSave { HomeMusicId = "chase-the-glow-a", MusicEnabled = false }));
+            yield return MakeTransport(false, JsonUtility.ToJson(new GameSave { HomeMusicId = "chase-the-glow-a", MusicEnabled = false,
+                MusicRandomOpening1108 = true }));
             Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(HomeMusicPlaylist.IndexOf("chase-the-glow-a")));
             Assert.That(audio.HomeMusicTitle, Is.EqualTo("Chase the Glow"));
             yield return null;
             Assert.That(music.isPlaying, Is.False);
             Assert.That(typeof(GameAudio).GetField("webMusicRequest", Private).GetValue(audio), Is.Null);
+        }
+
+        [Test]
+        public void ShuffleOpensOnARandomSongUnlessAHomeSongWasChosen()
+        {
+            // 2026-11-08 (少爷: "进去还是光的规则…要随机的").
+            var seen = new HashSet<int>();
+            for (int i = 0; i < 80; i++)
+            {
+                var fresh = new GameModel(() => DateTime.Now, new InMemorySaveStore());
+                seen.Add(HomeMusicPlaylist.OpeningIndex(fresh));
+            }
+            Assert.That(seen.Count, Is.GreaterThan(2), "a shuffled game opens on different songs");
+            var old = new InMemorySaveStore();
+            old.SetString(GameModel.SaveKey, JsonUtility.ToJson(new GameSave { HomeMusicId = "my-light-my-rules" }));
+            var migrated = new GameModel(() => DateTime.Now, old);
+            HomeMusicPlaylist.OpeningIndex(migrated);
+            Assert.That(migrated.Save.HomeMusicId, Is.Empty, "a 首页曲 saved before random openings is dropped once");
+            migrated.SetHomeMusicId("chase-the-glow-a");
+            Assert.That(HomeMusicPlaylist.OpeningIndex(migrated), Is.EqualTo(HomeMusicPlaylist.IndexOf("chase-the-glow-a")),
+                "a 首页曲 chosen in the player is kept");
         }
 
         [UnityTest]

@@ -136,7 +136,7 @@ namespace ChoSiren
             voiceSource.ignoreListenerPause = true;
 
             // 2026-11-01: the lobby opens on the player's saved 首页曲 (first song when unset/locked).
-            HomeMusicTrackIndex = HomeMusicPlaylist.StartIndex(model);
+            HomeMusicTrackIndex = HomeMusicPlaylist.OpeningIndex(model);
 #if UNITY_WEBGL && !UNITY_EDITOR
             // Long music is external to the startup archive and never blocks app creation.
             HasSoundtrack = false;

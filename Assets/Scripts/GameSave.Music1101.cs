@@ -16,6 +16,8 @@ namespace ChoSiren
         public int MusicPlayMode;
         /// <summary>2026-11-08 (少爷: "把歌曲弄成随机播放"): set once shuffle became the default for this save.</summary>
         public bool MusicShuffleDefault1108;
+        /// <summary>2026-11-08 (少爷: "进去还是光的规则…要随机的"): a 首页曲 saved before random openings existed is dropped once.</summary>
+        public bool MusicRandomOpening1108;
         /// <summary>New songs (isNew) already played once; their notice sticker is gone.</summary>
         public List<string> MusicHeard = new List<string>();
     }
@@ -36,6 +38,7 @@ namespace ChoSiren
 
         public void SetHomeMusicId(string id)
         {
+            Save.MusicRandomOpening1108 = true;
             id ??= string.Empty;
             if (Save.HomeMusicId == id) return;
             Save.HomeMusicId = id;
@@ -51,6 +54,11 @@ namespace ChoSiren
                 {
                     Save.MusicShuffleDefault1108 = true;
                     Save.MusicPlayMode = (int)HomeMusicPlaylist.PlayMode.Shuffle;
+                }
+                if (!Save.MusicRandomOpening1108)
+                {
+                    Save.MusicRandomOpening1108 = true;
+                    Save.HomeMusicId = string.Empty;
                 }
                 return (HomeMusicPlaylist.PlayMode)UnityEngine.Mathf.Clamp(Save.MusicPlayMode, 0, 2);
             }
