@@ -28,6 +28,9 @@ namespace ChoSiren.UI
         private Material material;
         private int current = -1;
         private bool paused;
+        // 2026-11-09 (少爷: "怎么没有角色？"): a clip started while paused (减弱动画) never decoded a frame, so the
+        // stage stayed empty. It now plays until its first frame lands, then freezes there.
+        private bool freezePending;
         private float tint = 1f;
         private System.Random random = new System.Random();
 
@@ -98,8 +101,14 @@ namespace ChoSiren.UI
         {
             paused = value;
             if (current < 0) return;
-            if (paused) clips[current].Player.Pause();
-            else if (clips[current].Prepared) clips[current].Player.Play();
+            Clip live = clips[current];
+            if (paused)
+            {
+                bool hasFrame = live.Player.frame > 0 || live.Player.time > .03;
+                if (hasFrame) { live.Player.Pause(); freezePending = false; }
+                else { freezePending = true; if (live.Prepared) live.Player.Play(); }
+            }
+            else { freezePending = false; if (live.Prepared) live.Player.Play(); }
         }
 
         /// <summary>Overall opacity (a panel fading in or out).</summary>
@@ -110,7 +119,8 @@ namespace ChoSiren.UI
             if (index < 0 || index >= clips.Count) return;
             Clip next = clips[index];
             next.Player.time = 0;
-            if (!paused) next.Player.Play();
+            next.Player.Play();
+            freezePending = paused;
             next.Alpha = current < 0 ? 0f : next.Alpha;
             next.Image.transform.SetAsLastSibling();
             current = index;
@@ -121,8 +131,10 @@ namespace ChoSiren.UI
             if (current < 0) return;
             float dt = Mathf.Min(Time.unscaledDeltaTime, .1f);
             Clip live = clips[current];
-            bool ready = live.Prepared && !live.Failed && (live.Player.frame > 0 || live.Player.time > .03 || paused);
-            if (live.Prepared && !live.Failed && !paused && !live.Player.isPlaying) live.Player.Play();
+            bool hasFrame = live.Player.frame > 0 || live.Player.time > .03;
+            if (paused && freezePending && hasFrame) { live.Player.Pause(); freezePending = false; }
+            bool ready = live.Prepared && !live.Failed && hasFrame;
+            if (live.Prepared && !live.Failed && (!paused || freezePending) && !live.Player.isPlaying) live.Player.Play();
             if (ready) live.Alpha = Mathf.MoveTowards(live.Alpha, 1f, dt / FadeSeconds);
             for (int i = 0; i < clips.Count; i++)
             {

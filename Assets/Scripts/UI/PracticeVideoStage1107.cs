@@ -39,6 +39,12 @@ namespace ChoSiren.UI
         private int selected = -1;
         private bool practicing, reduced;
         private RectTransform content, marker;
+        // 2026-11-09 (少爷: "能打光吗？现在只有一个箭头不好"): a stage spotlight on the chosen lead — the room dims,
+        // a soft beam falls on her from above and a warm pool lights the floor under her feet.
+        private RawImage spotDim, spotBeam, spotPool;
+        private int spotLead = -2;
+        private float spotFade = 1f;
+        private static readonly Dictionary<int, Texture2D[]> SpotTextures = new Dictionary<int, Texture2D[]>();
         private Image room;
         private readonly RectTransform[] shadows = new RectTransform[4];
         private readonly RectTransform[] clipRects = new RectTransform[2];
@@ -114,6 +120,8 @@ namespace ChoSiren.UI
             for (int i = 0; i < 4; i++) Place(shadows[i], ShadowBoxes[i]);
             for (int i = 0; i < clipRects.Length; i++) Place(clipRects[i], ClipBoxes[i].Box);
             for (int i = 0; i < 4; i++) Place(leadHits[i], LeadBoxes[i]);
+            foreach (RawImage spot in new[] { spotDim, spotBeam, spotPool })
+                if (spot != null) Place(spot.rectTransform, new Rect(0, 117, 2072, PsdWindowH - 77));
             Place(cameraFrame, new Rect(0, 40, 2072, 1851));
             Place(title, new Rect(38, 48, 659, 109));
             Place((RectTransform)timecode.transform, new Rect(828, 1659, 400, 90)); // over the erased PSD timecode
@@ -142,8 +150,14 @@ namespace ChoSiren.UI
                 clips.Add(ClipBoxes[i].File, go.GetComponent<RawImage>());
             }
 
+            spotPool = NewRaw("SpotPool", clipLayer);
+            spotPool.transform.SetAsFirstSibling();
+            spotDim = NewRaw("SpotDim", content);
+            spotBeam = NewRaw("SpotBeam", content);
+
             marker = NewRect("LeadMarker", content);
             var markerText = NewText("Glyph", marker, font, "▼", 30, new Color32(28, 242, 236, 255));
+            markerText.enabled = false; // the spotlight marks her now; the node stays for layout and tests
             Stretch(markerText.rectTransform);
             markerText.gameObject.AddComponent<Outline>().effectColor = new Color32(9, 6, 22, 220);
 
@@ -179,13 +193,98 @@ namespace ChoSiren.UI
             if (marker == null) return;
             int lead = Array.IndexOf(LeadIds, selected >= 0 && selected < GameModel.Members.Length ? GameModel.Members[selected].Id : null);
             marker.gameObject.SetActive(lead >= 0);
+            SetSpot(lead);
             if (lead < 0) return;
             Rect box = LeadBoxes[lead];
             Place(marker, new Rect(box.center.x - 60, box.y - 110, 120, 100));
         }
 
+        private void SetSpot(int lead)
+        {
+            if (spotDim == null || lead == spotLead) return;
+            spotLead = lead;
+            bool on = lead >= 0;
+            spotDim.enabled = spotBeam.enabled = spotPool.enabled = on;
+            if (!on) return;
+            Texture2D[] tex = SpotTexturesFor(lead);
+            spotDim.texture = tex[0]; spotBeam.texture = tex[1]; spotPool.texture = tex[2];
+            spotFade = reduced ? 1f : 0f;
+            ApplySpot(Time.unscaledTime);
+        }
+
+        private void ApplySpot(float t)
+        {
+            if (spotDim == null || spotLead < 0) return;
+            float k = 1f - Mathf.Pow(1f - Mathf.Clamp01(spotFade), 3f);
+            float flicker = reduced ? 1f : .94f + .06f * Mathf.Sin(t * 2.1f) * Mathf.Sin(t * 3.7f + 1f);
+            spotDim.color = new Color(1f, 1f, 1f, k);
+            spotBeam.color = new Color(1f, 1f, 1f, k * flicker);
+            spotPool.color = new Color(1f, 1f, 1f, k * flicker);
+        }
+
+        /// <summary>Dim (dark everywhere but her cone), beam (soft light cone) and floor pool textures for a lead.</summary>
+        private static Texture2D[] SpotTexturesFor(int lead)
+        {
+            if (SpotTextures.TryGetValue(lead, out Texture2D[] cached) && cached[0] != null) return cached;
+            const int W = 256, H = 202; // the room window (2072 × 1659) at low resolution; bilinear keeps it soft
+            float top = 117f, span = PsdWindowH - 77f;
+            Rect box = LeadBoxes[lead], foot = ShadowBoxes[lead];
+            float cx = box.center.x / PsdW;
+            float feetY = (foot.center.y - top) / span;
+            float halfTop = 40f / PsdW, halfFeet = (box.width * .62f) / PsdW;
+            var dim = new Color32[W * H]; var beam = new Color32[W * H]; var pool = new Color32[W * H];
+            for (int y = 0; y < H; y++)
+            {
+                float v = 1f - (y + .5f) / H; // 0 at top
+                float along = Mathf.Clamp01(v / Mathf.Max(.01f, feetY));
+                float half = Mathf.Lerp(halfTop, halfFeet, along);
+                for (int x = 0; x < W; x++)
+                {
+                    float u = (x + .5f) / W;
+                    float d = Mathf.Abs(u - cx) / half;
+                    float cone = v <= feetY ? 1f - Smooth(.7f, 1.15f, d) : 0f;
+                    // floor pool: an ellipse around her feet
+                    float ex = (u - cx) / (halfFeet * 1.15f), ey = (v - feetY) / .085f;
+                    float poolV = 1f - Smooth(.55f, 1.05f, Mathf.Sqrt(ex * ex + ey * ey));
+                    float lit = Mathf.Max(cone * (.55f + .45f * along), poolV);
+                    dim[y * W + x] = new Color32(6, 4, 18, (byte)(Mathf.Clamp01(.5f * (1f - lit)) * 255));
+                    float beamA = cone * (.10f + .14f * (1f - along)) * (1f - Smooth(.35f, 1f, d) * .6f);
+                    beam[y * W + x] = new Color32(255, 246, 225, (byte)(Mathf.Clamp01(beamA) * 255));
+                    pool[y * W + x] = new Color32(255, 236, 200, (byte)(Mathf.Clamp01(poolV * .42f) * 255));
+                }
+            }
+            Texture2D Make(Color32[] px, string name)
+            {
+                var t = new Texture2D(W, H, TextureFormat.RGBA32, false) { name = name, wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, hideFlags = HideFlags.DontSave };
+                t.SetPixels32(px); t.Apply(false, true); return t;
+            }
+            var set = new[] { Make(dim, "SpotDim" + lead), Make(beam, "SpotBeam" + lead), Make(pool, "SpotPool" + lead) };
+            SpotTextures[lead] = set;
+            return set;
+        }
+
+        private static float Smooth(float a, float b, float x)
+        {
+            float t = Mathf.Clamp01((x - a) / (b - a));
+            return t * t * (3f - 2f * t);
+        }
+
+        private static RawImage NewRaw(string name, Transform parent)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+            go.transform.SetParent(parent, false);
+            var raw = go.GetComponent<RawImage>();
+            raw.raycastTarget = false; raw.enabled = false;
+            return raw;
+        }
+
         private void Update()
         {
+            if (spotLead >= 0)
+            {
+                if (spotFade < 1f) spotFade = Mathf.Min(1f, spotFade + Time.unscaledDeltaTime / .35f);
+                ApplySpot(Time.unscaledTime);
+            }
             if (marker != null && marker.gameObject.activeSelf && !reduced)
             {
                 var glyph = marker.GetChild(0) as RectTransform;
