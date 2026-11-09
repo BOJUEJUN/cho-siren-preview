@@ -49,7 +49,7 @@ namespace ChoSiren.UI
         private readonly RectTransform[] shadows = new RectTransform[4];
         private readonly RectTransform[] clipRects = new RectTransform[2];
         private readonly RectTransform[] leadHits = new RectTransform[4];
-        private RectTransform cameraFrame, title;
+        private RectTransform cameraFrame, title, clipLayerRect;
         private Text timecode;
         private StackedAlphaClips1107 clips;
         private float scale = 1f, clock;
@@ -90,7 +90,11 @@ namespace ChoSiren.UI
         {
             practicing = active;
             reduced = reduceMotion;
-            clips?.SetPaused(reduceMotion);
+            // Idle between practices: the leads hold their opening pose and breathe; they sing / dance only
+            // while a practice runs (and never under 减弱动画).
+            if (clips == null) return;
+            if (active && !reduceMotion) clips.SetPaused(false);
+            else clips.Rest();
         }
 
         public bool SetSelected(int member, bool instant = false)
@@ -124,6 +128,9 @@ namespace ChoSiren.UI
                 if (spot != null) Place(spot.rectTransform, new Rect(0, 117, 2072, PsdWindowH - 77));
             Place(cameraFrame, new Rect(0, 40, 2072, 1851));
             Place(title, new Rect(38, 48, 659, 109));
+            // 2026-11-09 (少爷: "左上角有个练习舞台好像UI重叠"): on screens where the camera window's top is cut off by
+            // the stage edge the title would be half hidden under the header, so it only shows when it fits.
+            title.gameObject.SetActive(offsetY >= -2f);
             Place((RectTransform)timecode.transform, new Rect(828, 1659, 400, 90)); // over the erased PSD timecode
             timecode.fontSize = Mathf.Max(10, Mathf.RoundToInt(46 * scale));
             PlaceMarker();
@@ -141,6 +148,8 @@ namespace ChoSiren.UI
             clips = StackedAlphaClips1107.Create(gameObject);
             var clipLayer = NewRect("PracticeClips", content);
             Stretch(clipLayer);
+            clipLayerRect = clipLayer;
+            clipLayer.pivot = new Vector2(.5f, 1f - (1290f - 117f) / (PsdWindowH - 77f)); // the leads' feet line
             for (int i = 0; i < ClipBoxes.Length; i++)
             {
                 var go = new GameObject("Clip-" + System.IO.Path.GetFileNameWithoutExtension(ClipBoxes[i].File),
@@ -280,6 +289,12 @@ namespace ChoSiren.UI
 
         private void Update()
         {
+            if (clipLayerRect != null)
+            {
+                // Idle breathing: a slow, slight rise from the feet while nobody is practicing.
+                float breathe = !practicing && !reduced ? .011f * (.5f + .5f * Mathf.Sin(Time.unscaledTime * 2.2f)) : 0f;
+                clipLayerRect.localScale = new Vector3(1f, 1f + breathe, 1f);
+            }
             if (spotLead >= 0)
             {
                 if (spotFade < 1f) spotFade = Mathf.Min(1f, spotFade + Time.unscaledDeltaTime / .35f);

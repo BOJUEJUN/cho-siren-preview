@@ -111,6 +111,19 @@ namespace ChoSiren.UI
             else { freezePending = false; if (live.Prepared) live.Player.Play(); }
         }
 
+        /// <summary>
+        /// 2026-11-09 (少爷: "开始练习之后角色才是那个唱歌跳舞的动画平时是那个待机的动画"): back to the clip's opening
+        /// pose and hold it (the stage's idle); <see cref="SetPaused"/>(false) starts the performance again.
+        /// </summary>
+        public void Rest()
+        {
+            paused = true;
+            if (current < 0) return;
+            Clip live = clips[current];
+            live.Player.time = 0;
+            if (live.Prepared) { live.Player.Play(); freezePending = true; }
+        }
+
         /// <summary>Overall opacity (a panel fading in or out).</summary>
         public void SetTint(float alpha) => tint = Mathf.Clamp01(alpha);
 
