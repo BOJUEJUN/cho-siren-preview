@@ -76,7 +76,7 @@ namespace ChoSiren.Tests
             Assert.That(record.rectTransform.localScale, Is.EqualTo(Vector3.one));
             Assert.That(record.sprite.rect.width / record.sprite.rect.height, Is.EqualTo(1).Within(.002f));
             Assert.That(rail.sprite.texture.width, Is.LessThanOrEqualTo(1024));
-            Assert.That(record.sprite.texture.width, Is.LessThanOrEqualTo(1024));
+            Assert.That(record.sprite.texture.width, Is.LessThanOrEqualTo(2048)); // 2026-11-09 round redraw at 2048
             Assert.That(rail.sprite.texture.mipmapCount, Is.EqualTo(1));
             Assert.That(record.sprite.texture.mipmapCount, Is.EqualTo(1));
             Assert.That(rail.raycastTarget, Is.False);

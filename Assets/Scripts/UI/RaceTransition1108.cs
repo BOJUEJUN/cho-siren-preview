@@ -140,8 +140,8 @@ namespace ChoSiren.UI
             diamond.rectTransform.localScale = Vector3.one * Mathf.Lerp(.4f, 1.5f, d);
             diamond.color = new Color(1f, 1f, 1f, 1f - d * d);
             // 2) the silhouette card wipes in under the sweep (revealed right to left) and slowly pushes in
-            Texture tex = card.texture;
-            float aspect = tex != null ? tex.width / (float)Mathf.Max(1, tex.height) : 1080f / 1920f;
+            // The art is authored 1080×1920; never trust an import that rescaled it (NPOT → 1024×2048 stretched it, 11-09).
+            const float aspect = 1080f / 1920f;
             float cover = Mathf.Max(w / aspect, h);
             float push = Mathf.Lerp(1f, 1.035f, Mathf.Clamp01((time - SweepEnd) / (HoldEnd - SweepEnd)));
             card.rectTransform.sizeDelta = new Vector2(cover * aspect, cover);

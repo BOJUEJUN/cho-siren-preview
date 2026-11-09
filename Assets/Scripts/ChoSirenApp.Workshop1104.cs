@@ -64,7 +64,9 @@ namespace ChoSiren
         {
             CloseModal();
             CloseWorkshop1104();
-            if (workshopMember1104 >= 0 && !model.IsUnlocked(workshopMember1104)) workshopMember1104 = -1;
+            // 2026-11-09 (少爷: "创意工坊只有我们自己的角色，去掉这个初始角色"): open on a signed member (the captain first);
+            // the starter idol is only a fallback when nobody is signed yet.
+            if (workshopMember1104 < 0 || !model.IsUnlocked(workshopMember1104)) workshopMember1104 = FirstWorkshopMember1109();
             string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
             workshopLook1104 = model.WorkshopLook1104(subjectId);
 
@@ -108,17 +110,25 @@ namespace ChoSiren
         private string WorkshopSubjectId1104 => workshopMember1104 < 0 ? StarterId1104 : GameModel.Members[workshopMember1104].Id;
         private string WorkshopSubjectName1104 => workshopMember1104 < 0 ? StarterName1104 : GameModel.Members[workshopMember1104].Name;
 
-        /// <summary>Cycles 初始角色 → every unlocked member → 初始角色.</summary>
+        private int FirstWorkshopMember1109()
+        {
+            if (model.Save.Team.Count > 0 && model.Save.Team[0] >= 0 && model.IsUnlocked(model.Save.Team[0])) return model.Save.Team[0];
+            for (int i = 0; i < GameModel.Members.Length; i++) if (model.IsUnlocked(i)) return i;
+            return -1;
+        }
+
+        /// <summary>Cycles through the signed members only (2026-11-09: no 初始角色).</summary>
         private void StepWorkshopMember1104(int step)
         {
             if (aiDressBusy1104) { Toast("生成中，完成后再切换成员"); return; }
-            int count = GameModel.Members.Length + 1, slot = workshopMember1104 + 1;
+            int count = GameModel.Members.Length, slot = Mathf.Max(0, workshopMember1104);
             for (int i = 0; i < count; i++)
             {
                 slot = (slot + step + count) % count;
-                if (slot == 0 || model.IsUnlocked(slot - 1)) break;
+                if (model.IsUnlocked(slot)) break;
             }
-            workshopMember1104 = slot - 1;
+            if (!model.IsUnlocked(slot)) return;
+            workshopMember1104 = slot;
             OpenWorkshop1104();
         }
 

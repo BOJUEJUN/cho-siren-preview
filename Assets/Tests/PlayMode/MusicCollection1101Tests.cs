@@ -96,7 +96,7 @@ namespace ChoSiren.Tests
             yield return MakeTransport(false, JsonUtility.ToJson(new GameSave { HomeMusicId = "chase-the-glow-a", MusicEnabled = false,
                 MusicRandomOpening1108 = true }));
             Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(HomeMusicPlaylist.IndexOf("chase-the-glow-a")));
-            Assert.That(audio.HomeMusicTitle, Is.EqualTo("Chase the Glow"));
+            Assert.That(audio.HomeMusicTitle, Is.EqualTo("輝きを追いかけて"));
             yield return null;
             Assert.That(music.isPlaying, Is.False);
             Assert.That(typeof(GameAudio).GetField("webMusicRequest", Private).GetValue(audio), Is.Null);

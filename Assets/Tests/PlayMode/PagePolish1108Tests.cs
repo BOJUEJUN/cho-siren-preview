@@ -137,6 +137,18 @@ namespace ChoSiren.Tests
                 AssertCovered(Find("MembersReferenceBoard038"));
                 Capture(camera, target, "members.png");
 
+                // 2026-11-09 (少爷: "把角色的技能图标放在这里"): the member page shows her race's battle skill symbols.
+                typeof(ChoSirenApp).GetMethod("OpenMemberDetail", Private).Invoke(app, new object[] { model.Save.Team[0], -1 });
+                yield return new WaitForSecondsRealtime(.6f);
+                foreach (string hex in new[] { "DetailSkill1", "DetailSkill2" })
+                {
+                    Image icon = app.GetComponentsInChildren<Transform>(true).First(t => t.name == hex).Find("Icon")?.GetComponent<Image>();
+                    Assert.That(icon != null && icon.sprite != null, Is.True, hex + " shows the PSD skill symbol");
+                }
+                Capture(camera, target, "member-detail.png");
+                typeof(ChoSirenApp).GetMethod("CloseModal", Private).Invoke(app, null);
+                yield return null;
+
                 // 选秀: photo backdrop, tap the back card to switch
                 yield return Show("audition");
                 Transform photoBg = app.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "CandidatePhotoBg");

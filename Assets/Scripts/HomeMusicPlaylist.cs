@@ -73,7 +73,7 @@ namespace ChoSiren
                 {
                     // Never leave the lobby without its approved song if the list is missing or broken.
                     Debug.LogError("Music playlist missing or empty; using the approved home song.");
-                    list.Add(new Track("my-light-my-rules", "光的规则", string.Empty, string.Empty,
+                    list.Add(new Track("my-light-my-rules", "光のルール", string.Empty, string.Empty,
                         "home-f19d89ea8124a31b.mp3", NativeHomeClipPath, new[] { "home" }, false, string.Empty, string.Empty, 172.38f));
                 }
                 return tracks = list.ToArray();

@@ -688,7 +688,7 @@ namespace ChoSiren
             // Keep the full square so a menu selection turns the grooves without flattening.
             GameObject disc = NewImage("NavDiscArc", navRoot,
                 AiUiSprite("Art/LobbyPunk/nav-optical-vinyl-1019-v2"), Color.white);
-            PlaceTop(disc.GetComponent<RectTransform>(), -452f, 112f, 1600f, 1600f);
+            PlaceTop(disc.GetComponent<RectTransform>(), -452f, 120f, 1600f, 1600f); // 11-09 round redraw: disc top moved up 8px in the art
             ChoSiren.Panels.PanelKit.CenterPivot(disc.GetComponent<RectTransform>());
             Image discImage = disc.GetComponent<Image>();
             // 2026-10-20: the record only spins; as a rotated 1600px square its hit box poked
@@ -1138,7 +1138,7 @@ namespace ChoSiren
                 memberSearchQuery = string.Empty;
                 ShowScreen("members");
                 OpenMember(member);
-            });
+            }, member => PlayRaceTransition1108(member, null, () => OpenMemberDetail(member, -1)));
         }
 
         private void OpenPerformanceConfirm()

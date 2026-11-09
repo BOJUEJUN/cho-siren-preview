@@ -36,6 +36,8 @@ namespace ChoSiren.UI
         public Func<PointerEventData, int> TapSteps;
         /// <summary>When set, a tapped back card is promoted by the owner's own animation instead of a throw.</summary>
         public Action<int> TapPromote;
+        /// <summary>Double-tapping the front badge (2026-11-09: opens the candidate's detail page).</summary>
+        public Action DoubleTapFront;
         float previousTime;
         // animation state
         enum Mode { Idle, Home, Exit, Enter, Retreat }
@@ -117,7 +119,11 @@ namespace ChoSiren.UI
         {
             if (dragging || !e.eligibleForClick || TapSteps == null) return;
             int steps = TapSteps(e);
-            if (steps == 0) return;
+            if (steps == 0)
+            {
+                if (e.clickCount >= 2 && !Busy) DoubleTapFront?.Invoke();
+                return;
+            }
             if (TapPromote != null)
             {
                 if (Busy || allowed == null || !allowed()) return;

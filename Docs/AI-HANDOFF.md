@@ -45,7 +45,7 @@
 - 设备 UDID：伯爵君 `00008140-000E706E2493C01C`；五条悟专用机 `00008140-001154D23E93001C`。Bundle `com.bojuejun.chosiren`，team `63K7K9XRZ2`。别装不带版本号的旧 `Builds/iOS-DerivedData-device/`。
 - 历史上手机连不上（CoreDevice 4016）曾是 Wi-Fi 代理例外列表格式问题，证据在 `Builds/qa-logs/full-release-0930/`。再遇到先只读排查，不要改网络。
 
-- 游戏歌单里的 Suno 歌 = 少爷在本地选歌台（`Builds/song-picker`，localhost:8777）点了喜欢的版本。每次打包前先跑 `python3 Tools/sync_liked_songs.py`：新喜欢的会加进来，取消的会删掉（发布脚本里已经加了这一步）。
+- 游戏歌单（11-09 少爷定）：光のルール、輝きを追いかけて、BLACK ROSE A/B，其他新歌先拿掉。`Tools/sync_liked_songs.py`（把选歌台的喜欢同步进游戏）已经从打包脚本里去掉了，少爷没让加新歌之前不要跑。
 
 ## 2. 创意工坊 / AI 功能
 

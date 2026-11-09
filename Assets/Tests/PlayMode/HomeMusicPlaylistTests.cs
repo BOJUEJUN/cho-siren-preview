@@ -60,7 +60,7 @@ namespace ChoSiren.Tests
             Assert.That(HomeMusicPlaylist.Count, Is.GreaterThanOrEqualTo(2));
             Assert.That(HomeMusicPlaylist.NativeResourceTrackIndex, Is.EqualTo(0));
             Assert.That(HomeMusicPlaylist.Get(0).Id, Is.EqualTo("my-light-my-rules"));
-            Assert.That(HomeMusicPlaylist.Get(0).Title, Is.EqualTo("光的规则"));
+            Assert.That(HomeMusicPlaylist.Get(0).Title, Is.EqualTo("光のルール"));
             Assert.That(HomeMusicPlaylist.Get(0).FileName, Is.EqualTo("home-f19d89ea8124a31b.mp3"));
             Assert.That(HomeMusicPlaylist.Get(1).Id, Is.EqualTo("chase-the-glow-a"));
             Assert.That(HomeMusicPlaylist.Get(1).FileName, Is.EqualTo("home-chase-5d360e8e7acbc7c6.mp3"));
@@ -84,7 +84,7 @@ namespace ChoSiren.Tests
             AudioSource original = music;
             bool sfxEnabled = model.Save.SfxEnabled;
             Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(0));
-            Assert.That(audio.HomeMusicTitle, Is.EqualTo("光的规则"));
+            Assert.That(audio.HomeMusicTitle, Is.EqualTo("光のルール"));
             Assert.That(audio.HasSoundtrack, Is.True);
             AssertApprovedNativeSong(0);
             for (int i = 0; i < HomeMusicPlaylist.Count; i++)
@@ -187,7 +187,7 @@ namespace ChoSiren.Tests
             audio.SetBaseMusicContext(GameAudio.MusicContext.Home);
             yield return Audible(1);
             AssertApprovedNativeSong(1);
-            Assert.That(audio.HomeMusicTitle, Is.EqualTo("Chase the Glow"));
+            Assert.That(audio.HomeMusicTitle, Is.EqualTo("輝きを追いかけて"));
         }
 
         [UnityTest]

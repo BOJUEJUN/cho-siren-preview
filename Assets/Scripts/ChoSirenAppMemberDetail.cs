@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using ChoSiren.Panels;
+using ChoSiren.Systems.Tactics;
 using ChoSiren.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -238,8 +239,13 @@ namespace ChoSiren
             raceBadge.GetComponent<Image>().preserveAspect = true;
             raceBadge.GetComponent<Image>().raycastTarget = false;
             DetailHex(page, "DetailRoleBadge", colX + 82, 892, new Color32(245, 242, 250, 255), CareerGlyph(m.Career), new Color32(30, 24, 40, 255), null);
-            DetailHex(page, "DetailSkill1", colX + 160, 892, new Color32(245, 242, 250, 255), "", Accent, firstName);
-            DetailHex(page, "DetailSkill2", colX + 238, 892, new Color32(245, 242, 250, 255), "", Cyan, secondName);
+            // 2026-11-09 (少爷: "把角色的技能图标放在这里"): the battle PSD's own skill symbols for her race
+            // (small skill = lane row 1, ultimate = row 0), the same art the battle shows when she casts.
+            CombatRace combatRace = BattleSimulator.ParseCombatRace(m.Race);
+            DetailHex(page, "DetailSkill1", colX + 160, 892, new Color32(245, 242, 250, 255), "", Accent, firstName,
+                BattlePsdSkillLayout1019.For(combatRace, 1).Key);
+            DetailHex(page, "DetailSkill2", colX + 238, 892, new Color32(245, 242, 250, 255), "", Cyan, secondName,
+                BattlePsdSkillLayout1019.For(combatRace, 0).Key);
 
             // ---- tabbed lower panel
             const float panelX = 436f, panelY = 974f, panelW = 272f, panelH = 296f;
@@ -345,14 +351,28 @@ namespace ChoSiren
             BoardText038(hit.transform, "Label", label, 17, White, -10, 78, 112, 30, TextAnchor.MiddleCenter);
         }
 
-        private void DetailHex(Transform page, string name, float x, float y, Color face, string glyph, Color glyphColor, string skillName)
+        private void DetailHex(Transform page, string name, float x, float y, Color face, string glyph, Color glyphColor, string skillName,
+            string psdIcon = null)
         {
             GameObject hex = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
             hex.transform.SetParent(page, false);
             PlaceTop(hex.GetComponent<RectTransform>(), x, y, 70, 70);
             ProfileEmblemFrame038 shape = hex.GetComponent<ProfileEmblemFrame038>();
             shape.SolidHex = true; shape.color = face; shape.raycastTarget = false;
-            if (skillName != null)
+            Sprite skillArt = skillName != null && !string.IsNullOrEmpty(psdIcon) ? BattlePsdArt928.SpriteOrLoad(psdIcon) : null;
+            if (skillArt != null)
+            {
+                // A dark hex so the glowing symbol reads; the name sits under the badge.
+                shape.color = new Color32(22, 14, 40, 255);
+                Image art = NewImage("Icon", hex.transform, skillArt, White).GetComponent<Image>();
+                art.preserveAspect = true;
+                art.raycastTarget = false;
+                PlaceTop(art.rectTransform, 9, 7, 52, 52);
+                Text under = BoardText038(hex.transform, "Name", skillName, 12, White, -8, 70, 86, 18, TextAnchor.MiddleCenter);
+                under.gameObject.AddComponent<Outline>().effectColor = new Color32(10, 6, 24, 255);
+                PanelKit.EnableBestFit(under, 9);
+            }
+            else if (skillName != null)
             {
                 var icon = SkillIconVisuals.Create(hex.transform, "Icon", skillName, string.Empty, glyphColor);
                 PlaceTop(icon.rectTransform, 19, 12, 32, 32);

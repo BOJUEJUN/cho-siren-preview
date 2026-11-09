@@ -88,8 +88,8 @@ namespace ChoSiren.Tests
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopPage1104"), Is.True, "创意工坊 opens");
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopTool-dress"), Is.True);
                 yield return new WaitForSecondsRealtime(2.5f);
-                Assert.That(canvas.GetComponentsInChildren<RawImage>(true).Any(r => r.name == "WorkshopFigureVideo" && r.enabled),
-                    Is.True, "初始角色's idle loop plays");
+                // 2026-11-09: no 初始角色 — the workshop opens on a signed member.
+                Assert.That(canvas.GetComponentsInChildren<Text>(true).Any(t => t.text == "初始角色"), Is.False, "初始角色 is gone");
                 Shot(camera, rt, "workshop.png");
                 var stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
                 Assert.That(stage, Is.Not.Null);
@@ -214,8 +214,10 @@ namespace ChoSiren.Tests
                 stage.SetDialValue(2);
                 yield return new WaitForSecondsRealtime(1f);
                 Shot(camera, rt, "workshop-bg.png");
-                // 星璃 has the angle sheets; the starter does not.
-                Invoke(app, "StepWorkshopMember1104", 1);
+                // 星璃 has the angle sheets (2026-11-09: no starter; open her directly).
+                typeof(ChoSirenApp).GetField("workshopMember1104", Private).SetValue(app,
+                    System.Array.FindIndex(GameModel.Members, m => m.Name == "星璃"));
+                Invoke(app, "OpenWorkshop1104");
                 yield return new WaitForSecondsRealtime(.8f);
                 stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
                 Tool("turn").onClick.Invoke();

@@ -24,6 +24,28 @@ namespace ChoSiren
         public static Sprite Sprite(string key) => sprites.TryGetValue(key, out var s) ? s : null;
         public static Entry Find(string key) => Array.Find(Entries, e => e.key == key);
 
+        /// <summary>
+        /// 2026-11-09: one layer outside battle (the member page's skill icons). Native builds read it from
+        /// StreamingAssets on demand; WebGL only has what a battle already streamed.
+        /// </summary>
+        public static Sprite SpriteOrLoad(string key)
+        {
+            Sprite cached = Sprite(key);
+            if (cached != null) return cached;
+#if UNITY_EDITOR || !UNITY_WEBGL
+            Entry entry = Find(key);
+            if (entry == null) return null;
+            string path = System.IO.Path.Combine(Application.streamingAssetsPath, "BattlePsd928", entry.file);
+            if (!System.IO.File.Exists(path)) return null;
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!texture.LoadImage(System.IO.File.ReadAllBytes(path), true)) return null;
+            Store(entry, texture);
+            return Sprite(key);
+#else
+            return null;
+#endif
+        }
+
         private static void Store(Entry entry, Texture2D texture)
         {
             texture.name = entry.key;

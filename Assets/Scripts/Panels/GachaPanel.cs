@@ -107,6 +107,8 @@ namespace ChoSiren.Panels
         private Action onBack;
         private Action<string> onMessage;
         private Action<int> onSigned;
+        /// <summary>2026-11-08 (少爷: "双击工牌可以进去这个页面"): opens the member detail page for a candidate.</summary>
+        private Action<int> onViewMember;
         private bool embeddedMode;
         private bool closing;
         private int bannerIndex;
@@ -165,10 +167,11 @@ namespace ChoSiren.Panels
         /// a modal screen with a duplicate header.
         /// </summary>
         public static GachaPanel OpenEmbedded(Transform contentHost, GameModel gameModel,
-            IGachaService gachaService, Action<string> message = null, Action<int> signed = null)
+            IGachaService gachaService, Action<string> message = null, Action<int> signed = null, Action<int> viewMember = null)
         {
             GachaPanel panel = Create(contentHost, gameModel, gachaService, true, null, message);
             panel.onSigned = signed;
+            panel.onViewMember = viewMember;
             return panel;
         }
 

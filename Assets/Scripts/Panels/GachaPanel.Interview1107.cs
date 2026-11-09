@@ -96,7 +96,8 @@ namespace ChoSiren.Panels
             Image portrait = kit.NewImage("CandidatePortraitArt", photo, CandidateSprite(member), Color.white);
             PanelKit.Stretch(portrait.rectTransform);
             portrait.raycastTarget = false;
-            if (portrait.sprite != null) PanelKit.FrameBustPortrait(portrait, photo, member.Id);
+            // 2026-11-09 (少爷: "工牌的头像框要统一…大头像截图的，不是半身"): the head framing the 成员 cards use.
+            if (portrait.sprite != null) PortraitFace1101.Apply(portrait, photo, member.Id, PortraitFace1101.Framing.Head);
             // 2026-11-08 (少爷: "底部两张也要有角色立绘"): the back cards show the next two candidates.
             for (int k = 1; k <= 2 && k < candidates.Count; k++)
             {
@@ -227,7 +228,7 @@ namespace ChoSiren.Panels
             Image bust = kit.NewImage("BackCardPortrait", photo, CandidateSprite(member), Color.white);
             PanelKit.Stretch(bust.rectTransform);
             bust.raycastTarget = false;
-            if (bust.sprite != null) PanelKit.FrameBustPortrait(bust, photo, member.Id);
+            if (bust.sprite != null) PortraitFace1101.Apply(bust, photo, member.Id, PortraitFace1101.Framing.Head);
         }
 
         private bool promoting1108;
@@ -318,6 +319,12 @@ namespace ChoSiren.Panels
                 swipe.SetRetreat(frontBack, 1f / s1, card1Back, card1BackScale);
             }
             swipe.Configure(badge, stack, () => !closing && !promoting1108 && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
+            // Double-tapping the front badge opens the candidate's detail page.
+            swipe.DoubleTapFront = () =>
+            {
+                List<int> list = InterviewCandidates();
+                if (onViewMember != null && list.Count > 0) onViewMember(list[Mathf.Clamp(interviewCandidateIndex, 0, list.Count - 1)]);
+            };
             // 2026-11-08 (少爷: "点击底部第一张要有这张到最顶部的动画"): a tapped back card flies up to the front.
             swipe.TapPromote = steps => StartCoroutine(PromoteBackCard1108(page, steps));
             // 2026-11-08 (少爷: "点击不是很灵敏…要点很边缘才有响应"): a tap hits the topmost badge whose real tilted outline
@@ -352,22 +359,37 @@ namespace ChoSiren.Panels
         }
 
         /// <summary>线上面试 / 线下面试 are baked into the board: hits over each, the chosen one gets a teal underline.</summary>
+        /// <summary>
+        /// 线上面试 / 线下面试 (2026-11-09, 少爷: "要做成真的按钮点击…点击的图标放大不点的就缩小做一个区别"): each is its own layer
+        /// cut from the board (iv-btn-online / -offline). The chosen channel is shown larger with a teal underline, the
+        /// other smaller and dimmer, and both press / release like the lobby buttons.
+        /// </summary>
         private void BuildInterviewPools1107(RectTransform page)
         {
-            Rect[] pools = { Iv(890, 6310, 2260, 6770), Iv(2110, 6340, 3260, 6750) };
-            for (int i = 0; i < pools.Length; i++)
+            const float k = 1382f / 4320f;
+            // Board-pixel rects of the cut sprites (x, y, w, h), drawn in order so 线上 overlaps 线下 as in the art.
+            Rect[] boardRects = { new Rect(273, 1786, 464, 166), new Rect(657, 1796, 398, 145) };
+            string[] art = { "iv-btn-online", "iv-btn-offline" };
+            for (int pass = 0; pass < 2; pass++)
             {
+                int i = pass == 0 ? 1 : 0; // offline first, online on top
                 int pool = i;
-                GameObject hit = InterviewBoardHotspot("InterviewPool-" + i, page, pools[i].x, pools[i].y, pools[i].width, pools[i].height,
+                Rect br = boardRects[i];
+                Rect r = Iv(br.x / k, br.y / k + 700f, br.xMax / k, br.yMax / k + 700f);
+                bool on = i == interviewPoolIndex;
+                GameObject hit = InterviewBoardHotspot("InterviewPool-" + i, page, r.x, r.y, r.width, r.height,
                     () => SelectInterviewPool(pool));
-                IvBakedMotion1108(hit, page, pools[i]);
-                if (i != interviewPoolIndex) continue;
-                Image glow = ReferencePunkFx.Deco(page, "SelectedChannelGlow", ReferencePunkFx.Glow(), new Color(.11f, .95f, .93f, .4f),
-                    pools[i].x, pools[i].yMax - 14f, pools[i].width, 26f);
+                Image visual = kit.NewImage("PoolVisualV2", hit.transform, Resources.Load<Sprite>(InterviewArt1107 + art[i]), Color.white);
+                PanelKit.Stretch(visual.rectTransform);
+                visual.raycastTarget = false;
+                visual.color = on ? Color.white : new Color(.78f, .78f, .86f, 1f);
+                visual.rectTransform.localScale = Vector3.one * (on ? 1.06f : .9f);
+                visual.transform.SetAsFirstSibling();
+                hit.GetComponent<LobbyHotspotFeedback>()?.Configure(LobbyHotspotFeedback.VisualKind.Entry);
+                if (!on) continue;
                 Image mark = kit.NewImage("SelectedInterviewChannel", page, null, Brand1025.Teal);
-                PanelKit.PlaceTop(mark.rectTransform, pools[i].x + 24f, pools[i].yMax - 4f, pools[i].width - 48f, 6f);
+                PanelKit.PlaceTop(mark.rectTransform, r.x + r.width * .2f, r.yMax - 6f, r.width * .5f, 6f);
                 mark.raycastTarget = false;
-                hit.transform.SetAsLastSibling();
             }
         }
 
