@@ -20,6 +20,8 @@ namespace ChoSiren.UI
 
         /// <summary>Direction of the last throw; the next built badge enters from the stack with it.</summary>
         public static int PendingEntry;
+        /// <summary>Batch-mode tests keep the ‹ › arrows instant unless a test opts into the one-badge animations.</summary>
+        public static bool AnimateArrowsInBatch;
 
         RectTransform surface, front, back;
         CanvasGroup frontGroup;
@@ -36,7 +38,7 @@ namespace ChoSiren.UI
         public Action<int> TapPromote;
         float previousTime;
         // animation state
-        enum Mode { Idle, Home, Exit, Enter }
+        enum Mode { Idle, Home, Exit, Enter, Retreat }
         Mode mode;
         float time, swing;
         int direction;
@@ -59,6 +61,29 @@ namespace ChoSiren.UI
         }
 
         /// <summary>Horizontal part of the badge's drag offset (canvas units).</summary>
+        Vector2 frontBack, card1Back;
+        float frontBackScale = 1f, card1BackScale = 1f;
+        CanvasGroup card2Group;
+        const float RetreatSeconds = .34f;
+
+        /// <summary>Where the front badge and the first back card settle when ‹ steps back (window-matched places).</summary>
+        public void SetRetreat(Vector2 frontTarget, float frontScale, Vector2 firstTarget, float firstScale)
+        {
+            frontBack = frontTarget; frontBackScale = frontScale; card1Back = firstTarget; card1BackScale = firstScale;
+        }
+
+        /// <summary>‹: the front badge goes back into the stack, then the previous candidate swings in from the left.</summary>
+        public void Retreat()
+        {
+            if (Busy || allowed == null || !allowed() || card1 == null) return;
+            mode = Mode.Retreat; time = 0f;
+            if (card2 != null && card2Group == null)
+            {
+                card2Group = card2.GetComponent<CanvasGroup>();
+                if (card2Group == null) card2Group = card2.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+
         public float Offset => drag.x;
         /// <summary>2026-11-08 (少爷: "工牌可以任意角度拖动滑走"): the full 2-D drag offset.</summary>
         public Vector2 Drag => drag;
@@ -222,6 +247,29 @@ namespace ChoSiren.UI
                     }
                     break;
                 }
+                case Mode.Retreat:
+                {
+                    float t = Mathf.Clamp01(time / RetreatSeconds);
+                    float e = t * t * (3f - 2f * t);
+                    float arc = Mathf.Sin(t * Mathf.PI);
+                    if (front != null)
+                    {
+                        front.anchoredPosition = Vector2.LerpUnclamped(frontHome, frontBack, e) + new Vector2(-arc * 40f, 0f);
+                        front.localScale = Vector3.one * Mathf.Lerp(1f, frontBackScale, e);
+                        front.localRotation = frontRotation * Quaternion.Euler(0f, 0f, arc * 6f);
+                    }
+                    card1.anchoredPosition = Vector2.LerpUnclamped(card1Home, card1Back, e);
+                    card1.localScale = Vector3.one * Mathf.Lerp(1f, card1BackScale, e);
+                    if (card2Group != null) card2Group.alpha = 1f - e;
+                    if (card2 != null) card2.anchoredPosition = card2Home + new Vector2(0f, -40f * e);
+                    if (t >= 1f)
+                    {
+                        mode = Mode.Idle;
+                        PendingEntry = -1;
+                        changed?.Invoke(-1);
+                    }
+                    break;
+                }
                 case Mode.Enter:
                 {
                     float t = Mathf.Clamp01(time / EnterSeconds);
@@ -276,7 +324,7 @@ namespace ChoSiren.UI
         void OnDisable()
         {
             dragging = passVertical = false;
-            if (mode == Mode.Exit) PendingEntry = 0;
+            if (mode == Mode.Exit || mode == Mode.Retreat) PendingEntry = 0;
             mode = Mode.Idle;
             PoseAt(Vector2.zero, 0f, 1f, 1f, 0f, Vector2.zero);
         }

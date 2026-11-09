@@ -211,6 +211,33 @@ namespace ChoSiren.Tests
                 Assert.That(app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name, Is.EqualTo(nextName),
                     "the badge that came forward is the one now in front");
                 Capture(camera, target, "audition-after-swipe.png");
+
+                // 2026-11-08 (少爷: "要一张一张的切换"): › throws one badge (the next one comes up), ‹ tucks it back.
+                InterviewBadgeSwipe1108.AnimateArrowsInBatch = true;
+                try
+                {
+                    yield return new WaitForSecondsRealtime(.8f);
+                    string middle = app.GetComponentsInChildren<Image>().First(i => i.name == "BackCardPortrait"
+                        && i.GetComponentsInParent<Transform>().Any(t => t.name == "InterviewCard1")).sprite.texture.name;
+                    string front = app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name;
+                    app.GetComponentsInChildren<Button>().First(b => b.name == "NextCandidate").onClick.Invoke();
+                    yield return new WaitForSecondsRealtime(.12f);
+                    Capture(camera, target, "audition-arrow-next.png");
+                    yield return new WaitForSecondsRealtime(.4f);
+                    Assert.That(app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name,
+                        Is.EqualTo(middle), "› brings the second badge to the front");
+                    yield return new WaitForSecondsRealtime(.6f);
+                    app.GetComponentsInChildren<Button>().First(b => b.name == "PreviousCandidate").onClick.Invoke();
+                    yield return new WaitForSecondsRealtime(.18f);
+                    Capture(camera, target, "audition-arrow-previous.png");
+                    yield return new WaitForSecondsRealtime(.9f);
+                    Assert.That(app.GetComponentsInChildren<Image>().First(i => i.name == "CandidatePortraitArt").sprite.texture.name,
+                        Is.EqualTo(front), "‹ brings the previous badge back to the front");
+                    Assert.That(app.GetComponentsInChildren<Image>().First(i => i.name == "BackCardPortrait"
+                        && i.GetComponentsInParent<Transform>().Any(t => t.name == "InterviewCard1")).sprite.texture.name,
+                        Is.EqualTo(middle), "and the badge it replaced sits second again");
+                }
+                finally { InterviewBadgeSwipe1108.AnimateArrowsInBatch = false; }
             }
             finally { Object.DestroyImmediate(camera.gameObject); target.Release(); Object.DestroyImmediate(target); }
         }

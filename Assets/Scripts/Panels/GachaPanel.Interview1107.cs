@@ -288,14 +288,22 @@ namespace ChoSiren.Panels
                 float s1 = BadgeHoleSize1108.x * px0 / (BackHoleSize1108.x * px1);
                 Vector2 t1 = frontWindow - hole1 * s1;
                 Vector2 t2 = Vector2.zero; float s2 = 1f;
+                // ‹ (2026-11-08, "要一张一张的切换"): the reverse — the front badge settles into the first back card's place
+                // and that card into the second's.
+                Vector2 card1Window = c1.anchoredPosition + hole1;
+                Vector2 frontBack = card1Window - (frontWindow - badge.anchoredPosition) / s1;
+                Vector2 card1Back = c1.anchoredPosition; float card1BackScale = 1f;
                 if (c2 != null)
                 {
                     float px2 = c2.sizeDelta.x / 532f;
                     Vector2 hole2 = new Vector2(BackHoleCentre1108[1].x * px2, -BackHoleCentre1108[1].y * px2);
                     s2 = px1 / px2;
                     t2 = c1.anchoredPosition + hole1 - hole2 * s2;
+                    card1BackScale = 1f / s2;
+                    card1Back = c2.anchoredPosition + hole2 - hole1 * card1BackScale;
                 }
                 swipe.SetBackCards(c1, t1, s1, c2, t2, s2);
+                swipe.SetRetreat(frontBack, 1f / s1, card1Back, card1BackScale);
             }
             swipe.Configure(badge, stack, () => !closing && !promoting1108 && signModal == null && InterviewCandidates().Count > 1, MoveInterviewCandidate);
             // 2026-11-08 (少爷: "点击底部第一张要有这张到最顶部的动画"): a tapped back card flies up to the front.
@@ -313,10 +321,20 @@ namespace ChoSiren.Panels
             return swipe;
         }
 
-        /// <summary>‹ ›: change at once (the counter and buttons answer immediately); the new badge swings in from the stack.</summary>
+        /// <summary>
+        /// ‹ ›, one badge at a time (2026-11-08, 少爷: "不是一批一批的切换…要一张一张的切换"): › throws the front badge off while
+        /// the next one grows into its place; ‹ tucks the front badge back into the stack and the previous one swings in.
+        /// </summary>
         private void ThrowBadge1108(InterviewBadgeSwipe1108 swipe, int direction)
         {
-            if (InterviewCandidates().Count > 1) InterviewBadgeSwipe1108.PendingEntry = direction;
+            if (InterviewCandidates().Count <= 1) return;
+            if (swipe != null && swipe.StackPromotes && !ChoSiren.BattlePresentationOptions.ReduceMotion
+                && (!Application.isBatchMode || InterviewBadgeSwipe1108.AnimateArrowsInBatch))
+            {
+                if (direction > 0) swipe.Throw(1); else swipe.Retreat();
+                return;
+            }
+            InterviewBadgeSwipe1108.PendingEntry = direction;
             MoveInterviewCandidate(direction);
         }
 
