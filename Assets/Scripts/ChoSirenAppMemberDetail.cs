@@ -279,11 +279,16 @@ namespace ChoSiren
 
             // ---- back / home
             float bottom = pageH - 96f;
-            GameObject backButton = BoardButton038("CloseTop", page, new Rect(-16, bottom, 224, 66), () =>
+            GameObject backButton = null;
+            backButton = BoardButton038("CloseTop", page, new Rect(-16, bottom, 224, 66), () =>
             {
-                Action previous = memberProfileReturn;
-                memberProfileReturn = null;
-                CloseModal(); previous?.Invoke();
+                // 2026-11-08 (转场参考视频): tiles cascade over the page and the previous page comes back under them.
+                PlayTileReturn1108(backButton != null ? (RectTransform)backButton.transform : null, () =>
+                {
+                    Action previous = memberProfileReturn;
+                    memberProfileReturn = null;
+                    CloseModal(); previous?.Invoke();
+                });
             });
             backButton.GetComponent<Image>().sprite = PunkUi.SlantFill;
             backButton.GetComponent<Image>().color = PunkUi.Hot;

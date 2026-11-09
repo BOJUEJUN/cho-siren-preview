@@ -223,6 +223,19 @@ namespace ChoSiren
             RaceTransition1108.Play(host, race, tap, open);
         }
 
+        /// <summary>The 转场参考视频 return (TileReturn1108) from a tapped back button, then <paramref name="back"/>.</summary>
+        private void PlayTileReturn1108(RectTransform from, Action back)
+        {
+            var host = (RectTransform)safeRoot;
+            Vector2 tap = Vector2.zero;
+            if (from != null && host != null)
+            {
+                Vector3 world = from.TransformPoint(from.rect.center);
+                tap = (Vector2)host.InverseTransformPoint(world) - host.rect.center;
+            }
+            TileReturn1108.Play(host, tap, back);
+        }
+
         private void OpenRestDialog1107(int member)
         {
             if (member < 0 || member >= GameModel.Members.Length) return;

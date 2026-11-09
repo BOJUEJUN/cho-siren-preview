@@ -14,6 +14,8 @@ namespace ChoSiren
         public string HomeMusicId = string.Empty;
         /// <summary><see cref="HomeMusicPlaylist.PlayMode"/>: 0 list loop, 1 single loop, 2 shuffle.</summary>
         public int MusicPlayMode;
+        /// <summary>2026-11-08 (少爷: "把歌曲弄成随机播放"): set once shuffle became the default for this save.</summary>
+        public bool MusicShuffleDefault1108;
         /// <summary>New songs (isNew) already played once; their notice sticker is gone.</summary>
         public List<string> MusicHeard = new List<string>();
     }
@@ -40,11 +42,23 @@ namespace ChoSiren
             SaveState();
         }
 
-        public HomeMusicPlaylist.PlayMode MusicPlayMode =>
-            (HomeMusicPlaylist.PlayMode)UnityEngine.Mathf.Clamp(Save.MusicPlayMode, 0, 2);
+        public HomeMusicPlaylist.PlayMode MusicPlayMode
+        {
+            get
+            {
+                // Shuffle is the default from 0.9.43: every save switches once; a later choice in the player sticks.
+                if (!Save.MusicShuffleDefault1108)
+                {
+                    Save.MusicShuffleDefault1108 = true;
+                    Save.MusicPlayMode = (int)HomeMusicPlaylist.PlayMode.Shuffle;
+                }
+                return (HomeMusicPlaylist.PlayMode)UnityEngine.Mathf.Clamp(Save.MusicPlayMode, 0, 2);
+            }
+        }
 
         public void SetMusicPlayMode(HomeMusicPlaylist.PlayMode mode)
         {
+            Save.MusicShuffleDefault1108 = true;
             int value = UnityEngine.Mathf.Clamp((int)mode, 0, 2);
             if (Save.MusicPlayMode == value) return;
             Save.MusicPlayMode = value;

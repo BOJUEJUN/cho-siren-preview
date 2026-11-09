@@ -52,10 +52,14 @@ namespace ChoSiren.Tests
             model.Save.OwnedAccessories.AddRange(new[] { 60, 1, 12, 3 });
             typeof(ChoSirenApp).GetField("inventorySort", Private).SetValue(app, 2);
             ShowInventory(); yield return null;
-            Assert.That(Require("InventorySlot-0").GetComponent<Image>().sprite.name, Does.EndWith("-on"), "耳饰 selected by default");
+            // 2026-11-08: 全部 comes first and is selected by default; it shows every owned item, newest first.
+            Assert.That(Require("InventorySlot-All").GetComponent<Image>().sprite.name, Does.EndWith("-on"), "全部 selected by default");
+            CollectionAssert.AreEqual(new[] { 3, 12, 1, 60 }, GridItems(), "全部 shows every category, newest first");
+            float allY = Require("InventorySlot-All").GetComponent<RectTransform>().anchoredPosition.y;
+            Assert.That(Require("InventorySlot-0").GetComponent<RectTransform>().anchoredPosition.y, Is.LessThan(allY), "耳饰 sits below 全部");
             for (int slot = 0; slot < GameModel.EquipmentSlotCount; slot++)
             {
-                if (slot > 0) { Click("InventorySlot-" + slot); yield return null; }
+                Click("InventorySlot-" + slot); yield return null;
                 Assert.That(Require("InventorySlot-" + slot).GetComponent<Image>().sprite.name, Does.EndWith("-on"));
                 int[] expected = new[] { 3, 12, 1, 60 }.Where(i => GameModel.AccessorySlot(i) == slot).ToArray();
                 CollectionAssert.AreEqual(expected, GridItems(), "only the chosen category, newest first");

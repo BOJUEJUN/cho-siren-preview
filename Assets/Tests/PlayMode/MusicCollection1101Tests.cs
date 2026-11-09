@@ -64,7 +64,7 @@ namespace ChoSiren.Tests
             old.SetString(GameModel.SaveKey, "{\"SchemaVersion\":5,\"Diamonds\":10,\"MusicEnabled\":true}");
             var first = new GameModel(() => DateTime.Now, old);
             Assert.That(first.Save.Diamonds, Is.EqualTo(10));
-            Assert.That(first.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.ListLoop));
+            Assert.That(first.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.Shuffle), "2026-11-08: shuffle is the default");
             Assert.That(first.IsMusicFavorite("my-light-my-rules"), Is.False);
             Assert.That(HomeMusicPlaylist.StartIndex(first), Is.EqualTo(0));
 
@@ -209,17 +209,17 @@ namespace ChoSiren.Tests
                 Resources.Load<Font>("Fonts/NotoSansSC-Subset"), toasts.Add, null, owner);
             yield return null;
 
-            Assert.That(page.PageCount, Is.EqualTo(2));
+            // 2026-11-08 player redesign: five song rows per page.
+            Assert.That(page.PageCount, Is.EqualTo(3));
             Assert.That(page.VisibleTracks.Count, Is.EqualTo(15));
             page.TurnPage(1);
             Assert.That(page.PageIndex, Is.EqualTo(1));
-            Assert.That(CellTrack(page, 0), Is.EqualTo(12));
-            Assert.That(CellTrack(page, 2), Is.EqualTo(14));
-            Assert.That(CellTrack(page, 3), Is.EqualTo(-1), "The last page leaves its unused frames empty.");
-            page.TurnPage(1);
-            Assert.That(page.PageIndex, Is.EqualTo(0), "Paging wraps like the mock.");
+            Assert.That(CellTrack(page, 0), Is.EqualTo(5));
+            Assert.That(CellTrack(page, 4), Is.EqualTo(9));
+            page.TurnPage(1); page.TurnPage(1);
+            Assert.That(page.PageIndex, Is.EqualTo(0), "Paging wraps.");
             page.TurnPage(-1);
-            Assert.That(page.PageIndex, Is.EqualTo(1));
+            Assert.That(page.PageIndex, Is.EqualTo(2));
 
             page.SelectCategory(1); // 收藏
             Assert.That(page.PageIndex, Is.EqualTo(0));
@@ -232,17 +232,19 @@ namespace ChoSiren.Tests
 
             page.SetHomeSong();
             Assert.That(model.Save.HomeMusicId, Is.EqualTo("song-0"));
+            HomeMusicPlaylist.PlayMode before = model.MusicPlayMode;
             page.CycleMode();
-            Assert.That(model.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.SingleLoop));
+            Assert.That(model.MusicPlayMode, Is.EqualTo((HomeMusicPlaylist.PlayMode)(((int)before + 1) % 3)));
             page.CycleMode(); page.CycleMode();
-            Assert.That(model.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.ListLoop));
+            Assert.That(model.MusicPlayMode, Is.EqualTo(before), "list loop → single loop → shuffle cycle");
 
-            page.TapCell(5);
+            page.TurnPage(1); // rows 5-9
+            page.TapCell(0);
             Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(5));
             Assert.That(audio.HomeMusicPaused, Is.False);
-            page.TapCell(5);
+            page.TapCell(0);
             Assert.That(audio.HomeMusicPaused, Is.True, "Tapping the current record pauses it.");
-            page.TapCell(5);
+            page.TapCell(0);
             Assert.That(audio.HomeMusicPaused, Is.False);
             Assert.That(audio.MusicEnabled, Is.False, "The collection never turns a muted preference on.");
             Assert.That(toasts[toasts.Count - 1], Is.EqualTo("音乐已在设置中关闭"));

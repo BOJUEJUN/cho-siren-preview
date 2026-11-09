@@ -247,7 +247,10 @@ namespace ChoSiren
         private void RosterPolish038MemberCard(Transform root, int index, Rect rect)
         {
             MemberDefinition m = GameModel.Members[index];
-            GameObject card = BoardButton038("Member-" + m.Id, root, rect, () => OpenMember(index));
+            GameObject card = null;
+            // 2026-11-08 (少爷: "切到这个详细角色信息页面的转场"): the race silhouette transition plays from the 成员 page too.
+            card = BoardButton038("Member-" + m.Id, root, rect, () =>
+                PlayRaceTransition1108(index, card != null ? (RectTransform)card.transform : null, () => OpenMember(index)));
             Image chrome = card.GetComponent<Image>();
             chrome.sprite = ContentFrames038MemberCard(rect.height);
             if (chrome.sprite != null) chrome.color = White;

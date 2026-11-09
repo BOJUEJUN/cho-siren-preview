@@ -7,6 +7,10 @@ using UnityEngine.UI;
 namespace ChoSiren.UI
 {
     /// <summary>
+    /// 2026-11-08 redesign (少爷: "重做这个点进去的歌页面…随机播放，支持单曲循环、随机、顺序"): a record player page on the shared
+    /// page background — a big spinning vinyl with the cover on its label, the title, a full-width progress bar, the
+    /// play-mode / previous / play / next / favourite row, and the song list as rows (no more empty frames).
+    /// The original 2026-11-01 notes follow.
     /// 2026-11-01 「A · 唱片收藏」: the full-screen record collection opened from the lobby's song window.
     /// Built on the user's accessory board (Art/Music1101/music-board-a, text erased) at its authored
     /// 858×1832 coordinates (Builds/qa-logs/music-1031/mock2, windows.json "A"): the big torn frame holds the
@@ -18,7 +22,10 @@ namespace ChoSiren.UI
     public sealed class MusicCollectionPage1101 : MonoBehaviour
     {
         public const float BoardWidth = 858f, BoardHeight = 1832f;
-        public const int CellsPerPage = 12;
+        public const int CellsPerPage = 5;
+        private const float RowX = 40f, RowTop = 1172f, RowW = 778f, RowH = 100f, RowStep = 110f;
+        private static readonly Vector2 DiscCentre = new Vector2(429f, 438f);
+        private const float DiscSize = 480f;
         private const string Art = "Art/Music1101/";
         public static readonly Color32 Teal = new Color32(30, 232, 232, 255);
         private static readonly Color32 Pink = new Color32(255, 61, 154, 255);
@@ -82,6 +89,7 @@ namespace ChoSiren.UI
         private sealed class Cell
         {
             public RectTransform Root;
+            public MusicQuad1101 Plate;
             public RawImage Cover;
             public Material Material;
             public Text Title, Sub, LockText, Heart;
@@ -127,7 +135,7 @@ namespace ChoSiren.UI
             board.sizeDelta = new Vector2(BoardWidth, BoardHeight);
             FitToScreen(true);
 
-            Sprite boardSprite = Resources.Load<Sprite>(Art + "music-board-a");
+            Sprite boardSprite = Resources.Load<Sprite>("Art/Ui1107/page-bg-board");
             Image boardArt = NewImage("BoardArt", board, boardSprite, 1, 0, BoardWidth - 2, BoardHeight);
             if (boardSprite == null) boardArt.color = new Color32(26, 10, 60, 255);
             else ScreenEdgeExtend.Attach(boardArt.rectTransform, boardSprite);
@@ -147,43 +155,47 @@ namespace ChoSiren.UI
             ApplyTransition();
         }
 
+        private Image modeIcon;
+        private Text modeOne;
+
         private void BuildNowPlaying()
         {
-            heroMaterial = CoverMaterial("mask-hero", 0f);
-            heroCover = NewCover("HeroCover", board, HeroWindow, heroMaterial);
-            heroEq = NewEq("HeroLevels", board, 248, 572, 4, 8f, 34f);
+            NewLabel("PageTitle", board, "唱片机", 42, Color.white, FontStyle.BoldAndItalic, 44, 30, -4f, true);
 
-            Image shadow = NewImage("VinylShadow", board, SoftDot(), 288, 468, 176, 176);
+            // The record: a soft teal glow, a drop shadow, the vinyl (spins while playing) with the cover on its label.
+            Image glow = NewImage("DiscGlow", board, SoftDot(), DiscCentre.x - 340f, DiscCentre.y - 340f, 680f, 680f);
+            glow.color = new Color(Teal.r / 255f, Teal.g / 255f, Teal.b / 255f, .16f);
+            Image shadow = NewImage("VinylShadow", board, SoftDot(), DiscCentre.x - 262f, DiscCentre.y - 250f, 540f, 540f);
             shadow.color = new Color(0, 0, 0, .7f);
-            vinyl = NewImage("Vinyl", board, Resources.Load<Sprite>(Art + "vinyl"), 300, 470, 150, 150).rectTransform;
+            vinyl = NewImage("Vinyl", board, Resources.Load<Sprite>(Art + "vinyl"), DiscCentre.x - DiscSize * .5f,
+                DiscCentre.y - DiscSize * .5f, DiscSize, DiscSize).rectTransform;
             CenterPivot(vinyl);
-
-            NewLabel("NowPlayingTitle", board, "正在播放", 36, Color.white, FontStyle.BoldAndItalic, 456, 204, -7f, true);
+            heroMaterial = CoverMaterial("mask-circle", 0f);
+            heroCover = NewCover("HeroCover", vinyl, new Rect(DiscSize * .5f - 100f, DiscSize * .5f - 100f, 200f, 200f), heroMaterial);
+            Image hub = NewImage("Hub", vinyl, SoftDot(), DiscSize * .5f - 14f, DiscSize * .5f - 14f, 28f, 28f);
+            hub.color = new Color(.05f, .02f, .1f, 1f);
+            heroEq = NewEq("HeroLevels", board, DiscCentre.x - 25f, DiscCentre.y + DiscSize * .5f + 6f, 4, 10f, 34f);
 
             infoFlow = NewRect("Info", board);
-            Place(infoFlow, 430, 288, 262, 340);
-            titleText = NewText("SongTitle", infoFlow, string.Empty, 38, Color.white, FontStyle.Bold, TextAnchor.UpperLeft);
+            Place(infoFlow, 60, 740, 738, 220);
+            titleText = NewText("SongTitle", infoFlow, string.Empty, 44, Color.white, FontStyle.Bold, TextAnchor.UpperCenter);
             titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
             titleText.lineSpacing = .85f;
             AddShadow(titleText);
-            artistText = NewText("SongArtist", infoFlow, string.Empty, 21, Mint, FontStyle.Normal, TextAnchor.UpperLeft);
-
-            favChip = NewChip("FavoriteChip", infoFlow, "♥ 收藏", out favQuad, out favLabel, ToggleFavorite);
+            artistText = NewText("SongArtist", infoFlow, string.Empty, 24, Mint, FontStyle.Normal, TextAnchor.UpperCenter);
             homeChip = NewChip("HomeSongChip", infoFlow, "设为首页曲", out homeQuad, out homeLabel, SetHomeSong);
 
-            seekRoot = NewRect("Seek", infoFlow);
-            // 5% white reads like the mock's 18% once blended in the project's linear colour space.
-            seekTrack = NewQuad("Track", seekRoot, new Color(1, 1, 1, .05f));
+            seekRoot = NewRect("Seek", board);
+            seekTrack = NewQuad("Track", seekRoot, new Color(1, 1, 1, .08f));
             seekTrack.SetInsets(0, 0, .01f, .01f);
             seekTrack.FillColor = Teal;
             Stretch(seekTrack.rectTransform, 0, 18, 0, -18); // 8 px track in a taller touch area
-            // The mock's range thumb is clipped by the slanted track: a short white segment at the playhead.
             MusicQuad1101 knob = NewQuad("Thumb", seekRoot, Color.white);
             knob.SetInsets(.08f, 0f, .08f, 0f);
             seekThumb = knob.rectTransform;
             seekThumb.anchorMin = seekThumb.anchorMax = new Vector2(0, .5f);
             seekThumb.pivot = new Vector2(.5f, .5f);
-            seekThumb.sizeDelta = new Vector2(26, 8);
+            seekThumb.sizeDelta = new Vector2(26, 10);
             knob.gameObject.AddComponent<Shadow>().effectColor = new Color(Teal.r / 255f, Teal.g / 255f, Teal.b / 255f, .5f);
             seekBar = seekRoot.gameObject.AddComponent<MusicSeekBar1101>();
             Image seekHit = seekRoot.gameObject.AddComponent<Image>();
@@ -194,71 +206,88 @@ namespace ChoSiren.UI
                 userGesture?.Invoke();
                 audio?.SeekHomeMusic(value);
             };
+            Place(seekRoot, 70, 900, 718, 44);
+            curTimeText = NewText("Elapsed", board, "0:00", 22, Lilac, FontStyle.Normal, TextAnchor.UpperLeft);
+            Place(curTimeText.rectTransform, 70, 942, 200, 30);
+            durTimeText = NewText("Duration", board, "0:00", 22, Lilac, FontStyle.Normal, TextAnchor.UpperRight);
+            Place(durTimeText.rectTransform, 588, 942, 200, 30);
 
-            curTimeText = NewText("Elapsed", infoFlow, "0:00", 20, Lilac, FontStyle.Normal, TextAnchor.UpperLeft);
-            durTimeText = NewText("Duration", infoFlow, "0:00", 20, Lilac, FontStyle.Normal, TextAnchor.UpperRight);
-
-            Button prev = NewButton("Previous", board, 420, 560, 110, 46, () => { Click(); audio?.PreviousHomeMusic(); });
+            // Transport row: play mode · previous · play / pause · next · favourite.
+            const float rowY = 1000f;
+            Button modeButton = NewButton("PlayMode", board, 54, rowY - 6, 130, 110, CycleMode);
+            modeIcon = NewImage("Icon", modeButton.transform, null, 41, 4, 48, 48);
+            modeIcon.preserveAspect = true;
+            modeIcon.color = Color.white;
+            modeOne = NewText("One", modeButton.transform, "1", 18, Teal, FontStyle.Bold, TextAnchor.MiddleCenter);
+            Place(modeOne.rectTransform, 77, 0, 24, 24);
+            modeText = NewText("PlayModeValue", modeButton.transform, HomeMusicPlaylist.PlayModeNames[0], 20,
+                new Color32(255, 122, 208, 255), FontStyle.Bold, TextAnchor.UpperCenter);
+            Place(modeText.rectTransform, 0, 60, 130, 30);
+            Button prev = NewButton("Previous", board, 222, rowY + 14, 112, 52, () => { Click(); audio?.PreviousHomeMusic(); });
             SetButtonArt(prev, "b-prev");
-            Button toggle = NewButton("PlayPause", board, 528, 546, 110, 68, TogglePause);
+            Button toggle = NewButton("PlayPause", board, 358, rowY - 10, 142, 104, TogglePause);
             SetButtonArt(toggle, "b-diamond");
             playGlyph = NewGraphic<MusicGlyph1101>("Glyph", toggle.transform);
             playGlyph.raycastTarget = false;
             RectTransform glyph = playGlyph.rectTransform;
             glyph.anchorMin = glyph.anchorMax = glyph.pivot = new Vector2(.5f, .5f);
-            glyph.sizeDelta = new Vector2(26, 26);
-            Button next = NewButton("Next", board, 636, 560, 100, 46, () => { Click(); audio?.NextHomeMusic(); });
+            glyph.sizeDelta = new Vector2(34, 34);
+            Button next = NewButton("Next", board, 524, rowY + 14, 112, 52, () => { Click(); audio?.NextHomeMusic(); });
             SetButtonArt(next, "b-next");
-
-            NewButton("PlayMode", board, 713, 342, 140, 304, CycleMode);
-            NewLabel("PlayModeTitle", board, "播放模式", 27, Color.white, FontStyle.Bold, 732, 545, 0f, true);
-            modeText = NewLabel("PlayModeValue", board, HomeMusicPlaylist.PlayModeNames[0], 19, new Color32(255, 122, 208, 255),
-                FontStyle.BoldAndItalic, 740, 585, -5f, false);
+            favChip = NewChip("FavoriteChip", board, "♥ 收藏", out favQuad, out favLabel, ToggleFavorite);
+            favChip.anchoredPosition = new Vector2(676, -(rowY + 22));
         }
 
         private void BuildCollection()
         {
-            NewLabel("CollectionTitle", board, "唱片收藏", 32, Color.white, FontStyle.BoldAndItalic, 38, 716, 0f, true);
-            float x = 216f;
+            NewLabel("CollectionTitle", board, "歌单", 34, Color.white, FontStyle.BoldAndItalic, 44, 1106, 0f, true);
+            float x = 150f;
             for (int i = 0; i < CategoryIds.Length; i++)
             {
                 int index = i;
                 RectTransform chip = NewChip("Category-" + CategoryIds[i], board, CategoryNames[i], out categoryQuads[i],
                     out categoryLabels[i], () => SelectCategory(index));
-                chip.anchoredPosition = new Vector2(x, -712f);
+                chip.anchoredPosition = new Vector2(x, -1112f);
                 x += chip.sizeDelta.x + 8f;
             }
             cells = new Cell[CellsPerPage];
             for (int k = 0; k < CellsPerPage; k++) cells[k] = BuildCell(k);
-            NewButton("PreviousPage", board, 40, 1540, 272, 112, () => { Click(); TurnPage(-1); });
-            NewButton("NextPage", board, 535, 1540, 297, 112, () => { Click(); TurnPage(1); });
+            float pagerY = RowTop + RowStep * CellsPerPage + 6f;
+            Button previousPage = NewButton("PreviousPage", board, 40, pagerY, 180, 60, () => { Click(); TurnPage(-1); });
+            Text pl = NewText("Label", previousPage.transform, "‹ 上一页", 24, ChipOffText, FontStyle.Bold, TextAnchor.MiddleCenter);
+            Stretch(pl.rectTransform);
+            Button nextPage = NewButton("NextPage", board, 638, pagerY, 180, 60, () => { Click(); TurnPage(1); });
+            Text nl = NewText("Label", nextPage.transform, "下一页 ›", 24, ChipOffText, FontStyle.Bold, TextAnchor.MiddleCenter);
+            Stretch(nl.rectTransform);
             pageText = NewText("PageNumber", board, "1 / 1", 24, new Color32(207, 194, 255, 255), FontStyle.Bold, TextAnchor.MiddleCenter);
-            Place(pageText.rectTransform, 365, 1568, 115, 44);
+            Place(pageText.rectTransform, 365, pagerY + 8f, 128, 44);
         }
 
+        /// <summary>One song row: a slanted dark plate, the rounded cover, title, artist · length, NOW levels and ♥.</summary>
         private Cell BuildCell(int k)
         {
-            Rect w = CellWindows[k];
             var cell = new Cell();
             int slot = k;
-            Button button = NewButton("Record-" + k, board, w.x, w.y, w.width, w.height, () => TapCell(slot));
+            float y = RowTop + k * RowStep;
+            Button button = NewButton("Record-" + k, board, RowX, y, RowW, RowH, () => TapCell(slot));
             cell.Root = (RectTransform)button.transform;
-            // A caption band darkens the lower part of the frame (the mock's 26 px + two lines + 12 px).
-            cell.Material = CoverMaterial("mask-c" + k, 92f / w.height);
-            cell.Cover = NewCover("Cover", cell.Root, new Rect(0, 0, w.width, w.height), cell.Material);
-            cell.Title = NewText("Title", cell.Root, string.Empty, 22, Color.white, FontStyle.Bold, TextAnchor.LowerLeft);
-            Place(cell.Title.rectTransform, 16, w.height - 34 - 34, w.width - 32, 34);
+            cell.Plate = NewQuad("Plate", cell.Root, ChipOff);
+            cell.Plate.SetInsets(.015f, 0f, .015f, 0f);
+            Stretch(cell.Plate.rectTransform);
+            cell.Material = CoverMaterial("mask-row", 0f);
+            cell.Cover = NewCover("Cover", cell.Root, new Rect(22, 10, 80, 80), cell.Material);
+            cell.Title = NewText("Title", cell.Root, string.Empty, 26, Color.white, FontStyle.Bold, TextAnchor.MiddleLeft);
+            Place(cell.Title.rectTransform, 124, 12, RowW - 330, 40);
             AddShadow(cell.Title);
-            cell.Sub = NewText("Artist", cell.Root, string.Empty, 15, Mint, FontStyle.Normal, TextAnchor.LowerLeft);
-            Place(cell.Sub.rectTransform, 16, w.height - 12 - 24, w.width - 32, 24);
-            cell.LockText = NewText("Locked", cell.Root, string.Empty, 18, Color.white, FontStyle.Bold, TextAnchor.MiddleCenter);
-            Place(cell.LockText.rectTransform, 10, 0, w.width - 20, w.height);
-            cell.Bars = NewEq("Bars", cell.Root, 18, 16, 3, 8f, 34f);
+            cell.Sub = NewText("Artist", cell.Root, string.Empty, 18, Mint, FontStyle.Normal, TextAnchor.MiddleLeft);
+            Place(cell.Sub.rectTransform, 124, 54, RowW - 330, 30);
+            cell.LockText = NewText("Locked", cell.Root, string.Empty, 20, Color.white, FontStyle.Bold, TextAnchor.MiddleLeft);
+            Place(cell.LockText.rectTransform, 124, 0, RowW - 330, RowH);
+            cell.Bars = NewEq("Bars", cell.Root, RowW - 190, 32, 3, 8f, 34f);
             cell.Eq = cell.Bars[0].transform.parent.gameObject;
 
-            // NOW tag (gold, tilted) on the frame's top-right edge.
             RectTransform now = NewRect("Now", cell.Root);
-            Place(now, w.width - 90, -6, 66, 28);
+            Place(now, RowW - 150, 34, 62, 28);
             now.localEulerAngles = new Vector3(0, 0, 6f);
             MusicQuad1101 plate = NewQuad("Plate", now, Gold);
             Stretch(plate.rectTransform);
@@ -267,14 +296,14 @@ namespace ChoSiren.UI
             Stretch(nowText.rectTransform);
             cell.Now = now.gameObject;
 
-            cell.Heart = NewText("Favorite", cell.Root, "♥", 26, Pink, FontStyle.Normal, TextAnchor.UpperLeft);
-            Place(cell.Heart.rectTransform, 14, 10, 34, 34);
+            cell.Heart = NewText("Favorite", cell.Root, "♥", 30, Pink, FontStyle.Normal, TextAnchor.MiddleCenter);
+            Place(cell.Heart.rectTransform, RowW - 70, 26, 44, 44);
 
-            GameObject sticker = NoticeSticker1031.Create("NewSticker", cell.Root, 46f);
+            GameObject sticker = NoticeSticker1031.Create("NewSticker", cell.Root, 40f);
             RectTransform stickerRect = (RectTransform)sticker.transform;
             stickerRect.anchorMin = stickerRect.anchorMax = new Vector2(0, 1);
-            stickerRect.anchoredPosition = new Vector2(w.width - 50 + 23, 14 - 23);
-            stickerRect.sizeDelta = new Vector2(46, 46);
+            stickerRect.anchoredPosition = new Vector2(96f, -8f);
+            stickerRect.sizeDelta = new Vector2(40, 40);
             cell.Sticker = sticker;
             return cell;
         }
@@ -447,7 +476,7 @@ namespace ChoSiren.UI
         /// <summary>The song title on at most two lines (an ellipsis ends a longer one).</summary>
         private void SetTitle(string value)
         {
-            Place(titleText.rectTransform, 0, -6, 262, 120);
+            Place(titleText.rectTransform, 0, 0, 738, 110);
             titleText.text = "国";
             float one = titleText.preferredHeight;
             titleText.text = value;
@@ -460,20 +489,19 @@ namespace ChoSiren.UI
             }
         }
 
-        /// <summary>Title (one or two lines), artist, chips, progress and times flow down like the mock.</summary>
+        /// <summary>Centred title (one or two lines), artist and the 首页曲 chip under the record.</summary>
         private void LayoutInfo()
         {
-            float titleHeight = titleLines * 44f;
-            float y = titleHeight + 8f;
-            Place(artistText.rectTransform, 0, y, 262, 30);
-            y += 30f + 14f;
-            favChip.anchoredPosition = new Vector2(0, -y);
-            homeChip.anchoredPosition = new Vector2(favChip.sizeDelta.x + 8f, -y);
-            y += 38f + 14f;
-            Place(seekRoot, 0, y - 5f, 250, 44);
-            y += 34f + 2f;
-            Place(curTimeText.rectTransform, 0, y, 125, 28);
-            Place(durTimeText.rectTransform, 125, y, 125, 28);
+            float y = titleLines * 52f + 4f;
+            Place(artistText.rectTransform, 0, y, 738, 32);
+            y += 32f + 12f;
+            homeChip.anchoredPosition = new Vector2((738f - homeChip.sizeDelta.x) * .5f, -y);
+            if (modeIcon != null && model != null)
+            {
+                var mode = model.MusicPlayMode;
+                modeIcon.sprite = VisualB1101.Icon(mode == HomeMusicPlaylist.PlayMode.Shuffle ? "dice" : "refresh");
+                modeOne.gameObject.SetActive(mode == HomeMusicPlaylist.PlayMode.SingleLoop);
+            }
         }
 
         private void RefreshGrid()
@@ -494,6 +522,12 @@ namespace ChoSiren.UI
             }
             pageIndex = Mathf.Clamp(pageIndex, 0, PageCount - 1);
             pageText.text = (pageIndex + 1) + " / " + PageCount;
+            // One page needs no pager.
+            bool paged = PageCount > 1;
+            pageText.gameObject.SetActive(paged);
+            Transform previousPage = board.Find("PreviousPage"), nextPage = board.Find("NextPage");
+            if (previousPage != null) previousPage.gameObject.SetActive(paged);
+            if (nextPage != null) nextPage.gameObject.SetActive(paged);
             for (int k = 0; k < CellsPerPage; k++)
             {
                 int n = pageIndex * CellsPerPage + k;
@@ -509,6 +543,7 @@ namespace ChoSiren.UI
             foreach (Cell cell in cells)
             {
                 bool used = cell.Track >= 0;
+                cell.Root.gameObject.SetActive(used);
                 cell.Cover.gameObject.SetActive(used);
                 cell.Title.gameObject.SetActive(used);
                 cell.Sub.gameObject.SetActive(used);
@@ -535,6 +570,8 @@ namespace ChoSiren.UI
                 }
                 else cell.LockText.text = string.IsNullOrEmpty(track.UnlockHint) ? "未解锁" : "未解锁\n" + track.UnlockHint;
                 bool isCurrent = cell.Track == current;
+                cell.Plate.color = isCurrent ? new Color32(18, 92, 104, 235) : (Color)ChipOff;
+                cell.Title.color = isCurrent ? (Color)Teal : Color.white;
                 cell.Now.SetActive(isCurrent);
                 cell.Eq.SetActive(isCurrent);
                 cell.Heart.gameObject.SetActive(model != null && model.IsMusicFavorite(track.Id));

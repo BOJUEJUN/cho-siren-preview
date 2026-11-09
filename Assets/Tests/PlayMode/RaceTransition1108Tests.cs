@@ -18,6 +18,7 @@ namespace ChoSiren.Tests
             var camera = new GameObject("RaceFxCamera", typeof(Camera)).GetComponent<Camera>();
             var target = new RenderTexture(540, 1144, 24);
             string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/race-transition-1108"));
+            RaceTransition1108.AllowInBatch = TileReturn1108.AllowInBatch = true;
             Directory.CreateDirectory(output);
             try
             {
@@ -54,11 +55,28 @@ namespace ChoSiren.Tests
                     Assert.That(opened, Is.EqualTo(1));
                     Assert.That(RaceTransition1108.Playing, Is.False);
                 }
+                // 2026-11-08 (转场参考视频 return): tiles cover, the previous page opens under full cover, then they leave.
+                page.SetActive(true);
+                int back = 0;
+                var tiles = TileReturn1108.Play(host.transform, new Vector2(-260f, -640f), () => { back++; page.GetComponent<Image>().color = new Color(.3f, .6f, .9f); });
+                Assert.That(tiles, Is.Not.Null);
+                tiles.enabled = false;
+                foreach (float t in new[] { .12f, .3f, .42f, .55f, .7f, .9f, 1.05f, 1.25f })
+                {
+                    tiles.Advance(t - tiles.Clock);
+                    Assert.That(back, Is.EqualTo(t >= .5f ? 1 : 0), $"return @ {t}: the previous page opens once, under full cover");
+                    Capture(camera, target, Path.Combine(output, $"return-{t:0.00}.png"));
+                }
+                tiles.Advance(1f);
+                yield return null;
+                Assert.That(tiles == null, Is.True);
+                Assert.That(TileReturn1108.Playing, Is.False);
                 Assert.That(ChallengeVideoTransition.Duration, Is.EqualTo(2.2f).Within(.01f), "the level cut plays the sped-up 关卡转折 clip");
                 Assert.That(File.Exists(Path.Combine(Application.streamingAssetsPath, ChallengeVideoTransition.ClipFile)), Is.True);
             }
             finally
             {
+                RaceTransition1108.AllowInBatch = TileReturn1108.AllowInBatch = false;
                 Object.DestroyImmediate(host); Object.DestroyImmediate(camera.gameObject);
                 target.Release(); Object.DestroyImmediate(target);
             }

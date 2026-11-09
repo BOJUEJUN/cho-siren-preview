@@ -8,7 +8,7 @@ namespace ChoSiren.UI
     /// 2026-11-08 (赵金 精灵 / 人鱼 / 恶魔 / 魅族转场.psd + 转场参考视频): tapping a member on the 团队 page cuts to her
     /// race's cyan-silhouette card before her detail page, after the reference: a cyan panel sweeps in from the right
     /// with a diamond flash where the finger was, the silhouette card wipes in and slowly pushes, cyan floods back,
-    /// and the detail page (opened under full cover) is revealed by staggered vertical cyan slices.
+    /// and the detail page (opened under full cover) is revealed as the cyan panel slides off to the right.
     /// Reduce Motion skips straight to the page.
     /// </summary>
     public sealed class RaceTransition1108 : MonoBehaviour
@@ -27,6 +27,8 @@ namespace ChoSiren.UI
         Vector2 tap;
 
         public static bool Playing { get; private set; }
+        /// <summary>Batch-mode test runs skip page transitions (so navigation tests stay instant) unless a test opts in.</summary>
+        public static bool AllowInBatch;
         public float Clock => time;
         public bool PageOpened => opened;
 
@@ -46,7 +48,8 @@ namespace ChoSiren.UI
         public static RaceTransition1108 Play(Transform host, string race, Vector2 tapLocal, Action open)
         {
             Texture2D art = Art(race);
-            if (host == null || art == null || Playing || BattlePresentationOptions.ReduceMotion || !Application.isPlaying)
+            if (host == null || art == null || Playing || BattlePresentationOptions.ReduceMotion || !Application.isPlaying
+                || Application.isBatchMode && !AllowInBatch)
             {
                 open?.Invoke();
                 return null;
@@ -153,16 +156,22 @@ namespace ChoSiren.UI
             float f = Mathf.Clamp01((time - HoldEnd) / (FloodEnd - HoldEnd));
             flood.enabled = time >= HoldEnd && time < FloodEnd + .02f;
             var fc = flood.color; fc.a = f; flood.color = fc;
-            // 4) staggered vertical slices shrink away to reveal the page
-            bool slicing = time >= FloodEnd;
+            // 4) 2026-11-08 (转场参考视频 frames 128-148): the cyan panel slides off to the right, uncovering the page from the left
+            bool wiping = time >= FloodEnd;
             for (int i = 0; i < Slices; i++)
             {
                 Image bar = slices[i].GetComponent<Image>();
-                bar.enabled = slicing;
-                if (!slicing) continue;
-                float delay = (i % 2 == 0 ? i : Slices - i) * .022f;
-                float k = Ease(Mathf.Clamp01((time - FloodEnd - delay) / (SliceEnd - FloodEnd - .17f)));
-                slices[i].localScale = new Vector3(1f - k, 1f, 1f);
+                bar.enabled = wiping && i == 0;
+            }
+            if (wiping)
+            {
+                RectTransform panel = slices[0];
+                panel.anchorMin = Vector2.zero; panel.anchorMax = Vector2.one; panel.pivot = new Vector2(.5f, .5f);
+                panel.localScale = Vector3.one;
+                float k = Mathf.Clamp01((time - FloodEnd) / (SliceEnd - FloodEnd));
+                float e = k * k * (3f - 2f * k);
+                panel.offsetMin = new Vector2(w * e, 0f);
+                panel.offsetMax = new Vector2(w * e, 0f);
             }
         }
 

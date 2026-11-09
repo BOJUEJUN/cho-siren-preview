@@ -30,8 +30,8 @@ namespace ChoSiren
         }
 
         private int inventoryPage;
-        /// <summary>Category tab on the 库存 page: 0 耳饰 (default), 1 项链, 2 手饰, 3 头饰.</summary>
-        private int inventorySlot;
+        /// <summary>Category tab on the 库存 page: -1 全部 (default, 2026-11-08), 0 耳饰, 1 项链, 2 手饰, 3 头饰.</summary>
+        private int inventorySlot = -1;
         private const string InventoryArt = "Art/Ui1107/";
         /// <summary>PSD (装备2.psd, 1329 wide) → board: 0.65 scale, PSD y 107 (the pig's top) at board y 195 under the HUD.</summary>
         private static Rect Inv1107(float x, float y, float w, float h) => new Rect(x * .65f, 195f + (y - 107f) * .65f, w * .65f, h * .65f);
@@ -85,25 +85,34 @@ namespace ChoSiren
 
             InventoryArtImage(root, "InventoryPig", "inv-pig", Inv1107(869, 107, 422, 329));
 
-            // 2026-11-08 (少爷): the four slot plates on the left are category tabs (耳饰 by default); the 4×4 grid
-            // shows only the chosen category, ‹ › pages through it 16 at a time. Selected plate = solid teal.
-            inventorySlot = Mathf.Clamp(inventorySlot, 0, GameModel.EquipmentSlotCount - 1);
+            // 2026-11-08 (少爷: "分类还是加一个全部，然后默认选中的是全部"): five category plates down the left — 全部 (default),
+            // 耳饰, 项链, 手饰, 头饰 — evenly spaced over the grid's height; the 4×4 grid shows the chosen category and
+            // ‹ › pages through it 16 at a time. Selected plate = solid teal (labels are live text on blank plates).
+            inventorySlot = Mathf.Clamp(inventorySlot, -1, GameModel.EquipmentSlotCount - 1);
             int[] items = InventoryItems(inventorySlot);
             int perPage = InventoryPerRow * InventoryRowY.Length;
             int pages = Mathf.Max(1, Mathf.CeilToInt(items.Length / (float)perPage));
             inventoryPage = Mathf.Clamp(inventoryPage, 0, pages - 1);
-            for (int slot = 0; slot < GameModel.EquipmentSlotCount; slot++)
+            const float plateH = 128f;
+            float columnTop = InventoryRowY[0], columnBottom = InventoryRowY[InventoryRowY.Length - 1] + 281f;
+            float plateStep = (columnBottom - columnTop - plateH) / GameModel.EquipmentSlotCount;
+            for (int slot = -1; slot < GameModel.EquipmentSlotCount; slot++)
             {
                 int chosen = slot;
                 bool on = slot == inventorySlot;
-                GameObject plate = BoardButton038("InventorySlot-" + slot, root, Inv1107(58, InventoryRowY[slot], 207, 138), () =>
+                float y = columnTop + (slot + 1) * plateStep;
+                Rect plateRect = Inv1107(58, y, 207, plateH);
+                GameObject plate = BoardButton038(slot < 0 ? "InventorySlot-All" : "InventorySlot-" + slot, root, plateRect, () =>
                 {
                     if (inventorySlot == chosen) return;
                     inventorySlot = chosen; inventoryPage = 0; ShowScreen("accessory");
                 });
                 Image plateFace = plate.GetComponent<Image>();
-                plateFace.sprite = Resources.Load<Sprite>(InventoryArt + "inv-slot-" + slot + (on ? "-on" : ""));
+                plateFace.sprite = Resources.Load<Sprite>(InventoryArt + (on ? "inv-slot-blank-on" : "inv-slot-blank"));
                 plateFace.color = White;
+                Text plateLabel = BoardText038(plate.transform, "Label", slot < 0 ? "全部" : GameModel.EquipmentSlotNames[slot], 24,
+                    on ? (Color)Brand1025.Ink : White, 0, 0, plateRect.width, plateRect.height, TextAnchor.MiddleCenter);
+                plateLabel.fontStyle = FontStyle.Bold;
             }
             RectTransform grid = NewObject("InventoryGrid", root).AddComponent<RectTransform>();
             Stretch(grid);
@@ -123,8 +132,8 @@ namespace ChoSiren
             }
 
             int owned = model.Save.OwnedAccessories.Distinct().Count();
-            int slotOwned = model.Save.OwnedAccessories.Distinct().Count(i => GameModel.AccessorySlot(i) == inventorySlot);
-            int slotTotal = Enumerable.Range(0, GameModel.AccessoryNames.Length).Count(i => GameModel.AccessorySlot(i) == inventorySlot);
+            int slotOwned = model.Save.OwnedAccessories.Distinct().Count(i => inventorySlot < 0 || GameModel.AccessorySlot(i) == inventorySlot);
+            int slotTotal = Enumerable.Range(0, GameModel.AccessoryNames.Length).Count(i => inventorySlot < 0 || GameModel.AccessorySlot(i) == inventorySlot);
             BoardText038(root, "InventoryCount", inventoryCatalog ? $"已收集 {slotOwned}/{slotTotal}" : $"共 {slotOwned} 件",
                 20, new Color32(190, 178, 222, 255), 50, 1322, 200, 50, TextAnchor.MiddleLeft);
             // ‹ 1/3 › with the shared switch arrows.

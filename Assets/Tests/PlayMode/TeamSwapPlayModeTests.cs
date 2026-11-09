@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ChoSiren.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -124,11 +125,16 @@ namespace ChoSiren.Tests
             Assert.That(Find("TeamMemberPicker"), Is.Not.Null);
             Click("CloseProgression");
             yield return null;
-            Click("TeamOrbit-0", new Vector2(.50f, .80f));
-            // 2026-11-08: the race silhouette transition plays first (RaceTransition1108, ~1.4 s).
-            yield return null;
-            Assert.That(Find("RaceTransition1108"), Is.Not.Null, "the silhouette transition plays before the details");
-            yield return new WaitForSecondsRealtime(1.6f);
+            RaceTransition1108.AllowInBatch = true;
+            try
+            {
+                Click("TeamOrbit-0", new Vector2(.50f, .80f));
+                // 2026-11-08: the race silhouette transition plays first (RaceTransition1108, ~1.4 s).
+                yield return null;
+                Assert.That(Find("RaceTransition1108"), Is.Not.Null, "the silhouette transition plays before the details");
+                yield return new WaitForSecondsRealtime(1.6f);
+            }
+            finally { RaceTransition1108.AllowInBatch = false; }
             Assert.That(Find("RaceTransition1108"), Is.Null);
             Assert.That(Find("MemberModal"), Is.Not.Null, "Portrait still opens the original member details.");
         }
