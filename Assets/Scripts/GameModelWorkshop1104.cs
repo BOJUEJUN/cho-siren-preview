@@ -17,6 +17,8 @@ namespace ChoSiren
         public int Bob = 50;
         public int Scale = 100;
         public bool Mirror;
+        /// <summary>2026-11-09 炫彩 variant (ChoSirenApp.WorkshopChromas1109 index; 0 = 原色).</summary>
+        public int Chroma;
         /// <summary>Voice samples recorded for the custom voice (0-3), saved under persistentDataPath/voice-samples.</summary>
         public int SamplesRecorded;
         public bool VoiceConsent;

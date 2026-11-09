@@ -107,7 +107,7 @@ namespace ChoSiren
             bool materials = inventorySlot == InventoryMaterialsTab1109;
             // 饰品 lists only what you hold; 图鉴 lists every material (11-09, 少爷: "我没有点击图鉴但是显示全部材料了").
             int[] items = materials
-                ? Enumerable.Range(0, InventoryMaterials1109.Length).Where(m => inventoryCatalog || model.Balance(InventoryMaterials1109[m].Id) > 0).ToArray()
+                ? InventoryMaterialOrder1109()
                 : InventoryItems(inventorySlot);
             int perPage = InventoryPerRow * InventoryRowY.Length;
             int pages = Mathf.Max(1, Mathf.CeilToInt(items.Length / (float)perPage));
@@ -194,6 +194,24 @@ namespace ChoSiren
         }
 
         /// <summary>One PSD cell: quality fill + bar, the item art, LV and the wearer's face; dim when not owned.</summary>
+        /// <summary>材料 quality (cell art q1–q3): 声核 3, the race 生魂 2, everything else 1.</summary>
+        private static int MaterialQuality1109(string id) => id == CurrencyIds.VoiceCore ? 3 : id.StartsWith("soul-") ? 2 : 1;
+
+        /// <summary>
+        /// 11-09 (少爷: "没有按照稀有度排序吗材料"): the 材料 tab follows the sort chip — 稀有度 (and 强化等级, which
+        /// materials don't have) puts the rarest first; 最近获得 puts the biggest stacks first. Held ones lead in 图鉴.
+        /// </summary>
+        private int[] InventoryMaterialOrder1109()
+        {
+            var list = Enumerable.Range(0, InventoryMaterials1109.Length)
+                .Where(m => inventoryCatalog || model.Balance(InventoryMaterials1109[m].Id) > 0);
+            var ordered = list.OrderByDescending(m => model.Balance(InventoryMaterials1109[m].Id) > 0);
+            ordered = inventorySort == 2
+                ? ordered.ThenByDescending(m => model.Balance(InventoryMaterials1109[m].Id))
+                : ordered.ThenByDescending(m => MaterialQuality1109(InventoryMaterials1109[m].Id));
+            return ordered.ThenBy(m => m).ToArray();
+        }
+
         /// <summary>One 材料 tile: the material's art, its name and how many you hold; tapping says what it is for.</summary>
         private GameObject InventoryMaterialCell1109(Transform parent, int index, Rect cell)
         {
@@ -202,7 +220,7 @@ namespace ChoSiren
             string name = GameModel.CurrencyName(id);
             GameObject tile = BoardButton038("Material-" + id, parent, cell, () => Toast($"{name}：{use}（持有 {count:N0}）"));
             Image face = tile.GetComponent<Image>();
-            face.sprite = Resources.Load<Sprite>(InventoryArt + "inv-cell-q" + (id == CurrencyIds.VoiceCore ? 3 : id.StartsWith("soul-") ? 2 : 1));
+            face.sprite = Resources.Load<Sprite>(InventoryArt + "inv-cell-q" + MaterialQuality1109(id));
             face.color = count > 0 ? White : new Color(.55f, .52f, .62f, .75f);
             GameObject art = NewImage("ItemArt", tile.transform, ChoSiren.UI.RewardItemVisuals.SpriteFor(id), count > 0 ? White : new Color(.6f, .55f, .7f, .6f));
             PlaceTop(art.GetComponent<RectTransform>(), 22, 16, cell.width - 44, cell.height - 76);

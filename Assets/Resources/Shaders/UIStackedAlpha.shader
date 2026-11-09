@@ -12,6 +12,11 @@ Shader "ChoSiren/UIStackedAlpha"
         // 1 = Catmull-Rom colour reconstruction (2026-11-01): the clips are magnified ~1.6-1.9x on phones and
         // Retina screens, where bilinear filtering visibly softens the face. 0 = plain bilinear.
         _Bicubic ("Bicubic Colour", Float) = 1
+        // 2026-11-09 炫彩 (workshop): same recolour as UIChroma1109; strength 0 = untouched.
+        _Hue ("Chroma Hue (0-1)", Range(0,1)) = 0
+        _Strength ("Chroma Strength", Range(0,1)) = 0
+        _SatBoost ("Chroma Saturation", Range(0,2)) = 1
+        _ValGain ("Chroma Value", Range(0,2)) = 1
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
         _StencilOp ("Stencil Operation", Float) = 0
@@ -54,6 +59,31 @@ Shader "ChoSiren/UIStackedAlpha"
             fixed4 _Color;
             float _AlphaFromSrgb;
             float _Bicubic;
+            float _Hue, _Strength, _SatBoost, _ValGain;
+
+            float3 rgb2hsv(float3 c)
+            {
+                float4 K = float4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+                float4 p = lerp(float4(c.bg, K.wz), float4(c.gb, K.xy), step(c.b, c.g));
+                float4 q = lerp(float4(p.xyw, c.r), float4(c.r, p.yzx), step(p.x, c.r));
+                float d = q.x - min(q.w, q.y);
+                float e = 1.0e-5;
+                return float3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+            }
+            float3 hsv2rgb(float3 c)
+            {
+                float3 p = abs(frac(c.xxx + float3(1.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0);
+                return c.z * lerp(float3(1, 1, 1), saturate(p - 1.0), c.y);
+            }
+            half3 Chroma(half3 rgb)
+            {
+                if (_Strength <= 0.001) return rgb;
+                float3 hsv = rgb2hsv(rgb);
+                float warm = 1.0 - smoothstep(0.10, 0.14, hsv.x) * (1.0 - smoothstep(0.96, 0.99, hsv.x));
+                float skin = warm * (1.0 - smoothstep(0.50, 0.66, hsv.y)) * smoothstep(0.42, 0.58, hsv.z);
+                float w = saturate(_Strength) * smoothstep(0.16, 0.32, hsv.y) * (1.0 - skin);
+                return lerp(rgb, hsv2rgb(float3(_Hue, saturate(hsv.y * _SatBoost), saturate(hsv.z * _ValGain))), w);
+            }
 
             // Colour half only: every tap is clamped inside [0, .5] so the alpha half never bleeds in.
             half3 Colour(float2 uv)
@@ -105,6 +135,7 @@ Shader "ChoSiren/UIStackedAlpha"
                 float2 uv = i.texcoord;
                 float2 colourUv = float2(uv.x * .5, uv.y);
                 half3 rgb = _Bicubic > .5 ? ColourBicubic(colourUv) : Colour(colourUv);
+                rgb = Chroma(rgb);
                 // Clamped inside the alpha half: at the clip's left edge a bilinear tap would otherwise mix in
                 // the colour half's white backdrop as a faint line.
                 float alphaU = clamp(.5 + uv.x * .5, .5 + _MainTex_TexelSize.x * .5, 1. - _MainTex_TexelSize.x * .5);

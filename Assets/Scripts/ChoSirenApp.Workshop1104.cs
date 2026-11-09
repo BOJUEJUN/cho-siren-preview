@@ -22,6 +22,21 @@ namespace ChoSiren
             ("原色", Color.white), ("暖光", new Color(1f, .9f, .8f)), ("冷调", new Color(.84f, .93f, 1f)),
             ("霓虹", new Color(1f, .82f, 1f)), ("复古", new Color(.96f, .86f, .72f)), ("夜色", new Color(.74f, .76f, .98f)),
         };
+        /// <summary>
+        /// 2026-11-09 炫彩 (少爷: "只有换装之类的参数…类似炫彩皮肤"): colour variants of her outfit. Hue is the target
+        /// hue (0–1) the outfit's colourful parts take; strength 0 keeps the original.
+        /// </summary>
+        internal static readonly (string Name, float Hue, float Strength, float Sat, float Val, Color Swatch)[] WorkshopChromas1109 =
+        {
+            ("原色", 0f, 0f, 1f, 1f, new Color32(240, 236, 248, 255)),
+            ("冰蓝", .56f, .92f, 1.05f, 1.05f, new Color32(96, 200, 255, 255)),
+            ("樱粉", .92f, .88f, .9f, 1.08f, new Color32(255, 150, 200, 255)),
+            ("暗夜", .76f, .9f, 1.1f, .82f, new Color32(132, 84, 220, 255)),
+            ("鎏金", .12f, .85f, 1.1f, 1.08f, new Color32(255, 204, 88, 255)),
+            ("翡翠", .40f, .88f, 1f, 1f, new Color32(70, 214, 150, 255)),
+            ("赤焰", .99f, .9f, 1.15f, 1f, new Color32(240, 70, 80, 255)),
+        };
+
         internal static readonly (string Name, string Path)[] WorkshopBackgrounds1104 =
         {
             ("创作室", "Art/Workshop1104/bg-studio"), ("霓虹街", "Art/Workshop1104/bg-street"),
@@ -46,6 +61,7 @@ namespace ChoSiren
             ("pitch", "mic", "音高", 1), ("voice", "music", "录声音", 1), ("bg", "flag", "背景", 1),
             ("accent", "heart", "应援色", 1), ("bob", "refresh", "律动", 1), ("turn", "exchange", "转身", 2),
             ("music", "music", "作曲", 1),
+            ("chroma", "drop", "炫彩", 2),
         };
 
         private GameObject workshopRoot1104;
@@ -57,7 +73,7 @@ namespace ChoSiren
         private WorkshopLook1104 workshopLook1104;
         private string workshopTool1104 = string.Empty;
         private GameObject workshopParameter1105;
-        private int workshopFraming1105 = 1;
+        private int workshopFraming1105 = 2; // 11-09: one full-length view (the outfit is the point); no 半身/全身
         private const float WorkshopToolBand1105 = 118f;
 
         private void OpenWorkshop1104()
@@ -202,6 +218,8 @@ namespace ChoSiren
             WorkshopTextButton1104(tag.transform, "WorkshopPrev", "◀", 22, new Vector2(0f, .5f), new Vector2(10f, 0f), () => StepWorkshopMember1104(-1));
             WorkshopTextButton1104(tag.transform, "WorkshopNext", "▶", 22, new Vector2(1f, .5f), new Vector2(-10f, 0f), () => StepWorkshopMember1104(1));
 
+            if (true) return; // 2026-11-09: no 半身 / 全身 toggle — one full-length view
+#pragma warning disable CS0162
             var framing = new GameObject("WorkshopFraming", typeof(RectTransform)).GetComponent<RectTransform>();
             framing.SetParent(root, false);
             WorkshopPoster1105.Corner(framing, Vector2.one, -18f, -196f, 224f, 48f);
@@ -221,12 +239,14 @@ namespace ChoSiren
         /// 2026-11-08 (少爷: "创意工坊…功能太多了要简化"): the bar keeps only what players come here for — AI 换装, 背景 and
         /// 转身 (with 半身/全身 above). 滤镜 / 亮度 / 音高 / 录声音 / 应援色 / 律动 stay in code but are no longer shown.
         /// </summary>
-        internal static readonly string[] CoreWorkshopTools1108 = { "dress", "bg", "turn" };
+        internal static readonly string[] CoreWorkshopTools1108 = { "dress", "chroma" }; // 11-09: 背景 / 转身 removed
 
         /// <summary>The tools shown in the bar (作曲 only with the private test code).</summary>
         internal static (string Id, string Icon, string Name, int Shot)[] ShownWorkshopTools1107 =>
             System.Array.FindAll(WorkshopTools1104, t => System.Array.IndexOf(CoreWorkshopTools1108, t.Id) >= 0
                 || t.Id == "music" && WorkshopMusic1105.TestBuild);
+
+        private static readonly Color WorkshopToolFace1109 = new Color32(22, 16, 38, 255);
 
         /// <summary>Photo-editor tools stay in one horizontally scrollable strip below the live preview.</summary>
         private void BuildWorkshopTools1104(RectTransform root)
@@ -245,27 +265,32 @@ namespace ChoSiren
             content.SetParent(viewport, false);
             content.anchorMin = Vector2.zero; content.anchorMax = new Vector2(0f, 1f); content.pivot = new Vector2(0f, .5f);
             var tools = ShownWorkshopTools1107;
-            // A few tools spread evenly across the bar instead of huddling at the left of a scroll strip.
-            float slot = Mathf.Max(94f, 700f / Mathf.Max(1, tools.Length));
-            content.sizeDelta = new Vector2(tools.Length * slot, 0f);
+            // 11-09: two or three tools share the full bar as wide plates (icon + caption side by side), centred.
+            // The bar is ~700 units wide on the 720-wide canvas; content stretches across it and each tool takes an equal share.
+            content.anchorMax = Vector2.one; content.sizeDelta = Vector2.zero;
             var scroll = bar.gameObject.AddComponent<ScrollRect>();
-            scroll.viewport = viewport; scroll.content = content; scroll.horizontal = true; scroll.vertical = false;
+            scroll.viewport = viewport; scroll.content = content; scroll.horizontal = false; scroll.vertical = false;
             scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 30f; scroll.decelerationRate = .08f;
             for (int i = 0; i < tools.Length; i++)
             {
                 var tool = tools[i];
                 var go = new GameObject("WorkshopTool-" + tool.Id, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
                 go.transform.SetParent(content, false);
-                WorkshopPoster1105.Corner((RectTransform)go.transform, new Vector2(0f, .5f), (slot - 120f) * .5f + i * slot, 0f, 120f, 96f);
+                var toolRect = (RectTransform)go.transform;
+                toolRect.anchorMin = new Vector2(i / (float)tools.Length, .5f); toolRect.anchorMax = new Vector2((i + 1f) / tools.Length, .5f);
+                toolRect.pivot = new Vector2(.5f, .5f); toolRect.anchoredPosition = Vector2.zero;
+                toolRect.offsetMin = new Vector2(14f, -38f); toolRect.offsetMax = new Vector2(-14f, 38f);
                 Image hit = go.GetComponent<Image>(); hit.color = new Color(0f, 0f, 0f, .001f);
-                Image plate = WorkshopPoster1105.Block(go.transform, "Disc", WorkshopPoster1105.Slant(.16f), Color.clear);
-                WorkshopPoster1105.Fill(plate.rectTransform, 2f, 3f, -2f, -3f);
-                Image icon = WorkshopPoster1105.Block(go.transform, "Icon", VisualB1101.Icon(tool.Icon), WorkshopPoster1105.Paper);
-                WorkshopPoster1105.Corner(icon.rectTransform, new Vector2(.5f, 1f), 0f, -12f, 30f, 30f); icon.preserveAspect = true;
-                Text caption = WorkshopPoster1105.Word(go.transform, "Caption", tool.Name, 20, WorkshopPoster1105.Paper);
-                caption.rectTransform.anchorMin = new Vector2(0f, 0f); caption.rectTransform.anchorMax = new Vector2(1f, 0f);
-                caption.rectTransform.pivot = new Vector2(.5f, 0f); caption.rectTransform.anchoredPosition = new Vector2(0f, 11f);
-                caption.rectTransform.sizeDelta = new Vector2(0f, 30f);
+                // Teal frame under a dark face (main-action style); the selected tool fills solid teal.
+                Image rim = WorkshopPoster1105.Block(go.transform, "Rim", WorkshopPoster1105.Slant(.16f), WorkshopPoster1105.Teal);
+                WorkshopPoster1105.Fill(rim.rectTransform, 0f, 0f, 0f, 0f);
+                Image plate = WorkshopPoster1105.Block(go.transform, "Disc", WorkshopPoster1105.Slant(.16f), WorkshopToolFace1109);
+                WorkshopPoster1105.Fill(plate.rectTransform, 3f, 3f, -3f, -3f);
+                Image icon = WorkshopPoster1105.Block(go.transform, "Icon", VisualB1101.Icon(tool.Icon), WorkshopPoster1105.Teal);
+                WorkshopPoster1105.Corner(icon.rectTransform, new Vector2(.5f, .5f), -36f, 0f, 30f, 30f); icon.preserveAspect = true;
+                Text caption = WorkshopPoster1105.Word(go.transform, "Caption", tool.Name, 24, WorkshopPoster1105.Teal);
+                WorkshopPoster1105.Corner(caption.rectTransform, new Vector2(.5f, .5f), 20f, 0f, 90f, 40f);
+                caption.fontStyle = FontStyle.Bold;
                 string id = tool.Id;
                 var button = go.GetComponent<Button>(); button.targetGraphic = hit; button.transition = Selectable.Transition.None;
                 button.onClick.AddListener(() => { VisualA1101.Click(); OpenWorkshopTool1104(id); });
@@ -297,9 +322,9 @@ namespace ChoSiren
                 Transform t = workshopRoot1104.transform.Find("WorkshopTools/Viewport/Content/WorkshopTool-" + tool.Id);
                 if (t == null) continue;
                 bool on = tool.Id == workshopTool1104;
-                t.Find("Disc").GetComponent<Image>().color = on ? WorkshopPoster1105.Teal : Color.clear;
-                t.Find("Icon").GetComponent<Image>().color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Paper;
-                t.Find("Caption").GetComponent<Text>().color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Paper;
+                t.Find("Disc").GetComponent<Image>().color = on ? WorkshopPoster1105.Teal : WorkshopToolFace1109;
+                t.Find("Icon").GetComponent<Image>().color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Teal;
+                t.Find("Caption").GetComponent<Text>().color = on ? WorkshopPoster1105.Ink : WorkshopPoster1105.Teal;
             }
         }
 
@@ -383,6 +408,9 @@ namespace ChoSiren
                 case "bob":
                     OpenWorkshopSlider1105(new WorkshopDial1104("律动", 0, 100, 5, () => look.Bob, v => look.Bob = v, v => v + "%"), 50); break;
                 case "turn": workshopStage1104.Dial(null); OpenWorkshopTurnPanel1105(); break;
+                case "chroma":
+                    OpenWorkshopPresets1105(new WorkshopDial1104("炫彩", WorkshopChromas1109.Length, () => look.Chroma, v => look.Chroma = v,
+                        v => WorkshopChromas1109[v].Name) { Swatch = v => WorkshopChromas1109[v].Swatch }, "chroma"); break;
             }
         }
 
@@ -427,6 +455,22 @@ namespace ChoSiren
                 Image thumb = WorkshopPoster1105.Block(face.transform, "Preview", kind == "accent" ? DotSprite() : preview, tint);
                 thumb.preserveAspect = true;
                 WorkshopPoster1105.Corner(thumb.rectTransform, new Vector2(.5f, 1f), 0f, -8f, 98f, 116f);
+                if (kind == "chroma")
+                {
+                    // Her portrait in that colour variant, with the variant's swatch as a stripe under it.
+                    var chroma = WorkshopChromas1109[v];
+                    Shader shader = Resources.Load<Shader>("Shaders/UIChroma1109");
+                    if (shader != null)
+                    {
+                        var mat = new Material(shader) { name = "ChromaPreview-" + v };
+                        mat.SetFloat("_Hue", chroma.Hue); mat.SetFloat("_Strength", chroma.Strength);
+                        mat.SetFloat("_SatBoost", chroma.Sat); mat.SetFloat("_ValGain", chroma.Val);
+                        thumb.material = mat;
+                        thumb.gameObject.AddComponent<OwnedMaterial1109>().Material = mat;
+                    }
+                    Image stripe = WorkshopPoster1105.Block(face.transform, "Swatch", null, chroma.Swatch);
+                    WorkshopPoster1105.Corner(stripe.rectTransform, new Vector2(.5f, 0f), 0f, 38f, 84f, 6f);
+                }
                 Text caption = WorkshopPoster1105.Word(face.transform, "Label", value.Format(v), 20, White);
                 WorkshopPoster1105.Corner(caption.rectTransform, new Vector2(.5f, 0f), 0f, 5f, 110f, 32f);
                 labels[i] = caption;
@@ -833,6 +877,13 @@ namespace ChoSiren
     }
 
     /// <summary>A value the vinyl dial edits: an integer range with a step, or a list of named options.</summary>
+    /// <summary>Destroys a runtime material with the graphic that uses it (炫彩 previews, 2026-11-09).</summary>
+    public sealed class OwnedMaterial1109 : MonoBehaviour
+    {
+        public Material Material;
+        private void OnDestroy() { if (Material != null) Destroy(Material); }
+    }
+
     public sealed class WorkshopDial1104
     {
         public readonly string Name;
@@ -875,7 +926,7 @@ namespace ChoSiren
         private Text dialTitle;
         private float zoom = -1f, panY, slide, turnPos, turnVel, lastTouch = -10f;
         private bool turning;
-        public int Shot = 1;
+        public int Shot = 2;
         /// <summary>2026-11-05 poster layout: space kept clear above (title) and below (AI panel) the full-length figure.</summary>
         public float TopBand = 250f, BottomBand = 118f;
         public bool TurnMode;
@@ -891,7 +942,7 @@ namespace ChoSiren
         private RawImage video;
         private UnityEngine.Video.VideoPlayer player;
         private RenderTexture videoTexture;
-        private Material videoMaterial;
+        private Material videoMaterial, chromaMaterial;
 
         /// <param name="idleVideo">Optional stacked-alpha loop under StreamingAssets (left colour, right alpha), the same
         /// frame as <paramref name="still"/>; the still shows until the first frame and whenever she is turned.</param>
@@ -918,6 +969,8 @@ namespace ChoSiren
             glow.rectTransform.anchorMin = glow.rectTransform.anchorMax = new Vector2(.5f, .5f);
             figure = MakeImage("WorkshopFigure", page, front, Color.white);
             figureRect = figure.rectTransform;
+            Shader chromaShader = Resources.Load<Shader>("Shaders/UIChroma1109");
+            if (chromaShader != null) { chromaMaterial = new Material(chromaShader) { name = "WorkshopChroma1109" }; figure.material = chromaMaterial; }
             figureRect.anchorMin = figureRect.anchorMax = new Vector2(.5f, .5f);
             figureRect.pivot = new Vector2(.5f, .5f);
             if (!string.IsNullOrEmpty(idleVideo)) BuildVideo(idleVideo);
@@ -977,6 +1030,19 @@ namespace ChoSiren
             if (player != null) player.Stop();
             if (videoTexture != null) { videoTexture.Release(); Destroy(videoTexture); }
             if (videoMaterial != null) Destroy(videoMaterial);
+            if (chromaMaterial != null) Destroy(chromaMaterial);
+        }
+
+        /// <summary>2026-11-09 炫彩: the chosen colour variant on her still and her idle loop.</summary>
+        private void ApplyChroma(int index)
+        {
+            var c = ChoSirenApp.WorkshopChromas1109[Mathf.Clamp(index, 0, ChoSirenApp.WorkshopChromas1109.Length - 1)];
+            foreach (Material m in new[] { chromaMaterial, videoMaterial })
+            {
+                if (m == null) continue;
+                m.SetFloat("_Hue", c.Hue); m.SetFloat("_Strength", c.Strength);
+                m.SetFloat("_SatBoost", c.Sat); m.SetFloat("_ValGain", c.Val);
+            }
         }
 
         private static Image MakeImage(string objectName, Transform parent, Sprite sprite, Color color)
@@ -1059,10 +1125,11 @@ namespace ChoSiren
             float bright = l.Brightness / 100f;
             figure.color = new Color(Mathf.Min(1f, tint.r * bright), Mathf.Min(1f, tint.g * bright), Mathf.Min(1f, tint.b * bright), 1f);
             if (video != null) video.color = figure.color;
-            var bg = ChoSirenApp.WorkshopBackgrounds1104[Mathf.Clamp(l.Background, 0, ChoSirenApp.WorkshopBackgrounds1104.Length - 1)];
+            var bg = ChoSirenApp.WorkshopBackgrounds1104[0]; // 11-09: 背景 removed — one stage backdrop
             background.sprite = Resources.Load<Sprite>(bg.Path) ?? Resources.Load<Sprite>("Art/LobbyBackground");
             Color accent = ChoSirenApp.WorkshopAccents1104[Mathf.Clamp(l.Accent, 0, ChoSirenApp.WorkshopAccents1104.Length - 1)].Glow;
             glow.color = new Color(accent.r, accent.g, accent.b, .45f);
+            ApplyChroma(l.Chroma);
         }
 
         // ------------------------------------------------------------------ 转身

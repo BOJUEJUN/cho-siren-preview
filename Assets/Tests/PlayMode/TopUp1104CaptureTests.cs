@@ -97,9 +97,10 @@ namespace ChoSiren.Tests
                 // 2026-11-08: hidden tools (滤镜 / 亮度 / 应援色 …) are still opened directly to keep their panels covered.
                 void OpenTool(string id) => typeof(ChoSirenApp).GetMethod("OpenWorkshopTool1104", Private, null, new[] { typeof(string) }, null).Invoke(app, new object[] { id });
                 // 2026-11-07: 作曲 is shown only in the private test build (public builds have nine tools).
-                Assert.That(canvas.GetComponentsInChildren<Button>(true).Count(b => b.name.StartsWith("WorkshopTool-")), Is.EqualTo(WorkshopMusic1105.TestBuild ? 4 : 3), "the simplified bar shows 换装 / 背景 / 转身");
+                Assert.That(canvas.GetComponentsInChildren<Button>(true).Count(b => b.name.StartsWith("WorkshopTool-")), Is.EqualTo(WorkshopMusic1105.TestBuild ? 3 : 2), "the bar shows only 换装 / 炫彩 (11-09: 背景 / 转身 removed)");
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "WorkshopFraming"), Is.False, "no 半身 / 全身 toggle");
                 Assert.That(canvas.GetComponentsInChildren<Button>(true).Any(b => b.name == "WorkshopTool-music"), Is.EqualTo(WorkshopMusic1105.TestBuild), "作曲 only appears with the private test code");
-                Assert.That(stage.Shot, Is.EqualTo(1), "the editor initially frames the upper body");
+                Assert.That(stage.Shot, Is.EqualTo(2), "one full-length view");
                 var workshopPage = canvas.GetComponentsInChildren<RectTransform>(true).First(r => r.name == "WorkshopPage1104");
                 Assert.That(workshopPage.Find("WorkshopDial").gameObject.activeSelf, Is.False, "parameters never cover her with a giant disc");
                 OpenTool("bright");
@@ -116,9 +117,9 @@ namespace ChoSiren.Tests
                 canvas.GetComponentsInChildren<Button>(true).First(b => b.name == "ParameterCollapse").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(false).Any(r => r.name == "WorkshopParameterPanel"), Is.False, "explicit 收起 returns to the preview and tools");
-                Tool("bg").onClick.Invoke();
+                Tool("chroma").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.3f);
-                Tool("bg").onClick.Invoke();
+                Tool("chroma").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.4f);
                 Assert.That(canvas.GetComponentsInChildren<RectTransform>(false).Any(r => r.name == "WorkshopParameterPanel"), Is.False, "tapping the selected tool also collapses its drawer");
                 Assert.That(stage.BottomBand, Is.EqualTo(118f), "closing returns the preview space");
@@ -209,25 +210,20 @@ namespace ChoSiren.Tests
                 stage.SetDialValue(1);
                 yield return new WaitForSecondsRealtime(.8f);
                 Shot(camera, rt, "workshop-accent.png");
-                Tool("bg").onClick.Invoke();
-                yield return new WaitForSecondsRealtime(.4f);
-                stage.SetDialValue(2);
-                yield return new WaitForSecondsRealtime(1f);
-                Shot(camera, rt, "workshop-bg.png");
-                // 星璃 has the angle sheets (2026-11-09: no starter; open her directly).
-                typeof(ChoSirenApp).GetField("workshopMember1104", Private).SetValue(app,
-                    System.Array.FindIndex(GameModel.Members, m => m.Name == "星璃"));
-                Invoke(app, "OpenWorkshop1104");
+                // 2026-11-09 炫彩: each variant recolours her outfit (preview tiles show it too).
+                Tool("chroma").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.5f);
+                Assert.That(canvas.GetComponentsInChildren<RectTransform>(false).Count(r => r.name.StartsWith("Preset-")), Is.EqualTo(((System.Array)typeof(ChoSirenApp).GetField("WorkshopChromas1109", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).GetValue(null)).Length));
+                Shot(camera, rt, "workshop-chroma-panel.png");
+                canvas.GetComponentsInChildren<Button>(false).First(b => b.name == "Preset-1").onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.8f);
-                stage = UnityEngine.Object.FindAnyObjectByType<WorkshopStage1104>();
-                Tool("turn").onClick.Invoke();
-                stage.TurnTo(3);
-                yield return new WaitForSecondsRealtime(1.2f);
-                Assert.That(stage.View, Is.EqualTo(3), "转身 reaches the back view");
-                Shot(camera, rt, "workshop-back.png");
-                stage.TurnTo(2);
-                yield return new WaitForSecondsRealtime(.6f);
-                Shot(camera, rt, "workshop-side.png");
+                Assert.That(edited.Chroma, Is.EqualTo(1), "a tapped variant is saved on her look");
+                Shot(camera, rt, "workshop-chroma.png");
+                canvas.GetComponentsInChildren<Button>(false).First(b => b.name == "Preset-3").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.8f);
+                Shot(camera, rt, "workshop-chroma-3.png");
+                canvas.GetComponentsInChildren<Button>(false).First(b => b.name == "Preset-0").onClick.Invoke();
+                yield return new WaitForSecondsRealtime(.3f);
                 Invoke(app, "OpenVoiceRecorder1104");
                 yield return new WaitForSecondsRealtime(.5f);
                 Shot(camera, rt, "workshop-recorder.png");
