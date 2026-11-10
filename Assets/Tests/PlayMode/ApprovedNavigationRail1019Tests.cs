@@ -86,10 +86,11 @@ namespace ChoSiren.Tests
             Assert.That(nav.GetComponentsInChildren<Button>().Length, Is.EqualTo(5),
                 "The five destinations must remain live controls rather than baked into a composite image");
 
-            // Use the approved source's opaque rim, not its 53px transparent top margin.
+            // Use the source's opaque rim, not its transparent top margin. 2026-11-10: the 2048 px record is centred on
+            // its spin axis with a 963 px radius, so the rim starts 60.5 px from the top (was 53 / 1254 on the old art).
             RectTransform rect = record.rectTransform;
             float fullRectTop = -rect.anchoredPosition.y - rect.rect.height * .5f;
-            float opaqueRimTop = fullRectTop + rect.rect.height * (53f / 1254f);
+            float opaqueRimTop = fullRectTop + rect.rect.height * (60.5f / 2048f);
             float visibleRim = nav.offsetMax.y - opaqueRimTop;
             Assert.That(visibleRim, Is.InRange(24f, 65f), "Only a quiet upper edge is visible above the screen bottom");
             Text hallLabel = nav.Find("Nav-lobby/Label").GetComponent<Text>();
