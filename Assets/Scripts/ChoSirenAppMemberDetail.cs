@@ -242,10 +242,13 @@ namespace ChoSiren
             // 2026-11-09 (少爷: "把角色的技能图标放在这里"): the battle PSD's own skill symbols for her race
             // (small skill = lane row 1, ultimate = row 0), the same art the battle shows when she casts.
             CombatRace combatRace = BattleSimulator.ParseCombatRace(m.Race);
-            DetailHex(page, "DetailSkill1", colX + 160, 892, new Color32(245, 242, 250, 255), "", Accent, firstName,
+            GameObject skill1 = DetailHex(page, "DetailSkill1", colX + 160, 892, new Color32(245, 242, 250, 255), "", Accent, firstName,
                 BattlePsdSkillLayout1019.For(combatRace, 1).Key);
-            DetailHex(page, "DetailSkill2", colX + 238, 892, new Color32(245, 242, 250, 255), "", Cyan, secondName,
+            GameObject skill2 = DetailHex(page, "DetailSkill2", colX + 238, 892, new Color32(245, 242, 250, 255), "", Cyan, secondName,
                 BattlePsdSkillLayout1019.For(combatRace, 0).Key);
+            // 2026-11-10 (美术反馈: 技能图标点上去显示简单说明，不然玩家看不懂): tap a skill badge for a short note.
+            DetailSkillTip(page, skill1, firstName, "小技能", firstEffect, colX, colW);
+            DetailSkillTip(page, skill2, secondName, "大招", secondEffect, colX, colW);
 
             // ---- tabbed lower panel
             const float panelX = 436f, panelY = 974f, panelW = 272f, panelH = 296f;
@@ -351,7 +354,64 @@ namespace ChoSiren
             BoardText038(hit.transform, "Label", label, 17, White, -10, 78, 112, 30, TextAnchor.MiddleCenter);
         }
 
-        private void DetailHex(Transform page, string name, float x, float y, Color face, string glyph, Color glyphColor, string skillName,
+        /// <summary>
+        /// Makes a skill badge tappable: a small bubble above the badge row shows the skill's name, kind and a
+        /// one-line effect. Tapping the badge again, the bubble or anywhere else closes it.
+        /// </summary>
+        private void DetailSkillTip(Transform page, GameObject badge, string skillName, string kind, string effect,
+            float colX, float colW)
+        {
+            if (badge == null || string.IsNullOrEmpty(skillName) || string.IsNullOrEmpty(effect)) return;
+            Graphic hit = badge.GetComponent<Graphic>();
+            hit.raycastTarget = true;
+            Button button = badge.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            RectTransform badgeRect = badge.GetComponent<RectTransform>();
+            button.onClick.AddListener(() =>
+            {
+                Transform open = page.Find("DetailSkillTip");
+                bool same = open != null && open.GetComponent<DetailSkillTipTag>()?.Owner == badge;
+                if (open != null) Destroy(open.gameObject);
+                if (same) return;
+
+                GameObject root = NewObject("DetailSkillTip", page);
+                root.AddComponent<DetailSkillTipTag>().Owner = badge;
+                RectTransform rootRect = root.AddComponent<RectTransform>();
+                PanelKit.Stretch(rootRect);
+                // Invisible catcher: any tap outside closes the note.
+                Image catcher = root.AddComponent<Image>();
+                catcher.color = new Color(0f, 0f, 0f, 0f);
+                root.AddComponent<Button>().onClick.AddListener(() => Destroy(root));
+
+                const float w = 314f, h = 104f;
+                GameObject card = NewImage("Card", root.transform, PunkUi.SlantFill, SirenStickerUi.Ink);
+                PlaceTop(card.GetComponent<RectTransform>(), colX + (colW - w) * .5f, 892 - h - 10, w, h);
+                SirenStickerUi.SkinPanel(card, true);
+                card.AddComponent<Button>().onClick.AddListener(() => Destroy(root));
+                BoardText038(card.transform, "Name", skillName, 20, White, 16, 10, 190, 30);
+                Text tag = BoardText038(card.transform, "Kind", kind, 15, kind == "大招" ? (Color)Brand1025.Teal : (Color)PunkUi.Hot,
+                    w - 96, 12, 80, 26, TextAnchor.MiddleRight);
+                tag.fontStyle = FontStyle.Bold;
+                Text body = BoardText038(card.transform, "Effect", effect, 16, SirenStickerUi.Paper, 16, 42, w - 32, h - 50, TextAnchor.UpperLeft);
+                body.horizontalOverflow = HorizontalWrapMode.Wrap;
+                body.verticalOverflow = VerticalWrapMode.Truncate;
+                PanelKit.EnableBestFit(body, 12);
+                // A small pointer down to the badge that was tapped.
+                GameObject pointer = NewImage("Pointer", root.transform, null, SirenStickerUi.Ink);
+                RectTransform pr = pointer.GetComponent<RectTransform>();
+                pr.anchorMin = pr.anchorMax = new Vector2(0f, 1f);
+                pr.pivot = new Vector2(.5f, .5f);
+                pr.sizeDelta = new Vector2(16f, 16f);
+                pr.anchoredPosition = new Vector2(badgeRect.anchoredPosition.x + 35f, -(892f - 10f));
+                pr.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                pointer.GetComponent<Image>().raycastTarget = false;
+                root.transform.SetAsLastSibling();
+            });
+        }
+
+        private sealed class DetailSkillTipTag : MonoBehaviour { public GameObject Owner; }
+
+        private GameObject DetailHex(Transform page, string name, float x, float y, Color face, string glyph, Color glyphColor, string skillName,
             string psdIcon = null)
         {
             GameObject hex = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
@@ -380,6 +440,7 @@ namespace ChoSiren
                 PanelKit.EnableBestFit(label, 8);
             }
             else BoardText038(hex.transform, "Glyph", glyph, 26, glyphColor, 0, 0, 70, 70, TextAnchor.MiddleCenter);
+            return hex;
         }
 
         private void BuildDetailEquipment(Transform panel, int memberIndex)

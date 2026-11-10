@@ -23,7 +23,6 @@ namespace ChoSiren.Panels
         private CanvasGroup resultFade;
         private Text resultTitle, resultName, resultCost;
         private Image resultFigure, resultFlash;
-        private readonly List<Image> resultOutline = new List<Image>(4);
         private readonly Text[] deltaTexts = new Text[6];
         private readonly Image[] deltaBadges = new Image[6];
         private readonly Text[] deltaBadgeTexts = new Text[6];
@@ -94,21 +93,13 @@ namespace ChoSiren.Panels
             paperDots.type = Image.Type.Tiled;
             paperDots.pixelsPerUnitMultiplier = 2f;
             PanelKit.Stretch(paperDots.rectTransform);
-            var figureRoot = kit.NewRect("PracticeResultFigureRoot", c);
-            PanelKit.PlaceTop(figureRoot, 24f, 112f, 232f, 330f);
-            Material silhouette = PracticeFx1101.Silhouette;
-            for (int i = 0; i < 4 && silhouette != null; i++)
-            {
-                Image rim = kit.NewImage("PracticeResultRim-" + i, figureRoot, null, SirenStickerUi.Paper);
-                rim.material = silhouette;
-                rim.preserveAspect = true;
-                Vector2 offset = new Vector2(i % 2 == 0 ? (i == 0 ? 5f : -5f) : 0f, i % 2 == 1 ? (i == 1 ? 5f : -5f) : 0f);
-                PanelKit.Stretch(rim.rectTransform, offset.x, offset.y, offset.x, offset.y);
-                resultOutline.Add(rim);
-            }
-
+            // 2026-11-10 (少爷 + 美术: 别用半Q版小人，换成设计好的立绘): the member's own portrait, cut to the
+            // waist and masked by the torn paper (turned back upright so she stands straight).
+            var figureRoot = kit.NewRect("PracticeResultFigureRoot", paper.transform);
+            PanelKit.Stretch(figureRoot, -14f, -14f, 14f, 14f);
+            figureRoot.localRotation = Quaternion.Euler(0f, 0f, 5f);
             resultFigure = kit.NewImage("PracticeResultFigure", figureRoot, null, Color.white);
-            resultFigure.preserveAspect = true;
+            resultFigure.raycastTarget = false;
             PanelKit.Stretch(resultFigure.rectTransform);
             Image namePlate = kit.NewImage("PracticeResultNamePlate", c, SirenStickerUi.ButtonSprite, Color.white);
             namePlate.type = Image.Type.Sliced;
@@ -260,20 +251,16 @@ namespace ChoSiren.Panels
             Sprite figure = stage != null ? ResultFigureSprite(member) : null;
             resultFigure.sprite = figure;
             resultFigure.enabled = figure != null;
-            foreach (Image rim in resultOutline)
-            {
-                rim.sprite = figure;
-                rim.enabled = figure != null;
-            }
         }
 
+        /// <summary>The designed portrait (the one the member page shows), cut to the waist for the paper frame.</summary>
         private Sprite ResultFigureSprite(MemberDefinition member)
         {
-            Sprite chibi = Resources.Load<Sprite>(SirenPracticeScene.ArtRoot + "chibi-" + member.Id);
-            if (chibi != null) return chibi;
-            Sprite thumb = string.IsNullOrEmpty(member.ThumbnailResourcePath) ? null
-                : Resources.Load<Sprite>(member.ThumbnailResourcePath);
-            return thumb != null ? thumb : Resources.Load<Sprite>(member.ResourcePath);
+            Sprite art = string.IsNullOrEmpty(member.ResourcePath) ? null : Resources.Load<Sprite>(member.ResourcePath);
+            if (art == null) return null;
+            RectTransform frame = resultFigure.rectTransform;
+            float aspect = frame.rect.width > 1f && frame.rect.height > 1f ? frame.rect.width / frame.rect.height : 264f / 350f;
+            return PortraitFace1101.CropSprite(member.Id, art, aspect, PortraitFace1101.Framing.Half);
         }
 
         private void StyleBadge(int row, int before, int after)

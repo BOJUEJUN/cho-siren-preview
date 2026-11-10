@@ -161,6 +161,22 @@ namespace ChoSiren.Tests
                     Assert.That(icon != null && icon.sprite != null, Is.True, hex + " shows the PSD skill symbol");
                 }
                 Capture(camera, target, "member-detail.png");
+                // 2026-11-10 (美术反馈): tapping a skill badge shows its short note; tapping it again closes it.
+                Button skillButton = app.GetComponentsInChildren<Transform>(true).First(t => t.name == "DetailSkill1").GetComponent<Button>();
+                Assert.That(skillButton, Is.Not.Null, "skill badge is tappable");
+                skillButton.onClick.Invoke();
+                yield return null;
+                Transform tip = app.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "DetailSkillTip");
+                Assert.That(tip, Is.Not.Null, "tapping the skill shows its note");
+                Assert.That(tip.Find("Card/Effect").GetComponent<Text>().text, Is.Not.Empty);
+                Capture(camera, target, "member-detail-skill-tip.png");
+                app.GetComponentsInChildren<Transform>(true).First(t => t.name == "DetailSkill2").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                Capture(camera, target, "member-detail-ultimate-tip.png");
+                app.GetComponentsInChildren<Transform>(true).First(t => t.name == "DetailSkill2").GetComponent<Button>().onClick.Invoke();
+                yield return null;
+                Assert.That(app.GetComponentsInChildren<Transform>(true).Any(t => t.name == "DetailSkillTip"), Is.False,
+                    "tapping the same skill again closes the note");
                 typeof(ChoSirenApp).GetMethod("CloseModal", Private).Invoke(app, null);
                 yield return null;
 
