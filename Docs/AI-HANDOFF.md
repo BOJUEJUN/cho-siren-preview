@@ -36,9 +36,11 @@
 
 ### iPhone 签名
 
-- 11-06 少爷在 Xcode 登录了 Apple 账号，已用自动签名重签 0.9.38：`Builds/iOS-DerivedData-device-0.9.38/Build/Products/Release-iphoneos/CHO-SIREN.app`（工程 `Builds/iOS-device-0.9.38/Unity-iPhone.xcodeproj`）。日志 `Builds/qa-logs/resign-1106/`。
+- 少爷 11-06 在 Xcode 登录了 Apple 账号，现在每次发版都用自动签名打包。
+- 最新包：`Builds/iOS-DerivedData-device-0.9.46/Build/Products/Release-iphoneos/CHO-SIREN.app`（工程 `Builds/iOS-device-0.9.46/Unity-iPhone.xcodeproj`）。
+- 0.9.43 及更早的包已删除（11-09，硬盘满了）。
 - 新描述文件含两台设备，**2026-11-13（周五）到期**，到期前要再重签安装，否则手机打不开。
-- 重签：`xcodebuild -project <工程> -scheme Unity-iPhone -configuration Release -destination generic/platform=iOS -derivedDataPath Builds/iOS-DerivedData-device-0.9.38 -allowProvisioningUpdates DEVELOPMENT_TEAM=63K7K9XRZ2 CODE_SIGN_STYLE=Automatic build`。报 "No Accounts" 就请少爷在 Xcode → 设置 → Apple 账号登录。
+- 重签：`xcodebuild -project <工程> -scheme Unity-iPhone -configuration Release -destination generic/platform=iOS -derivedDataPath Builds/iOS-DerivedData-device-<版本> -allowProvisioningUpdates DEVELOPMENT_TEAM=63K7K9XRZ2 CODE_SIGN_STYLE=Automatic build`。报 "No Accounts" 就请少爷在 Xcode → 设置 → Apple 账号登录。
 - 安装 / 查版本（不加 launch）：
   - `xcrun devicectl --timeout 120 device install app --device <UDID> <app路径>`
   - `xcrun devicectl --timeout 20 device info apps --device <UDID> --filter "bundleIdentifier == 'com.bojuejun.chosiren'" --json-output <文件>`
@@ -64,9 +66,21 @@
 - 两台手机的 0.9.38 都带测试码，所以都会走 GPT。少爷回国后在大陆用不了这条；要恢复正常就装不带测试码的公开包。
 - OpenAI key 少爷决定**不换**（11-06），别再催。
 
-### 0.9.38 私人版新增（0.9.39 起公开，作曲除外）
+### 编辑页（0.9.46 起）
 
-- 编辑页半身/全身切换、转身查看；底部工具栏 + 参数抽屉；滤镜、背景、应援色、亮度/音高/律动。
+- 少爷 11-09 要求重新设计：底部只剩 **换装** 和 **炫彩** 两个宽按钮。
+- 背景、转身、半身/全身都不要了，固定全身视角。
+- 只能切换已签约成员，默认打开队长。
+- 炫彩：
+  - 7 种配色，表 `ChoSirenApp.WorkshopChromas1109`。
+  - 着色器 `Resources/Shaders/UIChroma1109.shader` 负责静态立绘；`UIStackedAlpha` 里也加了同样的换色，给待机视频用。
+  - 鲜艳的衣服、头发换成目标色，皮肤保持不变。
+  - 存在 `WorkshopLook1104.Chroma`。
+  - 截图：`Builds/qa-logs/topup-1104/workshop-chroma*.png`。
+- 滤镜、应援色、亮度、音高、律动、背景、转身的代码都还在，只是不显示。测试会直接调用它们。
+
+### 作曲（只在私人测试包显示）
+
 - 作曲：`WorkshopMusic1105.cs` / `ChoSirenApp.WorkshopMusic1105.cs`，后端 `Tools/ai-dress-fn/music.py`（Suno，经广州函数，测试码保护），报价约 USD 0.08/次。只真实跑过一次 40 秒纯音乐；80 秒和日语女声没实测。
 - 证据：`Builds/qa-logs/workshop-review-1105/`、`workshop-music-1105/`、`workshop-network-1105/`（后者私密，不要外传）。
 - 手机上实际点换装、试听，以及少爷是否满意，都还没确认。
@@ -87,13 +101,26 @@
 - 美术与界面方向：
   - 紫黑 + 青 + 少量粉、锐角切面、撕纸拼贴、网点；整体简约、字少。
   - 真透明 PNG，保持原比例。
-  - 练习室暂时不改；首页保留少爷选的两首日文歌。
-- 改完游戏后：重建并替换本机 Mac app（`Builds/qa-logs/local-preview/update-desktop.sh`），退出游戏再换。
+  - 练习室（11-09）：舞台打光标出主唱；平时待机呼吸，开始练习才唱跳。
+- 改完游戏后，跑 `bash Builds/qa-logs/phone-test-1108/mac-and-phone-0945.sh`（后台跑），会一起做三件事：
+  - 重建并替换本机 Mac app；
+  - 装到伯爵君手机；
+  - 打印手机上装的版本。
+- 库存（11-09）：
+  - 底部导航第 4 个改名“库存”。
+  - 新增“材料”分类：饰品页只显示持有的，图鉴页显示全部。
+  - 材料按稀有度排序（声核 > 生魂 > 其他）。
 
 ### 正式发版流程（少爷说"发布"时）
 
 1. 定新版本号（只往前），先确认没有别的 AI 在构建；只提交本次文件。
-2. 复用 `Builds/qa-logs/full-release-0939/`（含 `stage-web.py` 网页上架脚本；更早的 `full-release-0937/`、`0930/`）里的脚本，复制后改版本号再用。
+2. 复用 `Builds/qa-logs/full-release-0946/` 的脚本。
+   - 复制整个目录，把 `0.9.46` 改成新版本号，`Release-0.9.45`（上一版，用来做补丁）改成 `Release-0.9.46`。
+   - 然后跑 `all.sh`：先测试，再打 Windows / Mac / iOS 包，然后传 PC，最后装本机 Mac 和伯爵君手机。
+   - 范围按 `AGENTS.md`：网页、dmg、APK 都不发。
+   - 旧版整份文件必须保留，旧客户端才能自动更新（少爷要求，不能加 `--no-legacy-whole`）。
+   - 上传一个一个传（并行反而更慢）。
+   - 发版前先 `df -h` 看硬盘：一次构建大约要 15 GB。不够的话，**先问少爷**，再删 `Builds/` 里的旧版本目录。
    - 不要盲跑 `Tools/release-installers.sh`（末尾会删历史包）。
    - 不要用 `Tools/Stage-WebGL.mjs`（会删旧 Build 文件）。
 3. 原生包先传、验真，最后才改 latest 和 `app-version.json`。
@@ -125,9 +152,16 @@
 
 ## 5. 未完成 / 提醒
 
-- 2026-11-13 前给两台 iPhone 重签重装。
-- 0.9.39 已全量发布（11-07）；伯爵君已装 0.9.39，五条悟专用机待解锁后装。
-- 手机上 GPT 换装、作曲的真实体验等少爷反馈。
+- **2026-11-13 前**给伯爵君重新打包安装（描述文件到期）；五条悟那台只在少爷说要装时才装。
+- 0.9.46 之后还没做：
+  - 战斗镜头更夸张（放大后拉远一倍）。
+  - 一屏放三个怪，镜头跟着攻击者平移。
+- 后期玩法（通关两章后玩什么）：两轮提议少爷都觉得一般，等他定方向。
+- 歌：
+  - 另一个会话在用 RunningHub 跑 Suno 4.5 批量出歌。
+  - 选歌台是本地 `localhost:8777`。
+  - 少爷没让之前，不往游戏里加新歌。
+- 手机上 GPT 换装、作曲的真实体验，还在等少爷反馈。
 - 上面网站的可选清理。
 
 ## 6. 秘密文件位置（只读路径，不读出内容）
