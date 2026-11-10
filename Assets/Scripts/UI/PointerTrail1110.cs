@@ -51,9 +51,9 @@ namespace ChoSiren.UI
             layer = (RectTransform)transform;
             shardSprite = MakeShard();
             starSprite = MakeStar();
-            // 2026-11-10 (少爷选 6 号): a pink-and-white arrow with fox ears, tip at (2, 1) of the 64 px texture.
+            // 2026-11-10 (少爷选 6 号): a pink-and-white arrow with fox ears, tip at (0, 0) of a 32 px texture (64 px was twice too big).
             Texture2D cursor = Resources.Load<Texture2D>("Art/Cursor1110/pointer");
-            if (cursor != null) Cursor.SetCursor(cursor, new Vector2(2f, 1f), CursorMode.Auto);
+            if (cursor != null) Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
         }
 
         private void Update()
