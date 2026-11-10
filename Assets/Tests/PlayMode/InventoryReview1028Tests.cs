@@ -25,6 +25,8 @@ namespace ChoSiren.Tests
             legacy = PlayerPrefs.HasKey(GameModel.LegacySaveKey) ? PlayerPrefs.GetString(GameModel.LegacySaveKey) : null;
             foreach (var old in Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None)) Object.Destroy(old.gameObject);
             foreach (var old in Object.FindObjectsByType<EventSystem>(FindObjectsSortMode.None)) Object.Destroy(old.gameObject);
+            // 11-09: canvases left by earlier test classes would answer GameObject.Find("InventoryGrid") first.
+            foreach (var old in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None)) if (old.isRootCanvas) Object.Destroy(old.gameObject);
             yield return null;
             app = new GameObject("Inventory review").AddComponent<ChoSirenApp>();
             yield return null;
