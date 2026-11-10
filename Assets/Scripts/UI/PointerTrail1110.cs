@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace ChoSiren.UI
 {
     /// <summary>
-    /// 2026-11-10 (少爷: 鼠标跟随的动效跟点击效果怎么没了，弄回来): the web page's lipstick cursor, neon-shard mouse trail
+    /// 2026-11-10 (少爷: 鼠标跟随的动效跟点击效果怎么没了，弄回来): a game cursor (fox-ear arrow), the web page's neon-shard mouse trail
     /// (2026-10-19) and a click burst, now inside the game so the PC / Mac apps have them too. Mouse only: phones and
     /// touch screens never see it, and 减弱动画 turns the shards off (the cursor stays).
     /// </summary>
@@ -51,9 +51,9 @@ namespace ChoSiren.UI
             layer = (RectTransform)transform;
             shardSprite = MakeShard();
             starSprite = MakeStar();
-            Texture2D cursor = Resources.Load<Texture2D>("Art/Cursor1110/lipstick");
-            // The SVG's hotspot (19, 3) on a 48-unit box, drawn here at 64 px.
-            if (cursor != null) Cursor.SetCursor(cursor, new Vector2(19f, 3f) * (cursor.width / 48f), CursorMode.Auto);
+            // 2026-11-10 (少爷选 6 号): a pink-and-white arrow with fox ears, tip at (2, 1) of the 64 px texture.
+            Texture2D cursor = Resources.Load<Texture2D>("Art/Cursor1110/pointer");
+            if (cursor != null) Cursor.SetCursor(cursor, new Vector2(2f, 1f), CursorMode.Auto);
         }
 
         private void Update()

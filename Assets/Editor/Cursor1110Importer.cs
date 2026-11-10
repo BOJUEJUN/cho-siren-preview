@@ -1,6 +1,6 @@
 using UnityEditor;
 
-/// <summary>2026-11-10: the lipstick mouse cursor (from the web page's SVG) imports as a readable cursor texture.</summary>
+/// <summary>2026-11-10: the in-game mouse cursor (fox-ear arrow) imports as a readable cursor texture.</summary>
 public sealed class Cursor1110Importer : AssetPostprocessor
 {
     public override uint GetVersion() => 1;
