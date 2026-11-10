@@ -359,6 +359,21 @@ namespace ChoSiren
         private void DetailDiamond(Transform page, string name, float x, float y, string label, string glyph, bool highlight, UnityEngine.Events.UnityAction action)
         {
             GameObject hit = BoardButton038(name, page, new Rect(x, y, 92, 116), action);
+            Sprite badge = NavBadge1110(name, label);
+            if (badge != null)
+            {
+                // 2026-11-10 (少爷: 绊 / 练 / 队 这种图标太粗糙): designed diamond badges. A badge whose action is not
+                // available right now dims; the current captain shows the gold crown.
+                Image art = NewImage("Badge", hit.transform, badge, White).GetComponent<Image>();
+                art.preserveAspect = true;
+                art.raycastTarget = false;
+                PlaceTop(art.rectTransform, 2, -6, 88, 88);
+                bool current = label == "当前队长";
+                if (!highlight && !current) art.color = new Color(1f, 1f, 1f, .5f);
+                Text caption = BoardText038(hit.transform, "Label", label, 17, White, -10, 78, 112, 30, TextAnchor.MiddleCenter);
+                caption.gameObject.AddComponent<Outline>().effectColor = new Color32(10, 6, 24, 255);
+                return;
+            }
             // 2026-11-03: a solid teal fill reads as "selected/pressed" (tabs use it that way), so an
             // available action keeps the dark face and shows itself with a teal rim and glyph instead.
             GameObject diamond = NewImage("Diamond", hit.transform, null, new Color32(26, 22, 34, 245));
@@ -373,6 +388,18 @@ namespace ChoSiren
             rim.effectDistance = new Vector2(2, -2);
             BoardText038(hit.transform, "Glyph", glyph, 24, highlight ? (Color)Brand1025.Teal : White, 0, 18, 92, 44, TextAnchor.MiddleCenter);
             BoardText038(hit.transform, "Label", label, 17, White, -10, 78, 112, 30, TextAnchor.MiddleCenter);
+        }
+
+        private static Sprite NavBadge1110(string name, string label)
+        {
+            string key = name switch
+            {
+                "DetailBond" => "nav-bond",
+                "DetailPractice" => "nav-practice",
+                "DetailCaptain" => label == "当前队长" ? "nav-captain-on" : "nav-captain",
+                _ => null,
+            };
+            return key == null ? null : Resources.Load<Sprite>("Art/Ui1107/NavBadges1110/" + key);
         }
 
         /// <summary>
