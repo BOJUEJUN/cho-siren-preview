@@ -51,13 +51,51 @@ namespace ChoSiren.UI
             layer = (RectTransform)transform;
             shardSprite = MakeShard();
             starSprite = MakeStar();
-            // 2026-11-10 (少爷选 6 号): a pink-and-white arrow with fox ears, tip at (0, 0) of a 32 px texture (64 px was twice too big).
-            Texture2D cursor = Resources.Load<Texture2D>("Art/Cursor1110/pointer");
-            if (cursor != null) Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+            // 2026-11-10 (少爷选 6 号, 32 px; 64 px was twice too big; 少爷: 逐帧画). Frames share one tip position:
+            // press-in (squash, ears back), a twinkling spark while held, and a release bounce with two hearts drifting off.
+            rest = Frame("rest");
+            pressIn = new[] { Frame("press1"), Frame("press2") };
+            hold = new[] { Frame("hold1"), Frame("hold2") };
+            release = new[] { Frame("release1"), Frame("release2"), Frame("release3"), Frame("release4") };
+            SetCursor(rest);
+        }
+
+        private static readonly Vector2 Hotspot = new Vector2(3.5f, 3.5f);
+        private const float FrameSeconds = .06f, HoldFrameSeconds = .18f;
+        private Texture2D rest, cursorShown;
+        private Texture2D[] pressIn, hold, release;
+        private Texture2D[] playing;
+        private float playStart;
+        private bool held;
+
+        private static Texture2D Frame(string name) => Resources.Load<Texture2D>("Art/Cursor1110/pointer-" + name);
+
+        private void SetCursor(Texture2D texture)
+        {
+            if (texture == null || texture == cursorShown) return;
+            cursorShown = texture;
+            Cursor.SetCursor(texture, Hotspot, CursorMode.Auto);
+        }
+
+        private void UpdateCursorFrame()
+        {
+            float now = Time.unscaledTime;
+            if (Input.GetMouseButtonDown(0)) { held = true; playing = pressIn; playStart = now; }
+            else if (Input.GetMouseButtonUp(0)) { held = false; playing = release; playStart = now; }
+            if (playing != null)
+            {
+                int index = Mathf.FloorToInt((now - playStart) / FrameSeconds);
+                if (index < playing.Length) { SetCursor(playing[index]); return; }
+                playing = null;
+                playStart = now;
+            }
+            if (held) SetCursor(hold[Mathf.FloorToInt((now - playStart) / HoldFrameSeconds) % hold.Length]);
+            else SetCursor(rest);
         }
 
         private void Update()
         {
+            UpdateCursorFrame();
             float dt = Mathf.Min(Time.unscaledDeltaTime, .05f) * 60f;
             for (int i = live.Count - 1; i >= 0; i--)
             {
