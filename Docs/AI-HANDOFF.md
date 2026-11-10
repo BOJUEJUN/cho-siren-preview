@@ -27,7 +27,7 @@
 | Windows 下载 + 更新清单 | 0.9.46 | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
 | Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
 | 本机 `/Applications/幻域魅声.app` | 0.9.46 | 11-09 替换，Dock 入口保留 |
-| 伯爵君 iPhone | 0.9.46 | 11-09 覆盖安装（无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
+| 伯爵君 iPhone | 0.9.46 + 11-10 美术反馈改动 | 11-10 覆盖安装（升级弹窗用正式立绘、成员页技能图标点开说明；无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
 | 五条悟专用机 | 0.9.42 | 11-08 覆盖安装，同上 |
 
 - 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.46 / Android 946（11-09 全量发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
@@ -45,7 +45,21 @@
   - `xcrun devicectl --timeout 120 device install app --device <UDID> <app路径>`
   - `xcrun devicectl --timeout 20 device info apps --device <UDID> --filter "bundleIdentifier == 'com.bojuejun.chosiren'" --json-output <文件>`
 - 设备 UDID：伯爵君 `00008140-000E706E2493C01C`；五条悟专用机 `00008140-001154D23E93001C`。Bundle `com.bojuejun.chosiren`，team `63K7K9XRZ2`。别装不带版本号的旧 `Builds/iOS-DerivedData-device/`。
-- 历史上手机连不上（CoreDevice 4016）曾是 Wi-Fi 代理例外列表格式问题，证据在 `Builds/qa-logs/full-release-0930/`。再遇到先只读排查，不要改网络。
+- **手机装不上、报 CoreDevice 4016（设备 unavailable）**：11-02、11-10 两次都是同一个原因，少爷已同意以后照这个方法修。
+  - 原因：Karing 会把 Wi-Fi 代理"例外列表"写成**一整行逗号串**，`*.local` 这些例外就失效了。结果配对流量被送进本机代理 127.0.0.1:3067，连接一建立就断。
+  - 只读确认：
+    - `networksetup -getproxybypassdomains Wi-Fi` 输出只有一行、里面带逗号，就是这个问题。
+    - 或者 `printf 'show State:/Network/Global/Proxies\nquit\n' | scutil`，看 `__SCOPED__ → en0 → ExceptionsList` 是不是只有一项。
+    - 日志 `/usr/bin/log show --last 5m --info --predicate 'process == "remotepairingd" AND eventMessage CONTAINS "3067"'` 有输出，说明配对确实走了代理。
+  - 修法：先备份原值，再把同样的条目拆成一条一条重新写回去。**用 bash 跑**，zsh 不支持 `read -a`；11-10 用 zsh 跑时把列表短暂清空过。
+    ```bash
+    bash -c 'B="$(networksetup -getproxybypassdomains Wi-Fi)"; echo "$B" > <备份文件>; IFS="," read -r -a p <<< "$B"; [ ${#p[@]} -gt 1 ] && networksetup -setproxybypassdomains Wi-Fi "${p[@]}"'
+    ```
+  - 不用重启 VPN、不切节点、不改路由，也不需要管理员密码。
+  - 修完以后让少爷**解锁手机、屏幕常亮**：手机锁屏时配对广播会一下有一下没有，配对服务还会进入等待期。每 20 秒重试一次安装，几分钟内就能装上（11-10 第 4 分钟成功）。
+  - 成功的标志：日志里出现 `Created new device ... AuthenticatedControlChannelConnection`，安装返回 `App installed`。
+  - 证据：`Builds/qa-logs/full-release-0930/`（11-02）、`Builds/qa-logs/art-feedback-1110/`（11-10 的修前备份 `wifi-bypass-before.txt`）。
+  - Karing 以后可能又改回一行，再遇到 4016 先按上面的方法只读确认。
 
 - 游戏歌单（11-09 少爷定）：光のルール、輝きを追いかけて、BLACK ROSE A/B，其他新歌先拿掉。`Tools/sync_liked_songs.py`（把选歌台的喜欢同步进游戏）已经从打包脚本里去掉了，少爷没让加新歌之前不要跑。
 
