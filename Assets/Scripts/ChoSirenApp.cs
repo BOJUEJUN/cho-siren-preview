@@ -692,7 +692,9 @@ namespace ChoSiren
             // Keep the full square so a menu selection turns the grooves without flattening.
             GameObject disc = NewImage("NavDiscArc", navRoot,
                 AiUiSprite("Art/LobbyPunk/nav-optical-vinyl-1019-v2"), Color.white);
-            PlaceTop(disc.GetComponent<RectTransform>(), -452f, 120f, 1600f, 1600f); // 11-09 round redraw: disc top moved up 8px in the art
+            // 2026-11-10 (少爷: 底部弧线在上下起伏): the record's circle sat 14.5 art px below the image centre, so spinning
+            // made the rim bob ±11 px. The art is now centred on its spin axis; y +11 keeps the same visible rim height.
+            PlaceTop(disc.GetComponent<RectTransform>(), -452f, 131f, 1600f, 1600f);
             ChoSiren.Panels.PanelKit.CenterPivot(disc.GetComponent<RectTransform>());
             Image discImage = disc.GetComponent<Image>();
             // 2026-10-20: the record only spins; as a rotated 1600px square its hit box poked
