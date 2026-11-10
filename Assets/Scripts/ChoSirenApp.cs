@@ -98,6 +98,10 @@ namespace ChoSiren
                        Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
                 BuildShell();
                 ChoSiren.UI.RewardGain1101.Bind(model, safeRoot, font);
+#if !UNITY_WEBGL
+                // The web page draws its own trail and cursor; the native apps get the same in-game.
+                ChoSiren.UI.PointerTrail1110.Install();
+#endif
                 lastViewportWidth = Screen.width;
                 lastViewportHeight = Screen.height;
 #if UNITY_WEBGL && !UNITY_EDITOR

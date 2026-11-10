@@ -181,8 +181,20 @@ namespace ChoSiren
             PlaceTop(careerHex.GetComponent<RectTransform>(), colX + 28, 514, 92, 100);
             ProfileEmblemFrame038 hexShape = careerHex.GetComponent<ProfileEmblemFrame038>();
             hexShape.SolidHex = true; hexShape.color = new Color32(24, 22, 30, 255); hexShape.raycastTarget = false;
-            Text careerGlyph = BoardText038(careerHex.transform, "Career", CareerGlyph(m.Career), 30, White, 0, 0, 92, 100, TextAnchor.MiddleCenter);
-            careerGlyph.fontStyle = FontStyle.Bold;
+            Sprite powerBadge = MemberSkillIcons1110.Role(m.Career);
+            if (powerBadge != null)
+            {
+                hexShape.color = new Color(0f, 0f, 0f, 0f);
+                Image badge = NewImage("Career", careerHex.transform, powerBadge, White).GetComponent<Image>();
+                badge.preserveAspect = true;
+                badge.raycastTarget = false;
+                PlaceTop(badge.rectTransform, -2, 2, 96, 96);
+            }
+            else
+            {
+                Text careerGlyph = BoardText038(careerHex.transform, "Career", CareerGlyph(m.Career), 30, White, 0, 0, 92, 100, TextAnchor.MiddleCenter);
+                careerGlyph.fontStyle = FontStyle.Bold;
+            }
             Text power = BoardText038(page, "MemberPower", model.PowerOf(memberIndex).ToString("N0"), 56, White, colX + 124, 530, 194, 74);
             PanelKit.EnableBestFit(power, 36);
             BoardText038(page, "DetailBattleTag", "BATTLE", 14, Muted, colX + 210, 596, 100, 20, TextAnchor.MiddleRight);
@@ -238,14 +250,23 @@ namespace ChoSiren
             PlaceTop(raceBadge.GetComponent<RectTransform>(), colX + 4, 892, 70, 70);
             raceBadge.GetComponent<Image>().preserveAspect = true;
             raceBadge.GetComponent<Image>().raycastTarget = false;
-            DetailHex(page, "DetailRoleBadge", colX + 82, 892, new Color32(245, 242, 250, 255), CareerGlyph(m.Career), new Color32(30, 24, 40, 255), null);
+            Sprite roleBadge = MemberSkillIcons1110.Role(m.Career);
+            if (roleBadge != null)
+            {
+                // 2026-11-10 (少爷: "R" 太粗糙): the designed role badge, same size as the race badge beside it.
+                GameObject role = NewImage("DetailRoleBadge", page, roleBadge, White);
+                PlaceTop(role.GetComponent<RectTransform>(), colX + 80, 890, 74, 74);
+                role.GetComponent<Image>().preserveAspect = true;
+                role.GetComponent<Image>().raycastTarget = false;
+            }
+            else DetailHex(page, "DetailRoleBadge", colX + 82, 892, new Color32(245, 242, 250, 255), CareerGlyph(m.Career), new Color32(30, 24, 40, 255), null);
             // 2026-11-09 (少爷: "把角色的技能图标放在这里"): the battle PSD's own skill symbols for her race
             // (small skill = lane row 1, ultimate = row 0), the same art the battle shows when she casts.
             CombatRace combatRace = BattleSimulator.ParseCombatRace(m.Race);
             GameObject skill1 = DetailHex(page, "DetailSkill1", colX + 160, 892, new Color32(245, 242, 250, 255), "", Accent, firstName,
-                BattlePsdSkillLayout1019.For(combatRace, 1).Key);
+                BattlePsdSkillLayout1019.For(combatRace, 1).Key, MemberSkillIcons1110.Skill(m.Id, false));
             GameObject skill2 = DetailHex(page, "DetailSkill2", colX + 238, 892, new Color32(245, 242, 250, 255), "", Cyan, secondName,
-                BattlePsdSkillLayout1019.For(combatRace, 0).Key);
+                BattlePsdSkillLayout1019.For(combatRace, 0).Key, MemberSkillIcons1110.Skill(m.Id, true));
             // 2026-11-10 (美术反馈: 技能图标点上去显示简单说明，不然玩家看不懂): tap a skill badge for a short note.
             DetailSkillTip(page, skill1, firstName, "小技能", firstEffect, colX, colW);
             DetailSkillTip(page, skill2, secondName, "大招", secondEffect, colX, colW);
@@ -412,13 +433,26 @@ namespace ChoSiren
         private sealed class DetailSkillTipTag : MonoBehaviour { public GameObject Owner; }
 
         private GameObject DetailHex(Transform page, string name, float x, float y, Color face, string glyph, Color glyphColor, string skillName,
-            string psdIcon = null)
+            string psdIcon = null, Sprite ownIcon = null)
         {
             GameObject hex = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(ProfileEmblemFrame038));
             hex.transform.SetParent(page, false);
             PlaceTop(hex.GetComponent<RectTransform>(), x, y, 70, 70);
             ProfileEmblemFrame038 shape = hex.GetComponent<ProfileEmblemFrame038>();
             shape.SolidHex = true; shape.color = face; shape.raycastTarget = false;
+            if (skillName != null && ownIcon != null)
+            {
+                // 2026-11-10: her own designed skill emblem, free-standing (it carries its own ink rim), no hex behind it.
+                shape.color = new Color(0f, 0f, 0f, 0f);
+                Image own = NewImage("Icon", hex.transform, ownIcon, White).GetComponent<Image>();
+                own.preserveAspect = true;
+                own.raycastTarget = false;
+                PlaceTop(own.rectTransform, -4, -4, 78, 78);
+                Text ownName = BoardText038(hex.transform, "Name", skillName, 12, White, -8, 72, 86, 18, TextAnchor.MiddleCenter);
+                ownName.gameObject.AddComponent<Outline>().effectColor = new Color32(10, 6, 24, 255);
+                PanelKit.EnableBestFit(ownName, 9);
+                return hex;
+            }
             Sprite skillArt = skillName != null && !string.IsNullOrEmpty(psdIcon) ? BattlePsdArt928.SpriteOrLoad(psdIcon) : null;
             if (skillArt != null)
             {

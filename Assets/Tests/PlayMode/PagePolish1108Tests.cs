@@ -160,6 +160,16 @@ namespace ChoSiren.Tests
                     Image icon = app.GetComponentsInChildren<Transform>(true).First(t => t.name == hex).Find("Icon")?.GetComponent<Image>();
                     Assert.That(icon != null && icon.sprite != null, Is.True, hex + " shows the PSD skill symbol");
                 }
+                // 2026-11-10: her own designed skill emblems and the designed role badge (not a letter in a hex).
+                MemberDefinition shown = GameModel.Members[model.Save.Team[0]];
+                Image skillIcon = app.GetComponentsInChildren<Transform>(true).First(t => t.name == "DetailSkill1").Find("Icon").GetComponent<Image>();
+                Assert.That(skillIcon.sprite, Is.SameAs(MemberSkillIcons1110.Skill(shown.Id, false)), "member's own small-skill icon");
+                Assert.That(MemberSkillIcons1110.Skill(shown.Id, false), Is.Not.SameAs(MemberSkillIcons1110.Skill(shown.Id, true)));
+                Image roleBadge = app.GetComponentsInChildren<Transform>(true).First(t => t.name == "DetailRoleBadge").GetComponent<Image>();
+                Assert.That(roleBadge != null && roleBadge.sprite != null, Is.True, "role badge art");
+                foreach (MemberDefinition member in GameModel.Members)
+                    Assert.That(MemberSkillIcons1110.Skill(member.Id, false) != null && MemberSkillIcons1110.Skill(member.Id, true) != null,
+                        Is.True, member.Id + " has both skill icons");
                 Capture(camera, target, "member-detail.png");
                 // 2026-11-10 (美术反馈): tapping a skill badge shows its short note; tapping it again closes it.
                 Button skillButton = app.GetComponentsInChildren<Transform>(true).First(t => t.name == "DetailSkill1").GetComponent<Button>();
