@@ -157,7 +157,8 @@
 - 当前分支 `feat/vercel-gpt`（线上就是它），每次都同时推到 `main`（`git push origin HEAD` 和 `HEAD:main`），两者一致。
 - 模型：
   - RunningHub Krea2 工作流：棕色尘埃、小小英雄、LOL 2.36MP V1.1（默认）、LOL 2.36MP、CherryCHE、局内视角。
-  - Nano Banana 2.1（RunningHub 海外站）、Krea 3（Krea API，余额单独充）、GPT Image 2.6 Flare / Sunburst（OpenAI）。
+  - Krea 3（Krea API，余额单独充）、GPT Image 2.6 Flare / Sunburst（OpenAI）。
+  - Nano Banana 2.1（RunningHub 海外站）11-11 少爷让下架：`lib/models.ts` 里标 `retired`，选单不显示，出图接口拒绝，旧图名字照常显示。
   - 详见仓库 `README.md`。
 - 存储：图片和记录在腾讯云香港桶 `enzoban-studio-1318245308`（ap-hongkong，`COS_PREFIX=root`），代码 `lib/cos.ts`。RunningHub 结果经腾讯云"搬图"函数（`FETCH_FN_URL` / `FETCH_FN_TOKEN`）搬进 COS。
 - 登录与安全（11-11 改成账号密码）：
