@@ -14,7 +14,8 @@
 
 ## 1. 游戏现状（2026-11-08）
 
-- **0.9.49 已全量发布（11-10）**：0.9.47 升级弹窗用正式立绘、技能图标点开说明；0.9.48 每个角色两个专属技能图标（`MemberSkillIcons1110.cs`，`Resources/Art/Ui1107/SkillIcons1110`）、主唱/主舞/Rapper/门面与羁绊/练习室/队长徽章、电脑版狐耳箭头鼠标逐帧动画+拖尾+点击碎片（`PointerTrail1110.cs`，`Art/Cursor1110`）、底部唱片转动不再上下跳（唱片图已对准旋转中心）；0.9.49 60 个饰品重新设计成朋克偶像舞台风。下一版 **0.9.50**，发版脚本复用 `Builds/qa-logs/full-release-0949/`（只发 PC 补丁）。
+- **0.9.50 已全量发布（11-10）**：歌单加入 嘘つきセイレーン（口哨版，少爷在 Suno 点赞的那条；Opus m4a 用 AVFoundation 解码 + lameenc 转 MP3，`StreamingAssets/Music/song-siren-whistle-*.mp3`）。下一版 **0.9.51**，脚本复用 `Builds/qa-logs/full-release-0950/`。
+- 之前 **0.9.49（11-10）**：0.9.47 升级弹窗用正式立绘、技能图标点开说明；0.9.48 每个角色两个专属技能图标（`MemberSkillIcons1110.cs`，`Resources/Art/Ui1107/SkillIcons1110`）、主唱/主舞/Rapper/门面与羁绊/练习室/队长徽章、电脑版狐耳箭头鼠标逐帧动画+拖尾+点击碎片（`PointerTrail1110.cs`，`Art/Cursor1110`）、底部唱片转动不再上下跳（唱片图已对准旋转中心）；0.9.49 60 个饰品重新设计成朋克偶像舞台风。
 - 之前：**0.9.46 已全量发布**（记录 `Docs/FULL-RELEASE-2026-11-09-0946.md`：工坊只剩换装 + 炫彩、库存材料分类）。0.9.45：`Docs/FULL-RELEASE-2026-11-09-0945.md`。0.9.44：`Docs/FULL-RELEASE-2026-11-08-0944.md`。0.9.43：`Docs/FULL-RELEASE-2026-11-08-0943.md`。之前 0.9.42（`Docs/FULL-RELEASE-2026-11-08-0942.md`）：团队/选秀/饰品手机实测修改、按钮回弹手感、三页统一背景、工坊工具精简。再之前 0.9.41/0.9.40：赵金 11-07 六页新美术 + 会议纪要落地 + 200 级 + 角色体力 + 累计更新公告。明细 `Docs/ART-FEEDBACK-2026-11-07.md`、数值 `Docs/BALANCE-1107-LV200.md`。下一版 **0.9.47**。
 - 全量发布范围（11-08 晚起）：PC 下载 + 更新清单、本机 Mac 应用、手机。**网页不再更新**（性能不够），Mac 安装包和安卓包也不发；清单里 Mac 字段留空，Mac 客户端不会被提示更新。
 - PC 更新改成分块补丁：大文件切约 1MB 小块，客户端只下改动的块（`AppUpdate1022.cs` 的 `ChunkPlan`/`Cdc`，上传端 `Tools/publish_files.py --previous <上一版 windows-stage>`）。0.9.39 客户端还用旧整文件方式，所以本次仍开着整文件上传；**0.9.41 起加 `--no-legacy-whole`**，每次只传几十到一两百 MB。
@@ -25,10 +26,10 @@
 |---|---|---|
 | 网页（不再更新） | 0.9.41 / R171 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
 | 官网 | 已下线（11-08 少爷要求保密） | 原 `site/` 已从公开仓库删除，本机副本 `~/cho-siren-site-private/`；别再发布到公开地址 |
-| Windows 下载 + 更新清单 | 0.9.49（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
+| Windows 下载 + 更新清单 | 0.9.50（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
 | Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
-| 本机 `/Applications/幻域魅声.app` | 0.9.49 | 11-10 替换，Dock 入口保留 |
-| 伯爵君 iPhone | 0.9.49 | 11-10 覆盖安装（升级弹窗用正式立绘、成员页技能图标点开说明；无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
+| 本机 `/Applications/幻域魅声.app` | 0.9.50 | 11-10 替换，Dock 入口保留 |
+| 伯爵君 iPhone | 0.9.50 | 11-10 覆盖安装（升级弹窗用正式立绘、成员页技能图标点开说明；无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
 | 五条悟专用机 | 0.9.42 | 11-08 覆盖安装，同上 |
 
 - 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.46 / Android 946（11-09 全量发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
