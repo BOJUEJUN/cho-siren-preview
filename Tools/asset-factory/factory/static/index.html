@@ -5,94 +5,145 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>资源工厂</title>
 <style>
-:root{--bg:#120a24;--panel:#1d1233;--edge:#3a2a60;--ink:#f3eee4;--muted:#a99cc9;--teal:#19f0e8;--pink:#ff2d7a;--gold:#ffd23f}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "PingFang SC","Noto Sans SC",system-ui,sans-serif}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--edge)}
-h1{margin:0;font-size:20px}.pill{padding:3px 10px;border:1px solid var(--edge);border-radius:999px;color:var(--muted)}
-.pill b{color:var(--ink)}button{font:inherit;color:var(--bg);background:var(--teal);border:0;border-radius:8px;padding:6px 12px;cursor:pointer}
-button.ghost{background:transparent;color:var(--teal);border:1px solid var(--teal)}button.warn{background:var(--pink);color:#fff}
-main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;padding:16px}@media(max-width:900px){main{grid-template-columns:1fr}}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.card{background:var(--panel);border:1px solid var(--edge);border-radius:12px;overflow:hidden;cursor:pointer}
-.card img{width:100%;height:150px;object-fit:cover;background:#000;display:block}.card .b{padding:8px 10px}
-.st{font-size:12px;padding:1px 8px;border-radius:6px;background:var(--edge)}.st.passed{background:var(--gold);color:var(--bg)}
-.st.approved{background:var(--teal);color:var(--bg)}.st.running{background:var(--pink)}.st.gave_up,.st.rejected{background:#5a2a3a}
-aside{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:12px;max-height:80vh;overflow:auto}
-aside p{margin:4px 0;color:var(--muted);font-size:12px}.bar{height:8px;background:var(--edge);border-radius:4px;overflow:hidden;width:140px}
-.bar i{display:block;height:100%;background:var(--teal)}dialog{background:var(--panel);color:var(--ink);border:1px solid var(--edge);border-radius:12px;width:min(1100px,96vw)}
-dialog video,dialog img{max-width:100%;border-radius:8px}.att{border-top:1px solid var(--edge);padding:10px 0}.bad{color:#ff8fae}.good{color:var(--teal)}
-textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--edge);border-radius:8px;padding:8px}
-.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tabs button{background:var(--panel);color:var(--muted);border:1px solid var(--edge)}.tabs button.on{background:var(--teal);color:var(--bg)}
+/* Apple-style calm (light grey canvas, white cards, big numbers, lots of air) with Persona-5 accents:
+   black/red slanted title plates and status tags, hard angles, one red. */
+:root{--canvas:#f5f5f7;--card:#ffffff;--ink:#1d1d1f;--sub:#6e6e73;--line:#e5e5ea;--red:#e3001b;--black:#111;--ok:#0a7f3f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--canvas:#000;--card:#1c1c1e;--ink:#f5f5f7;--sub:#a1a1a6;--line:#2c2c2e;--black:#f5f5f7}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Noto Sans SC",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 24px 64px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:28px}
+.plate{position:relative;display:inline-block;padding:6px 26px 8px 18px;background:#111;color:#fff;transform:skewX(-12deg);box-shadow:8px 8px 0 var(--red)}
+.plate h1{margin:0;font-size:34px;font-weight:900;font-style:italic;letter-spacing:2px;transform:skewX(12deg)}
+.sub{color:var(--sub);margin-top:14px;font-size:14px}
+.actions{display:flex;gap:10px}
+button{font:inherit;cursor:pointer;border:0}
+.btn{height:36px;padding:0 18px;border-radius:980px;background:var(--ink);color:var(--canvas);font-weight:600}
+.btn.light{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn:focus-visible,.seg button:focus-visible,.card:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:26px}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{background:var(--card);border-radius:20px;padding:18px 20px}
+.stat .k{color:var(--sub);font-size:13px}.stat .v{font-size:40px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-top:4px}
+.stat .v small{font-size:15px;font-weight:600;color:var(--sub);margin-left:4px}
+.meter{height:6px;border-radius:3px;background:var(--line);margin-top:12px;overflow:hidden}.meter i{display:block;height:100%;background:var(--red);transition:width .6s}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px}@media(max-width:980px){.layout{grid-template-columns:1fr}}
+.seg{display:inline-flex;flex-wrap:wrap;gap:2px;background:var(--line);border-radius:10px;padding:2px;margin-bottom:18px}
+.seg button{background:transparent;color:var(--ink);padding:6px 14px;border-radius:8px;font-size:13px;font-weight:500}
+.seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.card{background:var(--card);border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;text-align:left;padding:0;color:inherit}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.08)}
+.thumb{aspect-ratio:16/9;background:#111;display:block;width:100%;object-fit:cover}
+.card .b{padding:12px 14px 14px}.card .t{font-weight:600}.card .m{color:var(--sub);font-size:13px;margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{display:inline-block;padding:2px 10px;font-size:12px;font-weight:800;transform:skewX(-12deg);background:#111;color:#fff;letter-spacing:.5px}
+.tag span{display:inline-block;transform:skewX(12deg)}
+.tag.passed{background:var(--red)}.tag.approved{background:#fff;color:#111;box-shadow:inset 0 0 0 2px #111}
+.tag.running{background:#111;animation:pulse 1.4s infinite}.tag.gave_up,.tag.rejected{background:#8e8e93}.tag.queued{background:#c7c7cc;color:#111}
+@keyframes pulse{50%{background:var(--red)}}
+aside{background:var(--card);border-radius:20px;padding:18px 18px 8px;align-self:start;max-height:78vh;overflow:auto}
+aside h2{margin:0 0 10px;font-size:15px}
+.ev{display:grid;grid-template-columns:48px 1fr;gap:8px;padding:8px 0;border-top:1px solid var(--line);font-size:13px}.ev time{color:var(--sub)}
+.empty{color:var(--sub);padding:40px 0;text-align:center}
+dialog{border:0;border-radius:24px;padding:0;width:min(980px,94vw);background:var(--card);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.35);backdrop-filter:blur(6px)}
+.sheet{padding:24px 26px}.sheet h2{margin:0 0 4px;font-size:24px}.sheet .row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.p5{height:40px;padding:0 22px;background:var(--red);color:#fff;font-weight:900;font-style:italic;transform:skewX(-12deg);letter-spacing:1px}
+.p5 span{display:inline-block;transform:skewX(12deg)}.p5.black{background:#111}
+textarea{width:100%;font:inherit;border:0;border-radius:12px;background:var(--canvas);color:var(--ink);padding:12px;resize:vertical}
+.att{border-top:1px solid var(--line);padding:16px 0}.att video,.att img{width:100%;max-height:60vh;object-fit:contain;background:#111;border-radius:14px;margin-top:10px}
+.bad{color:var(--red);font-size:13px}.good{color:var(--ok);font-weight:600}
+details{color:var(--sub);font-size:13px;margin-top:8px}
+.close{position:sticky;top:0;float:right;margin:14px 14px 0 0;width:32px;height:32px;border-radius:50%;background:var(--canvas);color:var(--ink);font-size:18px}
 </style>
 </head>
 <body>
-<header>
-  <h1>CHO-SIREN 资源工厂</h1>
-  <span class="pill">显卡 <b id="gpu">-</b></span>
-  <span class="pill">利用率 <span class="bar" style="display:inline-block;vertical-align:middle"><i id="util" style="width:0"></i></span> <b id="utilText">0%</b></span>
-  <span class="pill">AI 审核 <b id="rev">-</b></span>
-  <span class="pill" id="counts"></span>
-  <button id="pause">暂停</button>
-  <button class="ghost" id="reload">重新读取任务</button>
-</header>
-<main>
-  <section>
-    <div class="tabs" id="tabs"></div>
-    <div class="grid" id="jobs"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="plate"><h1>资源工厂</h1></div>
+      <div class="sub" id="subline">CHO-SIREN · 5090 自动出图出视频，AI 先验收，你最后拍板</div>
+    </div>
+    <div class="actions">
+      <button class="btn light" id="reload">重新读取任务</button>
+      <button class="btn" id="pause">暂停</button>
+    </div>
+  </header>
+
+  <section class="stats" aria-label="概况">
+    <div class="stat"><div class="k">显卡利用率</div><div class="v" id="util">0<small>%</small></div><div class="meter"><i id="utilBar" style="width:0"></i></div></div>
+    <div class="stat"><div class="k">正在生成</div><div class="v" id="running">0</div><div class="k" id="gpu" style="margin-top:8px">-</div></div>
+    <div class="stat"><div class="k">AI 通过 · 待你确认</div><div class="v" id="passed">0</div><div class="k" id="rev" style="margin-top:8px">-</div></div>
+    <div class="stat"><div class="k">已采用</div><div class="v" id="approved">0</div><div class="k" id="queued" style="margin-top:8px">排队 0</div></div>
   </section>
-  <aside><b>动态</b><div id="events"></div></aside>
-</main>
-<dialog id="dlg"><div id="dlgBody"></div><p><button class="ghost" onclick="dlg.close()">关闭</button></p></dialog>
+
+  <div class="layout">
+    <section>
+      <div class="seg" id="tabs" role="tablist"></div>
+      <div class="grid" id="jobs"></div>
+    </section>
+    <aside><h2>动态</h2><div id="events"></div></aside>
+  </div>
+</div>
+<dialog id="dlg"><button class="close" aria-label="关闭" onclick="dlg.close()">×</button><div class="sheet" id="dlgBody"></div></dialog>
 <script>
 const $ = (id) => document.getElementById(id);
-const label = {queued:"排队", running:"生成中", review:"待人工看", passed:"AI 通过·待你确认", approved:"已采用", rejected:"已退回", gave_up:"多次未过", paused:"暂停"};
+const label = {queued:"排队", running:"生成中", review:"待人工看", passed:"待你确认", approved:"已采用", rejected:"已退回", gave_up:"没过", paused:"暂停"};
 let filter = "all", state = null;
 const file = (p) => "/file?path=" + encodeURIComponent(p);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const tag = (s) => `<span class="tag ${s}"><span>${label[s] || s}</span></span>`;
+const thumbs = {};
 async function load() {
   state = await (await fetch("/api/state")).json();
-  $("gpu").textContent = state.mock ? "模拟模式" : (state.gpu.name || state.gpu.error || "-");
-  $("util").style.width = Math.round(state.utilisation * 100) + "%"; $("utilText").textContent = Math.round(state.utilisation * 100) + "%";
-  $("rev").textContent = state.reviewer || "未配置（只做数值检查）";
+  const c = state.counts, pct = Math.round(state.utilisation * 100);
+  $("util").innerHTML = pct + "<small>%</small>"; $("utilBar").style.width = pct + "%";
+  $("running").textContent = c.running || 0; $("passed").textContent = (c.passed || 0) + (c.review || 0);
+  $("approved").textContent = c.approved || 0; $("queued").textContent = "排队 " + (c.queued || 0);
+  $("gpu").textContent = state.mock ? "模拟模式（没接显卡）" : (state.gpu.name || state.gpu.error || "-");
+  $("rev").textContent = state.reviewer ? "审核：" + state.reviewer : "AI 审核未接，只做数值检查";
   $("pause").textContent = state.paused ? "继续" : "暂停";
-  $("counts").innerHTML = Object.entries(state.counts).map(([k, v]) => `${label[k] || k} <b>${v}</b>`).join(" · ");
   const briefs = Object.entries(state.briefs);
   $("tabs").innerHTML = [["all", "全部"], ["passed", "待我确认"], ...briefs.map(([k, v]) => [k, v.title])]
-    .map(([k, t]) => `<button class="${filter === k ? "on" : ""}" onclick="filter='${k}';render()">${t}</button>`).join("");
-  $("events").innerHTML = state.events.map(e => `<p>${new Date(e.at * 1000).toLocaleTimeString()} · ${e.text}</p>`).join("");
+    .map(([k, t]) => `<button role="tab" aria-selected="${filter === k}" class="${filter === k ? "on" : ""}" onclick="filter='${k}';render()">${esc(t)}</button>`).join("");
+  $("events").innerHTML = state.events.slice(0, 40).map(e => `<div class="ev"><time>${new Date(e.at * 1000).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}</time><div>${esc(e.text)}</div></div>`).join("") || `<div class="empty">还没有动态</div>`;
   render();
 }
 function render() {
   if (!state) return;
-  const list = state.jobs.filter(j => filter === "all" || j.brief === filter || (filter === "passed" && j.status === "passed"));
-  $("jobs").innerHTML = list.map(j => `<div class="card" onclick="openJob(${j.id})">
-    <img loading="lazy" data-job="${j.id}" alt="">
-    <div class="b"><b>${(state.briefs[j.brief] || {}).title || j.brief}</b> · ${j.target}<br>
-    <span class="st ${j.status}">${label[j.status] || j.status}</span> 第 ${j.attempts}/${j.max_attempts} 次 ${j.note ? "· " + j.note : ""}</div></div>`).join("");
+  const list = state.jobs.filter(j => filter === "all" || j.brief === filter || (filter === "passed" && (j.status === "passed" || j.status === "review")));
+  $("jobs").innerHTML = list.map(j => `<button class="card" onclick="openJob(${j.id})">
+      <img class="thumb" alt="" data-job="${j.id}" ${thumbs[j.id] ? `src="${thumbs[j.id]}"` : ""}>
+      <div class="b"><div class="t">${esc((state.briefs[j.brief] || {}).title || j.brief)} · ${esc(j.target)}</div>
+      <div class="m">${tag(j.status)}<span>第 ${j.attempts}/${j.max_attempts} 次</span></div></div></button>`).join("") || `<div class="empty">这里还没有任务</div>`;
   document.querySelectorAll("img[data-job]").forEach(async (img) => {
+    if (thumbs[img.dataset.job]) return;
     const d = await (await fetch("/api/job/" + img.dataset.job)).json();
     const best = d.attempts.find(a => a.id === d.job.best_attempt) || d.attempts[d.attempts.length - 1];
-    if (best && best.outputs[1]) img.src = file(best.outputs[1]);
+    if (best && best.outputs[1]) { thumbs[img.dataset.job] = file(best.outputs[1]); img.src = thumbs[img.dataset.job]; }
   });
 }
 async function openJob(id) {
   const d = await (await fetch("/api/job/" + id)).json();
   const j = d.job;
-  const media = (p) => /\.(mp4|webm|mov)$/i.test(p) ? `<video src="${file(p)}" controls loop autoplay muted playsinline style="max-height:60vh"></video>` : `<img src="${file(p)}">`;
-  $("dlgBody").innerHTML = `<h2>${(state.briefs[j.brief] || {}).title || j.brief} · ${j.target} <span class="st ${j.status}">${label[j.status] || j.status}</span></h2>
-    ${["passed", "review", "gave_up"].includes(j.status) ? `<p><button onclick="act(${id},'approve')">采用（导出到 export）</button>
-      <button class="warn" onclick="act(${id},'reject')">退回重做</button> <textarea id="note" rows="2" placeholder="退回原因 / 想要怎么改（会加进提示词）"></textarea></p>` : ""}
-    ${j.status === "gave_up" || j.status === "rejected" ? `<p><button class="ghost" onclick="act(${id},'retry')">重新排队</button></p>` : ""}
-    ${d.attempts.slice().reverse().map(a => `<div class="att"><b>第 ${a.n} 次</b> · ${a.score != null ? a.score.toFixed(0) + " 分" : ""} ·
-      <span class="${a.passed ? "good" : "bad"}">${a.passed ? "通过" : "未过"}</span> · 用时 ${Math.round(a.seconds || 0)} 秒
-      ${a.outputs[0] ? "<div>" + media(a.outputs[0]) + "</div>" : ""}
-      ${(a.checks.problems || []).concat(a.review.problems || []).map(p => `<div class="bad">· ${p}</div>`).join("")}
-      <details><summary>提示词</summary><p>${a.prompt}</p></details></div>`).join("")}`;
+  const media = (p) => /\.(mp4|webm|mov)$/i.test(p) ? `<video src="${file(p)}" controls loop autoplay muted playsinline></video>` : `<img src="${file(p)}" alt="">`;
+  const decide = ["passed", "review", "gave_up"].includes(j.status);
+  $("dlgBody").innerHTML = `<h2>${esc((state.briefs[j.brief] || {}).title || j.brief)} · ${esc(j.target)}</h2>${tag(j.status)}
+    ${decide ? `<div class="row"><button class="p5" onclick="act(${id},'approve')"><span>采用</span></button>
+      <button class="p5 black" onclick="act(${id},'reject')"><span>退回重做</span></button></div>
+      <textarea id="note" rows="2" placeholder="退回时写一句想怎么改，会加进提示词"></textarea>` : ""}
+    ${j.status === "rejected" ? `<div class="row"><button class="btn" onclick="act(${id},'retry')">重新排队</button></div>` : ""}
+    ${d.attempts.slice().reverse().map(a => `<div class="att"><b>第 ${a.n} 次</b> · ${a.score != null ? a.score.toFixed(0) + " 分" : "-"} ·
+      <span class="${a.passed ? "good" : "bad"}">${a.passed ? "通过" : "未过"}</span> · ${Math.round(a.seconds || 0)} 秒
+      ${a.outputs[0] ? media(a.outputs[0]) : ""}
+      ${(a.checks.problems || []).concat(a.review.problems || []).map(p => `<div class="bad">· ${esc(p)}</div>`).join("")}
+      <details><summary>提示词</summary>${esc(a.prompt)}</details></div>`).join("")}`;
   $("dlg").showModal();
 }
 async function act(id, what) {
   const note = $("note") ? $("note").value : "";
   await fetch(`/api/job/${id}/${what}`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({note})});
-  $("dlg").close(); load();
+  $("dlg").close(); delete thumbs[id]; load();
 }
 $("pause").onclick = async () => { await fetch("/api/pause", {method: "POST", headers: {"Content-Type": "application/json"}, body: "{}"}); load(); };
 $("reload").onclick = async () => { await fetch("/api/reload", {method: "POST"}); load(); };
