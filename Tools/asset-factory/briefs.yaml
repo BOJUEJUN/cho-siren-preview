@@ -1,0 +1,140 @@
+# What the factory makes for CHO-SIREN. Each brief is one kind of asset; each target is one asset of that kind.
+# Paths in `reference` are relative to `game_repo` in config.yaml (or absolute). {id} etc. come from the target.
+# `checks` are the hard numeric checks (review.py numeric_checks); `rubric` is what the AI reviewer judges.
+# `variants`: keep making until this many passed versions exist per target (the GPU never idles while any are short).
+
+briefs:
+  - id: lobby-idle
+    title: 大厅待机动画
+    kind: video
+    workflow: i2v-firstlast        # first frame = last frame = her art → a seamless loop
+    priority: 70
+    variants: 2
+    max_attempts: 6
+    size: [720, 1280]
+    frames: 145                    # ~6 s at 24 fps
+    fps: 24
+    reference: Assets/Resources/Art/Members/member-{id}.png
+    last_frame: same
+    prompt: >-
+      anime idol girl {look}, standing on a plain pure white background, full body, subtle idle animation:
+      gentle breathing, slow blink, hair and clothes swaying slightly, small hand gesture, she stays in place,
+      camera locked, no zoom, same outfit and face as the reference, clean lineart, game character idle loop
+    negative: background scenery, camera move, zoom, extra people, extra limbs, deformed hands, face change, outfit change, text, watermark
+    checks: {seconds: [5, 8], loop: true, loop_seam_max: 6, motion: [0.3, 6], flicker_max: 3, clean_background: true, min_height: 1200}
+    rubric: |
+      1. 人物和参考原画是同一个角色：脸、发型、发色、服装、配饰一致，没有换脸、换衣服。
+      2. 只是轻微待机：呼吸、眨眼、头发衣服轻摆、小手势；人物不走动、不出画、不转身。
+      3. 背景始终是干净的纯白，没有场景、阴影块、地面。
+      4. 手指、眼睛、嘴巴没有崩坏、融化、多余肢体。
+      5. 首帧和尾帧姿势一致，能无缝循环。
+    targets:
+      - {id: huansha, look: "with a holographic spiked beanie, long silver hair, black leather jacket, white and black baggy pants"}
+      - {id: yaoguang, look: "dancer"}
+      - {id: hupo, look: "support idol"}
+
+  - id: ult-cutin
+    title: 大招动画
+    kind: video
+    workflow: i2v
+    priority: 60
+    variants: 2
+    max_attempts: 6
+    size: [720, 1472]
+    frames: 121                    # ~5 s
+    fps: 24
+    reference: Assets/Resources/Art/Members/member-{id}.png
+    prompt: >-
+      anime idol {look} performing her ultimate on a neon concert stage, dynamic camera: fast push-in to her face,
+      she sings into the microphone, spotlights and {color} energy burst, confetti, ends on a strong pose,
+      same character and outfit as the reference, high quality anime game cutscene
+    negative: different character, outfit change, extra people, deformed hands, melted face, text, watermark, blurry
+    checks: {seconds: [3.5, 6], motion: [1.5, 22], flicker_max: 8, min_height: 1200}
+    rubric: |
+      1. 主角是参考原画里的同一个角色，脸、发型、服装一致。
+      2. 有明显的大招演出感：镜头推进或环绕、灯光、特效爆发，结尾定格在帅气姿势。
+      3. 没有崩脸、崩手、肢体错位，没有多出来的人。
+      4. 画面清晰，不糊，不是幻灯片式的跳帧。
+    targets:
+      - {id: yaoguang, look: "dancer", color: violet}
+      - {id: hupo, look: "support idol", color: amber}
+      - {id: xianyue, look: "lead vocalist", color: blue}
+
+  - id: transition
+    title: 种族转场
+    kind: video
+    workflow: i2v
+    priority: 55
+    variants: 3
+    max_attempts: 5
+    size: [720, 1280]
+    frames: 49                     # ~2 s
+    fps: 24
+    reference: Tools/asset-factory/inputs/transitions/{race}.png
+    prompt: >-
+      stylish game transition animation: the bright {tone} character silhouette sweeps in from the side with motion trails,
+      hair and tail flowing, the CHO-SIREN logo flashes, graphic shapes slide, then the frame wipes away,
+      flat two-tone poster style exactly like the reference image, fast and punchy
+    negative: realistic, 3d render, extra characters, text changes, blurry, slow
+    checks: {seconds: [1.5, 3], motion: [2, 30], flicker_max: 12, min_height: 1200}
+    rubric: |
+      1. 画风和参考转场图一致：平涂双色剪影海报风，颜色一致。
+      2. 剪影角色有明显的入场动势（划入、拖影），而不是静止。
+      3. 节奏快、干净，适合 1-2 秒的转场；没有乱码文字和杂乱碎块。
+    targets:
+      - {race: 人鱼, tone: cyan}
+      - {race: 恶魔, tone: crimson}
+      - {race: 精灵, tone: violet}
+      - {race: 魅族, tone: pink}
+
+  - id: boss-entrance
+    title: 首领入场
+    kind: video
+    workflow: i2v
+    priority: 50
+    variants: 2
+    max_attempts: 6
+    size: [720, 1280]
+    frames: 73                     # ~3 s
+    fps: 24
+    reference: "{art}"
+    prompt: >-
+      dark fantasy anime boss "{name}" makes a dramatic entrance on a ruined neon stage: she rises from {element},
+      eyes glow, cape and hair whip in the wind, shockwave, camera tilts up to her, ends in a menacing pose,
+      same design as the reference, game boss intro cutscene
+    negative: different character, cute, extra people, deformed hands, text, watermark
+    checks: {seconds: [2.5, 4.5], motion: [1.5, 24], flicker_max: 10, min_height: 1200}
+    rubric: |
+      1. 首领造型和参考图一致（发型、服装、配色、标志物）。
+      2. 有压迫感的入场：从暗处/特效中出现、镜头仰拍或推进、结尾停在有威胁的姿势。
+      3. 没有崩脸崩手、多余人物；画面清晰。
+    targets:
+      - {id: luna, name: 碎音·琉娜, art: Assets/Resources/Art/BattleUser/boss-throne-20260928.png, element: "shattered sound waves"}
+      - {id: melody, name: 幻蚀歌枢·梅洛蒂, art: Assets/Resources/Art/BattleUser/boss-throne-user-v1.png, element: "corrupted music notes"}
+      - {id: selene, name: 深潮女王·赛琳, art: Assets/Resources/Art/BattleUser/boss-selene-1103.png, element: "a deep sea whirlpool"}
+
+  - id: minion-enter
+    title: 小怪入场 / 倒下
+    kind: video
+    workflow: i2v
+    priority: 40
+    variants: 1
+    max_attempts: 5
+    size: [720, 1280]
+    frames: 37                     # ~1.5 s
+    fps: 24
+    reference: Assets/Resources/Art/Enemies/{id}-ai-v1.png
+    prompt: >-
+      anime game enemy {id} jumps into frame and lands in a battle stance on a plain pure white background,
+      quick and readable motion, camera locked, same design as the reference
+    negative: background scenery, extra characters, deformed, text
+    checks: {seconds: [1, 2.5], motion: [1, 20], clean_background: true, min_height: 1200}
+    rubric: |
+      1. 敌人造型和参考图一致。
+      2. 1-2 秒内完成一次清楚的入场（跳入/冲入后落地站好）。
+      3. 背景纯白，方便抠图；没有崩坏。
+    targets:
+      - {id: neon-scout}
+      - {id: noise-wraith}
+      - {id: pulse-guard}
+      - {id: echo-drone}

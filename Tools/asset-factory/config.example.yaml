@@ -1,0 +1,17 @@
+# Copy to config.yaml on the 5090 machine and edit. Never put API keys here: use environment variables.
+game_repo: ../..                 # the CHO-SIREN checkout (reference art is read from here)
+output_dir: ./output             # every attempt, contact sheet and the job database
+export_dir: ./export             # approved assets, ready to import into the game
+host: 0.0.0.0                    # 0.0.0.0 to open the page from other machines on the LAN
+port: 8790
+workers: 2                       # parallel jobs; one reviews while the other generates
+mock: false                      # true = no GPU, fake clips (for testing the loop)
+comfy_url: http://127.0.0.1:8188
+timeout_seconds: 1800
+start_paused: false
+reviewer:                        # any OpenAI-compatible chat endpoint that accepts images
+  base_url: http://127.0.0.1:11434/v1   # e.g. Ollama / vLLM / LM Studio serving a vision model
+  model: qwen2.5vl:7b
+  pass_score: 75
+  timeout: 300
+  # api_key_env: REVIEWER_API_KEY       # only for a cloud reviewer; the key stays in the environment
