@@ -495,9 +495,17 @@ namespace ChoSiren.Panels
         }
 
         /// <summary>Portrait lookup that tolerates both legacy and catalog resource layouts.</summary>
+        /// <summary>2026-11-12 衣橱: the worn outfit of a member (set by the app; null when she wears her original look).</summary>
+        public static System.Func<string, Sprite> WornOutfit1112;
+
         public static Sprite MemberSpriteOrNull(string itemId, bool thumbnail)
         {
             if (string.IsNullOrEmpty(itemId)) return null;
+            if (!thumbnail && WornOutfit1112 != null)
+            {
+                Sprite worn = WornOutfit1112(itemId);
+                if (worn != null) return worn;
+            }
             MemberDefinition[] members = GameModel.Members;
             for (int index = 0; index < members.Length; index++)
             {

@@ -492,7 +492,7 @@ namespace ChoSiren
         {
             string folder = Folder(memberId);
             Directory.CreateDirectory(folder);
-            string path = Path.Combine(folder, DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".png");
+            string path = Path.Combine(folder, DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") + ".png");
             File.WriteAllBytes(path, texture.EncodeToPNG());
             return path;
         }
@@ -505,6 +505,39 @@ namespace ChoSiren
             Array.Sort(files, StringComparer.Ordinal);
             Array.Reverse(files);
             return files;
+        }
+
+        public static string OutfitPath1112(string memberId, string file) => Path.Combine(Folder(memberId), file ?? string.Empty);
+
+        public static bool DeleteOutfit1112(string memberId, string file)
+        {
+            string path = OutfitPath1112(memberId, file);
+            ForgetWornSprite1112(memberId);
+            try { if (File.Exists(path)) { File.Delete(path); return true; } }
+            catch (Exception error) { Debug.LogWarning("[Wardrobe] could not delete an outfit: " + error.Message); }
+            return false;
+        }
+
+        private static readonly System.Collections.Generic.Dictionary<string, (string File, Sprite Sprite)> wornSprites1112 =
+            new System.Collections.Generic.Dictionary<string, (string, Sprite)>();
+
+        /// <summary>Her worn outfit as a full-portrait sprite (loaded once and kept until she changes).</summary>
+        public static Sprite WornSprite1112(string memberId, string file)
+        {
+            if (string.IsNullOrEmpty(memberId) || string.IsNullOrEmpty(file)) return null;
+            if (wornSprites1112.TryGetValue(memberId, out var cached) && cached.File == file && cached.Sprite != null) return cached.Sprite;
+            Texture2D texture = Load(OutfitPath1112(memberId, file));
+            if (texture == null) return null;
+            texture.name = "Outfit-" + memberId;
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(.5f, .5f), 100f);
+            sprite.name = "Outfit-" + memberId;
+            wornSprites1112[memberId] = (file, sprite);
+            return sprite;
+        }
+
+        public static void ForgetWornSprite1112(string memberId)
+        {
+            if (memberId != null) wornSprites1112.Remove(memberId);
         }
 
         public static Texture2D Load(string path)

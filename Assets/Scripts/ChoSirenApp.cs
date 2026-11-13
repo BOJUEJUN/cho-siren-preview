@@ -91,6 +91,8 @@ namespace ChoSiren
                 Screen.sleepTimeout = SleepTimeout.NeverSleep;
                 model = new GameModel();
                 model.Changed += UpdateTopBar;
+                // 2026-11-12 衣橱: a worn outfit replaces her full portrait across the game.
+                ChoSiren.Panels.PanelKit.WornOutfit1112 = id => model == null ? null : WorkshopAi1104.WornSprite1112(id, model.WornOutfitFile1112(id));
                 gameAudio = gameObject.AddComponent<GameAudio>();
                 gameAudio.SetBaseMusicContext(GameAudio.MusicContext.Silent);
                 gameAudio.Initialize(model);

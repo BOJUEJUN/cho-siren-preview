@@ -74,7 +74,8 @@ namespace ChoSiren
         private string workshopTool1104 = string.Empty;
         private GameObject workshopParameter1105;
         private int workshopFraming1105 = 2; // 11-09: one full-length view (the outfit is the point); no 半身/全身
-        private const float WorkshopToolBand1105 = 118f;
+        // 2026-11-12: the bottom band is her wardrobe now (ChoSirenApp.Wardrobe1112); drawers cover it while open.
+        private const float WorkshopToolBand1105 = WardrobeBand1112;
 
         private void OpenWorkshop1104()
         {
@@ -85,6 +86,9 @@ namespace ChoSiren
             if (workshopMember1104 < 0 || !model.IsUnlocked(workshopMember1104)) workshopMember1104 = FirstWorkshopMember1109();
             string subjectId = WorkshopSubjectId1104, subjectName = WorkshopSubjectName1104;
             workshopLook1104 = model.WorkshopLook1104(subjectId);
+            workshopLook1104.Chroma = 0; // 2026-11-12 (少爷: "炫彩换色不用了…效果太差劲了"): no recolouring on her any more
+            wardrobePreview1112 = model.WornOutfitFile1112(subjectId) ?? string.Empty;
+            if (workshopTool1104 != "dress") workshopTool1104 = string.Empty;
 
             workshopRoot1104 = NewImage("WorkshopPage1104", safeRoot, null, new Color32(8, 4, 16, 255));
             var root = (RectTransform)workshopRoot1104.transform;
@@ -104,10 +108,10 @@ namespace ChoSiren
                     null, () => workshopLook1104, RoundedSprite(18), DotSprite());
             }
             workshopStage1104.Changed = () => model.SaveWorkshopLook1104(workshopLook1104);
-            if (aiDressResult1104 != null && aiDressResultSubject1105 == subjectId) workshopStage1104.SetOverride(aiDressResult1104);
+            ShowPreviewOnStage1112();
 
             BuildWorkshopHeader1105(root, subjectName);
-            BuildWorkshopTools1104(root);
+            BuildWardrobe1112(root);
             OpenWorkshopTool1104(workshopTool1104, false);
         }
 
@@ -119,6 +123,8 @@ namespace ChoSiren
             aiReveal1105 = null;
             workshopParameter1105 = null;
             aiDressPanel1104 = null;
+            wardrobeBand1112 = null;
+            ReleaseWardrobeThumbs1112();
             CloseWorkshopMusic1105();
             WorkshopRecorder1104.Cancel();
         }
@@ -172,13 +178,7 @@ namespace ChoSiren
             GameObject back = NewButton("WorkshopBack", root, "‹ 返回", 23, PanelKit.ButtonDark, White, CloseWorkshop1104);
             WorkshopPoster1105.Corner((RectTransform)back.transform, top, 18f, -18f, 132f, 54f);
 
-            Button save = WorkshopPoster1105.Ticket(root, "WorkshopSave", "保存", null, 20, () =>
-            {
-                model.SaveWorkshopLook1104(workshopLook1104);
-                VisualA1101.Success();
-                Toast($"已保存「{subjectName}」的造型");
-            });
-            WorkshopPoster1105.Corner((RectTransform)save.transform, Vector2.one, -20f, -18f, 112f, 46f);
+            // 2026-11-12: no 保存 ticket — the wardrobe keeps every outfit and 穿上 wears it.
 
             // Ransom-note title: four torn letter blocks, each tilted its own way.
             var title = new GameObject("WorkshopTitle", typeof(RectTransform)).GetComponent<RectTransform>();
@@ -340,6 +340,7 @@ namespace ChoSiren
             }
             RefreshWorkshopFraming1105();
             RefreshWorkshopTools1105();
+            if (workshopRoot1104 != null) BuildWardrobe1112((RectTransform)workshopRoot1104.transform);
         }
 
         private void CloseWorkshopParameter1105()
@@ -357,7 +358,7 @@ namespace ChoSiren
             var panel = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
             panel.SetParent(workshopRoot1104.transform, false);
             panel.anchorMin = Vector2.zero; panel.anchorMax = new Vector2(1f, 0f); panel.pivot = new Vector2(.5f, 0f);
-            panel.offsetMin = new Vector2(0f, WorkshopToolBand1105); panel.offsetMax = new Vector2(0f, WorkshopToolBand1105 + height);
+            panel.offsetMin = Vector2.zero; panel.offsetMax = new Vector2(0f, height); // covers the wardrobe while open
             Image face = panel.GetComponent<Image>(); face.color = new Color32(12, 8, 26, 252); face.raycastTarget = true;
             Image edge = WorkshopPoster1105.Block(panel, "PaperEdge", WorkshopPoster1105.Jag(), WorkshopPoster1105.Paper);
             edge.rectTransform.anchorMin = new Vector2(0f, 1f); edge.rectTransform.anchorMax = Vector2.one;
@@ -369,7 +370,7 @@ namespace ChoSiren
             GameObject close = NewButton("ParameterCollapse", panel, "收起 ⌄", 20, PanelKit.ButtonDark, White, CollapseWorkshopEditor1105);
             WorkshopPoster1105.Corner((RectTransform)close.transform, Vector2.one, -18f, -18f, 118f, 46f);
             panel.gameObject.AddComponent<WorkshopDrawerMotion1105>();
-            if (workshopStage1104 != null) workshopStage1104.BottomBand = WorkshopToolBand1105 + height + 14f;
+            if (workshopStage1104 != null) workshopStage1104.BottomBand = height + 14f;
             return panel;
         }
 
@@ -577,10 +578,29 @@ namespace ChoSiren
         {
             CloseAiDress1104();
             if (workshopRoot1104 == null) return;
-            var panel = WorkshopEditorPanel1105("AiDressPanel", "换装", 440f);
+            var panel = WorkshopEditorPanel1105("AiDressPanel", "设计新造型", 540f);
             aiDressPanel1104 = panel.gameObject;
-            Text note = WorkshopPoster1105.Word(panel, "Note", $"只换衣服不换脸 · 完成后消耗 {GameModel.AiDressDiamondCost1105} 星钻", 17, VisualA1101.Muted, TextAnchor.MiddleLeft);
-            WorkshopPoster1105.Corner(note.rectTransform, new Vector2(0f, 1f), 28f, -80f, 664f, 30f);
+            bool whole = aiDressPart1112 == DressParts1112[0];
+            string baseName = wardrobePreview1112.Length == 0 ? "原装" : "正在试穿的造型";
+            Text note = WorkshopPoster1105.Word(panel, "Note", whole ? $"换一整身 · 不换脸 · 完成后消耗 {GameModel.AiDressDiamondCost1105} 星钻"
+                : $"在{baseName}上只改{aiDressPart1112} · 完成后消耗 {GameModel.AiDressDiamondCost1105} 星钻", 17, VisualA1101.Muted, TextAnchor.MiddleLeft);
+            WorkshopPoster1105.Corner(note.rectTransform, new Vector2(0f, 1f), 28f, -78f, 664f, 30f);
+
+            // 2026-11-12 换哪里: the whole outfit or one part (selected = solid teal).
+            Text partTitle = WorkshopPoster1105.Word(panel, "PartTitle", "换哪里", 18, WorkshopPoster1105.Paper, TextAnchor.MiddleLeft);
+            WorkshopPoster1105.Corner(partTitle.rectTransform, Vector2.zero, 28f, 386f, 90f, 44f);
+            for (int p = 0; p < DressParts1112.Length; p++)
+            {
+                string part = DressParts1112[p];
+                bool picked = part == aiDressPart1112;
+                GameObject chip = NewButton("Part-" + p, panel, part, 19, picked ? (Color)Brand1025.Teal : PanelKit.ButtonDark,
+                    picked ? (Color)Brand1025.Ink : White, () => { VisualA1101.Click(); aiDressPart1112 = part; OpenAiDress1104(); });
+                WorkshopPoster1105.Corner((RectTransform)chip.transform, Vector2.zero, 118f + p * 96f, 386f, 88f, 44f);
+                Image chipFace = chip.GetComponent<Image>();
+                chipFace.sprite = PunkUi.SlantFill; chipFace.type = Image.Type.Simple;
+            }
+            Text styleTitle = WorkshopPoster1105.Word(panel, "StyleTitle", "什么风格", 18, WorkshopPoster1105.Paper, TextAnchor.MiddleLeft);
+            WorkshopPoster1105.Corner(styleTitle.rectTransform, Vector2.zero, 28f, 330f, 120f, 40f);
 
             // Torn style stickers, 4 x 2, each tilted a little differently.
             string[] tags = WorkshopAi1104.StyleTags;
@@ -625,21 +645,12 @@ namespace ChoSiren
             input.text = aiDressPrompt1104;
             input.onValueChanged.AddListener(v => aiDressPrompt1104 = v);
 
-            bool hasResult = aiDressResult1104 != null && aiDressResultSubject1105 == WorkshopSubjectId1104;
             bool pending = WorkshopAi1104.HasPending(WorkshopSubjectId1104);
-            Button go1 = WorkshopPoster1105.Ticket(panel, "AiGenerate", aiDressBusy1104 ? "生成中…" : pending ? "继续上次生成" : hasResult ? "再来一套" : "生成新造型",
+            string goLabel = aiDressBusy1104 ? "生成中…" : pending ? "继续上次生成" : whole ? "生成新造型" : "只改" + aiDressPart1112;
+            Button go1 = WorkshopPoster1105.Ticket(panel, "AiGenerate", goLabel,
                 aiDressBusy1104 ? null : $"{GameModel.AiDressDiamondCost1105} 星钻", 24, StartAiDress1104);
-            WorkshopPoster1105.Corner((RectTransform)go1.transform, Vector2.zero, 30f, 22f, hasResult ? 400f : 560f, 60f);
+            WorkshopPoster1105.Corner((RectTransform)go1.transform, Vector2.zero, 30f, 22f, 560f, 60f);
             go1.interactable = !aiDressBusy1104;
-            if (hasResult)
-            {
-                Button keep = WorkshopPoster1105.Ticket(panel, "AiSave", "存进衣橱", null, 20, SaveAiDress1105,
-                    WorkshopPoster1105.Ink, WorkshopPoster1105.Paper, WorkshopPoster1105.Ink);
-                WorkshopPoster1105.Corner((RectTransform)keep.transform, Vector2.zero, 446f, 22f, 170f, 56f);
-                WorkshopTextButton1104(panel, "AiUndo", "换回", 18, Vector2.zero, new Vector2(626f, 50f), UndoAiDress1105);
-                RectTransform undo = (RectTransform)panel.Find("AiUndo");
-                undo.anchoredPosition = new Vector2(640f, 50f); undo.sizeDelta = new Vector2(68f, 60f);
-            }
             string status = aiDressBusy1104 ? aiDressStatus1104 : !WorkshopAi1104.Connected ? WorkshopAi1104.PendingNotice : aiDressStatus1104;
             Text line = WorkshopPoster1105.Word(panel, "Status", status, 14, VisualA1101.Muted, TextAnchor.MiddleLeft);
             WorkshopPoster1105.Corner(line.rectTransform, Vector2.zero, 28f, 102f, 664f, 30f);
@@ -718,13 +729,15 @@ namespace ChoSiren
             Text style = WorkshopPoster1105.Word(tagPlate.transform, "Text", aiDressResultStyle1105 ?? aiDressTag1104, 26, WorkshopPoster1105.Ink);
             VisualA1101.Stretch(style.rectTransform);
 
+            // 2026-11-12: it is already in her wardrobe; 穿上 wears it across the game, 先看看 keeps trying it on the stage.
+            Text kept = WorkshopPoster1105.Word(page, "AiRevealKept", "已收进衣橱", 20, WorkshopPoster1105.Paper, TextAnchor.MiddleLeft);
+            WorkshopPoster1105.Corner(kept.rectTransform, Vector2.zero, 32f, 196f, 300f, 36f);
             WorkshopTextButton1104(page, "AiRevealPeek", "先看看 ›", 20, Vector2.one, new Vector2(-16f, -40f), CloseAiReveal1105);
-            Button keep = WorkshopPoster1105.Ticket(page, "AiRevealSave", "存进衣橱", null, 26, () => { SaveAiDress1105(); CloseAiReveal1105(); });
+            Button keep = WorkshopPoster1105.Ticket(page, "AiRevealWear", "穿上", null, 28, () => { CloseAiReveal1105(); WearPreview1112(); });
             WorkshopPoster1105.Corner((RectTransform)keep.transform, Vector2.zero, 28f, 120f, 330f, 66f);
             Button again = WorkshopPoster1105.Ticket(page, "AiRevealAgain", "再来一套", $"{GameModel.AiDressDiamondCost1105} 星钻", 20,
                 () => { CloseAiReveal1105(); StartAiDress1104(); }, WorkshopPoster1105.Ink, WorkshopPoster1105.Paper, WorkshopPoster1105.Ink);
             WorkshopPoster1105.Corner((RectTransform)again.transform, new Vector2(1f, 0f), -24f, 40f, 300f, 58f);
-            WorkshopTextButton1104(page, "AiRevealUndo", "换回原装", 18, Vector2.zero, new Vector2(34f, 60f), UndoAiDress1105);
             page.gameObject.AddComponent<VisualA1101Motion>().Pop(0f);
         }
 
@@ -733,9 +746,17 @@ namespace ChoSiren
             if (aiDressBusy1104) return;
             if (!WorkshopAi1104.Connected) { VisualA1101.Deny(); Toast(WorkshopAi1104.PendingNotice); return; }
             if (!model.CanPayAiDress1105) { VisualA1101.Deny(); Toast($"星钻不足，每次需要 {GameModel.AiDressDiamondCost1105} 星钻"); return; }
-            string prompt = WorkshopAi1104.PromptFor(aiDressTag1104, aiDressPrompt1104);
-            Sprite still = workshopMember1104 < 0 ? Resources.Load<Sprite>("Art/Workshop1104/starter-still")
-                : Resources.Load<Sprite>(GameModel.Members[workshopMember1104].ResourcePath);
+            if (model.WardrobeFull1112(WorkshopSubjectId1104))
+            { VisualA1101.Deny(); Toast($"衣橱满了（{GameModel.WardrobeCapacity1112} 套），先删掉不要的造型"); return; }
+            string part = aiDressPart1112;
+            string prompt = DressPrompt1112(part, aiDressTag1104, aiDressPrompt1104);
+            // A whole outfit starts from her original art; one part is changed on the look she is trying on.
+            Sprite still = WorkshopOriginalStill1112();
+            if (part != DressParts1112[0] && wardrobePreview1112.Length > 0)
+            {
+                Texture2D current = WorkshopAi1104.Load(WorkshopAi1104.OutfitPath1112(WorkshopSubjectId1104, wardrobePreview1112));
+                if (current != null) still = Sprite.Create(current, new Rect(0, 0, current.width, current.height), new Vector2(.5f, .5f), 100f);
+            }
             string generatingSubject = WorkshopSubjectId1104, generatingStyle = aiDressTag1104;
             aiDressBusy1104 = true; aiDressStatus1104 = "准备中…";
             OpenAiDress1104();
@@ -749,17 +770,12 @@ namespace ChoSiren
                 aiDressBusy1104 = false;
                 if (texture != null)
                 {
-                    aiDressResult1104 = texture;
-                    aiDressResultSubject1105 = generatingSubject; aiDressResultStyle1105 = generatingStyle; aiDressSource1105 = still;
+                    aiDressSource1105 = still;
                     bool paid = model.PayAiDress1105();
                     aiDressStatus1104 = (paid ? $"生成完成 · 消耗 {GameModel.AiDressDiamondCost1105} 星钻" : "生成完成")
                         + (WorkshopAi1104.RemainingToday >= 0 ? $" · 今天还能换 {WorkshopAi1104.RemainingToday} 次" : string.Empty);
                     VisualA1101.Success();
-                    if (workshopRoot1104 != null && WorkshopSubjectId1104 == generatingSubject)
-                    {
-                        workshopStage1104?.SetOverride(texture);
-                        ShowAiReveal1105(texture);
-                    }
+                    FinishAiDress1112(generatingSubject, generatingStyle, part, texture);
                 }
                 else { aiDressStatus1104 = error; Toast(error); }
                 if (aiDressPanel1104 != null) OpenAiDress1104();

@@ -20,7 +20,7 @@ namespace ChoSiren
         {
             if (root == null) return;
             bool locked = !model.RelicDiceUnlocked;
-            const float x = 3540f, y = 2110f, w = 440f, h = 430f;
+            const float x = 3540f, y = 2290f, w = 440f, h = 430f; // 2026-11-12: one even step below the eye, like 设置→邮件→眼睛
             GameObject button = NewImage("RelicDiceEntry1111", root, null, Color.clear);
             PlaceTop(button.GetComponent<RectTransform>(),
                 // 2026-11-12 (少爷: "功能骰跟眼睛 ui 重叠了"): it moves with the eye above it (the top group's safe-area
