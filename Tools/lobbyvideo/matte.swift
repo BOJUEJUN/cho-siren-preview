@@ -56,6 +56,10 @@ let coreVoteRadius = 5
 // the frame border through backdrop colour, right of that fraction of the width. Vision misses the small white pig
 // there, and the white key alone left its body see-through. Unset = old behaviour.
 let enclosedFromX = Double(ProcessInfo.processInfo.environment["ENCLOSED_FROM_X"] ?? "") ?? 2.0
+// 2026-11-12 (凛音 lobby idle on a dark vignette with a floor shadow): KEY_LO / KEY_SPAN raise the key's threshold so
+// the grey shadow and vignette around her clear outside Vision's figure core. Defaults keep the white-backdrop key.
+let keyLo = Double(ProcessInfo.processInfo.environment["KEY_LO"] ?? "") ?? 0.045
+let keySpan = Double(ProcessInfo.processInfo.environment["KEY_SPAN"] ?? "") ?? 0.13
 
 func bytes(_ buffer: CVPixelBuffer) -> (UnsafeMutablePointer<UInt8>, Int) {
     CVPixelBufferLockBaseAddress(buffer, [])
@@ -177,7 +181,7 @@ for frame in 0..<colours.count {
                     let b = Double(c[0]), g = Double(c[1]), r = Double(c[2])
                     // White key: how far the pixel is from the white backdrop (the cyan rim is not white).
                     let dist = max(abs(bgR - r), max(abs(bgG - g), abs(bgB - b))) / 255
-                    let key = max(0, min(1, (dist - 0.045) / 0.13))   // the backdrop is ~(255,251,250), not pure white
+                    let key = max(0, min(1, (dist - keyLo) / keySpan))   // the backdrop is ~(255,251,250), not pure white
                     // Inside Vision's core trust it fully (white clothes stay solid); elsewhere the white key decides,
                     // which keeps the cyan rim and clears white gaps between arms, legs and hair.
                     // Only ever removes solidity: a symmetric median invented white patches where a fast arm uncovers

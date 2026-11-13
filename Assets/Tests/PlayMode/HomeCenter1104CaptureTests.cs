@@ -44,7 +44,7 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator CaptureEachHomeIdol([Values(0, 1, 2, 3)] int index)
+        public IEnumerator CaptureEachHomeIdol([Values(0, 1, 2, 3, 4, 5)] int index)
         {
             var saveData = new GameSave { HomeCharacterIndex = index, StoryProgress = 100, PlayerName = "经纪人",
                 AccountLevel1104 = 7, AccountXp1104 = 300 };

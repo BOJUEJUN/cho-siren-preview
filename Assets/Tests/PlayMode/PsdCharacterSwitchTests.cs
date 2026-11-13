@@ -134,8 +134,19 @@ namespace ChoSiren.Tests
             Assert.That(Carousel.Index, Is.EqualTo(3));
             Assert.That(portrait.sprite.name, Does.Contain("character4-portrait"));
             Assert.That(Model.Save.HomeCharacterIndex, Is.EqualTo(3));
+            // 2026-11-12: 幻惑伶 and 凛音 joined the carousel after 雾白.
+            string[] newcomers = { "幻惑伶", "凛音" };
+            for (int step = 0; step < 2; step++)
+            {
+                Carousel.Switch(1); yield return new WaitForSecondsRealtime(.45f);
+                Assert.That(Home.transform.Find("PsdCharacterDialogue/Speaker").GetComponent<Text>().text, Is.EqualTo(newcomers[step]));
+                Assert.That(portrait.sprite.name, Does.Contain($"character{5 + step}-portrait"));
+            }
             Carousel.Switch(1); yield return new WaitForSecondsRealtime(.45f);
             Assert.That(Carousel.Index, Is.EqualTo(0), "The carousel wraps back to the first idol.");
+            Carousel.Switch(-1); yield return new WaitForSecondsRealtime(.45f);
+            Assert.That(Carousel.Index, Is.EqualTo(5));
+            Carousel.Switch(-1); yield return new WaitForSecondsRealtime(.45f);
             Carousel.Switch(-1); yield return new WaitForSecondsRealtime(.45f);
             Assert.That(Carousel.Index, Is.EqualTo(3));
             Home.GetComponent<PsdHomeMotion>().SceneClicked(1, true);

@@ -59,6 +59,12 @@ namespace ChoSiren
                     new ClipEntry { characterId = "xingli", path = "xingli-ult.mp4", approvedOriginalArt = true, durationSeconds = 4.2f },
                     new ClipEntry { characterId = "yeying", path = "yeying-ult-full-1102.mp4", approvedOriginalArt = true, durationSeconds = 5.1666667f },
                     new ClipEntry { characterId = "feiyin", path = "feiyin-ult.mp4", approvedOriginalArt = true, durationSeconds = 4.25f },
+                    new ClipEntry { characterId = "huansha", path = "huansha-ult-a.mp4", approvedOriginalArt = true, durationSeconds = 5.1667f },
+                    new ClipEntry { characterId = "huansha", path = "huansha-ult-b.mp4", approvedOriginalArt = true, durationSeconds = 5.1667f },
+                    new ClipEntry { characterId = "huanhuoling", path = "huanhuoling-ult.mp4", approvedOriginalArt = true, durationSeconds = 5.1667f },
+                    new ClipEntry { characterId = "linyin", path = "linyin-ult-a.mp4", approvedOriginalArt = true, durationSeconds = 5.1667f },
+                    new ClipEntry { characterId = "linyin", path = "linyin-ult-b.mp4", approvedOriginalArt = true, durationSeconds = 5.1667f },
+                    new ClipEntry { characterId = "linyin", path = "linyin-ult-c.mp4", approvedOriginalArt = true, durationSeconds = 4.0417f },
                 } };
                 return sharedManifest1112;
             }

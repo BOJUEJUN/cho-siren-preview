@@ -20,6 +20,9 @@ namespace ChoSiren
             new[] { "lilith-a.mp4", "lilith-b.mp4" },
             new[] { "elf-a.mp4", "elf-b.mp4" },
             new[] { "mermaid-a.mp4", "mermaid-b.mp4" },
+            // 2026-11-12 幻惑伶 / 凛音 (one idle clip each, cut out with Tools/lobbyvideo/matte.swift; 凛音 with KEY_LO=0.5).
+            new[] { "huanhuoling-a.mp4", "huanhuoling-a.mp4" },
+            new[] { "linyin-a.mp4", "linyin-a.mp4" },
         };
         // Where each clip's frame sits on its portrait (fractions of the portrait rect: min x, min y, max x, max y),
         // registered on the clip's first frame against the portrait's alpha.
@@ -31,9 +34,12 @@ namespace ChoSiren
             // 2026-11-12 (少爷 对比修正.psd): re-registered on the clip's first frame with feature matching; the mermaid
             // clip is turned 15° against her still, so it now turns with ClipTurn1112 and lands on the PSD pose.
             new[] { new Vector4(.0065f, .0290f, .9901f, .9842f), new Vector4(.0065f, .0290f, .9901f, .9842f) },
+            // Their stills are the clips' own first frames, so the clip covers the portrait exactly.
+            new[] { new Vector4(0f, 0f, 1f, 1f), new Vector4(0f, 0f, 1f, 1f) },
+            new[] { new Vector4(0f, 0f, 1f, 1f), new Vector4(0f, 0f, 1f, 1f) },
         };
         // Degrees (counter-clockwise) each idol's clip turns about its own centre to lie on her still portrait.
-        private static readonly float[] ClipTurn1112 = { 0f, 0f, 0f, 15f };
+        private static readonly float[] ClipTurn1112 = { 0f, 0f, 0f, 15f, 0f, 0f };
         private const float FadeSeconds = .35f;
         /// <summary>2026-11-04 (用户: "切到这个角色的时候有第一帧错误的感觉"): how long a newly shown idol keeps her still portrait
         /// hidden while her clip prepares. The still and the clip never line up exactly (pose, framing), so showing the still

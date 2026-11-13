@@ -26,12 +26,20 @@ namespace ChoSiren.Panels
 
         private static BattleUltimateVideo1019.ClipEntry UltimateClipFor(string characterId)
         {
+            var choices = UltimateClipsFor1112(characterId);
+            // 2026-11-12 (少爷 supplied 2-3 clips for 幻纱 / 凛音): a member with several clips plays one of them at random.
+            return choices.Count == 0 ? null : choices[Random.Range(0, choices.Count)];
+        }
+
+        private static System.Collections.Generic.List<BattleUltimateVideo1019.ClipEntry> UltimateClipsFor1112(string characterId)
+        {
+            var result = new System.Collections.Generic.List<BattleUltimateVideo1019.ClipEntry>();
             var manifest = BattleUltimateVideo1019.SharedManifest;
             if (manifest?.entries != null)
                 foreach (var entry in manifest.entries)
                     if (entry != null && entry.characterId == characterId && entry.approvedOriginalArt &&
-                        BattleUltimateVideo1019.IsLocalClipPath(entry.path)) return entry;
-            return null;
+                        BattleUltimateVideo1019.IsLocalClipPath(entry.path)) result.Add(entry);
+            return result;
         }
 
         /// <summary>Preload the first team member's ultimate clip so its first cast plays at once.</summary>
@@ -40,8 +48,7 @@ namespace ChoSiren.Panels
             foreach (BattleUnit unit in battle.Units)
             {
                 if (unit.Side != BattleSide.Player) continue;
-                var entry = UltimateClipFor(unit.Definition.Id);
-                if (entry != null) EnsureUltimateShow().Warm(entry.path);
+                foreach (var entry in UltimateClipsFor1112(unit.Definition.Id)) EnsureUltimateShow().Warm(entry.path);
             }
         }
 

@@ -24,11 +24,14 @@ namespace ChoSiren
         {
             new Vector4(7, 184, 4268, 8358), new Vector4(-1066, 751, 5170, 7513),
             new Vector4(-777, 647, 5912, 8614), new Vector4(-207, 517, 5486, 8425),
+            // 2026-11-12 (少爷: 新的大厅待机动画 "直接能显示在大厅"): 幻惑伶 and 凛音, placed from their clips' first frames.
+            new Vector4(76, 900, 4017, 7141), new Vector4(-74, 936, 3877, 6893),
         };
         private static readonly Vector4[] OutlineRects =
         {
             new Vector4(0, 184, 4027, 8358), new Vector4(0, 755, 2743, 7521),
             new Vector4(-852, 685, 4352, 8568), new Vector4(-272, 759, 4754, 8134),
+            new Vector4(76, 900, 4017, 7141), new Vector4(-74, 936, 3877, 6893),
         };
         /// <summary>
         /// 2026-11-04 (赵金 "这个角色中线偏了，要正一点"): stage units (720 wide) each idol moves sideways so her face
@@ -36,21 +39,21 @@ namespace ChoSiren
         /// The idle clips are children of the portrait and move with it.
         /// </summary>
         // 2026-11-12 (少爷 对比修正.psd "这个角色在游戏里面的位置偏移得严重"): the fourth idol stands exactly where the PSD puts her.
-        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 0f };
+        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 0f, 0f, 0f };
         /// <summary>
         /// 2026-11-04 (赵金 "第四个角色可以歪一点…上面往右边歪下面往左边"): degrees each idol turns (negative = clockwise) about her face;
         /// 粉珀人鱼 turns counter-clockwise (用户箭头 上往左、下往右). The face stays where the centring put it.
         /// 2026-11-11 (赵金 "这个手别看不到了 / 这个要正一点角色"): on the phone her idle clip still leaned ~6° clockwise, so she
         /// turns 9° in all and stands upright.
         /// </summary>
-        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 0f };
+        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 0f, 0f, 0f };
         /// <summary>
         /// 2026-11-11 (赵金 "这个手别看不到了"): 粉珀人鱼's outstretched hand ran off the right edge; she is shown at 82%
         /// about her face (the face stays centred) so the whole hand is on screen.
         /// </summary>
-        public static readonly float[] Scale1111 = { 1f, 1f, 1f, 1f };
+        public static readonly float[] Scale1111 = { 1f, 1f, 1f, 1f, 1f, 1f };
         // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
-        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(180f, 397f) };
+        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(180f, 397f), Vector2.zero, Vector2.zero };
         public int Index { get; private set; }
         public bool Switching { get; private set; }
         public bool HasPerformance => Index == 0;
@@ -65,10 +68,14 @@ namespace ChoSiren
             // 2026-10-29 PSD v3: 角色3 (purple elf) and 组1 (pink mermaid) join the two original idols.
             portraits = new[] { portrait.sprite, ReferenceArt038.Load("Art/Reference038/home-layer-character2-portrait"),
                 ReferenceArt038.Load("Art/Reference038/home-layer-character3-portrait"),
-                ReferenceArt038.Load("Art/Reference038/home-layer-character4-portrait") };
+                ReferenceArt038.Load("Art/Reference038/home-layer-character4-portrait"),
+                ReferenceArt038.Load("Art/Reference038/home-layer-character5-portrait"),
+                ReferenceArt038.Load("Art/Reference038/home-layer-character6-portrait") };
             outlines = new[] { outline.sprite, ReferenceArt038.Load("Art/Reference038/home-layer-character2-outline"),
                 ReferenceArt038.Load("Art/Reference038/home-layer-character3-outline"),
-                ReferenceArt038.Load("Art/Reference038/home-layer-character4-outline") };
+                ReferenceArt038.Load("Art/Reference038/home-layer-character4-outline"),
+                ReferenceArt038.Load("Art/Reference038/home-layer-character5-outline"),
+                ReferenceArt038.Load("Art/Reference038/home-layer-character6-outline") };
             previous = Arrow("PreviousCharacter", -1, 12, font, plate);
             next = Arrow("NextCharacter", 1, 648, font, plate);
             Apply(Mathf.Clamp(initial, 0, portraits.Length - 1));

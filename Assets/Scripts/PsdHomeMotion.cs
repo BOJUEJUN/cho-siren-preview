@@ -28,7 +28,7 @@ namespace ChoSiren
         /// <summary>Fills {player} with the manager's signed name (set by the app).</summary>
         public Func<string, string> Personalize;
 
-        private static readonly string[] SpeakerIds = { "xingli", "feiyin", "yeying", "wubai" };
+        private static readonly string[] SpeakerIds = { "xingli", "feiyin", "yeying", "wubai", "huanhuoling", "linyin" };
         public static string SpeakerName(int character)
         {
             string id = SpeakerIds[Mathf.Clamp(character, 0, SpeakerIds.Length - 1)];
@@ -40,6 +40,8 @@ namespace ChoSiren
         {
             new[] { "月光下的旋律，只唱给你听。", "精灵的耳朵可是很灵的，别偷偷叹气哦。", "{player}，今晚的舞台，我会让它发光。" },
             new[] { "要和我一起去海里唱歌吗？", "尾巴上的鳞片，今天也闪闪发亮～", "{player}！伸出手，接住我的歌声！" },
+            new[] { "喵～被我的眼神迷住了吧？", "{player}，再靠近一点，就把你变成我的头号粉丝。", "今晚的舞台，谁都别想移开视线。" },
+            new[] { "跟上我的鼓点，不准掉队。", "{player}，什么盾挡在前面，我都给你砸开。", "别愣着，下一首要更炸！" },
         };
         private int guestLast = -1;
         private Text speakerText;

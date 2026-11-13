@@ -33,6 +33,8 @@ namespace ChoSiren
             Rect.MinMaxRect(268f, 310f, 463f, 495f),  // 莉莉丝 LILITH
             Rect.MinMaxRect(275f, 180f, 475f, 350f),  // 紫晶精灵 AMETHYST
             Rect.MinMaxRect(309f, 320f, 539f, 520f),  // 粉珀人鱼 CORALIE
+            Rect.MinMaxRect(285f, 230f, 420f, 390f),  // 幻惑伶 (2026-11-12)
+            Rect.MinMaxRect(260f, 380f, 470f, 600f),  // 凛音 (2026-11-12)
         };
 
         /// <summary>Top-left of the box (not its name plate) per idol, in the same stage units.</summary>
@@ -42,6 +44,8 @@ namespace ChoSiren
             new Vector2(282f, 514f),  // under her chin, right of the microphone
             new Vector2(16f, 366f),   // below-left of her chin, over the hair and sleeve
             new Vector2(282f, 540f),  // under her chin, right of the microphone
+            new Vector2(14f, 420f),   // 幻惑伶: below-left of her chin
+            new Vector2(330f, 640f),  // 凛音: under her chin, right
         };
 
         /// <summary>How long a line stays: long enough to read after it types out, shorter than the old 4.5 s.</summary>

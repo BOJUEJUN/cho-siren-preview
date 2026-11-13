@@ -1922,15 +1922,15 @@
   },
   {
    "path": "Art/Members/member-huansha",
-   "w": 930,
+   "w": 862,
    "h": 2048,
    "face": [
-    0.1489,
-    0.7362,
-    0.3574,
-    0.1285
+    0.22,
+    0.79,
+    0.32,
+    0.105
    ],
-   "src": "manual"
+   "src": "manual-1112"
   },
   {
    "path": "Art/Members/Avatars/avatar-huansha",
@@ -1946,15 +1946,15 @@
   },
   {
    "path": "Art/Members/member-huanhuoling",
-   "w": 1094,
+   "w": 998,
    "h": 2048,
    "face": [
-    0.3512,
-    0.7294,
-    0.2658,
-    0.115
+    0.38,
+    0.815,
+    0.26,
+    0.095
    ],
-   "src": "manual"
+   "src": "manual-1112"
   },
   {
    "path": "Art/Members/Avatars/avatar-huanhuoling",
@@ -1970,15 +1970,15 @@
   },
   {
    "path": "Art/Members/member-linyin",
-   "w": 810,
+   "w": 834,
    "h": 2048,
    "face": [
-    0.2325,
-    0.7362,
-    0.3419,
-    0.1285
+    0.32,
+    0.805,
+    0.3,
+    0.095
    ],
-   "src": "manual"
+   "src": "manual-1112"
   },
   {
    "path": "Art/Members/Avatars/avatar-linyin",
