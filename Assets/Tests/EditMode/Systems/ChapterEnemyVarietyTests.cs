@@ -86,7 +86,7 @@ namespace ChoSiren.Tests.Systems
             // 2026-11-11: 1-2 is one wave of three 游魂 and 1-8 two waves (三敌同屏, 企划书 "3-4 只成群").
             int[] expectedCounts = { 2, 3, 3, 4, 3, 3, 4, 5, 3, 2 };
             int[] expectedWaves = { 1, 1, 2, 2, 2, 2, 2, 2, 2, 2 };
-            int[] expectedLevels = { 1, 1, 1, 1, 10, 11, 12, 13, 14, 16 };
+            int[] expectedLevels = { 1, 4, 6, 8, 10, 11, 12, 13, 14, 16 }; // 2026-11-12: 1-2..1-4 tuned for new-account levels (BalanceProbe1112Tests)
             List<StageDefinition> chapterOne = Enumerable.Range(1, 10).Select(n => data.FindStage($"stage-1-{n}")).ToList();
             Assert.That(data.Stages.Count(item => item.Id.StartsWith("stage-1-")), Is.EqualTo(GameModel.ChapterOneStageCount));
             for (int i = 0; i < chapterOne.Count; i++)
