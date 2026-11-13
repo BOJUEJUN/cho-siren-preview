@@ -18,7 +18,8 @@ namespace ChoSiren
 
         private void BuildRelicEntry1111(Transform root, float scale, float layoutWidth, float layoutHeight)
         {
-            if (!model.RelicDiceUnlocked || root == null) return;
+            if (root == null) return;
+            bool locked = !model.RelicDiceUnlocked;
             const float x = 3540f, y = 2110f, w = 440f, h = 430f;
             GameObject button = NewImage("RelicDiceEntry1111", root, null, Color.clear);
             PlaceTop(button.GetComponent<RectTransform>(),
@@ -33,6 +34,18 @@ namespace ChoSiren
             Text label = NewText("RelicDiceLabel", button.transform, "功能骰", 15, Color.white, FontStyle.Bold, TextAnchor.MiddleCenter);
             PlaceTop(label.rectTransform, -10, w * scale - 30, w * scale + 20, 24);
             label.gameObject.AddComponent<Outline>().effectColor = new Color(0, 0, 0, .9f);
+            if (locked)
+            {
+                // Before 第三章: the die is dimmed with a lock badge and a "2-20 解锁" caption under the name.
+                face.GetComponent<Image>().color = new Color(.62f, .62f, .7f, 1f);
+                GameObject badge = NewImage("RelicLockBadge", button.transform, Resources.Load<Sprite>("Art/VisualA1101/icon-lock"), Color.white);
+                badge.GetComponent<Image>().preserveAspect = true; badge.GetComponent<Image>().raycastTarget = false;
+                PlaceTop(badge.GetComponent<RectTransform>(), w * scale - 34, 0, 26, 26);
+                Text unlock = NewText("RelicUnlockCaption", button.transform, "2-20 解锁", 11, new Color32(255, 214, 102, 255),
+                    FontStyle.Bold, TextAnchor.MiddleCenter);
+                PlaceTop(unlock.rectTransform, -10, w * scale - 8, w * scale + 20, 16);
+                unlock.gameObject.AddComponent<Outline>().effectColor = new Color(0, 0, 0, .9f);
+            }
             var b = button.AddComponent<Button>();
             b.targetGraphic = hit; b.transition = Selectable.Transition.None;
             b.onClick.AddListener(OpenRelicDice1111);
@@ -54,6 +67,21 @@ namespace ChoSiren
                 15, new Color32(171, 181, 213, 255), FontStyle.Normal, TextAnchor.UpperLeft);
             tip.horizontalOverflow = HorizontalWrapMode.Wrap; tip.verticalOverflow = VerticalWrapMode.Overflow;
             PlaceTop(tip.rectTransform, 0, 0, width, 44);
+            float top = 0f;
+            if (!model.RelicDiceUnlocked)
+            {
+                // 2026-11-12 (少爷: 开放但要提示怎么解锁): a banner says what unlocks the dice; picking them already works.
+                top = 52f;
+                GameObject banner = NewImage("RelicLockBanner", body, null, new Color32(255, 196, 64, 38));
+                PlaceTop(banner.GetComponent<RectTransform>(), 0, 46, width, 46);
+                GameObject lockIcon = NewImage("RelicLockIcon", banner.transform, Resources.Load<Sprite>("Art/VisualA1101/icon-lock"), Color.white);
+                lockIcon.GetComponent<Image>().preserveAspect = true; lockIcon.GetComponent<Image>().raycastTarget = false;
+                PlaceTop(lockIcon.GetComponent<RectTransform>(), 10, 9, 28, 28);
+                Text hint = NewText("RelicLockHint", banner.transform, "未解锁：" + GameModel.RelicUnlockHint1112 + "。现在可以先挑好。",
+                    14, new Color32(255, 214, 102, 255), FontStyle.Bold, TextAnchor.MiddleLeft);
+                hint.horizontalOverflow = HorizontalWrapMode.Wrap; hint.verticalOverflow = VerticalWrapMode.Overflow;
+                PlaceTop(hint.rectTransform, 46, 0, width - 54, 46);
+            }
 
             var carried = model.CarriedRelics;
             float slotW = (width - 24) / RelicDice1111.CarrySlots;
@@ -64,11 +92,11 @@ namespace ChoSiren
                 string caption = id == null ? "空位" : RelicDice1111.ColorName(id) + "·" + RelicDice1111.Name(id);
                 GameObject chip = NewModalPunkButton("RelicCarry-" + slot, body, caption, 17,
                     () => { if (model.UncarryRelic(captured)) OpenRelicDice1111(); }, id == null ? Muted : Cyan);
-                PlaceTop(chip.GetComponent<RectTransform>(), slot * (slotW + 12), 50, slotW, 54);
+                PlaceTop(chip.GetComponent<RectTransform>(), slot * (slotW + 12), 50 + top, slotW, 54);
                 if (id != null) TintRelic1111(chip.transform, id, 8, 11, 32);
             }
 
-            float y = 120f;
+            float y = 120f + top;
             float rowH = Mathf.Min(64f, (frame.Height * .62f - y) / RelicDice1111.All.Length);
             foreach (string id in RelicDice1111.All)
             {

@@ -23,14 +23,20 @@ namespace ChoSiren
         /// <summary>0..999 rolls for drops / shattering (tests replace it).</summary>
         public Func<int> RelicRoll1111 = () => UnityEngine.Random.Range(0, 1000);
 
+        /// <summary>
+        /// 第三章 is open, so the carried dice play. 2026-11-12 (少爷: "先开放，但是做好一些提示就是要怎么样解锁的"): the entry,
+        /// the starter dice and the loadout are open to everyone before that; the page says how the dice come into play.
+        /// </summary>
         public bool RelicDiceUnlocked => IsStageCleared("stage-2-20");
+
+        public const string RelicUnlockHint1112 = "通关 2-20 打开第三章后，带上的骰子才会在第三章战斗里出现";
 
         public int RelicCount(string id) => Save.RelicInventory1111?.Count(x => x == id) ?? 0;
 
         /// <summary>Two starter dice (锋刃 + 坚壁) the first time the entry opens, so the system can be tried at once.</summary>
         public void EnsureRelicStarter()
         {
-            if (!RelicDiceUnlocked || Save.RelicStarterGiven1111) return;
+            if (Save.RelicStarterGiven1111) return;
             Save.RelicStarterGiven1111 = true;
             Save.RelicInventory1111.Add(RelicDice1111.Blade);
             Save.RelicInventory1111.Add(RelicDice1111.Bulwark);
@@ -59,7 +65,6 @@ namespace ChoSiren
         public bool CarryRelic(string id, out string message)
         {
             message = null;
-            if (!RelicDiceUnlocked) { message = "通关 2-20 后开放功能骰"; return false; }
             if (!RelicDice1111.IsKnown(id)) { message = "没有这种骰子"; return false; }
             var carried = CarriedRelics.ToList();
             if (carried.Count >= RelicDice1111.CarrySlots) { message = $"最多带 {RelicDice1111.CarrySlots} 颗"; return false; }

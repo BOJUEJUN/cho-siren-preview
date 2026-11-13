@@ -230,8 +230,7 @@ namespace ChoSiren.Tests
             UnityEngine.PlayerPrefs.DeleteKey(GameModel.SaveKey);
             var model = new GameModel(() => new System.DateTime(2026, 11, 12, 12, 0, 0, System.DateTimeKind.Utc));
             Assert.That(model.RelicDiceUnlocked, Is.False);
-            Assert.That(model.CarryRelic(RelicDice1111.Blade, out _), Is.False, "第三章前没有功能骰");
-            model.Save.ClearedStages.Add(new StageClear { Id = "stage-2-20", Stars = 3 });
+            // 2026-11-12: open before 第三章 — the starter dice come with the first visit and can be carried already.
             model.EnsureRelicStarter();
             Assert.That(model.RelicCount(RelicDice1111.Blade), Is.EqualTo(1));
             Assert.That(model.CarryRelic(RelicDice1111.Blade, out string m), Is.True, m);

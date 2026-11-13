@@ -161,9 +161,17 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator HomepageRelicEntryOpensTheDicePage()
+        public IEnumerator HomepageRelicEntryOpensTheDicePage([Values(false, true)] bool locked)
         {
             GameModel seed = ChapterThreeModel(10);
+            if (locked)
+            {
+                // 2026-11-12: before 第三章 the entry is still there, with a lock badge and an unlock hint on the page.
+                seed.Save.ClearedStages.RemoveAll(c => c.Id == "stage-2-20" || c.Id.StartsWith("stage-3-"));
+                seed.Save.RelicStarterGiven1111 = false;
+                seed.Save.RelicInventory1111.Clear(); seed.Save.RelicCarry1111.Clear();
+            }
+            string tag = locked ? "-locked" : string.Empty;
             PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(seed.Save));
             PlayerPrefs.SetInt("cho-agreement-v1", 1);
             var app = new GameObject("Relic1111App").AddComponent<ChoSirenApp>();
@@ -183,11 +191,13 @@ namespace ChoSiren.Tests
                 yield return new WaitForSecondsRealtime(1.6f);
                 var entry = app.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(r => r.name == "RelicDiceEntry1111");
                 Assert.That(entry, Is.Not.Null, "功能骰 entry on the homepage");
-                Capture("relic-home-entry.png");
+                Capture($"relic-home-entry{tag}.png");
+                Assert.That(app.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "RelicUnlockCaption"), Is.EqualTo(locked));
                 entry.GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.6f);
                 Assert.That(app.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "RelicDiceModal1111"), Is.True);
-                Capture("relic-page.png");
+                Capture($"relic-page{tag}.png");
+                Assert.That(app.GetComponentsInChildren<RectTransform>(true).Any(r => r.name == "RelicLockBanner"), Is.EqualTo(locked));
             }
             finally
             {
