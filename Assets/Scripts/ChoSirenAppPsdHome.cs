@@ -323,7 +323,9 @@ namespace ChoSiren
 
         // 2026-11-12 新播放器 on the lobby: the artist's player replaces the old record bar (layers 40 / 42). Its record
         // sits where the old record sat (top at PSD y 640) and spans 1760 of the PSD's 4034 px width.
-        private const float HomePlayerPsdScale1112 = 1760f / ChoSiren.UI.MusicPlayer1112.Width;
+        // 2026-11-12 (少爷: "播放器比例整体缩小下，现在太大了"): 1760 → 1270 PSD px wide (about 72%), so it sits in the
+        // top-left corner beside the idol's head instead of over her hair.
+        private const float HomePlayerPsdScale1112 = 1270f / ChoSiren.UI.MusicPlayer1112.Width;
         private ChoSiren.UI.MusicPlayer1112 homePlayer1112;
 
         /// <summary>
