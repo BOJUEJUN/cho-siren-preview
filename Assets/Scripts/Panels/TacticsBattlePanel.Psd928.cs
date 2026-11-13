@@ -633,7 +633,7 @@ namespace ChoSiren.Panels
                 {
                     if (!enemyAnchors.TryGetValue(unit.Id, out var a)) continue;
                     bool fading = enemyMotions.TryGetValue(unit.Id, out var m) && m.IsDefeating;
-                    a.gameObject.SetActive(unit.Alive || fading);
+                    ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading);
                     if (unit.Id == bossUnitId) continue;
                     int i = Mathf.Max(0, adds.IndexOf(unit));
                     // 2026-10-20: all adds stay in the top row beside the boss (two per side when
@@ -654,7 +654,7 @@ namespace ChoSiren.Panels
             {
                 if (!enemyAnchors.TryGetValue(unit.Id, out var anchor)) continue;
                 bool fading = enemyMotions.TryGetValue(unit.Id, out var m) && m.IsDefeating;
-                anchor.gameObject.SetActive(unit.Alive || fading);
+                ChoSiren.UI.BattleEnter1112.Show(anchor, unit.Alive || fading);
             }
             for (int i = 0; i < active.Count; i++)
             {

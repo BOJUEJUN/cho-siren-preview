@@ -141,6 +141,19 @@ namespace ChoSiren.Panels
             shadowRect.sizeDelta = new Vector2(frame.Width, frame.Height);
             shadowRect.SetAsFirstSibling();
             shadowImage.transform.SetSiblingIndex(0);
+            if (onClose != null)
+            {
+                // 2026-11-12 (少爷: "不一定要点击 x 才能关闭，点击任意不是这个面板的也能关闭"): a tap on the dimmed area
+                // outside the panel closes it. A sibling behind the panel, so taps on the panel never reach it.
+                Image outside = NewImage("CloseOutside", overlay.transform, null, new Color(0f, 0f, 0f, 0f));
+                Stretch(outside.rectTransform);
+                outside.raycastTarget = true;
+                outside.transform.SetAsFirstSibling();
+                Button outsideButton = outside.gameObject.AddComponent<Button>();
+                outsideButton.transition = Selectable.Transition.None;
+                outsideButton.targetGraphic = outside;
+                outsideButton.onClick.AddListener(onClose);
+            }
             Image panelImage = panel.gameObject.AddComponent<Image>();
             panelImage.color = new Color32(12, 6, 24, 255);
             panelImage.raycastTarget = true;

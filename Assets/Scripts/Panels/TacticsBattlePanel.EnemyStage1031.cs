@@ -125,7 +125,7 @@ namespace ChoSiren.Panels
                 {
                     if (!enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
                     bool fading = enemyMotions.TryGetValue(unit.Id, out EnemyUnitPresentation m) && m.IsDefeating;
-                    a.gameObject.SetActive(unit.Alive || fading);
+                    ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading);
                 }
                 LayoutWideFigures1111(active);
                 return true;
@@ -140,7 +140,7 @@ namespace ChoSiren.Panels
             {
                 if (!enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
                 bool fading = enemyMotions.TryGetValue(unit.Id, out EnemyUnitPresentation m) && m.IsDefeating;
-                a.gameObject.SetActive(unit.Alive || fading);
+                ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading);
             }
             AssignEnemyLanes1031(active);
             bool adds = battle.Stage.HasBossPhases;

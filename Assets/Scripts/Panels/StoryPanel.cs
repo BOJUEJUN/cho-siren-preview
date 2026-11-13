@@ -215,6 +215,16 @@ namespace ChoSiren.Panels
             BuildChoices();
             BuildHistory();
             LayoutConversation();
+
+            // 2026-11-12 (少爷: "改成点击任意地方都能进行下一个对话"): the full-screen catcher sits right under the dialogue
+            // box (above the scene and the idols) and advances like the box does; the top bar, choices and history stay above it.
+            inputBlocker.transform.SetSiblingIndex(dialogueBox.transform.GetSiblingIndex());
+            Transform topBar = transform.Find("TopBar");
+            if (topBar != null) topBar.SetSiblingIndex(inputBlocker.transform.GetSiblingIndex() + 1);
+            Button anywhere = inputBlocker.gameObject.AddComponent<Button>();
+            anywhere.transition = Selectable.Transition.None;
+            anywhere.targetGraphic = inputBlocker;
+            anywhere.onClick.AddListener(DialogueClicked);
         }
 
         private void BuildTopBar()

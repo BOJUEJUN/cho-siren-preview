@@ -764,7 +764,7 @@ namespace ChoSiren.Panels
             {
                 if (unit.Side != BattleSide.Enemy || !enemyAnchors.TryGetValue(unit.Id, out var anchor)) continue;
                 bool fading = enemyMotions.TryGetValue(unit.Id, out var motion) && motion.IsDefeating;
-                anchor.gameObject.SetActive(unit.Alive || fading);
+                ChoSiren.UI.BattleEnter1112.Show(anchor, unit.Alive || fading);
                 if (unit.Id == bossUnitId) PanelKit.PlaceTop(anchor, 250, 84, 220, 84);
             }
             for (int index = 0; index < active.Count; index++)
@@ -2875,6 +2875,52 @@ namespace ChoSiren.Panels
         }
 
         private static Material fallenMaterial1023;
+        private readonly HashSet<int> fallenFaded1112 = new HashSet<int>();
+        private readonly HashSet<CellView> fallenFading1112 = new HashSet<CellView>();
+
+        /// <summary>
+        /// A fallen member: a red hit flash, then a grey copy of her portrait fades in over her as the card dims; the 倒下 mark arrives at the end. About 0.7 s, paused with the battle.
+        /// </summary>
+        private IEnumerator FallenFade1112(CellView cell)
+        {
+            fallenFading1112.Add(cell);
+            const float duration = .7f;
+            float faded = FallenAlpha1023(cell), elapsed = 0f;
+            cell.Group.interactable = false; cell.Group.blocksRaycasts = false;
+            if (fallenMaterial1023 == null)
+            {
+                Shader gray = Resources.Load<Shader>("Shaders/UIGrayscale");
+                if (gray != null) fallenMaterial1023 = new Material(gray) { hideFlags = HideFlags.DontSave };
+            }
+            Image ghost = null;
+            if (cell.Portrait != null && cell.Portrait.sprite != null && fallenMaterial1023 != null)
+            {
+                ghost = kit.NewImage("FallenFade1112", cell.Portrait.transform, cell.Portrait.sprite, new Color(1f, 1f, 1f, 0f));
+                PanelKit.Stretch(ghost.rectTransform);
+                ghost.preserveAspect = cell.Portrait.preserveAspect; ghost.type = cell.Portrait.type;
+                ghost.material = fallenMaterial1023; ghost.raycastTarget = false;
+            }
+            Color baseColor = cell.Portrait != null ? cell.Portrait.color : Color.white;
+            while (elapsed < duration && cell.Root != null)
+            {
+                if (paused) { yield return null; continue; }
+                elapsed += BattleAnimationDelta();
+                float t = Mathf.Clamp01(elapsed / duration);
+                float ease = t * t * (3f - 2f * t);
+                if (cell.Portrait != null)
+                    cell.Portrait.color = t < .18f ? Color.Lerp(baseColor, new Color(1f, .35f, .4f, baseColor.a), Mathf.Sin(t / .18f * Mathf.PI)) : baseColor;
+                if (ghost != null) ghost.color = new Color(1f, 1f, 1f, ease);
+                cell.Group.alpha = Mathf.Lerp(1f, faded, ease);
+                yield return null;
+            }
+            if (ghost != null) Destroy(ghost.gameObject);
+            if (cell.Portrait != null) cell.Portrait.color = baseColor;
+            fallenFading1112.Remove(cell);
+            cell.Fallen.gameObject.SetActive(true);
+            cell.Group.alpha = faded;
+            ShowFallen1023(cell, true);
+            if (psdRoot != null) RefreshPsdCell(cell);
+        }
 
         // 2026-10-23 review: a fallen member stays on her card in black-and-white and stops taking taps,
         // instead of fading to a near-empty sleeve. Enemy cells keep the old fade.
@@ -3326,6 +3372,16 @@ namespace ChoSiren.Panels
                 cell.Energy?.Refresh();
                 cell.StatusIcons?.Refresh();
             }
+            if (!unit.Alive && cell.Side == BattleSide.Player && psdRoot != null && Application.isPlaying &&
+                !BattlePresentationOptions.ReduceMotion && fallenFaded1112.Add(unit.Id))
+            {
+                // 2026-11-12 (少爷: 角色死了要有能看的过渡): she drains to grey over a moment instead of switching at once.
+                StartCoroutine(FallenFade1112(cell));
+                if (psdRoot != null) RefreshPsdCell(cell);
+                return;
+            }
+            if (unit.Alive) fallenFaded1112.Remove(unit.Id);
+            if (!unit.Alive && fallenFading1112.Contains(cell)) { if (psdRoot != null) RefreshPsdCell(cell); return; }
             if (!unit.Alive)
             {
                 cell.Fallen.gameObject.SetActive(true);

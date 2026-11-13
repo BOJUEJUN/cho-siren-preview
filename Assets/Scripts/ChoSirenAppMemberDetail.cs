@@ -475,9 +475,8 @@ namespace ChoSiren
                 own.preserveAspect = true;
                 own.raycastTarget = false;
                 PlaceTop(own.rectTransform, -4, -4, 78, 78);
-                Text ownName = BoardText038(hex.transform, "Name", skillName, 12, White, -8, 72, 86, 18, TextAnchor.MiddleCenter);
-                ownName.gameObject.AddComponent<Outline>().effectColor = new Color32(10, 6, 24, 255);
-                PanelKit.EnableBestFit(ownName, 9);
+                // 2026-11-12 (少爷: 技能名压到下面的「装备」): no caption under the emblem; tapping it opens the
+                // skill card with its name and effect (DetailSkillTip).
                 return hex;
             }
             Sprite skillArt = skillName != null && !string.IsNullOrEmpty(psdIcon) ? BattlePsdArt928.SpriteOrLoad(psdIcon) : null;
@@ -489,9 +488,7 @@ namespace ChoSiren
                 art.preserveAspect = true;
                 art.raycastTarget = false;
                 PlaceTop(art.rectTransform, 9, 7, 52, 52);
-                Text under = BoardText038(hex.transform, "Name", skillName, 12, White, -8, 70, 86, 18, TextAnchor.MiddleCenter);
-                under.gameObject.AddComponent<Outline>().effectColor = new Color32(10, 6, 24, 255);
-                PanelKit.EnableBestFit(under, 9);
+                // 2026-11-12: name only in the tap card (DetailSkillTip), not under the badge.
             }
             else if (skillName != null)
             {

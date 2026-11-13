@@ -1371,30 +1371,30 @@
       "DiamondFirstClear": 5,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 1,
+      "RecommendedLevel": 4,
       "Enemies": [
         {
           "UnitId": "noise-wraith",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1518,
-          "HpScalePermille": 21300,
+          "ScalePermille": 1656,
+          "HpScalePermille": 23238,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 1518,
-          "HpScalePermille": 21300,
+          "ScalePermille": 1656,
+          "HpScalePermille": 23238,
           "Wave": 0
         },
         {
           "UnitId": "noise-wraith",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 1518,
-          "HpScalePermille": 21300,
+          "ScalePermille": 1656,
+          "HpScalePermille": 23238,
           "Wave": 0
         }
       ],
@@ -1465,30 +1465,30 @@
       "DiamondFirstClear": 6,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 1,
+      "RecommendedLevel": 6,
       "Enemies": [
         {
           "UnitId": "static-golem",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1308,
-          "HpScalePermille": 16896,
+          "ScalePermille": 1619,
+          "HpScalePermille": 20917,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 1308,
-          "HpScalePermille": 16896,
+          "ScalePermille": 1619,
+          "HpScalePermille": 20917,
           "Wave": 0
         },
         {
           "UnitId": "velvet-hexer",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 1308,
-          "HpScalePermille": 16896,
+          "ScalePermille": 1619,
+          "HpScalePermille": 20917,
           "Wave": 1
         }
       ],
@@ -1558,38 +1558,38 @@
       "DiamondFirstClear": 6,
       "TimeLimitSeconds": 120,
       "ThreeStarSeconds": 100,
-      "RecommendedLevel": 1,
+      "RecommendedLevel": 8,
       "Enemies": [
         {
           "UnitId": "pulse-guard",
           "Row": 0,
           "Col": 0,
-          "ScalePermille": 1581,
-          "HpScalePermille": 25704,
+          "ScalePermille": 2120,
+          "HpScalePermille": 34469,
           "Wave": 0
         },
         {
           "UnitId": "neon-scout",
           "Row": 1,
           "Col": 0,
-          "ScalePermille": 1581,
-          "HpScalePermille": 25704,
+          "ScalePermille": 2120,
+          "HpScalePermille": 34469,
           "Wave": 0
         },
         {
           "UnitId": "pulse-guard",
           "Row": 2,
           "Col": 0,
-          "ScalePermille": 1581,
-          "HpScalePermille": 25704,
+          "ScalePermille": 2120,
+          "HpScalePermille": 34469,
           "Wave": 1
         },
         {
           "UnitId": "afterimage-diva",
           "Row": 0,
           "Col": 1,
-          "ScalePermille": 1581,
-          "HpScalePermille": 25704,
+          "ScalePermille": 2120,
+          "HpScalePermille": 34469,
           "Wave": 1
         }
       ],

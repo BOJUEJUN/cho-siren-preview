@@ -39,11 +39,15 @@ namespace ChoSiren.Tests
         [Test]
         public void StagesOneToFourAreAboutSixtyPercentAtLevelOneWithoutGear()
         {
+            // 2026-11-12 (少爷: 新号无伤通关到 1-5): 1-1 stays a Lv1 fight; 1-2 / 1-3 / 1-4 are tuned for the levels a new
+            // account really has there (Lv4 / 6 / 8 from its starting gold), about 70% 自动 without gear (BalanceProbe1112Tests).
+            int[] levels = { 1, 4, 6, 8 };
             for (int number = 1; number <= 4; number++)
             {
-                double win = WinRate($"stage-1-{number}", 1, -1, Mode.Auto, TargetSeeds);
-                TestContext.WriteLine($"1-{number} L1 无装备 自动 {win:0.0}%");
-                Assert.That(win, Is.InRange(50.0, 70.0), $"1-{number}: 1 级无装备的通过率应约 60%");
+                int level = levels[number - 1];
+                double win = WinRate($"stage-1-{number}", level, -1, Mode.Auto, TargetSeeds);
+                TestContext.WriteLine($"1-{number} L{level} 无装备 自动 {win:0.0}%");
+                Assert.That(win, number == 1 ? Is.InRange(50.0, 70.0) : Is.InRange(55.0, 85.0), $"1-{number}: L{level} 无装备的通过率");
             }
         }
 
@@ -315,8 +319,9 @@ namespace ChoSiren.Tests
             double sum = 0;
             for (int number = 1; number <= 4; number++)
             {
-                double auto = WinRate($"stage-1-{number}", 1, -1, Mode.Auto, TargetSeeds);
-                double none = WinRate($"stage-1-{number}", 1, -1, Mode.NoDice, TargetSeeds);
+                int level = new[] { 1, 4, 6, 8 }[number - 1]; // 2026-11-12: each stage at its new-account level
+                double auto = WinRate($"stage-1-{number}", level, -1, Mode.Auto, TargetSeeds);
+                double none = WinRate($"stage-1-{number}", level, -1, Mode.NoDice, TargetSeeds);
                 TestContext.WriteLine($"1-{number} 自动 {auto:0.0}% · 无骰子 {none:0.0}% · 骰子加成 {auto - none:+0.0;-0.0}");
                 Assert.That(auto - none, Is.InRange(-2.0, 25.0), $"1-{number}");
                 sum += auto - none;
