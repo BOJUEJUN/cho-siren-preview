@@ -31,7 +31,7 @@ namespace ChoSiren
         private static readonly string[] SpeakerIds = { "xingli", "feiyin", "yeying", "wubai", "huanhuoling", "linyin" };
         public static string SpeakerName(int character)
         {
-            string id = SpeakerIds[Mathf.Clamp(character, 0, SpeakerIds.Length - 1)];
+            string id = GameModel.HomeMemberId1113(character);
             int index = GameModel.IndexOfMember(id);
             return index >= 0 ? GameModel.Members[index].Name : string.Empty;
         }
@@ -277,6 +277,12 @@ namespace ChoSiren
         public int DisplayGuestLine(int character)
         {
             if (bubble == null || UiHidden) return -1;
+            if (character >= SpeakerIds.Length)
+            {
+                bubbleText.text = (Personalize?.Invoke("{player}，今天也一起准备舞台吧。") ?? "一起准备舞台吧。");
+                dialogue?.Reveal?.Restart(); HoldBubble();
+                return -1;
+            }
             string[] lines = GuestLines[Mathf.Clamp(character - 2, 0, GuestLines.Length - 1)];
             int next = UnityEngine.Random.Range(0, lines.Length);
             if (next == guestLast) next = (next + 1) % lines.Length;

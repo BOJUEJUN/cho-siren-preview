@@ -55,7 +55,7 @@ namespace ChoSiren.Panels
                 BattleUnit actor = battle.NextTurnActor();
                 DrainTurnLog();
                 // A new wave's card plays out before anyone acts (2026-10-21).
-                while (!closing && psdWave1019 != null && psdWave1019.IsShowing) yield return null;
+                while (!closing && (EnemyEntranceActive1113 || psdWave1019 != null && psdWave1019.IsShowing)) yield return null;
                 if (actor == null || closing) break;
                 ShowTurnActor(actor);
                 if (actor.Side == BattleSide.Enemy)

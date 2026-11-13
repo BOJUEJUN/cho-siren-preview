@@ -22,7 +22,9 @@ namespace ChoSiren.Tests
         [TestCase(-.09f, UltimateTimingGrade.Perfect)]
         [TestCase(.18f, UltimateTimingGrade.Good)]
         [TestCase(-.22f, UltimateTimingGrade.Good)]
-        [TestCase(-.3f, UltimateTimingGrade.Miss)]
+        [TestCase(.13f, UltimateTimingGrade.Perfect)]
+        [TestCase(.3f, UltimateTimingGrade.Good)]
+        [TestCase(-.4f, UltimateTimingGrade.Miss)]
         public void WideWindows(float offset, UltimateTimingGrade expected)
         {
             var beat = TapAt(offset);

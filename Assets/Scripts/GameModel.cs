@@ -118,8 +118,8 @@ namespace ChoSiren
     public sealed partial class GameSave
     {
         public int SchemaVersion = GameModel.SaveSchemaVersion;
-        // New-save starting purse. Kept deliberately small so early training and signing decisions
-        // matter; existing saves keep whatever balance they already stored.
+        // Legacy deserialization defaults. Genuinely new accounts override both balances to zero
+        // in CreateDefault; existing serialized balances keep their original values.
         public int Diamonds = 300;
         public int Gold = 1200;
         public int Stamina = 120;
@@ -128,7 +128,7 @@ namespace ChoSiren
         public int CheckInDay = 1;
         public string LastCheckInDate = string.Empty;
         public int StoryProgress = 79;
-        /// <summary>Battle playback speed 1–3, remembered between battles (2026-10-21).</summary>
+        /// <summary>Battle playback speed 1–2, remembered between battles (2026-10-21).</summary>
         public int BattleSpeed = 1;
         public List<int> UnlockedMembers = new List<int> { 0, 1, 2, 3 };
         public List<int> MemberLevels = new List<int> { 68, 64, 59, 57, 52, 49, 46, 43, 40 };
@@ -1950,15 +1950,15 @@ namespace ChoSiren
 
         public void SetHomeCharacter(int index)
         {
-            int selected = Math.Max(0, Math.Min(3, index));
-            if (Save.HomeCharacterIndex == selected) return;
+            int selected = Math.Max(0, Math.Min(HomeMemberIds1113.Length - 1, index));
+            if (!CanShowHome1113(selected) || Save.HomeCharacterIndex == selected) return;
             Save.HomeCharacterIndex = selected;
             SaveState();
         }
 
         public void SetBattleSpeed(int value)
         {
-            int clamped = Mathf.Clamp(value, 1, 3);
+            int clamped = Mathf.Clamp(value, 1, 2);
             if (Save.BattleSpeed == clamped) return;
             Save.BattleSpeed = clamped;
             SaveState();
@@ -2426,6 +2426,8 @@ namespace ChoSiren
         // on Load, and missing old-save entries still use the legacy catalog fallback.
         private static GameSave CreateDefault() => new GameSave
         {
+            Gold = 0,
+            Diamonds = 0,
             MemberLevels = Enumerable.Repeat(1, Members.Length).ToList()
         };
 
@@ -2528,6 +2530,7 @@ namespace ChoSiren
             int loadedSchemaVersion = Save.SchemaVersion;
             Save.Diamonds = Mathf.Max(0, Save.Diamonds);
             Save.Gold = Mathf.Max(0, Save.Gold);
+            Save.BattleSpeed = Mathf.Clamp(Save.BattleSpeed, 1, 2);
             EnsureAccountLevel1104();
             // 2026-11-04 (用户: 120 满体力签到领 30，体力没变): rewards may lift stamina past the regen cap (StaminaRegen keeps
             // overflow and simply stops regenerating); only the overflow ceiling clamps here.

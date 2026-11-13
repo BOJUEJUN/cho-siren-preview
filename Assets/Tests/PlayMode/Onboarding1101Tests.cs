@@ -76,6 +76,11 @@ namespace ChoSiren.Tests
             {
                 GameModel model = NewModel();
                 TacticsBattlePanel panel = rig.OpenBattle(model);
+                Assert.That((bool)typeof(TacticsBattlePanel).GetField("autoMode", Private).GetValue(panel), Is.False,
+                    "New battles start in manual mode.");
+                var toggle = typeof(TacticsBattlePanel).GetMethod("ToggleSpeed", Private);
+                toggle.Invoke(panel, null); Assert.That(model.Save.BattleSpeed, Is.EqualTo(2));
+                toggle.Invoke(panel, null); Assert.That(model.Save.BattleSpeed, Is.EqualTo(1));
                 yield return Until(() => model.HasStoryFlag("guide-battle-1101"), 15f);
                 // 2026-11-12: the first fight opens with one picture card (dice / energy order / whose turn); a tap starts.
                 yield return Until(() => Find(panel.transform, "BattlePrimer1112") != null, 10f);

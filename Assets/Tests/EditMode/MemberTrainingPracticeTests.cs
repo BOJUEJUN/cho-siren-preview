@@ -74,6 +74,7 @@ namespace ChoSiren.Tests
         public void PanelCommitsExactlyOneGoldOnlyLevelAndShowsDeltas()
         {
             var model = new GameModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int levelBefore = model.LevelOf(0);
             int goldBefore = model.Save.Gold;
             int diamondsBefore = model.Save.Diamonds;
@@ -157,6 +158,7 @@ namespace ChoSiren.Tests
         {
             // 2026-11-07: the camera view's leads are tap targets; the ▼ marker follows the trainee.
             var model = new GameModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             MemberPracticePanel panel = MemberPracticePanel.Open(host.transform, model, 0);
             ChoSiren.UI.PracticeVideoStage1107 stage = panel.Stage;
             Assert.That(stage, Is.Not.Null);

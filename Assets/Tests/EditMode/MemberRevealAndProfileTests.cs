@@ -34,6 +34,7 @@ namespace ChoSiren.Tests
         public void NewlySignedMemberFlipsFromSilhouetteToFullCardAndProgressAdvances()
         {
             var model = new GameModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int ownedBefore = model.Save.UnlockedMembers.Count;
             int candidate = Enumerable.Range(0, GameModel.Members.Length).Last(index => !model.IsUnlocked(index));
             Assert.That(MemberRosterVisibility.ShowsRealName(model.IsUnlocked(candidate)), Is.False);

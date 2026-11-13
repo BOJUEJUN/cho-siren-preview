@@ -15,7 +15,7 @@ namespace ChoSiren.Tests
     {
         const string Out = "/Users/bojuejun/Documents/Codex/2026-09-21/zhe/work/character-switch-20260928";
         ChoSirenApp app;
-        string save, legacy; bool had, hadLegacy;
+        string save, legacy; bool had, hadLegacy, reduced;
         const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         GameObject Home => GameObject.Find("PsdHome20260921");
         PsdHomeCharacterCarousel Carousel => Home.GetComponent<PsdHomeCharacterCarousel>();
@@ -23,6 +23,7 @@ namespace ChoSiren.Tests
 
         [UnitySetUp] public IEnumerator SetUp()
         {
+            reduced = BattlePresentationOptions.ReduceMotion; BattlePresentationOptions.ReduceMotion = false;
             had = PlayerPrefs.HasKey(GameModel.SaveKey); save = PlayerPrefs.GetString(GameModel.SaveKey);
             hadLegacy = PlayerPrefs.HasKey(GameModel.LegacySaveKey); legacy = PlayerPrefs.GetString(GameModel.LegacySaveKey);
             PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(new GameSave { HomeCharacterIndex = 0, StoryProgress = 100 }));
@@ -33,6 +34,7 @@ namespace ChoSiren.Tests
         }
         [UnityTearDown] public IEnumerator TearDown()
         {
+            BattlePresentationOptions.ReduceMotion = reduced;
             if (app != null) Object.Destroy(app.gameObject);
             yield return null;
             if (had) PlayerPrefs.SetString(GameModel.SaveKey, save); else PlayerPrefs.DeleteKey(GameModel.SaveKey);
@@ -143,7 +145,9 @@ namespace ChoSiren.Tests
                 Assert.That(portrait.sprite.name, Does.Contain($"character{5 + step}-portrait"));
             }
             Carousel.Switch(1); yield return new WaitForSecondsRealtime(.45f);
-            Assert.That(Carousel.Index, Is.EqualTo(0), "The carousel wraps back to the first idol.");
+            int[] selectable = Enumerable.Range(0, GameModel.HomeMemberIds1113.Length).Where(Model.CanShowHome1113).ToArray();
+            int afterLinyin = selectable[(System.Array.IndexOf(selectable, 5) + 1) % selectable.Length];
+            Assert.That(Carousel.Index, Is.EqualTo(afterLinyin), "The carousel includes every owned appearance.");
             Carousel.Switch(-1); yield return new WaitForSecondsRealtime(.45f);
             Assert.That(Carousel.Index, Is.EqualTo(5));
             Carousel.Switch(-1); yield return new WaitForSecondsRealtime(.45f);
@@ -159,6 +163,50 @@ namespace ChoSiren.Tests
             var guests = (string[][])typeof(PsdHomeMotion).GetField("GuestLines", Statics).GetValue(null);
             Assert.That(guests[1].Any(line => Model.Personalize(line) == shown), Is.True, shown);
         }
+        [UnityTest] public IEnumerator OwnedAppearancePickerUsesOwnArtNameAndPersists()
+        {
+            int member = Enumerable.Range(0, GameModel.Members.Length)
+                .First(i => GameModel.HomeIndexForMember1113(i) >= 6 && !Model.IsUnlocked(i));
+            Model.Save.UnlockedMembers.Add(member);
+            Home.transform.Find("HomeAppearance1113").GetComponent<Button>().onClick.Invoke();
+            yield return null;
+            GameObject picker = GameObject.Find("HomeAppearancePicker1113");
+            Assert.That(picker, Is.Not.Null);
+            Transform choice = picker.GetComponentsInChildren<Transform>(true).First(t => t.name == "PickMember-" + member);
+            choice.GetComponent<Button>().onClick.Invoke();
+            yield return new WaitForSecondsRealtime(1.6f);
+            Assert.That(Carousel.Index, Is.EqualTo(GameModel.HomeIndexForMember1113(member)));
+            Assert.That(Model.Save.HomeCharacterIndex, Is.EqualTo(Carousel.Index));
+            Assert.That(new GameModel().Save.HomeCharacterIndex, Is.EqualTo(Carousel.Index));
+            var portrait = Home.transform.Find("layer-04VisualV2").GetComponent<Image>();
+            Assert.That(portrait.sprite, Is.EqualTo(Resources.Load<Sprite>(GameModel.Members[member].ResourcePath)));
+            Assert.That(portrait.enabled, Is.True);
+            Assert.That(Home.GetComponent<PsdHomeIdolVideo1025>().Showing, Is.False);
+            Assert.That(Home.transform.Find("PsdCharacterDialogue/Speaker").GetComponent<Text>().text,
+                Is.EqualTo(GameModel.Members[member].Name));
+            var camera = new GameObject("OwnedAppearanceCamera", typeof(Camera)).GetComponent<Camera>();
+            var rt = new RenderTexture(720, 1536, 24);
+            try
+            {
+                camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = Color.black;
+                camera.orthographic = true; camera.targetTexture = rt;
+                Canvas canvas = app.GetComponentInChildren<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 10;
+                foreach (var fitter in canvas.GetComponentsInChildren<SafeAreaFitter>(true))
+                {
+                    fitter.enabled = false;
+                    var safe = (RectTransform)fitter.transform;
+                    safe.anchorMin = Vector2.zero; safe.anchorMax = Vector2.one;
+                    safe.offsetMin = safe.offsetMax = Vector2.zero;
+                }
+                var scaler = canvas.GetComponent<CanvasScaler>();
+                scaler.referenceResolution = new Vector2(720,1536); scaler.matchWidthOrHeight = 0f;
+                yield return null; Canvas.ForceUpdateCanvases(); yield return null;
+                Capture(camera, rt, "home-owned-1113.png");
+            }
+            finally { Object.DestroyImmediate(camera.gameObject); rt.Release(); Object.DestroyImmediate(rt); }
+        }
+
         [UnityTest] public IEnumerator CaptureBothAuthoredCharactersAndTransparentBossInRealBattle()
         {
             var camera=new GameObject("CharacterCaptureCamera",typeof(Camera)).GetComponent<Camera>();
@@ -179,7 +227,13 @@ namespace ChoSiren.Tests
                 Assert.That(battle,Is.Not.Null,message);
                 Home.SetActive(false);
                 var panel=TacticsBattlePanel.Open(canvas.transform,Model,battle,null);panel.StopAllCoroutines();
-                yield return new WaitForSecondsRealtime(.3f);
+                foreach (string field in new[] { "paused", "closing", "coveredByStory", "bossEntrancePlaying1102" })
+                    typeof(TacticsBattlePanel).GetField(field, Private)?.SetValue(panel, false);
+                yield return new WaitForSecondsRealtime(.2f);
+                Capture(camera, rt, "battle-entry-ground-1113.png");
+                yield return new WaitForSecondsRealtime(.42f);
+                Capture(camera, rt, "battle-entry-light-1113.png");
+                yield return new WaitForSecondsRealtime(.55f);
                 var boss=panel.GetComponentsInChildren<Image>().First(i=>i.name=="BossPortrait");
                 Assert.That(boss.sprite.name,Does.Contain("boss-throne-20260928"));
                 Assert.That(boss.sprite.rect.height,Is.GreaterThan(boss.sprite.rect.width));

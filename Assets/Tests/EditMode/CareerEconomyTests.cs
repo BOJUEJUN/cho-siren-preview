@@ -157,6 +157,8 @@ namespace ChoSiren.Tests
         public void SettlementIsIdempotentWithinSameMonth()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
+            PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(model.Save));
             int goldBefore = model.Save.Gold;
             int total = model.TotalTeamMonthlySalary();
             Assert.That(total, Is.GreaterThan(0), "有签约成员时总月薪应为正");
@@ -194,6 +196,7 @@ namespace ChoSiren.Tests
         public void MitigationReducesRiskCostsGoldAndCoolsDown()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int member = model.Save.UnlockedMembers[0];
             model.Save.MemberRisk[member] = 50;
             int goldBefore = model.Save.Gold;
@@ -214,6 +217,7 @@ namespace ChoSiren.Tests
         public void MitigationClampsAtZeroAndNeverSpendsWhenBlocked()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int member = model.Save.UnlockedMembers[0];
             model.Save.MemberRisk[member] = 10;
             int goldBefore = model.Save.Gold;

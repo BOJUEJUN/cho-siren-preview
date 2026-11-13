@@ -29,6 +29,7 @@ namespace ChoSiren.Tests
         public void CaptainAppointmentPreservesPartyEquipmentAndRejectsUnowned()
         {
             var model = new GameModel(() => Now);
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int candidate = Candidate(model);
             int[] original = model.Save.Team.ToArray();
             Assert.That(model.AppointCaptain(candidate, out _), Is.False);
@@ -53,6 +54,7 @@ namespace ChoSiren.Tests
         public void SigningPersistsAndOwnedFirstPaginationShowsLateCatalogCandidate()
         {
             var model = new GameModel(() => Now);
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int candidate = Candidate(model);
             int diamonds = model.Save.Diamonds;  // v0.3.3: 签约消耗星钻而非星光币
             Assert.That(model.SignCandidate(candidate, 1, out string message), Is.True, message);
@@ -72,6 +74,7 @@ namespace ChoSiren.Tests
         public void SignedMemberReplacesFullTeamAndSurvivesReload()
         {
             var model = new GameModel(() => Now);
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int candidate = Candidate(model);
             Assert.That(model.SignCandidate(candidate, 1, out _), Is.True);
             int[] previous = model.Save.Team.ToArray();
@@ -96,6 +99,7 @@ namespace ChoSiren.Tests
         public void ReplacingWithDuplicateCareerStillProducesPlayableBattle()
         {
             var model = new GameModel(() => Now);
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             string retainedCareer = GameModel.Members[model.Save.Team[0]].Career;
             int candidate = Enumerable.Range(0, GameModel.Members.Length).First(i => !model.IsUnlocked(i)
                 && GameModel.Members[i].Career == retainedCareer

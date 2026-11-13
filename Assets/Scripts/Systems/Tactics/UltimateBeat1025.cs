@@ -6,18 +6,18 @@ namespace ChoSiren.Systems.Tactics
     /// Ultimate tap judgment, 2026-10-25 (赵金: "判定不是很好点…点圆框判定这个玩法是可以 但是要…有意思一点").
     /// The old ring had a ±60 ms PERFECT and ±176 ms GOOD window — tighter than touch / WebGL input latency.
     /// A three-ring version followed the same day, but 少爷 found three too many to follow ("保持一个就行了"),
-    /// so it is one approach ring again with wide windows (±100 ms / ±240 ms) and a longer, readable approach.
+    /// so it is one approach ring again with wide windows (±140 ms / ±320 ms) and a longer, readable approach.
     /// The beat count stays a constant so the scoring rule holds for more beats. Grades and bonuses are the
     /// existing PERFECT +10% / GOOD +5%.
     /// </summary>
     public sealed class UltimateBeatChallenge1025
     {
         public const int Beats = 1;
-        public const float Approach = 1.05f;        // a ring's travel time onto its target
+        public const float Approach = 1.5f;        // a ring's travel time onto its target
         public const float Gap = .45f;              // between beats (when there is more than one)
-        public const float PerfectWindow = .1f, GoodWindow = .24f;
+        public const float PerfectWindow = .14f, GoodWindow = .32f;
         /// <summary>Taps earlier than the GOOD window but inside this one count as a miss (stops mashing).</summary>
-        public const float EarlyMissWindow = .42f;
+        public const float EarlyMissWindow = .55f;
 
         public static float BeatTime(int beat) => Approach + beat * Gap;
         public static float DurationSeconds => BeatTime(Beats - 1) + GoodWindow;

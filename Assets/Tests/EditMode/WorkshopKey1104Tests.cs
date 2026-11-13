@@ -62,6 +62,7 @@ namespace ChoSiren.Tests
         {
             PlayerPrefs.DeleteKey(GameModel.SaveKey);
             var model = new GameModel(() => new System.DateTime(2026, 11, 5, 12, 0, 0, System.DateTimeKind.Utc), new InMemorySaveStore());
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int start = model.Balance(ChoSiren.Systems.Economy.CurrencyIds.Diamond);
             Assert.That(model.CanPayAiDress1105, Is.True);
             Assert.That(model.PayAiDress1105(), Is.True);

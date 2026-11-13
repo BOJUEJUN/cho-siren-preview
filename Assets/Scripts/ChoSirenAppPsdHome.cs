@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ChoSiren.Systems.Economy;
+using ChoSiren.UI;
+using ChoSiren.Panels;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -306,11 +308,16 @@ namespace ChoSiren
                 StartCoroutine(NextFrame1028(() => PlayPrologue1028(GreetLobby1028)));
             else GreetLobby1028();
             psdCharacters = psdHome.AddComponent<PsdHomeCharacterCarousel>();
+            psdCharacters.CanSelect = model.CanShowHome1113;
             psdCharacters.Initialize(psdMotion, font, RoundedSprite(14), model.Save.HomeCharacterIndex,
                 index => model.SetHomeCharacter(index), () => psdOpening);
             psdIdols = psdHome.AddComponent<PsdHomeIdolVideo1025>();
             psdIdols.Initialize(psdMotion);
             psdCharacters.AttachIdols(psdIdols);
+            var appearance = ModalPolish038Chrome.ActionButton(root, "HomeAppearance1113", "形象", 19,
+                () => OpenMemberSelection("home", 0, 0), ModalPolish038ButtonStyle.Secondary);
+            PanelKit.PlaceTop(appearance.GetComponent<RectTransform>(), 584f, 510f, 106f, 42f);
+            psdMotion.RegisterUi(appearance);
             if (lobbyVideoObject != null) lobbyVideoObject.SetActive(false);
             gameAudio?.SetLobbyVideoMusicActive(false);
             UpdateStartupLoading(1f);
@@ -572,9 +579,15 @@ namespace ChoSiren
             Sprite art = index >= 1 && index <= 3
                 ? ReferenceArt038.Load($"Art/Reference038/home-layer-character{index + 1}-portrait") : null;
             if (art == null) art = ReferenceArt038.Load("Art/Reference038/home-layer-04");
+            if (psdCharacters?.CurrentPortrait != null) art = psdCharacters.CurrentPortrait;
             string name = PsdHomeMotion.SpeakerName(index);
             string tag = index == 1 ? "DEMON CLAN  ·  STAGE IDOL" : index == 2 ? "BLOOD ELF  ·  MOON VOCAL"
                 : index == 3 ? "SEA SPIRIT  ·  TIDE VOCAL" : "CHARM CLAN  ·  LEAD VOCAL";
+            if (index >= 6)
+            {
+                int member = GameModel.IndexOfMember(GameModel.HomeMemberId1113(index));
+                if (member >= 0) tag = GameModel.Members[member].Race + " · " + GameModel.Members[member].Career;
+            }
             return UI.VinylStageTransition.Play(safeRoot, switchScene, art, name, tag);
         }
 

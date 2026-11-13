@@ -1,11 +1,13 @@
 using System;
+using System.Linq;
+using ChoSiren.Panels;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ChoSiren
 {
-    /// <summary>Swap only the two authored character layers; the homepage UI never changes parents.</summary>
+    /// <summary>Select an owned lobby appearance; authored animations and the homepage UI retain their own layers.</summary>
     public sealed class PsdHomeCharacterCarousel : MonoBehaviour
     {
         private Image portrait, outline;
@@ -25,13 +27,13 @@ namespace ChoSiren
             new Vector4(7, 184, 4268, 8358), new Vector4(-1066, 751, 5170, 7513),
             new Vector4(-777, 647, 5912, 8614), new Vector4(-207, 517, 5486, 8425),
             // 2026-11-12 (少爷: 新的大厅待机动画 "直接能显示在大厅"): 幻惑伶 and 凛音, placed from their clips' first frames.
-            new Vector4(76, 900, 4017, 7141), new Vector4(-74, 936, 3877, 6893),
+            new Vector4(76, 660, 4017, 7141), new Vector4(-74, 600, 3877, 6893),
         };
         private static readonly Vector4[] OutlineRects =
         {
             new Vector4(0, 184, 4027, 8358), new Vector4(0, 755, 2743, 7521),
             new Vector4(-852, 685, 4352, 8568), new Vector4(-272, 759, 4754, 8134),
-            new Vector4(76, 900, 4017, 7141), new Vector4(-74, 936, 3877, 6893),
+            new Vector4(76, 660, 4017, 7141), new Vector4(-74, 600, 3877, 6893),
         };
         /// <summary>
         /// 2026-11-04 (赵金 "这个角色中线偏了，要正一点"): stage units (720 wide) each idol moves sideways so her face
@@ -39,7 +41,7 @@ namespace ChoSiren
         /// The idle clips are children of the portrait and move with it.
         /// </summary>
         // 2026-11-12 (少爷 对比修正.psd "这个角色在游戏里面的位置偏移得严重"): the fourth idol stands exactly where the PSD puts her.
-        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 0f, 0f, 0f };
+        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, -104f, 0f, 0f };
         /// <summary>
         /// 2026-11-04 (赵金 "第四个角色可以歪一点…上面往右边歪下面往左边"): degrees each idol turns (negative = clockwise) about her face;
         /// 粉珀人鱼 turns counter-clockwise (用户箭头 上往左、下往右). The face stays where the centring put it.
@@ -51,12 +53,14 @@ namespace ChoSiren
         /// 2026-11-11 (赵金 "这个手别看不到了"): 粉珀人鱼's outstretched hand ran off the right edge; she is shown at 82%
         /// about her face (the face stays centred) so the whole hand is on screen.
         /// </summary>
-        public static readonly float[] Scale1111 = { 1f, 1f, 1f, 1f, 1f, 1f };
+        public static readonly float[] Scale1111 = { 1f, 1f, 1f, .74f, .9f, .9f };
         // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
-        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(180f, 397f), Vector2.zero, Vector2.zero };
+        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(360f, 370f), new Vector2(360f, 420f), new Vector2(360f, 420f) };
         public int Index { get; private set; }
         public bool Switching { get; private set; }
         public bool HasPerformance => Index == 0;
+        public Func<int, bool> CanSelect;
+        public Sprite CurrentPortrait => portrait != null ? portrait.sprite : null;
 
         public void Initialize(PsdHomeMotion owner, Font font, Sprite plate, int initial,
             Action<int> onSelected, Func<bool> isBlocked)
@@ -76,6 +80,8 @@ namespace ChoSiren
                 ReferenceArt038.Load("Art/Reference038/home-layer-character4-outline"),
                 ReferenceArt038.Load("Art/Reference038/home-layer-character5-outline"),
                 ReferenceArt038.Load("Art/Reference038/home-layer-character6-outline") };
+            portraits = portraits.Concat(new Sprite[GameModel.HomeMemberIds1113.Length - portraits.Length]).ToArray();
+            outlines = outlines.Concat(portraits.Skip(PortraitRects.Length)).ToArray();
             previous = Arrow("PreviousCharacter", -1, 12, font, plate);
             next = Arrow("NextCharacter", 1, 648, font, plate);
             Apply(Mathf.Clamp(initial, 0, portraits.Length - 1));
@@ -126,9 +132,9 @@ namespace ChoSiren
             for (int tries = 0; tries < portraits.Length; tries++)
             {
                 pendingIndex = (pendingIndex + dir + portraits.Length) % portraits.Length;
-                if (portraits[pendingIndex] != null && outlines[pendingIndex] != null) break;
+                if (CanSelect?.Invoke(pendingIndex) != false && EnsurePortrait1113(pendingIndex)) break;
             }
-            if (pendingIndex == Index) return;
+            if (pendingIndex == Index || CanSelect?.Invoke(pendingIndex) == false) return;
             motion.CancelCharacterInteraction();
             PsdHomeCharacterBridge.SetIdle(false);
             PsdHomeCharacterBridge.Stop();
@@ -137,10 +143,46 @@ namespace ChoSiren
             Switching = true; swapped = false; elapsed = 0; responseUntil = 0;
         }
 
+        public void Select(int index)
+        {
+            if (Switching || index < 0 || index >= portraits.Length || CanSelect?.Invoke(index) == false || !EnsurePortrait1113(index)) return;
+            motion.CancelCharacterInteraction();
+            PsdHomeCharacterBridge.Stop();
+            performance?.ResetPlayback();
+            Apply(index);
+            selected?.Invoke(index);
+        }
+
+        private bool EnsurePortrait1113(int index)
+        {
+            if (portraits[index] == null && index >= PortraitRects.Length)
+                portraits[index] = outlines[index] = PanelKit.MemberSpriteOrNull(GameModel.HomeMemberId1113(index), false);
+            return portraits[index] != null && outlines[index] != null;
+        }
+
         private void Apply(int index)
         {
+            if (CanSelect?.Invoke(index) == false || !EnsurePortrait1113(index)) index = 0;
             Index = index;
             portrait.sprite = portraits[index]; outline.sprite = outlines[index];
+            if (index >= PortraitRects.Length)
+            {
+                // Every roster member uses her own face anchor and source aspect ratio.
+                var focus = PanelKit.MemberBustFocus(GameModel.HomeMemberId1113(index));
+                float h = Mathf.Clamp(330f / Mathf.Max(.08f, focus.height), 1100f, 1900f);
+                float w = h * portrait.sprite.rect.width / portrait.sprite.rect.height;
+                float x = 360f - focus.center.x * w;
+                float y = 380f - (1f - focus.center.y) * h;
+                Place(portrait.rectTransform, x, y, w, h);
+                Place(outline.rectTransform, x, y, w, h);
+                portrait.rectTransform.localRotation = outline.rectTransform.localRotation = Quaternion.identity;
+                portrait.rectTransform.localScale = outline.rectTransform.localScale = Vector3.one;
+                idols?.ShowIdol(-1, portrait.rectTransform);
+                portrait.enabled = true; outline.enabled = false;
+                motion.SetCharacter(portrait.rectTransform); motion.SetOutline(outline.rectTransform);
+                motion.SetSpeaker(index);
+                return;
+            }
             const float scale = 720f / 4034f;
             Vector4 p = PortraitRects[index], o = OutlineRects[index];
             float shift = CenterShift1104[index];

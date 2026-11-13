@@ -35,11 +35,11 @@ namespace ChoSiren.Tests
         // ------------------------------------------------------------------ economy
 
         [Test]
-        public void NewSaveStartsWithSmallPurse()
+        public void NewSaveStartsAtZero()
         {
             var model = NewModel();
-            Assert.That(model.Save.Diamonds, Is.EqualTo(300), "新号初始星钻应保持小额");
-            Assert.That(model.Save.Gold, Is.EqualTo(1200), "新号初始星光币应保持小额");
+            Assert.That(model.Save.Diamonds, Is.Zero, "新号初始星钻为零");
+            Assert.That(model.Save.Gold, Is.Zero, "新号初始星光币为零");
         }
 
         [Test]
@@ -83,6 +83,7 @@ namespace ChoSiren.Tests
         public void SigningSpendsDiamondsAndNeverStarCoins()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int candidate = model.InterviewCandidates(0).First();
             int quote = model.InterviewQuote(0, candidate);
             int diamondsBefore = model.Save.Diamonds;
@@ -99,6 +100,7 @@ namespace ChoSiren.Tests
         public void TrainingSpendsOnlyStarCoins()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int diamondsBefore = model.Save.Diamonds;
             Assert.That(model.CanTrain(0, out int cost, out _), Is.True);
             Assert.That(model.Train(0, out string message), Is.True, message);
@@ -120,6 +122,7 @@ namespace ChoSiren.Tests
         public void SigningGrantsStartingAffection()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int candidate = model.InterviewCandidates(0).First();
             Assert.That(model.AffectionOf(candidate), Is.EqualTo(0), "未签约成员好感度为 0");
 
@@ -135,6 +138,7 @@ namespace ChoSiren.Tests
         public void TrainingRaisesAffectionAndPersists()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int before = model.AffectionOf(0);
             Assert.That(model.Train(0, out _), Is.True);
             Assert.That(model.AffectionOf(0), Is.EqualTo(before + 3));

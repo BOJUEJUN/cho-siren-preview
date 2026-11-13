@@ -18,7 +18,7 @@ namespace ChoSiren.Tests
         private const BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [UnityTest, Timeout(180000)]
-        public IEnumerator AllSixNewUltimateClipsActuallyPlayAndComplete()
+        public IEnumerator ApprovedNewUltimateClipsActuallyPlayAndComplete()
         {
             bool had = PlayerPrefs.HasKey(GameModel.SaveKey);
             string saved = PlayerPrefs.GetString(GameModel.SaveKey);
@@ -52,7 +52,7 @@ namespace ChoSiren.Tests
                 var show = (BattleUltimateShow1020)typeof(TacticsBattlePanel).GetMethod("EnsureUltimateShow", Hidden).Invoke(panel, null);
                 var entries = BattleUltimateVideo1019.SharedManifest.entries.Where(e =>
                     e.characterId == "huansha" || e.characterId == "huanhuoling" || e.characterId == "linyin").ToArray();
-                Assert.That(entries.Length, Is.EqualTo(6));
+                Assert.That(entries.Length, Is.EqualTo(4));
                 foreach (var entry in entries)
                 {
                     show.Warm(entry.path);

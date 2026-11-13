@@ -39,6 +39,7 @@ namespace ChoSiren.Tests.Systems
         [Test]
         public void WipeSuggestsSurvivalAndUnderLevelPartyGetsActualTrainingQuote()
         {
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             BattleSimulator battle = CreateBattle();
             foreach (BattleUnit player in battle.Units.Where(unit => unit.Side == BattleSide.Player)) player.Hp = 0;
             battle.AutoPlay(0);

@@ -24,9 +24,11 @@ namespace ChoSiren
         private void OpenMemberSelection1101(string purpose, int slot, bool ownedOnly, string query)
         {
             bool equipmentSelection = purpose == "equipment", captain = purpose == "captain", replacement = purpose == "replacement";
+            bool homeSelection = purpose == "home";
+            if (homeSelection) ownedOnly = true;
             bool teamSelection = purpose == "team";
-            string title = equipmentSelection ? "选择饰品管理角色" : captain ? "选择队长" : replacement ? $"让{GameModel.Members[slot].Name}替换谁？" : $"位置 {slot + 1}：选择成员";
-            string overlayName = equipmentSelection ? "EquipmentMemberPicker" : captain ? "CaptainMemberPicker" : replacement ? "TeamReplacementPicker" : "TeamMemberPicker";
+            string title = homeSelection ? "选择大厅形象" : equipmentSelection ? "选择饰品管理角色" : captain ? "选择队长" : replacement ? $"让{GameModel.Members[slot].Name}替换谁？" : $"位置 {slot + 1}：选择成员";
+            string overlayName = homeSelection ? "HomeAppearancePicker1113" : equipmentSelection ? "EquipmentMemberPicker" : captain ? "CaptainMemberPicker" : replacement ? "TeamReplacementPicker" : "TeamMemberPicker";
 
             CloseModal();
             RectTransform host = (RectTransform)safeRoot;
@@ -43,7 +45,7 @@ namespace ChoSiren
             float bodyH = panelH - PickerHeader1101 - PickerInset1101;
 
             Text help = ModalPolish038Chrome.Text(body, "PickerHelp",
-                equipmentSelection ? "仅切换管理对象，不改变编队或转移装备。未签约角色只能查看。"
+                homeSelection ? "点选已签约角色设为大厅形象；不改变编队。" : equipmentSelection ? "仅切换管理对象，不改变编队或转移装备。未签约角色只能查看。"
                     : captain ? "队长决定全队的「种族指挥」：每次骰型结算，都按队长种族给全队加效果（追击 / 护盾 / 中毒 / 穿甲），队长还独享骰子累计伤害与充能。点角色即可任命。"
                     : replacement ? "选择要替换的出战位置；原成员和装备均保留。"
                     : slot == 0 ? "新成员将成为队长；已出战互换，待命替换。"
@@ -56,11 +58,11 @@ namespace ChoSiren
 
             float filterY = helpH + 8f;
             GameObject ownership = ModalPolish038Chrome.ActionButton(body, "PickerOwnership",
-                ownedOnly ? "已拥有 ✓ · 切换全部" : "全部 · 只看已拥有", 16,
+                homeSelection ? "已签约角色" : ownedOnly ? "已拥有 ✓ · 切换全部" : "全部 · 只看已拥有", 16,
                 () => OpenMemberSelection(purpose, slot, 0, !ownedOnly, query),
                 ModalPolish038ButtonStyle.Secondary);
             PanelKit.PlaceTop(ownership.GetComponent<RectTransform>(), 0f, filterY, 236f, 48f);
-            ModalPolish038Chrome.SetActionEnabled(ownership, !replacement);
+            ModalPolish038Chrome.SetActionEnabled(ownership, !replacement && !homeSelection);
 
             GameObject search = ModalPolish038Chrome.RowPlate(body, "PickerSearch");
             PanelKit.PlaceTop(search.GetComponent<RectTransform>(), 248f, filterY, width - 248f, 48f);
@@ -106,7 +108,7 @@ namespace ChoSiren
             {
                 int member = owned[i];
                 MemberDefinition m = GameModel.Members[member];
-                bool current = teamSelection && slot < model.Save.Team.Count && model.Save.Team[slot] == member;
+                bool current = homeSelection ? model.Save.HomeCharacterIndex == GameModel.HomeIndexForMember1113(member) : teamSelection && slot < model.Save.Team.Count && model.Save.Team[slot] == member;
                 UnityEngine.Events.UnityAction pick = () =>
                 {
                     if (teamSelection && slot < model.Save.Team.Count && model.Save.Team[slot] == member) return;
@@ -121,6 +123,13 @@ namespace ChoSiren
                         OpenMember(member);
                         memberProfileReturn = () => OpenMemberSelection(purpose, slot, 0, ownedOnly, query);
                         return;
+                    }
+                    if (homeSelection)
+                    {
+                        int index = GameModel.HomeIndexForMember1113(member);
+                        model.SetHomeCharacter(index);
+                        psdCharacters?.Select(index);
+                        CloseModal(); Toast($"大厅形象：{m.Name}"); return;
                     }
                     if (equipmentSelection)
                     { equipmentMember = member; selectedAccessoryIndex = Math.Max(0, model.EquippedAccessoryFor(member)); equipmentRevealSelection = true; ShowScreen("accessory"); return; }
@@ -261,7 +270,7 @@ namespace ChoSiren
 
             // Status ribbon (top-left): 当前成员 / 已出战·第 N 位 / 待命 / 未拥有.
             string badge = !unlocked ? "未拥有"
-                : current ? "当前成员"
+                : current ? purpose == "home" ? "当前形象" : "当前成员"
                 : captain && teamIndex == 0 ? "当前队长"
                 : teamIndex == 0 ? "队长 · 第 1 位"
                 : teamIndex > 0 ? $"已出战 · 第 {teamIndex + 1} 位" : "待命";
@@ -365,6 +374,7 @@ namespace ChoSiren
             string action = teamSelection ? current ? "当前成员" : !unlocked ? "仅查看" : teamIndex >= 0 ? "交换位置" : "替换上阵"
                 : !unlocked ? "仅查看"
                 : captain ? teamIndex == 0 ? "当前队长" : "任命队长"
+                : purpose == "home" ? current ? "当前形象" : "设为大厅形象"
                 : equipmentSelection ? "管理饰品"
                 : "替换TA";
             bool idle = action == "当前成员" || action == "当前队长" || action == "仅查看";

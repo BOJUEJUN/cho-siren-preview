@@ -140,7 +140,7 @@ namespace ChoSiren.Panels
             title.fontStyle = FontStyle.BoldAndItalic;
 
             PrimerRow1112(card, 0, "凑牌型 → 队长打得更狠", RulesDice1101);
-            PrimerRow1112(card, 1, "排在前面的先攒满 → 点她放大招", PrimerEnergy1112);
+            PrimerRow1112(card, 1, "按时间充能 17 / 20 / 25 / 30秒 → 点满能量卡", PrimerEnergy1112);
             PrimerRow1112(card, 2, "看颜色：青 = 我方出手，红 = 敌人出手", PrimerSides1112);
 
             Text tap = VisualBattle1101.NewText("Tap", card, kit.Font, "点任意处开始", 24, Brand1025.Teal);

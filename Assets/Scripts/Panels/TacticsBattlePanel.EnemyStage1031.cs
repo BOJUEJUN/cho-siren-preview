@@ -64,6 +64,7 @@ namespace ChoSiren.Panels
             PanelKit.PlaceTop(rig, 360f - w / 2f, top - stageTop, w, h);
             PanelKit.CenterPivot(rig);
             bossPresentation.SetLayoutOrigin(rig.anchoredPosition);
+            ChoSiren.UI.BattleEnter1112.Show(rig, true, () => paused || closing || coveredByStory || bossEntrancePlaying1102 || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame);
             bossHead1031 = new Rect(360f - w / 2f + headFraction.x * w, top + headFraction.y * h, w * .5f, h);
 
             float cx = 360f, cy = top - stageTop + h / 2f, ground = foot - stageTop;
@@ -123,9 +124,9 @@ namespace ChoSiren.Panels
             {
                 foreach (BattleUnit unit in battle.Units)
                 {
-                    if (!enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
+                    if (unit.Id == bossUnitId || !enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
                     bool fading = enemyMotions.TryGetValue(unit.Id, out EnemyUnitPresentation m) && m.IsDefeating;
-                    ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading);
+                    ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading, () => paused || closing || coveredByStory || bossEntrancePlaying1102 || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame);
                 }
                 LayoutWideFigures1111(active);
                 return true;
@@ -138,9 +139,9 @@ namespace ChoSiren.Panels
             }
             foreach (BattleUnit unit in battle.Units)
             {
-                if (!enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
+                if (unit.Id == bossUnitId || !enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
                 bool fading = enemyMotions.TryGetValue(unit.Id, out EnemyUnitPresentation m) && m.IsDefeating;
-                ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading);
+                ChoSiren.UI.BattleEnter1112.Show(a, unit.Alive || fading, () => paused || closing || coveredByStory || bossEntrancePlaying1102 || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame);
             }
             AssignEnemyLanes1031(active);
             bool adds = battle.Stage.HasBossPhases;

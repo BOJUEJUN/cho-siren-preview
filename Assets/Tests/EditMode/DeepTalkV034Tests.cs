@@ -47,6 +47,7 @@ namespace ChoSiren.Tests
         public void DeepTalkUnlocksExactlyAtBondThreshold()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             model.GainAffection(0, GameModel.DeepTalkAffectionUnlock - model.AffectionOf(0));
             Assert.That(model.DeepTalkUnlocked(0), Is.True, "80 好感度即羁绊档，应立即解锁");
             Assert.That(model.CanDeepTalk(0, out _), Is.True);
@@ -58,6 +59,7 @@ namespace ChoSiren.Tests
         public void DeepTalkSpendsStarCoinsAndRaisesAffection()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int affectionBefore = model.AffectionOf(0); // 初始签约成员自带 5 点
             model.GainAffection(0, 80);
             int goldBefore = model.Save.Gold;
@@ -76,6 +78,7 @@ namespace ChoSiren.Tests
         public void DeepTalkAffectionIsCappedAtMax()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             model.GainAffection(0, GameModel.MaxAffection - 1); // 99
             Assert.That(model.DeepTalk(0, out _, out _), Is.True);
             Assert.That(model.AffectionOf(0), Is.EqualTo(GameModel.MaxAffection), "好感度不可超过上限");
@@ -97,6 +100,7 @@ namespace ChoSiren.Tests
         public void DeepTalkIsOncePerMemberPerDay()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             model.GainAffection(0, 85);
             model.GainAffection(1, 85);
             Assert.That(model.DeepTalk(0, out _, out _), Is.True);
@@ -112,6 +116,7 @@ namespace ChoSiren.Tests
         public void DeepTalkResetsOnTheNextDay()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             model.GainAffection(0, 85);
             Assert.That(model.DeepTalk(0, out _, out _), Is.True);
             Assert.That(model.DeepTalk(0, out _, out _), Is.False);
@@ -126,6 +131,7 @@ namespace ChoSiren.Tests
         public void DeepTalkDailyStatePersistsAcrossReload()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int affectionBefore = model.AffectionOf(0);
             model.GainAffection(0, 80);
             Assert.That(model.DeepTalk(0, out _, out _), Is.True);
@@ -162,6 +168,7 @@ namespace ChoSiren.Tests
         public void SigningStillGrantsAffectionAfterDeepTalkFieldAdded()
         {
             var model = NewModel();
+            model.Save.Gold = 1200; model.Save.Diamonds = 300; // Explicitly fund this paid-action fixture.
             int candidate = model.InterviewCandidates(0).First();
             int quote = model.InterviewQuote(0, candidate);
             Assert.That(model.SignInterviewCandidate(0, candidate, model.CurrentInterviewCycle, quote,

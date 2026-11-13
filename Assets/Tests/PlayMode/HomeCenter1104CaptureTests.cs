@@ -31,6 +31,8 @@ namespace ChoSiren.Tests
         {
             had = PlayerPrefs.HasKey(GameModel.SaveKey); save = PlayerPrefs.GetString(GameModel.SaveKey);
             hadAgreement = PlayerPrefs.HasKey(AgreementKey); agreement = PlayerPrefs.GetInt(AgreementKey, 0);
+            foreach (var old in UnityEngine.Object.FindObjectsByType<ChoSirenApp>(FindObjectsSortMode.None))
+                UnityEngine.Object.Destroy(old.gameObject);
             yield return null;
         }
 

@@ -101,8 +101,8 @@ namespace ChoSiren.Tests
         {
             var model = new GameModel(() => now);
             model.SetBattleSpeed(5);
-            Assert.That(model.Save.BattleSpeed, Is.EqualTo(3));
-            Assert.That(new GameModel(() => now).Save.BattleSpeed, Is.EqualTo(3));
+            Assert.That(model.Save.BattleSpeed, Is.EqualTo(2));
+            Assert.That(new GameModel(() => now).Save.BattleSpeed, Is.EqualTo(2));
             model.SetBattleSpeed(0);
             Assert.That(model.Save.BattleSpeed, Is.EqualTo(1));
         }

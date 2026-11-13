@@ -76,7 +76,7 @@ namespace ChoSiren
         /// <summary>Called whenever the carousel shows an idol; builds that idol's two clips under her portrait.</summary>
         public void ShowIdol(int index, RectTransform portraitRect)
         {
-            if (material == null || index < 0 || index >= Files.Length) return;
+            if (material == null || index < 0 || index >= Files.Length) { Release(); return; }
             if (idol == index && portrait == portraitRect) return;
             Release();
             idol = index; portrait = portraitRect; current = 0; shown = 0f; awaitingSince = Time.unscaledTime;

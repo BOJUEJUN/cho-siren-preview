@@ -292,11 +292,11 @@ namespace ChoSiren.Panels
             if (UseTurnBased)
             {
                 simulator.EnableTurnBased();
-                // 2026-10-20: turn battles open on 自动; 手动 is one tap on the top button.
-                panel.autoMode = true;
+                // New battles always begin in manual mode; auto remains an explicit choice.
+                panel.autoMode = false;
             }
             panel.diceTurn = simulator.BattleDice;
-            panel.speed = Mathf.Clamp(gameModel.Save.BattleSpeed, 1, 3);
+            panel.speed = Mathf.Clamp(gameModel.Save.BattleSpeed, 1, 2);
             #if UNITY_WEBGL && !UNITY_EDITOR
             panel.StartCoroutine(panel.LoadPsdBattle());
 #else
@@ -1427,6 +1427,9 @@ namespace ChoSiren.Panels
                 // 2026-10-25 readability pass: the current rules in short points (it still described the old judge bar,
                 // light pillars and long-press captain swaps). 2026-11-01 (用户 "最少文字"): the first fight teaches only
                 // dice / 重投 / 大招 by doing; everything is here, one short line per rule (≤ one line on a phone).
+                "<color=#1CF2EC>【战斗流程】</color>\n" +
+                "·\u00A0双方轮流出手，击败全部波次即通关。\n" +
+                "·\u00A0点敌人集火，凑牌型，攒能量放大招。\n\n" +
                 "<color=#1CF2EC>【骰子】</color>\n" +
                 "·\u00A0点骰子选中，每次最多2颗，再点取消。\n" +
                 "·\u00A0点左侧「重投」：不选=6颗全部重投。\n" +
@@ -1437,6 +1440,9 @@ namespace ChoSiren.Panels
                 "<color=#1CF2EC>【大招】</color>\n" +
                 "·\u00A0能量满了点她的卡放大招，上滑光碟也行。\n" +
                 "·\u00A0光圈合拢时点：PERFECT\u00A0+10%，GOOD\u00A0+5%。\n" +
+                "·\u00A0按战斗时间充能，伤害高低不影响速度。\n" +
+                "·\u00A0队长17秒；其余位置依次20 / 25 / 30秒。\n" +
+                "·\u00A0暂停、剧情与大招演出期间停止计时。\n" +
                 "·\u00A0一人放了大招，其他人能量清零重攒。\n\n" +
                 "<color=#1CF2EC>【队长】</color>\n" +
                 "·\u00A0点左下「队长」牌，再点一位成员即换队长。\n" +
@@ -1446,12 +1452,12 @@ namespace ChoSiren.Panels
                 "·\u00A0普攻和技能一直自动。\n" +
                 "·\u00A0自动：牌型差时自己重投、放大招。\n" +
                 "·\u00A0手动：重投和大招都等你点。\n" +
-                "·\u00A0右上「1倍」切换倍速。\n\n" +
+                "·\u00A0默认手动；右上切换1倍 / 2倍。\n\n" +
                 "<color=#1CF2EC>【应急守护】</color>\n" +
                 "·\u00A0每场一次，全员各挡一次攻击。\n\n" +
                 "<color=#1CF2EC>【敌人】</color>\n" +
                 "·\u00A0敌人会预告要放的招。\n" +
-                "·\u00A0点敌人集火，先打会治疗的。",
+                "·\u00A0点敌人集火，先打会治疗的。\n\n" + TeamSkillRules1113(),
                 24, ChoSiren.UI.SirenStickerUi.Paper, 34, 76, 572, 780, TextAnchor.UpperLeft);
             body.gameObject.name = "RulesBody";
             body.supportRichText = true; // PanelKit texts default to plain; the teal section heads are <color> tags
@@ -1761,6 +1767,7 @@ namespace ChoSiren.Panels
         private IEnumerator MainLoop()
         {
             yield return PlayBossEntrance1102();
+            while (!closing && EnemyEntranceActive1113) yield return null;
             if (closing) yield break;
             if (battle.IsTurnBased)
             {
@@ -2114,7 +2121,7 @@ namespace ChoSiren.Panels
 
         private float BattleAnimationDelta()
         {
-            return BattleHitStop.Delta(Time.unscaledDeltaTime) * Mathf.Clamp(speed, 1, 3) * ChoSiren.BattlePresentationOptions.Pace;
+            return BattleHitStop.Delta(Time.unscaledDeltaTime) * Mathf.Clamp(speed, 1, 2) * ChoSiren.BattlePresentationOptions.Pace;
         }
 
         private bool TryFallbackAction(BattleUnit actor)
@@ -3500,7 +3507,12 @@ namespace ChoSiren.Panels
         }
 
         private bool coveredByStory;
-        private bool EntryPresentationCovered => coveredByStory || bossEntrancePlaying1102 || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame;
+        private bool EnemyEntranceActive1113 => enemyAnchors.Values.Any(a => a != null &&
+            a.TryGetComponent(out ChoSiren.UI.BattleEnter1112 entry) && entry.IsShowing) ||
+            bossPresentation != null && bossPresentation.MotionRoot != null &&
+            bossPresentation.MotionRoot.TryGetComponent(out ChoSiren.UI.BattleEnter1112 bossEntry) && bossEntry.IsShowing;
+
+        private bool EntryPresentationCovered => coveredByStory || EnemyEntranceActive1113 || bossEntrancePlaying1102 || ChoSiren.UI.ChallengeVideoTransition.IsCoveringGame;
 
         private void Update()
         {
@@ -4350,8 +4362,8 @@ namespace ChoSiren.Panels
 
         private void ToggleSpeed()
         {
-            // 2026-10-21: 1 → 2 → 3 → 1, remembered in the save for the next battle.
-            speed = speed >= 3 ? 1 : speed + 1;
+            // 1 → 2 → 1, remembered in the save for the next battle.
+            speed = speed >= 2 ? 1 : speed + 1;
             model?.SetBattleSpeed(speed);
             ApplySpeedLabel();
             Notify(speed == 1 ? "已恢复 1 倍速" : $"已切换到 {speed} 倍速");

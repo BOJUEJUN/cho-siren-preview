@@ -59,6 +59,10 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.MemberLevels, Has.All.EqualTo(1));
             Assert.That(model.StatsOf(0).Hp, Is.EqualTo(280));
             Assert.That(model.StatsOf(0).Attack, Is.EqualTo(40));
+            Assert.That(model.Save.Gold, Is.Zero);
+            Assert.That(model.Save.Diamonds, Is.Zero);
+            Assert.That(model.CanTrain(0, out _, out _), Is.False);
+            model.Save.Gold = 50; // Training needs earned currency.
             Assert.That(model.CanTrain(0, out int cost, out _), Is.True);
             Assert.That(cost, Is.EqualTo(50));
             int beforeGold = model.Save.Gold;
@@ -359,9 +363,9 @@ namespace ChoSiren.Tests
         {
             GameModel model = CreateModel();
 
-            // 0.3.3 feedback: 默认经济收紧,新号仅持小额星钻与星光币,避免"开局过富"
-            Assert.That(model.Save.Diamonds, Is.EqualTo(300));
-            Assert.That(model.Save.Gold, Is.EqualTo(1200));
+            // New account resources start at zero; earned rewards fund progression.
+            Assert.That(model.Save.Diamonds, Is.Zero);
+            Assert.That(model.Save.Gold, Is.Zero);
             Assert.That(model.Save.Stamina, Is.EqualTo(GameModel.MaxStamina));
             Assert.That(model.Save.DailyActivityDate, Is.EqualTo("2026-09-02"));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(79));
@@ -983,6 +987,7 @@ namespace ChoSiren.Tests
         public void TrainingQuoteIsReadOnlyAndPreservesUnaffordableCost()
         {
             GameModel model = CreateModel();
+            model.Save.Gold = 2000; // Fund this training fixture explicitly.
             string before = PlayerPrefs.GetString(SaveKey);
             int changed = 0;
             model.Changed += () => changed++;
@@ -1015,6 +1020,7 @@ namespace ChoSiren.Tests
         public void TrainingOnlyRaisesSelectedMemberAndNeverSynchronizesOtherLevels()
         {
             GameModel model = CreateModel();
+            model.Save.Gold = 2000; // Fund this training fixture explicitly.
             int[] levels = model.Save.MemberLevels.ToArray();
             int[] team = model.Save.Team.ToArray();
             int diamonds = model.Save.Diamonds;
@@ -1032,6 +1038,7 @@ namespace ChoSiren.Tests
         public void TrainValidatesOwnershipFundsAndLevelCapAndPersistsSuccess()
         {
             GameModel model = CreateModel();
+            model.Save.Gold = 2000; // Fund this training fixture explicitly.
             int initialLevel = model.LevelOf(0);
             int expectedCost = 180 + initialLevel * 12;
             int initialGold = model.Save.Gold;
@@ -1213,6 +1220,7 @@ namespace ChoSiren.Tests
             tactics.FindUnit("dummy").Defense = 30;
             foreach (UnitDefinition unit in tactics.Units) unit.CritPermille = 0;
             GameModel model = CreateModel();
+            model.Save.Gold = 2000; // Fund this training fixture explicitly.
             int baseline = FirstPlayerDamage(model);
             Assert.That(model.EquipAccessory(1, out _), Is.True);
             int equipped = FirstPlayerDamage(model);
