@@ -3505,6 +3505,7 @@ namespace ChoSiren.Panels
         private void Update()
         {
             AdvanceTurnBanner();
+            AdvanceSideCue1112();
             if (pickingCaptain1024 && psdRoot != null)
                 foreach (var c in cells) if (c.Side == BattleSide.Player) PickHint1024(c);
             AdvanceRerollGlow();

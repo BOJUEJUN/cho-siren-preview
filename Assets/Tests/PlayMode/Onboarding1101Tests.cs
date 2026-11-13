@@ -77,6 +77,18 @@ namespace ChoSiren.Tests
                 GameModel model = NewModel();
                 TacticsBattlePanel panel = rig.OpenBattle(model);
                 yield return Until(() => model.HasStoryFlag("guide-battle-1101"), 15f);
+                // 2026-11-12: the first fight opens with one picture card (dice / energy order / whose turn); a tap starts.
+                yield return Until(() => Find(panel.transform, "BattlePrimer1112") != null, 10f);
+                Assert.That(Find(panel.transform, "BattlePrimer1112"), Is.Not.Null, "第一场先给一张图示卡。");
+                yield return Wait(.8f);
+                rig.Capture($"{tag}-04-battle-primer.png");
+                Find(panel.transform, "BattlePrimer1112").GetComponent<Button>().onClick.Invoke();
+                yield return Until(() => Find(panel.transform, "BattlePrimer1112") == null, 5f);
+                Assert.That(model.HasStoryFlag("guide-battle-1112-primer"), Is.True);
+                // Whose turn: the sweep and the coloured edge glow appear once someone acts.
+                yield return Until(() => Find(panel.transform, "SideSweep1112") != null && Find(panel.transform, "SideSweep1112").gameObject.activeSelf, 10f);
+                yield return Wait(.25f);
+                rig.Capture($"{tag}-04b-turn-sweep.png");
                 yield return Wait(.5f);
                 Assert.That(panel.OnboardingLine1101, Is.Null, "开场不再弹任何说明卡。");
                 Assert.That(panel.GetComponentsInChildren<Transform>(true).Any(t => t.name == "BattleTutorial1021"), Is.False);
@@ -151,7 +163,10 @@ namespace ChoSiren.Tests
             {
                 GameModel model = NewModel();
                 TacticsBattlePanel panel = rig.OpenBattle(model);
-                yield return Wait(1.2f);
+                yield return Until(() => Find(panel.transform, "BattlePrimer1112") != null, 10f);
+                yield return Wait(1f); // taps in the card's first 0.4 s are ignored (no accidental skip)
+                Find(panel.transform, "BattlePrimer1112")?.GetComponent<Button>().onClick.Invoke(); // the first-fight picture card
+                yield return Wait(.6f);
                 panel.Battle.BattleDice.GainEnergy(DiceTurn.MaxEnergy);
                 yield return Until(() => panel.OnboardingLine1101 == TacticsBattlePanel.DicePickLine1101, 30f);
                 yield return Wait(.5f);

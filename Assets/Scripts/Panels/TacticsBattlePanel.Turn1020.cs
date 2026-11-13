@@ -36,6 +36,7 @@ namespace ChoSiren.Panels
                 dicePresentations.Exists(item => item.Busy))) yield return null;
             yield return WaitBattleDelay(.6f);
             BeginOnboarding1101(); // 2026-11-01: no text cards up front; one-line coach steps when each thing first matters
+            yield return PlayPrimer1112(); // 2026-11-12: one picture card on the very first fight (dice / energy / whose turn)
             // Boss stages open with a 首领登场 card (2026-10-21).
             if (battle.Stage.HasBossPhases && !bossEntranceShown1102 && psdWave1019 != null)
             {
@@ -288,6 +289,7 @@ namespace ChoSiren.Panels
         {
             BuildTurnUi();
             ClearTurnHighlight();
+            ShowTurnSide1112(actor); // 2026-11-12: whose turn — edge glow + 我方回合 / 敌方回合 sweep
             CellView cell = FindCell(actor);
             if (actor.Side == BattleSide.Player && cell != null)
             {
