@@ -183,20 +183,29 @@ namespace ChoSiren
         }
 
         /// <summary>Slanted bands, a dark wash and a halftone field over the scene image (the poster backdrop).</summary>
+        /// <summary>
+        /// 2026-11-12 (少爷: "这个页面的背景重新设计下，不要那么多点"): no halftone dots any more. The studio photo sits
+        /// under a deep ink wash that darkens toward the floor, a soft teal spotlight falls on her from above, and one
+        /// slim violet band with a teal edge crosses behind her legs as the stage line.
+        /// </summary>
         public static RectTransform Backdrop(RectTransform page)
         {
             var root = new GameObject("WorkshopPoster", typeof(RectTransform)).GetComponent<RectTransform>();
             root.SetParent(page, false); Fill(root, 0f, 0f, 0f, 0f);
-            Image wash = Block(root, "Wash", null, new Color(Ink.r, Ink.g, Ink.b, .62f)); Fill(wash.rectTransform, -60f, -60f, 60f, 60f);
-            Image violet = Block(root, "BandViolet", null, new Color(Violet.r, Violet.g, Violet.b, .88f));
-            At(violet.rectTransform, 0f, -40f, 1800f, 300f, -14f);
-            Image teal = Block(root, "BandTeal", null, new Color(Teal.r, Teal.g, Teal.b, .82f));
-            At(teal.rectTransform, 0f, -40f, 1800f, 74f, -14f);
-            Image paper = Block(root, "BandPaper", null, Paper);
-            At(paper.rectTransform, 0f, -470f, 1800f, 44f, -14f);
-            Image dots = Block(root, "Halftone", Dots(), new Color(1f, 1f, 1f, .16f));
-            dots.type = Image.Type.Tiled; dots.pixelsPerUnitMultiplier = 1f;
-            Fill(dots.rectTransform, 0f, 0f, 0f, 0f);
+            Image wash = Block(root, "Wash", null, new Color(Ink.r, Ink.g, Ink.b, .72f)); Fill(wash.rectTransform, -60f, -60f, 60f, 60f);
+            Image floor = Block(root, "FloorShade", null, new Color(Ink.r, Ink.g, Ink.b, .55f));
+            floor.rectTransform.anchorMin = Vector2.zero; floor.rectTransform.anchorMax = new Vector2(1f, .42f);
+            floor.rectTransform.offsetMin = new Vector2(-60f, -60f); floor.rectTransform.offsetMax = new Vector2(60f, 0f);
+            Image top = Block(root, "TopTint", null, new Color(Violet.r, Violet.g, Violet.b, .18f));
+            top.rectTransform.anchorMin = new Vector2(0f, .62f); top.rectTransform.anchorMax = Vector2.one;
+            top.rectTransform.offsetMin = new Vector2(-60f, 0f); top.rectTransform.offsetMax = new Vector2(60f, 60f);
+            Image spot = Block(root, "Spotlight", ChoSiren.UI.VisualA1101.Glow, new Color(Teal.r, Teal.g, Teal.b, .20f));
+            spot.rectTransform.anchorMin = spot.rectTransform.anchorMax = new Vector2(.5f, .62f);
+            spot.rectTransform.sizeDelta = new Vector2(980f, 1300f);
+            Image violet = Block(root, "BandViolet", null, new Color(Violet.r, Violet.g, Violet.b, .55f));
+            At(violet.rectTransform, 0f, -120f, 1800f, 150f, -12f);
+            Image teal = Block(root, "BandTeal", null, new Color(Teal.r, Teal.g, Teal.b, .75f));
+            At(teal.rectTransform, 0f, -45f, 1800f, 10f, -12f);
             return root;
         }
     }

@@ -693,8 +693,7 @@ namespace ChoSiren
             page.SetParent(root, false); WorkshopPoster1105.Fill(page, 0f, 0f, 0f, 0f);
             aiReveal1105 = page.gameObject;
             Image bg = page.GetComponent<Image>(); bg.color = WorkshopPoster1105.Hot; bg.raycastTarget = true;
-            Image stripes = WorkshopPoster1105.Block(page, "Halftone", WorkshopPoster1105.Dots(), new Color(0f, 0f, 0f, .16f));
-            stripes.type = Image.Type.Tiled; WorkshopPoster1105.Fill(stripes.rectTransform, 0f, 0f, 0f, 0f);
+            // 2026-11-12: no halftone dots on the reveal either (少爷: 不要那么多点).
             Image inkBand = WorkshopPoster1105.Block(page, "BandInk", null, WorkshopPoster1105.Ink);
             WorkshopPoster1105.At(inkBand.rectTransform, 0f, 120f, 1800f, 560f, -14f);
             Image paperBand = WorkshopPoster1105.Block(page, "BandPaper", null, WorkshopPoster1105.Paper);
