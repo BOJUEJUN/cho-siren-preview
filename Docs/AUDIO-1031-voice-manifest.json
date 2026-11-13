@@ -176,7 +176,7 @@
    "resource": "Enemy/neon-scout-enter-01",
    "enemy": "neon-scout",
    "cat": "enter",
-   "text": "(exhale)標的、確認。",
+   "text": "(exhale)ターゲット、かくにん。",
    "zh": "目标，确认。",
    "voice_id": "English_ConfidentWoman",
    "emotion": "neutral",
@@ -187,7 +187,8 @@
    "sha256": "6f2a5dc169eb074a4316295e1d5bbe82817c1e3df49b8c58af18f0c6df5e3123",
    "dur": 1.872,
    "lufs": -19.5,
-   "tp_db": -5.14
+   "tp_db": -5.14,
+   "note": "2026-11-12 re-voiced in kana: the kanji line was read as Chinese"
   },
   {
    "resource": "Enemy/neon-scout-enter-02",
@@ -295,7 +296,7 @@
    "resource": "Enemy/neon-scout-death-01",
    "enemy": "neon-scout",
    "cat": "death",
-   "text": "(gasps)任務…失敗…",
+   "text": "(gasps)にんむ…しっぱい…",
    "zh": "任务……失败……",
    "voice_id": "English_ConfidentWoman",
    "emotion": "sad",
@@ -306,7 +307,8 @@
    "sha256": "ed62d4e648e9406b5d3e85d982806b4441eff9b0dc004eafac83083b505d87a5",
    "dur": 2.362,
    "lufs": -19.62,
-   "tp_db": -1.5
+   "tp_db": -1.5,
+   "note": "2026-11-12 re-voiced in kana: the kanji line was read as Chinese"
   },
   {
    "resource": "Enemy/noise-wraith-enter-01",

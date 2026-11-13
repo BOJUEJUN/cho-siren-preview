@@ -87,18 +87,20 @@ namespace ChoSiren.Tests
                 while (Time.realtimeSinceStartup < until) yield return null;
 
                 // Keep the authored still on screen: the idol clips carry the same stance.
-                foreach (var idols in UnityEngine.Object.FindObjectsByType<PsdHomeIdolVideo1025>(FindObjectsSortMode.None)) idols.enabled = false;
-                foreach (var surface in UnityEngine.Object.FindObjectsByType<PsdHomeCharacterSurface>(FindObjectsSortMode.None)) surface.gameObject.SetActive(false);
-                foreach (var clip in canvas.GetComponentsInChildren<RawImage>(true).Where(r => r.name.StartsWith("IdolClip-", StringComparison.Ordinal)))
+                // HOMECENTER_LIVE=1 (2026-11-12) leaves the idle clip playing so the live stance can be checked too.
+                bool live = Environment.GetEnvironmentVariable("HOMECENTER_LIVE") == "1";
+                if (live) { until = Time.realtimeSinceStartup + 2.5f; while (Time.realtimeSinceStartup < until) yield return null; }
+                if (!live) foreach (var idols in UnityEngine.Object.FindObjectsByType<PsdHomeIdolVideo1025>(FindObjectsSortMode.None)) idols.enabled = false;
+                if (!live) foreach (var surface in UnityEngine.Object.FindObjectsByType<PsdHomeCharacterSurface>(FindObjectsSortMode.None)) surface.gameObject.SetActive(false);
+                if (!live) foreach (var clip in canvas.GetComponentsInChildren<RawImage>(true).Where(r => r.name.StartsWith("IdolClip-", StringComparison.Ordinal)))
                     clip.gameObject.SetActive(false);
                 yield return null;
                 var carousel = UnityEngine.Object.FindAnyObjectByType<PsdHomeCharacterCarousel>();
                 Assert.That(carousel, Is.Not.Null);
                 Assert.That(carousel.Index, Is.EqualTo(index));
                 Image portrait = carousel.transform.Find("layer-04VisualV2").GetComponent<Image>();
-                portrait.enabled = true; portrait.color = Color.white;
                 Image rim = carousel.transform.Find("layer-03VisualV2").GetComponent<Image>();
-                rim.enabled = true; rim.color = Color.white;
+                if (!live) { portrait.enabled = true; portrait.color = Color.white; rim.enabled = true; rim.color = Color.white; }
                 Canvas.ForceUpdateCanvases();
                 Directory.CreateDirectory(Out);
                 camera.Render();

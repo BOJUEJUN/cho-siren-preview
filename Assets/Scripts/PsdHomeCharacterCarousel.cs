@@ -35,20 +35,20 @@ namespace ChoSiren
         /// sits on the screen's centre line; measured on the authored stills (face centres were .535/.41/.555/.425).
         /// The idle clips are children of the portrait and move with it.
         /// </summary>
-        // 2026-11-12: move 雾白 left so her reaching hand stays inside the phone viewport.
-        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, -131f };
+        // 2026-11-12 (少爷 对比修正.psd "这个角色在游戏里面的位置偏移得严重"): the fourth idol stands exactly where the PSD puts her.
+        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 0f };
         /// <summary>
         /// 2026-11-04 (赵金 "第四个角色可以歪一点…上面往右边歪下面往左边"): degrees each idol turns (negative = clockwise) about her face;
         /// 粉珀人鱼 turns counter-clockwise (用户箭头 上往左、下往右). The face stays where the centring put it.
         /// 2026-11-11 (赵金 "这个手别看不到了 / 这个要正一点角色"): on the phone her idle clip still leaned ~6° clockwise, so she
         /// turns 9° in all and stands upright.
         /// </summary>
-        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 9f };
+        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 0f };
         /// <summary>
         /// 2026-11-11 (赵金 "这个手别看不到了"): 粉珀人鱼's outstretched hand ran off the right edge; she is shown at 82%
         /// about her face (the face stays centred) so the whole hand is on screen.
         /// </summary>
-        public static readonly float[] Scale1111 = { 1f, 1f, 1f, .82f };
+        public static readonly float[] Scale1111 = { 1f, 1f, 1f, 1f };
         // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
         private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(180f, 397f) };
         public int Index { get; private set; }

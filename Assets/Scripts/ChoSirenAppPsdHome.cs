@@ -56,11 +56,34 @@ namespace ChoSiren
             psdDiamonds = psdGold = psdStamina = psdLevel = psdPower = null;
         }
 
+        private static PsdHomeLayout psdHomeLayout1112;
+
+        /// <summary>
+        /// 2026-11-12 (少爷: 打完仗回大厅黑屏): on the Mac app one return to the lobby read the layout text as garbage
+        /// ("JSON parse error: Invalid value") and the whole lobby failed to build. The layout is parsed once and kept;
+        /// a bad read is retried from a fresh load before giving up.
+        /// </summary>
+        private static PsdHomeLayout PsdHomeLayout1112()
+        {
+            if (psdHomeLayout1112 != null) return psdHomeLayout1112;
+            for (int attempt = 0; attempt < 2 && psdHomeLayout1112 == null; attempt++)
+            {
+                TextAsset json = Resources.Load<TextAsset>(PsdHomePath + "layout");
+                if (json == null) { Debug.LogError("Authored homepage layout is missing."); return null; }
+                try { psdHomeLayout1112 = JsonUtility.FromJson<PsdHomeLayout>(json.text); }
+                catch (System.ArgumentException error)
+                {
+                    Debug.LogWarning("Homepage layout read failed, reloading: " + error.Message);
+                    Resources.UnloadAsset(json);
+                }
+            }
+            return psdHomeLayout1112;
+        }
+
         private bool BuildPsdHome()
         {
-            TextAsset json = Resources.Load<TextAsset>(PsdHomePath + "layout");
-            if (json == null) { Debug.LogError("Authored homepage layout is missing."); return false; }
-            PsdHomeLayout layout = JsonUtility.FromJson<PsdHomeLayout>(json.text);
+            PsdHomeLayout layout = PsdHomeLayout1112();
+            if (layout == null) return false;
             float scale = 720f / layout.width;
             psdHomeScale = scale;
             // The lobby art fills the WHOLE screen (behind the safe area) so notched phones

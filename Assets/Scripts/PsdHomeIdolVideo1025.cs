@@ -28,8 +28,12 @@ namespace ChoSiren
             new[] { new Vector4(-.0551f, -.0145f, 1.0976f, 1.0322f), new Vector4(-.0367f, .0072f, 1.0877f, 1.0282f) },
             new[] { new Vector4(.1473f, -.0291f, 1.0054f, 1.0209f), new Vector4(.1430f, -.0016f, .9933f, 1.0388f) },
             new[] { new Vector4(-.0541f, .0102f, 1.0663f, 1.0362f), new Vector4(-.0541f, .0102f, 1.0663f, 1.0362f) },
-            new[] { new Vector4(-.1022f, -.0608f, .9591f, .9696f), new Vector4(-.1022f, -.0608f, .9591f, .9696f) },
+            // 2026-11-12 (少爷 对比修正.psd): re-registered on the clip's first frame with feature matching; the mermaid
+            // clip is turned 15° against her still, so it now turns with ClipTurn1112 and lands on the PSD pose.
+            new[] { new Vector4(.0065f, .0290f, .9901f, .9842f), new Vector4(.0065f, .0290f, .9901f, .9842f) },
         };
+        // Degrees (counter-clockwise) each idol's clip turns about its own centre to lie on her still portrait.
+        private static readonly float[] ClipTurn1112 = { 0f, 0f, 0f, 15f };
         private const float FadeSeconds = .35f;
         /// <summary>2026-11-04 (用户: "切到这个角色的时候有第一帧错误的感觉"): how long a newly shown idol keeps her still portrait
         /// hidden while her clip prepares. The still and the clip never line up exactly (pose, framing), so showing the still
@@ -101,6 +105,7 @@ namespace ChoSiren
             RectTransform rect = clip.Image.rectTransform;
             rect.anchorMin = new Vector2(a.x, a.y); rect.anchorMax = new Vector2(a.z, a.w);
             rect.offsetMin = rect.offsetMax = Vector2.zero; rect.pivot = new Vector2(.5f, .5f);
+            rect.localRotation = Quaternion.Euler(0f, 0f, ClipTurn1112[idol]);
             // On this always-active host: a VideoPlayer on a hidden object cannot prepare.
             VideoPlayer player = gameObject.AddComponent<VideoPlayer>();
             player.playOnAwake = false; player.isLooping = true; player.skipOnDrop = true; player.waitForFirstFrame = true;

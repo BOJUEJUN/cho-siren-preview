@@ -53,7 +53,7 @@ namespace ChoSiren
         private UltimateBeatChallenge1025 challenge;
         private float clock, length, stampClock = -1, stampDelay = -1, comboClock = -1;
         private int comboShown;
-        private bool active, waitingForClip, clipEnded;
+        private bool active, waitingForClip, clipEnded, clipRetried;
         private float prepareWait;
 
         public bool IsActive => active;
@@ -332,9 +332,13 @@ namespace ChoSiren
                 }
                 if (source == player && waitingForClip) { waitingForClip = false; ShowClip(source); }
             };
-            vp.errorReceived += (source, __) =>
+            vp.errorReceived += (source, message) =>
             {
+                Debug.LogWarning("[UltShow] clip error " + clipPath + ": " + message);
                 if (source != player || !active) return;
+                // 2026-11-12 (少爷: "这个角色的大招动画怎么没有了"): one decoder error no longer drops the clip for the
+                // portrait; the clip gets one fresh prepare before the still takes over.
+                if (!clipRetried) { clipRetried = true; waitingForClip = true; prepareWait = 0f; source.Stop(); source.Prepare(); return; }
                 waitingForClip = false; video.enabled = false; ShowPortraitFallback();
             };
             vp.loopPointReached += source =>
@@ -379,7 +383,7 @@ namespace ChoSiren
             bool reduced = BattlePresentationOptions.ReduceMotion;
             bool clip = !string.IsNullOrEmpty(clipPath) && !reduced;
             video.enabled = clip; portrait.enabled = !clip && portraitSprite != null;
-            clipEnded = false; prepareWait = 0f;
+            clipEnded = false; prepareWait = 0f; clipRetried = false;
             length = clip ? Mathf.Max(clipLength, BeatsEnd + .6f) : PortraitLength;
             if (clip)
             {
@@ -483,7 +487,17 @@ namespace ChoSiren
             if (waitingForClip)
             {
                 prepareWait += dt;
-                if (prepareWait > 2.5f) { waitingForClip = false; video.enabled = false; if (player != null) player.Stop(); ShowPortraitFallback(); clock = 0; }
+                if (prepareWait > 2.5f && !clipRetried && player != null)
+                {
+                    Debug.LogWarning("[UltShow] clip slow to prepare, retrying " + player.url);
+                    clipRetried = true; prepareWait = 0f; player.Stop(); player.Prepare();
+                    return;
+                }
+                else if (prepareWait > 2.5f)
+                {
+                    Debug.LogWarning("[UltShow] clip unavailable, showing the portrait " + player?.url);
+                    waitingForClip = false; video.enabled = false; if (player != null) player.Stop(); ShowPortraitFallback(); clock = 0;
+                }
                 else return;
             }
             clock += dt;
