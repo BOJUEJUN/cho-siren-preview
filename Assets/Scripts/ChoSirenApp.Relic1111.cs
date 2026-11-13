@@ -23,7 +23,9 @@ namespace ChoSiren
             const float x = 3540f, y = 2110f, w = 440f, h = 430f;
             GameObject button = NewImage("RelicDiceEntry1111", root, null, Color.clear);
             PlaceTop(button.GetComponent<RectTransform>(),
-                x * scale - PsdRightInset((x + w * .5f) / layoutWidth), y * scale + PsdSafeShift((y + h * .5f) / layoutHeight),
+                // 2026-11-12 (少爷: "功能骰跟眼睛 ui 重叠了"): it moves with the eye above it (the top group's safe-area
+                // shift); measured on its own centre it stayed put while the eye moved down onto it on the Mac window.
+                x * scale - PsdRightInset((x + w * .5f) / layoutWidth), y * scale + PsdSafeShift((1600f + 260f) / layoutHeight),
                 w * scale, h * scale);
             var hit = button.GetComponent<Image>();
             hit.raycastTarget = true;

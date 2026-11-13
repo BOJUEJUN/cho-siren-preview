@@ -26,8 +26,7 @@ namespace ChoSiren.Panels
 
         private static BattleUltimateVideo1019.ClipEntry UltimateClipFor(string characterId)
         {
-            TextAsset asset = Resources.Load<TextAsset>("UltimateVideos/manifest");
-            var manifest = asset != null ? JsonUtility.FromJson<BattleUltimateVideo1019.ClipManifest>(asset.text) : null;
+            var manifest = BattleUltimateVideo1019.SharedManifest;
             if (manifest?.entries != null)
                 foreach (var entry in manifest.entries)
                     if (entry != null && entry.characterId == characterId && entry.approvedOriginalArt &&
@@ -63,6 +62,7 @@ namespace ChoSiren.Panels
             Sprite cutArt = (cutinKey != null ? BattlePsdArt928.Sprite(cutinKey) : null) ??
                 Resources.Load<Sprite>("Art/Members/Avatars/avatar-" + unit.Definition.Id);
             ultimateShow.SetCutInArt(cutArt);
+            Debug.Log($"[UltShow] {unit.Definition.Id} clip={clip ?? "none"} reduce={BattlePresentationOptions.ReduceMotion}");
             ultimateShow.SetCutInEmblem(psdRoot != null ? BattlePsdArt928.Sprite(BattlePsdSkillLayout1019.For(battle.RaceOf(unit), 0).Key) : null);
             bool began = ultimateShow.Begin(clip, clipLength, portrait, grade =>
             {

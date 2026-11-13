@@ -27,15 +27,47 @@ namespace ChoSiren
         private float wait, elapsed, duration;
         private bool pending, showing, resume;
 
+        private static ClipManifest sharedManifest1112;
+
+        /// <summary>
+        /// 2026-11-12 (少爷: "怎么又没有动画了？…全面优化修复"): on the Mac app the ultimate show sometimes started without its
+        /// clip and no clip error was logged, i.e. the clip list itself came back empty (the same build once read the lobby
+        /// layout text as garbage). The list is now read once, kept, retried from a fresh load on a bad read, and if it still
+        /// cannot be read the four supplied clips are used directly.
+        /// </summary>
+        public static ClipManifest SharedManifest
+        {
+            get
+            {
+                if (sharedManifest1112?.entries != null && sharedManifest1112.entries.Length > 0) return sharedManifest1112;
+                for (int attempt = 0; attempt < 2; attempt++)
+                {
+                    TextAsset asset = Resources.Load<TextAsset>("UltimateVideos/manifest");
+                    if (asset == null) break;
+                    try
+                    {
+                        var read = JsonUtility.FromJson<ClipManifest>(asset.text);
+                        if (read?.entries != null && read.entries.Length > 0) { sharedManifest1112 = read; return read; }
+                    }
+                    catch (ArgumentException error) { Debug.LogWarning("[UltShow] clip list read failed: " + error.Message); }
+                    Resources.UnloadAsset(asset);
+                }
+                Debug.LogWarning("[UltShow] clip list unreadable, using the built-in list");
+                sharedManifest1112 = new ClipManifest { entries = new[]
+                {
+                    new ClipEntry { characterId = "wubai", path = "wubai-ult.mp4", approvedOriginalArt = true, durationSeconds = 3.75f },
+                    new ClipEntry { characterId = "xingli", path = "xingli-ult.mp4", approvedOriginalArt = true, durationSeconds = 4.2f },
+                    new ClipEntry { characterId = "yeying", path = "yeying-ult-full-1102.mp4", approvedOriginalArt = true, durationSeconds = 5.1666667f },
+                    new ClipEntry { characterId = "feiyin", path = "feiyin-ult.mp4", approvedOriginalArt = true, durationSeconds = 4.25f },
+                } };
+                return sharedManifest1112;
+            }
+        }
+
         public void Configure(Transform host, Func<bool> isPaused)
         {
             paused = isPaused;
-            TextAsset asset = Resources.Load<TextAsset>("UltimateVideos/manifest");
-            if (asset != null)
-            {
-                try { manifest = JsonUtility.FromJson<ClipManifest>(asset.text); }
-                catch (ArgumentException) { manifest = null; }
-            }
+            manifest = SharedManifest;
             var go = new GameObject("OptionalOriginalUltimateVideo", typeof(RectTransform), typeof(RawImage));
             go.transform.SetParent(host, false); screen = (RectTransform)go.transform;
             screen.anchorMin = screen.anchorMax = new Vector2(.5f, .65f); screen.pivot = Vector2.one * .5f;

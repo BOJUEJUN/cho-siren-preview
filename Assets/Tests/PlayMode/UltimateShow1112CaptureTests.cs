@@ -29,11 +29,13 @@ namespace ChoSiren.Tests
         }
 
         [UnityTest]
-        public IEnumerator YeyingUltimatePlaysHerClip([Values(false, true)] bool auto)
+        public IEnumerator UltimatePlaysTheClip([Values("yeying", "xingli")] string casterId, [Values(false, true)] bool fresh)
         {
             string before = PlayerPrefs.GetString(GameModel.SaveKey); bool had = PlayerPrefs.HasKey(GameModel.SaveKey);
             int reduce = PlayerPrefs.GetInt(BattlePresentationOptions.ReduceMotionKey, 0);
             BattlePresentationOptions.ReduceMotion = false;
+            bool auto = false;
+            TacticsBattlePanel.ForceOnboarding1101 = fresh;
             var host = new GameObject("Ult1112", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             Camera camera = new GameObject("Ult1112Camera", typeof(Camera)).GetComponent<Camera>();
             var rt = new RenderTexture(720, 1536, 24);
@@ -41,7 +43,7 @@ namespace ChoSiren.Tests
             var log = new StringBuilder();
             try
             {
-                PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(new GameSave { StoryProgress = 100 }));
+                PlayerPrefs.SetString(GameModel.SaveKey, JsonUtility.ToJson(fresh ? new GameSave() : new GameSave { StoryProgress = 100 }));
                 var model = new GameModel();
                 BattleSimulator battle = model.StartStageBattle("stage-1-1", 1112UL, out string message);
                 Assert.That(battle, Is.Not.Null, message);
@@ -55,7 +57,7 @@ namespace ChoSiren.Tests
                 yield return Wait(1.5f);
                 panel.StopAllCoroutines();
                 typeof(TacticsBattlePanel).GetField("autoMode", Hidden).SetValue(panel, auto);
-                BattleUnit unit = battle.Units.FirstOrDefault(u => u.Side == BattleSide.Player && u.Definition.Id == "yeying")
+                BattleUnit unit = battle.Units.FirstOrDefault(u => u.Side == BattleSide.Player && u.Definition.Id == casterId)
                     ?? battle.Units.First(u => u.Side == BattleSide.Player);
                 log.AppendLine("team: " + string.Join(",", battle.Units.Where(u => u.Side == BattleSide.Player).Select(u => u.Definition.Id)));
                 log.AppendLine("caster: " + unit.Definition.Id + " auto=" + auto);
@@ -74,14 +76,15 @@ namespace ChoSiren.Tests
                     log.AppendLine($"{Time.realtimeSinceStartup - start:F2}s video={video.enabled} portrait={portrait.enabled} " +
                         $"waiting={t.GetField("waitingForClip", Hidden).GetValue(show)} prepared={player?.isPrepared} playing={player?.isPlaying} " +
                         $"time={player?.time:F2} cut={t.GetField("cutClock", Hidden).GetValue(show)} clock={t.GetField("clock", Hidden).GetValue(show)}");
-                    Save(camera, rt, $"{(auto ? "auto" : "manual")}-{shot++:00}.png");
+                    Save(camera, rt, $"{casterId}-{(fresh ? "fresh" : "old")}-{shot++:00}.png");
                     yield return Wait(.5f);
                 }
             }
             finally
             {
                 Directory.CreateDirectory(OutDir);
-                File.WriteAllText(Path.Combine(OutDir, (auto ? "auto" : "manual") + ".txt"), log.ToString());
+                File.WriteAllText(Path.Combine(OutDir, $"{casterId}-{(fresh ? "fresh" : "old")}.txt"), log.ToString());
+                TacticsBattlePanel.ForceOnboarding1101 = false;
                 BattlePresentationOptions.ReduceMotion = reduce == 1;
                 if (had) PlayerPrefs.SetString(GameModel.SaveKey, before); else PlayerPrefs.DeleteKey(GameModel.SaveKey);
                 Object.Destroy(host); Object.Destroy(camera.gameObject); rt.Release();
