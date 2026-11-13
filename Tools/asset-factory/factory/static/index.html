@@ -34,7 +34,7 @@ button{font:inherit;cursor:pointer;border:0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .card{background:var(--card);border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;text-align:left;padding:0;color:inherit}
 .card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.08)}
-.thumb{aspect-ratio:16/9;background:#111;display:block;width:100%;object-fit:cover}
+.thumb{aspect-ratio:16/9;background:var(--canvas);display:block;width:100%;object-fit:contain}
 .card .b{padding:12px 14px 14px}.card .t{font-weight:600}.card .m{color:var(--sub);font-size:13px;margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tag{display:inline-block;padding:2px 10px;font-size:12px;font-weight:800;transform:skewX(-12deg);background:#111;color:#fff;letter-spacing:.5px}
 .tag span{display:inline-block;transform:skewX(12deg)}

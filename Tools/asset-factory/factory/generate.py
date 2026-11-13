@@ -122,7 +122,13 @@ class MockGenerator:
                 img = (img[:, :, :3] * a + 255 * (1 - a)).astype(np.uint8)
         else:
             img = np.full((h, w, 3), 255, np.uint8)
-        img = cv2.resize(img, (w, h))
+        # Fit inside the frame keeping her proportions (never stretch), centred on white.
+        k = min(w / img.shape[1], h / img.shape[0])
+        fitted = cv2.resize(img, (max(1, int(img.shape[1] * k)), max(1, int(img.shape[0] * k))), interpolation=cv2.INTER_AREA)
+        canvas = np.full((h, w, 3), 255, np.uint8)
+        y0, x0 = (h - fitted.shape[0]) // 2, (w - fitted.shape[1]) // 2
+        canvas[y0:y0 + fitted.shape[0], x0:x0 + fitted.shape[1]] = fitted
+        img = canvas
         if workflow.endswith("image"):
             dest = out_dir / f"mock-{random.randint(0, 9999)}.png"
             cv2.imwrite(str(dest), img)
