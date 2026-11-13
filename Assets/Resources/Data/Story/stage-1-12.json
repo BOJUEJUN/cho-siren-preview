@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-12",
+  "Title": "1-12 赌场回音",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-7"
+    },
+    {
+      "Command": "show",
+      "Subject": "yeying",
+      "Expression": "grin",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "赌场里也有人在唱歌？听起来像是在哭。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "精英带着盾娘。先拆盾，再打她。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

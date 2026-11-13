@@ -233,13 +233,21 @@ namespace ChoSiren
         public const int StoryProgressPerRun = 2;
         public const int MaxStoryProgress = 100;
         public const int TeamCapacity = 4;
-        public const int ChapterOneStageCount = 10;
+        /// <summary>
+        /// 2026-11-11 (玩家反馈 "每章 20 关", 少爷批准 Builds/qa-logs/chapter20-1111): each chapter has twenty stages.
+        /// 1-1…1-10 keep the old story-progress route (<see cref="StoryStageThresholds"/> covers only them).
+        /// </summary>
+        public const int ChapterOneStageCount = 20;
+        /// <summary>Stages covered by the legacy 0–100 story progress (1-1…1-10).</summary>
+        public const int LegacyStoryStageCount = 10;
         public static readonly int[] StoryStageThresholds = { 81, 83, 85, 87, 89, 91, 93, 95, 97, 100 };
-        public static readonly int[] ChapterOneStarRewardThresholds = { 10, 20, 30 };
+        public static readonly int[] ChapterOneStarRewardThresholds = { 10, 20, 30, 40, 50, 60 };
 
         public const string ChapterOneTaskClearStageThree = "chapter-1-clear-3";
         public const string ChapterOneTaskFifteenStars = "chapter-1-stars-15";
         public const string ChapterOneTaskClearFinalStage = "chapter-1-clear-10";
+        public const string ChapterOneTaskFortyFiveStars = "chapter-1-stars-45";
+        public const string ChapterOneTaskClearStageTwenty = "chapter-1-clear-20";
 
         private static readonly BattleDifficultyProfile NormalDifficulty =
             new BattleDifficultyProfile(BattleDifficulty.Normal, "普通", 1000, 1000, 1000);
@@ -290,6 +298,14 @@ namespace ChoSiren
                     new CurrencyAmount(CurrencyIds.RecruitTicket, 1)
                 }
             },
+            // 2026-11-11: twenty stages → 60 stars; three more tiers for 1-11…1-20.
+            new ChapterRewardDefinition { RequiredStars = 40, Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 40) } },
+            new ChapterRewardDefinition { RequiredStars = 50, Rewards = new[] { new CurrencyAmount(CurrencyIds.Gold, 3000) } },
+            new ChapterRewardDefinition
+            {
+                RequiredStars = 60,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Diamond, 100), new CurrencyAmount(CurrencyIds.RecruitTicket, 1) }
+            },
         };
 
         private static readonly ChapterTaskDefinition[] ChapterOneTasks =
@@ -318,6 +334,20 @@ namespace ChoSiren
                     new CurrencyAmount(CurrencyIds.RecruitTicket, 1),
                     new CurrencyAmount(CurrencyIds.Diamond, 30)
                 }
+            },
+            new ChapterTaskDefinition
+            {
+                Id = ChapterOneTaskFortyFiveStars,
+                Title = "第一章累计获得 45 星",
+                Target = 45,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.Gold, 2000) }
+            },
+            new ChapterTaskDefinition
+            {
+                Id = ChapterOneTaskClearStageTwenty,
+                Title = "首次通关 1-20",
+                Target = 1,
+                Rewards = new[] { new CurrencyAmount(CurrencyIds.RecruitTicket, 1), new CurrencyAmount(CurrencyIds.Diamond, 40) }
             },
         };
 
@@ -1613,7 +1643,11 @@ namespace ChoSiren
         /// The first chapter is a strict ten-stage route. Story progress remains in the save for
         /// UI/backward compatibility, while explicit clear records preserve each stage's best stars.
         /// </summary>
-        public bool IsChapterOneComplete => Save.StoryProgress >= MaxStoryProgress;
+        public bool IsChapterOneComplete => IsStageCleared(ChapterOneStageId(ChapterOneStageCount));
+
+        /// <summary>1-1…1-10 (the old ten-stage chapter) are done: legacy story progress reached 100, or 1-10 is cleared.</summary>
+        public bool IsChapterOneFirstHalfComplete =>
+            Save.StoryProgress >= MaxStoryProgress || IsStageCleared(ChapterOneStageId(LegacyStoryStageCount));
 
         public int CurrentChapterOneStage
         {
@@ -1622,6 +1656,9 @@ namespace ChoSiren
                 int progress = Mathf.Clamp(Save.StoryProgress, 0, MaxStoryProgress);
                 for (int index = 0; index < StoryStageThresholds.Length; index++)
                     if (progress < StoryStageThresholds[index]) return index + 1;
+                // Past the old ten: the first uncleared stage of 1-11…1-20.
+                for (int stage = LegacyStoryStageCount + 1; stage <= ChapterOneStageCount; stage++)
+                    if (!IsStageCleared(ChapterOneStageId(stage))) return stage;
                 return ChapterOneStageCount;
             }
         }
@@ -1634,15 +1671,22 @@ namespace ChoSiren
         public bool IsStageUnlocked(string stageId)
         {
             // Chapter two opens once chapter one is complete, then also unlocks in order.
+            // 2026-11-11: chapter two now waits for 1-20; a save that already entered chapter two keeps it open.
+            if (TryChapterThreeUnlocked(stageId, out bool chapterThreeOpen)) return chapterThreeOpen; // 2026-11-11 第三章
             if (TryGetChapterTwoStageNumber(stageId, out int chapterTwoStage))
                 return chapterTwoStage == 1
-                    ? IsChapterOneComplete || IsStageCleared(ChapterOneStageId(ChapterOneStageCount))
+                    ? IsChapterOneComplete || IsStageCleared("stage-2-1")
                     : IsStageCleared($"stage-2-{chapterTwoStage - 1}");
             if (!TryGetChapterOneStageNumber(stageId, out int stageNumber)) return true;
             if (stageNumber == 1) return true;
-            if (IsChapterOneComplete) return true;
-            return IsStageCleared(ChapterOneStageId(stageNumber - 1)) ||
-                   Save.StoryProgress >= StoryStageThresholds[stageNumber - 2];
+            if (stageNumber <= LegacyStoryStageCount)
+            {
+                if (IsChapterOneFirstHalfComplete) return true;
+                return IsStageCleared(ChapterOneStageId(stageNumber - 1)) ||
+                       Save.StoryProgress >= StoryStageThresholds[stageNumber - 2];
+            }
+            if (stageNumber == LegacyStoryStageCount + 1) return IsChapterOneFirstHalfComplete;
+            return IsStageCleared(ChapterOneStageId(stageNumber - 1));
         }
 
         /// <summary>
@@ -1711,6 +1755,7 @@ namespace ChoSiren
                 if (stage.UsesRealtime)
                     battle.EnableRealtime(Members.ToDictionary(member => member.Id, member => member.Race),
                         Members[Save.Team[0]].Id, stage.RerollLimit, stage.EncounterType == "world");
+                if (stage.UsesRealtime) ApplyRelicLoadout(battle); // 2026-11-12 第三章功能骰
             }
             catch (ArgumentException exception)
             {
@@ -1757,6 +1802,8 @@ namespace ChoSiren
             if (battle.Outcome != BattleOutcome.Victory)
             {
                 message = "演出失败，调整编队后再来挑战";
+                string shattered = SettleRelics1111(battle); // 2026-11-12 功能骰碎骰
+                if (shattered != null) message += "\n" + shattered;
                 return;
             }
 
@@ -1812,7 +1859,8 @@ namespace ChoSiren
             RecordStageClear(stage.Id, stars);
             if (firstClear && TryGetChapterOneStageNumber(stage.Id, out int chapterOneStage))
                 AdvanceChapterOneProgressAfterClear(chapterOneStage);
-            else if (!TryGetChapterOneStageNumber(stage.Id, out _) && !TryGetChapterTwoStageNumber(stage.Id, out _))
+            else if (!TryGetChapterOneStageNumber(stage.Id, out _) && !TryGetChapterTwoStageNumber(stage.Id, out _) &&
+                     !TryGetChapterThreeStageNumber(stage.Id, out _))
                 AdvanceStoryProgressInternal();
             Report(TaskTriggers.BattleWin);
             // Sharing the stage with the deployed members is the main affection source.
@@ -1825,6 +1873,8 @@ namespace ChoSiren
             if (equipmentNotes.Count > 0) message += "\n" + string.Join("\n", equipmentNotes);
             if (firstClear) message += "（首次通关）";
             if (dailyPerformanceGoalReached) message += "（每日演出目标达成）";
+            string relic = SettleRelics1111(battle); // 2026-11-12 功能骰掉落
+            if (relic != null) message += "\n" + relic;
         }
 
         // ------------------------------------------------------------------ story
@@ -2228,7 +2278,7 @@ namespace ChoSiren
 
         private void AdvanceChapterOneProgressAfterClear(int stageNumber)
         {
-            if (stageNumber < 1 || stageNumber > ChapterOneStageCount) return;
+            if (stageNumber < 1 || stageNumber > LegacyStoryStageCount) return;
             Save.StoryProgress = Mathf.Max(Save.StoryProgress, StoryStageThresholds[stageNumber - 1]);
         }
 
@@ -2281,6 +2331,10 @@ namespace ChoSiren
                     return Mathf.Min(15, ChapterOneTotalStars);
                 case ChapterOneTaskClearFinalStage:
                     return IsStageCleared(ChapterOneStageId(10)) ? 1 : 0;
+                case ChapterOneTaskFortyFiveStars:
+                    return Mathf.Min(45, ChapterOneTotalStars);
+                case ChapterOneTaskClearStageTwenty:
+                    return IsStageCleared(ChapterOneStageId(20)) ? 1 : 0;
                 default:
                     return 0;
             }
@@ -2511,6 +2565,7 @@ namespace ChoSiren
             NormalizeStageClearRecords();
             if (loadedSchemaVersion < 3) MigrateFourStageChapterOneProgress();
             SynchronizeChapterOneProgressFromClears();
+            MigrateLevelCapFloor1111();
             if (!Enum.IsDefined(typeof(BattleDifficulty), Save.SelectedDifficulty))
                 Save.SelectedDifficulty = BattleDifficulty.Normal;
             Save.ClaimedChapterOneStarRewards = (Save.ClaimedChapterOneStarRewards ?? new List<int>())
@@ -2538,6 +2593,7 @@ namespace ChoSiren
                 .OrderBy(index => index)
                 .ToList();
             if (Save.UnlockedMembers.Count == 0) Save.UnlockedMembers.Add(0);
+            GiftNewMembers1112(); // 2026-11-12 少爷: 新角色直接送所有人
 
             Save.Team = Save.Team
                 .Where(index => Save.UnlockedMembers.Contains(index))
@@ -2682,7 +2738,7 @@ namespace ChoSiren
         private void SynchronizeChapterOneProgressFromClears()
         {
             int contiguousClears = 0;
-            for (int stageNumber = 1; stageNumber <= ChapterOneStageCount; stageNumber++)
+            for (int stageNumber = 1; stageNumber <= LegacyStoryStageCount; stageNumber++)
             {
                 if (!IsStageCleared(ChapterOneStageId(stageNumber))) break;
                 contiguousClears = stageNumber;

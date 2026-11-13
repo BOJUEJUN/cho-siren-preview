@@ -1,0 +1,45 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-20-end",
+  "Title": "1-20 幻蚀终演",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-10"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "她的眼睛……恢复颜色了。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "前代顶流偶像，梅洛蒂。她只是唱得太久，忘了为什么要唱。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "欲望都市，终于安静下来了。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "第一章，终演成功。海湾那边，有新的舞台在等你们。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

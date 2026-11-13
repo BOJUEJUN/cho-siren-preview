@@ -183,9 +183,60 @@ namespace ChoSiren.Panels
             reactionRoutine = StartCoroutine(playerVictory ? DefeatRoutine() : VictoryRoutine());
         }
 
+        /// <summary>True once the fallen boss has left the stage (see <see cref="PlayDeath"/>).</summary>
+        public bool Vanished { get; private set; }
+
+        /// <summary>
+        /// 2026-11-12 (原画同事反馈: BOSS 已被打死，却要等身边小怪也打完才消失): the boss leaves the stage the moment she
+        /// falls, while her adds keep fighting. <paramref name="shattered"/>: a KO break already plays on a ghost copy
+        /// of her portrait, so she vanishes at once; otherwise she slumps, fades out, then vanishes.
+        /// </summary>
+        public void PlayDeath(bool shattered)
+        {
+            if (!configured || Vanished) return;
+            outcomeLocked = true;
+            OutcomeReactionCount++;
+            StopReaction();
+            reactionPriority = 4;
+            reactionVersion++;
+            if (shattered || !isActiveAndEnabled) { Vanish(); return; }
+            reactionRoutine = StartCoroutine(DeathRoutine());
+        }
+
+        private IEnumerator DeathRoutine()
+        {
+            IEnumerator slump = DefeatRoutine();
+            while (slump.MoveNext()) yield return slump.Current;
+            float startAlpha = portrait.color.a, elapsed = 0f;
+            const float fade = 0.3f;
+            while (elapsed < fade)
+            {
+                elapsed += AnimationDelta();
+                Color color = portrait.color;
+                color.a = Mathf.Lerp(startAlpha, 0f, Mathf.Clamp01(elapsed / fade));
+                portrait.color = color;
+                yield return null;
+            }
+            reactionRoutine = null;
+            Vanish();
+        }
+
+        private void Vanish()
+        {
+            Vanished = true;
+            State = BossVisualState.Defeated;
+            SetStateLabel(string.Empty, Color.clear, 0f);
+            if (motionRoot != null) motionRoot.gameObject.SetActive(false);
+            foreach (Graphic part in new Graphic[] { echo, auraBack, auraCore, shadow, stagePulse, lowHealthVignette,
+                hitSlashArt, heartImpactArt, chargeAuraArt })
+                if (part != null) part.gameObject.SetActive(false);
+            foreach (Image ring in rings) if (ring != null) ring.gameObject.SetActive(false);
+            foreach (Image trail in slashTrails) if (trail != null) trail.gameObject.SetActive(false);
+        }
+
         private void Update()
         {
-            if (!configured || IsPaused()) return;
+            if (!configured || Vanished || IsPaused()) return;
             animationClock += AnimationDelta();
             ApplyCompositePose();
         }

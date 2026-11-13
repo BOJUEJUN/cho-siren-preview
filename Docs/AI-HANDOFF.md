@@ -14,6 +14,9 @@
 
 ## 1. 游戏现状（2026-11-08）
 
+- **0.9.52 已全量发布（11-12）**：新角色直接送所有人、大厅音乐条换成新播放器。记录 `Docs/FULL-RELEASE-2026-11-12-0952.md`。下一版 **0.9.53**，脚本复用 `Builds/qa-logs/full-release-0952/`（补丁基准改成 Release-0.9.52）。
+- **0.9.51（11-12）**：11 月内容（三个新角色、第三章 20 关、顶盾 / 弹反、七色功能骰、战斗贴脸图放大、首页雾白手露出站正、唱片机新播放器、首领倒下立刻消失、库存小猪缩小）。说明 `Docs/CONTENT-1111.md`，记录 `Docs/FULL-RELEASE-2026-11-12-0951.md`。第三章和七色骰要打通 2-20 才开放。
+- 11-12 少爷定：**所有活都在主会话自己做，除非他自己说要开新对话**（分出去的会话耗额度、来回转达、还互相抢 Unity）。
 - **0.9.50 已全量发布（11-10）**：歌单加入 嘘つきセイレーン（口哨版，少爷在 Suno 点赞的那条；Opus m4a 用 AVFoundation 解码 + lameenc 转 MP3，`StreamingAssets/Music/song-siren-whistle-*.mp3`）。下一版 **0.9.51**，脚本复用 `Builds/qa-logs/full-release-0950/`。
 - 之前 **0.9.49（11-10）**：0.9.47 升级弹窗用正式立绘、技能图标点开说明；0.9.48 每个角色两个专属技能图标（`MemberSkillIcons1110.cs`，`Resources/Art/Ui1107/SkillIcons1110`）、主唱/主舞/Rapper/门面与羁绊/练习室/队长徽章、电脑版狐耳箭头鼠标逐帧动画+拖尾+点击碎片（`PointerTrail1110.cs`，`Art/Cursor1110`）、底部唱片转动不再上下跳（唱片图已对准旋转中心）；0.9.49 60 个饰品重新设计成朋克偶像舞台风。
 - 之前：**0.9.46 已全量发布**（记录 `Docs/FULL-RELEASE-2026-11-09-0946.md`：工坊只剩换装 + 炫彩、库存材料分类）。0.9.45：`Docs/FULL-RELEASE-2026-11-09-0945.md`。0.9.44：`Docs/FULL-RELEASE-2026-11-08-0944.md`。0.9.43：`Docs/FULL-RELEASE-2026-11-08-0943.md`。之前 0.9.42（`Docs/FULL-RELEASE-2026-11-08-0942.md`）：团队/选秀/饰品手机实测修改、按钮回弹手感、三页统一背景、工坊工具精简。再之前 0.9.41/0.9.40：赵金 11-07 六页新美术 + 会议纪要落地 + 200 级 + 角色体力 + 累计更新公告。明细 `Docs/ART-FEEDBACK-2026-11-07.md`、数值 `Docs/BALANCE-1107-LV200.md`。下一版 **0.9.47**。
@@ -26,10 +29,10 @@
 |---|---|---|
 | 网页（不再更新） | 0.9.41 / R171 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
 | 官网 | 已下线（11-08 少爷要求保密） | 原 `site/` 已从公开仓库删除，本机副本 `~/cho-siren-site-private/`；别再发布到公开地址 |
-| Windows 下载 + 更新清单 | 0.9.50（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
+| Windows 下载 + 更新清单 | 0.9.52（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
 | Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
-| 本机 `/Applications/幻域魅声.app` | 0.9.50 | 11-10 替换，Dock 入口保留 |
-| 伯爵君 iPhone | 0.9.50 | 11-10 覆盖安装（升级弹窗用正式立绘、成员页技能图标点开说明；无 GPT 测试码，存档保留）；描述文件 11-13 到期 |
+| 本机 `/Applications/幻域魅声.app` | 0.9.52 | 11-12 替换，Dock 入口保留（0.9.51 时误开过一次 10-28 旧测试包约 40 秒，Mac 存档的突破 / 体力 / 换装记录可能被清） |
+| 伯爵君 iPhone | 0.9.52 | 11-12 覆盖安装，存档保留；描述文件 11-13 到期（0.9.52 用的是 11-12 新签的包，到期日以 Xcode 为准） |
 | 五条悟专用机 | 0.9.42 | 11-08 覆盖安装，同上 |
 
 - 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.46 / Android 946（11-09 全量发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
@@ -62,6 +65,7 @@
   - 成功的标志：日志里出现 `Created new device ... AuthenticatedControlChannelConnection`，安装返回 `App installed`。
   - 证据：`Builds/qa-logs/full-release-0930/`（11-02）、`Builds/qa-logs/art-feedback-1110/`（11-10 的修前备份 `wifi-bypass-before.txt`）。
   - Karing 以后可能又改回一行，再遇到 4016 先按上面的方法只读确认。
+  - 11-12 又出现一次（0.9.51 装不上）。这是改系统网络设置，AI 只做只读确认，把上面那行命令（备份到 `Builds/qa-logs/full-release-0951/wifi-bypass-before.txt`）给少爷，让他自己在终端运行；运行后几分钟就装上了。
 
 - 游戏歌单（11-09 少爷定）：光のルール、輝きを追いかけて、BLACK ROSE A/B，其他新歌先拿掉。`Tools/sync_liked_songs.py`（把选歌台的喜欢同步进游戏）已经从打包脚本里去掉了，少爷没让加新歌之前不要跑。
 
@@ -159,6 +163,8 @@
   - RunningHub Krea2 工作流：棕色尘埃、小小英雄、LOL 2.36MP V1.1（默认）、LOL 2.36MP、CherryCHE、局内视角。
   - Krea 3（Krea API，余额单独充）、GPT Image 2.6 Flare / Sunburst（OpenAI）。
   - Nano Banana 2.1（RunningHub 海外站）11-11 少爷让下架：`lib/models.ts` 里标 `retired`，选单不显示，出图接口拒绝，旧图名字照常显示。
+  - 即梦 5.5（Seedream 5.5，11-12 接入）：RunningHub 标准接口 `openapi/v2/seedream-v5.5/{text-to-image,image-to-image}`（`lib/rh-models.ts`，`seedream-55`），用国内站余额。实测：1K / 1.5K 新出图 ¥0.13、2K 改图 ¥0.28（输入图也计费），约 16~18 秒，比例和原图一致；最高 2K，没有 4K；接口没有框 / 画笔参数，只能用文字说改哪；提示词不足 5 个字会被拒，网站自动补成「把图片改成：…」/「画一张图：…」。清晰度 1K/1.5K/2K、背景 自动/透明/不透明。图标用即梦官网图标（`public/models/seedream.png`）。实际扣费从查询结果的 `usage.thirdPartyConsumeMoney` 记进历史。
+  - 11-12 色卡同图实测（「只把右上角浅黄方块改成深紫，其他不变」）：即梦 5.5 改对、框外几乎不动（>40 色差像素 0.01%）；Krea 3 文字版改成亮紫且其他方块出现斑块（1.2%）；Krea 3 画框版改对但也有斑块、比例轻微变形。少爷决定两个都留着。
   - 详见仓库 `README.md`。
 - 存储：图片和记录在腾讯云香港桶 `enzoban-studio-1318245308`（ap-hongkong，`COS_PREFIX=root`），代码 `lib/cos.ts`。RunningHub 结果经腾讯云"搬图"函数（`FETCH_FN_URL` / `FETCH_FN_TOKEN`）搬进 COS。
 - 登录与安全（11-11 改成账号密码）：
@@ -198,6 +204,9 @@
   - 账号文件 `users.json`：写完回读，被别人同时写掉就把自己那条补回去再写（`lib/auth.ts` 的 `commitUsers`）；文件坏了直接报错，不会当成"没有账号"把大家冲掉。
   - 没用的上传图清理：Vercel 每周一北京时间 03:30 跑 `/api/admin/cleanup`（`vercel.json`，用 `CRON_SECRET`）。只删 14 天前、没有任何画布 / 未过期分享 / 历史用到的 `ref-cv*` 及其小图。店主登录后 GET 这个地址只看不删。11-11 时共 29 张约 3MB，都在用。
   - 备份（11-11 少爷扫码登录腾讯云后台，我点开的）：香港桶 `enzoban-studio-1318245308` 已开「版本控制」（只能暂停不能关），并加了生命周期规则 `RegularlyClean_HistoricalVersions_…`：整个桶，旧版本 30 天后删除、清理无历史版本的删除标记。被覆盖或删掉的文件 30 天内可在桶的「回收站列表」里找回。广州桶 `cho-siren-1318245308` 没开。
+- 局部重绘（Krea 3，11-11/12）：原「框选修改」改名「局部重绘」，是输入框下面那排的一个参数，点开框选窗口（`app/krea-region-editor.tsx`）。框内按住可移动、右下角圆点调大小、Delete 删除；框了没写要求点完成会标红。确定后每个框在输入框上方一行显示（小图标出位置 + 编号 + 可直接改的要求 + ×），画布上被框的图也画出框。深度思考可开可关：加第一个框时自动打开一次。Krea 返回的图会被凑成它自己的尺寸（597×848 → 864×1216，约 1% 变形），出图后按图1 比例拉回（`lib/krea.ts` 的 `restoreShape`，提交时记 `kfix-<job>`）。局部重绘选 2K 时 Krea 实际出约 1K，计费是否按 2K 未确认。
+- 其他 11-12 修复：输入框和文本节点里的「提示词润色」有字才出现、用过才高亮；输入框参考图小格用小图（原图走网站超过响应上限会坏）；画布触控板滑动不再被当成缩放、按住滚轮拖动时滚轮误转不再跳位置、刚打开时云端位置不再盖掉已挪动的位置；后台生图记录没有工作区的按「单图」算；页面开着时网站更新会在顶上提示「网站已更新 · 点这里刷新」（`/api/version`）。
+- 本机测试：`.claude/launch.json` 另有 `enzoban-dev-krea`（带 Krea 钥匙，用来本地测 Krea 3 界面）。无界面截图用本机 Chrome 无头模式 + 本地账号 `perftest` 的 cookie（脚本留在 scratchpad，没进仓库）。
 - 待办（可选）：
   - 过几天删掉广州旧副本（桶 `cho-siren-1318245308` 前缀 `enzoban-studio/`），以及香港桶里的测试对象 img-zz-test / img-zz-sgtest / img-zz-hktest。
   - 过几天看一下 Vercel 用量。

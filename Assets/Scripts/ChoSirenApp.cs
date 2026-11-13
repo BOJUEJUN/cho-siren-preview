@@ -1061,8 +1061,10 @@ namespace ChoSiren
                 CombatRace race = BattleSimulator.ParseCombatRace(member.Race);
                 firstName = MemberSkillNames1103.Name(member.Id, race, false);
                 secondName = MemberSkillNames1103.Name(member.Id, race, true);
-                firstEffect = BattleSimulator.ActiveSkillDescription(race, false);
-                secondEffect = BattleSimulator.ActiveSkillDescription(race, true);
+                firstEffect = BattleSimulator.MemberSkillDescription(member.Id, race, false);
+                secondEffect = BattleSimulator.MemberSkillDescription(member.Id, race, true);
+                string kitPassive = BattleSimulator.KitPassiveDescription(BattleSimulator.KitOf(member.Id));
+                if (kitPassive != null) secondEffect += "\n" + kitPassive; // 2026-11-11 骰子被动
                 return;
             }
             List<SkillDefinition> skills = MemberBattlePresentation.FeaturedSkills(model.Tactics, member.Id);

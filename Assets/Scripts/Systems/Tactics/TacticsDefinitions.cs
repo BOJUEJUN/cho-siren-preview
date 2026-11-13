@@ -171,6 +171,11 @@ namespace ChoSiren.Systems.Tactics
         public int RerollLimit => EncounterType == "normal" ? 2 : 3;
         public string EncounterLabel => EncounterType == "normal" ? "普通战" : EncounterType == "elite" ? "精英战"
             : EncounterType == "world" ? "世界首领" : "首领战";
+        /// <summary>
+        /// 2026-11-11: minions on the stage at once. 0 keeps the default two; 3 marks the few "三敌同屏" stages whose
+        /// battle view pans across a wider stage to the enemy being hit (TacticsBattlePanel.WideStage1111).
+        /// </summary>
+        public int MaxOnStage;
         public int StaminaCost = 8;
         public int TurnLimit = 20;
         /// <summary>Finishing within this many rounds earns the third star.</summary>
@@ -194,6 +199,7 @@ namespace ChoSiren.Systems.Tactics
             if (StaminaCost < 0 || TurnLimit <= 0 || ThreeStarRounds <= 0 || GoldReward < 0 || DiamondFirstClear < 0 ||
                 TimeLimitSeconds < 30 || TimeLimitSeconds > 120 || ThreeStarSeconds <= 0 ||
                 ThreeStarSeconds > TimeLimitSeconds || RecommendedLevel < 1 ||
+                MaxOnStage < 0 || MaxOnStage > 3 || MaxOnStage == 1 || (MaxOnStage == 3 && HasBossPhases) ||
                 (UsesRealtime && EncounterType != "normal" && EncounterType != "elite" &&
                     EncounterType != "boss" && EncounterType != "world") ||
                 (!string.IsNullOrEmpty(BossTier) && (!HasBossPhases || BossTier != "mini" && BossTier != "major")))

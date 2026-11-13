@@ -576,6 +576,33 @@
    "Trait": "傲娇",
    "Blood": "B+",
    "Birthday": "1月15日"
+  },
+  {
+   "Id": "huansha",
+   "Age": 20,
+   "Job": "地下乐队主唱",
+   "Hobby": "收集旧磁带",
+   "Trait": "慵懒",
+   "Blood": "AB",
+   "Birthday": "3月9日"
+  },
+  {
+   "Id": "huanhuoling",
+   "Age": 21,
+   "Job": "夜场舞台模特",
+   "Hobby": "调香",
+   "Trait": "高冷",
+   "Blood": "O",
+   "Birthday": "11月11日"
+  },
+  {
+   "Id": "linyin",
+   "Age": 19,
+   "Job": "街头说唱歌手",
+   "Hobby": "改装耳机",
+   "Trait": "元气",
+   "Blood": "B",
+   "Birthday": "6月21日"
   }
  ]
 }

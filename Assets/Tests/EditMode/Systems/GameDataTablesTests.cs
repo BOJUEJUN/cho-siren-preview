@@ -37,6 +37,9 @@ namespace ChoSiren.Tests.Systems
                 {
                     "stage-1-1", "stage-1-2", "stage-1-3", "stage-1-4", "stage-1-5",
                     "stage-1-6", "stage-1-7", "stage-1-8", "stage-1-9", "stage-1-10",
+                    // 2026-11-11: twenty stages per chapter.
+                    "stage-1-11", "stage-1-12", "stage-1-13", "stage-1-14", "stage-1-15",
+                    "stage-1-16", "stage-1-17", "stage-1-18", "stage-1-19", "stage-1-20",
                 }));
             Assert.That(repository.Tactics.Stages.FindAll(stage => stage.Id.StartsWith("stage-1-")).TrueForAll(stage => stage.Chapter == "第 01 章"),
                 Is.True);

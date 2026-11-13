@@ -57,6 +57,20 @@ namespace ChoSiren
                     if (exists(candidate)) return candidate;
                 }
             }
+            // 2026-11-11 (每章 20 关): x-11…x-20 have no CG of their own; they borrow the painted moments of the stage
+            // whose scene they are set in (their bg), so a new stage never shows a bare speaker portrait.
+            const string scenes = "Art/Story/Scenes1019/";
+            StoryLine bg = script.Lines.Find(value => value.Command == StoryCommand.Background);
+            if (bg != null && bg.Subject != null && bg.Subject.StartsWith(scenes + "stage-", StringComparison.Ordinal))
+            {
+                string borrowed = bg.Subject.Substring(scenes.Length);
+                if (borrowed != script.Id)
+                    for (int i = 0; i < 64; i++)
+                    {
+                        string candidate = LineKey(borrowed, i);
+                        if (exists(candidate)) return candidate;
+                    }
+            }
             return null;
         }
     }

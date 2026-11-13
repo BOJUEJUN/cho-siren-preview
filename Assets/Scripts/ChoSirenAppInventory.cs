@@ -98,7 +98,10 @@ namespace ChoSiren
             BoardText038(sort.transform, "Label", InventorySortNames[inventorySort] + "  ▼", 22, White, 66, 0, sortRect.width - 76, sortRect.height,
                 TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
 
-            InventoryArtImage(root, "InventoryPig", "inv-pig", Inv1107(869, 107, 422, 329));
+            // 2026-11-12 (原画同事: "这个角色缩小，3 分之一"): the pig is a third smaller (2/3 of 422×329), keeps its centre
+            // line and now sits just above the sort plate (PSD y 430) instead of overlapping it.
+            const float pigW = 422f * 2f / 3f, pigH = 329f * 2f / 3f, pigBottom = 426f;
+            InventoryArtImage(root, "InventoryPig", "inv-pig", Inv1107(1080f - pigW * .5f, pigBottom - pigH, pigW, pigH));
 
             // 2026-11-08 (少爷: "分类还是加一个全部，然后默认选中的是全部"): five category plates down the left — 全部 (default),
             // 耳饰, 项链, 手饰, 头饰 — evenly spaced over the grid's height; the 4×4 grid shows the chosen category and

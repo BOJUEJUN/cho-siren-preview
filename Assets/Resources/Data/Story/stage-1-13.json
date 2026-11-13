@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-13",
+  "Title": "1-13 游魂夜潮",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "三个……不，一整群游魂一起来了！",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "镜头会跟着你们打的那一个。别慌，一只一只来。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

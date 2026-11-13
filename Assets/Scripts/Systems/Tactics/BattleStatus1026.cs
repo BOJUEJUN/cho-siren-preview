@@ -79,6 +79,7 @@ namespace ChoSiren.Systems.Tactics
                     c.TimedShield > 0 && c.TimedShieldUntil > now ? RoundsRemaining(c.TimedShieldUntil) : 0));
             if (c.ReductionUntil > now) list.Add(new UnitStatus(UnitStatusKind.Reduction, "减伤15%", RoundsRemaining(c.ReductionUntil)));
             if (c.AttackBuffUntil > now) list.Add(new UnitStatus(UnitStatusKind.AttackBuff, "攻+10%", RoundsRemaining(c.AttackBuffUntil)));
+            AppendStatuses1111(unit, list); // 2026-11-11 护盾 / 破绽 / 扰乱 / 迷惑 / 幻影 (Chapter3Battle1111)
             return list;
         }
     }

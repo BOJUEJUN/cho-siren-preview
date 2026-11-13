@@ -61,12 +61,14 @@ namespace ChoSiren.Panels
                 {
                     yield return WaitBattleDelay(.35f);
                     while (!closing && paused) yield return null;
+                    if (battle.CanParry(actor)) yield return Parry1111(actor); // 2026-11-11 第三章弹反
                     battle.EnemyTurn();
                 }
                 else
                 {
                     // 2026-10-24: no command menu any more. Attacks and skills are automatic in both modes;
                     // 自动 also plays the dice and the ultimates, 手动 leaves rerolls and ultimates to the player's taps.
+                    if (autoMode && battle.AutoUseRelic()) { DrainTurnLog(); RefreshAllCells(); } // 2026-11-12 功能骰
                     if (autoMode) yield return AutoReroll1031();
                     yield return WaitBattleDelay(autoMode ? .25f : .4f);
                     yield return CastTappedUltimate();
@@ -101,6 +103,24 @@ namespace ChoSiren.Panels
         }
 
         private int tappedUltimateId = -1;
+        private ChoSiren.UI.ParryPrompt1111 parryPrompt1111;
+        /// <summary>Tests: answer every parry prompt with this grade instead of waiting for a tap.</summary>
+        public static UltimateTimingGrade? ParryAutoGrade1111;
+
+        /// <summary>第三章: the charged special is coming — the ring prompt arms the parry with the player's timing.</summary>
+        private IEnumerator Parry1111(BattleUnit actor)
+        {
+            if (ParryAutoGrade1111.HasValue) { battle.ArmParry(actor, ParryAutoGrade1111.Value); yield break; }
+            if (parryPrompt1111 == null) parryPrompt1111 = ChoSiren.UI.ParryPrompt1111.Create(transform, kit.Font);
+            bool done = false;
+            UltimateTimingGrade grade = UltimateTimingGrade.Miss;
+            Sfx("cut", .7f);
+            parryPrompt1111.Play(() => paused || closing, g => { grade = g; done = true; });
+            while (!closing && !done) yield return null;
+            if (closing) { parryPrompt1111.Cancel(); yield break; }
+            battle.ArmParry(actor, grade);
+            if (grade != UltimateTimingGrade.Miss) Sfx("block", 1f);
+        }
 
         /// <summary>The member whose full card was tapped casts now, between turns (any mode).</summary>
         private IEnumerator CastTappedUltimate()

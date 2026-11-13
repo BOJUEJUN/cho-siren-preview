@@ -286,10 +286,10 @@
       "script": "stage-1-10-end",
       "line": 4,
       "subject": "producer",
-      "zh": "第一章，终演成功。海湾那边，有新的舞台在等你们。",
-      "clip": "Story/v1102-stage-1-10-end-l4",
+      "zh": "梅洛蒂退进了城市深处。第一章还没完——接下来的十个舞台，把她找出来。",
+      "clip": "Story/v1111-stage-1-10-end-l4",
       "reused": false,
-      "ja": "第一章、終演成功。海湾では、新しいステージが待っている。"
+      "ja": "メロディは街の奥へ逃げた。第一章はまだ終わらない——次の十のステージで、彼女を見つけ出そう。"
     },
     {
       "script": "stage-1-10",
@@ -833,10 +833,10 @@
       "script": "stage-2-10-end",
       "line": 5,
       "subject": "producer",
-      "zh": "第二章，终演成功。你们是最好的女团。",
-      "clip": "Story/v1102-stage-2-10-end-l5",
+      "zh": "赛琳沉回了深海。她还会回来——海湾的演出，还剩最后十场。",
+      "clip": "Story/v1111-stage-2-10-end-l5",
       "reused": false,
-      "ja": "第二章、終演成功。君たちは、最高のアイドルグループだ。"
+      "ja": "セレーネは深海へ沈んだ。また戻ってくる——湾岸の公演は、あと十ステージだ。"
     },
     {
       "script": "stage-2-10",
@@ -1295,6 +1295,582 @@
       "clip": "Story/v1102-stage-2-9-l4",
       "reused": false,
       "ja": "君たちは、私の知る最高のグループだ。行っておいで。"
+    },
+    {
+      "script": "stage-1-20-end",
+      "line": 5,
+      "subject": "producer",
+      "zh": "第一章，终演成功。海湾那边，有新的舞台在等你们。",
+      "clip": "Story/v1102-stage-1-10-end-l4",
+      "reused": true,
+      "ja": "第一章、終演成功。海湾では、新しいステージが待っている。"
+    },
+    {
+      "script": "stage-2-20-end",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "全场都在唱……和我们一起。",
+      "clip": "Story/v1102-stage-2-10-end-l2",
+      "reused": true,
+      "ja": "会場じゅうが、私たちと一緒に歌ってる。"
+    },
+    {
+      "script": "stage-2-20-end",
+      "line": 5,
+      "subject": "producer",
+      "zh": "第二章，终演成功。你们是最好的女团。",
+      "clip": "Story/v1102-stage-2-10-end-l5",
+      "reused": true,
+      "ja": "第二章、終演成功。君たちは、最高のアイドルグループだ。"
+    },
+    {
+      "script": "stage-2-20",
+      "line": 6,
+      "subject": "producer",
+      "zh": "全员——开演！",
+      "clip": "Story/v1102-stage-1-10-l5",
+      "reused": true,
+      "ja": "全員、開演だ！"
+    },
+    {
+      "script": "stage-1-11",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "梅洛蒂逃进了城市深处。她留下的游魂，还在桥上游荡。",
+      "clip": "Story/v1111-stage-1-11-l2",
+      "reused": false,
+      "ja": "メロディは街の奥に逃げた。残された亡霊たちが、まだ橋をさまよってる。"
+    },
+    {
+      "script": "stage-1-11",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "那就一座桥一座桥地找回来。",
+      "clip": "Story/v1111-stage-1-11-l3",
+      "reused": false,
+      "ja": "なら、橋をひとつずつ取り戻していこう。"
+    },
+    {
+      "script": "stage-1-12",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "赌场里也有人在唱歌？听起来像是在哭。",
+      "clip": "Story/v1111-stage-1-12-l2",
+      "reused": false,
+      "ja": "カジノでも誰か歌ってる？……泣いてるみたいに聞こえる。"
+    },
+    {
+      "script": "stage-1-12",
+      "line": 3,
+      "subject": "producer",
+      "zh": "精英带着盾娘。先拆盾，再打她。",
+      "clip": "Story/v1111-stage-1-12-l3",
+      "reused": false,
+      "ja": "エリートが盾の子を連れてる。先に盾を崩してから、本体を叩け。"
+    },
+    {
+      "script": "stage-1-13",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "三个……不，一整群游魂一起来了！",
+      "clip": "Story/v1111-stage-1-13-l2",
+      "reused": false,
+      "ja": "三体……ううん、亡霊の群れがまとめて来た！"
+    },
+    {
+      "script": "stage-1-13",
+      "line": 3,
+      "subject": "producer",
+      "zh": "镜头会跟着你们打的那一个。别慌，一只一只来。",
+      "clip": "Story/v1111-stage-1-13-l3",
+      "reused": false,
+      "ja": "狙った相手にしっかり目を向けて。焦らず、一体ずつだ。"
+    },
+    {
+      "script": "stage-1-14",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "镜子里的人影比我们多一个……",
+      "clip": "Story/v1111-stage-1-14-l2",
+      "reused": false,
+      "ja": "鏡の中の人影、私たちより一人多い……"
+    },
+    {
+      "script": "stage-1-14",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "残影而已。穿甲打过去就散了。",
+      "clip": "Story/v1111-stage-1-14-l3",
+      "reused": false,
+      "ja": "ただの残像よ。貫いてやれば消えるわ。"
+    },
+    {
+      "script": "stage-1-15-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "她最后那段舞……其实很美。",
+      "clip": "Story/v1111-stage-1-15-end-l2",
+      "reused": false,
+      "ja": "最後のあのダンス……本当は、すごく綺麗だった。"
+    },
+    {
+      "script": "stage-1-15-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "幻蚀把她的舞变成了武器。我们要把源头找出来。",
+      "clip": "Story/v1111-stage-1-15-end-l3",
+      "reused": false,
+      "ja": "幻蝕が彼女のダンスを武器に変えたの。元を断たなきゃ。"
+    },
+    {
+      "script": "stage-1-15-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "梅洛蒂的位置找到了。再往前五个舞台，就是她的终演。",
+      "clip": "Story/v1111-stage-1-15-end-l4",
+      "reused": false,
+      "ja": "メロディの居場所がわかった。あと五つのステージの先が、彼女の最終公演だ。"
+    },
+    {
+      "script": "stage-1-15",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "是她——狂响幻蚀歌姬。梅洛蒂最忠实的舞者。",
+      "clip": "Story/v1111-stage-1-15-l2",
+      "reused": false,
+      "ja": "あいつよ——狂響の幻蝕歌姫。メロディに一番忠実なダンサー。"
+    },
+    {
+      "script": "stage-1-15",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "她身边的应援盾娘，会一直替她挡伤害。",
+      "clip": "Story/v1111-stage-1-15-l3",
+      "reused": false,
+      "ja": "そばの応援の盾の子たちが、ずっと彼女をかばうよ。"
+    },
+    {
+      "script": "stage-1-15",
+      "line": 4,
+      "subject": "yeying",
+      "zh": "那就先把应援拆了，再请她下台。",
+      "clip": "Story/v1111-stage-1-15-l4",
+      "reused": false,
+      "ja": "じゃあ応援を先に片づけて、それから退場してもらおう。"
+    },
+    {
+      "script": "stage-1-15",
+      "line": 5,
+      "subject": "producer",
+      "zh": "这一战赢了，梅洛蒂就再也藏不住了。",
+      "clip": "Story/v1111-stage-1-15-l5",
+      "reused": false,
+      "ja": "この戦いに勝てば、メロディはもう隠れられない。"
+    },
+    {
+      "script": "stage-1-16",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "这间录音棚，以前出过好多首歌。",
+      "clip": "Story/v1111-stage-1-16-l2",
+      "reused": false,
+      "ja": "このスタジオ、昔はたくさんの曲が生まれたんだ。"
+    },
+    {
+      "script": "stage-1-16",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "以后还会再出的。先把它清干净。",
+      "clip": "Story/v1111-stage-1-16-l3",
+      "reused": false,
+      "ja": "これからもきっと生まれるよ。まずは綺麗にしよう。"
+    },
+    {
+      "script": "stage-1-17",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "净化舞娘会把我们挂上的毒全洗掉。",
+      "clip": "Story/v1111-stage-1-17-l2",
+      "reused": false,
+      "ja": "浄化の踊り子は、私たちの毒を全部洗い流しちゃう。"
+    },
+    {
+      "script": "stage-1-17",
+      "line": 3,
+      "subject": "producer",
+      "zh": "那就别拖，打快一点。",
+      "clip": "Story/v1111-stage-1-17-l3",
+      "reused": false,
+      "ja": "なら長引かせるな。速攻で行こう。"
+    },
+    {
+      "script": "stage-1-18",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "整条街的游魂都醒了……",
+      "clip": "Story/v1111-stage-1-18-l2",
+      "reused": false,
+      "ja": "通り中の亡霊が目を覚ましてる……"
+    },
+    {
+      "script": "stage-1-18",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "三个三个来也没关系。我们四个人，一起唱。",
+      "clip": "Story/v1111-stage-1-18-l3",
+      "reused": false,
+      "ja": "三体ずつ来たって平気。私たち四人で、一緒に歌おう。"
+    },
+    {
+      "script": "stage-1-19",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "明天，就是梅洛蒂的终演了。",
+      "clip": "Story/v1111-stage-1-19-l2",
+      "reused": false,
+      "ja": "明日は、メロディの最終公演だね。"
+    },
+    {
+      "script": "stage-1-19",
+      "line": 3,
+      "subject": "producer",
+      "zh": "今晚先把裂隙里的守卫清掉，当最后一次彩排。",
+      "clip": "Story/v1111-stage-1-19-l3",
+      "reused": false,
+      "ja": "今夜は裂け目の番人を片づけよう。最後のリハーサルだ。"
+    },
+    {
+      "script": "stage-1-20-end",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "她的眼睛……恢复颜色了。",
+      "clip": "Story/v1111-stage-1-20-end-l2",
+      "reused": false,
+      "ja": "彼女の瞳……色が戻ってる。"
+    },
+    {
+      "script": "stage-1-20-end",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "前代顶流偶像，梅洛蒂。她只是唱得太久，忘了为什么要唱。",
+      "clip": "Story/v1111-stage-1-20-end-l3",
+      "reused": false,
+      "ja": "先代のトップアイドル、メロディ。歌い続けすぎて、なぜ歌うのか忘れてただけ。"
+    },
+    {
+      "script": "stage-1-20-end",
+      "line": 4,
+      "subject": "wubai",
+      "zh": "欲望都市，终于安静下来了。",
+      "clip": "Story/v1111-stage-1-20-end-l4",
+      "reused": false,
+      "ja": "欲望の街が、やっと静かになったね。"
+    },
+    {
+      "script": "stage-1-20",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "梅洛蒂回到了王座。这一次，她把整座城的幻蚀都吸进了身体。",
+      "clip": "Story/v1111-stage-1-20-l2",
+      "reused": false,
+      "ja": "メロディが玉座に戻った。今度は、街じゅうの幻蝕をその身に吸い込んでる。"
+    },
+    {
+      "script": "stage-1-20",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "三个阶段……她会召来精英，还会封住我们的技能。",
+      "clip": "Story/v1111-stage-1-20-l3",
+      "reused": false,
+      "ja": "三段階……エリートを呼んで、私たちのスキルまで封じてくる。"
+    },
+    {
+      "script": "stage-1-20",
+      "line": 4,
+      "subject": "yeying",
+      "zh": "上次让她跑了。这次，连谢幕都不给她。",
+      "clip": "Story/v1111-stage-1-20-l4",
+      "reused": false,
+      "ja": "前は逃がした。今度はカーテンコールもさせない。"
+    },
+    {
+      "script": "stage-1-20",
+      "line": 5,
+      "subject": "xingli",
+      "zh": "把城市的歌，全部唱回来！",
+      "clip": "Story/v1111-stage-1-20-l5",
+      "reused": false,
+      "ja": "街の歌を、全部歌い返そう！"
+    },
+    {
+      "script": "stage-1-20",
+      "line": 6,
+      "subject": "producer",
+      "zh": "全员——终演开始！",
+      "clip": "Story/v1111-stage-1-20-l6",
+      "reused": false,
+      "ja": "全員——最終公演、開演！"
+    },
+    {
+      "script": "stage-2-11",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "赛琳沉回了深海，可潮水还没退。",
+      "clip": "Story/v1111-stage-2-11-l2",
+      "reused": false,
+      "ja": "セレーネは深海に沈んだけど、潮はまだ引いてない。"
+    },
+    {
+      "script": "stage-2-11",
+      "line": 3,
+      "subject": "producer",
+      "zh": "码头的溺者先清掉，别让她们上岸。",
+      "clip": "Story/v1111-stage-2-11-l3",
+      "reused": false,
+      "ja": "埠頭の溺れ子たちを先に片づけろ。上陸させるな。"
+    },
+    {
+      "script": "stage-2-12",
+      "line": 2,
+      "subject": "yeying",
+      "zh": "雾里有掌声……可是台下一个人都没有。",
+      "clip": "Story/v1111-stage-2-12-l2",
+      "reused": false,
+      "ja": "霧の中から拍手が……でも客席には誰もいない。"
+    },
+    {
+      "script": "stage-2-12",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "那就让她们看一场真的演出。",
+      "clip": "Story/v1111-stage-2-12-l3",
+      "reused": false,
+      "ja": "なら、本物のステージを見せてあげる。"
+    },
+    {
+      "script": "stage-2-13",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "浅滩上一排都是……三个一起冲过来了！",
+      "clip": "Story/v1111-stage-2-13-l2",
+      "reused": false,
+      "ja": "浅瀬に一列……三体まとめて突っ込んでくる！"
+    },
+    {
+      "script": "stage-2-13",
+      "line": 3,
+      "subject": "producer",
+      "zh": "镜头会跟着目标走。先打最吵的那个。",
+      "clip": "Story/v1111-stage-2-13-l3",
+      "reused": false,
+      "ja": "狙う相手から目を離すな。一番うるさい奴からだ。"
+    },
+    {
+      "script": "stage-2-14",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "珊瑚里藏着残影的歌声。",
+      "clip": "Story/v1111-stage-2-14-l2",
+      "reused": false,
+      "ja": "珊瑚の中に、残像の歌声が隠れてる。"
+    },
+    {
+      "script": "stage-2-14",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "有人在前面等我们。",
+      "clip": "Story/v1111-stage-2-14-l3",
+      "reused": false,
+      "ja": "この先で、誰かが待ってるわ。"
+    },
+    {
+      "script": "stage-2-15-end",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "残影散掉了……迷宫的出口通往海底。",
+      "clip": "Story/v1111-stage-2-15-end-l2",
+      "reused": false,
+      "ja": "残像が消えた……迷宮の出口は海の底に続いてる。"
+    },
+    {
+      "script": "stage-2-15-end",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "女王就在下面吧？这次我们自己下去找她。",
+      "clip": "Story/v1111-stage-2-15-end-l3",
+      "reused": false,
+      "ja": "女王はこの下だよね？今度はこっちから会いに行こう。"
+    },
+    {
+      "script": "stage-2-15-end",
+      "line": 4,
+      "subject": "producer",
+      "zh": "再五个舞台。准备好，深海的终曲。",
+      "clip": "Story/v1111-stage-2-15-end-l4",
+      "reused": false,
+      "ja": "あと五つのステージだ。準備しておけ、深海の終曲に。"
+    },
+    {
+      "script": "stage-2-15",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "残影歌姬——赛琳的影子。她一分为二，又二分为四。",
+      "clip": "Story/v1111-stage-2-15-l2",
+      "reused": false,
+      "ja": "残影の歌姫——セレーネの影。二つに分かれて、さらに四つに。"
+    },
+    {
+      "script": "stage-2-15",
+      "line": 3,
+      "subject": "wubai",
+      "zh": "普攻会被她躲开。要靠穿甲和技能。",
+      "clip": "Story/v1111-stage-2-15-l3",
+      "reused": false,
+      "ja": "通常攻撃はかわされちゃう。貫通とスキルで攻めよう。"
+    },
+    {
+      "script": "stage-2-15",
+      "line": 4,
+      "subject": "xingli",
+      "zh": "影子再多，真正的歌声只有一个。",
+      "clip": "Story/v1111-stage-2-15-l4",
+      "reused": false,
+      "ja": "影がいくつあっても、本当の歌声はひとつだけ。"
+    },
+    {
+      "script": "stage-2-15",
+      "line": 5,
+      "subject": "producer",
+      "zh": "找到她的本体，开演！",
+      "clip": "Story/v1111-stage-2-15-l5",
+      "reused": false,
+      "ja": "本体を見つけろ、開演だ！"
+    },
+    {
+      "script": "stage-2-16",
+      "line": 2,
+      "subject": "xingli",
+      "zh": "灯塔熄了。海上的船都找不到方向。",
+      "clip": "Story/v1111-stage-2-16-l2",
+      "reused": false,
+      "ja": "灯台が消えた。海の船がみんな迷ってる。"
+    },
+    {
+      "script": "stage-2-16",
+      "line": 3,
+      "subject": "yeying",
+      "zh": "那我们就当灯塔。",
+      "clip": "Story/v1111-stage-2-16-l3",
+      "reused": false,
+      "ja": "なら、私たちが灯台になろう。"
+    },
+    {
+      "script": "stage-2-17",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "水压越来越大……她们在下面等着。",
+      "clip": "Story/v1111-stage-2-17-l2",
+      "reused": false,
+      "ja": "水圧がどんどん強くなる……下で待ち構えてる。"
+    },
+    {
+      "script": "stage-2-17",
+      "line": 3,
+      "subject": "producer",
+      "zh": "护盾给前排，别让刺客切进来。",
+      "clip": "Story/v1111-stage-2-17-l3",
+      "reused": false,
+      "ja": "シールドは前衛に。暗殺者を入り込ませるな。"
+    },
+    {
+      "script": "stage-2-18",
+      "line": 2,
+      "subject": "feiyin",
+      "zh": "整片海都在合唱……是幻蚀的歌！",
+      "clip": "Story/v1111-stage-2-18-l2",
+      "reused": false,
+      "ja": "海じゅうが合唱してる……幻蝕の歌よ！"
+    },
+    {
+      "script": "stage-2-18",
+      "line": 3,
+      "subject": "xingli",
+      "zh": "那就用我们的歌盖过去。",
+      "clip": "Story/v1111-stage-2-18-l3",
+      "reused": false,
+      "ja": "なら、私たちの歌でかき消そう。"
+    },
+    {
+      "script": "stage-2-19",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "王座就在前面。赛琳……我认识她以前的歌。",
+      "clip": "Story/v1111-stage-2-19-l2",
+      "reused": false,
+      "ja": "玉座はすぐそこ。セレーネ……昔の彼女の歌、知ってるの。"
+    },
+    {
+      "script": "stage-2-19",
+      "line": 3,
+      "subject": "producer",
+      "zh": "那就把她以前的歌，唱给她听。",
+      "clip": "Story/v1111-stage-2-19-l3",
+      "reused": false,
+      "ja": "なら、その昔の歌を、彼女に歌ってあげよう。"
+    },
+    {
+      "script": "stage-2-20-end",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "她在唱……是以前那首摇篮曲。",
+      "clip": "Story/v1111-stage-2-20-end-l2",
+      "reused": false,
+      "ja": "歌ってる……昔のあの子守唄だ。"
+    },
+    {
+      "script": "stage-2-20-end",
+      "line": 4,
+      "subject": "feiyin",
+      "zh": "深潮女王，这次是真的谢幕了。",
+      "clip": "Story/v1111-stage-2-20-end-l4",
+      "reused": false,
+      "ja": "深潮の女王、今度こそ本当のカーテンコールね。"
+    },
+    {
+      "script": "stage-2-20",
+      "line": 2,
+      "subject": "wubai",
+      "zh": "赛琳醒了。整片海的幻蚀，都在她身上。",
+      "clip": "Story/v1111-stage-2-20-l2",
+      "reused": false,
+      "ja": "セレーネが目覚めた。海じゅうの幻蝕が、彼女に集まってる。"
+    },
+    {
+      "script": "stage-2-20",
+      "line": 3,
+      "subject": "feiyin",
+      "zh": "三个阶段，她会召来精英和刺客。",
+      "clip": "Story/v1111-stage-2-20-l3",
+      "reused": false,
+      "ja": "三段階で、エリートと暗殺者を呼んでくるわ。"
+    },
+    {
+      "script": "stage-2-20",
+      "line": 4,
+      "subject": "yeying",
+      "zh": "上次是谢幕，这次是终曲。",
+      "clip": "Story/v1111-stage-2-20-l4",
+      "reused": false,
+      "ja": "前はカーテンコール、今度はフィナーレ。"
+    },
+    {
+      "script": "stage-2-20",
+      "line": 5,
+      "subject": "xingli",
+      "zh": "把海湾的歌，还给它的主人！",
+      "clip": "Story/v1111-stage-2-20-l5",
+      "reused": false,
+      "ja": "湾岸の歌を、持ち主に返そう！"
     }
   ],
   "version": 1,

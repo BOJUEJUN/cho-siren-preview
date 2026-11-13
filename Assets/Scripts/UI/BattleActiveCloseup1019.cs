@@ -155,6 +155,10 @@ namespace ChoSiren
             return new Rect(x, y, w, h);
         }
 
+        /// <summary>A native-size PSD group (see <see cref="BattleAuthoredCutin1019.NativeSize"/>), stage units from the top-left.</summary>
+        public static Rect NativeLayout(float psdX, float psdY, float psdWidth, float psdHeight) =>
+            new Rect(psdX * S, psdY * S, psdWidth * S, psdHeight * S);
+
         private void LayoutArt(Sprite art, bool authored, string memberId)
         {
             UsesAuthoredCutin = authored;
@@ -166,6 +170,16 @@ namespace ChoSiren
             plateRoot.gameObject.SetActive(paperMode);
             foreach (Graphic g in new Graphic[] { plate, accent, nameLabel, title }) g.gameObject.SetActive(paperMode);
             window.localEulerAngles = Vector3.zero;
+            if (native != null && BattleAuthoredCutin1019.NativeSize(native.key))
+            {
+                Rect n = NativeLayout(native.x, native.y, native.width, native.height);
+                n.x += viewportLeft;
+                ArtRect = n;
+                ShowCropped(art, n, Rect.MinMaxRect(viewportLeft - 1f, 0f, viewportRight + 1f, 6144f * S));
+                enterSide = 1;
+                motion.pivot = new Vector2(viewportRight / 720f, 0f);
+                return;
+            }
             if (native != null)
             {
                 // The finished PSD groups are different compositions: each keeps its own proportions and the screen

@@ -280,6 +280,129 @@ namespace ChoSiren.Tests
             Assert.That(page == null, Is.True, "Closing fades out and removes the page.");
         }
 
+        /// <summary>
+        /// 2026-11-12 新播放器 (原画同事 播放器.psd): the player shows the live song — never the art's sample けて / さわず /
+        /// 01:06 / 03:29 — its loop / shuffle / previous / next / play controls drive the transport, and every control
+        /// grows on hover, squeezes on press and springs back on release. Captures into Builds/qa-logs/player-1112/.
+        /// </summary>
+        [UnityTest]
+        public IEnumerator Player1112ShowsTheLiveSongAndEveryControlAnswersTheFinger()
+        {
+            yield return MakeTransport(false);
+            audio.SelectHomeMusic(1);
+            var camera = new GameObject("Player1112Camera", typeof(Camera)).GetComponent<Camera>();
+            var rt = new RenderTexture(1080, 2288, 24);
+            camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = Color.black;
+            camera.orthographic = true; camera.targetTexture = rt;
+            var canvasGo = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            canvasGo.transform.SetParent(host.transform, false);
+            var canvas = canvasGo.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 1;
+            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(720, 1536); scaler.matchWidthOrHeight = 0f;
+            var safe = new GameObject("SafeArea", typeof(RectTransform));
+            safe.transform.SetParent(canvasGo.transform, false);
+            var safeRect = (RectTransform)safe.transform;
+            safeRect.anchorMin = Vector2.zero; safeRect.anchorMax = Vector2.one;
+            safeRect.offsetMin = safeRect.offsetMax = Vector2.zero;
+            var toasts = new List<string>();
+            var owner = new GameObject("Owner");
+            owner.transform.SetParent(host.transform, false);
+            string output = Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/player-1112"));
+            try
+            {
+                MusicCollectionPage1101 page = MusicCollectionPage1101.Open(safeRect, audio, model,
+                    Resources.Load<Font>("Fonts/NotoSansSC-Subset"), toasts.Add, null, owner);
+                audio.SeekHomeMusic(.32f);
+                yield return new WaitForSecondsRealtime(.5f);
+
+                HomeMusicPlaylist.Track track = HomeMusicPlaylist.Get(1);
+                Assert.That(Resources.Load<Sprite>("Art/Music1112/player-base"), Is.Not.Null, "the split player art is imported as sprites");
+                Assert.That(page.ShownTitle.Replace("\n", string.Empty), Is.EqualTo(track.Title), "the title is the playing song (a long one on two lines), not the art's sample text");
+                Text artist = page.Player.Find("SongArtist").GetComponent<Text>();
+                Assert.That(artist.text, Does.Contain(track.Artist));
+                audio.TryGetHomeMusicProgress(out float time, out float length);
+                int total = Mathf.FloorToInt(length);
+                Assert.That(page.ShownDuration, Is.EqualTo((total / 60).ToString("00") + ":" + (total % 60).ToString("00")));
+                Assert.That(page.ShownDuration, Is.Not.EqualTo("03:29"));
+                Assert.That(page.ShownProgress, Is.EqualTo(time / length).Within(.02f));
+                Assert.That(page.ShownProgress, Is.GreaterThan(.2f));
+                foreach (Text text in page.GetComponentsInChildren<Text>(true))
+                {
+                    Assert.That(text.text, Is.Not.EqualTo("けて"));
+                    Assert.That(text.text, Does.Not.Contain("さわず"));
+                }
+                Capture1112(camera, rt, output, "player-1112.png");
+
+                // Hover, press and release feedback on every control.
+                foreach (string name in new[] { "RoundNext", "Loop", "Previous", "PlayPause", "Next", "Shuffle" })
+                {
+                    Transform control = page.Player.Find(name);
+                    Assert.That(control, Is.Not.Null, name);
+                    var fx = control.GetComponent<MusicPressFx1112>();
+                    Assert.That(fx, Is.Not.Null, name + " has press feedback");
+                    var data = new UnityEngine.EventSystems.PointerEventData(null);
+                    fx.OnPointerEnter(data);
+                    yield return new WaitForSecondsRealtime(.35f);
+                    Assert.That(fx.CurrentScale, Is.GreaterThan(1.03f), name + " grows on hover");
+                    Assert.That(fx.CurrentGlow, Is.GreaterThan(.3f), name + " lights its halo on hover");
+                    if (name == "PlayPause") Capture1112(camera, rt, output, "player-1112-hover-play.png");
+                    fx.OnPointerDown(data);
+                    yield return new WaitForSecondsRealtime(.3f);
+                    Assert.That(fx.CurrentScale, Is.LessThan(.95f), name + " squeezes on press");
+                    if (name == "PlayPause") Capture1112(camera, rt, output, "player-1112-press-play.png");
+                    fx.OnPointerUp(data);
+                    float peak = 0f, until = Time.realtimeSinceStartup + .3f;
+                    while (Time.realtimeSinceStartup < until) { peak = Mathf.Max(peak, fx.CurrentScale); yield return null; }
+                    Assert.That(peak, Is.GreaterThan(1.03f), name + " springs back on release");
+                    fx.OnPointerExit(data);
+                    yield return new WaitForSecondsRealtime(.6f);
+                    Assert.That(fx.CurrentScale, Is.EqualTo(1f).Within(.02f), name + " settles at rest");
+                    Assert.That(fx.CurrentGlow, Is.EqualTo(0f).Within(.01f));
+                }
+
+                // The controls drive the real transport and play mode.
+                page.Next();
+                Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(2));
+                yield return null;
+                Assert.That(page.ShownTitle.Replace("\n", " ").Replace("  ", " "), Is.EqualTo(HomeMusicPlaylist.Get(2).Title));
+                page.Previous();
+                Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(1));
+                page.ToggleShuffle();
+                Assert.That(model.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.Shuffle));
+                page.ToggleSingleLoop();
+                Assert.That(model.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.SingleLoop));
+                yield return null;
+                Assert.That(page.Player.Find("One").gameObject.activeSelf, Is.True, "单曲循环 shows its 1");
+                page.ToggleSingleLoop();
+                Assert.That(model.MusicPlayMode, Is.EqualTo(HomeMusicPlaylist.PlayMode.ListLoop));
+                bool pausedBefore = audio.HomeMusicPaused;
+                page.Player.Find("PlayPause").GetComponent<Button>().onClick.Invoke();
+                Assert.That(audio.HomeMusicPaused, Is.Not.EqualTo(pausedBefore));
+                page.Player.Find("RoundNext").GetComponent<Button>().onClick.Invoke();
+                Assert.That(audio.HomeMusicTrackIndex, Is.EqualTo(2), "the round button is 下一首");
+                yield return new WaitForSecondsRealtime(.3f);
+                Capture1112(camera, rt, output, "player-1112-next.png");
+            }
+            finally
+            {
+                Object.DestroyImmediate(camera.gameObject); rt.Release(); Object.DestroyImmediate(rt);
+            }
+        }
+
+        private static void Capture1112(Camera camera, RenderTexture rt, string folder, string name)
+        {
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) return;
+            Canvas.ForceUpdateCanvases(); camera.Render();
+            var old = RenderTexture.active; RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGBA32, false);
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0); tex.Apply();
+            Directory.CreateDirectory(folder);
+            File.WriteAllBytes(Path.Combine(folder, name), tex.EncodeToPNG());
+            RenderTexture.active = old; Object.DestroyImmediate(tex);
+        }
+
         private static int CellTrack(MusicCollectionPage1101 page, int slot)
         {
             var cells = (Array)typeof(MusicCollectionPage1101).GetField("cells", Private).GetValue(page);
@@ -341,22 +464,29 @@ namespace ChoSiren.Tests
                 gameAudio.SeekHomeMusic(.35f);
                 yield return new WaitForSecondsRealtime(1.4f);
                 Transform music = home.transform.Find("MusicNext");
-                Assert.That(music.Find("MusicDiscToggle"), Is.Not.Null);
+                // 2026-11-12: the lobby bar is the artist's player, showing the live song.
+                Transform homePlayer = music.Find("HomePlayer1112");
+                Assert.That(homePlayer, Is.Not.Null);
+                Assert.That(homePlayer.GetComponent<MusicPlayer1112>().ShownTitle.Replace("\n", string.Empty).Replace(" ", string.Empty),
+                    Is.EqualTo(gameAudio.HomeMusicTitle.Replace(" ", string.Empty)));
+                foreach (string control in new[] { "RoundNext", "Loop", "Previous", "PlayPause", "Next", "Shuffle", "MusicDiscToggle", "PanelOpen" })
+                    Assert.That(homePlayer.Find(control), Is.Not.Null, control);
+                Assert.That(homePlayer.Find("PlayPause").GetComponent<MusicPressFx1112>().Glow, Is.Null, "the lobby bar stays quiet on hover");
                 // 2026-11-08: 少爷's hearted Suno songs arrive flagged new, so the record carries the NEW sticker until heard.
                 bool anyNew = Enumerable.Range(0, HomeMusicPlaylist.Count).Any(i => HomeMusicPlaylist.Get(i).IsNew);
                 Assert.That(music.GetComponent<HomeMusicEntry1101>().Sticker.activeSelf, Is.EqualTo(anyNew));
                 Capture(camera, rt, "lobby-playing.png", null);
-                Capture(camera, rt, "lobby-playing-zoom.png", new RectInt(0, 140, 540, 340));
+                Capture(camera, rt, "lobby-playing-zoom.png", new RectInt(0, 90, 600, 420));
 
                 // The record toggles pause; the bar opens the collection.
-                music.Find("MusicDiscToggle").GetComponent<Button>().onClick.Invoke();
+                homePlayer.Find("MusicDiscToggle").GetComponent<Button>().onClick.Invoke();
                 Assert.That(gameAudio.HomeMusicPaused, Is.True);
                 yield return new WaitForSecondsRealtime(.4f);
-                Capture(camera, rt, "lobby-paused-zoom.png", new RectInt(0, 140, 540, 340));
-                music.Find("MusicDiscToggle").GetComponent<Button>().onClick.Invoke();
+                Capture(camera, rt, "lobby-paused-zoom.png", new RectInt(0, 90, 600, 420));
+                homePlayer.Find("MusicDiscToggle").GetComponent<Button>().onClick.Invoke();
                 Assert.That(gameAudio.HomeMusicPaused, Is.False);
 
-                music.GetComponent<Button>().onClick.Invoke();
+                homePlayer.Find("PanelOpen").GetComponent<Button>().onClick.Invoke();
                 yield return new WaitForSecondsRealtime(.6f);
                 var page = Object.FindAnyObjectByType<MusicCollectionPage1101>();
                 Assert.That(page, Is.Not.Null, "Tapping the song bar opens 唱片收藏.");

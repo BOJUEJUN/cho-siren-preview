@@ -73,6 +73,10 @@ namespace ChoSiren.Systems.Tactics
             ["hero-1035"] = ("毒斧劈砍", "月华蚀野"),
             ["hero-1036"] = ("雪融愈歌", "雪歌潮汐"),
             ["hero-1037"] = ("书页利刃", "灵音裁决"),
+            // 2026-11-11 赵金: the three new members (kits in Chapter3Battle1111).
+            ["huansha"] = ("虚音幻幕", "千纱迷声"),
+            ["huanhuoling"] = ("媚音破防", "万籁迷阵"),
+            ["linyin"] = ("裂甲音刃", "破界绝响"),
         };
 
         public static string Name(string memberId, CombatRace race, bool big)

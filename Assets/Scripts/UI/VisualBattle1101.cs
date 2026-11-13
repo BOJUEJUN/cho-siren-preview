@@ -70,10 +70,14 @@ namespace ChoSiren
                     return "icon-heart-lock";
                 case "rt-stun":
                 case "rt-interrupt":
+                case "rt-confuse":
                     return "icon-demon-mask";
                 case "rt-slow":
                     return "icon-wave-dice";
                 case "rt-armor-break":
+                case "rt-barrier-break":
+                case "rt-shield-strip":
+                case "rt-flaw":
                     return "icon-gold-shield";
                 case "rt-poison":
                 case "rt-enemy-venom":
@@ -90,6 +94,11 @@ namespace ChoSiren
                 case "rt-elite-harden":
                 case "rt-boss-barrier":
                 case "rt-resist":
+                case "rt-parry":
+                case "rt-disguise":
+                case "rt-phantom":
+                case "rt-decoy":
+                case "rt-dodge":
                     return "icon-cyan-shield";
                 case "rt-mermaid-small":
                 case "rt-cleanse":

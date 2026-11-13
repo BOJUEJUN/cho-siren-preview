@@ -193,7 +193,7 @@ namespace ChoSiren.Tests
             Assert.That(loaded.Save.Diamonds, Is.EqualTo(4321), "旧档星钻不得被重置");
             Assert.That(loaded.Save.Gold, Is.EqualTo(87654), "旧档星光币不得被重置");
             Assert.That(loaded.Save.Stamina, Is.EqualTo(77));
-            Assert.That(loaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1, 2, 6 }), "已签约名单必须保留");
+            Assert.That(loaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1, 2, 6 }.Concat(GameModel.GiftedMembers1112.Select(GameModel.IndexOfMember))), "已签约名单必须保留（另加 1112 赠送的三人）");
             Assert.That(loaded.LevelOf(0), Is.EqualTo(68), "训练等级是既有投入，必须原样保留");
             Assert.That(loaded.LevelOf(6), Is.EqualTo(54), "已签老成员在旧基准下获得的等级同样是既有投入");
             Assert.That(loaded.SigningChannelOf(6), Is.EqualTo(1), "签约渠道记录必须保留");

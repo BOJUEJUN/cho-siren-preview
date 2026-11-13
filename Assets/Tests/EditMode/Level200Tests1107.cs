@@ -13,7 +13,8 @@ namespace ChoSiren.Tests
     public sealed class Level200Tests1107
     {
         private static readonly DateTime Now = new DateTime(2026, 11, 7, 12, 0, 0, DateTimeKind.Utc);
-        private static readonly string[] AllGates = { "stage-1-5", "stage-1-10", "stage-2-5", "stage-2-10" };
+        // 2026-11-11: chapters run to 20 stages; 1-15 / 1-20 gate the cap too (Docs/BALANCE-1111-CHAPTER20.md).
+        private static readonly string[] AllGates = { "stage-1-5", "stage-1-10", "stage-1-15", "stage-1-20", "stage-2-5", "stage-2-10" };
 
         [SetUp, TearDown]
         public void Clean()
@@ -38,8 +39,12 @@ namespace ChoSiren.Tests
             Assert.That(GameModel.MaxMemberLevel, Is.EqualTo(200));
             Assert.That(NewModel(1).ProgressLevelCap1104, Is.EqualTo(12));
             Assert.That(NewModel(1, "stage-1-5").ProgressLevelCap1104, Is.EqualTo(17));
-            Assert.That(NewModel(1, "stage-1-5", "stage-1-10").ProgressLevelCap1104, Is.EqualTo(22));
-            Assert.That(NewModel(1, "stage-1-5", "stage-1-10", "stage-2-5").ProgressLevelCap1104, Is.EqualTo(27));
+            Assert.That(NewModel(1, "stage-1-5", "stage-1-10").ProgressLevelCap1104, Is.EqualTo(20));
+            Assert.That(NewModel(1, "stage-1-5", "stage-1-10", "stage-1-15").ProgressLevelCap1104, Is.EqualTo(23));
+            Assert.That(NewModel(1, "stage-1-5", "stage-1-10", "stage-1-15", "stage-1-20").ProgressLevelCap1104, Is.EqualTo(26));
+            Assert.That(NewModel(1, AllGates.Take(5).ToArray()).ProgressLevelCap1104, Is.EqualTo(29));
+            Assert.That(NewModel(1, "stage-1-5", "stage-1-10", "stage-2-5").ProgressLevelCap1104, Is.EqualTo(20),
+                "2-5 does not skip 1-15 / 1-20");
             Assert.That(NewModel(1, AllGates).ProgressLevelCap1104, Is.EqualTo(200));
             Assert.That(NewModel(1, AllGates).NextGateName1104, Is.Empty);
             Assert.That(NewModel(1, "stage-1-10").ProgressLevelCap1104, Is.EqualTo(12), "gates count in order");
@@ -122,7 +127,7 @@ namespace ChoSiren.Tests
         [Test]
         public void LevelsAlreadyEarnedAreKeptAndImplyBreaks()
         {
-            GameModel model = NewModel(32, "stage-1-5", "stage-1-10", "stage-2-5", "stage-2-10");
+            GameModel model = NewModel(32, AllGates);
             Assert.That(model.LevelOf(0), Is.EqualTo(32));
             Assert.That(model.BreaksOf1104(0), Is.EqualTo(1));
             Assert.That(model.LevelCapOf1104(0), Is.EqualTo(40));

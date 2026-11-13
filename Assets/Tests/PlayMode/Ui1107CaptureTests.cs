@@ -149,6 +149,13 @@ namespace ChoSiren.Tests
                 Invoke(app, "ShowScreenSafely", "accessory");
                 yield return new WaitForSecondsRealtime(1f);
                 Shot(camera, rt, "inventory.png");
+                // 2026-11-12 (原画同事: "这个角色缩小，3 分之一"): the pig is 2/3 of its PSD size and clears the sort plate.
+                var pig = (RectTransform)GameObject.Find("InventoryPig").transform;
+                var sortPlate = (RectTransform)GameObject.Find("InventorySort").transform;
+                Assert.That(pig.rect.width, Is.EqualTo(422f * .65f * 2f / 3f).Within(.5f));
+                Vector3[] pc = new Vector3[4], sc = new Vector3[4];
+                pig.GetWorldCorners(pc); sortPlate.GetWorldCorners(sc);
+                Assert.That(pc[0].y, Is.GreaterThanOrEqualTo(sc[1].y - .001f), "the pig no longer sits on the 强化等级 plate");
                 Invoke(app, "OpenDailyTasks");
                 yield return new WaitForSecondsRealtime(1f);
                 Shot(camera, rt, "tasks.png");

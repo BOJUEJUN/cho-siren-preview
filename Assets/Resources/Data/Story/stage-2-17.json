@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-17",
+  "Title": "2-17 深水舞台",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "水压越来越大……她们在下面等着。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "护盾给前排，别让刺客切进来。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

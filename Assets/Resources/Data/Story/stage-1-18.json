@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-18",
+  "Title": "1-18 千魂回响",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "整条街的游魂都醒了……",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "三个三个来也没关系。我们四个人，一起唱。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

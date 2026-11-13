@@ -91,8 +91,9 @@ namespace ChoSiren.Tests
             var tactics = NewModel(1).Tactics;
             foreach (StageDefinition stage in tactics.Stages)
             {
-                string expected = stage.Id.EndsWith("-5") ? BattleSimulator.BossTierMini
-                    : stage.Id.EndsWith("-10") ? BattleSimulator.BossTierMajor : string.Empty;
+                // 2026-11-11: twenty-stage chapters — x-5 / x-15 小BOSS, x-10 / x-20 大BOSS.
+                string expected = stage.Id.EndsWith("-5") || stage.Id.EndsWith("-15") ? BattleSimulator.BossTierMini
+                    : stage.Id.EndsWith("-10") || stage.Id.EndsWith("-20") ? BattleSimulator.BossTierMajor : string.Empty;
                 Assert.That(stage.BossTier ?? string.Empty, Is.EqualTo(expected), stage.Id);
                 if (expected.Length > 0) Assert.That(stage.EncounterType, Is.EqualTo("boss"), stage.Id);
             }
@@ -242,7 +243,7 @@ namespace ChoSiren.Tests
                 while (battle.Outcome == BattleOutcome.Ongoing)
                 {
                     if (Step(battle, Mode.Auto) == null) break;
-                    Assert.That(battle.ActiveMinionCount, Is.LessThanOrEqualTo(BattleSimulator.MaxActiveMinions), "同屏最多 2 只小怪");
+                    Assert.That(battle.ActiveMinionCount, Is.LessThanOrEqualTo(battle.MinionSlots), "同屏最多 2 只小怪（三敌关 3 只）");
                 }
                 foreach (BattleEvent e in battle.Log) if (e.SkillId != null) skills.Add(e.SkillId);
             }
@@ -457,7 +458,11 @@ namespace ChoSiren.Tests
             // StoryProgress 100 opens chapter one; only chapter-two clears are recorded (a chapter-one clear would make the
             // next save grant that stage's first-clear accessory retroactively and inflate the "gear so far" loadout).
             foreach (StageDefinition s in model.Tactics.Stages)
-                if (s.Id.StartsWith("stage-2-")) model.Save.ClearedStages.Add(new StageClear { Id = s.Id, Stars = 3 });
+                // 2026-11-11: 第三章 too, so every 3-x can be probed as a replay.
+                if (s.Id.StartsWith("stage-2-") || s.Id.StartsWith("stage-3-")) model.Save.ClearedStages.Add(new StageClear { Id = s.Id, Stars = 3 });
+            // 2026-11-11: 1-11…1-20 grant no first-clear accessory, so recording them only opens the route.
+            for (int n = 11; n <= GameModel.ChapterOneStageCount; n++)
+                model.Save.ClearedStages.Add(new StageClear { Id = $"stage-1-{n}", Stars = 3 });
             // 1-1 already cleared once: the 通过率 targets are about replays, not the guarded first 1-1 (2026-11-01b).
             if (firstClearOneOne) model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-1", Stars = 1 });
             model.Save.StoryProgress = 100;

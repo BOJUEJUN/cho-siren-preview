@@ -239,7 +239,8 @@ namespace ChoSiren.Tests
                 Shot(camera, rt, "break1104-01-capped.png");
 
                 // 2026-11-07: the first break is now Lv30 (after 2-10) and costs 10 of the member's race 生魂.
-                foreach (string id in new[] { "stage-1-5", "stage-1-10", "stage-2-5", "stage-2-10" })
+                // 2026-11-11 (每章 20 关): 1-15 and 1-20 are cap gates too.
+                foreach (string id in new[] { "stage-1-5", "stage-1-10", "stage-1-15", "stage-1-20", "stage-2-5", "stage-2-10" })
                     model.Save.ClearedStages.Add(new StageClear { Id = id, Stars = 3 });
                 model.Save.MemberLevels[member] = 30;
                 string soul = model.SoulIdOf1107(member);

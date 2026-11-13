@@ -196,6 +196,7 @@ namespace ChoSiren.Panels
             enemyStageRoot = kit.NewRect("PsdEnemyStage", psdRoot);
             PanelKit.Stretch(enemyStageRoot);
             foreach (var pair in enemyAnchors) pair.Value.SetParent(enemyStageRoot, false);
+            BuildWideStage1111(stageArt); // 2026-11-11: 三敌同屏 stages pan a wider row (WideStage1111)
             // 2026-11-03: every enemy keeps its planning-deck figure from Art/Enemies (the PSD's two baked enemy
             // layers showed the old 游魂/刺客 designs and are no longer swapped in).
             if (bossPresentation != null)
@@ -407,6 +408,7 @@ namespace ChoSiren.Panels
                 if (cell.Side == BattleSide.Player) cell.Root.transform.SetAsLastSibling();
             psdReroll.transform.SetAsLastSibling();
             if (guardButton != null) guardButton.transform.SetAsLastSibling();
+            if (guardButton != null) BuildRelicButtons1111(guardButton.transform.parent); // 2026-11-12 功能骰
             // Pause/rules/results remain real blocking overlays above all gameplay graphics.
             pauseOverlay.transform.SetAsLastSibling(); rulesOverlay.transform.SetAsLastSibling();
             if (abilityOverlay != null) abilityOverlay.transform.SetAsLastSibling();

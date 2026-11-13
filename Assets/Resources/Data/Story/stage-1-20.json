@@ -1,0 +1,51 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-20",
+  "Title": "1-20 幻蚀终演",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-10"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "梅洛蒂回到了王座。这一次，她把整座城的幻蚀都吸进了身体。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "三个阶段……她会召来精英，还会封住我们的技能。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "上次让她跑了。这次，连谢幕都不给她。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "把城市的歌，全部唱回来！",
+      "Expression": "determined"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "全员——终演开始！"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

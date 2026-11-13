@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-2-18",
+  "Title": "2-18 万潮合唱",
+  "Chapter": "02",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-2-8"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "surprised",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "整片海都在合唱……是幻蚀的歌！",
+      "Expression": "surprised"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "那就用我们的歌盖过去。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-19",
+  "Title": "1-19 王座裂隙",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-9"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "明天，就是梅洛蒂的终演了。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "今晚先把裂隙里的守卫清掉，当最后一次彩排。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

@@ -30,9 +30,28 @@ namespace ChoSiren.UI
             if (image == null) image = GetComponent<RawImage>();
             loading = StartCoroutine(Load(stageId));
         }
+        /// <summary>
+        /// 2026-11-11 (每章 20 关): x-11…x-20 have no scenic art of their own yet; they show x-1…x-10's scene mirrored,
+        /// so neighbouring stages never look identical.
+        /// </summary>
+        internal static string SceneFile(string stage, out bool mirrored)
+        {
+            mirrored = false;
+            string[] parts = (stage ?? string.Empty).Split('-');
+            if (parts.Length == 3 && int.TryParse(parts[2], out int n) && n > 10 && n <= 20)
+            {
+                mirrored = true;
+                return $"{parts[0]}-{parts[1]}-{n - 10}";
+            }
+            return stage;
+        }
+
+        bool mirrored;
+
         IEnumerator Load(string stage)
         {
-            string url = Application.streamingAssetsPath.TrimEnd('/') + "/LevelScenes1102/" + stage + ".jpg";
+            string file = SceneFile(stage, out mirrored);
+            string url = Application.streamingAssetsPath.TrimEnd('/') + "/LevelScenes1102/" + file + ".jpg";
             if (!url.Contains("://")) url = new Uri(System.IO.Path.GetFullPath(url)).AbsoluteUri;
             request = UnityWebRequestTexture.GetTexture(url, true); request.timeout = 15;
             yield return request.SendWebRequest();
@@ -54,7 +73,7 @@ namespace ChoSiren.UI
             float source = owned.width / (float)owned.height;
             float x = target < source ? target / source : 1f;
             float y = target > source ? source / target : 1f;
-            image.uvRect = new Rect((1 - x) * .5f, (1 - y) * .5f, x, y);
+            image.uvRect = mirrored ? new Rect((1 + x) * .5f, (1 - y) * .5f, -x, y) : new Rect((1 - x) * .5f, (1 - y) * .5f, x, y);
         }
         void OnDestroy() { request?.Abort(); request?.Dispose(); if (owned != null) Destroy(owned); }
     }

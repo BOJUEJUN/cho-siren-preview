@@ -11,6 +11,15 @@ namespace ChoSiren.Systems.Tactics
     public sealed partial class BattleSimulator
     {
         public const int MaxActiveMinions = 2;
+        /// <summary>
+        /// 2026-11-11 (玩家反馈 "命运之子那样一屏三个怪"): a few authored stages (<see cref="StageDefinition.MaxOnStage"/>)
+        /// field three minions at once; the battle view lines them up on a stage half again as wide and pans to the action.
+        /// </summary>
+        public const int MaxWideMinions1111 = 3;
+
+        /// <summary>How many minions this stage puts on the stage at once (2, or 3 on the authored wide stages).</summary>
+        public int MinionSlots => Stage != null && Stage.MaxOnStage >= MaxWideMinions1111 && !Stage.HasBossPhases
+            ? MaxWideMinions1111 : MaxActiveMinions;
 
         private readonly List<int> queuedEnemies1031 = new List<int>();
 
@@ -35,7 +44,7 @@ namespace ChoSiren.Systems.Tactics
         /// <summary>Holds <paramref name="unit"/> back when the minion slots are full. Returns true if queued.</summary>
         private bool QueueIfStageFull1031(BattleUnit unit)
         {
-            if (IsStageBoss(unit) || ActiveMinionCount < MaxActiveMinions) return false;
+            if (IsStageBoss(unit) || ActiveMinionCount < MinionSlots) return false;
             if (!queuedEnemies1031.Contains(unit.Id)) queuedEnemies1031.Add(unit.Id);
             return true;
         }
@@ -47,7 +56,7 @@ namespace ChoSiren.Systems.Tactics
             foreach (BattleUnit unit in units)
             {
                 if (unit.Side != BattleSide.Enemy || !unit.Spawned || IsStageBoss(unit)) continue;
-                if (++onStage <= MaxActiveMinions) continue;
+                if (++onStage <= MinionSlots) continue;
                 unit.Spawned = false;
                 queuedEnemies1031.Add(unit.Id);
             }
@@ -57,7 +66,7 @@ namespace ChoSiren.Systems.Tactics
         private bool FillMinionSlots1031()
         {
             bool entered = false;
-            while (queuedEnemies1031.Count > 0 && ActiveMinionCount < MaxActiveMinions)
+            while (queuedEnemies1031.Count > 0 && ActiveMinionCount < MinionSlots)
             {
                 BattleUnit next = FindUnit(queuedEnemies1031[0]);
                 queuedEnemies1031.RemoveAt(0);

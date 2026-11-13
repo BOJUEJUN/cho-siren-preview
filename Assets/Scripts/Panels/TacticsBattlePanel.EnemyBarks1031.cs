@@ -197,7 +197,7 @@ namespace ChoSiren.Panels
                 StopVoice();
                 float voiceSeconds = PlayVoice(line.Clip);
                 float seconds = Mathf.Clamp(Mathf.Max(1.7f + line.Text.Length * .11f, voiceSeconds + .35f), 1.8f, 3.8f);
-                bool rightSide = !Panel.enemyLanes1031.TryGetValue(unit.Id, out int lane) || lane != 1;
+                bool rightSide = Panel.BarkOnRight1111(unit, head);
                 bubble.Show(line.Text, head, rightSide, seconds, Panel.psdRoot.childCount);
                 speaker = unit;
                 lastStart = clock;

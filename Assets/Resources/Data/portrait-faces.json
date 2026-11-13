@@ -1919,6 +1919,78 @@
     0.1084
    ],
    "src": "auto"
+  },
+  {
+   "path": "Art/Members/member-huansha",
+   "w": 930,
+   "h": 2048,
+   "face": [
+    0.1489,
+    0.7362,
+    0.3574,
+    0.1285
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-huansha",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.1953,
+    0.4922,
+    0.4688,
+    0.2474
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/member-huanhuoling",
+   "w": 1094,
+   "h": 2048,
+   "face": [
+    0.3512,
+    0.7294,
+    0.2658,
+    0.115
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-huanhuoling",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.25,
+    0.4792,
+    0.4102,
+    0.2214
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/member-linyin",
+   "w": 810,
+   "h": 2048,
+   "face": [
+    0.2325,
+    0.7362,
+    0.3419,
+    0.1285
+   ],
+   "src": "manual"
+  },
+  {
+   "path": "Art/Members/Avatars/avatar-linyin",
+   "w": 512,
+   "h": 768,
+   "face": [
+    0.2656,
+    0.4922,
+    0.3906,
+    0.2474
+   ],
+   "src": "manual"
   }
  ]
 }

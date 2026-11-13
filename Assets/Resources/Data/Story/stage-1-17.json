@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-17",
+  "Title": "1-17 暗巷歌会",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-4"
+    },
+    {
+      "Command": "show",
+      "Subject": "wubai",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "净化舞娘会把我们挂上的毒全洗掉。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "那就别拖，打快一点。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

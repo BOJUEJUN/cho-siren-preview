@@ -38,9 +38,16 @@ namespace ChoSiren
         public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 54f };
         /// <summary>
         /// 2026-11-04 (赵金 "第四个角色可以歪一点…上面往右边歪下面往左边"): degrees each idol turns (negative = clockwise) about her face;
-        /// 粉珀人鱼 turns 4° counter-clockwise (用户箭头 上往左、下往右): her idle clip already leans ~6°, so in game she ends near upright. The face stays where the centring put it.
+        /// 粉珀人鱼 turns counter-clockwise (用户箭头 上往左、下往右). The face stays where the centring put it.
+        /// 2026-11-11 (赵金 "这个手别看不到了 / 这个要正一点角色"): on the phone her idle clip still leaned ~6° clockwise, so she
+        /// turns 9° in all and stands upright.
         /// </summary>
-        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 4f };
+        public static readonly float[] Tilt1104 = { 0f, 0f, 0f, 9f };
+        /// <summary>
+        /// 2026-11-11 (赵金 "这个手别看不到了"): 粉珀人鱼's outstretched hand ran off the right edge; she is shown at 82%
+        /// about her face (the face stays centred) so the whole hand is on screen.
+        /// </summary>
+        public static readonly float[] Scale1111 = { 1f, 1f, 1f, .82f };
         // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
         private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(365f, 397f) };
         public int Index { get; private set; }
@@ -132,12 +139,23 @@ namespace ChoSiren
             Place(portrait.rectTransform, p.x * scale + shift, p.y * scale, p.z * scale, p.w * scale);
             Place(outline.rectTransform, o.x * scale + shift, o.y * scale, o.z * scale, o.w * scale);
             portrait.rectTransform.localScale = outline.rectTransform.localScale = Vector3.one;
+            Shrink1111(portrait.rectTransform, index); Shrink1111(outline.rectTransform, index);
             Tilt(portrait.rectTransform, index); Tilt(outline.rectTransform, index);
             portrait.enabled = outline.enabled = true;
             motion.SetCharacter(portrait.rectTransform); motion.SetOutline(outline.rectTransform);
             motion.SetSpeaker(index);
             PsdHomeCharacterBridge.SetIdle(idols == null && HasPerformance && isActiveAndEnabled);
             idols?.ShowIdol(index, portrait.rectTransform);
+        }
+
+        // Scales a top-left-pivoted layer about the idol's face (the tilt pivot), so the face stays put.
+        private static void Shrink1111(RectTransform rect, int index)
+        {
+            float k = Scale1111[index];
+            if (Mathf.Approximately(k, 1f)) return;
+            Vector2 face = new Vector2(TiltPivot1104[index].x, -TiltPivot1104[index].y);
+            rect.localScale = new Vector3(k, k, 1f);
+            rect.anchoredPosition = face - (face - rect.anchoredPosition) * k;
         }
 
         // Turns a top-left-pivoted layer about the idol's face by moving its pivot so the face point stays put.

@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-15-end",
+  "Title": "1-15 狂响之夜",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-10"
+    },
+    {
+      "Command": "show",
+      "Subject": "xingli",
+      "Expression": "smile",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "她最后那段舞……其实很美。",
+      "Expression": "smile"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "幻蚀把她的舞变成了武器。我们要把源头找出来。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "梅洛蒂的位置找到了。再往前五个舞台，就是她的终演。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

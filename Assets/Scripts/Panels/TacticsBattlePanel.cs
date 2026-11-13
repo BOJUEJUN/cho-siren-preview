@@ -285,6 +285,7 @@ namespace ChoSiren.Panels
             string captain = gameModel.Save.Team.Count > 0 ? GameModel.MemberIdAt(gameModel.Save.Team[0]) : null;
             simulator.EnableRealtime(races, captain, simulator.Stage.RerollLimit,
                 simulator.Stage.EncounterType == "world");
+            gameModel.ApplyRelicLoadout(simulator); // 2026-11-12 第三章功能骰 (GameModelDice1111)
             // Manual skill release is the default: basics/small skills stay automatic, ultimates
             // wait for the player's tap until the top button is switched to 自动.
             simulator.AutoCastUltimates = false;
@@ -729,6 +730,13 @@ namespace ChoSiren.Panels
                 enemyMotions.Add(unit.Id, motion);
             }
             damageLayer.SetAsLastSibling();
+        }
+
+        private Image BossPortrait1112()
+        {
+            Transform rig = bossPresentation != null ? bossPresentation.MotionRoot : null;
+            Image portrait = rig != null ? rig.Find("BossPortrait")?.GetComponent<Image>() : null;
+            return portrait != null && portrait.isActiveAndEnabled && portrait.sprite != null ? portrait : null;
         }
 
         private Sprite EnemySprite(string id)
@@ -1237,8 +1245,10 @@ namespace ChoSiren.Panels
                 : race == CombatRace.Mermaid ? "人鱼指挥" : race == CombatRace.BloodElf ? "血精灵指挥" : "全队增益";
             string[] names = { BattleSimulator.BasicAttackName, MemberSkillNames1103.Name(actor.Definition.Id, race, false),
                 MemberSkillNames1103.Name(actor.Definition.Id, race, true), passive };
-            string[] descriptions = { "自动普攻 · 单体伤害", BattleSimulator.ActiveSkillDescription(race, false),
-                BattleSimulator.ActiveSkillDescription(race, true),
+            string kitPassive = BattleSimulator.KitPassiveDescription(battle.KitOf(actor)); // 2026-11-11 new members
+            string[] descriptions = { "自动普攻 · 单体伤害", BattleSimulator.MemberSkillDescription(actor.Definition.Id, race, false),
+                BattleSimulator.MemberSkillDescription(actor.Definition.Id, race, true),
+                (kitPassive != null ? kitPassive + "\n" : string.Empty) +
                 "成为队长时生效。" + ChoSiren.Systems.Presentation.MemberCaptainTraits.Describe(passive) };
             // 2026-10-25 readability pass: a small muted kind line, the skill name in bold, then what it does.
             string[] roles = { "基础攻击 · 自动", "小技能 · 自动", "大招 · 能量满后点她", "骰子被动 · 当队长时生效" };
@@ -1896,6 +1906,7 @@ namespace ChoSiren.Panels
             // The top toggle is the single authority for ultimate release mode; the simulator keeps
             // all energy, so switching never refunds or double-spends a charge.
             battle.AutoCastUltimates = autoMode;
+            RefreshRelicButtons1111(); // 2026-11-12 功能骰
             if (guardButton != null)
             {
                 bool available = !paused && !closing && battle.TacticalActor != null;
@@ -2327,7 +2338,11 @@ namespace ChoSiren.Panels
                         else PresentMemberDefeat1031(target); // 2026-10-31 阵亡台词 + 字幕 (VoiceDefeat1031)
                         // 2026-10-21: enemies break apart (white flash → erosion + shards + 「击破」) in the PSD battle.
                         Image koFigure = null;
-                        bool broke = target.Side == BattleSide.Enemy && psdRoot != null && enemyFigures.TryGetValue(target.Id, out koFigure)
+                        // 2026-11-12: the boss is drawn by bossPresentation, not enemyFigures — she shatters and leaves too.
+                        bool bossFell = target.Side == BattleSide.Enemy && target.Id == bossUnitId && bossPresentation != null;
+                        if (bossFell) koFigure = BossPortrait1112();
+                        bool broke = target.Side == BattleSide.Enemy && psdRoot != null
+                            && (bossFell ? koFigure != null : enemyFigures.TryGetValue(target.Id, out koFigure))
                             && KoBreak1022.Play(psdRoot, koFigure, kit.Font, () => paused || closing, battle.Outcome == BattleOutcome.Victory) != null;
                         if (broke) Fx1023Host().Defeat(koFigure.rectTransform);
                         // The final blow lands harder: a longer hit-stop and a P5 impact frame on the last enemy.
@@ -2340,7 +2355,8 @@ namespace ChoSiren.Panels
                                 : Vector2.zero;
                             ImpactFrame1022.Play(psdRoot, lastLocal, new[] { koFigure }, () => paused || closing);
                         }
-                        if (enemyMotions.TryGetValue(target.Id, out var defeated)) defeated.PlayDefeat(broke);
+                        if (bossFell) bossPresentation.PlayDeath(broke);
+                        else if (enemyMotions.TryGetValue(target.Id, out var defeated)) defeated.PlayDefeat(broke);
                         // A fallen member keeps her portrait (black-and-white, see ShowFallen1023): only a hard flinch.
                         else if (cell?.Motion != null && cell.Side == BattleSide.Player && psdRoot != null) cell.Motion.PlayHit(true);
                         else if (cell?.Motion != null) cell.Motion.PlayDefeat();
@@ -2451,6 +2467,7 @@ namespace ChoSiren.Panels
             if (lastPresentedActions.TryGetValue(actor.Id, out string previous) && previous == stamp) return;
             lastPresentedActions[actor.Id] = stamp;
             QueueBattleVoice(actor, entry);
+            AimForAction1111(actor, target); // 2026-11-11: the wide stage looks at who is hit / who acts
             bool heavy = entry.SkillId != "rt-basic";
             string title = MemberSkillTitle1103(actor, entry.SkillId) ?? (heavy ? "施放技能" : "普攻");
             CellView caster = FindCell(actor);
@@ -3441,6 +3458,7 @@ namespace ChoSiren.Panels
             StoryPanel story = FindAnyObjectByType<StoryPanel>();
             coveredByStory = story != null && !story.Ended;
             if (paused || closing || EntryPresentationCovered) return;
+            TickWideCamera1111(); // 2026-11-11: 三敌同屏 camera pan
             TickFormationCharge1102();
             presentationClock += BattleAnimationDelta();
             RefreshPsdSkillCues1019();
@@ -3503,6 +3521,15 @@ namespace ChoSiren.Panels
                     0.5f + Mathf.Sin(presentationClock * 6f) * 0.5f)
                 : Color.Lerp(new Color32(255, 72, 208, 255), new Color32(255, 44, 143, 255), 1f - normalized);
             enemyHpText.text = $"{current:N0}/{maximum:N0}";
+            // 2026-11-12 第三章 顶盾: the bar turns cyan while shield layers stand; the pieces sit under it.
+            int layers1111 = boss != null ? battle.Barrier(boss) : 0;
+            if (layers1111 > 0)
+            {
+                enemyHpFill.color = new Color32(62, 232, 220, 255);
+                enemyHpText.text = $"顶盾×{layers1111}  ·  {current:N0}/{maximum:N0}";
+            }
+            else if (boss != null && battle.BarrierBroken(boss)) enemyHpText.text = $"破盾！  {current:N0}/{maximum:N0}";
+            RefreshShieldPips1111(boss);
             enemyHealthCaption.text = boss != null ? boss.Definition.Name : "本波敌方生命";
             enemyDefeatedText.text = $"已击败 {defeatedCount}/{enemyCount}";
             for (int i = 0; i < healthWaveBars.Count; i++)

@@ -33,8 +33,11 @@ namespace ChoSiren
             var list = new List<AchievementView>
             {
                 Make("first-live", "初次登台", "打赢第一场演出 1-1", IsStageCleared("stage-1-1") ? 1 : 0, 1, 50),
-                Make("chapter-one", "王座之上", "通关第一章 1-10", IsStageCleared("stage-1-10") ? 1 : 0, 1, 200),
-                Make("chapter-two", "海湾巨星", "通关第二章 2-10", IsStageCleared("stage-2-10") ? 1 : 0, 1, 300),
+                Make("chapter-one", "王座之上", "通关 1-10「魅声王座」", IsStageCleared("stage-1-10") ? 1 : 0, 1, 200),
+                Make("chapter-two", "海湾巨星", "通关 2-10「海湾巨蛋」", IsStageCleared("stage-2-10") ? 1 : 0, 1, 300),
+                // 2026-11-11: chapters run to twenty stages.
+                Make("chapter-one-full", "欲望都市终演", "通关第一章 1-20", IsStageCleared("stage-1-20") ? 1 : 0, 1, 300),
+                Make("chapter-two-full", "深潮谢幕", "通关第二章 2-20", IsStageCleared("stage-2-20") ? 1 : 0, 1, 400),
                 Make("stages-10", "巡演老手", "累计通关 10 个关卡", stagesCleared, 10, 100),
                 Make("three-star-10", "完美演出", "10 个关卡拿到三星", threeStars, 10, 150),
                 Make("members-8", "壮大团队", "签约 8 名成员", Save.UnlockedMembers.Count, 8, 100),

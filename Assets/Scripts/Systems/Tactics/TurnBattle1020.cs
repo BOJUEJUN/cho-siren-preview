@@ -94,6 +94,7 @@ namespace ChoSiren.Systems.Tactics
                     // through a reroll (the player's tap, or 自动's planner).
                     Emit(BattleEventKind.RoundStart, -1, -1, "turn-round", TurnRound, false);
                     OnTurnRoundStart1101(); // 2026-11-01b: mermaid captain 深海壁垒 (CaptainPassive1101)
+                    OnTurnRoundStart1111(); // 2026-11-11 守护骰 (Chapter3Battle1111)
                 }
                 BattleUnit next = FindUnit(turnOrderQueue[0]);
                 turnOrderQueue.RemoveAt(0);
@@ -263,7 +264,9 @@ namespace ChoSiren.Systems.Tactics
             if (!IsTurnBased || actor == null || actor.Side != BattleSide.Enemy || Outcome != BattleOutcome.Ongoing) return;
             PerformerClock clock = performerClocks[actor.Id];
             EnemyTurnStart1101(actor);
-            if (BossTurn1101(actor)) { SpendTurnTime(); TurnActor = null; return; }
+            // 2026-11-11: 阶段二护盾, 扰乱 (Chapter3Battle1111); a parried special reflects once the action is over.
+            if (EnemyTurnStart1111(actor)) { FinishParry1111(actor); SpendTurnTime(); TurnActor = null; return; }
+            if (BossTurn1101(actor)) { FinishParry1111(actor); SpendTurnTime(); TurnActor = null; return; }
             enemyTurnsTaken.TryGetValue(actor.Id, out int taken);
             enemyTurnsTaken[actor.Id] = taken + 1;
             if (clock.CastUntil > 0)
@@ -279,6 +282,7 @@ namespace ChoSiren.Systems.Tactics
                 else EnemySpecial(actor);
             }
             else BasicAttack(actor);
+            FinishParry1111(actor);
             SpendTurnTime();
             TurnActor = null;
         }

@@ -115,7 +115,7 @@ namespace ChoSiren
         private bool closing;
         private int selectedStage = 1;
         // Two ten-stage chapters share this map; the chapter last viewed is remembered.
-        public const int ChapterCount = 2;
+        public const int ChapterCount = 3; // 2026-11-11 第三章
         private static int lastChapter;
         private int chapter = 1;
         private Text chapterSwitchLabel;
@@ -222,7 +222,8 @@ namespace ChoSiren
             RewardGain1101.Bind(model, transform, null); // chapter rewards / sweeps use the shared 获得奖励 popup
             // Open the chapter the player last looked at; once chapter two has begun, open it.
             chapter = lastChapter > 0 && ChapterUnlocked(lastChapter) ? lastChapter
-                : model.IsStageCleared("stage-2-1") && !model.IsStageCleared("stage-2-10") ? 2 : 1;
+                : model.IsStageCleared("stage-2-20") ? 3
+                : model.IsStageUnlocked("stage-2-1") && model.IsStageCleared("stage-1-20") ? 2 : 1;
             selectedStage = CurrentStoryStage();
 
             if (!built)
@@ -836,7 +837,7 @@ namespace ChoSiren
             // with milestone notches, and slanted tag rows; claimable rows turn to white paper.
             GameObject card = OpenModalShell("ChapterRewardsModal", 390, 720);
             int stars = model.ChapterTotalStars(chapter);
-            ModalHeader(card.transform, chapter == 2 ? "第二章" : "本章", "章节奖励", $"★ {stars}/30");
+            ModalHeader(card.transform, chapter == 3 ? "第三章" : chapter == 2 ? "第二章" : "本章", "章节奖励", $"★ {stars}/60");
             List<ChapterStarRewardView> rewards = model.ChapterStarRewardViews(chapter);
             int maxStars = 30;
             foreach (var r in rewards) maxStars = Mathf.Max(maxStars, r.RequiredStars);
@@ -929,7 +930,7 @@ namespace ChoSiren
             GameObject card = OpenModalShell("ChapterTasksModal", 420, 640);
             List<ChapterTaskView> tasks = model.ChapterTaskViews(chapter);
             int done = 0; foreach (var t in tasks) if (t.Claimed || t.Claimable) done++;
-            ModalHeader(card.transform, chapter == 2 ? "第二章" : "本章", "章节任务", $"{done}/{tasks.Count}");
+            ModalHeader(card.transform, chapter == 3 ? "第三章" : chapter == 2 ? "第二章" : "本章", "章节任务", $"{done}/{tasks.Count}");
             for (int index = 0; index < tasks.Count; index++)
             {
                 ChapterTaskView view = tasks[index];
@@ -1286,7 +1287,7 @@ namespace ChoSiren
                     // 2026-10-24 (owner): a first clear ends with the cast talking about the win, not a system card.
                     if (firstClear && simulator.Outcome == BattleOutcome.Victory) pendingOutro = stageId + "-end";
                     if (!string.IsNullOrEmpty(lastSettleMessage)) Notify(lastSettleMessage);
-                    if (model.IsStageCleared("stage-1-10") && model.FirstTime("notice-chapter-two-open"))
+                    if (model.IsStageCleared("stage-1-20") && model.FirstTime("notice-chapter-two-open"))
                         lastSettleMessage += "\n第二章已开放：点右上「第二章 ▶」";
                 },
                 rewards: BuildBattleRewardLines,
@@ -1373,6 +1374,7 @@ namespace ChoSiren
 
         private void OpenStoryChapter01()
         {
+            if (chapter == 3) { Notify("第三章剧情还在制作中"); return; }
             string storyId = chapter == 2 ? "chapter-02" : "chapter-01";
             if (!model.TryStartStory(storyId, out StoryRunner runner, out string message))
             {
@@ -1423,7 +1425,7 @@ namespace ChoSiren
 
             staminaText.text = $"{model.Save.Stamina}/{model.StaminaCap}";
             if (storyChapterLabel != null)
-                storyChapterLabel.text = chapter == 2
+                storyChapterLabel.text = chapter == 3 ? "主线剧情 · 制作中" : chapter == 2
                     ? (model.IsStoryCompleted("chapter-02") ? "主线剧情 · 已读" : "主线剧情 · 第二章")
                     : model.IsStoryCompleted("chapter-01") ? "主线剧情 · 已读" : "主线剧情 · 第一章";
             stageText.text = $"{chapter}-{selectedStage}";
@@ -1442,10 +1444,10 @@ namespace ChoSiren
             int goldReward = selectedDefinition != null
                 ? model.PreviewStageGoldReward(selectedStageId)
                 : GameModel.StoryGoldReward;
-            bool chapterComplete = chapter == 1 ? model.IsChapterOneComplete : model.IsStageCleared("stage-2-10");
+            bool chapterComplete = chapter == 1 ? model.IsChapterOneComplete : model.IsStageCleared($"stage-{chapter}-20");
             stageTitleText.text = selectedDefinition != null && !string.IsNullOrWhiteSpace(selectedDefinition.Name)
                 ? selectedDefinition.Name
-                : chapter == 2 ? "魅声海湾演出" : "欲望都市演出";
+                : chapter == 3 ? "幻域终章演出" : chapter == 2 ? "魅声海湾演出" : "欲望都市演出";
             // One short line: pace + (when cleared) the best stars. Everything else is visual.
             stageStatusText.text = string.Empty;
             string bestStars = state == LevelState.Cleared ? "   " + new string('★', Mathf.Clamp(model.StarsOf(selectedStageId), 1, 3)) : string.Empty;
@@ -1598,7 +1600,7 @@ namespace ChoSiren
             if (number < 1 || number > ChapterCount || number == chapter) return;
             if (!ChapterUnlocked(number))
             {
-                Notify("通关 1-10「魅声王座」后开放第二章");
+                Notify(number == 3 ? "通关 2-20 后开放第三章" : "通关 1-20 后开放第二章");
                 return;
             }
             lastChapter = number;
@@ -1613,7 +1615,7 @@ namespace ChoSiren
             Build();
             built = true;
             Refresh();
-            Notify(chapter == 2 ? "第二章 · 魅声海湾" : "第一章 · 欲望都市");
+            Notify(chapter == 3 ? "第三章 · 幻域终章" : chapter == 2 ? "第二章 · 魅声海湾" : "第一章 · 欲望都市");
         }
 
         public static int StoryStageForProgress(int progress)
@@ -1624,12 +1626,13 @@ namespace ChoSiren
                 if (normalizedProgress < GameModel.StoryStageThresholds[index]) return index + 1;
             }
 
-            return ChapterStageCount;
+            return GameModel.LegacyStoryStageCount;
         }
 
         public static bool IsStoryStageCleared(int stage, int progress)
         {
-            if (stage < 1 || stage > ChapterStageCount) return false;
+            // Only 1-1…1-10 have legacy story progress (2026-11-11: chapters run to 20 stages).
+            if (stage < 1 || stage > GameModel.LegacyStoryStageCount) return false;
             return Mathf.Clamp(progress, 0, GameModel.MaxStoryProgress) >=
                    GameModel.StoryStageThresholds[stage - 1];
         }

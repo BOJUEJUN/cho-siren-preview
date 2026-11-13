@@ -20,6 +20,9 @@ namespace ChoSiren
         public int VoiceCores;
         /// <summary>2026-11-07 种族生魂 by <see cref="ChoSiren.Systems.Economy.CurrencyIds.Souls"/> order (魅/魔/海灵/血精灵).</summary>
         public List<int> RaceSouls1107 = new List<int>();
+        /// <summary>2026-11-11: the cap this save had under the old 10-stage chapters (never lowered).</summary>
+        public int LevelCapFloor1111;
+        public bool CapFloorMigrated1111;
     }
 
     /// <summary>
@@ -38,11 +41,20 @@ namespace ChoSiren
         public const int SoulsPerBreak1107 = 10;
         public const int ShardsPerSoul1107 = 10;
         public const int BreakGoldStep1107 = 3000;
-        /// <summary>Gates before the cap opens to 200 (1-5, 1-10, 2-5, 2-10).</summary>
-        public const int GatesToOpenCap1107 = 4;
+        /// <summary>
+        /// 2026-11-11 (每章 20 关, Docs/BALANCE-1111-CHAPTER20.md): the cap gates in play order and the cap each one opens.
+        /// 12 → 1-5:17 → 1-10:20 → 1-15:23 → 1-20:26 → 2-5:29 → 2-10:200. 2-15 / 2-20 no longer gate anything.
+        /// </summary>
+        internal static readonly string[] CapGates1111 = { "stage-1-5", "stage-1-10", "stage-1-15", "stage-1-20", "stage-2-5", "stage-2-10" };
+        internal static readonly int[] GateCaps1111 = { 17, 20, 23, 26, 29, MaxMemberLevel };
+        /// <summary>Gates before the cap opens to 200.</summary>
+        public const int GatesToOpenCap1107 = 6;
+        /// <summary>The pre-1111 rule (1-5 / 1-10 / 2-5 → 17 / 22 / 27, 2-10 → 200), kept as a floor for older saves.</summary>
+        private static readonly string[] LegacyCapGates1107 = { "stage-1-5", "stage-1-10", "stage-2-5", "stage-2-10" };
 
-        /// <summary>The gate stages in play order: every stage whose number is a multiple of five.</summary>
-        private IEnumerable<StageDefinition> GateStages1104() => tactics.Stages.Where(s => StageNumber1104(s.Id) % 5 == 0);
+        /// <summary>The gate stages in play order.</summary>
+        private IEnumerable<StageDefinition> GateStages1104() =>
+            CapGates1111.Select(id => tactics.FindStage(id)).Where(s => s != null);
 
         private static int StageNumber1104(string stageId)
         {
@@ -65,14 +77,36 @@ namespace ChoSiren
             }
         }
 
-        /// <summary>The stage-progress level cap shared by every member: 12 / 17 / 22 / 27, then 200.</summary>
+        /// <summary>The stage-progress level cap shared by every member: 12 / 17 / 20 / 23 / 26 / 29, then 200.</summary>
         public int ProgressLevelCap1104
         {
             get
             {
                 int gates = GatesCleared1104;
-                return gates >= GatesToOpenCap1107 ? MaxMemberLevel : Math.Min(MaxMemberLevel, BaseLevelCap1104 + LevelCapStep1104 * gates);
+                int cap = gates <= 0 ? BaseLevelCap1104 : GateCaps1111[Math.Min(gates, GateCaps1111.Length) - 1];
+                // A save from before the twenty-stage chapters never loses the cap it had already opened.
+                return Math.Min(MaxMemberLevel, Math.Max(cap, Save.LevelCapFloor1111));
             }
+        }
+
+        /// <summary>Cap under the pre-1111 gates (used once, to give older saves their floor).</summary>
+        private int LegacyProgressCap1107()
+        {
+            int gates = 0;
+            foreach (string id in LegacyCapGates1107)
+            {
+                if (!IsStageCleared(id)) break;
+                gates++;
+            }
+            return gates >= LegacyCapGates1107.Length ? MaxMemberLevel : BaseLevelCap1104 + LevelCapStep1104 * gates;
+        }
+
+        /// <summary>Runs once per save (on load): records the cap the old rule had opened.</summary>
+        private void MigrateLevelCapFloor1111()
+        {
+            if (Save.CapFloorMigrated1111) return;
+            Save.CapFloorMigrated1111 = true;
+            Save.LevelCapFloor1111 = Save.ClearedStages != null && Save.ClearedStages.Count > 0 ? LegacyProgressCap1107() : 0;
         }
 
         /// <summary>Short name of the next gate ("1-5") while it still limits the cap, else empty.</summary>
@@ -80,7 +114,7 @@ namespace ChoSiren
         {
             get
             {
-                if (GatesCleared1104 >= GatesToOpenCap1107) return string.Empty;
+                if (GatesCleared1104 >= GatesToOpenCap1107 || ProgressLevelCap1104 >= MaxMemberLevel) return string.Empty;
                 StageDefinition next = GateStages1104().FirstOrDefault(s => !IsStageCleared(s.Id));
                 return next == null ? string.Empty : next.Id.Replace("stage-", string.Empty);
             }

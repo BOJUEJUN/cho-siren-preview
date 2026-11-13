@@ -138,12 +138,13 @@ namespace ChoSiren.Tests
         public void TurnBattleAdvancesWaveTargetsWhilePreservingChargedRerolls()
         {
             var model = new GameModel(() => Now);
-            // 2026-11-03: 1-1 is a single wave in the planning-deck lineup; 1-2 keeps two.
-            var stage = model.Tactics.Stages.First(s => s.Id == "stage-1-2");
+            // 2026-11-03: 1-1 is a single wave in the planning-deck lineup. 2026-11-11: 1-2 became one wave of three
+            // (三敌同屏); 1-4 keeps two waves.
+            var stage = model.Tactics.Stages.First(s => s.Id == "stage-1-4");
             for (int i = 0; i < model.Save.MemberLevels.Count; i++)
                 model.Save.MemberLevels[i] = Mathf.Max(model.Save.MemberLevels[i], stage.RecommendedLevel + 7);
-            model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-1", Stars = 3 });
-            BattleSimulator battle = model.StartStageBattle("stage-1-2", 44, out string error);
+            for (int n = 1; n <= 3; n++) model.Save.ClearedStages.Add(new StageClear { Id = "stage-1-" + n, Stars = 3 });
+            BattleSimulator battle = model.StartStageBattle("stage-1-4", 44, out string error);
             Assert.That(battle, Is.Not.Null, error);
             var races = new Dictionary<string, string>();
             foreach (MemberDefinition member in GameModel.Members) races[member.Id] = member.Race;

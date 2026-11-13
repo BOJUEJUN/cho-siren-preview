@@ -56,7 +56,7 @@ namespace ChoSiren
             staminaText = NewPlacedText(page, "", 30, White, 674, 40, 158, 58, TextAnchor.MiddleLeft, FontStyle.Bold);
             Readable(staminaText);
             NewPlacedText(page, $"CHAPTER / {chapter:00}", 21, Accent, 42, 188, 350, 40, TextAnchor.MiddleLeft);
-            Text chapterTitle = NewPlacedText(page, chapter == 1 ? "欲望都市" : "魅声海湾", 67, White,
+            Text chapterTitle = NewPlacedText(page, chapter == 1 ? "欲望都市" : chapter == 2 ? "魅声海湾" : "幻域终章", 67, White,
                 40, 237, 430, 104, TextAnchor.MiddleLeft, FontStyle.BoldAndItalic);
             Readable(chapterTitle);
             var rule = NewImage("ChapterAccent", page, null, Accent);
@@ -201,7 +201,7 @@ namespace ChoSiren
                 int captured = number;
                 bool current = number == chapter;
                 bool unlocked = ChapterUnlocked(number);
-                string name = number == 1 ? "欲望都市" : number == 2 ? "魅声海湾" : "全新舞台";
+                string name = number == 1 ? "欲望都市" : number == 2 ? "魅声海湾" : "幻域终章";
                 string state = current ? " · 当前" : "";
                 GameObject option = NewButton("ChooseChapter-" + number, card.transform,
                     $"第{number:00}章  {name}{state}", 24, new Color32(35, 19, 59, 255),
@@ -209,7 +209,7 @@ namespace ChoSiren
                     {
                         if (!ChapterUnlocked(captured))
                         {
-                            Notify(captured == 2 ? "尚未解锁：通关 1-10「魅声王座」后开放" : "尚未解锁，请先通关前一章");
+                            Notify(captured == 2 ? "尚未解锁：通关 1-20「幻蚀终演」后开放" : captured == 3 ? "尚未解锁：通关 2-20「深潮终曲」后开放" : "尚未解锁，请先通关前一章");
                             return;
                         }
                         CloseChapterModal();

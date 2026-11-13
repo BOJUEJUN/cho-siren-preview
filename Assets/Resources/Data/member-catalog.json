@@ -768,6 +768,42 @@
       "StartingLevel": 1,
       "InitiallyUnlocked": false,
       "Race": "血精灵"
+    },
+    {
+      "Id": "huansha",
+      "Name": "幻纱",
+      "Role": "主唱",
+      "Race": "魅族",
+      "Rarity": "SSR",
+      "PortraitResourcePath": "Art/Members/member-huansha",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-huansha",
+      "BasePower": 9200,
+      "StartingLevel": 1,
+      "InitiallyUnlocked": false
+    },
+    {
+      "Id": "huanhuoling",
+      "Name": "幻惑伶",
+      "Role": "门面",
+      "Race": "魅族",
+      "Rarity": "SSR",
+      "PortraitResourcePath": "Art/Members/member-huanhuoling",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-huanhuoling",
+      "BasePower": 9200,
+      "StartingLevel": 1,
+      "InitiallyUnlocked": false
+    },
+    {
+      "Id": "linyin",
+      "Name": "凛音",
+      "Role": "Rapper",
+      "Race": "血精灵",
+      "Rarity": "SSR",
+      "PortraitResourcePath": "Art/Members/member-linyin",
+      "ThumbnailResourcePath": "Art/Members/Avatars/avatar-linyin",
+      "BasePower": 9200,
+      "StartingLevel": 1,
+      "InitiallyUnlocked": false
     }
   ]
 }

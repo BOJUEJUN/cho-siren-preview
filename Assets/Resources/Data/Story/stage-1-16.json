@@ -1,0 +1,34 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-16",
+  "Title": "1-16 废弃录音棚",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-3"
+    },
+    {
+      "Command": "show",
+      "Subject": "yeying",
+      "Expression": "neutral",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "这间录音棚，以前出过好多首歌。",
+      "Expression": "neutral"
+    },
+    {
+      "Command": "say",
+      "Subject": "xingli",
+      "Text": "以后还会再出的。先把它清干净。",
+      "Expression": "determined"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

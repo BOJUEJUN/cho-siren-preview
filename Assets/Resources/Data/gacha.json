@@ -42,7 +42,7 @@
       "GuaranteeFeaturedAfterLoss": false,
       "TenPullGuaranteesSr": true,
       "FeaturedItemIds": [],
-      "StandardSsrItemIds": ["xingli", "feiyin", "wubai"],
+      "StandardSsrItemIds": ["xingli", "feiyin", "wubai", "huansha", "huanhuoling", "linyin"],
       "SrItemIds": ["yeying", "yaoguang", "hupo"],
       "RItemIds": ["xianyue", "chuxue", "chengxia"]
     },

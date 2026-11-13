@@ -232,6 +232,7 @@ namespace ChoSiren
                 PlaceTop(psdMailBadge.GetComponent<RectTransform>(), hit.rect.width - 34f - psdCropX, 6f, 18f, 18f);
                 psdMotion.RegisterUi(psdMailBadge);
             }
+            BuildRelicEntry1111(root, scale, layout.width, layout.height); // 2026-11-12 七色功能骰入口
             if (buttons.TryGetValue("Profile", out GameObject profileButton))
             {
                 RectTransform hit = profileButton.GetComponent<RectTransform>();
@@ -297,71 +298,43 @@ namespace ChoSiren
 
         private float psdShiftTop, psdShiftBottom, psdCropX, psdHomeScale = 720f / 4034f;
 
+        // 2026-11-12 新播放器 on the lobby: the artist's player replaces the old record bar (layers 40 / 42). Its record
+        // sits where the old record sat (top at PSD y 640) and spans 1760 of the PSD's 4034 px width.
+        private const float HomePlayerPsdScale1112 = 1760f / ChoSiren.UI.MusicPlayer1112.Width;
+        private ChoSiren.UI.MusicPlayer1112 homePlayer1112;
+
         /// <summary>
-        /// The PSD's record player (top-left): the record spins while home music plays and the
-        /// bar's black window shows the current song; tapping anywhere on it plays the next song.
+        /// The lobby's music bar (top-left), now the artist's player (<see cref="ChoSiren.UI.MusicPlayer1112"/>): live title,
+        /// artist, time and progress; loop / previous / play / next / shuffle and the round 下一首 work in place; the record
+        /// plays / pauses and the black panel opens 唱片机. It stays quiet on hover (no halo, AGENTS.md 2026-11-03) and only
+        /// the pressed glyph springs.
         /// </summary>
         private void BuildHomeMusicDisc(Transform root)
         {
             Transform button = root.Find("MusicNext");
             if (button == null) return;
             float scale = psdHomeScale;
-            // Layer 40's black window is slanted about 8°: a rotated strip, centred on the window
-            // (PSD pixels relative to the MusicNext hit at x 0, y 640), holds ◀ title ▶.
-            RectTransform bar = new GameObject("SongBar", typeof(RectTransform)).GetComponent<RectTransform>();
-            bar.SetParent(button, false);
-            PlaceTop(bar, 740f * scale, (1055f - 640f - 85f) * scale, 800f * scale, 170f * scale);
-            bar.localEulerAngles = new Vector3(0f, 0f, 8f);
-            RectTransform window = new GameObject("SongWindow", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Mask)).GetComponent<RectTransform>();
-            window.SetParent(bar, false);
-            window.anchorMin = Vector2.zero; window.anchorMax = Vector2.one;
-            window.offsetMin = new Vector2(120f * scale, 0f); window.offsetMax = new Vector2(-120f * scale, 0f);
-            window.GetComponent<Image>().raycastTarget = false;
-            window.GetComponent<Mask>().showMaskGraphic = false;
-            Text title = NewText("SongTitle", window, string.Empty, 22, Color.white, FontStyle.Bold, TextAnchor.MiddleLeft);
-            title.raycastTarget = false;
-            title.horizontalOverflow = HorizontalWrapMode.Overflow;
-            title.verticalOverflow = VerticalWrapMode.Overflow;
-            AddReadableShadow(title);
-            window.gameObject.AddComponent<HomeMusicMarquee>().Bind(title);
-            HomeMusicArrow(bar, "SongPrev", "◀", 0f, scale, () => { if (gameAudio != null && gameAudio.PreviousHomeMusic()) gameAudio.PlayClick(); });
-            HomeMusicArrow(bar, "SongNext", "▶", 1f, scale, () => { if (gameAudio != null && gameAudio.NextHomeMusic()) gameAudio.PlayClick(); });
-            Transform disc = root.Find("MusicNext/layer-disc-42VisualV2");
-            if (disc != null) disc.gameObject.AddComponent<HomeMusicDiscSpin>().Bind(gameAudio, title.font);
-            Text pausedMarker = null;
-            if (disc is RectTransform discRect)
-            {
-                pausedMarker = NewText("MusicPaused", disc.parent, "▶", 24,
-                    new Color32(255, 255, 255, 215), FontStyle.Normal, TextAnchor.MiddleCenter);
-                RectTransform marker = pausedMarker.rectTransform;
-                marker.anchorMin = discRect.anchorMin;
-                marker.anchorMax = discRect.anchorMax;
-                marker.pivot = new Vector2(.5f, .5f);
-                marker.anchoredPosition = discRect.anchoredPosition;
-                marker.sizeDelta = new Vector2(42f, 42f);
-                pausedMarker.raycastTarget = false;
-                AddReadableShadow(pausedMarker);
-            }
-            button.gameObject.AddComponent<HomeMusicSwitcher>().Bind(gameAudio, title, pausedMarker);
-            BuildHomeMusicEntry1101(button, window, disc as RectTransform); // 2026-11-01 唱片收藏 entry
-        }
+            foreach (Transform child in button) child.gameObject.SetActive(false); // the old painted bar and record
+            // Only the player's own controls take taps; the old rectangular hit no longer covers the transparent corners.
+            Image hit = button.GetComponent<Image>();
+            if (hit != null) hit.raycastTarget = false;
 
-        private void HomeMusicArrow(RectTransform bar, string name, string glyph, float side, float scale, Action onTap)
-        {
-            var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
-            var rect = go.GetComponent<RectTransform>();
-            rect.SetParent(bar, false);
-            rect.anchorMin = rect.anchorMax = new Vector2(side, .5f);
-            rect.pivot = new Vector2(side, .5f);
-            rect.sizeDelta = new Vector2(120f * scale, 170f * scale);
-            rect.anchoredPosition = Vector2.zero;
-            go.GetComponent<Image>().color = new Color(0, 0, 0, .004f);
-            go.GetComponent<Button>().onClick.AddListener(() => onTap());
-            Text label = NewText("Glyph", rect, glyph, 20, new Color32(120, 230, 255, 255), FontStyle.Bold, TextAnchor.MiddleCenter);
-            label.rectTransform.anchorMin = Vector2.zero; label.rectTransform.anchorMax = Vector2.one;
-            label.rectTransform.offsetMin = label.rectTransform.offsetMax = Vector2.zero;
-            label.raycastTarget = false;
-            AddReadableShadow(label);
+            var player = ChoSiren.UI.MusicPlayer1112.Create(button, "HomePlayer1112", gameAudio, model, font, Toast,
+                ResumeMediaAfterUserGesture, true);
+            // MusicNext's hit starts at PSD (0, 640); the player's record top is at layer y 86.
+            float k = HomePlayerPsdScale1112 * scale;
+            player.Place(0f, -86f * k, k);
+            player.DiscTapped = ToggleHomeMusicFromDisc1101;
+            player.PanelTapped = () => ActivatePsdHomeAction("MusicNext");
+            homePlayer1112 = player;
+
+            // The torn teal notice sticker on the record's top-right rim while a new song waits to be heard.
+            GameObject sticker = UI.NoticeSticker1031.Create("MusicNewSticker", player.Rect, 96f);
+            RectTransform stickerRect = (RectTransform)sticker.transform;
+            stickerRect.anchorMin = stickerRect.anchorMax = new Vector2(0f, 1f);
+            stickerRect.anchoredPosition = new Vector2(486f, -128f);
+            stickerRect.sizeDelta = new Vector2(96f, 96f);
+            button.gameObject.AddComponent<UI.HomeMusicEntry1101>().Bind(gameAudio, model, null, sticker);
         }
 
         /// <summary>

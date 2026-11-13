@@ -1,0 +1,45 @@
+{
+  "SchemaVersion": 1,
+  "Id": "stage-1-15",
+  "Title": "1-15 狂响之夜",
+  "Chapter": "01",
+  "Lines": [
+    {
+      "Label": "start",
+      "Command": "bg",
+      "Subject": "Art/Story/Scenes1019/stage-1-10"
+    },
+    {
+      "Command": "show",
+      "Subject": "feiyin",
+      "Expression": "serious",
+      "Position": "center"
+    },
+    {
+      "Command": "say",
+      "Subject": "feiyin",
+      "Text": "是她——狂响幻蚀歌姬。梅洛蒂最忠实的舞者。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "wubai",
+      "Text": "她身边的应援盾娘，会一直替她挡伤害。",
+      "Expression": "serious"
+    },
+    {
+      "Command": "say",
+      "Subject": "yeying",
+      "Text": "那就先把应援拆了，再请她下台。",
+      "Expression": "grin"
+    },
+    {
+      "Command": "say",
+      "Subject": "producer",
+      "Text": "这一战赢了，梅洛蒂就再也藏不住了。"
+    },
+    {
+      "Command": "end"
+    }
+  ]
+}

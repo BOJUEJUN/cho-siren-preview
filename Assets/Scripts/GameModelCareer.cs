@@ -156,7 +156,8 @@ namespace ChoSiren
         public int Fame => Save.StoryProgress;
 
         public int EstimatedMonthlySalary(int memberIndex) =>
-            IsValidMemberIndex(memberIndex) ? CareerEconomy.EstimatedSalary(Members[memberIndex].Id, Fame) : 0;
+            IsValidMemberIndex(memberIndex) && !IsGiftedMember1112(Members[memberIndex].Id)
+                ? CareerEconomy.EstimatedSalary(Members[memberIndex].Id, Fame) : 0;
 
         /// <summary>总团队月薪 = 所有已签约成员预估月薪之和（名气越高越贵）。</summary>
         public int TotalTeamMonthlySalary()

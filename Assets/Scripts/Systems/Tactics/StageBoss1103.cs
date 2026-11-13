@@ -30,12 +30,23 @@ namespace ChoSiren.Systems.Tactics
         private static readonly Look Selene = new Look
             { Name = "深潮女王·赛琳", Art = "Art/BattleUser/boss-selene-1103", EntranceVideo = false };
 
+        // 2026-11-11 (每章 20 关, 少爷批准): the fifteenth stages are led by the deck's elites (狂响幻蚀歌姬 / 残影歌姬)
+        // as 首领; the twentieth stages bring back the chapter's queen in full. Their figures reuse Art/Enemies.
+        private static readonly Look Kuangxiang = new Look
+            { Name = "狂响幻蚀歌姬", Art = "Art/Enemies/static-golem-ai-v1", EntranceVideo = false };
+        private static readonly Look Afterimage = new Look
+            { Name = "残影歌姬", Art = "Art/Enemies/afterimage-diva-ai-v1", EntranceVideo = false };
+
         private static readonly Dictionary<string, Look> Stages = new Dictionary<string, Look>(StringComparer.Ordinal)
         {
             ["stage-1-5"] = Luna,
             ["stage-1-10"] = Melody,
             ["stage-2-5"] = Selene,
             ["stage-2-10"] = Selene,
+            ["stage-1-15"] = Kuangxiang,
+            ["stage-1-20"] = Melody,
+            ["stage-2-15"] = Afterimage,
+            ["stage-2-20"] = Selene,
         };
 
         public static Look For(string stageId) =>

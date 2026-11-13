@@ -98,6 +98,9 @@ namespace ChoSiren.Panels
             if (name.Contains("boss-throne-user-v1")) { top = .044f; bottom = .938f; head = new Vector2(.5f, .17f); return; }
             // 2026-11-08: measured alpha bounds (crown at the very top, tail fin at the bottom edge).
             if (name.Contains("boss-selene-1103")) { top = .001f; bottom = 1f; head = new Vector2(.5f, .12f); return; }
+            // 2026-11-11: the 1-15 / 2-15 首领 use their Art/Enemies figures (measured alpha bounds).
+            if (name.Contains("static-golem")) { top = .006f; bottom = .989f; head = new Vector2(.5f, .12f); return; }
+            if (name.Contains("afterimage-diva")) { top = .004f; bottom = .995f; head = new Vector2(.5f, .1f); return; }
             top = .03f; bottom = .95f; head = new Vector2(.5f, .15f);
         }
 
@@ -116,7 +119,18 @@ namespace ChoSiren.Panels
         {
             var active = battle.Units.Where(u => u.Side == BattleSide.Enemy && u.Alive && u.Id != bossUnitId)
                 .OrderBy(u => u.Definition.Id == "noise-wraith" ? 0 : u.Definition.Id == "neon-scout" ? 1 : 2).ToList();
-            if (active.Count > BattleSimulator.MaxActiveMinions)
+            if (WideStage1111 && enemyPan1111 != null)
+            {
+                foreach (BattleUnit unit in battle.Units)
+                {
+                    if (!enemyAnchors.TryGetValue(unit.Id, out RectTransform a)) continue;
+                    bool fading = enemyMotions.TryGetValue(unit.Id, out EnemyUnitPresentation m) && m.IsDefeating;
+                    a.gameObject.SetActive(unit.Alive || fading);
+                }
+                LayoutWideFigures1111(active);
+                return true;
+            }
+            if (active.Count > battle.MinionSlots)
             {
                 // Only reachable when a test or old save forces a crowd: the legacy lanes take over.
                 enemyLanes1031.Clear(); enemyHeads1031.Clear();
@@ -197,6 +211,7 @@ namespace ChoSiren.Panels
         /// <summary>Hangs a minion's name + HP plate beside its head, on the outer side. False when no head is known.</summary>
         private bool PositionEnemyPlate1031(CellView cell)
         {
+            if (WideStage1111 && enemyPan1111 != null) return PositionWidePlate1111(cell);
             BattleUnit unit = cell.Unit;
             if (unit == null || !enemyHeads1031.TryGetValue(unit.Id, out Rect head)) return false;
             if (!enemyLanes1031.TryGetValue(unit.Id, out int lane)) return false;
@@ -293,7 +308,10 @@ namespace ChoSiren.Panels
             head = default;
             if (unit == null) return false;
             if (unit.Id == bossUnitId && bossPresentation != null) { head = bossHead1031; return head.width > 0f; }
-            return enemyHeads1031.TryGetValue(unit.Id, out head);
+            if (!enemyHeads1031.TryGetValue(unit.Id, out head)) return false;
+            // Wide stages keep heads in row space; the camera's pan moves them on screen.
+            if (enemyPan1111 != null) head.x -= wideCamera1111 * PsdScale;
+            return true;
         }
 
         // ------------------------------------------------------------------ hit weight

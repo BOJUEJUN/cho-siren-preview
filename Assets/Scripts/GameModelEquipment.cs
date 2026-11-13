@@ -196,7 +196,7 @@ namespace ChoSiren
         public static int AccessoryIndexForItem(string id) => Array.IndexOf(AccessoryItemIds, id);
         public static int FirstClearAccessory(string stageId)
         {
-            if (!TryGetChapterOneStageNumber(stageId, out int stage)) return -1;
+            if (!TryGetChapterOneStageNumber(stageId, out int stage) || stage > LegacyStoryStageCount) return -1;
             // 首章首通奖励走 普通 → 精良 → 稀有 → 史诗 → 传说，传说只留给章末 1-10。
             // 旧表 {3,6,7,8,4,9,10,6,11,5} 十关全是传说/史诗（1-1 开局就发传说），
             // 且 1-8 与 1-2 重复发同一件，品质分级形同虚设。

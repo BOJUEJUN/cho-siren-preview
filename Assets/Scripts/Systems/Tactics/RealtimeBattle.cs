@@ -100,6 +100,7 @@ namespace ChoSiren.Systems.Tactics
             BattleDice.Begin();
             nextUnitEnergyTick = UnitEnergyTickMilliseconds;
             IsRealtime = true;
+            InitChapter3_1111(); // 2026-11-11 第三章 BOSS 护盾 (Chapter3Battle1111)
             // The opening hand becomes active on the first logical tick, never while UI opens/pauses.
         }
 
@@ -345,6 +346,7 @@ namespace ChoSiren.Systems.Tactics
 
         private void CastRaceSkill(BattleUnit actor, bool big)
         {
+            if (TryCastKit1111(actor, big)) return; // 2026-11-11 幻纱 / 幻惑伶 / 凛音 (Chapter3Battle1111)
             PerformerClock clock = performerClocks[actor.Id];
             string skill = SkillId(clock.Race, big);
             BattleUnit target = SelectEnemy(actor);
@@ -528,6 +530,7 @@ namespace ChoSiren.Systems.Tactics
                 }
                 // All dice damage growth is accounted for in the displayed accumulated multiplier.
             }
+            raw = AdjustDeal1111(actor, target, raw, ref ignoreDefense); // 破绽 / 破盾易伤 / 骰子种类 (Chapter3Battle1111)
             int defense = (int)((long)EffectiveRealtimeDefense(target) * (1000 - Math.Min(500, ignoreDefense)) / 1000);
             raw = raw * 1000 / (1000 + (long)defense * DefenseWeight);
             bool critical = random.NextPermille() < actor.Definition.CritPermille;
@@ -554,6 +557,12 @@ namespace ChoSiren.Systems.Tactics
                 guarded.GuardBlocks--;
                 Emit(BattleEventKind.Damage, actor.Id, target.Id, skill, damage, critical, diceMultiplierPermille, damage, 0);
                 Emit(BattleEventKind.Buff, actor.Id, target.Id, GuardBreakSkillId, damage, false);
+                return;
+            }
+            if (InterceptDamage1111(actor, target, skill, ref damage, critical, diceMultiplierPermille))
+            {
+                UpdateEnemyPhase();
+                EvaluateOutcome();
                 return;
             }
             if (GuardRemaining(target) > 0) damage = Math.Max(1, damage / 2);
@@ -717,6 +726,7 @@ namespace ChoSiren.Systems.Tactics
         {
             if (diceRevision == BattleDice.Revision) return;
             diceRevision = BattleDice.Revision;
+            OnNewHand1111(); // 充能骰 / 幻骰生影 (Chapter3Battle1111)
             // 2026-11-01c 无限骰子: in a turn battle a new hand no longer refreshes the combo budget or the mermaid wall
             // (both come back every round / measure), and the 顺子 heal fires at most once a round (CaptainPassive1101) —
             // otherwise endless rerolls would turn each pip into another heal / shield / follow-up.
@@ -793,6 +803,7 @@ namespace ChoSiren.Systems.Tactics
             Add("rt-tactical-guard", "应急守护", SkillEffect.Shield);
             RegisterChapterTwoRealtimeSkills(result);
             RegisterBossSkills1101(result);
+            RegisterChapter3Skills1111(result);
             return result;
         }
     }

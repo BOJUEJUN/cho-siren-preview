@@ -259,7 +259,9 @@ namespace ChoSiren.Tests
                 int wins = 0;
                 for (ulong seed = 1; seed <= 8; seed++)
                 {
-                    var cleared = Enumerable.Range(1, number - 1).Select(n => new StageClear { Id = $"stage-2-{n}", Stars = 3 }).ToList();
+                    var cleared = Enumerable.Range(1, number - 1).Select(n => new StageClear { Id = $"stage-2-{n}", Stars = 3 })
+                        .Concat(Enumerable.Range(1, GameModel.ChapterOneStageCount).Select(n => new StageClear { Id = $"stage-1-{n}", Stars = 3 }))
+                        .ToList(); // 2026-11-11: chapter two opens after 1-20
                     SaveRaw(new GameSave { StoryProgress = 100, ClearedStages = cleared,
                         MemberLevels = Enumerable.Repeat(definition.RecommendedLevel, GameModel.Members.Length).ToList() });
                     var model = new GameModel(() => now);
@@ -456,6 +458,7 @@ namespace ChoSiren.Tests
             for (int stageNumber = 1; stageNumber <= GameModel.ChapterOneStageCount; stageNumber++)
             {
                 string stageId = $"stage-1-{stageNumber}";
+                model.Save.MemberStamina1107.Clear(); // twenty fights in a row: rested members (missing = full)
                 Assert.That(model.IsStageUnlocked(stageId), Is.True, $"{stageId} 应按顺序解锁");
 
                 BattleSimulator battle = model.StartStageBattle(stageId, (ulong)(100 + stageNumber), out string start);
@@ -465,7 +468,9 @@ namespace ChoSiren.Tests
 
                 Assert.That(settlement, Does.Contain("胜利"));
                 Assert.That(model.StarsOf(stageId), Is.EqualTo(3));
-                Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[stageNumber - 1]));
+                // 2026-11-11: the legacy 0–100 progress covers 1-1…1-10; 1-11…1-20 unlock from their clears alone.
+                Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[
+                    Math.Min(stageNumber, GameModel.LegacyStoryStageCount) - 1]));
 
                 if (stageNumber == 1)
                 {
@@ -605,27 +610,27 @@ namespace ChoSiren.Tests
             SaveRaw(completed);
             GameModel model = CreateModel();
 
-            Assert.That(model.ChapterOneTotalStars, Is.EqualTo(30));
+            // 2026-11-11: twenty stages → 60 stars in six tiers.
+            Assert.That(model.ChapterOneTotalStars, Is.EqualTo(60));
             Assert.That(model.ChapterOneStarRewardViews().Select(view => view.RequiredStars),
                 Is.EqualTo(GameModel.ChapterOneStarRewardThresholds));
             Assert.That(model.ChapterOneStarRewardViews().All(view => view.Claimable), Is.True);
-            Assert.That(model.ChapterOneClaimableStarRewardCount, Is.EqualTo(3));
+            Assert.That(model.ChapterOneClaimableStarRewardCount, Is.EqualTo(6));
 
-            Assert.That(model.TryClaimChapterOneStarReward(10, out _), Is.True);
-            Assert.That(model.TryClaimChapterOneStarReward(20, out _), Is.True);
-            Assert.That(model.TryClaimChapterOneStarReward(30, out _), Is.True);
-            Assert.That(model.Save.Diamonds, Is.EqualTo(500 + 30 + 80));
-            Assert.That(model.Save.Gold, Is.EqualTo(700 + 2000));
-            Assert.That(model.Save.RecruitTickets, Is.EqualTo(3));
+            foreach (int tier in GameModel.ChapterOneStarRewardThresholds)
+                Assert.That(model.TryClaimChapterOneStarReward(tier, out _), Is.True, tier + " 星");
+            Assert.That(model.Save.Diamonds, Is.EqualTo(500 + 30 + 80 + 40 + 100));
+            Assert.That(model.Save.Gold, Is.EqualTo(700 + 2000 + 3000));
+            Assert.That(model.Save.RecruitTickets, Is.EqualTo(4));
             Assert.That(model.TryClaimChapterOneStarReward(30, out string duplicate), Is.False);
             Assert.That(duplicate, Does.Contain("已经领取"));
 
             GameModel reloaded = CreateModel();
             Assert.That(reloaded.ChapterOneStarRewardViews().All(view => view.Claimed), Is.True);
             Assert.That(reloaded.ChapterOneClaimableStarRewardCount, Is.Zero);
-            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(610));
-            Assert.That(reloaded.Save.Gold, Is.EqualTo(2700));
-            Assert.That(reloaded.Save.RecruitTickets, Is.EqualTo(3));
+            Assert.That(reloaded.Save.Diamonds, Is.EqualTo(750));
+            Assert.That(reloaded.Save.Gold, Is.EqualTo(5700));
+            Assert.That(reloaded.Save.RecruitTickets, Is.EqualTo(4));
         }
 
         [Test]
@@ -654,8 +659,11 @@ namespace ChoSiren.Tests
                 GameModel.ChapterOneTaskClearStageThree,
                 GameModel.ChapterOneTaskFifteenStars,
                 GameModel.ChapterOneTaskClearFinalStage,
+                GameModel.ChapterOneTaskFortyFiveStars,
+                GameModel.ChapterOneTaskClearStageTwenty,
             }));
-            Assert.That(tasks.All(task => task.Claimable), Is.True);
+            Assert.That(tasks.Take(3).All(task => task.Claimable), Is.True);
+            Assert.That(tasks.Skip(3).Any(task => task.Claimable), Is.False, "1-20 / 45 星 还没完成");
             Assert.That(model.ChapterOneClaimableTaskCount, Is.EqualTo(3));
             Assert.That(tasks.Single(task => task.Id == GameModel.ChapterOneTaskFifteenStars).Progress,
                 Is.EqualTo(15), "星级任务视图应封顶在目标值。 ");
@@ -673,7 +681,7 @@ namespace ChoSiren.Tests
             Assert.That(missing, Does.Contain("不存在"));
 
             GameModel reloaded = CreateModel();
-            Assert.That(reloaded.ChapterOneTaskViews().All(task => task.Claimed), Is.True);
+            Assert.That(reloaded.ChapterOneTaskViews().Take(3).All(task => task.Claimed), Is.True);
             Assert.That(reloaded.ChapterOneClaimableTaskCount, Is.Zero);
             Assert.That(reloaded.Save.Diamonds, Is.EqualTo(140));
             Assert.That(reloaded.Save.Gold, Is.EqualTo(1200));
@@ -810,13 +818,14 @@ namespace ChoSiren.Tests
         {
             GameModel model = CreateModel();
 
-            for (int index = 0; index < GameModel.ChapterOneStageCount; index++)
+            // The legacy story route covers the old ten map encounters (1-1…1-10); 1-11…1-20 are battles only.
+            for (int index = 0; index < GameModel.LegacyStoryStageCount; index++)
             {
                 Assert.That(model.AdvanceStory(out _), Is.True, $"第 {index + 1} 次推进应成功");
                 Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.StoryStageThresholds[index]));
             }
 
-            Assert.That(model.IsChapterOneComplete, Is.True);
+            Assert.That(model.IsChapterOneFirstHalfComplete, Is.True);
             Assert.That(model.AdvanceStory(out _), Is.False);
         }
 
@@ -1285,7 +1294,7 @@ namespace ChoSiren.Tests
             GameModel resetReloaded = CreateModel();
             Assert.That(resetReloaded.Save.MusicEnabled, Is.True);
             Assert.That(resetReloaded.Save.SfxEnabled, Is.True);
-            Assert.That(resetReloaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1, 2, 3 }));
+            Assert.That(resetReloaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1, 2, 3 }.Concat(GameModel.GiftedMembers1112.Select(GameModel.IndexOfMember))), "the four starters plus the 1112 gift");
             Assert.That(resetReloaded.Save.Team, Is.EqualTo(new[] { 0, 1, 2, 3 }));
             Assert.That(resetReloaded.Save.EquippedAccessory, Is.EqualTo(-1));
             Assert.That(resetReloaded.Save.StoryProgress, Is.EqualTo(79));
@@ -1323,7 +1332,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.DailyPerformances, Is.Zero);
             Assert.That(model.Save.CheckInDay, Is.EqualTo(1));
             Assert.That(model.Save.StoryProgress, Is.EqualTo(GameModel.MaxStoryProgress));
-            Assert.That(model.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1 }));
+            Assert.That(model.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1 }.Concat(GameModel.GiftedMembers1112.Select(GameModel.IndexOfMember))));
             Assert.That(model.Save.Team, Is.EqualTo(new[] { 0 }));
             Assert.That(model.Save.MemberLevels.Count, Is.EqualTo(GameModel.Members.Length));
             Assert.That(model.Save.MemberLevels[0], Is.EqualTo(1));
@@ -1338,7 +1347,7 @@ namespace ChoSiren.Tests
             Assert.That(model.TeamPower, Is.GreaterThan(0));
 
             GameModel reloaded = CreateModel();
-            Assert.That(reloaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1 }));
+            Assert.That(reloaded.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1 }.Concat(GameModel.GiftedMembers1112.Select(GameModel.IndexOfMember))));
             Assert.That(reloaded.Save.EquippedAccessory, Is.EqualTo(-1));
         }
 
@@ -1628,7 +1637,7 @@ namespace ChoSiren.Tests
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds));
             Assert.That(first[0].IsNew, Is.True);
             Assert.That(model.OwnsCostume(first[0].ItemId), Is.True);
-            Assert.That(model.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1, 2, 3 }), "Costume pulls never unlock members.");
+            Assert.That(model.Save.UnlockedMembers, Is.EqualTo(new[] { 0, 1, 2, 3 }.Concat(GameModel.GiftedMembers1112.Select(GameModel.IndexOfMember))), "Costume pulls never unlock members.");
 
             Assert.That(model.TryPull(CostumeBanner, 10, 4UL, out List<GachaPullResult> second, out _), Is.True);
             Assert.That(model.Save.Diamonds, Is.EqualTo(diamonds - gacha.Find(CostumeBanner).CostTenPull));

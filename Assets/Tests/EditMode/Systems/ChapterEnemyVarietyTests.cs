@@ -60,7 +60,7 @@ namespace ChoSiren.Tests.Systems
             foreach (string chapter in new[] { "stage-1-", "stage-2-" })
             {
                 var stages = data.Stages.Where(stage => stage.Id.StartsWith(chapter)).ToList();
-                Assert.That(stages.Count, Is.EqualTo(10), chapter);
+                Assert.That(stages.Count, Is.EqualTo(GameModel.ChapterOneStageCount), chapter); // 2026-11-11: 20 per chapter
                 // 2026-11-03: chapter one follows the planning deck's lineup table, which fields 毒蚀蛛娘 and 回声无人机
                 // once each; chapter two still brings every enemy back at least twice.
                 foreach (string id in art)
@@ -83,11 +83,12 @@ namespace ChoSiren.Tests.Systems
             // 2026-11-01 rosters (Docs/BALANCE-1101.md 怪物分配表); health and attack are re-tuned to the 通过率 targets
             // (Balance1101Tests), so only the shape and the budgets are pinned here.
             // 2026-11-03: chapter-one lineups follow the planning deck (1-1 is a single wave of two 噪音幽影).
+            // 2026-11-11: 1-2 is one wave of three 游魂 and 1-8 two waves (三敌同屏, 企划书 "3-4 只成群").
             int[] expectedCounts = { 2, 3, 3, 4, 3, 3, 4, 5, 3, 2 };
-            int[] expectedWaves = { 1, 2, 2, 2, 2, 2, 2, 3, 2, 2 };
+            int[] expectedWaves = { 1, 1, 2, 2, 2, 2, 2, 2, 2, 2 };
             int[] expectedLevels = { 1, 1, 1, 1, 10, 11, 12, 13, 14, 16 };
-            List<StageDefinition> chapterOne = data.Stages.FindAll(item => item.Id.StartsWith("stage-1-"));
-            Assert.That(chapterOne.Count, Is.EqualTo(10));
+            List<StageDefinition> chapterOne = Enumerable.Range(1, 10).Select(n => data.FindStage($"stage-1-{n}")).ToList();
+            Assert.That(data.Stages.Count(item => item.Id.StartsWith("stage-1-")), Is.EqualTo(GameModel.ChapterOneStageCount));
             for (int i = 0; i < chapterOne.Count; i++)
             {
                 StageDefinition stage = chapterOne[i];

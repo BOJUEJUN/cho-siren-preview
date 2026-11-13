@@ -230,6 +230,8 @@ namespace ChoSiren
                 case "first-live": return ("mic", "1-1");
                 case "chapter-one": return ("crown", "1-10");
                 case "chapter-two": return ("crown", "2-10");
+                case "chapter-one-full": return ("crown", "1-20");
+                case "chapter-two-full": return ("crown", "2-20");
                 case "stages-10": return ("flag", null);
                 case "three-star-10": return ("star", null);
                 case "members-8": return ("team", null);

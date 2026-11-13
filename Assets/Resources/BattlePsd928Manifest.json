@@ -762,6 +762,33 @@
       "width": 1860,
       "height": 751,
       "note": "soft feathered glow around the reroll bar silhouette"
+    },
+    {
+      "key": "cutin-huanhuoling",
+      "file": "614102a2f0bd7883-cutin-huanhuoling.png",
+      "x": -1142,
+      "y": 202,
+      "width": 4586,
+      "height": 3013,
+      "note": "2026-11-11 赵金 战斗psd 组6/7/8: new member small-skill cut-in, shown at its PSD size (larger than the screen, both edges cropped)"
+    },
+    {
+      "key": "cutin-huansha",
+      "file": "2811e4cd933b5409-cutin-huansha.png",
+      "x": -542,
+      "y": 526,
+      "width": 3897,
+      "height": 2787,
+      "note": "2026-11-11 赵金 战斗psd 组6/7/8: new member small-skill cut-in, shown at its PSD size (larger than the screen, both edges cropped)"
+    },
+    {
+      "key": "cutin-linyin",
+      "file": "1df1d9e0fc68a25c-cutin-linyin.png",
+      "x": -1019,
+      "y": 1301,
+      "width": 4426,
+      "height": 3107,
+      "note": "2026-11-11 赵金 战斗psd 组6/7/8: new member small-skill cut-in, shown at its PSD size (larger than the screen, both edges cropped)"
     }
   ]
 }
