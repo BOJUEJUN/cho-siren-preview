@@ -35,7 +35,8 @@ namespace ChoSiren
         /// sits on the screen's centre line; measured on the authored stills (face centres were .535/.41/.555/.425).
         /// The idle clips are children of the portrait and move with it.
         /// </summary>
-        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, 54f };
+        // 2026-11-12: move 雾白 left so her reaching hand stays inside the phone viewport.
+        public static readonly float[] CenterShift1104 = { -25f, 63f, -40f, -131f };
         /// <summary>
         /// 2026-11-04 (赵金 "第四个角色可以歪一点…上面往右边歪下面往左边"): degrees each idol turns (negative = clockwise) about her face;
         /// 粉珀人鱼 turns counter-clockwise (用户箭头 上往左、下往右). The face stays where the centring put it.
@@ -49,7 +50,7 @@ namespace ChoSiren
         /// </summary>
         public static readonly float[] Scale1111 = { 1f, 1f, 1f, .82f };
         // Face centre (stage units, y down) the tilt turns about, after CenterShift1104.
-        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(365f, 397f) };
+        private static readonly Vector2[] TiltPivot1104 = { Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(180f, 397f) };
         public int Index { get; private set; }
         public bool Switching { get; private set; }
         public bool HasPerformance => Index == 0;
