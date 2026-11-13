@@ -14,7 +14,7 @@
 
 ## 1. 游戏现状（2026-11-08）
 
-- **0.9.58 优化正在验收打包（11-13）**：新号钱包零、默认手动/最高2倍、收圈放慢、充能/技能说明、先地裂再出怪、任意已拥有大厅形象、凛音大招只留A。旧档保留。记录`Docs/FULL-RELEASE-2026-11-13-0958.md`；当前已发布基线是0.9.57，增量基准`Builds/Release-0.9.57/windows-stage`。发布完成须以本轮记录和真实清单/安装回执更新本段。
+- **0.9.58 已发PC、本机Mac、伯爵君（11-13）**：新号钱包零、默认手动/最高2倍、收圈放慢、充能/技能说明、先地裂再出怪、任意已拥有大厅形象、凛音大招只留A。旧档保留，手机未自动打开。记录`Docs/FULL-RELEASE-2026-11-13-0958.md`；下一版0.9.59，增量基准`Builds/Release-0.9.58/windows-stage`。源码GitHub凭证失效，正用连接器补推，须核对远端源树。
 
 - **0.9.55 已全量发布（11-13）**：Claude 的新立绘、六段大招、两位大厅角色、衣橱、下拉框等已发到PC、本机Mac、伯爵君手机。手机实查55，签名续至11-20 08:42:23 UTC；保留存档、未自动打开。记录 `Docs/FULL-RELEASE-2026-11-13-0955.md`；脚本 `Builds/qa-logs/full-release-0955/`。下一版 **0.9.56**，增量基准 `Builds/Release-0.9.55/windows-stage`。
 
@@ -36,13 +36,13 @@
 |---|---|---|
 | 网页（不再更新） | 0.9.41 / R171 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
 | 官网 | 已下线（11-08 少爷要求保密） | 原 `site/` 已从公开仓库删除，本机副本 `~/cho-siren-site-private/`；别再发布到公开地址 |
-| Windows 下载 + 更新清单 | 0.9.55（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
+| Windows 下载 + 更新清单 | 0.9.58（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
 | Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
-| 本机 `/Applications/幻域魅声.app` | 0.9.55 | 11-12 替换，Dock 入口保留（0.9.51 时误开过一次 10-28 旧测试包约 40 秒，Mac 存档的突破 / 体力 / 换装记录可能被清） |
-| 伯爵君 iPhone | 0.9.55 | 11-13覆盖安装，存档保留；新签名11-20 08:42:23 UTC到期。 |
+| 本机 `/Applications/幻域魅声.app` | 0.9.58 | 11-12 替换，Dock 入口保留（0.9.51 时误开过一次 10-28 旧测试包约 40 秒，Mac 存档的突破 / 体力 / 换装记录可能被清） |
+| 伯爵君 iPhone | 0.9.58 | 11-13覆盖安装，存档保留；新签名11-20 08:42:23 UTC到期。 |
 | 五条悟专用机 | 0.9.42 | 11-08 覆盖安装，同上 |
 
-- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.55 / Android 955（11-13发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
+- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.58 / Android 958（11-13发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
 - 公开版 0.9.39 = 0.9.38 的工坊编辑页 + 作曲按钮隐藏（作曲只在带测试码的私人包显示）。下一次正式发版用 **0.9.40 或更高**，打公开包前**确认 `Assets/Resources/AiGptTestCode.txt` 不存在**（它是 gitignore 的私人开关，有它就会走 GPT 测试服务）。
 
