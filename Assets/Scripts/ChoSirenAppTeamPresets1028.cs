@@ -87,6 +87,37 @@ namespace ChoSiren
             label.supportRichText = false;
             PanelKit.EnableBestFit(label, 16);
             BoardText038(picker.transform, "Arrow", "▼", 20, Brand1025.Ink, width - 46, 2, 30, height - 4, TextAnchor.MiddleCenter);
+            // 2026-11-12 (少爷: "队伍旁边要有一个笔的设计可以改名"): the same neon pencil as the team plate, right of the chip.
+            GameObject pen = BoardButton038("TeamPresetRename", root, new Rect(left + width + 8f, top + (height - 50f) * .5f, 50f, 50f),
+                () => OpenTeamNameDialog1028(model.Save.ActiveTeamPreset));
+            Image penHit = pen.GetComponent<Image>();
+            penHit.sprite = VisualA1101.Glow;
+            penHit.color = VisualA1101.Teal * new Color(1f, 1f, 1f, .22f);
+            RectTransform penIcon = VisualA1101.NeonIcon(pen.transform, "Pencil", "pencil", VisualA1101.Teal, 28f);
+            VisualA1101.Center(penIcon, 28f);
+        }
+
+        /// <summary>
+        /// 2026-11-12 (少爷: "这个下拉选择感觉不像是这样游戏的设计…类似的问题也优化下"): every drop-down (队伍, 饰品排序,
+        /// 成员筛选) uses the sticker panel and slanted ink rows of the game, the chosen row solid teal with a tick.
+        /// </summary>
+        private static void StyleDropdown1112(GameObject list)
+        {
+            foreach (Outline old in list.GetComponents<Outline>()) Destroy(old);
+            SirenStickerUi.SkinPanel(list, false);
+            list.GetComponent<Image>().raycastTarget = true;
+        }
+
+        private static void StyleDropdownRow1112(GameObject row, Text label, bool on, bool action = false)
+        {
+            Image plate = row.GetComponent<Image>();
+            plate.sprite = PunkUi.SlantFill;
+            plate.type = Image.Type.Simple;
+            plate.color = on ? (Color)Brand1025.Teal : action ? new Color32(24, 16, 44, 255) : new Color32(36, 26, 56, 255);
+            if (label == null) return;
+            label.color = on ? (Color)Brand1025.Ink : action ? (Color)Brand1025.Teal : Color.white;
+            label.fontStyle = FontStyle.BoldAndItalic;
+            if (on && !label.text.StartsWith("✓", System.StringComparison.Ordinal)) label.text = "✓ " + label.text;
         }
 
         private void ToggleTeamPresetMenu1108(Transform root, Rect anchor)
@@ -108,15 +139,13 @@ namespace ChoSiren
             blockerRect.sizeDelta = new Vector2(12000f, 12000f);
             blocker.GetComponent<Image>().raycastTarget = true;
             GameObject menu = NewImage("TeamPresetMenu", root, null, new Color32(16, 10, 34, 246));
+            StyleDropdown1112(menu);
             void Close() { Destroy(menu); Destroy(blocker); }
             blocker.AddComponent<Button>().onClick.AddListener(Close);
             const float rowH = 58f, pad = 8f;
             float width = anchor.width + 40f;
             int rows = visible + (canAdd ? 1 : 0);
             PlaceTop(menu.GetComponent<RectTransform>(), anchor.x, anchor.yMax + 6f, width, pad * 2f + rowH * rows);
-            menu.GetComponent<Image>().raycastTarget = true;
-            Outline rim = menu.AddComponent<Outline>();
-            rim.effectColor = Brand1025.Teal; rim.effectDistance = new Vector2(2f, -2f);
             for (int i = 0; i < visible; i++)
             {
                 int slot = i;
@@ -128,11 +157,10 @@ namespace ChoSiren
                     if (model.SelectTeamPreset(slot, out string message)) ShowScreen("team");
                     else Toast(message);
                 });
-                row.GetComponent<Image>().color = on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .06f);
                 Text name = BoardText038(row.transform, "Label", model.Save.TeamPresets[i].Name, 22, on ? (Color)Brand1025.Ink : Color.white,
                     10, 0, width - pad * 2f - (on && visible > 1 ? 60f : 20f), rowH - 6f, TextAnchor.MiddleCenter);
-                name.fontStyle = FontStyle.Bold;
                 name.supportRichText = false;
+                StyleDropdownRow1112(row, name, on);
                 PanelKit.EnableBestFit(name, 16);
                 if (on && visible > 1)
                 {
@@ -150,8 +178,8 @@ namespace ChoSiren
                     if (model.AddTeamPreset(out string message)) ShowScreen("team");
                     Toast(message);
                 });
-                add.GetComponent<Image>().color = new Color(1f, 1f, 1f, .06f);
-                BoardText038(add.transform, "Label", "＋ 新建队伍", 22, Brand1025.Teal, 0, 0, width - pad * 2f, rowH - 6f, TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
+                Text addLabel = BoardText038(add.transform, "Label", "＋ 新建队伍", 22, Brand1025.Teal, 0, 0, width - pad * 2f, rowH - 6f, TextAnchor.MiddleCenter);
+                StyleDropdownRow1112(add, addLabel, false, true);
             }
             menu.AddComponent<DropdownPop1108>();
         }

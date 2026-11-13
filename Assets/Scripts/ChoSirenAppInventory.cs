@@ -450,14 +450,13 @@ namespace ChoSiren
             blockerRect.sizeDelta = new Vector2(12000f, 12000f);
             blocker.GetComponent<Image>().raycastTarget = true;
             GameObject menu = NewImage("InventorySortMenu", root, null, new Color32(16, 10, 34, 246));
+            StyleDropdown1112(menu);
             blocker.AddComponent<Button>().onClick.AddListener(() => { Destroy(menu); Destroy(blocker); });
             const float rowH = 62f, pad = 8f;
             float width = anchor.width;
             float height = pad * 2f + rowH * InventorySortNames.Length;
             RectTransform menuRect = menu.GetComponent<RectTransform>();
             PlaceTop(menuRect, anchor.x, anchor.yMax + 6f, width, height);
-            Outline rim = menu.AddComponent<Outline>();
-            rim.effectColor = Brand1025.Teal; rim.effectDistance = new Vector2(2f, -2f);
             for (int i = 0; i < InventorySortNames.Length; i++)
             {
                 int order = i;
@@ -468,9 +467,8 @@ namespace ChoSiren
                     if (inventorySort == order) return;
                     inventorySort = order; inventoryPage = 0; ShowScreen("accessory");
                 });
-                row.GetComponent<Image>().color = on ? (Color)Brand1025.Teal : new Color(1f, 1f, 1f, .06f);
-                BoardText038(row.transform, "Label", InventorySortNames[i], 22, on ? (Color)Brand1025.Ink : White, 0, 0, width - pad * 2f, rowH - 6f,
-                    TextAnchor.MiddleCenter).fontStyle = FontStyle.Bold;
+                StyleDropdownRow1112(row, BoardText038(row.transform, "Label", InventorySortNames[i], 22, on ? (Color)Brand1025.Ink : White, 0, 0,
+                    width - pad * 2f, rowH - 6f, TextAnchor.MiddleCenter), on);
             }
             menu.AddComponent<DropdownPop1108>();
         }

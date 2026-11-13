@@ -219,12 +219,9 @@ namespace ChoSiren
                 {
                     pick(index); memberPageIndex = 0; ShowScreen("members");
                 });
-                Image plate = row.GetComponent<Image>();
-                plate.sprite = PunkUi.SlantFill;
-                // Solid teal = selected (2026-11-03 contract), same as the 饰品 sort drop-down.
-                plate.color = on ? (Color)Brand1025.Teal : new Color32(36, 26, 56, 255);
-                BoardText038(row.transform, "Label", (on ? "✓ " : string.Empty) + (options[i].Length == 0 ? "全部" + title : options[i]),
-                    18, on ? (Color)Brand1025.Ink : White, 0, 0, width - 12f, rowH - 6f, TextAnchor.MiddleCenter);
+                // Solid teal = selected (2026-11-03 contract); same rows as every other drop-down (StyleDropdownRow1112).
+                StyleDropdownRow1112(row, BoardText038(row.transform, "Label", options[i].Length == 0 ? "全部" + title : options[i],
+                    18, on ? (Color)Brand1025.Ink : White, 0, 0, width - 12f, rowH - 6f, TextAnchor.MiddleCenter), on);
             }
             list.AddComponent<DropdownPop1108>();
         }
