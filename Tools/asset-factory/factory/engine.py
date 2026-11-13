@@ -145,7 +145,7 @@ class Engine:
             if passed:
                 status = "passed" if ai else "review"
                 self.store.set_job(job["id"], status=status)
-                self.store.log(job["id"], f"通过（{score:.0f} 分）" + ("，等少爷确认" if status == "passed" else "，没配 AI 审核，等人工看"))
+                self.store.log(job["id"], f"通过（{score:.0f} 分）" + ("，等少爷验收" if status == "passed" else "，没配 AI 审核，等人工看"))
                 return
             # Rework: the reviewer's rewritten prompt, plus the hard-check problems spelled out.
             problems = (checks.get("problems") or []) + ((ai or {}).get("problems") or [])
