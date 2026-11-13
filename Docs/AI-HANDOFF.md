@@ -1,4 +1,4 @@
-# CHO-SIREN 与 enzoban.com 交接（唯一现行交接，2026-11-11）
+# CHO-SIREN 与 enzoban.com 交接（唯一现行交接，2026-11-13）
 
 本文件取代以前所有 `AI-HANDOFF-*`、`AI-COLLAB-HANDOFF`、`WORKSHOP-PRIVATE-PREVIEW-*` 文档（已删除，需要时可从 git 历史查）。各次发版记录仍在 `Docs/FULL-RELEASE-*.md` / `RELEASE-*.md`。接手时先实查一遍状态，别照抄本文数字当结果。
 
@@ -13,6 +13,8 @@
 - 秘密只在运行时从本机文件读，绝不打印、提交、贴进聊天/文档/日志（清单见第 6 节）。拉下来的 vercel env 文件用完即删。
 
 ## 1. 游戏现状（2026-11-08）
+
+- **0.9.55 已全量发布（11-13）**：Claude 的新立绘、六段大招、两位大厅角色、衣橱、下拉框等已发到PC、本机Mac、伯爵君手机。手机实查55，签名续至11-20 08:42:23 UTC；保留存档、未自动打开。记录 `Docs/FULL-RELEASE-2026-11-13-0955.md`；脚本 `Builds/qa-logs/full-release-0955/`。下一版 **0.9.56**，增量基准 `Builds/Release-0.9.55/windows-stage`。
 
 - **0.9.54 本机体验（11-12，未全量发布）**：雾白首页角色及两段待机动画整体左移185（720宽基准），旋转轴同步平移，尺寸和角度保持。已实看1176×2560运行画面、切换两段动画；本机 `/Applications/幻域魅声.app` 已替换并验签，Dock和存档保留、未启动。**少爷明确手机暂不安装（不在旁边）**；未发布PC/网页、未推送远端。源码已是0.9.54 / Android 954，后续正式发布可用0.9.54。证据 `Builds/qa-logs/home-hand-1112/`；截图 `Builds/qa-logs/home-center-1104/hand-final-1112/`。
 
@@ -32,22 +34,22 @@
 |---|---|---|
 | 网页（不再更新） | 0.9.41 / R171 | https://bojuejun.github.io/cho-siren-preview/ ，Pages 仓库 `/Users/bojuejun/cho-siren-web` main |
 | 官网 | 已下线（11-08 少爷要求保密） | 原 `site/` 已从公开仓库删除，本机副本 `~/cho-siren-site-private/`；别再发布到公开地址 |
-| Windows 下载 + 更新清单 | 0.9.53（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
+| Windows 下载 + 更新清单 | 0.9.55（补丁；安装包仍是 0.9.46） | 清单 `https://cho-siren-1318245308.cos.ap-guangzhou.myqcloud.com/app-version.json`（mac 字段空；android 指 GitHub v0.9.40 APK） |
 | Mac 下载 | 0.9.39（不再更新） | 官网已下线 |
-| 本机 `/Applications/幻域魅声.app` | 0.9.53 | 11-12 替换，Dock 入口保留（0.9.51 时误开过一次 10-28 旧测试包约 40 秒，Mac 存档的突破 / 体力 / 换装记录可能被清） |
-| 伯爵君 iPhone | 0.9.53 | 11-12 覆盖安装，存档保留；描述文件 11-13 到期（0.9.52 用的是 11-12 新签的包，到期日以 Xcode 为准） |
+| 本机 `/Applications/幻域魅声.app` | 0.9.55 | 11-12 替换，Dock 入口保留（0.9.51 时误开过一次 10-28 旧测试包约 40 秒，Mac 存档的突破 / 体力 / 换装记录可能被清） |
+| 伯爵君 iPhone | 0.9.55 | 11-13覆盖安装，存档保留；新签名11-20 08:42:23 UTC到期。 |
 | 五条悟专用机 | 0.9.42 | 11-08 覆盖安装，同上 |
 
-- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.46 / Android 946（11-09 全量发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
+- 源码分支 `release/music-0.3.5-20260909`（名字老，内容是最新），`ProjectSettings` 是 0.9.55 / Android 955（11-13发布）。私人 0.9.38 代码 `8f09814`（工坊编辑页 + Suno 作曲），11-07 已推送到远端（仓库是公开的）。
 - 工作树里有与本任务无关的老改动（`Docs/FULL-RELEASE-2026-11-02-0930.md`、`Packages/*`、`chosiren-font-unicodes.txt`、`ResourcesArchive/`、`chpl26g2`），保留，不要清理或顺手提交。
 - 公开版 0.9.39 = 0.9.38 的工坊编辑页 + 作曲按钮隐藏（作曲只在带测试码的私人包显示）。下一次正式发版用 **0.9.40 或更高**，打公开包前**确认 `Assets/Resources/AiGptTestCode.txt` 不存在**（它是 gitignore 的私人开关，有它就会走 GPT 测试服务）。
 
 ### iPhone 签名
 
 - 少爷 11-06 在 Xcode 登录了 Apple 账号，现在每次发版都用自动签名打包。
-- 最新包：`Builds/iOS-DerivedData-device-0.9.46/Build/Products/Release-iphoneos/CHO-SIREN.app`（工程 `Builds/iOS-device-0.9.46/Unity-iPhone.xcodeproj`）。
+- 最新包：`Builds/iOS-DerivedData-device-0.9.55/Build/Products/Release-iphoneos/CHO-SIREN.app`（工程 `Builds/iOS-device-0.9.55/Unity-iPhone.xcodeproj`）。
 - 0.9.43 及更早的包已删除（11-09，硬盘满了）。
-- 新描述文件含两台设备，**2026-11-13（周五）到期**，到期前要再重签安装，否则手机打不开。
+- 最新描述文件在用户11-13重新登录Xcode后生成，**2026-11-20 08:42:23 UTC到期**，到期前要再重签安装，否则手机打不开。
 - 重签：`xcodebuild -project <工程> -scheme Unity-iPhone -configuration Release -destination generic/platform=iOS -derivedDataPath Builds/iOS-DerivedData-device-<版本> -allowProvisioningUpdates DEVELOPMENT_TEAM=63K7K9XRZ2 CODE_SIGN_STYLE=Automatic build`。报 "No Accounts" 就请少爷在 Xcode → 设置 → Apple 账号登录。
 - 安装 / 查版本（不加 launch）：
   - `xcrun devicectl --timeout 120 device install app --device <UDID> <app路径>`
@@ -89,18 +91,12 @@
 - 两台手机的 0.9.38 都带测试码，所以都会走 GPT。少爷回国后在大陆用不了这条；要恢复正常就装不带测试码的公开包。
 - OpenAI key 少爷决定**不换**（11-06），别再催。
 
-### 编辑页（0.9.46 起）
+### 衣橱（0.9.55 起）
 
-- 少爷 11-09 要求重新设计：底部只剩 **换装** 和 **炫彩** 两个宽按钮。
-- 背景、转身、半身/全身都不要了，固定全身视角。
-- 只能切换已签约成员，默认打开队长。
-- 炫彩：
-  - 7 种配色，表 `ChoSirenApp.WorkshopChromas1109`。
-  - 着色器 `Resources/Shaders/UIChroma1109.shader` 负责静态立绘；`UIStackedAlpha` 里也加了同样的换色，给待机视频用。
-  - 鲜艳的衣服、头发换成目标色，皮肤保持不变。
-  - 存在 `WorkshopLook1104.Chroma`。
-  - 截图：`Builds/qa-logs/topup-1104/workshop-chroma*.png`。
-- 滤镜、应援色、亮度、音高、律动、背景、转身的代码都还在，只是不显示。测试会直接调用它们。
+- 最新公开工坊围绕衣橱：新造型生成后自动收纳，可试穿、穿戴、删除；穿戴同步成员页、战斗、剧情。
+- 支持只改上衣、下装、鞋子、发型或配饰；炫彩入口已去掉，保留旧代码兼容存档。
+- 只切换已签约角色，默认队长；全身显示。旧音频、转身等参数代码保留，当前入口以衣橱为准。
+- UI `ChoSirenApp.Wardrobe1112.cs`；回归 `Wardrobe1112CaptureTests`；证据 `Builds/qa-logs/wardrobe-1112/`。
 
 ### 作曲（只在私人测试包显示）
 
