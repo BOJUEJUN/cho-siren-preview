@@ -45,7 +45,7 @@ namespace ChoSiren.Tests
                 Vector3 homeScale = root.localScale, homePos = root.localPosition;
                 typeof(TacticsBattlePanel).GetMethod("UltimateImpact", Private).Invoke(panel, new object[] { "测试大招", Color.cyan });
                 yield return new WaitForSecondsRealtime(.12f);
-                Assert.That(root.localScale.x / homeScale.x, Is.GreaterThan(1.08f), "the camera pushes in on the landing");
+                Assert.That(root.localScale.x / homeScale.x, Is.GreaterThan(1.24f), "the camera pushes in strongly on the landing");
                 Directory.CreateDirectory(Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/ui-1107")));
                 camera.Render();
                 var previous = RenderTexture.active; RenderTexture.active = target;
@@ -53,7 +53,27 @@ namespace ChoSiren.Tests
                 shot.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0); shot.Apply(); RenderTexture.active = previous;
                 File.WriteAllBytes(Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/ui-1107/ultimate-push.png")), shot.EncodeToPNG());
                 Object.Destroy(shot);
-                yield return new WaitForSecondsRealtime(.9f);
+                float minScaleRatio = 1f;
+                float watch = 0f;
+                bool capturedPull = false;
+                while (watch < .9f)
+                {
+                    yield return null;
+                    watch += Time.unscaledDeltaTime;
+                    float ratio = root.localScale.x / homeScale.x;
+                    if (ratio < minScaleRatio) minScaleRatio = ratio;
+                    if (!capturedPull && ratio <= .955f)
+                    {
+                        capturedPull = true;
+                        camera.Render();
+                        var prev2 = RenderTexture.active; RenderTexture.active = target;
+                        var pullShot = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
+                        pullShot.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0); pullShot.Apply(); RenderTexture.active = prev2;
+                        File.WriteAllBytes(Path.GetFullPath(Path.Combine(Application.dataPath, "../Builds/qa-logs/ui-1107/ultimate-pull.png")), pullShot.EncodeToPNG());
+                        Object.Destroy(pullShot);
+                    }
+                }
+                Assert.That(minScaleRatio, Is.LessThan(.96f), "the camera pulls back past home after the push-in");
                 Assert.That(root.localScale.x, Is.EqualTo(homeScale.x).Within(.001f), "back to the home framing");
                 Assert.That(Vector3.Distance(root.localPosition, homePos), Is.LessThan(1f));
             }
