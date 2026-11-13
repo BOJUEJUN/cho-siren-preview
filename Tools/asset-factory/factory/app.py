@@ -8,6 +8,7 @@ from fastapi import Body, FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 
 from .engine import Engine
+from .scout import Scout
 from .store import Store
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -18,6 +19,7 @@ CFG = yaml.safe_load(CFG_PATH.read_text(encoding="utf-8")) or {}
 _OUT = Path(CFG.get("output_dir") or "output")
 STORE = Store(Path(CFG.get("db") or ((_OUT if _OUT.is_absolute() else ROOT / _OUT) / "factory.db")))
 ENGINE = Engine(ROOT, CFG, STORE)
+SCOUT = Scout(ENGINE.out / "model-radar.json", CFG.get("scout_hours", 24))
 app = FastAPI(title="CHO-SIREN 资源工厂")
 
 
@@ -55,10 +57,49 @@ def job(job_id: int):
 
 @app.post("/api/job/{job_id}/approve")
 def approve(job_id: int):
-    path = ENGINE.approve(job_id)
-    if not path:
+    result = ENGINE.approve(job_id)
+    if not result:
         raise HTTPException(400, "这个任务还没有可用的结果")
-    return {"exported": path}
+    return result
+
+
+@app.get("/api/suggestions")
+def suggestions():
+    return {"items": ENGINE.suggestions()}
+
+
+@app.post("/api/suggestions/accept")
+def accept(body: dict = Body(default={})):
+    keys = (body or {}).get("keys") or [(body or {}).get("key")]
+    return {"accepted": sum(1 for k in keys if k and ENGINE.accept_suggestion(k))}
+
+
+@app.get("/api/paid")
+def paid():
+    return {"items": ENGINE.paid()}
+
+
+@app.post("/api/paid")
+def set_paid(body: dict = Body(default={})):
+    ENGINE.set_paid(body.get("name", ""), bool(body.get("allowed")), body.get("budget_cny"))
+    return {"items": ENGINE.paid()}
+
+
+@app.get("/api/models")
+def models():
+    return {"leaderboard": STORE.backend_stats(), "radar": SCOUT.radar(), "checked": SCOUT.data.get("checked", 0)}
+
+
+@app.post("/api/models/check")
+def models_check():
+    found = SCOUT.check()
+    return {"new": [f for f in found if "id" in f]}
+
+
+@app.post("/api/models/mark")
+def models_mark(body: dict = Body(default={})):
+    SCOUT.mark(body.get("id", ""), body.get("status", "watching"))
+    return {"ok": True}
 
 
 @app.post("/api/job/{job_id}/reject")
@@ -96,6 +137,8 @@ def file(path: str):
 
 def main():
     ENGINE.start()
+    if not CFG.get("mock") or CFG.get("scout_in_mock"):
+        SCOUT.start()
     uvicorn.run(app, host=CFG.get("host", "127.0.0.1"), port=int(CFG.get("port", 8790)), log_level="warning")
 
 

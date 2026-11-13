@@ -38,9 +38,108 @@ def _frames(path: Path, count=6):
     return {"frames": frames, "small": small, "means": means, "n": n, "fps": fps, "w": w, "h": h}
 
 
+AUDIO = (".wav", ".mp3", ".flac", ".ogg")
+
+
+def _audio(path: Path):
+    """Mono float samples and rate for WAV (other formats: decoded with soundfile when installed)."""
+    try:
+        import soundfile as sf
+        data, rate = sf.read(str(path), always_2d=True)
+        return data.mean(axis=1), rate
+    except Exception:
+        import wave
+        with wave.open(str(path)) as w:
+            rate, n, ch, width = w.getframerate(), w.getnframes(), w.getnchannels(), w.getsampwidth()
+            raw = np.frombuffer(w.readframes(n), dtype={1: np.int8, 2: np.int16, 4: np.int32}[width]).astype(np.float32)
+            raw /= float(np.iinfo({1: np.int8, 2: np.int16, 4: np.int32}[width]).max)
+            return raw.reshape(-1, ch).mean(axis=1), rate
+
+
+def audio_checks(path: Path, spec: dict):
+    """Voice / SFX / music: length, peak (clipping), loudness (RMS dBFS as a LUFS stand-in), silence share, loop seam."""
+    out, problems = {}, []
+    try:
+        x, rate = _audio(path)
+    except Exception as e:
+        return False, {"problems": [f"音频打不开：{e}"]}
+    sec = len(x) / max(1, rate)
+    peak = float(np.max(np.abs(x))) if len(x) else 0.0
+    rms = float(np.sqrt(np.mean(x ** 2))) if len(x) else 0.0
+    db = 20 * np.log10(max(rms, 1e-9))
+    frames = x[: len(x) // 1024 * 1024].reshape(-1, 1024) if len(x) >= 1024 else x.reshape(1, -1)
+    silent = float((np.sqrt((frames ** 2).mean(axis=1)) < 0.003).mean())
+    out.update(seconds=round(sec, 2), peak=round(peak, 3), loudness_db=round(db, 1), silence=round(silent, 2))
+    if "seconds" in spec and not (spec["seconds"][0] <= sec <= spec["seconds"][1]):
+        problems.append(f"时长 {sec:.1f}s 不在 {spec['seconds'][0]}-{spec['seconds'][1]}s")
+    if peak >= spec.get("peak_max", .99):
+        problems.append("有爆音（削波）")
+    lo, hi = spec.get("loudness_db", [-30, -10])
+    if not (lo <= db <= hi):
+        problems.append(f"音量 {db:.1f} dB 不在 {lo}~{hi}")
+    if silent > spec.get("silence_max", .5):
+        problems.append(f"空白太多（{silent:.0%}）")
+    if spec.get("loop") and len(x) > rate:
+        seam = float(abs(np.sqrt((x[:2048] ** 2).mean()) - np.sqrt((x[-2048:] ** 2).mean())))
+        out["loop_seam"] = round(seam, 4)
+        if seam > spec.get("loop_seam_max", .05):
+            problems.append("首尾音量接不上，循环会跳")
+    out["problems"] = problems
+    return not problems, out
+
+
+def asr_check(cfg: dict, path: Path, expected: str):
+    """Voice lines: transcribe with any OpenAI-compatible /audio/transcriptions endpoint (local Whisper) and compare."""
+    asr = cfg.get("asr") or {}
+    if not asr.get("base_url") or not expected:
+        return None
+    with open(path, "rb") as f:
+        r = httpx.post(asr["base_url"].rstrip("/") + "/audio/transcriptions", data={"model": asr.get("model", "whisper-1"),
+                       "language": asr.get("language", "ja")}, files={"file": (Path(path).name, f)}, timeout=300)
+    r.raise_for_status()
+    heard = r.json().get("text", "")
+    clean = lambda t: re.sub(r"[\s、。，,.!！?？…「」『』~～ー-]", "", t)
+    a, b = clean(expected), clean(heard)
+    d = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        prev, d[0] = d[0], i
+        for j, cb in enumerate(b, 1):
+            prev, d[j] = d[j], min(d[j] + 1, d[j - 1] + 1, prev + (ca != cb))
+    cer = d[len(b)] / max(1, len(a))
+    ok = cer <= asr.get("cer_max", .25)
+    return {"pass": ok, "score": round(100 * max(0.0, 1 - cer), 1), "problems": [] if ok else [f"听写对不上（错字率 {cer:.0%}）：{heard[:40]}"],
+            "fix_prompt": None, "heard": heard}
+
+
+def ai_audio_review(cfg: dict, path: Path, rubric: str, prompt: str):
+    """Listens (an audio-capable chat model, e.g. Qwen2.5-Omni behind vLLM) and judges against the rubric: voice timbre
+    and emotion for lines, punch and fit for SFX, musicality and loop for music. None when not configured."""
+    rv = cfg.get("audio_reviewer") or {}
+    if not rv.get("base_url"):
+        return None
+    b64 = base64.b64encode(Path(path).read_bytes()).decode()
+    fmt = Path(path).suffix.lstrip(".").lower() or "wav"
+    body = {"model": rv.get("model", "qwen-omni"), "temperature": 0.2, "messages": [
+        {"role": "system", "content": "你是手游音频验收员。听这段音频，按验收标准逐条检查，只回答 JSON："
+                                      '{"pass": true/false, "score": 0-100, "problems": ["中文短句"], "fix_prompt": "修改后的完整提示词"}'},
+        {"role": "user", "content": [{"type": "text", "text": f"验收标准：\n{rubric}\n\n生成用的提示词：\n{prompt}"},
+                                     {"type": "input_audio", "input_audio": {"data": b64, "format": fmt}}]}]}
+    r = httpx.post(rv["base_url"].rstrip("/") + "/chat/completions", json=body, timeout=rv.get("timeout", 300))
+    r.raise_for_status()
+    text = r.json()["choices"][0]["message"]["content"]
+    m = re.search(r"\{.*\}", text, re.S)
+    data = json.loads(m.group(0)) if m else {"pass": False, "score": 0, "problems": ["音频验收模型没有返回 JSON"]}
+    data["score"] = float(data.get("score", 0) or 0)
+    data["pass"] = bool(data.get("pass")) and data["score"] >= rv.get("pass_score", 75)
+    data.setdefault("problems", [])
+    return data
+
+
 def numeric_checks(path: Path, spec: dict):
     """Returns (ok, details). spec keys come from the brief's `checks`."""
     path = Path(path)
+    if path.suffix.lower() in AUDIO:
+        return audio_checks(path, spec)
     out, problems = {}, []
     if path.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp"):
         img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
@@ -104,6 +203,19 @@ def contact_sheet(path: Path, reference: Path, dest: Path, count=6):
     """Reference art on the left, sampled frames to the right, one row, height 512."""
     path = Path(path)
     tiles = []
+    if path.suffix.lower() in AUDIO:
+        # A waveform strip so the page has something to look at.
+        try:
+            x, _ = _audio(path)
+            wv = np.full((256, 1600, 3), 245, np.uint8)
+            cols = np.array_split(x, 1600) if len(x) >= 1600 else [x]
+            for i, c in enumerate(cols):
+                a = float(np.abs(c).max()) if len(c) else 0.0
+                cv2.line(wv, (i, int(128 - a * 120)), (i, int(128 + a * 120)), (60, 30, 220), 1)
+            cv2.imwrite(str(dest), wv)
+        except Exception:
+            cv2.imwrite(str(dest), np.full((256, 1600, 3), 245, np.uint8))
+        return dest
     if reference and Path(reference).exists():
         ref = cv2.imread(str(reference), cv2.IMREAD_UNCHANGED)
         if ref is not None and ref.ndim == 3 and ref.shape[2] == 4:

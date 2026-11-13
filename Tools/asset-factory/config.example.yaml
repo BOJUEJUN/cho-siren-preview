@@ -15,3 +15,60 @@ reviewer:                        # any OpenAI-compatible chat endpoint that acce
   pass_score: 75
   timeout: 300
   # api_key_env: REVIEWER_API_KEY       # only for a cloud reviewer; the key stays in the environment
+integrate_commit: false          # true = every accepted asset is committed to the game checkout (never pushed)
+scout_hours: 24                  # model radar: check Hugging Face trending once a day
+asr:                             # voice lines are checked by transcription (OpenAI-compatible, e.g. local faster-whisper server)
+  base_url: http://127.0.0.1:8000/v1
+  model: large-v3
+  language: ja
+  cer_max: 0.25
+
+# Model backends. A brief lists which of these may make it; the engine tries each, then mostly uses whichever passes
+# most often. Adding a new model = one entry here (+ its ComfyUI workflow) and its name in a brief's `backends`.
+backends:
+  h3-i2v:      {type: comfy, workflow: i2v-h3}            # MiniMax H3 (FastH3 NVFP4 on the 5090)
+  h3-loop:     {type: comfy, workflow: firstlast-h3}      # first = last frame → seamless loops
+  h3-t2v:      {type: comfy, workflow: t2v-h3}
+  wan22-i2v:   {type: comfy, workflow: i2v-wan22}
+  wan22-loop:  {type: comfy, workflow: firstlast-wan22}
+  ltx-i2v:     {type: comfy, workflow: i2v-ltx}           # fast drafts
+  ltx-t2v:     {type: comfy, workflow: t2v-ltx}
+  qwen-image:  {type: comfy, workflow: t2i-qwen}
+  flux-image:  {type: comfy, workflow: t2i-flux}
+  sovits-ja:   {type: http, url: "http://127.0.0.1:9880/tts", request: {text: "{{prompt}}", text_lang: ja, ref_audio_path: "voices/{{speaker}}.wav", prompt_lang: ja}}
+  cosyvoice-ja: {type: http, url: "http://127.0.0.1:50000/tts", request: {text: "{{prompt}}", speaker: "{{speaker}}"}}
+  # any CLI tool works too:
+  # stable-audio: {type: command, ext: .wav, cmd: [python, tools/stable_audio.py, --prompt, "{{prompt}}", --out, "{{out}}"]}
+
+# Quality first: a model gets `trial_attempts` tries per brief, then only works there if it is the best (or within 10
+# points). A model whose pass rate stays under `min_pass_rate` while another does better is switched off; a brief that
+# even the best model rarely passes is paused until a better model is added.
+trial_attempts: 3
+min_pass_rate: 0.25
+min_brief_pass: 0.2
+audio_reviewer:                  # an audio-capable judge (e.g. Qwen2.5-Omni behind vLLM); voices also need `asr`
+  base_url: ""
+  model: qwen2.5-omni-7b
+  pass_score: 75
+
+# Paid cloud models (少爷: "很便宜但比本地好很多的也加进去让我确认是否付费"). They never run until 少爷 turns them on in the
+# page (模型 → 付费模型) with a budget; spending stops at the budget. Keys only in environment variables.
+# Fill in real endpoints/prices after checking the provider; the examples show the shape.
+#  cloud-video-pro:
+#    type: cloud
+#    paid: true
+#    price_cny: 1.2               # per clip, from the provider's price list
+#    note: "比本地 H3 更稳的首尾帧视频，适合大招"
+#    url: https://example-provider/api/submit
+#    api_key_env: CLOUD_VIDEO_KEY
+#    request: {prompt: "{{prompt}}", image: "{{image_b64}}", duration: 5}
+#    poll: {url: https://example-provider/api/query, task_field: taskId, status_field: status, done_values: [SUCCESS], result_field: results.0.url}
+#  cloud-voice-ja:
+#    type: cloud
+#    paid: true
+#    price_cny: 0.05
+#    note: "日语角色配音，音色稳定"
+#    url: https://example-provider/v1/tts
+#    api_key_env: CLOUD_VOICE_KEY
+#    request: {text: "{{prompt}}", voice: "{{speaker}}"}
+

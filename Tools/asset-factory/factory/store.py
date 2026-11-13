@@ -48,6 +48,10 @@ class Store:
         self.lock = threading.RLock()
         with self.lock:
             self.db.executescript(SCHEMA)
+            cols = {r[1] for r in self.db.execute("pragma table_info(attempts)").fetchall()}
+            if "backend" not in cols:
+                self.db.execute("alter table attempts add column backend text default ''")
+            self.db.commit()
 
     def log(self, job_id, text):
         with self.lock:
@@ -85,10 +89,10 @@ class Store:
             self.db.execute(f"update jobs set {keys} where id=?", (*fields.values(), job_id))
             self.db.commit()
 
-    def add_attempt(self, job_id, n, prompt, seed):
+    def add_attempt(self, job_id, n, prompt, seed, backend=""):
         with self.lock:
-            cur = self.db.execute("insert into attempts(job_id,n,prompt,seed,created) values(?,?,?,?,?)",
-                                  (job_id, n, prompt, seed, time.time()))
+            cur = self.db.execute("insert into attempts(job_id,n,prompt,seed,backend,created) values(?,?,?,?,?,?)",
+                                  (job_id, n, prompt, seed, backend, time.time()))
             self.db.commit()
             return cur.lastrowid
 
@@ -126,6 +130,18 @@ class Store:
         with self.lock:
             rows = self.db.execute("select * from events order by id desc limit ?", (limit,)).fetchall()
             return [dict(r) for r in rows]
+
+    def backend_stats(self, brief=None):
+        """Per (brief, backend): attempts, passed, average score and seconds — the model leaderboard."""
+        q = ("select j.brief brief, a.backend backend, count(*) n, sum(a.passed) passed, avg(a.score) score, avg(a.seconds) seconds "
+             "from attempts a join jobs j on j.id=a.job_id where a.score is not null")
+        args = ()
+        if brief:
+            q += " and j.brief=?"
+            args = (brief,)
+        q += " group by j.brief, a.backend order by j.brief, passed*1.0/count(*) desc"
+        with self.lock:
+            return [dict(r) for r in self.db.execute(q, args).fetchall()]
 
     def counts(self):
         with self.lock:

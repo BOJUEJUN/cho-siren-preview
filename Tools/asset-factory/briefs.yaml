@@ -7,7 +7,8 @@ briefs:
   - id: lobby-idle
     title: 大厅待机动画
     kind: video
-    workflow: i2v-firstlast        # first frame = last frame = her art → a seamless loop
+    backends: [h3-loop, wan22-loop]   # first frame = last frame = her art → a seamless loop
+    integrate: {type: inbox, how: "Mac 上 matte.swift 抠成左彩右透明 → LobbyIdols，并在大厅轮播加这位"}
     priority: 70
     variants: 2
     max_attempts: 6
@@ -36,7 +37,8 @@ briefs:
   - id: ult-cutin
     title: 大招动画
     kind: video
-    workflow: i2v
+    backends: [h3-i2v, wan22-i2v]
+    integrate: {type: ultimate}      # 验收后直接进游戏：和她已有的大招随机播
     priority: 60
     variants: 2
     max_attempts: 6
@@ -63,7 +65,8 @@ briefs:
   - id: transition
     title: 种族转场
     kind: video
-    workflow: i2v
+    backends: [h3-i2v, ltx-i2v]
+    integrate: {type: inbox, how: "放进 StreamingAssets/Transitions，并在进关卡转场按种族挑选"}
     priority: 55
     variants: 3
     max_attempts: 5
@@ -90,7 +93,8 @@ briefs:
   - id: boss-entrance
     title: 首领入场
     kind: video
-    workflow: i2v
+    backends: [h3-i2v, wan22-i2v]
+    integrate: {type: inbox, how: "放进 StreamingAssets/BossEntrance1102，在 StageBoss1103 打开 EntranceVideo"}
     priority: 50
     variants: 2
     max_attempts: 6
@@ -116,7 +120,8 @@ briefs:
   - id: minion-enter
     title: 小怪入场 / 倒下
     kind: video
-    workflow: i2v
+    backends: [h3-i2v, ltx-i2v]
+    integrate: {type: inbox, how: "抠图后替换 BattleEnter1112 的淡入，或做成小怪登场视频"}
     priority: 40
     variants: 1
     max_attempts: 5
@@ -138,3 +143,71 @@ briefs:
       - {id: noise-wraith}
       - {id: pulse-guard}
       - {id: echo-drone}
+
+  # ---------------------------------------------------------------- beyond video (少爷: 不只动画，图像、音频…要看质量)
+
+  - id: stage-bg
+    title: 关卡背景
+    kind: image
+    backends: [qwen-image, flux-image]
+    priority: 35
+    variants: 1
+    max_attempts: 5
+    size: [1080, 1920]
+    integrate: {type: file, path: "Assets/StreamingAssets/LevelScenes1102/{id}.jpg"}   # 游戏按关卡 id 自动读取
+    prompt: >-
+      vertical anime game stage background for stage {stage} of CHO-SIREN, a neon idol city at night, empty stage area in
+      the lower half for characters, cinematic lighting, rich detail, no people, no text, consistent with the game's
+      purple-teal punk palette
+    negative: people, characters, text, watermark, logo, blurry, lowres
+    checks: {min_height: 1800, aspect: [9, 16]}
+    rubric: |
+      1. 竖版关卡背景，下半部分留出站人的空地，没有人物、文字、水印。
+      2. 霓虹都市夜景、紫青朋克配色，和游戏现有关卡背景同一画风。
+      3. 细节丰富不糊，没有扭曲的建筑或乱码招牌。
+    targets: []                       # 资源工厂会自己找出没有专属背景的关卡（页面「AI 建议」）
+
+  - id: home-voice
+    title: 大厅台词配音（日语）
+    kind: voice
+    backends: [sovits-ja, cosyvoice-ja]
+    priority: 30
+    variants: 1
+    max_attempts: 6
+    prompt: "{text}"
+    expect_text: "{text}"             # 听写回来要和这句对得上
+    integrate: {type: inbox, how: "放进 Resources/Audio/Voice/Home，并在 DialogueVoice1102.HomeClip 给这位接上"}
+    checks: {seconds: [1, 8], loudness_db: [-28, -14], silence_max: .45}
+    rubric: 日语发音清楚、和这个角色的声线一致、情绪对、不爆音。
+    targets:
+      - {id: huanhuoling-1, speaker: huanhuoling, text: "にゃ〜、私の瞳に夢中になっちゃった？"}
+      - {id: huanhuoling-2, speaker: huanhuoling, text: "もっと近くに来て。あなたを一番のファンにしてあげる。"}
+      - {id: linyin-1, speaker: linyin, text: "私のビートについてきて。遅れたら置いていくよ。"}
+      - {id: linyin-2, speaker: linyin, text: "どんな盾だって、私が叩き割ってあげる！"}
+
+  - id: vfx-burst
+    title: 技能特效（序列帧）
+    kind: video
+    backends: [h3-t2v, ltx-t2v]
+    priority: 25
+    variants: 1
+    max_attempts: 5
+    size: [768, 768]
+    frames: 25                       # ~1 s → cut into a flipbook atlas
+    fps: 24
+    prompt: >-
+      2D game skill effect on a pure black background, {fx}, bright additive glow, centered, burst then fade out to
+      black, no characters, stylized anime VFX, seamless edges
+    negative: characters, background scenery, text, watermark, camera move
+    checks: {seconds: [0.8, 1.5], motion: [3, 40], clean_background: true, background_bgr: [0, 0, 0]}
+    integrate: {type: inbox, how: "切成序列帧图集，替换 Fx1023 对应种族的命中/大招特效"}
+    rubric: |
+      1. 纯黑底，只有特效，没有人物和场景，方便叠加发光。
+      2. 1 秒左右：起爆 → 扩散 → 消散到全黑，节奏干脆。
+      3. 颜色和形状符合描述，边缘不被画面裁掉。
+    targets:
+      - {id: charm-heart, fx: "pink heart-shaped flame burst with sparkles"}
+      - {id: demon-claw, fx: "crimson triple claw slash with ember sparks"}
+      - {id: mermaid-wave, fx: "cyan water splash ring with bubbles"}
+      - {id: bloodelf-moon, fx: "violet crescent moon slash with petals"}
+

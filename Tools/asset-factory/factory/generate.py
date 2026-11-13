@@ -17,7 +17,7 @@ from pathlib import Path
 
 import httpx
 
-PLACEHOLDERS = ("prompt", "negative", "seed", "width", "height", "frames", "fps", "image", "last_image")
+PLACEHOLDERS = ("prompt", "negative", "seed", "width", "height", "frames", "fps", "image", "last_image", "speaker", "text", "out")
 NUMERIC = {"seed", "width", "height", "frames", "fps"}
 
 
@@ -112,7 +112,7 @@ class MockGenerator:
     def run(self, workflow: str, values: dict, out_dir: Path):
         import cv2
         import numpy as np
-        src = values.get("image")
+        src = values.get("image") if workflow != "audio" else None
         frames = int(values.get("frames") or 49)
         w, h = int(values.get("width") or 480), int(values.get("height") or 848)
         if src and Path(src).exists():
@@ -129,6 +129,16 @@ class MockGenerator:
         y0, x0 = (h - fitted.shape[0]) // 2, (w - fitted.shape[1]) // 2
         canvas[y0:y0 + fitted.shape[0], x0:x0 + fitted.shape[1]] = fitted
         img = canvas
+        if workflow == "audio":
+            import wave
+            rate, sec = 24000, 2.0
+            t = np.arange(int(rate * sec)) / rate
+            tone = (0.25 * np.sin(2 * np.pi * 440 * t) * np.exp(-t)).astype(np.float32)
+            dest = out_dir / f"mock-{random.randint(0, 9999)}.wav"
+            with wave.open(str(dest), "wb") as w:
+                w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate)
+                w.writeframes((tone * 32767).astype(np.int16).tobytes())
+            return [str(dest)]
         if workflow.endswith("image"):
             dest = out_dir / f"mock-{random.randint(0, 9999)}.png"
             cv2.imwrite(str(dest), img)
@@ -146,10 +156,151 @@ class MockGenerator:
         return [str(dest)]
 
 
-def make_generator(cfg, root: Path):
-    if cfg.get("mock"):
-        return MockGenerator()
-    return ComfyGenerator(cfg["comfy_url"], root / "workflows", cfg.get("timeout_seconds", 1800))
+class HttpGenerator:
+    """Any local model service (voice, music, SFX, a custom upscaler…): POSTs a JSON body built from `request`
+    (placeholders as in ComfyUI workflows, plus "{{image_b64}}" and "{{text}}") to `url`. The reply is either the file
+    itself (audio/*, video/*, image/*) or JSON with "files": [paths on this machine] or "b64" + "ext"."""
+
+    EXT = {"audio/wav": ".wav", "audio/x-wav": ".wav", "audio/mpeg": ".mp3", "audio/flac": ".flac", "audio/ogg": ".ogg",
+           "video/mp4": ".mp4", "video/webm": ".webm", "image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}
+
+    def __init__(self, spec):
+        self.spec = spec
+
+    def busy(self):
+        return 0
+
+    def gpu(self):
+        return {}
+
+    def run(self, workflow, values, out_dir: Path):
+        import base64
+        values = dict(values)
+        if values.get("image"):
+            values["image_b64"] = base64.b64encode(Path(values["image"]).read_bytes()).decode()
+        body = fill(copy.deepcopy(self.spec.get("request", {"prompt": "{{prompt}}"})), values)
+        headers = {}
+        if self.spec.get("api_key_env"):
+            import os
+            key = os.environ.get(self.spec["api_key_env"], "")
+            if not key:
+                raise RuntimeError(f"缺少环境变量 {self.spec['api_key_env']}（付费服务的钥匙只放环境变量）")
+            headers[self.spec.get("auth_header", "Authorization")] = self.spec.get("auth_prefix", "Bearer ") + key
+        r = httpx.post(self.spec["url"], json=body, headers=headers, timeout=self.spec.get("timeout", 1800))
+        r.raise_for_status()
+        poll = self.spec.get("poll")
+        if poll:
+            # Cloud task APIs: submit returns a task id; ask `poll.url` until the task is done, then download the result.
+            task = _dig(r.json(), poll.get("task_field", "taskId"))
+            started = time.time()
+            while time.time() - started < self.spec.get("timeout", 1800):
+                time.sleep(poll.get("every", 5))
+                q = httpx.post(poll["url"], json={poll.get("task_param", "taskId"): task}, headers=headers, timeout=60).json()
+                status = str(_dig(q, poll.get("status_field", "status")))
+                if status in poll.get("fail_values", ["FAILED", "failed", "error"]):
+                    raise RuntimeError("云端任务失败：" + json.dumps(q, ensure_ascii=False)[:300])
+                if status in poll.get("done_values", ["SUCCESS", "succeeded", "done"]):
+                    url = _dig(q, poll.get("result_field", "results.0.url"))
+                    data = httpx.get(url, timeout=300).content
+                    ext = Path(url.split("?")[0]).suffix or self.spec.get("ext", ".bin")
+                    dest = out_dir / f"{self.spec.get('name', 'cloud')}-{uuid.uuid4().hex[:8]}{ext}"
+                    dest.write_bytes(data)
+                    return [str(dest)]
+            raise TimeoutError("云端任务超时")
+        kind = r.headers.get("content-type", "").split(";")[0]
+        if kind in self.EXT:
+            dest = out_dir / f"{self.spec.get('name', 'http')}-{uuid.uuid4().hex[:8]}{self.EXT[kind]}"
+            dest.write_bytes(r.content)
+            return [str(dest)]
+        data = r.json()
+        if data.get("files"):
+            return [str(Path(f)) for f in data["files"]]
+        if data.get("b64"):
+            dest = out_dir / f"{self.spec.get('name', 'http')}-{uuid.uuid4().hex[:8]}{data.get('ext', '.bin')}"
+            dest.write_bytes(base64.b64decode(data["b64"]))
+            return [str(dest)]
+        raise RuntimeError("服务没有返回文件：" + json.dumps(data)[:300])
+
+
+def _dig(data, path):
+    """'a.b.0.c' → data['a']['b'][0]['c']"""
+    for part in str(path).split("."):
+        data = data[int(part)] if isinstance(data, list) else data.get(part)
+    return data
+
+
+class CommandGenerator:
+    """Any command-line tool: `cmd` is a list; "{{out}}" becomes an output path in the attempt folder (with the
+    backend's `ext`), other placeholders as above. Whatever new files appear in the folder are the outputs."""
+
+    def __init__(self, spec):
+        self.spec = spec
+
+    def busy(self):
+        return 0
+
+    def gpu(self):
+        return {}
+
+    def run(self, workflow, values, out_dir: Path):
+        import subprocess
+        values = dict(values)
+        values["out"] = str(out_dir / f"{self.spec.get('name', 'cmd')}-{uuid.uuid4().hex[:8]}{self.spec.get('ext', '.bin')}")
+        before = set(out_dir.iterdir())
+        cmd = [str(fill(part, values)) for part in self.spec["cmd"]]
+        done = subprocess.run(cmd, cwd=self.spec.get("cwd"), capture_output=True, text=True, timeout=self.spec.get("timeout", 1800))
+        if done.returncode != 0:
+            raise RuntimeError(f"命令失败（{done.returncode}）：{(done.stderr or done.stdout)[-400:]}")
+        return [str(p) for p in sorted(set(out_dir.iterdir()) - before)]
+
+
+class Backends:
+    """Named model backends from config.yaml `backends:`. A brief lists the backends that can make it; new models are
+    added by adding a backend (and, for ComfyUI, its workflow JSON) — no code change. With `mock: true` every backend
+    is the mock generator."""
+
+    def __init__(self, cfg, root: Path):
+        self.cfg = cfg
+        self.root = root
+        self.comfy = None if cfg.get("mock") else ComfyGenerator(cfg.get("comfy_url", "http://127.0.0.1:8188"), root / "workflows",
+                                                                 cfg.get("timeout_seconds", 1800))
+        self.mock = MockGenerator()
+        self.specs = {name: dict(spec, name=name) for name, spec in (cfg.get("backends") or {}).items()}
+
+    def names_for(self, brief, allowed=lambda name: True):
+        """Backends that may make this brief now: listed on it, known, not switched off for poor results, and — for paid
+        cloud backends — approved by 少爷 with budget left (the `allowed` check)."""
+        names = brief.get("backends") or []
+        if not names and brief.get("workflow"):
+            names = ["comfy:" + brief["workflow"]]
+        known = [n for n in names if n in self.specs or n.startswith("comfy:")] or ([] if self.specs else names)
+        return [n for n in known if allowed(n)]
+
+    def spec(self, name):
+        return self.specs.get(name, {})
+
+    def run(self, name, values, out_dir: Path, kind="video"):
+        if self.cfg.get("mock"):
+            return self.mock.run("image" if kind == "image" else "audio" if kind in ("voice", "sfx", "music") else "video", values, out_dir)
+        if name.startswith("comfy:"):
+            return self.comfy.run(name[6:], values, out_dir)
+        spec = self.specs.get(name)
+        if spec is None:
+            raise RuntimeError(f"config.yaml 里没有这个后端：{name}")
+        kind_ = spec.get("type", "comfy")
+        if kind_ == "comfy":
+            return self.comfy.run(spec["workflow"], values, out_dir)
+        if kind_ in ("http", "cloud"):
+            return HttpGenerator(spec).run(None, values, out_dir)
+        if kind_ == "command":
+            return CommandGenerator(spec).run(None, values, out_dir)
+        raise RuntimeError(f"不认识的后端类型 {kind_}")
+
+    def busy(self):
+        return self.mock.busy() if self.comfy is None else self.comfy.busy()
+
+    def gpu(self):
+        return self.mock.gpu() if self.comfy is None else self.comfy.gpu()
 
 
 def copy_inputs(paths, dest: Path):
