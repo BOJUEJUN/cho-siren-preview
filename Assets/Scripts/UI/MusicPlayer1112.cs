@@ -34,7 +34,7 @@ namespace ChoSiren.UI
         private Action userGesture;
         private bool quiet;
 
-        private RectTransform rect, orbit, bolt;
+        private RectTransform rect, orbit, bolt, spin;
         private Image orbitImage, barFill, playIcon, loopIcon, shuffleIcon;
         private Text titleText, artistText, albumText, curTimeText, durTimeText, loopOne;
         private Image[] levelBars;
@@ -88,6 +88,15 @@ namespace ChoSiren.UI
             Sprite baseSprite = Resources.Load<Sprite>(Art + "player-base");
             Image panel = NewImage("PlayerBase", baseSprite, 0f, 0f, Width, Height);
             if (baseSprite == null) panel.color = new Color32(20, 8, 40, 255);
+
+            // 2026-11-12 (少爷: 猪这里是要转的，像光碟那样转): the record face with the mascot, cut from the base
+            // (Tools/music-player-1112/cut_disc.py), turns like a disc while a song plays and stops on pause.
+            Sprite spinSprite = Resources.Load<Sprite>(Art + "disc-spin");
+            if (spinSprite != null)
+            {
+                spin = NewImage("RecordSpin", spinSprite, 123.5f, 96f, 408f, 408f).rectTransform;
+                CenterPivot(spin);
+            }
 
             // A light runs round the crystal record while a song plays (the glass dome and its mascot stay put).
             orbitImage = NewImage("RecordOrbit", Resources.Load<Sprite>(Art + "disc-orbit"), 323f - 230f, 309f - 230f, 460f, 460f);
@@ -347,6 +356,7 @@ namespace ChoSiren.UI
             orbitImage.color = new Color(1f, 1f, 1f, orbitAlpha * (.8f + .2f * Mathf.Sin(t * 3.1f)));
             orbitImage.enabled = orbitAlpha > .001f;
             if (motion) orbit.Rotate(0f, 0f, dt * 360f / 5f);
+            if (motion && spin != null) spin.Rotate(0f, 0f, -dt * 360f / 6f);
             for (int i = 0; i < levelBars.Length; i++)
             {
                 float k = motion
